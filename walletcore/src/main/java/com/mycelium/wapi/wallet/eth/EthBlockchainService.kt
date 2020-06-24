@@ -38,26 +38,29 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
     // internal value is the ether that was sent to the user by a contract
     private fun calcInternalValue(address: String, result: MutableList<Tx>) {
-        val intTxs: MutableList<EtherscanInternalTransactions.InternalTransaction> = mutableListOf()
-        var i = 1
-        var urlString = "$etherscanApiUrl/api?module=account&action=txlistinternal&address=$address&startblock=0&endblock=99999999&page=$i&offset=$OFFSET&sort=asc&apikey=KWQPBBFJQYAT5P447MM8322R5BVY8C2MG2"
-        var response = mapper.readValue(URL(urlString), EtherscanInternalTransactions::class.java)
-        intTxs.addAll(response.result)
-        while (response.result.size == OFFSET) {
-            i++
-            urlString = "$etherscanApiUrl/api?module=account&action=txlistinternal&address=$address&startblock=0&endblock=99999999&page=$i&offset=$OFFSET&sort=asc&apikey=KWQPBBFJQYAT5P447MM8322R5BVY8C2MG2"
-            response = mapper.readValue(URL(urlString), EtherscanInternalTransactions::class.java)
+        try {
+            val intTxs: MutableList<EtherscanInternalTransactions.InternalTransaction> = mutableListOf()
+            var i = 1
+            var urlString = "$etherscanApiUrl/api?module=account&action=txlistinternal&address=$address&startblock=0&endblock=99999999&page=$i&offset=$OFFSET&sort=asc&apikey=KWQPBBFJQYAT5P447MM8322R5BVY8C2MG2"
+            var response = mapper.readValue(URL(urlString), EtherscanInternalTransactions::class.java)
             intTxs.addAll(response.result)
-        }
+            while (response.result.size == OFFSET) {
+                i++
+                urlString = "$etherscanApiUrl/api?module=account&action=txlistinternal&address=$address&startblock=0&endblock=99999999&page=$i&offset=$OFFSET&sort=asc&apikey=KWQPBBFJQYAT5P447MM8322R5BVY8C2MG2"
+                response = mapper.readValue(URL(urlString), EtherscanInternalTransactions::class.java)
+                intTxs.addAll(response.result)
+            }
 
-        // maps hash to [value of transferred eth within tx with the hash]
-        val mapp = intTxs.map { tx ->
-            tx.hash to intTxs.filter {
-                it.hash == tx.hash && it.to.equals(address, true)
-            }.map { it.value }.fold(BigInteger.ZERO, BigInteger::add)
-        }.toMap()
-        result.forEach { tx ->
-            tx.internalValue = mapp[tx.txid]
+            // maps hash to [value of transferred eth within tx with the hash]
+            val mapp = intTxs.map { tx ->
+                tx.hash to intTxs.filter {
+                    it.hash == tx.hash && it.to.equals(address, true)
+                }.map { it.value }.fold(BigInteger.ZERO, BigInteger::add)
+            }.toMap()
+            result.forEach { tx ->
+                tx.internalValue = mapp[tx.txid]
+            }
+        } catch (ignore: Exception) {
         }
     }
 
