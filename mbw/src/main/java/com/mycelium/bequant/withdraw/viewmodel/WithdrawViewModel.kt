@@ -3,6 +3,7 @@ package com.mycelium.bequant.withdraw.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.remote.trading.model.InlineResponse200
 import com.mycelium.wallet.Utils
 
@@ -22,7 +23,7 @@ class WithdrawViewModel : ViewModel() {
     val useOffChain = MutableLiveData<String>()
 
     fun withdraw(success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        accountApi.withdraw(viewModelScope,
+        accountApi.accountCryptoWithdrawPost(viewModelScope,
                 currency.value!!,
                 amount.value!!,
                 address.value!!,
