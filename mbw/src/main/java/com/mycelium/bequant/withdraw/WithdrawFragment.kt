@@ -13,6 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.InvestmentAccount
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.withdraw.adapter.WithdrawFragmentAdapter
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
@@ -20,6 +21,7 @@ import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericFee
@@ -28,7 +30,6 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
-import com.mycelium.wallet.activity.util.toString
 
 
 class WithdrawFragment : Fragment() {
@@ -62,6 +63,13 @@ class WithdrawFragment : Fragment() {
                 val account = InvestmentAccount()
                 val address = mbwManager.getWalletManager(false)
                         .parseAddress(if (mbwManager.network.isProdnet) viewModel.address.value!! else Constants.TEST_ADDRESS)
+                loader(true)
+                viewModel.withdraw({
+                }, { int, message ->
+                    ErrorHandler(requireContext()).handle(message)
+                }, {
+                    loader(false)
+                })
                 SendCoinTask(this, account, address[0], value,
                         FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0.00000001")))
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)

@@ -1,5 +1,6 @@
 package com.mycelium.bequant.remote.trading.api
 
+import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.trading.model.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -45,4 +46,8 @@ interface AccountApi {
     @POST("/account/transfer")
     suspend fun accountTransferPost(@Field("currency") currency: kotlin.String, @Field("amount") amount: kotlin.String, @Field("type") type: kotlin.String): Response<InlineResponse200>
 
+    companion object {
+
+        fun create(): AccountApi = createApi()
+    }
 }
