@@ -36,6 +36,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
         return result
     }
 
+    // internal value is the ether that was sent to the user by a contract
     private fun calcInternalValue(address: String, result: MutableList<Tx>) {
         val intTxs: MutableList<EtherscanInternalTransactions.InternalTransaction> = mutableListOf()
         var i = 1
@@ -162,6 +163,7 @@ class Tx {
     val blockTime: Long = 0
     val value: BigInteger = BigInteger.ZERO
     val fees: BigInteger = BigInteger.ZERO
+    // the ether that was sent to the user by a contract
     var internalValue: BigInteger? = BigInteger.ZERO
 
     @JsonProperty("ethereumSpecific")
