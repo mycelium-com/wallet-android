@@ -43,7 +43,7 @@ class EthDetailsFragment : GenericDetailsFragment() {
         llTo.addView(toAddress)
 
         llValue.addView(getValue(tx.value, null))
-        if (tx.internalValue != null && !tx.internalValue!!.isZero()) {
+        if (tx.internalValue?.isZero() == false) {
             llValue.addView(TextView(requireContext()).apply {
                 layoutParams = TransactionDetailsActivity.WCWC
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
