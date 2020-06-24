@@ -1,6 +1,5 @@
 package com.mycelium.bequant.withdraw
 
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
-import com.mycelium.bequant.InvestmentAccount
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.withdraw.adapter.WithdrawFragmentAdapter
@@ -23,14 +21,9 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericFee
-import com.mycelium.wapi.wallet.GenericTransaction
-import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
-import com.mycelium.wallet.activity.util.toString
 
 
 class WithdrawFragment : Fragment() {
@@ -61,48 +54,23 @@ class WithdrawFragment : Fragment() {
         send.setOnClickListener {
             if (viewModel.amount.value != null) {
                 val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
-                val account = InvestmentAccount()
-                val address = mbwManager.getWalletManager(false)
-                        .parseAddress(if (mbwManager.network.isProdnet) viewModel.address.value!! else Constants.TEST_ADDRESS)
+//                val account = InvestmentAccount()
+//                val address = mbwManager.getWalletManager(false)
+//                        .parseAddress(if (mbwManager.network.isProdnet) viewModel.address.value!! else Constants.TEST_ADDRESS)
+                viewModel.address.value = Constants.TEST_ADDRESS
+                viewModel.includeFee.value = true
+                viewModel.autoCommit.value = true
+                val fee = FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0"))
                 loader(true)
                 viewModel.withdraw({
+                    BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().minus(value))
+                    findNavController().popBackStack()
                 }, { int, message ->
                     ErrorHandler(requireContext()).handle(message)
                 }, {
                     loader(false)
                 })
-                SendCoinTask(this, account, address[0], value,
-                        FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0.00000001")))
-                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             }
-        }
-    }
-
-    class SendCoinTask(val fragment: Fragment,
-                       val account: WalletAccount<*>,
-                       val address: GenericAddress,
-                       val value: Value,
-                       val fee: GenericFee) : AsyncTask<Void, Int, GenericTransaction?>() {
-
-
-        override fun onPreExecute() {
-            super.onPreExecute()
-            fragment.loader(true)
-        }
-
-        override fun doInBackground(vararg p0: Void?): GenericTransaction? {
-            val fee = FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0"))
-//            val tx = account.createTx(address, value, fee)
-//            account.signTx(tx, AesKeyCipher.defaultKeyCipher())
-            return null
-        }
-
-        override fun onPostExecute(result: GenericTransaction?) {
-            super.onPostExecute(result)
-            fragment.loader(false)
-//            BroadcastDialog.create(account, false, result!!)
-            BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().minus(value))
-            fragment.findNavController().popBackStack()
         }
     }
 }
