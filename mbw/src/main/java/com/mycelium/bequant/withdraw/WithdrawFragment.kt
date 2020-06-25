@@ -78,10 +78,9 @@ class WithdrawFragment : Fragment() {
         loader(true)
         viewModel.loadBalance({
             val balance = it?.find { it.currency == args.currency }
-            val balanceValue = Value.valueOf(getCryptoCurrency(), balance?.available
-                    ?: BigInteger.ZERO)
+            val balanceValue = Value.valueOf(getCryptoCurrency(), BigInteger(balance?.available?:"0"))
             viewModel.castodialBalance.value = balanceValue.toString(Denomination.UNIT)
-        }, { int, message ->
+        }, { _, message ->
             ErrorHandler(requireContext()).handle(message)
         }, {
             loader(false)

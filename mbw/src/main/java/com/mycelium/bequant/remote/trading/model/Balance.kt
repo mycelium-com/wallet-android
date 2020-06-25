@@ -28,9 +28,9 @@ data class Balance(
         val currency: kotlin.String? = null,
         /* Amount available to spend */
         @Json(name = "available")
-        val available: BigInteger? = null,
+        val available: String? = null,
         /* Amount reserved on orders or payout */
         @Json(name = "reserved")
-        val reserved: BigInteger? = null
+        val reserved: String? = null
 )
 
