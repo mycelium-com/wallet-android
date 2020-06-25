@@ -20,7 +20,7 @@ class NewsV2Holder(itemView: View, val preferences: SharedPreferences) : Recycle
     var openClickListener: ((News) -> Unit)? = null
 
     fun bind(news: News) {
-        itemView.title.text = Html.fromHtml(news.title)
+        itemView.title.text = Html.fromHtml(news.title.rendered)
         itemView.date.text = NewsUtils.getDateString(itemView.date.context, news)
         itemView.tvAuthor.text = news.author?.name
 

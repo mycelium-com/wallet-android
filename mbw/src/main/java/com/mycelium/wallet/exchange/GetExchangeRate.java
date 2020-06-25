@@ -1,6 +1,7 @@
 package com.mycelium.wallet.exchange;
 
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
@@ -10,19 +11,23 @@ import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static com.mycelium.wallet.Utils.isERC20Token;
+
 public class GetExchangeRate {
     private String targetCurrency;
     private String sourceCurrency;
     private ExchangeRateProvider exchangeRateManager;
+    private WalletManager walletManager;
     private BigDecimal sourcePrice;
     private BigDecimal targetPrice;
     private ExchangeRate sourceExchangeRate;
     private ExchangeRate targetExchangeRate;
 
-    public GetExchangeRate(String targetCurrency, String sourceCurrency, ExchangeRateProvider exchangeRateManager) {
+    public GetExchangeRate(WalletManager walletManager, String targetCurrency, String sourceCurrency, ExchangeRateProvider exchangeRateManager) {
         this.targetCurrency = targetCurrency;
         this.sourceCurrency = sourceCurrency;
         this.exchangeRateManager = exchangeRateManager;
+        this.walletManager = walletManager;
     }
 
     // multiply the source value by this rate, to get the target value
@@ -55,10 +60,8 @@ public class GetExchangeRate {
         sourceExchangeRate = null;
         targetExchangeRate = null;
 
-        if (sourceCurrency.equals(BitcoinMain.get().getSymbol())
-                || sourceCurrency.equals(BitcoinTest.get().getSymbol())
-                || sourceCurrency.equals(EthMain.INSTANCE.getSymbol())
-                || sourceCurrency.equals(EthTest.INSTANCE.getSymbol())) {
+        if (isBtc(sourceCurrency) || isEth(sourceCurrency)
+                || (isERC20Token(walletManager, sourceCurrency) && !isEth(targetCurrency))) {
             sourcePrice = BigDecimal.ONE;
         } else {
             sourceExchangeRate = exchangeRateManager.getExchangeRate(targetCurrency, sourceCurrency);
@@ -67,10 +70,7 @@ public class GetExchangeRate {
             }
         }
 
-        if (targetCurrency.equals(BitcoinMain.get().getSymbol())
-                || targetCurrency.equals(BitcoinTest.get().getSymbol())
-                || targetCurrency.equals(EthMain.INSTANCE.getSymbol())
-                || targetCurrency.equals(EthTest.INSTANCE.getSymbol())) {
+        if (isBtc(targetCurrency) || isEth(targetCurrency) || isERC20Token(walletManager, targetCurrency)) {
             targetPrice = BigDecimal.ONE;
         } else {
             targetExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency, targetCurrency);
@@ -79,5 +79,13 @@ public class GetExchangeRate {
             }
         }
         return this;
+    }
+
+    private boolean isBtc(String currencySymbol) {
+        return currencySymbol.equals(BitcoinMain.get().getSymbol()) || currencySymbol.equals(BitcoinTest.get().getSymbol());
+    }
+
+    private boolean isEth(String currencySymbol) {
+        return currencySymbol.equals(EthMain.INSTANCE.getSymbol()) || currencySymbol.equals(EthTest.INSTANCE.getSymbol());
     }
 }

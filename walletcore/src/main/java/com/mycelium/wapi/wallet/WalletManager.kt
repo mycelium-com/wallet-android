@@ -5,6 +5,7 @@ import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import com.mycelium.wapi.wallet.manager.*
 import com.mycelium.wapi.wallet.providers.BtcFeeProvider
@@ -206,7 +207,7 @@ constructor(val network: NetworkParameters,
             .map { it.symbol }
 
     fun getCryptocurrenciesNames(): List<String> = getAssetTypes()
-            .filterNot { it is ColuMain }
+            .filterNot { it is ColuMain || it is ERC20Token }
             .map { it.name }
 
     fun parseAddress(address: String): List<GenericAddress> = walletModules.values

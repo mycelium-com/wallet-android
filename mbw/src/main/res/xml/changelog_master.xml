@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.5.1.0" versioncode="3050100">
+        <change>Synchronization speed improvements</change>
+    </release>
+    <release version="3.5.0.0" versioncode="3050000">
+        <change>ERC-20 tokens list updated</change>
+    </release>
+    <release version="3.4.0.0" versioncode="3040000">
+        <change>Ethereum ERC-20 tokens support</change>
+    </release>
     <release version="3.3.3.1" versioncode="3030301">
         <change>SEPA buy/sell BTC and ETH options updated</change>
     </release>

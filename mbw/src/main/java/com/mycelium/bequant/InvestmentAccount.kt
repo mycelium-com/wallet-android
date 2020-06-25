@@ -17,7 +17,11 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction {
+    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?, data: GenericTransactionData?): GenericTransaction {
+        TODO("Not yet implemented")
+    }
+
+    override fun canSign(): Boolean {
         TODO("Not yet implemented")
     }
 

@@ -23,7 +23,7 @@ class NewsSearchAdapter(val preferences: SharedPreferences) : RecyclerView.Adapt
     fun setData(data: List<News>) {
         dataMap.clear()
         data.forEach { news ->
-            val list = dataMap.getOrElse(news.categories.values.elementAt(0)) {
+            val list = dataMap.getOrElse(news.categories[0]) {
                 mutableListOf()
             }
             list.add(news)

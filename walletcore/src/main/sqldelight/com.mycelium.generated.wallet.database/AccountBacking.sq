@@ -37,6 +37,10 @@ UPDATE AccountBacking
 SET fee = (?)
 WHERE uuid = (?) AND txid = (?);
 
+deleteAllAccountTransactions:
+DELETE FROM AccountBacking
+WHERE uuid = (?);
+
 deleteTransaction:
 DELETE FROM AccountBacking
 WHERE uuid = (?) AND txid = (?);

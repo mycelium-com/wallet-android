@@ -142,6 +142,7 @@
 
     <style name="MyceliumModern.Dialog.BlueButtons">
         <item name="android:buttonStyle">@style/MyceliumButton.Blue</item>
+        <item name="android:windowTitleStyle">@style/BlueDialogTitle</item>
     </style>
 
     <style name="MyceliumModern.Dialog.Transparent" >
@@ -382,10 +383,10 @@
 
 
     <style name="BuySell.Dialog" parent="MyceliumModern.Dialog">
-        <item name="android:windowTitleStyle">@style/BuySellDialogTitle</item>
+        <item name="android:windowTitleStyle">@style/BlueDialogTitle</item>
     </style>
 
-    <style name="BuySellDialogTitle">
+    <style name="BlueDialogTitle">
         <item name="android:textColor">@color/common_blue</item>
         <item name="android:textStyle">bold</item>
     </style>

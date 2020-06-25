@@ -18,6 +18,8 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
@@ -69,6 +71,9 @@ class AddressFragmentModel(
                 type.value = address.type
                 accountAddressType.value = context.getString(address.type.asStringRes())
             }
+        } else if (account is EthAccount) {
+            val module = mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID) as EthereumModule
+            bip32Path.value = module.getBip44Path(account.accountIndex)
         }
         accountAddress.value = account.receiveAddress
     }
@@ -90,7 +95,7 @@ class AddressFragmentModel(
         updateLabel()
         onAddressChange()
         mbwManager.getWalletManager(false).run {
-            if(hasAccount(event.account)) {
+            if (hasAccount(event.account)) {
                 startSynchronization(
                         SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(getAccount(event.account) ?: return@run))
             }

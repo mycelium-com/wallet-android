@@ -57,11 +57,11 @@ open class GenericDetailsFragment : Fragment() {
         return TextView(requireContext()).apply {
             layoutParams = TransactionDetailsActivity.FPWC
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-            text = value.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType))
+            text = value.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.basedOnCoinType))
             setTextColor(whiteColor)
             this.tag = tag
             setOnLongClickListener {
-                Utils.setClipboardString(value.toString(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)), requireContext())
+                Utils.setClipboardString(value.toString(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.basedOnCoinType)), requireContext())
                 Toast.makeText(requireContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
                 true
             }
