@@ -1,5 +1,6 @@
 package com.mycelium.bequant.remote.trading.api
 
+import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.trading.model.*
 import retrofit2.Response
 import retrofit2.http.GET
@@ -43,4 +44,7 @@ interface PublicApi {
     @GET("/public/trades/{symbol}")
     suspend fun publicTradesSymbolGet(@Path("symbol") symbol: kotlin.String, @Query("sort") sort: kotlin.String, @Query("by") by: kotlin.String, @Query("from") from: kotlin.String, @Query("till") till: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("offset") offset: kotlin.Int): Response<kotlin.Array<PublicTrade>>
 
+    companion object {
+        fun create() = createApi<PublicApi>()
+    }
 }

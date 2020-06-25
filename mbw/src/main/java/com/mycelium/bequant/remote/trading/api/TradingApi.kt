@@ -1,5 +1,6 @@
 package com.mycelium.bequant.remote.trading.api
 
+import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.remote.trading.model.Order
 import com.mycelium.bequant.remote.trading.model.TradingFee
@@ -38,4 +39,8 @@ interface TradingApi {
     @GET("/trading/fee/{symbol}")
     suspend fun tradingFeeSymbolGet(@Path("symbol") symbol: kotlin.String): Response<TradingFee>
 
+
+    companion object {
+        fun create() = createApi<TradingApi>()
+    }
 }

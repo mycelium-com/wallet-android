@@ -30,13 +30,14 @@ import com.mycelium.bequant.remote.model.BequantBalance
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
-
+import com.mycelium.wallet.activity.util.toString
 
 class AccountFragment : Fragment() {
     val adapter = BequantAccountAdapter()
@@ -90,7 +91,7 @@ class AccountFragment : Fragment() {
                 viewModel.totalBalance.value = HIDE_VALUE
                 viewModel.totalBalanceFiat.value = "~$HIDE_VALUE"
             } else {
-                viewModel.totalBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
+                viewModel.totalBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
                 viewModel.totalBalanceFiat.value = mbwManager.exchangeRateManager
                         .get(BequantPreference.getMockCastodialBalance(), FiatType("USD"))?.toStringWithUnit(Denomination.UNIT)
             }
