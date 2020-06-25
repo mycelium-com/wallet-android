@@ -13,6 +13,7 @@ import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.view.Denomination
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
@@ -44,6 +45,7 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
             available.text = it.toStringWithUnit(Denomination.UNIT)
             deposit.visibility = if (it.equalZero()) View.VISIBLE else View.INVISIBLE
         })
+
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
             sendView.text = it.toString(Denomination.UNIT)
             sendViewSymbol.text = it.currencySymbol
@@ -75,6 +77,19 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
         }
         deposit.setOnClickListener { findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit")) }
         updateYouSend(100)
+        recalculateDestinationPrice()
+        recalculateReceivedValue()
+    }
+
+    private fun recalculateDestinationPrice() {
+        var exchangeRateManager = MbwManager.getInstance(requireContext()).exchangeRateManager
+        var singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0);
+        viewModel.fullSourceUnitDestinationPrice.value = exchangeRateManager.get(singleCoin, viewModel.youGet.value!!.type)
+    }
+
+    private fun recalculateReceivedValue() {
+        var exchangeRateManager = MbwManager.getInstance(requireContext()).exchangeRateManager
+        viewModel.youGet.value = exchangeRateManager.get(viewModel.youSend.value, viewModel.youGet.value!!.type)
     }
 
     private fun updateYouSend(rate: Int) {
