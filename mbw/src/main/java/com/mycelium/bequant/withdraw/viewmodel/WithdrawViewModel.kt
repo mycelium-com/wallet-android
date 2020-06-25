@@ -21,10 +21,6 @@ class WithdrawViewModel : ViewModel() {
         accountApi.accountBalanceGet(viewModelScope, success = success, error = error, finally = finally)
     }
 
-    fun loadBalance(success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        accountApi.accountBalanceGet(viewModelScope, success = success, error = error, finally = finally)
-    }
-
     fun withdraw(success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         accountApi.accountCryptoWithdrawPost(
                 scope = viewModelScope,
