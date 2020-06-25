@@ -10,7 +10,7 @@ class AccountApiRepository {
     private val accountApi = AccountApi.create()
 
     fun accountCryptoWithdrawPost(scope: CoroutineScope,
-                                  currency: kotlin.String, amount: kotlin.String, address: kotlin.String, paymentId: kotlin.String, includeFee: kotlin.Boolean, autoCommit: kotlin.Boolean, useOffchain: kotlin.String,
+                                  currency: kotlin.String, amount: kotlin.String, address: kotlin.String, paymentId: kotlin.String? = null, includeFee: kotlin.Boolean? = null, autoCommit: kotlin.Boolean? = null, useOffchain: kotlin.String? = null,
                                   success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.accountCryptoWithdrawPost(currency, amount, address, paymentId, includeFee, autoCommit, useOffchain)

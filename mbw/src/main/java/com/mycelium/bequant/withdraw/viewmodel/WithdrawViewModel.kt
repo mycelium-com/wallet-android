@@ -27,14 +27,11 @@ class WithdrawViewModel : ViewModel() {
     }
 
     fun withdraw(success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        accountApi.accountCryptoWithdrawPost(viewModelScope,
-                currency.value!!,
-                amount.value!!,
-                address.value!!,
-                paymentId.value!!,
-                includeFee.value!!,
-                autoCommit.value!!,
-                useOffChain.value!!, success = success, error = error, finally = finally
+        accountApi.accountCryptoWithdrawPost(
+                scope = viewModelScope,
+                currency = currency.value!!,
+                amount = amount.value!!,
+                address = address.value!!, success = success, error = error, finally = finally
         )
     }
 }
