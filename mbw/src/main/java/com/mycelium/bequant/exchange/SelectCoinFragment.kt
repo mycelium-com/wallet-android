@@ -31,17 +31,17 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
 
         ApiRepository.repository.currencies({ list ->
             response = list
+
+            // and create CoinListItem with them
+            val coinsList = mutableListOf(CoinListItem(CoinAdapter.TYPE_SEARCH), CoinListItem(CoinAdapter.TYPE_SPACE))
+
+            response?.forEach {
+                coinsList.add(CoinListItem(CoinAdapter.TYPE_ITEM, assetInfoById(it)))
+            }
+            adapter.submitList(coinsList)
+
         }, { code, error ->
         })
-
-        // and create CoinListItem with them
-        val coinsList = mutableListOf(CoinListItem(CoinAdapter.TYPE_SEARCH), CoinListItem(CoinAdapter.TYPE_SPACE))
-
-        response?.forEach {
-            coinsList.add(CoinListItem(CoinAdapter.TYPE_ITEM, assetInfoById(it)))
-        }
-        adapter.submitList(coinsList)
-
     }
 
     private fun assetInfoById(currency: Currency): GenericAssetInfo? {
