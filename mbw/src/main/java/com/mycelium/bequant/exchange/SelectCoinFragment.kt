@@ -4,16 +4,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.model.CoinListItem
+import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.model.Currency
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
+import kotlinx.android.synthetic.main.item_bequant_market.*
 
 class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_coin) {
     val adapter = CoinAdapter()
@@ -24,16 +27,17 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
                 .apply { setFromItem(1) })
         list.adapter = adapter
 
-        // fetch currencies list here with Constants.API_CURRENCIES url
-        val responseJson = "[{\"id\":\"BTC\",\"fullName\":\"Bitcoin\",\"crypto\":true,\"payinEnabled\":true,\"payinPaymentId\":false,\"payinConfirmations\":1,\"payoutEnabled\":true,\"payoutIsPaymentId\":false,\"transferEnabled\":true,\"delisted\":false,\"payoutFee\":\"0.000400000000\"}," +
-                "{\"id\":\"ETH\",\"fullName\":\"Ethereum\",\"crypto\":true,\"payinEnabled\":true,\"payinPaymentId\":false,\"payinConfirmations\":20,\"payoutEnabled\":true,\"payoutIsPaymentId\":false,\"transferEnabled\":true,\"delisted\":false,\"payoutFee\":\"0.003000000000\"}," +
-                "{\"id\":\"USDT20\",\"fullName\":\"Tether ERC20\",\"crypto\":true,\"payinEnabled\":true,\"payinPaymentId\":false,\"payinConfirmations\":20,\"payoutEnabled\":true,\"payoutIsPaymentId\":false,\"transferEnabled\":true,\"delisted\":false,\"payoutFee\":\"1.000000000000\"}," +
-                "{\"id\":\"GBPB\",\"fullName\":\"British Pound Sterling\",\"crypto\":false,\"payinEnabled\":false,\"payinPaymentId\":false,\"payinConfirmations\":2,\"payoutEnabled\":false,\"payoutIsPaymentId\":false,\"transferEnabled\":true,\"delisted\":false,\"payoutFee\":\"7.690000000000\"}]"
-        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        val response = mapper.readValue<List<Currency>>(responseJson)
+        var response : List<Currency>? = null
+
+        ApiRepository.repository.currencies({ list ->
+            response = list
+        }, { code, error ->
+        })
+
         // and create CoinListItem with them
         val coinsList = mutableListOf(CoinListItem(CoinAdapter.TYPE_SEARCH), CoinListItem(CoinAdapter.TYPE_SPACE))
-        response.forEach {
+
+        response?.forEach {
             coinsList.add(CoinListItem(CoinAdapter.TYPE_ITEM, assetInfoById(it)))
         }
         adapter.submitList(coinsList)
@@ -52,9 +56,4 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
         }
     }
 
-    class Currency {
-        var id: String = ""
-        var fullName: String = ""
-        var crypto: Boolean = true
-    }
 }
