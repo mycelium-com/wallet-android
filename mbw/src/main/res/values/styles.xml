@@ -390,7 +390,7 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Bequant" parent="AppBaseTheme">
+    <style name="Bequant" parent="MyceliumModern">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowBackground">@color/bequant_gray_2</item>
