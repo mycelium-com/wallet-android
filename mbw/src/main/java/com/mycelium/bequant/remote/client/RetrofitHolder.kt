@@ -1,10 +1,13 @@
 package com.mycelium.bequant.remote.client
 
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.KYCRepository
 import com.mycelium.wallet.BuildConfig
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Call
+import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,6 +22,14 @@ object RetrofitHolder {
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
+                .addInterceptor {
+                    it.proceed(it.request().newBuilder().apply {
+                        header("Content-Type", "application/json")
+                        header("Authorization",
+                                Credentials.basic(BequantPreference.getPublicKey(),
+                                        BequantPreference.getPrivateKey()))
+                    }.build())
+                }
                 .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::authorizationGenerator))
                 .apply {
                     if (BuildConfig.DEBUG) {
@@ -48,7 +59,18 @@ object RetrofitHolder {
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
     }
 
-    val retrofit: Retrofit by lazy { retrofitBuilder.build() }
+    val retrofit: Retrofit by lazy {
+//        retrofitBuilder.build()
+        val moshi = Moshi.Builder()
+                .add(EnumJsonAdapterFactory)
+                .add(KotlinJsonAdapterFactory())
+                .build()
+        KYCRepository.retrofitBuilder
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(EnumRetrofitConverterFactory)
+                .addConverterFactory(MoshiConverterFactory.create(moshi))
+                .build()
+    }
 
     private fun authorizationGenerator(authName: String, request: Request): String? =
             "Bearer ${BequantPreference.getAccessToken()}"

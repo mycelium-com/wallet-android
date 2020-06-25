@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants.KYC_ENDPOINT
 import com.mycelium.bequant.remote.model.*
 import kotlinx.coroutines.CoroutineScope
 import okhttp3.MultipartBody
@@ -86,7 +87,7 @@ class KYCRepository {
     }
 
     companion object {
-        val ENDPOINT = "https://test006.bqtstuff.com/"
+
 
 
         private val objectMapper = ObjectMapper()
@@ -97,9 +98,16 @@ class KYCRepository {
 
         val repository by lazy { KYCRepository() }
 
+        val retrofitBuilder by lazy {getBuilder()}
         val service by lazy {
-            Retrofit.Builder()
-                    .baseUrl(ENDPOINT)
+            retrofitBuilder
+                    .build()
+                    .create(BequantKYCApiService::class.java)
+        }
+
+        private fun getBuilder(): Retrofit.Builder {
+            return Retrofit.Builder()
+                    .baseUrl(KYC_ENDPOINT)
                     .client(OkHttpClient.Builder()
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
@@ -113,8 +121,6 @@ class KYCRepository {
                             .build())
                     .addConverterFactory(NullOnEmptyConverterFactory())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                    .build()
-                    .create(BequantKYCApiService::class.java)
         }
     }
 }

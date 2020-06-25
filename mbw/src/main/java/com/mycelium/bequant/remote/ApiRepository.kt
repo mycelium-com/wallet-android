@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants.ACCOUNT_ENDPOINT
 import com.mycelium.bequant.remote.model.BequantBalance
 import com.mycelium.bequant.remote.model.Currency
 import com.mycelium.bequant.remote.model.DepositAddress
@@ -104,7 +105,7 @@ class ApiRepository {
     companion object {
         fun adopt(currency: String) = if (currency.startsWith("t")) currency.substring(1) else currency
 
-        val ENDPOINT = "https://fynh6mvro0.execute-api.us-east-1.amazonaws.com/prd/"
+
 
         private val objectMapper = ObjectMapper()
                 .registerKotlinModule()
@@ -114,10 +115,17 @@ class ApiRepository {
 
         val repository by lazy { ApiRepository() }
 
+        val retrofitBuilder by lazy { retrofitBuilder() }
 
         val service by lazy {
-            Retrofit.Builder()
-                    .baseUrl(ENDPOINT)
+            retrofitBuilder
+                    .build()
+                    .create(BequantApiService::class.java)
+        }
+
+        private fun retrofitBuilder(): Retrofit.Builder {
+            return Retrofit.Builder()
+                    .baseUrl(ACCOUNT_ENDPOINT)
                     .client(OkHttpClient.Builder()
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
@@ -130,8 +138,6 @@ class ApiRepository {
                             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                             .build())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                    .build()
-                    .create(BequantApiService::class.java)
         }
     }
 }
