@@ -53,16 +53,10 @@ class WithdrawFragment : Fragment() {
         val mbwManager = MbwManager.getInstance(requireContext())
         send.setOnClickListener {
             if (viewModel.amount.value != null) {
-                val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
-//                val account = InvestmentAccount()
-//                val address = mbwManager.getWalletManager(false)
-//                        .parseAddress(if (mbwManager.network.isProdnet) viewModel.address.value!! else Constants.TEST_ADDRESS)
                 viewModel.address.value = Constants.TEST_ADDRESS
-                viewModel.includeFee.value = true
-                viewModel.autoCommit.value = true
-                val fee = FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0"))
                 loader(true)
                 viewModel.withdraw({
+                    val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
                     BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().minus(value))
                     findNavController().popBackStack()
                 }, { int, message ->

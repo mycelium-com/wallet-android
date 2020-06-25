@@ -17,11 +17,6 @@ class WithdrawViewModel : ViewModel() {
     val amount = MutableLiveData<String>()
     val address = MutableLiveData<String>()
 
-    val paymentId = MutableLiveData<String>()
-    val includeFee = MutableLiveData<Boolean>()
-    val autoCommit = MutableLiveData<Boolean>()
-    val useOffChain = MutableLiveData<String>()
-
     fun loadBalance(success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         accountApi.accountBalanceGet(viewModelScope, success = success, error = error, finally = finally)
     }
