@@ -9,21 +9,20 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.withdraw.adapter.WithdrawFragmentAdapter
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 import com.mycelium.view.Denomination
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
-import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
+import java.math.BigInteger
 
 
 class WithdrawFragment : Fragment() {
@@ -46,25 +45,46 @@ class WithdrawFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadBalance()
         pager.adapter = WithdrawFragmentAdapter(this, viewModel)
         tabs.setupWithViewPager(pager)
         pager.offscreenPageLimit = 2
-        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
-        val mbwManager = MbwManager.getInstance(requireContext())
-        send.setOnClickListener {
-            if (viewModel.amount.value != null) {
-                viewModel.address.value = Constants.TEST_ADDRESS
-                loader(true)
-                viewModel.withdraw({
-                    val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
-                    BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().minus(value))
-                    findNavController().popBackStack()
-                }, { int, message ->
-                    ErrorHandler(requireContext()).handle(message)
-                }, {
-                    loader(false)
-                })
-            }
+        send.setOnClickListener { withdraw() }
+    }
+
+    private fun getCryptoCurrency(): CryptoCurrency {
+        return when (args.currency) {
+            "btc" -> Utils.getBtcCoinType()
+            "eth" -> Utils.getEthCoinType()
+            else -> TODO("Wrong currency")
         }
+    }
+
+    private fun withdraw() {
+        if (viewModel.amount.value != null) {
+            viewModel.address.value = Constants.TEST_ADDRESS
+            loader(true)
+            viewModel.withdraw({
+                findNavController().popBackStack()
+            }, { int, message ->
+                ErrorHandler(requireContext()).handle(message)
+            }, {
+                loader(false)
+            })
+        }
+    }
+
+    private fun loadBalance() {
+        loader(true)
+        viewModel.loadBalance({
+            val balance = it?.find { it.currency == args.currency }
+            val balanceValue = Value.valueOf(getCryptoCurrency(), balance?.available
+                    ?: BigInteger.ZERO)
+            viewModel.castodialBalance.value = balanceValue.toString(Denomination.UNIT)
+        }, { int, message ->
+            ErrorHandler(requireContext()).handle(message)
+        }, {
+            loader(false)
+        })
     }
 }

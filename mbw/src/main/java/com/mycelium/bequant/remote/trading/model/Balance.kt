@@ -13,6 +13,8 @@ package com.mycelium.bequant.remote.trading.model
 
 
 import com.squareup.moshi.Json
+import java.math.BigDecimal
+import java.math.BigInteger
 
 /**
  *
@@ -26,9 +28,9 @@ data class Balance(
         val currency: kotlin.String? = null,
         /* Amount available to spend */
         @Json(name = "available")
-        val available: kotlin.String? = null,
+        val available: BigInteger? = null,
         /* Amount reserved on orders or payout */
         @Json(name = "reserved")
-        val reserved: kotlin.String? = null
+        val reserved: BigInteger? = null
 )
 
