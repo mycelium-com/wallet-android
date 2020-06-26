@@ -49,6 +49,7 @@ class ShowQRFragment : Fragment() {
 
     private fun createDepositAddress(currency: String) {
         loader(true)
+        viewModel.createDepositAddress()
         ApiRepository.repository.createDepositAddress(currency, {
             loader(false)
             parentViewModel?.address?.value = it.address
