@@ -2,9 +2,9 @@ package com.mycelium.bequant.remote.client
 
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
-import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.wallet.BuildConfig
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Call
 import okhttp3.Credentials
@@ -14,9 +14,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.util.*
 
 object RetrofitHolder {
-    const val BASE_URL = Constants.ACCOUNT_ENDPOINT
+    val VERSION = "api/2/"
+    val BASE_URL = Constants.ACCOUNT_ENDPOINT + VERSION
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
@@ -28,7 +30,7 @@ object RetrofitHolder {
                                         BequantPreference.getPrivateKey()))
                     }.build())
                 }
-                .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::authorizationGenerator))
+//                .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::authorizationGenerator))
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(HttpLoggingInterceptor().apply {
@@ -42,6 +44,7 @@ object RetrofitHolder {
         val moshi = Moshi.Builder()
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
+                .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
                 .build()
 
         Retrofit.Builder()
@@ -58,12 +61,10 @@ object RetrofitHolder {
     }
 
     val retrofit: Retrofit by lazy {
-
         val moshi = Moshi.Builder()
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
                 .build()
-//        ApiRepository.retrofitBuilder
         retrofitBuilder
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(EnumRetrofitConverterFactory)

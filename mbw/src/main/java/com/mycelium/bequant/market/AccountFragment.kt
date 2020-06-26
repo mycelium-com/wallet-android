@@ -121,14 +121,14 @@ class AccountFragment : Fragment() {
     }
 
     private fun requestBalances() {
-        if (BequantPreference.hasKeys()) {
-            Api.apiRepository.balances({
-                balancesData = it
-                updateList()
-            }, { code, error ->
-                ErrorHandler(requireContext()).handle(error)
-            })
-        }
+//        if (BequantPreference.hasKeys()) {
+//            Api.apiRepository.balances({
+//                balancesData = it
+//                updateList()
+//            }, { code, error ->
+//                ErrorHandler(requireContext()).handle(error)
+//            })
+//        }
     }
 
     fun updateList(filter: String = "") {

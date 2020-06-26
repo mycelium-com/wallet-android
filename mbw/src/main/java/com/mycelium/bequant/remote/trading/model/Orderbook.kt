@@ -28,7 +28,7 @@ data class Orderbook(
         @Json(name = "bid")
         val bid: kotlin.Array<OrderbookAsk>? = null,
         @Json(name = "timestamp")
-        val timestamp: java.time.OffsetDateTime? = null,
+        val timestamp: java.util.Date? = null,
         /* Ask average price for specified volume. Optional (only for volume requests) */
         @Json(name = "askAveragePrice")
         val askAveragePrice: kotlin.String? = null,

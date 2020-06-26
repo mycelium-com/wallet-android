@@ -62,9 +62,9 @@ data class Transaction(
         @Json(name = "confirmations")
         val confirmations: java.math.BigDecimal? = null,
         @Json(name = "createdAt")
-        val createdAt: java.time.OffsetDateTime? = null,
+        val createdAt: java.util.Date? = null,
         @Json(name = "updatedAt")
-        val updatedAt: java.time.OffsetDateTime? = null,
+        val updatedAt: java.util.Date? = null,
         @Json(name = "errorCode")
         val errorCode: Transaction.ErrorCode? = null
 ) {

@@ -72,7 +72,7 @@ class PublicApiRespository {
     }
 
     fun publicTickerGet(scope: CoroutineScope,
-                        symbols: String,
+                        symbols: String?,
                         success: (Array<Ticker>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.publicTickerGet(symbols)

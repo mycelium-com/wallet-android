@@ -60,9 +60,9 @@ data class Position(
         @Json(name = "priceLiquidation")
         val priceLiquidation: kotlin.Double,
         @Json(name = "createdAt")
-        val createdAt: java.time.OffsetDateTime,
+        val createdAt: java.util.Date,
         @Json(name = "updatedAt")
-        val updatedAt: java.time.OffsetDateTime
+        val updatedAt: java.util.Date
 ) {
 
     /**
