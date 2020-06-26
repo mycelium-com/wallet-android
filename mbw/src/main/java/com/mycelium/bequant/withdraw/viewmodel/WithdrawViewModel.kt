@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mycelium.bequant.remote.repositories.AccountApiRepository
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.remote.trading.model.InlineResponse200
 import com.mycelium.wallet.Utils
@@ -11,19 +12,17 @@ import com.mycelium.wallet.Utils
 
 class WithdrawViewModel : ViewModel() {
 
-    val accountApi = AccountApiRepository()
-
     var currency = MutableLiveData(Utils.getBtcCoinType().symbol)
     val castodialBalance = MutableLiveData<String>()
     val amount = MutableLiveData<String>()
     val address = MutableLiveData<String>()
 
     fun loadBalance(success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        accountApi.accountBalanceGet(viewModelScope, success = success, error = error, finally = finally)
+        Api.accountApi.accountBalanceGet(viewModelScope, success = success, error = error, finally = finally)
     }
 
     fun withdraw(success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        accountApi.accountCryptoWithdrawPost(
+        Api.accountApi.accountCryptoWithdrawPost(
                 scope = viewModelScope,
                 currency = currency.value!!,
                 amount = amount.value!!,
