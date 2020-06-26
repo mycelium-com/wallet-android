@@ -1,6 +1,6 @@
 package com.mycelium.bequant.common
 
-import com.mycelium.bequant.remote.model.Currency
+import com.mycelium.bequant.remote.trading.model.Currency
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency

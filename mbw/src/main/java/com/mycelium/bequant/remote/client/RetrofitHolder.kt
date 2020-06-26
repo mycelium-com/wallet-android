@@ -1,6 +1,7 @@
 package com.mycelium.bequant.remote.client
 
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.wallet.BuildConfig
 import com.squareup.moshi.Moshi
@@ -15,9 +16,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
 object RetrofitHolder {
-
-    const val API_VERSION = "v0.0.50"
-    const val BASE_URL = "https://xwpe71x4sg.execute-api.us-east-1.amazonaws.com/prd-reg/"
+    const val BASE_URL = Constants.ACCOUNT_ENDPOINT
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
@@ -59,12 +58,13 @@ object RetrofitHolder {
     }
 
     val retrofit: Retrofit by lazy {
-//        retrofitBuilder.build()
+
         val moshi = Moshi.Builder()
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
                 .build()
-        ApiRepository.retrofitBuilder
+//        ApiRepository.retrofitBuilder
+        retrofitBuilder
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(EnumRetrofitConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))

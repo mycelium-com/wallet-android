@@ -8,7 +8,6 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants.ACCOUNT_ENDPOINT
 import com.mycelium.bequant.remote.BequantApiService
 import com.mycelium.bequant.remote.model.BequantBalance
-import com.mycelium.bequant.remote.model.Currency
 import com.mycelium.bequant.remote.model.Ticker
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
@@ -54,21 +53,6 @@ class ApiRepository {
         })
     }
 
-    fun currencies(success: (List<Currency>) -> Unit, error: (Int, String) -> Unit) {
-        service.currencies().enqueue(object : Callback<List<Currency>> {
-            override fun onFailure(call: Call<List<Currency>>, t: Throwable) {
-                error.invoke(0, t.message ?: "")
-            }
-
-            override fun onResponse(call: Call<List<Currency>>, response: Response<List<Currency>>) {
-                if (response.isSuccessful) {
-                    success.invoke(response.body()!!)
-                } else {
-                    error.invoke(response.code(), response.errorBody()?.string() ?: "")
-                }
-            }
-        })
-    }
 
     companion object {
         fun adopt(currency: String) = if (currency.startsWith("t")) currency.substring(1) else currency

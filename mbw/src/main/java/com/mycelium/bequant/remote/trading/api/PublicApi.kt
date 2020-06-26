@@ -18,7 +18,7 @@ interface PublicApi {
     suspend fun publicCurrencyCurrencyGet(@Path("currency") currency: kotlin.String): Response<Currency>
 
     @GET("/public/currency")
-    suspend fun publicCurrencyGet(@Query("currencies") currencies: kotlin.String): Response<kotlin.Array<Currency>>
+    suspend fun publicCurrencyGet(@Query("currencies") currencies: kotlin.String?): Response<kotlin.Array<Currency>>
 
     @GET("/public/orderbook")
     suspend fun publicOrderbookGet(@Query("symbols") symbols: kotlin.String, @Query("limit") limit: kotlin.Int): Response<kotlin.Any>

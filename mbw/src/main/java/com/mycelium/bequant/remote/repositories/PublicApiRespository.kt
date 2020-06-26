@@ -34,7 +34,7 @@ class PublicApiRespository {
     }
 
 
-    fun publicCurrencyGet(scope: CoroutineScope, currencies: String,
+    fun publicCurrencyGet(scope: CoroutineScope, currencies: String?,
                           success: (Array<Currency>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.publicCurrencyGet(currencies)

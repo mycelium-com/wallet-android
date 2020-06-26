@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 class SignRepository {
 
     private val accountApi = createApi<AccountApi>()
-    private val apiKeyApi = ApiKeyApi.create()
+    private val apiKeyApi = createApi<ApiKeyApi>()
 
     fun signUp(scope: CoroutineScope,
                request: RegisterAccountRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
