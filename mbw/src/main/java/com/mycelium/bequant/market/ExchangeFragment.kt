@@ -2,6 +2,7 @@ package com.mycelium.bequant.market
 
 import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,13 +10,14 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
+import com.mycelium.bequant.common.BlurBuilder
 import com.mycelium.bequant.exchange.SelectCoinActivity
-import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.ExchangeRateManager
@@ -26,6 +28,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.Value
+import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
@@ -143,8 +146,18 @@ class ExchangeFragment : Fragment() {
                     .putExtra(PARENT, YOU_GET), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
-            startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+            // TODO add check that KYC has been passed or show BequantKycActivity
+            // startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+            val dialogBuilder = AlertDialog.Builder(requireContext(), R.style.Theme_D1NoTitleDim)
+            val customLayout = layoutInflater.inflate(R.layout.dialog_bequant_exchange_summary, null)
+            dialogBuilder.setView(customLayout)
+            val dialog = dialogBuilder.create()
+            val blurredBg = BitmapDrawable(resources, BlurBuilder.blur(requireActivity()))
+            dialog.window.setBackgroundDrawable(blurredBg)
+            dialog.show()
+            dialog.btDone.setOnClickListener { dialog.cancel() }
         }
+
         icExchange.setOnClickListener {
             val tempValue = viewModel.youSend.value
             viewModel.youSend.value = viewModel.youGet.value
