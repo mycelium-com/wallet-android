@@ -1,6 +1,5 @@
 package com.mycelium.bequant.receive
 
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
 import com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel
@@ -27,8 +26,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantReceiveFromMyceliumBinding
-import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_receive_from_mycelium.*
 import kotlinx.android.synthetic.main.item_bequant_withdraw_pager_accounts.*
@@ -38,6 +35,8 @@ class FromMyceliumFragment : Fragment() {
     lateinit var viewModel: FromMyceliumViewModel
     var parentViewModel: ReceiveCommonViewModel? = null
     val adapter = AccountPagerAdapter()
+
+    val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +76,7 @@ class FromMyceliumFragment : Fragment() {
         TabLayoutMediator(accountListTab, accountList) { tab, _ ->
         }.attach()
 
-        val selectorItems = mbwManager.getWalletManager(false).getCryptocurrenciesSymbols()
+        val selectorItems = viewModel.getCryptocurrenciesSymbols()
         val coinAdapter = ArrayAdapter(requireContext(),
                 R.layout.item_bequant_coin, R.id.text, selectorItems)
         coinAdapter.setDropDownViewResource(R.layout.item_bequant_coin_selector)
@@ -99,44 +98,20 @@ class FromMyceliumFragment : Fragment() {
             if (viewModel.amount.value != null) {
                 val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
                 val account = adapter.getItem(accountList.currentItem)
-                val address = mbwManager.getWalletManager(false)
-                        .parseAddress(if (mbwManager.network.isProdnet) viewModel.address.value!! else Constants.TEST_ADDRESS)
-                SendCoinTask(this, account, address[0], value,
-                        FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0.00000001")))
-                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                loader(true)
+                viewModel.deposit(account,value,{
+                    BroadcastDialog.create(account, false, it)
+                    findNavController().popBackStack()
+                },{
+                    ErrorHandler(requireActivity()).handle(it.toString())
+                },{
+                    loader(false)
+                })
             }
         }
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
         }
         viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
-    }
-
-    class SendCoinTask(val fragment: Fragment,
-                       val account: WalletAccount<*>,
-                       val address: GenericAddress,
-                       val value: Value,
-                       val fee: GenericFee) : AsyncTask<Void, Int, GenericTransaction>() {
-
-
-        override fun onPreExecute() {
-            super.onPreExecute()
-            fragment.loader(true)
-        }
-
-        override fun doInBackground(vararg p0: Void?): GenericTransaction {
-            val fee = FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0"))
-            val tx = account.createTx(address, value, fee)
-            account.signTx(tx, AesKeyCipher.defaultKeyCipher())
-            return tx
-        }
-
-        override fun onPostExecute(result: GenericTransaction?) {
-            super.onPostExecute(result)
-            fragment.loader(false)
-            BroadcastDialog.create(account, false, result!!)
-            BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))
-            fragment.findNavController().popBackStack()
-        }
     }
 }

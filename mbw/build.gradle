@@ -123,7 +123,7 @@ dependencies {
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
     }
-    implementation 'org.web3j:core:4.2.0-android'
+    implementation 'org.web3j:core:4.2.1-android'
 
     implementation "com.squareup.sqldelight:android-driver:1.2.1"
 
@@ -179,8 +179,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3030301
-        versionName '3.3.3.1'
+        versionCode 3050200
+        versionName '3.5.2.0'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
@@ -277,19 +277,20 @@ android {
                 WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
                         '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
                         '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
-                EthServers = '{"https://parity-a.mycelium.com:8545","https://parity-b.mycelium.com:8545"}'
                 EthBlockBook = '{"https://eth1.trezor.io", "https://eth2.trezor.io"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
+                simplex ="https://exchange.mycelium.com/"
                 safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
                 sepa = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
                 safelloEth = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
                 sepaEth = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
                 sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
                 sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
+                mediaFlowURL = "https://media.mycelium.com/wp-json/wp/v2/"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -311,19 +312,20 @@ android {
                 WapiServers='"[{\\\'cert-sha1\':\\\'E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F\\\',\\\'url\\\':\\\'https://mws31.mycelium.com/wapitestnet\\\'},' +
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
-                EthServers = '{"https://wallet-testnet.mycelium.com:8545"}'
                 EthBlockBook = '{"https://ropsten1.trezor.io", "https://ropsten2.trezor.io"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
+                simplex ="https://exchange.mycelium.com/"
                 safello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
                 sepa = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
                 safelloEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
                 sepaEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
                 sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
                 sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
+                mediaFlowURL = "http://media-dev.mycelium.com/wp-json/wp/v2/"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -339,17 +341,18 @@ android {
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
-        variant.buildConfigField "String[]", "EthServers", "${flavor.ext.EthServers}"
         variant.buildConfigField "String[]", "EthBlockBook", "${flavor.ext.EthBlockBook}"
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
+        variant.buildConfigField "String", "SIMPLEX", "\"${flavor.ext.simplex}\""
         variant.buildConfigField "String", "SAFELLO", "\"${flavor.ext.safello}\""
         variant.buildConfigField "String", "SEPA", "\"${flavor.ext.sepa}\""
         variant.buildConfigField "String", "SAFELLO_ETH", "\"${flavor.ext.safelloEth}\""
         variant.buildConfigField "String", "SEPA_ETH", "\"${flavor.ext.sepaEth}\""
         variant.buildConfigField "String", "SEPA_BUY_BITS_OF_GOLD", "\"${flavor.ext.sepaBuyBitsOfGold}\""
         variant.buildConfigField "String", "SEPA_SELL_BITS_OF_GOLD", "\"${flavor.ext.sepaSellBitsOfGold}\""
+        variant.buildConfigField "String", "MEDIA_FLOW_URL", "\"${flavor.ext.mediaFlowURL}\""
     }
 
     testOptions {

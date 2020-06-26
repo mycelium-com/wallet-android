@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants.KYC_ENDPOINT
 import com.mycelium.bequant.remote.model.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -20,73 +18,76 @@ import java.io.File
 
 class KYCRepository {
     fun create(scope: CoroutineScope, applicant: KYCApplicant, success: (() -> Unit)) {
-        scope.launch(Dispatchers.IO) {
-            val result = service.create(KYCCreateRequest(applicant))
-            if (result.isSuccessful) {
-                val uuid = result.body()?.uuid ?: ""
-                BequantPreference.setKYCToken(uuid)
-                withContext(Dispatchers.Main) {
-                    success.invoke()
-                }
-            }
-        }
+        doRequest(scope, {
+            service.create(KYCCreateRequest(applicant))
+        }, {
+            val uuid = it?.uuid ?: ""
+            BequantPreference.setKYCToken(uuid)
+            success.invoke()
+        }, { code, msg ->
+
+        }, {
+
+        })
     }
 
     fun mobileVerification(scope: CoroutineScope, success: ((String) -> Unit)) {
-        scope.launch(Dispatchers.IO) {
-            val result = service.mobileVerification(BequantPreference.getKYCToken())
-            if (result.isSuccessful) {
-                withContext(Dispatchers.Main) {
-                    success.invoke(result.body()?.message ?: "")
-                }
-            }
-        }
+        doRequest(scope, {
+            service.mobileVerification(BequantPreference.getKYCToken())
+        }, {
+            success.invoke(it?.message ?: "")
+        }, { code, msg ->
+
+        }, {
+
+        })
     }
 
     fun checkMobileVerification(scope: CoroutineScope, code: String,
                                 success: (() -> Unit), error: (() -> Unit)) {
-        scope.launch(Dispatchers.IO) {
-            val result = service.checkMobileVerification(BequantPreference.getKYCToken(), code)
-            if (result.isSuccessful) {
-                withContext(Dispatchers.Main) {
-                    if (result.body()?.message == "CODE_VALID") {
-                        success.invoke()
-                    } else {
-                        error.invoke()
-                    }
-                }
+        doRequest(scope, {
+            service.checkMobileVerification(BequantPreference.getKYCToken(), code)
+        }, {
+            if (it?.message == "CODE_VALID") {
+                success.invoke()
+            } else {
+                error.invoke()
             }
-        }
+        }, { code, msg ->
+
+        }, {
+
+        })
     }
 
     fun uploadDocument(scope: CoroutineScope, type: KYCDocument, file: File,
-                       progress: ((Long, Long) -> Unit), success: (() -> Unit)) {
-        scope.launch(Dispatchers.IO) {
+                       progress: ((Long, Long) -> Unit), success: () -> Unit, error: () -> Unit) {
+        doRequest(scope, {
             val fileBody = ProgressRequestBody(file, "image")
             fileBody.progressListener = progress
             val multipartBody = MultipartBody.Part.createFormData("file", file.name, fileBody)
-            val result = service.uploadFile(BequantPreference.getKYCToken(), type, "ITA", multipartBody)
-            if (result.isSuccessful) {
-                withContext(Dispatchers.Main) {
-                    success.invoke()
-                }
-            }
-        }
+            service.uploadFile(BequantPreference.getKYCToken(), type, "ITA", multipartBody)
+        }, { response ->
+            success.invoke()
+        }, { code, msg ->
+            error.invoke()
+        }, {})
     }
 
     fun status(scope: CoroutineScope, success: ((KYCStatus) -> Unit)) {
-        scope.launch(Dispatchers.IO) {
-            val result = service.status(BequantPreference.getKYCToken())
-            if (result.isSuccessful) {
-                withContext(Dispatchers.Main) {
-                    success.invoke(result.body()?.message?.global!!)
-                }
-            }
-        }
+        doRequest(scope, {
+            service.status(BequantPreference.getKYCToken())
+        }, { response ->
+            success.invoke(response?.message?.global!!)
+        }, { code, msg ->
+
+        }, {
+
+        })
     }
 
     companion object {
-        val ENDPOINT = "https://test006.bqtstuff.com/"
+
 
 
         private val objectMapper = ObjectMapper()
@@ -97,9 +98,16 @@ class KYCRepository {
 
         val repository by lazy { KYCRepository() }
 
+        val retrofitBuilder by lazy {getBuilder()}
         val service by lazy {
-            Retrofit.Builder()
-                    .baseUrl(ENDPOINT)
+            retrofitBuilder
+                    .build()
+                    .create(BequantKYCApiService::class.java)
+        }
+
+        private fun getBuilder(): Retrofit.Builder {
+            return Retrofit.Builder()
+                    .baseUrl(KYC_ENDPOINT)
                     .client(OkHttpClient.Builder()
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
@@ -113,8 +121,6 @@ class KYCRepository {
                             .build())
                     .addConverterFactory(NullOnEmptyConverterFactory())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-                    .build()
-                    .create(BequantKYCApiService::class.java)
         }
     }
 }

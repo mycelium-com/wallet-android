@@ -3,6 +3,7 @@ package com.mycelium.bequant
 import android.content.Context
 import com.google.gson.Gson
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.coins.Value
@@ -82,8 +83,12 @@ object BequantPreference {
 
     fun getKYCRequest() =
             Gson().fromJson(preference.getString(Constants.KYC_REQUEST_KEY, null), KYCRequest::class.java)
+                    ?: KYCRequest()
 
     fun setKYCRequest(request: KYCRequest) {
         preference.edit().putString(Constants.KYC_REQUEST_KEY, Gson().toJson(request)).apply()
     }
+
+    fun getKYCStatus(): KYCStatus = KYCStatus.valueOf(preference.getString("kyc_status", "NONE")
+            ?: "NONE")
 }

@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="java.text.SimpleDateFormat"/>
+
+        <import type="java.text.SimpleDateFormat" />
+
         <variable
             name="headerViewModel"
             type="com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel" />
@@ -42,7 +44,7 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Personal information"
+                    android:text="@string/personal_information"
                     android:textSize="20sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -60,16 +62,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="First Name"
+                    android:text="@string/first_name"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edFirstname"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
-                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:singleLine="true"
                     android:text="@={viewModel.firstName}"
                     tools:text="Name Name" />
 
@@ -78,16 +80,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="Last Name"
+                    android:text="@string/last_name"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edLastname"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
-                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:singleLine="true"
                     android:text="@={viewModel.lastName}"
                     tools:text="Name Name" />
 
@@ -96,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="Date of Birth"
+                    android:text="@string/date_of_birth"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -105,7 +107,8 @@
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="@{@string/format(viewModel.birthday)}"
+                    android:hint="@string/mm_dd_yyyy"
+                    android:text="@{viewModel.birthday != null ? @string/format(viewModel.birthday) : null}"
                     app:drawableRightCompat="@drawable/ic_date_of_birth"
                     tools:text="11/02/1999" />
 
@@ -115,7 +118,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="Nationality"
+                    android:text="@string/nationality"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -153,14 +156,14 @@
                     android:layout_marginTop="12dp">
 
                     <RadioButton
-                            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                        style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="10dp"
                         android:text="I warrant that I do fall under FATCA" />
 
                     <RadioButton
-                            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                        style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="10dp"
@@ -180,8 +183,8 @@
                     style="@style/Bequant.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:enabled="@{viewModel.nextButton}"
                     android:layout_marginTop="32dp"
+                    android:enabled="@{viewModel.nextButton}"
                     android:text="Next" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </ScrollView>

@@ -1,5 +1,6 @@
 package com.mycelium.bequant.remote.trading.api
 
+import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.trading.model.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -33,7 +34,7 @@ interface AccountApi {
 
     @FormUrlEncoded
     @POST("/account/crypto/withdraw")
-    suspend fun accountCryptoWithdrawPost(@Field("currency") currency: kotlin.String, @Field("amount") amount: kotlin.String, @Field("address") address: kotlin.String, @Field("paymentId") paymentId: kotlin.String, @Field("includeFee") includeFee: kotlin.Boolean, @Field("autoCommit") autoCommit: kotlin.Boolean, @Field("useOffchain") useOffchain: kotlin.String): Response<InlineResponse200>
+    suspend fun accountCryptoWithdrawPost(@Field("currency") currency: kotlin.String, @Field("amount") amount: kotlin.String, @Field("address") address: kotlin.String, @Field("paymentId") paymentId: kotlin.String?, @Field("includeFee") includeFee: kotlin.Boolean?, @Field("autoCommit") autoCommit: kotlin.Boolean?, @Field("useOffchain") useOffchain: kotlin.String?): Response<InlineResponse200>
 
     @GET("/account/transactions")
     suspend fun accountTransactionsGet(@Query("currency") currency: kotlin.String, @Query("sort") sort: kotlin.String, @Query("by") by: kotlin.String, @Query("from") from: kotlin.String, @Query("till") till: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("offset") offset: kotlin.Int): Response<kotlin.Array<Transaction>>
@@ -45,4 +46,8 @@ interface AccountApi {
     @POST("/account/transfer")
     suspend fun accountTransferPost(@Field("currency") currency: kotlin.String, @Field("amount") amount: kotlin.String, @Field("type") type: kotlin.String): Response<InlineResponse200>
 
+    companion object {
+
+        fun create(): AccountApi = createApi()
+    }
 }

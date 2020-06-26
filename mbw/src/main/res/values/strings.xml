@@ -105,6 +105,12 @@
     <string name="gas_used">Gas Used</string>
     <string name="gas_price">Gas Price</string>
     <string name="nonce">Nonce</string>
+    <string name="eth_internal_transfer">(%s has been transferred to the caller)</string>
+    <string name="replace_transaction">Transaction to be replaced</string>
+    <string name="gas_limit_error">Gas Limit must be at least 21000</string>
+    <string name="input_data">Input Data</string>
+    <string name="input_data_format">Input Data format</string>
+    <string name="input_data_format_desc">The Input Data should be in hexadecimal form. Start with \'0x\' prefix is not necessary, it is inserted automatically if needed.</string>
     <string name="pref_category_pin">PIN Settings</string>
     <string name="randomize_pin">Randomize PIN pad</string>
     <string name="randomize_pin_text">Considerably improves security by randomizing PIN pad layout</string>
@@ -153,6 +159,7 @@
     <string name="found_clipboard_public_keys_message">The clipboard contains a public key.\nDo you want to clear the clipboard?</string>
     <string name="balance_rate">1 %1$s ~ %2$s %3$s</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
+    <string name="no_exchange_available">No Exchange available for Account</string>
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
@@ -167,7 +174,7 @@
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
-    <string name="eth_accounts_name">Ethereum</string>
+    <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
     <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
     <string name="active_accounts_empty">(Empty)</string>
@@ -175,6 +182,7 @@
     <string name="archive_action">Archive</string>
     <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="question_archive_many_accounts"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and %3$s]]></string>
     <string name="master_seed_configuration_title">Welcome to Mycelium</string>
     <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
@@ -195,6 +203,7 @@
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
     <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
@@ -206,6 +215,7 @@
     <string name="sending_addresses">Address Book</string>
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="delete_accounts_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and %3$s]]></string>
     <string name="delete_archived_account_message"><![CDATA[Do you want to delete accounts <b>\"%1$s\"</b> and <b>\"%2$s\"</b>?]]></string>
     <string name="delete_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="delete_archived_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b>]]></string>
@@ -256,6 +266,7 @@
     <string name="share_with">Share with…</string>
     <string name="bitcoin_name">Bitcoin</string>
     <string name="bitcoin_cash_name">Bitcoin Cash</string>
+    <string name="ethereum_name">Ethereum</string>
     <string name="import_decrypt_key_title">Private Key Decryption</string>
     <string name="import_decrypt_key_description">You are about to decrypt a password protected private key.</string>
     <string name="import_decrypt_key_enter_password">Enter the 15 character password and checksum.</string>
@@ -501,7 +512,7 @@
         <item quantity="one">Contains %1$d address.</item>
         <item quantity="other">Contains %1$d addresses.</item>
     </plurals>
-    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
+    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$d transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
@@ -552,6 +563,7 @@
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
     <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
     <string name="eth_account_creation_started">Creating new ETH Account…</string>
+    <string name="erc20_account_creation_started">Creating new ERC-20 Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>
@@ -926,6 +938,7 @@
     <!-- Simplex end -->
 
     <string name="label_single_key_icon">a single key</string>
+    <string name="label_token_icon">an ERC-20 token icon</string>
     <string name="label_blue_circle">blue circle</string>
     <string name="label_type_it_in">type it in</string>
     <string name="label_use_device_location">use device location</string>
@@ -998,6 +1011,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be deleted.</string>
+    <string name="both_eth_and_tokens_will_deleted" formatted="false">All, %s and its token accounts, will be deleted.</string>
     <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
     <string name="selected_colu_info">You are now working on this %s account.</string>
     <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
@@ -1109,8 +1123,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="no_spendable_accounts">No spendable accounts</string>
     <string name="digital_assets">Digital Assets</string>
     <string name="how_is_it_calculated">How is it calculated?</string>
-    <string name="how_is_it_calculated_text_utxo_based">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
-    <string name="how_is_it_calculated_text_other">The \"Spendable Amount\" is the account\'s balance minus miner fee.</string>
+    <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
     <string name="import_xpub_should_xpriv">Only spendable accounts with Digital Assets are supported for account level 0. Please use xpriv instead of xpub</string>
     <string name="no_digital_asset">Your BIP32 private key does not hold any digital assets.\n\nIf you believe otherwise try to scan it again.</string>
     <string name="coco_addresses_scanned">%d addresses have been scanned</string>
@@ -1148,7 +1161,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="this_is_read_only_account">This is watch-only account. In order to spend funds from it, you need to import the corresponding private key.\nYou can do it by selecting Accounts tab > Add New Account > Advanced and using either Scan or Clipboard option for key\'s importing.</string>
     <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
-    <string name="waiting_offer">Waiting offer…</string>
+    <string name="waiting_offer">Waiting for an offer…</string>
     <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>
@@ -1326,18 +1339,38 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="you_about_turn_off_mf">You are about to turn Media Flow off</string>
     <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news, the wallet features reviews, Micro OTC special offers and more.\n\nYou can always turn it on in Settings -> Mycelium services.\n\nIf you only want to disable notifications, please go to Settings -> Personalization -> Notifications.</string>
     <string name="not_correct_address_type">Not correct address type</string>
+    <string name="payment_uri_wrong_account_erc20">Select %s account in order to read the payment uri</string>
+    <string name="payment_uri_wrong_account_eth">Select Ethereum account in order to read the payment uri</string>
+    <string name="payment_uri_unsupported_token">The token requested in the payment uri is not supported</string>
     <string name="export_fio">Export FIO public key</string>
     <string name="export_fio_public_key_title">Export FIO public key</string>
     <string name="buy_ethereum">BUY / SELL ETH</string>
     <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
     <string name="share_fio_public_key">Share FIO public key</string>
+    <string name="add_erc20_account">Add ERC-20 Account</string>
     <string name="buy_eth">BUY ETH</string>
     <string name="sell_eth">SELL ETH</string>
     <string name="buy_bitcoin">BUY BITCOIN</string>
     <string name="sell_bitcoin">SELL BITCOIN</string>
     <string name="dialog_title_buy_sell_eth_sepa">Buy or Sell ETH using SEPA</string>
     <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
+    <string name="select_token">Add ERC-20 tokens to \"%s\" account</string>
+    <string name="select_token_new_account">Add ERC-20 tokens to new ETH Account</string>
+    <string name="select_eth_account_to_erc20">Select ETH Account to store your ERC-20 tokens</string>
+    <string name="create_new_account">Add new ETH Account</string>
+    <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal ETH transfers, the value is 21,000.\nFor contract this value is higher and bound by block gas limit.</string>
+    <string name="gas_limit_info_title">Gas Limit</string>
+    <string name="transaction_options">Transaction options</string>
+    <string name="transaction_gas_limit">Transaction Gas Limit</string>
+    <string name="transaction_input_data">Transaction Input Data</string>
+    <string name="account_added_part">(Added)</string>
+    <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of ERC-20 tokens - one of each type per ETH account.</string>
+    <string name="list_added_tokens">ERC-20 tokens on \"%s\" account</string>
+    <string name="list_added_tokens_new_account">ERC-20 tokens on new account</string>
+    <string name="tx_replace_info_title">Transaction to be replaced</string>
+    <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
+    <string name="none">none</string>
     <string name="send_mail">Send mail…</string>
     <string name="add_investment_account">Add Investment Account</string>
     <string name="activate_investment_account">Activate Investment Account</string>
@@ -1418,6 +1451,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="if_none_of_the_above_helps_please_contact_our_support_team">If none of the above helps, please contact our <font color="#F2E868">support team.</font></string>
     <string name="bequant_s_deposit_address">%s Deposit Address</string>
     <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
+    <string name="bequant_deposit">Deposit</string>
     <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="step_n">Step %d</string>
@@ -1426,4 +1460,24 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="residential_address">Residential Address</string>
     <string name="doc_selfie"><![CDATA[Documents & Selfie]]></string>
     <string name="identity_auth">Identity Authentication</string>
+    <string name="upload_document">Upload Document</string>
+    <string name="upload_selfie">Upload Selfie</string>
+    <string name="identity_document">Identity Document</string>
+    <string name="add_document">Add Document</string>
+    <string name="add_selfie">Add Selfie</string>
+    <string name="finish">Finish</string>
+    <string name="proof_of_address">Proof of Address</string>
+    <string name="selfie">Selfie</string>
+    <string name="mm_dd_yyyy">mm/dd/yyyy</string>
+    <string name="date_of_birth">Date of Birth</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="personal_information">Personal information</string>
+    <string name="nationality">Nationality</string>
+    <string name="thank_you_for_completing_the_application_form">Thank you for completing the application form</string>
+    <string name="if_you_are_happy_with_the_content_please_submit_your_application_by_pressing_the_submit_button">If you are happy with the content please submit your application by pressing the Submit button.</string>
+    <string name="we_will_notify_you_of_the_outcome_of_the_application_as_soon_as_we_review_your_information_thank_you_for_your_patience">We will notify you of the outcome of the application as soon as we review your information. Thank you for your patience.</string>
+    <string name="your_account_was_verified_sucessfully">Your account was verified sucessfully.</string>
+    <string name="we_were_not_able_to_accept_verify_some_of_the_documents">We were not able to accept/verify some of the documents that you had submitted. Please check that the documents meet our requirements and re-submit your application.</string>
+    <string name="see_more">See more</string>
 </resources>

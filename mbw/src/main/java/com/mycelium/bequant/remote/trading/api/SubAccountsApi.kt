@@ -1,5 +1,6 @@
 package com.mycelium.bequant.remote.trading.api
 
+import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.trading.model.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -33,4 +34,8 @@ interface SubAccountsApi {
     @POST("/sub-acc/transfer")
     suspend fun subAccTransferPost(@Field("subAccountId") subAccountId: kotlin.Int, @Field("amount") amount: kotlin.String, @Field("currency") currency: kotlin.String, @Field("type") type: kotlin.String): Response<InlineResponse2002>
 
+
+    companion object {
+        fun create() = createApi<SubAccountsApi>()
+    }
 }

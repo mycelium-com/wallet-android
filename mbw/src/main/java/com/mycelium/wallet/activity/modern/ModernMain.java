@@ -40,10 +40,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -54,6 +50,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
@@ -84,6 +85,8 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.external.mediaflow.NewsConstants;
+import com.mycelium.wallet.external.partner.model.MainMenuContent;
+import com.mycelium.wallet.external.partner.model.MainMenuPage;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -113,6 +116,7 @@ public class ModernMain extends AppCompatActivity {
     private static final String TAB_ACCOUNTS = "tab_accounts";
     private static final String TAB_BALANCE = "tab_balance";
     private static final String TAB_HISTORY = "tab_history";
+    private static final String TAB_ADS = "tab_ads";
     private static final String TAB_RECOMMENDATIONS = "tab_recommendations";
     private static final String TAB_ADDRESS_BOOK = "tab_address_book";
 
@@ -173,6 +177,7 @@ public class ModernMain extends AppCompatActivity {
         addressBookConfig.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, false);
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig, TAB_ADDRESS_BOOK);
+        addAdsTabs(tabLayout);
         if (SettingsPreference.getMediaFlowEnabled() &&
                 Objects.equals(getIntent().getAction(), "media_flow")) {
             mNewsTab.select();
@@ -207,6 +212,28 @@ public class ModernMain extends AppCompatActivity {
         }
 
         ModularisationVersionHelper.notifyWrongModuleVersion(this);
+    }
+
+    private void addAdsTabs(TabLayout tabLayout) {
+        MainMenuContent content = SettingsPreference.getMainMenuContent();
+        if (content != null) {
+            Collections.sort(content.getPages(), (a1, a2) -> a1.getTabIndex() - a2.getTabIndex());
+            for (MainMenuPage page : content.getPages()) {
+                if (page.isEnabled() && SettingsPreference.isContentEnabled(page.getParentId())) {
+                    Bundle adsBundle = new Bundle();
+                    adsBundle.putSerializable("page", page);
+                    int tabIndex = page.getTabIndex();
+                    TabLayout.Tab newTab = tabLayout.newTab().setText(page.getTabName());
+                    if (0 <= tabIndex && tabIndex < mTabsAdapter.getCount()) {
+                        mTabsAdapter.addTab(tabIndex, newTab,
+                                AdsFragment.class, adsBundle, TAB_ADS + tabIndex);
+                    } else {
+                        mTabsAdapter.addTab(newTab,
+                                AdsFragment.class, adsBundle, TAB_ADS + tabIndex);
+                    }
+                }
+            }
+        }
     }
 
     private void checkGapBug() {

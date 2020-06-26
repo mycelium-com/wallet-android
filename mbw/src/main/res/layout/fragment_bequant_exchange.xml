@@ -1,181 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/availableLabel"
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.view.Denomination" />
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.market.viewmodel.ExchangeViewModel" />
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/exo2medium"
-        android:text="@string/available"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/available"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/exo2regular"
-        android:textColor="@color/bequant_yellow"
-        android:textSize="16sp"
-        android:text="1 BTC"
-        app:layout_constraintTop_toBottomOf="@id/availableLabel"
-        tools:text="12 000 BTC" />
-
-    <TextView
-        android:id="@+id/youSendLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/exo2medium"
-        android:text="@string/you_send"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/available" />
-
-    <RadioGroup
-        android:id="@+id/send_percent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/youSendLabel" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clSendView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_bequant_text"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:text="10"
-        app:layout_constraintTop_toBottomOf="@id/send_percent">
-
-        <TextView
-            android:id="@+id/sendView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/exo2medium"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="1000" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/sendViewSymbol"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:fontFamily="@font/exo2medium"
-                android:textColor="@color/bequant_yellow"
-                tools:text="BTC" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:rotation="180"
-                app:srcCompat="@drawable/ic_arrow_drop_down_active" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
-        android:id="@+id/rate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="1 BTC ~ 45 ETH"
-        app:layout_constraintTop_toBottomOf="@id/clSendView"
-        tools:text="1 BTC ~ 45 ETH" />
-
-    <ImageView
-        android:id="@+id/icExchange"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@null"
-        app:layout_constraintBottom_toTopOf="@id/clGetView"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/clSendView"
-        app:srcCompat="@drawable/ic_bequant_exchange" />
-
-    <TextView
-        android:id="@+id/youGetLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/exo2medium"
-        android:text="@string/you_get"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/rate" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/clGetView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_bequant_text"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        app:layout_constraintTop_toBottomOf="@id/youGetLabel">
-
-        <TextView
-            android:id="@+id/getView"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/exo2medium"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:text="1.002"
-        app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="1000 BTC" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/getViewSymbol"
+                android:id="@+id/availableLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/available"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/available"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:fontFamily="@font/exo2medium"
+                android:fontFamily="@font/exo2regular"
+                android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.available,Denomination.UNIT)}"
                 android:textColor="@color/bequant_yellow"
-                tools:text="BTC" />
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/availableLabel"
+                app:layout_constraintTop_toBottomOf="@id/availableLabel"
+                tools:text="12 000 BTC" />
+
+            <Button
+                android:id="@+id/deposit"
+                style="@style/Bequant.Button.PrimarySmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bequant_deposit"
+                android:visibility="@{viewModel.available.equalZero() ? View.VISIBLE : View.INVISIBLE}"
+                app:layout_constraintEnd_toEndOf="@+id/availableLabel"
+                app:layout_constraintTop_toBottomOf="@id/availableLabel" />
+
+            <TextView
+                android:id="@+id/youSendLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/you_send"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/available" />
+
+            <RadioGroup
+                android:id="@+id/send_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/youSendLabel" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clSendView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_bequant_text"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                app:layout_constraintTop_toBottomOf="@id/send_percent">
+
+                <TextView
+                    android:id="@+id/sendView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/exo2medium"
+                    android:text="@={viewModel.youSendText}"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:drawablePadding="4dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="1000" />
+
+                <LinearLayout
+                    android:id="@+id/sendSymbolLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/sendViewSymbol"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:fontFamily="@font/exo2medium"
+                        android:text="@{viewModel.youSend.currencySymbol}"
+                        android:textColor="@color/bequant_yellow"
+                        tools:text="BTC" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:rotation="180"
+                        app:srcCompat="@drawable/ic_arrow_drop_down_active" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/rate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@{viewModel.rate}"
+                app:layout_constraintTop_toBottomOf="@id/clSendView"
+                tools:text="1 BTC ~ 45 ETH" />
 
             <ImageView
+                android:id="@+id/icExchange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:rotation="180"
-                app:srcCompat="@drawable/ic_arrow_drop_down_active" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toTopOf="@id/clGetView"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/clSendView"
+                app:srcCompat="@drawable/ic_bequant_exchange" />
 
-    <Button
-        android:id="@+id/exchange"
-        style="@style/Bequant.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/exchange"
-        app:layout_constraintTop_toBottomOf="@id/clGetView" />
+            <TextView
+                android:id="@+id/youGetLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/you_get"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/rate" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clGetView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_bequant_text"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                app:layout_constraintTop_toBottomOf="@id/youGetLabel">
+
+                <TextView
+                    android:id="@+id/getView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/exo2medium"
+                    android:text="@={viewModel.youGetText}"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:drawablePadding="4dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="1000 " />
+
+                <LinearLayout
+                    android:id="@+id/getSymbolLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/getViewSymbol"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:fontFamily="@font/exo2medium"
+                        android:text="@{viewModel.youGet.currencySymbol}"
+                        android:textColor="@color/bequant_yellow"
+                        tools:text="BTC" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:rotation="180"
+                        app:srcCompat="@drawable/ic_arrow_drop_down_active" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Button
+                android:id="@+id/exchange"
+                style="@style/Bequant.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/exchange"
+                app:layout_constraintTop_toBottomOf="@id/clGetView" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            layout="@layout/layout_value_keyboard"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
+</layout>

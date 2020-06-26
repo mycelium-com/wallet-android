@@ -142,6 +142,7 @@
 
     <style name="MyceliumModern.Dialog.BlueButtons">
         <item name="android:buttonStyle">@style/MyceliumButton.Blue</item>
+        <item name="android:windowTitleStyle">@style/BlueDialogTitle</item>
     </style>
 
     <style name="MyceliumModern.Dialog.Transparent" >
@@ -382,15 +383,15 @@
 
 
     <style name="BuySell.Dialog" parent="MyceliumModern.Dialog">
-        <item name="android:windowTitleStyle">@style/BuySellDialogTitle</item>
+        <item name="android:windowTitleStyle">@style/BlueDialogTitle</item>
     </style>
 
-    <style name="BuySellDialogTitle">
+    <style name="BlueDialogTitle">
         <item name="android:textColor">@color/common_blue</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Bequant" parent="AppBaseTheme">
+    <style name="Bequant" parent="MyceliumModern">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowBackground">@color/bequant_gray_2</item>
@@ -424,6 +425,18 @@
         <item name="android:background">@drawable/bg_bequant_button</item>
         <item name="android:textColor">@color/bequant_gray</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Bequant.Button.PrimarySmall">
+        <item name="android:buttonStyle">@style/MyceliumButton</item>
+        <item name="android:fontFamily">@font/exo2regular</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:background">@drawable/bg_bequant_button_primary_small</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Bequant.Button.Green">
+        <item name="android:background">@drawable/bg_bequant_button_green</item>
     </style>
     <style name="Bequant.Button.Small">
         <item name="android:background">@drawable/bg_bequant_button_small</item>

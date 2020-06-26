@@ -49,6 +49,7 @@ import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import java.text.DateFormat;
@@ -78,7 +79,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         GenericDetailsFragment detailsFragment = (GenericDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
         if (detailsFragment == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            if (account instanceof EthAccount) {
+            if (account instanceof EthAccount || account instanceof ERC20Account) {
                 transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
             } else {
                 transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode));

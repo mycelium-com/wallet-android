@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.btc.single;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
@@ -31,6 +32,7 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -48,6 +50,7 @@ import com.mycelium.wapi.wallet.btc.Reference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -258,7 +261,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          try {
             int toIndex = Math.min(fromIndex + chunkSize, toFetch.size());
             GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();
-            handleNewExternalTransactions(response.transactions);
+            Collection<TransactionEx> transactionsEx = Lists.newLinkedList(response.transactions);
+            handleNewExternalTransactions(transactionsEx);
          } catch (WapiException e) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
@@ -278,6 +282,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public boolean canSpend() {
       return _keyStore.hasPrivateKey(getAddress().getAllAddressBytes());
+   }
+
+   @Override
+   public boolean canSign() {
+      return true;
    }
 
    @Override

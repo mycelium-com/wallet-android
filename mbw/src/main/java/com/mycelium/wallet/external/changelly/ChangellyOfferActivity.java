@@ -161,7 +161,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
                 .enqueue(new GetOfferCallback(amount));
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Waiting offer...");
+        progressDialog.setMessage(getString(R.string.waiting_offer));
         progressDialog.show();
     }
 

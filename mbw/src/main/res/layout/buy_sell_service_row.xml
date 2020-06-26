@@ -10,8 +10,6 @@
         android:id="@+id/llServiceRow"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
         android:orientation="horizontal"
         android:padding="@dimen/activity_vertical_margin">
 

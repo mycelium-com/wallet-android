@@ -24,6 +24,12 @@
         <action
             android:id="@+id/actionPending"
             app:destination="@id/finalPresubmit" />
+        <action
+            android:id="@+id/actionApproved"
+            app:destination="@id/callbackApprovedFragment" />
+        <action
+            android:id="@+id/actionRejected"
+            app:destination="@id/callbackRejectFragment" />
     </fragment>
 
     <fragment
@@ -89,7 +95,7 @@
         <action
             android:id="@+id/actionEditStep1"
             app:destination="@id/kycStep1"
-            app:popUpTo="@id/phoneVerify"/>
+            app:popUpTo="@id/phoneVerify" />
         <action
             android:id="@+id/actionSelectCountry"
             app:destination="@id/chooseCountry">
@@ -114,12 +120,12 @@
         <action
             android:id="@+id/actionEditStep1"
             app:destination="@id/kycStep1"
-            app:popUpTo="@id/phoneVerify"/>
+            app:popUpTo="@id/phoneVerify" />
 
         <action
             android:id="@+id/actionEditStep2"
             app:destination="@id/kycStep2"
-            app:popUpTo="@id/kycStep1"/>
+            app:popUpTo="@id/kycStep1" />
     </fragment>
 
     <fragment
@@ -169,4 +175,23 @@
         android:name="com.mycelium.bequant.common.CountryFailFragment"
         android:label="CountryFailFragment"
         tools:layout="@layout/fragment_country_fail" />
+    <fragment
+        android:id="@+id/callbackApprovedFragment"
+        android:name="com.mycelium.bequant.kyc.callback.CallbackApprovedFragment"
+        android:label="CallbackApprovedFragment"
+        tools:layout="@layout/fragment_kyc_approved_callback" />
+    <fragment
+        android:id="@+id/callbackRejectFragment"
+        android:name="com.mycelium.bequant.kyc.callback.CallbackRejectFragment"
+        android:label="CallbackRejectFragment"
+        tools:layout="@layout/fragment_kyc_reject_callback">
+        <action
+            android:id="@+id/actionEditStep3"
+            app:destination="@id/kycStep3"
+            app:popUpTo="@id/kycStep2">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+    </fragment>
 </navigation>

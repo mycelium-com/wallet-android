@@ -35,7 +35,8 @@
 package com.mycelium.wallet;
 
 
-import com.mycelium.wallet.activity.ConnectionLogsActivity;
+import android.text.TextUtils;
+
 import com.mycelium.wallet.activity.FormattedLog;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
@@ -52,52 +53,43 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 public class DataExport {
-    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
+    private static final String CSV_HEADER = "Account,Transaction ID,Destination Address,Timestamp,Value,Currency,Transaction Label\n";
+
+    private DataExport() {}
 
     public static File getTxHistoryCsv(WalletAccount account, List<GenericTransactionSummary> history,
                                        MetadataStorage storage, File file) throws IOException {
-        FileOutputStream fos = new FileOutputStream(file);
-        OutputStreamWriter osw = new OutputStreamWriter(fos);
-        osw.write(CSV_HEADER);
-        String accountLabel = storage.getLabelByAccount(account.getId());
-        Collections.sort(history, new Comparator<GenericTransactionSummary>() {
-            @Override
-            public int compare(GenericTransactionSummary t1, GenericTransactionSummary t2) {
-                return (int) (t2.getTimestamp() - t1.getTimestamp());
-            }
-        });
-        for (GenericTransactionSummary transaction : history) {
-            String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
-            StringBuilder destAddresses = new StringBuilder();
-            for (GenericOutputViewModel output : transaction.getOutputs()) {
-                if (!account.isMineAddress(output.getAddress())) {
-                    destAddresses.append(output.getAddress().toString()).append(" ");
+        try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file))) {
+            osw.write(CSV_HEADER);
+            String accountLabel = storage.getLabelByAccount(account.getId());
+            Collections.sort(history);
+            for (GenericTransactionSummary transaction : history) {
+                String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
+                List<String> destAddresses = new ArrayList<>();
+                for (GenericOutputViewModel output : transaction.getOutputs()) {
+                    if (!account.isMineAddress(output.getAddress())) {
+                        destAddresses.add(output.getAddress().toString());
+                    }
                 }
+                osw.write(getTxLine(accountLabel, txLabel, TextUtils.join(" ", destAddresses), transaction));
             }
-            osw.write(getTxLine(accountLabel, txLabel, destAddresses.toString(), transaction));
         }
-        osw.close();
         return file;
     }
 
-    public static File getLogsExport(@NotNull ArrayList<FormattedLog> logs,
-                                     File file) throws IOException {
-        FileOutputStream fos = new FileOutputStream(file);
-        OutputStreamWriter osw = new OutputStreamWriter(fos);
-
-        for (FormattedLog formattedLog : logs) {
-            osw.write(formattedLog.toString());
-            osw.write("\n");
+    public static File getLogsExport(@NotNull List<FormattedLog> logs, File file) throws IOException {
+        try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file))) {
+            for (FormattedLog formattedLog : logs) {
+                osw.write(formattedLog.toString());
+                osw.write("\n");
+            }
         }
-
-        osw.close();
         return file;
     }
 
@@ -107,13 +99,14 @@ public class DataExport {
         df.setTimeZone(tz);
         String date = df.format(new Date(transaction.getTimestamp() * 1000L));
         String value = transaction.getTransferred().toPlainString();
+        String name = transaction.getTransferred().type.getName();
         return
                 escape(accountLabel) + "," +
                         transaction.getIdHex() + "," +
                         destAddresses + "," +
                         date + "," +
                         value + "," +
-                        transaction.getType().getName() + "," +
+                        name + "," +
                         escape(txLabel) + "\n";
     }
 

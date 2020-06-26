@@ -44,6 +44,19 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                 }
             })
         }
+        SettingsPreference.getPartnerInfos().filter { it.name != null }.forEach { partnerInfo ->
+            preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
+                title = resources.getString(R.string.settings_service_enabled, partnerInfo.name)
+                layoutResource = R.layout.preference_layout
+                isChecked = SettingsPreference.isEnabled(partnerInfo.id ?: "")
+                widgetLayoutResource = R.layout.preference_switch
+                onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference ->
+                    val p = preference as CheckBoxPreference
+                    SettingsPreference.setEnabled(partnerInfo.id ?: "", p.isChecked)
+                    true
+                }
+            })
+        }
         if (fioActive) {
             preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
                 setTitle(R.string.settings_fiopresale_title)

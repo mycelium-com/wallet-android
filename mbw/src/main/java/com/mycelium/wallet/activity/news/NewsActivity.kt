@@ -28,6 +28,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.NewsFragment
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.GetMediaFlowTopicTask
 import com.mycelium.wallet.external.mediaflow.MediaFlowSyncWorker
 import com.mycelium.wallet.external.mediaflow.NewsConstants
@@ -36,6 +37,7 @@ import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.activity_news.*
 import kotlin.math.abs
+import kotlin.math.exp
 
 
 class NewsActivity : AppCompatActivity() {
@@ -66,7 +68,7 @@ class NewsActivity : AppCompatActivity() {
             val scrollDelta = abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
             tvCategory.alpha = 1 - scrollDelta
             toolbar_shadow.visibility = if (scrollDelta == 1f) VISIBLE else GONE
-            collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title) else ""
+            collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title.rendered) else ""
             llRoot.clipChildren = scrollDelta == 1f
             llRoot.clipToPadding = scrollDelta == 1f
         })
@@ -114,11 +116,22 @@ class NewsActivity : AppCompatActivity() {
             startActivity(Intent(this, NewsImageActivity::class.java)
                     .putExtra("url", url))
         }
+        ivImage.setOnClickListener {
+            startActivity(Intent(this, NewsImageActivity::class.java)
+                    .putExtra("url", news.image))
+        }
         scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
             val layoutParams = scrollBar.layoutParams
             val scrollHeight = scrollView.getChildAt(0).measuredHeight - scrollView.measuredHeight
             layoutParams.width = scrollView.measuredWidth * scrollY / scrollHeight
             scrollBar.layoutParams = layoutParams
+            if (bottomButtonBanner.visibility == VISIBLE) {
+                // sigmoid function for smooth change translationY of banner button
+                val contentHeight = content.height + headLayout.height + tvTitle.height +
+                        resources.getDimensionPixelOffset(R.dimen.media_head_margin_sum)
+                val sigmoid = 1.0f / (1.0f + exp((contentHeight - scrollView.measuredHeight - scrollY).toDouble() / 100))
+                bottomButtonBanner.translationY = (sigmoid * bottomButtonBanner.height).toFloat()
+            }
         })
         shareBtn2.setOnClickListener {
             share()
@@ -130,10 +143,28 @@ class NewsActivity : AppCompatActivity() {
             startActivity(Intent(this, NewsActivity::class.java)
                     .putExtra(NewsConstants.NEWS, it))
         }
+
+        SettingsPreference.getMediaFlowContent()?.bannersDetails
+                ?.firstOrNull { banner ->
+                    banner.isEnabled && news.tags?.firstOrNull { it.name.equals(banner.tag, true) } != null
+                            && SettingsPreference.isContentEnabled(banner.parentId)
+                }?.let { banner ->
+                    bottomButtonBanner.visibility = VISIBLE
+                    Glide.with(bottomButtonBanner)
+                            .load(banner.imageUrl)
+                            .into(bottomButtonBanner)
+                    bottomButtonBanner.setOnClickListener {
+                        openLink(banner.link)
+                    }
+                }
+    }
+
+    private fun openLink(link: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
     }
 
     fun updateUI() {
-        news.content?.let { topicContent ->
+        news.content?.rendered?.let { topicContent ->
             val parsedContent = NewsUtils.parseNews(topicContent)
             val contentText = parsedContent.news
                     .replace("width=\".*?\"", "width=\"100%\"")
@@ -152,13 +183,13 @@ class NewsActivity : AppCompatActivity() {
         }
         news_loading.visibility = if (news.isFull) INVISIBLE else VISIBLE
 
-        tvTitle.text = Html.fromHtml(news.title)
+        tvTitle.text = Html.fromHtml(news.title.rendered)
         news.date?.let {
             tvDate.text = NewsUtils.getDateString(this, news)
         }
         tvAuthor.text = news.author?.name
 
-        val categoryText = if (news.categories?.values?.isNotEmpty() == true) news.categories.values.elementAt(0).name else ""
+        val categoryText = news.categories?.firstOrNull()?.name ?: ""
         tvCategory.text = categoryText
         news.image?.let {
             Glide.with(ivImage)
@@ -181,7 +212,7 @@ class NewsActivity : AppCompatActivity() {
 
     private fun share() {
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND)
-                .putExtra(Intent.EXTRA_SUBJECT, Html.fromHtml(news.title))
+                .putExtra(Intent.EXTRA_SUBJECT, Html.fromHtml(news.title.rendered))
                 .putExtra(Intent.EXTRA_TEXT, news.link)
                 .setType("text/plain"), getString(R.string.share_news)))
     }

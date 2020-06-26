@@ -74,8 +74,9 @@ data class KYCStatusResponse(var status: Int?,
                              var message: StatusMessage?,
                              var error: Int?)
 
-data class StatusMessage(val phoneVerified: Boolean,
-                         val global: KYCStatus)
+data class StatusMessage(val global: KYCStatus,
+                         @JsonProperty("global_message") val message: String,
+                         val sections: List<Map<String, Boolean>>)
 
 data class KYCResponse(var status: Int?,
                        var message: String?,
@@ -86,4 +87,4 @@ enum class KYCDocument {
     EXP, POA, DRIVERS_FRONT_SIDE, DRIVERS_BACK_SIDE
 }
 
-enum class KYCStatus { PENDING, INCOMPLETE, REJECTED, APPROVED, SIGNED_OFF }
+enum class KYCStatus { NONE, PENDING, INCOMPLETE, REJECTED, APPROVED, SIGNED_OFF }

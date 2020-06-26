@@ -80,6 +80,7 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
         if (BequantPreference.getKYCToken().isNotEmpty()) {
             loader(true)
             KYCRepository.repository.status(lifecycleScope) { status ->
+                loader(false)
                 when (status) {
                     KYCStatus.PENDING,
                     KYCStatus.INCOMPLETE ->
