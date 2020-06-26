@@ -5,7 +5,7 @@ import com.mycelium.bequant.remote.trading.api.PublicApi
 import com.mycelium.bequant.remote.trading.model.*
 import kotlinx.coroutines.CoroutineScope
 
-class PublicApiRespositories {
+class PublicApiRespository {
 
     private val api = PublicApi.create()
 
