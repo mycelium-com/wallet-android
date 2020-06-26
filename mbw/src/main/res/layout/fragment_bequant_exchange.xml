@@ -92,13 +92,13 @@
 
                 <TextView
                     android:id="@+id/sendView"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/exo2medium"
                     android:text="@={viewModel.youSendText}"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    app:layout_constraintEnd_toStartOf="@id/sendSymbolLayout"
+                    android:drawablePadding="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="1000" />
@@ -134,7 +134,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="1 BTC ~ 45 ETH"
+                android:text="@{viewModel.rate}"
                 app:layout_constraintTop_toBottomOf="@id/clSendView"
                 tools:text="1 BTC ~ 45 ETH" />
 
@@ -171,13 +171,13 @@
 
                 <TextView
                     android:id="@+id/getView"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/exo2medium"
                     android:text="@={viewModel.youGetText}"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    app:layout_constraintEnd_toStartOf="@id/getSymbolLayout"
+                    android:drawablePadding="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="1000 " />

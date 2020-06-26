@@ -12,7 +12,7 @@ class ExchangeViewModel : ViewModel() {
     val available = MutableLiveData<Value>(getMockCastodialBalance())
     val youSend = MutableLiveData(Value.valueOf(Utils.getBtcCoinType(), 0))
     val youGet = MutableLiveData(Value.valueOf(Utils.getEthCoinType(), 0))
-    val fullSourceUnitDestinationPrice = MutableLiveData(Value.zeroValue(Utils.getEthCoinType()))
+    val rate = MutableLiveData("")
 
     val youSendText = MutableLiveData<String>()
     val youGetText = MutableLiveData<String>()

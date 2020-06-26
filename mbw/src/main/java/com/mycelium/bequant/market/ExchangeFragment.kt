@@ -1,11 +1,13 @@
 package com.mycelium.bequant.market
 
 import android.content.Intent
+import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -20,16 +22,21 @@ import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
+import java.math.BigDecimal
+import java.math.BigInteger
 
 
 class ExchangeFragment : Fragment() {
 
     private lateinit var viewModel: ExchangeViewModel
     private lateinit var exchangeRateManager: ExchangeRateManager
+    var getViewActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,48 +66,72 @@ class ExchangeFragment : Fragment() {
         send_percent.apply {
             (getChildAt(childCount - 1) as RadioButton).isChecked = true
         }
-        sendView.setOnClickListener {
+        numeric_keyboard.setInputListener(object : ValueKeyboard.SimpleInputListener() {
+            override fun done() {
+                getViewActive = false
+                stopCursor(sendView);
+                stopCursor(getView);
+            }
+        })
+        clSendView.setOnClickListener {
             numeric_keyboard.setMaxDecimals(viewModel.youSend.value?.type?.unitExponent ?: 8)
             numeric_keyboard.visibility = View.VISIBLE
             numeric_keyboard.inputTextView = sendView
             numeric_keyboard.setEntry(sendView.text.toString())
+            startCursor(sendView)
+            stopCursor(getView);
+            getViewActive = false
+
         }
-        getView.setOnClickListener {
+        clGetView.setOnClickListener {
             numeric_keyboard.setMaxDecimals(viewModel.youGet.value?.type?.unitExponent ?: 8)
             numeric_keyboard.visibility = View.VISIBLE
             numeric_keyboard.inputTextView = getView
             numeric_keyboard.setEntry(getView.text.toString())
+            startCursor(getView)
+            stopCursor(sendView);
+            getViewActive = true
         }
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
-            it.toString(Denomination.UNIT).let {
-                if (it != viewModel.youSendText.value) {
-                    viewModel.youSendText.value = it
+            try {
+                if (!equals(it, viewModel.youSendText.value)) {
+                    viewModel.youSendText.value = it.toString(Denomination.UNIT)
                 }
+            } catch (e: NumberFormatException) {
+                viewModel.youSendText.value = it.toString(Denomination.UNIT)
+            }
+            // calculate receive value if receive view not active
+            if (!getViewActive) {
+                calculateReceiveValue()
             }
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
-            viewModel.youSend.value?.type?.let { type ->
-                Value.valueOf(type, it).let {
-                    if (viewModel.youSend != it) {
-                        viewModel.youSend.value = it
-                    }
+            try {
+                if (!equals(viewModel.youGet.value, it)) {
+                    viewModel.youSend.value = viewModel.youSend.value?.type?.value(it)
                 }
+            } catch (e: NumberFormatException) {
             }
         })
         viewModel.youGet.observe(viewLifecycleOwner, Observer {
-            it.toString(Denomination.UNIT).let {
-                if (it != viewModel.youGetText.value) {
-                    viewModel.youGetText.value = it
+            try {
+                if (!equals(it, viewModel.youGetText.value)) {
+                    viewModel.youGetText.value = it.toString(Denomination.UNIT)
                 }
+            } catch (e: NumberFormatException) {
+                viewModel.youGetText.value = it.toString(Denomination.UNIT)
+            }
+            // calculate send value only if receive view active
+            if (getViewActive) {
+                calculateSendValue()
             }
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
-            viewModel.youGet.value?.type?.let { type ->
-                Value.valueOf(type, it).let {
-                    if (viewModel.youGet != it) {
-                        viewModel.youGet.value = it
-                    }
+            try {
+                if (!equals(viewModel.youGet.value, it)) {
+                    viewModel.youGet.value = viewModel.youGet.value?.type?.value(it)
                 }
+            } catch (e: NumberFormatException) {
             }
         })
         sendSymbolLayout.setOnClickListener {
@@ -122,15 +153,37 @@ class ExchangeFragment : Fragment() {
         deposit.setOnClickListener { findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit")) }
         updateYouSend(100)
         recalculateDestinationPrice()
-        recalculateReceivedValue()
+        calculateReceiveValue()
+    }
+
+    private fun equals(value: Value?, text: String?) = ((value?.valueAsBigDecimal
+            ?: BigDecimal.ZERO) - BigDecimal(text ?: "")).unscaledValue() == BigInteger.ZERO
+
+    private fun startCursor(textView: TextView) {
+        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.bequant_input_cursor, 0)
+        textView.post {
+            val animationDrawable = textView.compoundDrawables[2] as AnimationDrawable
+            if (!animationDrawable.isRunning) {
+                animationDrawable.start()
+            }
+        }
+    }
+
+    private fun stopCursor(textView: TextView) {
+        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
     }
 
     private fun recalculateDestinationPrice() {
         val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0);
-        viewModel.fullSourceUnitDestinationPrice.value = exchangeRateManager.get(singleCoin, viewModel.youGet.value!!.type)
+        viewModel.rate.value = "1 ${singleCoin.type.symbol} ~ " +
+                "${exchangeRateManager.get(singleCoin, viewModel.youGet.value!!.type).toStringWithUnit(Denomination.UNIT)}"
     }
 
-    private fun recalculateReceivedValue() {
+    private fun calculateSendValue() {
+        viewModel.youSend.value = exchangeRateManager.get(viewModel.youGet.value, viewModel.youSend.value!!.type)
+    }
+
+    private fun calculateReceiveValue() {
         viewModel.youGet.value = exchangeRateManager.get(viewModel.youSend.value, viewModel.youGet.value!!.type)
     }
 
