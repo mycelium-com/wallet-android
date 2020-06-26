@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
@@ -32,20 +33,18 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         super.onViewCreated(view, savedInstanceState)
         pager.adapter = ReceiveFragmentAdapter(this, viewModel)
         tabs.setupWithViewPager(pager)
+        viewModel.error.observe(viewLifecycleOwner) {
+            ErrorHandler(requireContext()).handle(it)
+        }
         viewModel.currency.observe(viewLifecycleOwner, Observer {
             requestDepositAddress(viewModel.currency.value!!)
         })
     }
 
-    fun requestDepositAddress(currency: String) {
+    private fun requestDepositAddress(currency: String) {
         this.loader(true)
-        ApiRepository.repository.depositAddress(currency, {
+        viewModel.depositAddress {
             this.loader(false)
-            viewModel.address.value = it.address
-            viewModel.tag.value = it.paymentId?.toString()
-        }, { code, message ->
-            this.loader(false)
-            ErrorHandler(requireContext()).handle(message)
-        })
+        }
     }
 }
