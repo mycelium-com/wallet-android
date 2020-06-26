@@ -65,7 +65,7 @@ object RetrofitHolder {
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
                 .build()
-        KYCRepository.retrofitBuilder
+        ApiRepository.retrofitBuilder
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(EnumRetrofitConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
