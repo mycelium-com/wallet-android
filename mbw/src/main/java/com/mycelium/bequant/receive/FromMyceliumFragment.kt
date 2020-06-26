@@ -23,6 +23,7 @@ import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantReceiveFromMyceliumBinding
