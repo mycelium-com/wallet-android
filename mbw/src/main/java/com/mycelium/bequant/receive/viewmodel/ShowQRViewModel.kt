@@ -3,9 +3,8 @@ package com.mycelium.bequant.receive.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mycelium.bequant.remote.ApiRepository
 import com.mycelium.bequant.remote.trading.model.Address
-import com.mycelium.bequant.withdraw.viewmodel.AccountApiRepository
+import com.mycelium.bequant.remote.repositories.AccountApiRepository
 
 
 class ShowQRViewModel : ViewModel() {

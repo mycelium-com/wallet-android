@@ -1,4 +1,4 @@
-package com.mycelium.bequant.withdraw.viewmodel
+package com.mycelium.bequant.remote.repositories
 
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.AccountApi
