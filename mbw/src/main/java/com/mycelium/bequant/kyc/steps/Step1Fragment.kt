@@ -27,10 +27,11 @@ import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step1ViewModel
-import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.repositories.KYCRepository
 import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.bequant.remote.model.toModel
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps1Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_1.*
@@ -99,7 +100,7 @@ class Step1Fragment : Fragment() {
             viewModel.fillModel(kycRequest)
             val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
             loader(true)
-            KYCRepository.repository.create(viewModel.viewModelScope, kycRequest.toModel(applicant)) {
+            Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant)) {
                 loader(false)
                 findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
             }

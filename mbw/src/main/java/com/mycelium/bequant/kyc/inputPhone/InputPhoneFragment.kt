@@ -18,9 +18,10 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.BequantKycViewModel
-import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.repositories.KYCRepository
 import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCStatus
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycPhoneInputBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_phone_input.*
@@ -79,7 +80,7 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
         }
         if (BequantPreference.getKYCToken().isNotEmpty()) {
             loader(true)
-            KYCRepository.repository.status(lifecycleScope) { status ->
+            Api.kycRepository.status(lifecycleScope) { status ->
                 loader(false)
                 when (status) {
                     KYCStatus.PENDING,
@@ -109,8 +110,8 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
             val phone = "+${request.mobilePhoneCountryCode}${request.mobilePhone}"
             BequantPreference.setPhone(phone)
             val applicant = KYCApplicant(phone, BequantPreference.getEmail())
-            KYCRepository.repository.create(viewModel.viewModelScope, applicant) {
-                KYCRepository.repository.mobileVerification(viewModel.viewModelScope) {
+            Api.kycRepository.create(viewModel.viewModelScope, applicant) {
+                Api.kycRepository.mobileVerification(viewModel.viewModelScope) {
                     loader(false)
                     AlertDialog.Builder(requireContext())
                             .setMessage(it)

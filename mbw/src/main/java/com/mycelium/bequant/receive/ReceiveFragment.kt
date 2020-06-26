@@ -11,7 +11,6 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.ReceiveFragmentAdapter
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
-import com.mycelium.bequant.remote.ApiRepository
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_receive.*
 

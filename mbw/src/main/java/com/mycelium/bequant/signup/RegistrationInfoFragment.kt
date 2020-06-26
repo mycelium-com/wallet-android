@@ -19,8 +19,9 @@ import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountEmailConfirmResend
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBindingImpl
@@ -59,7 +60,7 @@ class RegistrationInfoFragment : Fragment() {
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         resendConfirmationEmail.setOnClickListener {
             loader(true)
-            SignRepository.repository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email), {},
+            Api.signRepository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email), {},
                     error = { _, message ->
                         ErrorHandler(requireContext()).handle(message)
                     }, finally = {

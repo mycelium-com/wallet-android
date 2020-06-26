@@ -4,19 +4,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.model.CoinListItem
-import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.bequant.remote.model.Currency
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
-import kotlinx.android.synthetic.main.item_bequant_market.*
 
 class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_coin) {
     val adapter = CoinAdapter()
@@ -29,7 +26,7 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
 
         var response : List<Currency>? = null
 
-        ApiRepository.repository.currencies({ list ->
+        Api.apiRepository.currencies({ list ->
             response = list
 
             // and create CoinListItem with them

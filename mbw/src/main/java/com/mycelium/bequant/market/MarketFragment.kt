@@ -20,7 +20,8 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
-import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_main.*
@@ -39,7 +40,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         setHasOptionsMenu(true)
         if (!BequantPreference.isDemo() && !BequantPreference.hasKeys()) {
             loader(true)
-            SignRepository.repository.getApiKeys(lifecycleScope, {
+            Api.signRepository.getApiKeys(lifecycleScope, {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
@@ -81,7 +82,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                     true
                 }
                 R.id.logOut -> {
-                    SignRepository.repository.logout()
+                    Api.signRepository.logout()
                     activity?.finish()
                     startActivity(Intent(requireContext(), SignActivity::class.java))
                     true

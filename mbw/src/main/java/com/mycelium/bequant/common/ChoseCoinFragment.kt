@@ -10,8 +10,9 @@ import com.mycelium.bequant.Constants.TYPE_ITEM
 import com.mycelium.bequant.Constants.TYPE_SEARCH
 import com.mycelium.bequant.common.adapter.CoinAdapter
 import com.mycelium.bequant.common.model.CoinListItem
-import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.bequant.remote.model.Currency
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_bequant_receive_choose_coin.*
@@ -45,7 +46,7 @@ class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin
 
     private fun loadCurrencies() {
         loader(true)
-        ApiRepository.repository.currencies({ list ->
+        Api.apiRepository.currencies({ list ->
             currencies = list
             loader(false)
             updateList()

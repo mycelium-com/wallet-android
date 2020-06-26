@@ -10,8 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountPasswordResetRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_sign_in_reset_password.*
 
@@ -29,7 +30,7 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_bequant_sign_in_reset_p
             if (validate()) {
                 loader(true)
                 val email = email.text.toString()
-                SignRepository.repository.resetPassword(lifecycleScope, AccountPasswordResetRequest(email), {
+                Api.signRepository.resetPassword(lifecycleScope, AccountPasswordResetRequest(email), {
                     findNavController().navigate(ResetPasswordFragmentDirections.actionSubmit(email))
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)

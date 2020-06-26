@@ -7,13 +7,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 import com.mycelium.bequant.receive.viewmodel.ShowQRViewModel
-import com.mycelium.bequant.remote.ApiRepository
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.FragmentBequantReceiveShowQrBinding

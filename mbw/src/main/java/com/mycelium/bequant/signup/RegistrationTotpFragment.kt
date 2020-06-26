@@ -57,7 +57,7 @@ class RegistrationTotpFragment : Fragment() {
         viewModel.email.value = BequantPreference.getEmail()
         checkIsEmailCorrect.visibility = GONE
         resendConfirmationEmail.setOnClickListener {
-//            SignRepository.repository.resendRegister(Email(register.email), {}, {})
+//            Api.signRepository.resendRegister(Email(register.email), {}, {})
         }
         supportTeam.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))

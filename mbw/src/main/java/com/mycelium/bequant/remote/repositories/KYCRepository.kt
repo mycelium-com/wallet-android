@@ -1,4 +1,4 @@
-package com.mycelium.bequant.remote
+package com.mycelium.bequant.remote.repositories
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants.KYC_ENDPOINT
+import com.mycelium.bequant.remote.BequantKYCApiService
+import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
+import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.model.*
 import kotlinx.coroutines.CoroutineScope
 import okhttp3.MultipartBody
@@ -98,7 +101,7 @@ class KYCRepository {
 
         val repository by lazy { KYCRepository() }
 
-        val retrofitBuilder by lazy {getBuilder()}
+        val retrofitBuilder by lazy { getBuilder() }
         val service by lazy {
             retrofitBuilder
                     .build()

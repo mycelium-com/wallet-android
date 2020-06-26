@@ -25,8 +25,9 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
-import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.bequant.remote.model.BequantBalance
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -37,7 +38,6 @@ import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
-import com.mycelium.wallet.activity.util.toString
 
 class AccountFragment : Fragment() {
     val adapter = BequantAccountAdapter()
@@ -122,7 +122,7 @@ class AccountFragment : Fragment() {
 
     private fun requestBalances() {
         if (BequantPreference.hasKeys()) {
-            ApiRepository.repository.balances({
+            Api.apiRepository.balances({
                 balancesData = it
                 updateList()
             }, { code, error ->

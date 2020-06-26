@@ -1,10 +1,11 @@
-package com.mycelium.bequant.remote
+package com.mycelium.bequant.remote.repositories
 
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.client.apis.AccountApi
 import com.mycelium.bequant.remote.client.apis.ApiKeyApi
 import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.client.models.*
+import com.mycelium.bequant.remote.doRequest
 import kotlinx.coroutines.CoroutineScope
 
 class SignRepository {

@@ -11,8 +11,8 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.BequantMarketActivity
-import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.client.models.AccountAuthRequest
+import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.poovam.pinedittextfield.PinField
@@ -39,7 +39,7 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
                 loader(true)
-                SignRepository.repository.authorize(this@SignInTwoFactorFragment.lifecycleScope, auth.copy(otpCode = enteredText), {
+                Api.signRepository.authorize(this@SignInTwoFactorFragment.lifecycleScope, auth.copy(otpCode = enteredText), {
                     startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
                     requireActivity().finish()
                 }, error = { _, message ->

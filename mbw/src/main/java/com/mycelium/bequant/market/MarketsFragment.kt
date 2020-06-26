@@ -14,8 +14,9 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.market.adapter.MarketAdapter
 import com.mycelium.bequant.market.viewmodel.MarketItem
 import com.mycelium.bequant.market.viewmodel.MarketTitleItem
-import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.bequant.remote.model.Ticker
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
@@ -51,7 +52,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     }
 
     private fun requestTickers() {
-        ApiRepository.repository.tickers({
+        Api.apiRepository.tickers({
             tickersData = it
             updateList()
         }, { code, error ->

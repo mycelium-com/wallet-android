@@ -29,8 +29,9 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
-import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.RegisterAccountRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
@@ -90,7 +91,7 @@ class SignUpFragment : Fragment() {
             if (validate()) {
                 loader(true)
                 val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
-                SignRepository.repository.signUp(lifecycleScope, registerAccountRequest, success = {
+                Api.signRepository.signUp(lifecycleScope, registerAccountRequest, success = {
                     findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)

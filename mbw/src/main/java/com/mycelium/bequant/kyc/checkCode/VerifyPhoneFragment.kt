@@ -11,7 +11,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.repositories.KYCRepository
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycVerifyPhoneBinding
 import com.poovam.pinedittextfield.PinField
@@ -50,7 +51,7 @@ class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone)
 
     private fun resendCode() {
         loader(true)
-        KYCRepository.repository.mobileVerification(viewModel.viewModelScope) {
+        Api.kycRepository.mobileVerification(viewModel.viewModelScope) {
             loader(false)
             AlertDialog.Builder(requireContext())
                     .setMessage(it)
@@ -61,7 +62,7 @@ class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone)
 
     private fun checkCode(code: String) {
         loader(true)
-        KYCRepository.repository.checkMobileVerification(viewModel.viewModelScope, code, {
+        Api.kycRepository.checkMobileVerification(viewModel.viewModelScope, code, {
             loader(false)
             findNavController().navigate(VerifyPhoneFragmentDirections.actionNext())
         }, {

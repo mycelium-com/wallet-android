@@ -16,9 +16,10 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.kyc.steps.adapter.*
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step3ViewModel
-import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.repositories.KYCRepository
 import com.mycelium.bequant.remote.model.KYCDocument
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.news.NewsImageActivity
 import com.mycelium.wallet.databinding.FragmentBequantSteps3Binding
@@ -199,7 +200,7 @@ class Step3Fragment : Fragment() {
 
     private fun upload(item: Document, adapter: DocumentAdapter, requestList: MutableList<String>) {
         val outputFile = File(item.url)
-        KYCRepository.repository.uploadDocument(viewModel.viewModelScope, item.docType,
+        Api.kycRepository.uploadDocument(viewModel.viewModelScope, item.docType,
                 outputFile, { uploaded, total ->
             item.size = total
             item.progress = (uploaded * 100 / total).toInt()

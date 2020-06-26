@@ -1,8 +1,7 @@
 package com.mycelium.bequant.remote.client
 
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.remote.ApiRepository
-import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.wallet.BuildConfig
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
