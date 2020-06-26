@@ -7,6 +7,29 @@
     android:orientation="vertical">
 
     <FrameLayout
+        android:id="@+id/top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/banner_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true" />
+
+        <ImageView
+            android:id="@+id/banner_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="16dp"
+            app:srcCompat="@drawable/ic_close" />
+    </FrameLayout>
+    
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -33,12 +56,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:gravity="center"
-            android:visibility="gone"
-            android:text="@string/loading_media_flow_feed_please_wait" />
+            android:text="@string/loading_media_flow_feed_please_wait"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/unable_to_load"
@@ -46,8 +69,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:orientation="vertical"
             android:visibility="visible">
@@ -57,16 +80,16 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:textSize="15sp"
-                android:text="@string/we_were_unable_to_load_media_flow_feed" />
+                android:text="@string/we_were_unable_to_load_media_flow_feed"
+                android:textSize="15sp" />
 
             <Button
                 android:id="@+id/retry"
+                style="@style/MyceliumButtonModern"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_gravity="center"
-                style="@style/MyceliumButtonModern"
+                android:layout_marginTop="8dp"
                 android:text="@string/retry" />
         </LinearLayout>
     </FrameLayout>
@@ -77,9 +100,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="@string/discover"
-        android:visibility="gone"
         android:textColor="#FFFFFD"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:visibility="gone" />
 
     <FrameLayout
         android:id="@+id/search"
@@ -87,21 +110,21 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:visibility="gone"
-        android:background="@drawable/background_news_search">
+        android:background="@drawable/background_news_search"
+        android:visibility="gone">
 
         <EditText
             android:id="@+id/search_input"
             android:layout_width="match_parent"
             android:layout_height="32dp"
             android:background="@null"
-            app:drawableStartCompat="@drawable/ic_search"
             android:drawablePadding="8dp"
             android:imeOptions="actionSearch"
             android:paddingStart="12dp"
             android:singleLine="true"
             android:textColor="#FFFFFD"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            app:drawableStartCompat="@drawable/ic_search" />
 
         <ImageView
             android:id="@+id/search_close"

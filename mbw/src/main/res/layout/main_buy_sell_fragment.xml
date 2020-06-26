@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -10,6 +11,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_height="40dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
         android:layout_gravity="center" />
 
 </LinearLayout>

@@ -169,11 +169,10 @@ public class AddressBookFragment extends Fragment {
         List<WalletAccount<?>> activeAccounts = new ArrayList<>(mbwManager.getWalletManager(false).getAllActiveAccounts());
         WalletAccount selectedAccount = mbwManager.getSelectedAccount();
         for (WalletAccount account : Utils.sortAccounts(activeAccounts, mbwManager.getMetadataStorage())) {
-            String name = mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-            Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
             if (account.getReceiveAddress() != null &&
-                    selectedAccount.getCoinType().equals(account.getCoinType())
-            ) {
+                    selectedAccount.getCoinType().getId().equals(account.getCoinType().getId())) {
+                String name = mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
+                Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
                 entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
         }
@@ -211,7 +210,7 @@ public class AddressBookFragment extends Fragment {
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = mbwManager.getSelectedAccount();
         for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
-            if (e.getKey().getCoinType().equals(account.getCoinType())) {
+            if (e.getKey().getCoinType().equals(account.getBasedOnCoinType())) {
                 entries.add(new Entry(e.getKey(), e.getValue()));
             }
         }

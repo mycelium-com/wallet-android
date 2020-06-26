@@ -85,6 +85,13 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
       notifyDataSetChanged();
    }
 
+   public void addTab(int i, TabLayout.Tab tab, Class<?> clss, Bundle args, String tabTag) {
+      TabInfo info = new TabInfo(clss, args, tab.getText(), tabTag);
+      tab.setTag(info);
+      mTabs.add(i, info);
+      notifyDataSetChanged();
+   }
+
    @Override
    public int getCount() {
       return mTabs.size();
@@ -107,7 +114,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
       _mbwManager.clearCachedEncryptionParameters();
       // redraw menu - not working yet
       ActivityCompat.invalidateOptionsMenu(mContext);
-      MbwManager.getEventBus().post(new PageSelectedEvent(position));
+      MbwManager.getEventBus().post(new PageSelectedEvent(position, mTabs.get(position).tag));
    }
 
    @Override

@@ -8,6 +8,10 @@ import javax.net.ssl.SSLSocketFactory;
 public class HttpsEndpoint extends HttpEndpoint {
    public final String certificateThumbprint;
 
+   public HttpsEndpoint(String baseUrlString) {
+      this(baseUrlString, "");
+   }
+
    public HttpsEndpoint(String baseUrlString, String certificateThumbprint) {
       super(baseUrlString);
       this.certificateThumbprint = certificateThumbprint;

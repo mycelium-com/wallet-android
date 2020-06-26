@@ -5,5 +5,6 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 public abstract class BitcoinBasedCryptoCurrency extends CryptoCurrency {
     {
         family = Families.BITCOIN;
+        isUtxosBased = true;
     }
 }

@@ -1,10 +1,12 @@
 package com.mycelium.wallet.activity.main.model
 
+import android.os.Bundle
 import com.mycelium.wallet.activity.main.BuySellFragment
+import java.util.*
 
-import java.util.Objects
-
-class ActionButton @JvmOverloads constructor(val id: BuySellFragment.ACTION, val text: String, val icon: Int = 0) {
+class ActionButton @JvmOverloads constructor(val id: BuySellFragment.ACTION, val text: String,
+                                             val icon: Int = 0, val iconUrl: String? = null,
+                                             var args: Bundle = Bundle()) {
     var textColor = 0
 
     override fun equals(other: Any?): Boolean {

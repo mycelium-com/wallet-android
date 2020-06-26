@@ -2,19 +2,18 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.HexUtils;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-public class GenericTransactionSummary implements Serializable {
-
+public class GenericTransactionSummary implements Serializable, Comparable<GenericTransactionSummary> {
     protected CryptoCurrency type;
     protected byte[] id;
     protected byte[] hash;
@@ -30,7 +29,6 @@ public class GenericTransactionSummary implements Serializable {
     transient public Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
     protected Value fee;
-
 
     public GenericTransactionSummary(CryptoCurrency type,
                                      byte[] id, byte[] hash,
@@ -140,5 +138,25 @@ public class GenericTransactionSummary implements Serializable {
 
     public boolean canCancel() {
         return isQueuedOutgoing;
+    }
+
+    @Override
+    public int compareTo(@NotNull GenericTransactionSummary other) {
+        // TODO: Fix block heights! Currently the block heights are calculated as latest block height - confirmations + 1 but as it's not atomically collecting all the data, we run off by one frequently for transactions that get synced during a block being discovered.
+
+        // Blockchains core property is that they determine the sorting of transactions.
+        // In Bitcoin, timestamps of transactions are not required to be increasing, so the
+        // block height is what has to be sorted by for transactions from different blocks.
+        // if (other.getHeight() != getHeight()) {
+        //     return other.getHeight() - getHeight();
+        // }
+
+        // If no block height is available (alt coins?), we do sort by timestamp.
+        if (other.getTimestamp() != getTimestamp()) {
+            return (int) (other.getTimestamp() - getTimestamp());
+        }
+        // Transactions are sorted within a block, too. Here we don't have that sequence number
+        // handy but to ensure stable sorting, we have to sort by something robust.
+        return getIdHex().compareTo(other.getIdHex());
     }
 }

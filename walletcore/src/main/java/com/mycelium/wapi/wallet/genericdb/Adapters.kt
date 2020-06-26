@@ -2,11 +2,8 @@ package com.mycelium.wapi.wallet.genericdb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.mycelium.generated.wallet.database.AccountBacking
-import com.mycelium.generated.wallet.database.AccountContext
+import com.mycelium.generated.wallet.database.*
 import com.mycelium.generated.wallet.database.EthAccountBacking
-import com.mycelium.generated.wallet.database.EthContext
-import com.mycelium.generated.wallet.database.FeeEstimation
 import com.mycelium.wapi.wallet.coins.*
 import com.squareup.sqldelight.ColumnAdapter
 import java.math.BigInteger
@@ -23,14 +20,16 @@ object Adapters {
 
     val cryptoCurrencyAdapter = object : ColumnAdapter<CryptoCurrency, String> {
         override fun decode(databaseValue: String): CryptoCurrency =
-                databaseValue.let(COINS::get) ?: throw IllegalArgumentException("Unknown currency type $databaseValue")
+                databaseValue.let(COINS::get)
+                        ?: throw IllegalArgumentException("Unknown currency type $databaseValue")
 
         override fun encode(value: CryptoCurrency): String = value.id
     }
 
     val assetAdapter = object : ColumnAdapter<GenericAssetInfo, String> {
         override fun decode(databaseValue: String): CryptoCurrency =
-                databaseValue.let(COINS::get) ?: throw IllegalArgumentException("Unknown currency type $databaseValue")
+                databaseValue.let(COINS::get)
+                        ?: throw IllegalArgumentException("Unknown currency type $databaseValue")
 
         override fun encode(value: GenericAssetInfo): String = value.id
     }
@@ -96,16 +95,31 @@ object Adapters {
             return value.toString()
         }
     }
+
+    val listAdapter = object : ColumnAdapter<List<String>, String> {
+        override fun decode(databaseValue: String): List<String> {
+            val mapper = ObjectMapper()
+            val type = mapper.typeFactory.constructCollectionType(ArrayList::class.java, String::class.java)
+            return mapper.readValue(databaseValue, type)
+        }
+
+        override fun encode(value: List<String>): String {
+            return ObjectMapper().writeValueAsString(value)
+        }
+    }
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter)
 
-val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.bigIntAdapter)
+val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
+        Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.valueAdapter)
 
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.balanceAdapter)
-val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter)
+val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)
+
+val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
 
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)

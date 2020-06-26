@@ -44,6 +44,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
@@ -136,7 +137,7 @@ public class EnterAddressLabelUtil {
         }
         String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
         Bus bus = MbwManager.getEventBus();
-        EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {};
+        EnterAccountLabelHandler handler = new EnterAccountLabelHandler(context, account, invalidOkToastMessage, storage, bus) {};
         EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
     }
 
@@ -145,12 +146,14 @@ public class EnterAddressLabelUtil {
         private String invalidOkToastMessage;
         private MetadataStorage storage;
         private Bus bus;
+        private Context context;
 
-        EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
+        EnterAccountLabelHandler(final Context context, UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
             this.account = account;
             this.invalidOkToastMessage = invalidOkToastMessage;
             this.storage = storage;
             this.bus = bus;
+            this.context = context;
         }
 
         @Override
@@ -172,6 +175,10 @@ public class EnterAddressLabelUtil {
         @Override
         public void onNameEntered(String newText, String oldText) {
             storage.storeAccountLabel(account, newText);
+            WalletAccount walletAccount = MbwManager.getInstance(context).getWalletManager(false).getAccount(account);
+            if (walletAccount != null) {
+                walletAccount.setLabel(newText);
+            }
             bus.post(new AccountChanged(account));
         }
     }

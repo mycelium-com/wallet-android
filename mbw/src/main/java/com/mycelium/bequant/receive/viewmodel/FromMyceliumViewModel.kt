@@ -37,7 +37,7 @@ class FromMyceliumViewModel : ViewModel() {
                         .parseAddress(if (mbwManager.network.isProdnet) address.value!! else Constants.TEST_ADDRESS)
                 val address = addresses[0]
                 val fee = FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0.00000001"))
-                val tx = account.createTx(address, value, fee)
+                val tx = account.createTx(address, value, fee, null)
                 account.signTx(tx, AesKeyCipher.defaultKeyCipher())
                 success.invoke(tx)
                 BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))

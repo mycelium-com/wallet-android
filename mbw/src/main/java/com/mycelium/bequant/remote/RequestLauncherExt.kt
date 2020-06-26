@@ -1,5 +1,6 @@
 package com.mycelium.bequant.remote
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Respons
                     }
                 }
             } catch (e: Exception) {
+                Log.w("Request", "excheption on request", e)
                 withContext(Dispatchers.Main) {
                     errorBlock.invoke(400, e.localizedMessage)
                 }

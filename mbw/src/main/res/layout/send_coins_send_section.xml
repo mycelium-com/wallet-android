@@ -20,7 +20,7 @@
         android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="5dp"
+        android:layout_margin="16dp"
         android:padding="0dp">
 
         <Button
@@ -34,12 +34,5 @@
             android:text="@string/send"
             android:onClick="@{_ -> activity.onClickSend()}"
             android:textSize="20sp" />
-
-        <ProgressBar
-            android:id="@+id/pbSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="invisible" />
     </FrameLayout>
 </layout>

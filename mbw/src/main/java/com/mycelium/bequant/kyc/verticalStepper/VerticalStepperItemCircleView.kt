@@ -47,6 +47,10 @@ class VerticalStepperItemCircleView : FrameLayout {
         background = ContextCompat.getDrawable(context, R.drawable.vertical_stepper_view_item_circle_inactive)
         number?.setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
     }
+
+    fun setError() {
+        background = ContextCompat.getDrawable(context, R.drawable.vertical_stepper_view_item_circle_error)
+    }
     
     fun setNumber(value: Int) {
         icon!!.visibility = View.GONE
