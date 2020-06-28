@@ -20,7 +20,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
 import java.math.BigInteger
@@ -54,7 +53,7 @@ class WithdrawFragment : Fragment() {
     }
 
     private fun getCryptoCurrency(): CryptoCurrency {
-        return when (args.currency) {
+        return when (args.currency?.toLowerCase()) {
             "btc" -> Utils.getBtcCoinType()
             "eth" -> Utils.getEthCoinType()
             else -> TODO("Wrong currency")
