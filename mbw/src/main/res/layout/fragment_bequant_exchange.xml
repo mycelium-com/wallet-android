@@ -215,6 +215,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/exchange"
+                android:enabled="@{!viewModel.available.equalZero()}"
                 app:layout_constraintTop_toBottomOf="@id/clGetView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

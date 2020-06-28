@@ -56,9 +56,9 @@ class AccountApiRepository {
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun accountCryptoIsMineAddressGet(scope: CoroutineScope,
-                                      fromCurrency: String, toCurrency: String, amount: String,
-                                      success: (Array<String>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
+    fun accountCryptoTransferConvertPost(scope: CoroutineScope,
+                                         fromCurrency: String, toCurrency: String, amount: String,
+                                         success: (Array<String>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.accountCryptoTransferConvertPost(fromCurrency, toCurrency, amount)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
