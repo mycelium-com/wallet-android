@@ -30,7 +30,8 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pager.adapter = ReceiveFragmentAdapter(this, viewModel)
+        val supportedByMycelium = getSupportedByMycelium(args.currency)
+        pager.adapter = ReceiveFragmentAdapter(this, viewModel, supportedByMycelium)
         tabs.setupWithViewPager(pager)
         viewModel.error.observe(viewLifecycleOwner) {
             ErrorHandler(requireContext()).handle(it)
@@ -38,6 +39,10 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         viewModel.currency.observe(viewLifecycleOwner, Observer {
             requestDepositAddress(viewModel.currency.value!!)
         })
+    }
+
+    private fun getSupportedByMycelium(currency: String): Boolean {
+        return currency.toLowerCase() in listOf("eth", "btc")
     }
 
     private fun requestDepositAddress(currency: String) {
