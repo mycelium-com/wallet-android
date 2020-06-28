@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:animateLayoutChanges="true"
             android:padding="16dp">
 
             <TextView
@@ -94,11 +95,11 @@
                     android:id="@+id/sendView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawablePadding="4dp"
                     android:fontFamily="@font/exo2medium"
                     android:text="@={viewModel.youSendText}"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:drawablePadding="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="1000" />
@@ -173,11 +174,11 @@
                     android:id="@+id/getView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawablePadding="4dp"
                     android:fontFamily="@font/exo2medium"
                     android:text="@={viewModel.youGetText}"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    android:drawablePadding="4dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="1000 " />
@@ -214,10 +215,63 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/exchange"
                 android:enabled="@{!viewModel.available.equalZero()}"
+                android:text="@string/exchange"
                 app:layout_constraintTop_toBottomOf="@id/clGetView" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clOrderRejected"
+                android:layout_width="match_parent"
+                android:layout_height="116dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_bequant_order_rejected"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/exchange">
+
+                <ImageView
+                    android:id="@+id/icOrderRejected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_bequant_clear_24" />
+
+                <TextView
+                    android:id="@+id/tvOrderRejected"
+                    style="@style/Bequant.TextNormal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/bequant_order_rejected"
+                    app:layout_constraintBottom_toBottomOf="@id/icOrderRejected"
+                    app:layout_constraintStart_toEndOf="@id/icOrderRejected"
+                    app:layout_constraintTop_toTopOf="@id/icOrderRejected" />
+
+                <TextView
+                    style="@style/Bequant.TextSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.6"
+                    android:text="@string/bequant_exchange_temporary_closed"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toStartOf="@id/tvOrderRejected"
+                    app:layout_constraintTop_toBottomOf="@id/tvOrderRejected" />
+
+                <Button
+                    android:id="@+id/btContactSupport"
+                    style="@style/Bequant.Button.PrimarySmall.Ghost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="18dp"
+                    android:layout_marginBottom="18dp"
+                    android:text="@string/bequant_contact_support"
+                    android:textColor="@color/bequant_yellow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
