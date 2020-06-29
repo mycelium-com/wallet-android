@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:animateLayoutChanges="true"
             android:padding="16dp">
 
             <TextView
@@ -82,23 +83,22 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clSendView"
+                isRedColor="@{viewModel.youSend.moreThan(viewModel.available)}"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_bequant_text"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_bequant_text_with_stroke"
                 android:orientation="horizontal"
-                android:padding="12dp"
                 app:layout_constraintTop_toBottomOf="@id/send_percent">
 
                 <TextView
                     android:id="@+id/sendView"
+                    style="@style/Bequant.TextNormal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/exo2medium"
+                    android:layout_marginStart="8dp"
                     android:text="@={viewModel.youSendText}"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:drawablePadding="4dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="1000" />
@@ -107,16 +107,18 @@
                     android:id="@+id/sendSymbolLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="18dp"
                     android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
                         android:id="@+id/sendViewSymbol"
+                        style="@style/Bequant.TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="5dp"
-                        android:fontFamily="@font/exo2medium"
                         android:text="@{viewModel.youSend.currencySymbol}"
                         android:textColor="@color/bequant_yellow"
                         tools:text="BTC" />
@@ -130,12 +132,23 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
+                android:id="@+id/tvInsufficientFunds"
+                style="@style/Bequant.TextSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/insufficient_funds"
+                android:textColor="@color/bequant_red"
+                android:visibility="@{viewModel.youSend.moreThan(viewModel.available) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintTop_toBottomOf="@id/clSendView" />
+
+            <TextView
                 android:id="@+id/rate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@{viewModel.rate}"
-                app:layout_constraintTop_toBottomOf="@id/clSendView"
+                app:layout_constraintTop_toBottomOf="@id/tvInsufficientFunds"
                 tools:text="1 BTC ~ 45 ETH" />
 
             <ImageView
@@ -162,22 +175,20 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clGetView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_bequant_text"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_bequant_text_with_stroke"
                 android:orientation="horizontal"
-                android:padding="12dp"
                 app:layout_constraintTop_toBottomOf="@id/youGetLabel">
 
                 <TextView
                     android:id="@+id/getView"
+                    style="@style/Bequant.TextNormal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/exo2medium"
+                    android:layout_marginStart="8dp"
                     android:text="@={viewModel.youGetText}"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:drawablePadding="4dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="1000 " />
@@ -186,16 +197,18 @@
                     android:id="@+id/getSymbolLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="18dp"
                     android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
                         android:id="@+id/getViewSymbol"
+                        style="@style/Bequant.TextNormal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="5dp"
-                        android:fontFamily="@font/exo2medium"
                         android:text="@{viewModel.youGet.currencySymbol}"
                         android:textColor="@color/bequant_yellow"
                         tools:text="BTC" />
@@ -214,9 +227,63 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:enabled="@{!viewModel.available.equalZero() &amp;&amp; !viewModel.youSend.moreThan(viewModel.available)}"
                 android:text="@string/exchange"
                 app:layout_constraintTop_toBottomOf="@id/clGetView" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/clOrderRejected"
+                android:layout_width="match_parent"
+                android:layout_height="116dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_bequant_order_rejected"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/exchange">
+
+                <ImageView
+                    android:id="@+id/icOrderRejected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_bequant_clear_24" />
+
+                <TextView
+                    android:id="@+id/tvOrderRejected"
+                    style="@style/Bequant.TextNormal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/bequant_order_rejected"
+                    app:layout_constraintBottom_toBottomOf="@id/icOrderRejected"
+                    app:layout_constraintStart_toEndOf="@id/icOrderRejected"
+                    app:layout_constraintTop_toTopOf="@id/icOrderRejected" />
+
+                <TextView
+                    style="@style/Bequant.TextSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.6"
+                    android:text="@string/bequant_exchange_temporary_closed"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toStartOf="@id/tvOrderRejected"
+                    app:layout_constraintTop_toBottomOf="@id/tvOrderRejected" />
+
+                <Button
+                    android:id="@+id/btContactSupport"
+                    style="@style/Bequant.Button.PrimarySmall.Ghost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="18dp"
+                    android:layout_marginBottom="18dp"
+                    android:text="@string/bequant_contact_support"
+                    android:textColor="@color/bequant_yellow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
