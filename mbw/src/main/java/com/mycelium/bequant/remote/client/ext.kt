@@ -1,6 +1,3 @@
 package com.mycelium.bequant.remote.client
 
-import retrofit2.Retrofit
-import retrofit2.create
-
-inline fun <reified T> createApi(retrofit: Retrofit = RetrofitHolder.retrofit): T = retrofit.create()
+inline fun <reified T> createApi(url: String = RetrofitHolder.BASE_URL + RetrofitHolder.VERSION_POSTFIX): T = RetrofitHolder.getRetrofit(url).create(T::class.java)

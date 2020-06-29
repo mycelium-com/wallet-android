@@ -17,8 +17,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.*
 
 object RetrofitHolder {
-    val VERSION = "api/2/"
-    val BASE_URL = Constants.ACCOUNT_ENDPOINT + VERSION
+    val VERSION_POSTFIX = "api/2/"
+    val BASE_URL = Constants.ACCOUNT_ENDPOINT
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
@@ -40,38 +40,35 @@ object RetrofitHolder {
                 }
     }
 
-    val retrofitBuilder: Retrofit.Builder by lazy {
+    private fun getBuilder(url: String): Retrofit.Builder {
         val moshi = Moshi.Builder()
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
                 .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
                 .build()
 
-        Retrofit.Builder()
+        return Retrofit.Builder()
                 .callFactory(object : Call.Factory {
                     //create client lazy on demand in background thread
                     //see https://www.zacsweers.dev/dagger-party-tricks-deferred-okhttp-init/
                     private val client by lazy { clientBuilder.build() }
                     override fun newCall(request: Request): Call = client.newCall(request)
                 })
-                .baseUrl(BASE_URL)
+                .baseUrl(url)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(EnumRetrofitConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
     }
 
-    val retrofit: Retrofit by lazy {
+    fun getRetrofit(url: String): Retrofit {
         val moshi = Moshi.Builder()
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
                 .build()
-        retrofitBuilder
+        return getBuilder(url)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(EnumRetrofitConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build()
     }
-
-    private fun authorizationGenerator(authName: String, request: Request): String? =
-            "Bearer ${BequantPreference.getAccessToken()}"
 }
