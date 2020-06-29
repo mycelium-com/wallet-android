@@ -1,6 +1,7 @@
 package com.mycelium.bequant.remote.repositories
 
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.remote.client.apis.AccountApi
 import com.mycelium.bequant.remote.client.apis.ApiKeyApi
 import com.mycelium.bequant.remote.client.models.*
@@ -91,11 +92,6 @@ class SignRepository {
     }
 
     companion object {
-        val ENDPOINT = "https://xwpe71x4sg.execute-api.us-east-1.amazonaws.com/prd-reg/"
-
-        //        val ENDPOINT = "https://reg.bequant.io/"
-//        val API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWNlbGl1bSIsImp0aSI6ImJxN2g2M2ZzdmpvdG8xczVvaDEwIiwiaWF0IjoxNTg2NDM0ODI5LCJpc3MiOiJhdXRoLWFwaSIsImJpZCI6M30.0qvEnMxzbWF-P7eOpZDnSXwoOe5vDWluKFOFq5-tPaE"
-        val repository by lazy { SignRepository() }
     }
 
 }

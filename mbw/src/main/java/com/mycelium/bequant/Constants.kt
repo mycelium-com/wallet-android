@@ -8,6 +8,9 @@ object Constants {
     const val LINK_GOOGLE_AUTHENTICATOR = "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
     const val KYC_ENDPOINT = "https://test006.bqtstuff.com/"
     const val ACCOUNT_ENDPOINT = "https://fynh6mvro0.execute-api.us-east-1.amazonaws.com/prd/"
+    const val AUTH_ENDPOINT = "https://xwpe71x4sg.execute-api.us-east-1.amazonaws.com/prd-reg/"
+    const val VERSION_POSTFIX = "api/2/"
+    const val ACCOUNT_ENDPOINT_POSTFIX = Constants.ACCOUNT_ENDPOINT + VERSION_POSTFIX
     const val ACTION_BEQUANT_KEYS = "bequant_keys"
     const val ACTION_BEQUANT_EMAIL_CONFIRMED = "bequant_email_confirmed"
     const val ACTION_BEQUANT_TOTP_CONFIRMED = "bequant_totp_confirmed"

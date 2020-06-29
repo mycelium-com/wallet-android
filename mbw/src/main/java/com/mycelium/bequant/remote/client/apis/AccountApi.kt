@@ -11,6 +11,7 @@
  */
 package com.mycelium.bequant.remote.client.apis
 
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.remote.client.RetrofitHolder
 import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.client.models.*
@@ -274,6 +275,6 @@ interface AccountApi {
 
 
     companion object {
-        fun create(): AccountApi = createApi(url = RetrofitHolder.BASE_URL)
+        fun create(): AccountApi = createApi(url = Constants.AUTH_ENDPOINT)
     }
 }

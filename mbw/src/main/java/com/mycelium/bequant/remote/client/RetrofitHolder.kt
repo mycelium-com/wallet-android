@@ -17,8 +17,6 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.*
 
 object RetrofitHolder {
-    val VERSION_POSTFIX = "api/2/"
-    val BASE_URL = Constants.ACCOUNT_ENDPOINT
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
