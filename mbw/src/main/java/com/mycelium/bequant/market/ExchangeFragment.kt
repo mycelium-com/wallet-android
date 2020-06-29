@@ -9,22 +9,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
-import androidx.databinding.DataBindingUtil
 import androidx.appcompat.app.AlertDialog
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.BlurBuilder
-import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
-import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
@@ -73,6 +71,14 @@ class ExchangeFragment : Fragment() {
                     updateYouSend((it.tag as Int))
                 }
             }
+            val params: RadioGroup.LayoutParams = RadioGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            // convert dp to pixels as setMargins() works with pixels
+            val dpValue = 4
+            val dpRatio = requireContext().resources.displayMetrics.density
+            val pixelForDp = dpValue * dpRatio.toInt()
+            params.setMargins(0, 0, pixelForDp, 0)
+            rb.layoutParams = params
             send_percent.addView(rb)
         }
         send_percent.apply {
