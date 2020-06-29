@@ -12,6 +12,8 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -74,7 +76,7 @@ class ExchangeFragment : Fragment() {
             val params: RadioGroup.LayoutParams = RadioGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             // convert dp to pixels as setMargins() works with pixels
-            val dpValue = 4
+            val dpValue = 8
             val dpRatio = requireContext().resources.displayMetrics.density
             val pixelForDp = dpValue * dpRatio.toInt()
             params.setMargins(0, 0, pixelForDp, 0)
@@ -265,5 +267,14 @@ class ExchangeFragment : Fragment() {
         const val PARENT = "parent"
         const val YOU_SEND = 0
         const val YOU_GET = 1
+    }
+}
+
+@BindingAdapter("isRedColor")
+fun setRedTextColor(target: ConstraintLayout, isRedColor: Boolean) {
+    if (isRedColor) {
+        target.setBackgroundResource(R.drawable.bg_bequant_text_with_stroke_red)
+    } else {
+        target.setBackgroundResource(R.drawable.bg_bequant_text_with_stroke)
     }
 }

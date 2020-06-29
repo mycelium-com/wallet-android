@@ -447,7 +447,6 @@
         <item name="android:textColor">@color/bequant_yellow</item>
         <item name="android:textSize">14sp</item>
     </style>
-
     <style name="Bequant.Tabs">
         <item name="android:background">@color/bequant_gray_3</item>
         <item name="tabIndicatorColor">@color/bequant_yellow</item>
