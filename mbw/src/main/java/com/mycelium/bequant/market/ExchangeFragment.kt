@@ -18,13 +18,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.BlurBuilder
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
@@ -124,6 +127,7 @@ class ExchangeFragment : Fragment() {
             if (!getViewActive) {
                 calculateReceiveValue()
             }
+            recalculateDestinationPrice()
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
@@ -145,6 +149,7 @@ class ExchangeFragment : Fragment() {
             if (getViewActive) {
                 calculateSendValue()
             }
+            recalculateDestinationPrice()
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
@@ -153,6 +158,12 @@ class ExchangeFragment : Fragment() {
                 }
             } catch (e: NumberFormatException) {
             }
+        })
+        viewModel.accountBalances.observe(viewLifecycleOwner, Observer {
+            // TODO update vm.yousend
+        })
+        viewModel.tradingBalances.observe(viewLifecycleOwner, Observer {
+            // TODO update vm.yousend
         })
         sendSymbolLayout.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
@@ -177,9 +188,22 @@ class ExchangeFragment : Fragment() {
         btContactSupport.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
-        updateYouSend(100)
-        recalculateDestinationPrice()
-        calculateReceiveValue()
+        requestBalances()
+    }
+
+    private fun requestBalances() {
+        Api.tradingRepository.tradingBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
+            viewModel.tradingBalances.value = arrayOfBalances
+        }, { code, error ->
+            ErrorHandler(requireContext()).handle(error)
+        },{
+        })
+        Api.accountRepository.accountBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
+            viewModel.accountBalances.value = arrayOfBalances
+        }, { code, error ->
+            ErrorHandler(requireContext()).handle(error)
+        },{
+        })
     }
 
     private fun makeExchange() {

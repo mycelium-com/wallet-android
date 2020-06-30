@@ -6,4 +6,5 @@ object Api {
     val apiRepository by lazy { ApiRepository() }
     val kycRepository by lazy { KYCRepository() }
     val signRepository by lazy { SignRepository() }
+    val tradingRepository by lazy { TradingApiRepository() }
 }
