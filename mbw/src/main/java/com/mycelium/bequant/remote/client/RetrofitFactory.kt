@@ -16,29 +16,22 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.*
 
-object RetrofitHolder {
+object RetrofitFactory {
 
-    val clientBuilder: OkHttpClient.Builder by lazy {
-        OkHttpClient().newBuilder()
+    private fun getClientBuilder(withAccessToken: Boolean = false): OkHttpClient.Builder {
+        return OkHttpClient().newBuilder()
                 .addInterceptor {
                     it.proceed(it.request().newBuilder().apply {
                         header("Content-Type", "application/json")
-                        header("Authorization",
-                                Credentials.basic(BequantPreference.getPublicKey(),
-                                        BequantPreference.getPrivateKey()))
-                    }.build())
-                }
-                .addInterceptor {
-                    it.proceed(it.request().newBuilder().apply {
-                        header("Content-Type", "application/json")
-//                                    header("X-API-KEY", API_KEY)
-                        val containsAuth = it.request().headers().toMultimap().keys.contains("Authorization")
-                        if (!containsAuth && BequantPreference.getAccessToken().isNotEmpty()) {
+                        if (withAccessToken) {
                             header("Authorization", "Bearer ${BequantPreference.getAccessToken()}")
+                        } else {
+                            header("Authorization",
+                                    Credentials.basic(BequantPreference.getPublicKey(),
+                                            BequantPreference.getPrivateKey()))
                         }
                     }.build())
                 }
-//                .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::authorizationGenerator))
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(HttpLoggingInterceptor().apply {
@@ -48,7 +41,7 @@ object RetrofitHolder {
                 }
     }
 
-    private fun getBuilder(url: String): Retrofit.Builder {
+    private fun getBuilder(url: String, withAccessToken: Boolean = false): Retrofit.Builder {
         val moshi = Moshi.Builder()
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
@@ -59,7 +52,7 @@ object RetrofitHolder {
                 .callFactory(object : Call.Factory {
                     //create client lazy on demand in background thread
                     //see https://www.zacsweers.dev/dagger-party-tricks-deferred-okhttp-init/
-                    private val client by lazy { clientBuilder.build() }
+                    private val client by lazy { getClientBuilder(withAccessToken).build() }
                     override fun newCall(request: Request): Call = client.newCall(request)
                 })
                 .baseUrl(url)
@@ -68,15 +61,18 @@ object RetrofitHolder {
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
     }
 
-    fun getRetrofit(url: String): Retrofit {
+    fun getRetrofit(url: String, withAccessToken: Boolean = false): Retrofit {
         val moshi = Moshi.Builder()
                 .add(EnumJsonAdapterFactory)
                 .add(KotlinJsonAdapterFactory())
                 .build()
-        return getBuilder(url)
+        return getBuilder(url, withAccessToken)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(EnumRetrofitConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build()
     }
 }
+
+inline fun <reified T> createApi(url: String = Constants.ACCOUNT_ENDPOINT_POSTFIX, withAccessToken: Boolean = false): T =
+        RetrofitFactory.getRetrofit(url, withAccessToken).create(T::class.java)
