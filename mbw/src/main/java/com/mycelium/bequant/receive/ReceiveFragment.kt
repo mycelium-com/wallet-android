@@ -34,7 +34,8 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         pager.adapter = ReceiveFragmentAdapter(this, viewModel, supportedByMycelium)
         tabs.setupWithViewPager(pager)
         viewModel.error.observe(viewLifecycleOwner) {
-            ErrorHandler(requireContext()).handle(it)
+            //if no address just supress this message, because it is not error
+//            ErrorHandler(requireContext()).handle(it)
         }
         viewModel.currency.observe(viewLifecycleOwner, Observer {
             requestDepositAddress(viewModel.currency.value!!)

@@ -26,7 +26,6 @@ class FromMyceliumViewModel : ViewModel() {
 
     fun hasOneCoinFiatRate() = oneCoinFiatRate.value != null && oneCoinFiatRate.value?.isNotEmpty() == true
 
-
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     fun deposit(account: WalletAccount<*>, value: Value,
                 success: (GenericTransaction) -> Unit, error: (Exception) -> Unit, finally: () -> Unit) {
@@ -51,6 +50,6 @@ class FromMyceliumViewModel : ViewModel() {
     }
 
     fun getCryptocurrenciesSymbols(): List<String> {
-        return mbwManager.getWalletManager(false).getCryptocurrenciesSymbols()
+        return mbwManager.getWalletManager(false).getCryptocurrenciesSymbols().map { it.removePrefix("t") }
     }
 }
