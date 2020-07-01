@@ -7,6 +7,7 @@ import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.coins.Value
+import java.util.*
 
 
 object BequantPreference {
@@ -91,4 +92,14 @@ object BequantPreference {
 
     fun getKYCStatus(): KYCStatus = KYCStatus.valueOf(preference.getString("kyc_status", "NONE")
             ?: "NONE")
+
+    fun setKYCStatus(status: KYCStatus) {
+        preference.edit().putString(Constants.KYC_STATUS_KEY, status.toString()).apply()
+    }
+
+    fun setKYCSubmitDate(date: Date) {
+        preference.edit().putLong("kyc_submit_date", date.time).apply()
+    }
+
+    fun getKYCSubmitDate(): Date = Date(preference.getLong("kyc_submit_date", 0))
 }

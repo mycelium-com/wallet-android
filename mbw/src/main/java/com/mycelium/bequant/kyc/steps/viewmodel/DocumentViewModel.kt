@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 
-class Step3ViewModel : ViewModel() {
+class DocumentViewModel : ViewModel() {
     val identityCount = MutableLiveData<Int>()
     val poaCount = MutableLiveData<Int>()
     val selfieCount = MutableLiveData<Int>()

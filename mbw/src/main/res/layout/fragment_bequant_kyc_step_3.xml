@@ -1,47 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
-                name="viewModel"
-                type="com.mycelium.bequant.kyc.inputPhone.InputPhoneViewModel" />
+            name="headerViewModel"
+            type="com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.kyc.steps.viewmodel.InputPhoneViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/bequant_gray"
-            android:padding="16dp">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bequant_gray">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <include
+            android:id="@+id/stepHeader"
+            layout="@layout/part_bequant_step_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader">
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTitle"
                 style="@style/Bequant.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Verify your phone number"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@null"
-                android:gravity="center"
                 android:text="For security reasons we need to verify your phone number via SMS or a phone call. Please enter your phone number and choose the desired verification option."
+                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/llInputPanel"
                 style="@style/Bequant.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24sp"
                 android:orientation="vertical"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
@@ -50,7 +70,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.appcompat.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvCountry"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
@@ -58,36 +78,36 @@
                     android:background="@null"
                     android:drawableRight="@drawable/ic_arrow_drop_down"
                     android:gravity="center_vertical"
-                    tools:text="Russia"
-                    android:text="@{viewModel.countryModel.name}" />
+                    android:text="@{viewModel.countryModel.name}"
+                    tools:text="Russia" />
 
-            <View
+                <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/bequant_gray_3" />
 
-            <LinearLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                <androidx.appcompat.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/tvPhoneCode"
                         style="@style/Bequant.EditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="3"
-                        android:gravity="center"
-                        tools:text="+7"
                         android:background="@null"
-                        android:text="@{Integer.toString(viewModel.countryModel.code)}" />
+                        android:gravity="center"
+                        android:text="@{Integer.toString(viewModel.countryModel.code)}"
+                        tools:text="+7" />
 
-                <View
+                    <View
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
-                        android:background="@color/bequant_gray_6"></View>
+                        android:background="@color/bequant_gray_6" />
 
-                <androidx.appcompat.widget.AppCompatEditText
+                    <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/edPhone"
                         style="@style/Bequant.EditText"
                         android:layout_width="match_parent"
@@ -95,17 +115,17 @@
                         android:layout_weight="1"
                         android:background="@null"
                         android:hint="Your phone number"
-                        android:text="@={viewModel.phoneNumber}"
                         android:inputType="phone"
+                        android:text="@={viewModel.phoneNumber}"
                         tools:text="921-34-55" />
-            </LinearLayout>
+                </LinearLayout>
 
-        </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvErrorCode"
                 style="@style/Bequant.TextView"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Phone number is invalid"
@@ -117,13 +137,23 @@
                 app:layout_constraintTop_toBottomOf="@+id/llInputPanel"
                 tools:visibility="visible" />
 
-        <Button
+            <Button
                 android:id="@+id/btGetCode"
                 style="@style/Bequant.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:text="Get code"
                 app:layout_constraintBottom_toBottomOf="parent" />
+        </LinearLayout>
 
+        <include
+            layout="@layout/part_bequant_stepper_body"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:headerViewModel="@{headerViewModel}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader"
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -10,7 +10,7 @@ import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fragment_kyc_approved_callback.stepper
+import kotlinx.android.synthetic.main.fragment_bequant_kyc_approved_callback.stepper
 import kotlinx.android.synthetic.main.fragment_kyc_reject_callback.*
 
 
@@ -25,13 +25,14 @@ class CallbackRejectFragment : Fragment(R.layout.fragment_kyc_reject_callback) {
         }
 
         stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(ItemStep(0, getString(R.string.phone_number), StepState.COMPLETE)
-                , ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE_EDITABLE)
-                , ItemStep(3, getString(R.string.doc_selfie), StepState.ERROR)))
+        stepAdapter.submitList(listOf(
+                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE)
+                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE)
+                , ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE)
+                , ItemStep(4, getString(R.string.doc_selfie), StepState.ERROR)))
         stepAdapter.clickListener = {
             when (it) {
-                3 -> findNavController().navigate(CallbackRejectFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
+                3 -> findNavController().navigate(CallbackRejectFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
             }
         }
         message.text = ""
@@ -40,7 +41,7 @@ class CallbackRejectFragment : Fragment(R.layout.fragment_kyc_reject_callback) {
             message.visibility = View.VISIBLE
         }
         updateInfo.setOnClickListener {
-            findNavController().navigate(CallbackRejectFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
+            findNavController().navigate(CallbackRejectFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
         }
     }
 }

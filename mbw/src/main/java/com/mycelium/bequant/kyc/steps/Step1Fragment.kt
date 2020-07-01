@@ -14,23 +14,17 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
-import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step1ViewModel
-import com.mycelium.bequant.remote.KYCRepository
-import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
-import com.mycelium.bequant.remote.model.toModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps1Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_1.*
@@ -77,18 +71,18 @@ class Step1Fragment : Fragment() {
         stepProgress.progress = 1
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(ItemStep(0, getString(R.string.phone_number), StepState.COMPLETE)
-                , ItemStep(1, getString(R.string.personal_info), StepState.CURRENT)
+        stepAdapter.submitList(listOf(
+                ItemStep(1, getString(R.string.personal_info), StepState.CURRENT)
                 , ItemStep(2, getString(R.string.residential_address), StepState.FUTURE)
-                , ItemStep(3, getString(R.string.doc_selfie), StepState.FUTURE)))
+                , ItemStep(3, getString(R.string.phone_number), StepState.FUTURE)
+                , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
 
-//        val format = SimpleDateFormat("dd/MM/yyy")
         tvDateOfBirth.setOnClickListener {
             val datePickerDialog = DatePickerDialog(requireContext(), { _, year, month, day ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, month, day)
                 viewModel.birthday.value = calendar.time
-            }, 2011, 1, 1)
+            }, 2000, 1, 1)
             datePickerDialog.show()
         }
         tvNationality.setOnClickListener {
@@ -97,12 +91,7 @@ class Step1Fragment : Fragment() {
 
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
-            val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
-            loader(true)
-            KYCRepository.repository.create(viewModel.viewModelScope, kycRequest.toModel(applicant)) {
-                loader(false)
-                findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
-            }
+            findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
         }
         viewModel.firstName.observe(viewLifecycleOwner, Observer {
             viewModel.nextButton.value = viewModel.isValid()
@@ -126,6 +115,7 @@ class Step1Fragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.stepper -> {
+                    item.icon = resources.getDrawable(if (stepperLayout.visibility == VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
                     stepperLayout.visibility = if (stepperLayout.visibility == VISIBLE) GONE else VISIBLE
                     true
                 }

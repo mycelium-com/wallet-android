@@ -1,4 +1,4 @@
-package com.mycelium.bequant.kyc.inputPhone
+package com.mycelium.bequant.kyc.steps.viewmodel
 
 import android.util.Patterns
 import androidx.lifecycle.MutableLiveData

@@ -18,7 +18,6 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
@@ -73,10 +72,11 @@ class Step2Fragment : Fragment() {
         stepProgress.progress = 2
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(ItemStep(0, getString(R.string.phone_number), StepState.COMPLETE)
-                , ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
+        stepAdapter.submitList(listOf(
+                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
                 , ItemStep(2, getString(R.string.residential_address), StepState.CURRENT)
-                , ItemStep(3, getString(R.string.doc_selfie), StepState.FUTURE)))
+                , ItemStep(3, getString(R.string.phone_number), StepState.FUTURE)
+                , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
 
         stepAdapter.clickListener = {
             when (it) {
@@ -84,9 +84,6 @@ class Step2Fragment : Fragment() {
             }
         }
 
-        val items = CountriesSource.nationalityModels.map {
-            it.Name
-        }.toTypedArray()
         tvCountry.setOnClickListener {
             findNavController().navigate(Step2FragmentDirections.actionSelectCountry())
         }
@@ -125,6 +122,7 @@ class Step2Fragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.stepper -> {
+                    item.icon = resources.getDrawable(if (stepperLayout.visibility == View.VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
                     stepperLayout.visibility = if (stepperLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
                     true
                 }

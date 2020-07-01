@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.remote.model.KYCDocument
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_bequant_kyc_document.view.*
+import java.io.File
 
 enum class LoadStatus {
     INIT, LOADING, FAILED, LOADED
@@ -20,7 +21,7 @@ enum class LoadStatus {
 class Document(val image: Bitmap, val name: String,
                var docType:KYCDocument,
                var url: String?,
-               var size: Long = 0, var progress: Int = 0,
+               var progress: Int = 0,
                var loadStatus: LoadStatus? = LoadStatus.INIT)
 
 
@@ -56,7 +57,7 @@ class DocumentAdapter() : ListAdapter<Document, RecyclerView.ViewHolder>(Documen
             viewHolder.itemView.uploadProgress.progressDrawable = viewHolder.itemView.resources.getDrawable(R.drawable.bequantprogress)
         } else {
             viewHolder.itemView.reload.visibility = GONE
-            viewHolder.itemView.size.text = "%.1f MB".format(item.size / 1000000f)
+            viewHolder.itemView.size.text = "%.1f MB".format(File(item.url).length() / 1000000f)
             viewHolder.itemView.name.setTextColor(viewHolder.itemView.resources.getColor(R.color.white))
             viewHolder.itemView.size.setTextColor(viewHolder.itemView.resources.getColor(R.color.bequant_gray_6))
             viewHolder.itemView.uploadProgress.visibility = View.GONE
@@ -82,7 +83,6 @@ class DocumentAdapter() : ListAdapter<Document, RecyclerView.ViewHolder>(Documen
 
         override fun areContentsTheSame(oldItem: Document, newItem: Document): Boolean =
                 oldItem.name == newItem.name
-                        && oldItem.size == newItem.size
                         && oldItem.progress == newItem.progress
                         && oldItem.loadStatus == newItem.loadStatus
 //                        && oldItem.image == newItem.image

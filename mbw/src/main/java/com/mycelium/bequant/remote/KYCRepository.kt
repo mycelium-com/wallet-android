@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.File
@@ -73,11 +74,31 @@ class KYCRepository {
         }, {})
     }
 
-    fun status(scope: CoroutineScope, success: ((KYCStatus) -> Unit)) {
+    fun uploadDocuments(scope: CoroutineScope, fileMap: Map<File, KYCDocument>, success: () -> Unit,
+                        error: (String) -> Unit, finally:() -> Unit) {
+        doRequest(scope, {
+            var result: Response<KYCResponse> = Response.success(null)
+            fileMap.forEach {
+                val fileBody = ProgressRequestBody(it.key, "image")
+                val multipartBody = MultipartBody.Part.createFormData("file", it.key.name, fileBody)
+                result = service.uploadFile(BequantPreference.getKYCToken(), it.value, "ITA", multipartBody)
+            }
+            result
+        }, { response ->
+            success.invoke()
+        }, { code, msg ->
+            error.invoke(msg)
+        }, {
+            finally.invoke()
+        })
+    }
+
+    fun status(scope: CoroutineScope, success: ((StatusMessage) -> Unit)) {
         doRequest(scope, {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
-            success.invoke(response?.message?.global!!)
+            BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
+            success.invoke(response?.message!!)
         }, { code, msg ->
 
         }, {

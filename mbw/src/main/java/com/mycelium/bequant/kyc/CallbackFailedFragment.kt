@@ -7,9 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fragment_kyc_callback_failed.*
+import kotlinx.android.synthetic.main.fragment_bequant_kyc_callback_failed.*
 
-class CallbackFailedFragment : Fragment(R.layout.fragment_kyc_callback_failed) {
+class CallbackFailedFragment : Fragment(R.layout.fragment_bequant_kyc_callback_failed) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -17,7 +17,7 @@ class CallbackFailedFragment : Fragment(R.layout.fragment_kyc_callback_failed) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = "Identity Authentication "
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.identity_auth)
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         backButton.setOnClickListener {
             findNavController().popBackStack()

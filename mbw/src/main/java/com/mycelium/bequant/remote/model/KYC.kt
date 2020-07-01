@@ -21,7 +21,8 @@ data class KYCRequest(
         var zip: String? = null,
         val identityList: MutableList<String> = mutableListOf(),
         val poaList: MutableList<String> = mutableListOf(),
-        val selfieList: MutableList<String> = mutableListOf()
+        val selfieList: MutableList<String> = mutableListOf(),
+        @Transient var isResubmit:Boolean = false
 ) : Parcelable
 
 fun KYCRequest.toModel(applicant: KYCApplicant): KYCApplicant {
