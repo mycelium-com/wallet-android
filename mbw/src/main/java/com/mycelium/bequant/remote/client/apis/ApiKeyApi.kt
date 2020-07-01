@@ -63,6 +63,6 @@ interface ApiKeyApi {
     ): Response<Unit>
 
     companion object {
-        fun create(): ApiKeyApi = createApi(Constants.AUTH_ENDPOINT)
+        fun create(): ApiKeyApi = createApi(Constants.AUTH_ENDPOINT, true)
     }
 }

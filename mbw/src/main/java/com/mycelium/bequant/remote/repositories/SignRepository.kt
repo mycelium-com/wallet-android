@@ -90,8 +90,4 @@ class SignRepository {
     fun logout() {
         BequantPreference.clear()
     }
-
-    companion object {
-    }
-
 }
