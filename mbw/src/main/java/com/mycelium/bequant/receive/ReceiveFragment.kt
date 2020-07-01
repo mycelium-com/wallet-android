@@ -7,12 +7,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.ReceiveFragmentAdapter
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_receive.*
+import java.util.*
 
 
 class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
@@ -25,7 +25,7 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         viewModel = ViewModelProviders.of(this).get(ReceiveCommonViewModel::class.java)
         viewModel.currency.value = args.currency
 
-        requestDepositAddress(viewModel.currency.value!!)
+        fetchDepositAddress()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -34,20 +34,21 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         pager.adapter = ReceiveFragmentAdapter(this, viewModel, supportedByMycelium)
         tabs.setupWithViewPager(pager)
         viewModel.error.observe(viewLifecycleOwner) {
-            ErrorHandler(requireContext()).handle(it)
+            //if no address just suppress this message, because it is not error
+//            ErrorHandler(requireContext()).handle(it)
         }
         viewModel.currency.observe(viewLifecycleOwner, Observer {
-            requestDepositAddress(viewModel.currency.value!!)
+            fetchDepositAddress()
         })
     }
 
     private fun getSupportedByMycelium(currency: String): Boolean {
-        return currency.toLowerCase() in listOf("eth", "btc")
+        return currency.toLowerCase(Locale.getDefault()) in listOf("eth", "btc")
     }
 
-    private fun requestDepositAddress(currency: String) {
+    private fun fetchDepositAddress() {
         this.loader(true)
-        viewModel.depositAddress {
+        viewModel.fetchDepositAddress {
             this.loader(false)
         }
     }

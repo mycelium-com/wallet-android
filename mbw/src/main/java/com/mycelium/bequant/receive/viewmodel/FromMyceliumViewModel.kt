@@ -26,31 +26,30 @@ class FromMyceliumViewModel : ViewModel() {
 
     fun hasOneCoinFiatRate() = oneCoinFiatRate.value != null && oneCoinFiatRate.value?.isNotEmpty() == true
 
-
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
-    fun deposit(account: WalletAccount<*>, value: Value,
-                success: (GenericTransaction) -> Unit, error: (Exception) -> Unit, finally: () -> Unit) {
-
-        viewModelScope.launch(Dispatchers.Default) {
-            try {
-                val addresses = mbwManager.getWalletManager(false)
-                        .parseAddress(if (mbwManager.network.isProdnet) address.value!! else Constants.TEST_ADDRESS)
-                val address = addresses[0]
-                val fee = FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0.00000001"))
-                val tx = account.createTx(address, value, fee, null)
-                account.signTx(tx, AesKeyCipher.defaultKeyCipher())
-                success.invoke(tx)
-                BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))
-            } catch (ex: Exception) {
-                error(error)
-            }
-        }
-                .invokeOnCompletion {
-                    finally.invoke()
-                }
-    }
+//    fun deposit(account: WalletAccount<*>, value: Value,
+//                success: (GenericTransaction) -> Unit, error: (Exception) -> Unit, finally: () -> Unit) {
+//
+//        viewModelScope.launch(Dispatchers.Default) {
+//            try {
+//                val addresses = mbwManager.getWalletManager(false)
+//                        .parseAddress(if (mbwManager.network.isProdnet) address.value!! else Constants.TEST_ADDRESS)
+//                val address = addresses[0]
+//                val fee = FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0.00000001"))
+//                val tx = account.createTx(address, value, fee, null)
+//                account.signTx(tx, AesKeyCipher.defaultKeyCipher())
+//                success.invoke(tx)
+//                BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))
+//            } catch (ex: Exception) {
+//                error(error)
+//            }
+//        }
+//                .invokeOnCompletion {
+//                    finally.invoke()
+//                }
+//    }
 
     fun getCryptocurrenciesSymbols(): List<String> {
-        return mbwManager.getWalletManager(false).getCryptocurrenciesSymbols()
+        return mbwManager.getWalletManager(false).getCryptocurrenciesSymbols().map { it.removePrefix("t") }
     }
 }
