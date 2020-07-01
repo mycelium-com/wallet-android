@@ -2,21 +2,32 @@ package com.mycelium.bequant.market
 
 import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
+import com.mycelium.bequant.common.BlurBuilder
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.exchange.SelectCoinActivity
-import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
@@ -26,8 +37,12 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.Value
+import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
 
@@ -61,6 +76,14 @@ class ExchangeFragment : Fragment() {
                     updateYouSend((it.tag as Int))
                 }
             }
+            val params: RadioGroup.LayoutParams = RadioGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            // convert dp to pixels as setMargins() works with pixels
+            val dpValue = 8
+            val dpRatio = requireContext().resources.displayMetrics.density
+            val pixelForDp = dpValue * dpRatio.toInt()
+            params.setMargins(0, 0, pixelForDp, 0)
+            rb.layoutParams = params
             send_percent.addView(rb)
         }
         send_percent.apply {
@@ -69,8 +92,8 @@ class ExchangeFragment : Fragment() {
         numeric_keyboard.setInputListener(object : ValueKeyboard.SimpleInputListener() {
             override fun done() {
                 getViewActive = false
-                stopCursor(sendView);
-                stopCursor(getView);
+                stopCursor(sendView)
+                stopCursor(getView)
             }
         })
         clSendView.setOnClickListener {
@@ -79,7 +102,7 @@ class ExchangeFragment : Fragment() {
             numeric_keyboard.inputTextView = sendView
             numeric_keyboard.setEntry(sendView.text.toString())
             startCursor(sendView)
-            stopCursor(getView);
+            stopCursor(getView)
             getViewActive = false
 
         }
@@ -89,7 +112,7 @@ class ExchangeFragment : Fragment() {
             numeric_keyboard.inputTextView = getView
             numeric_keyboard.setEntry(getView.text.toString())
             startCursor(getView)
-            stopCursor(sendView);
+            stopCursor(sendView)
             getViewActive = true
         }
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
@@ -104,6 +127,7 @@ class ExchangeFragment : Fragment() {
             if (!getViewActive) {
                 calculateReceiveValue()
             }
+            recalculateDestinationPrice()
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
@@ -125,6 +149,7 @@ class ExchangeFragment : Fragment() {
             if (getViewActive) {
                 calculateSendValue()
             }
+            recalculateDestinationPrice()
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
@@ -133,6 +158,12 @@ class ExchangeFragment : Fragment() {
                 }
             } catch (e: NumberFormatException) {
             }
+        })
+        viewModel.accountBalances.observe(viewLifecycleOwner, Observer {
+            // TODO update vm.yousend
+        })
+        viewModel.tradingBalances.observe(viewLifecycleOwner, Observer {
+            // TODO update vm.yousend
         })
         sendSymbolLayout.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
@@ -143,17 +174,77 @@ class ExchangeFragment : Fragment() {
                     .putExtra(PARENT, YOU_GET), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
-            startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+            // TODO add check that KYC has been passed or show BequantKycActivity
+            // startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+            makeExchange()
         }
+
         icExchange.setOnClickListener {
             val tempValue = viewModel.youSend.value
             viewModel.youSend.value = viewModel.youGet.value
             viewModel.youGet.value = tempValue
         }
         deposit.setOnClickListener { findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit")) }
-        updateYouSend(100)
-        recalculateDestinationPrice()
-        calculateReceiveValue()
+        btContactSupport.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
+        }
+        requestBalances()
+    }
+
+    private fun requestBalances() {
+        Api.tradingRepository.tradingBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
+            viewModel.tradingBalances.value = arrayOfBalances
+        }, { code, error ->
+            ErrorHandler(requireContext()).handle(error)
+        },{
+        })
+        Api.accountRepository.accountBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
+            viewModel.accountBalances.value = arrayOfBalances
+        }, { code, error ->
+            ErrorHandler(requireContext()).handle(error)
+        },{
+        })
+    }
+
+    private fun makeExchange() {
+        clOrderRejected.visibility = View.GONE
+        loader(true)
+        GlobalScope.launch {
+            delay(2000L)
+            loader(false)
+            requireActivity().runOnUiThread {
+                showSummary()
+            }
+        }
+
+        // TODO test
+//        Api.accountRepository.accountCryptoTransferConvertPost(viewLifecycleOwner.lifecycle.coroutineScope,
+//                viewModel.youSend.value!!.currencySymbol,
+//                viewModel.youGet.value!!.currencySymbol,
+//                viewModel.youSend.value!!.value.toString(), {
+//            loader(false)
+//            requireActivity().runOnUiThread {
+//                showSummary()
+//            }
+//        }, { code, error ->
+//            ErrorHandler(requireContext()).handle(error)
+//            requireActivity().runOnUiThread {
+//                clOrderRejected.visibility = View.VISIBLE
+//            }
+//        }, {
+//            loader(false)
+//        })
+    }
+
+    private fun showSummary() {
+        val dialogBuilder = AlertDialog.Builder(requireContext(), R.style.Theme_D1NoTitleDim)
+        val customLayout = layoutInflater.inflate(R.layout.dialog_bequant_exchange_summary, null)
+        dialogBuilder.setView(customLayout)
+        val dialog = dialogBuilder.create()
+        val blurredBg = BitmapDrawable(resources, BlurBuilder.blur(requireActivity()))
+        dialog.window.setBackgroundDrawable(blurredBg)
+        dialog.show()
+        dialog.btDone.setOnClickListener { dialog.cancel() }
     }
 
     private fun equals(value: Value?, text: String?) = ((value?.valueAsBigDecimal
@@ -174,7 +265,7 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun recalculateDestinationPrice() {
-        val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0);
+        val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
         viewModel.rate.value = "1 ${singleCoin.type.symbol} ~ " +
                 "${exchangeRateManager.get(singleCoin, viewModel.youGet.value!!.type).toStringWithUnit(Denomination.UNIT)}"
     }
@@ -200,5 +291,14 @@ class ExchangeFragment : Fragment() {
         const val PARENT = "parent"
         const val YOU_SEND = 0
         const val YOU_GET = 1
+    }
+}
+
+@BindingAdapter("isRedColor")
+fun setRedTextColor(target: ConstraintLayout, isRedColor: Boolean) {
+    if (isRedColor) {
+        target.setBackgroundResource(R.drawable.bg_bequant_text_with_stroke_red)
+    } else {
+        target.setBackgroundResource(R.drawable.bg_bequant_text_with_stroke)
     }
 }

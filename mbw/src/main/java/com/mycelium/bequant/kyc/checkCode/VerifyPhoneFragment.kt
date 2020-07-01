@@ -16,7 +16,7 @@ import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
-import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantKycVerifyPhoneBinding
@@ -51,7 +51,10 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.identity_auth)
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.identity_auth)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         step.text = getString(R.string.step_n, 3)
         stepProgress.progress = 3
 //        tvSubtitle.text = getString(R.string.we_will_call_to_give_you_a_confirmation_code, kycRequest.phone)
@@ -98,7 +101,7 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     private fun resendCode() {
         loader(true)
-        KYCRepository.repository.mobileVerification(viewModel.viewModelScope) {
+        Api.kycRepository.mobileVerification(viewModel.viewModelScope) {
             loader(false)
             AlertDialog.Builder(requireContext())
                     .setMessage(it)
@@ -109,7 +112,7 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     private fun checkCode(code: String) {
         loader(true)
-        KYCRepository.repository.checkMobileVerification(viewModel.viewModelScope, code, {
+        Api.kycRepository.checkMobileVerification(viewModel.viewModelScope, code, {
             loader(false)
             findNavController().navigate(VerifyPhoneFragmentDirections.actionNext(kycRequest))
         }, {

@@ -53,9 +53,9 @@ data class Order(
         @Json(name = "quantity")
         val quantity: kotlin.String,
         @Json(name = "createdAt")
-        val createdAt: java.time.OffsetDateTime,
+        val createdAt: java.util.Date,
         @Json(name = "updatedAt")
-        val updatedAt: java.time.OffsetDateTime,
+        val updatedAt: java.util.Date,
         @Json(name = "price")
         val price: kotlin.String? = null,
         @Json(name = "avgPrice")
@@ -67,7 +67,7 @@ data class Order(
         @Json(name = "stopPrice")
         val stopPrice: kotlin.String? = null,
         @Json(name = "expireTime")
-        val expireTime: java.time.OffsetDateTime? = null,
+        val expireTime: java.util.Date? = null,
         /* Margin position */
         @Json(name = "positionId")
         val positionId: java.math.BigDecimal? = null,

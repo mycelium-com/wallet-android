@@ -55,6 +55,7 @@ class FromMyceliumFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val mbwManager = MbwManager.getInstance(requireContext())
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
             val accounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance()
                     .filter { it.coinType.symbol == coinSymbol }

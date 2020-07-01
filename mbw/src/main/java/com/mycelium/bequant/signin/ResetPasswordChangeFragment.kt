@@ -19,8 +19,9 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.passwordLevel
-import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountPasswordSetRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantChangePasswordBindingImpl
@@ -72,7 +73,7 @@ class ResetPasswordChangeFragment : Fragment() {
         changePassword.setOnClickListener {
             val request = AccountPasswordSetRequest(viewModel.password.value!!, token)
             loader(true)
-            SignRepository.repository.resetPasswordSet(lifecycleScope, request, {
+            Api.signRepository.resetPasswordSet(lifecycleScope, request, {
                 findNavController().navigate(ResetPasswordChangeFragmentDirections.finish())
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)

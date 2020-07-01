@@ -5,12 +5,12 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.ReceiveFragmentAdapter
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
-import com.mycelium.bequant.remote.ApiRepository
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_receive.*
 
@@ -30,22 +30,25 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pager.adapter = ReceiveFragmentAdapter(this, viewModel)
+        val supportedByMycelium = getSupportedByMycelium(args.currency)
+        pager.adapter = ReceiveFragmentAdapter(this, viewModel, supportedByMycelium)
         tabs.setupWithViewPager(pager)
+        viewModel.error.observe(viewLifecycleOwner) {
+            ErrorHandler(requireContext()).handle(it)
+        }
         viewModel.currency.observe(viewLifecycleOwner, Observer {
             requestDepositAddress(viewModel.currency.value!!)
         })
     }
 
-    fun requestDepositAddress(currency: String) {
+    private fun getSupportedByMycelium(currency: String): Boolean {
+        return currency.toLowerCase() in listOf("eth", "btc")
+    }
+
+    private fun requestDepositAddress(currency: String) {
         this.loader(true)
-        ApiRepository.repository.depositAddress(currency, {
+        viewModel.depositAddress {
             this.loader(false)
-            viewModel.address.value = it.address
-            viewModel.tag.value = it.paymentId?.toString()
-        }, { code, message ->
-            this.loader(false)
-            ErrorHandler(requireContext()).handle(message)
-        })
+        }
     }
 }

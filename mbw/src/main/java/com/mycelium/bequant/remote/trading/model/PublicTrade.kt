@@ -33,7 +33,7 @@ data class PublicTrade(
         @Json(name = "side")
         val side: PublicTrade.Side? = null,
         @Json(name = "timestamp")
-        val timestamp: java.time.OffsetDateTime? = null
+        val timestamp: java.util.Date? = null
 ) {
 
     /**

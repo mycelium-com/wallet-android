@@ -8,14 +8,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.adapter.MarketAdapter
 import com.mycelium.bequant.market.viewmodel.MarketItem
 import com.mycelium.bequant.market.viewmodel.MarketTitleItem
-import com.mycelium.bequant.remote.ApiRepository
-import com.mycelium.bequant.remote.model.Ticker
+import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.trading.model.Ticker
 import com.mycelium.wallet.R
 import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
@@ -51,11 +53,14 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     }
 
     private fun requestTickers() {
-        ApiRepository.repository.tickers({
-            tickersData = it
+        loader(true)
+        Api.publicRepository.publicTickerGet(viewLifecycleOwner.lifecycle.coroutineScope,null,{
+            tickersData = it?.toList()?: emptyList()
             updateList()
         }, { code, error ->
             ErrorHandler(requireContext()).handle(error)
+        },{
+            loader(false)
         })
     }
 

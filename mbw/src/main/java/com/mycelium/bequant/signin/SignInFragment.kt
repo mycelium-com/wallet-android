@@ -18,8 +18,9 @@ import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountAuthRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signin.viewmodel.SignInViewModel
 import com.mycelium.wallet.R
@@ -59,7 +60,7 @@ class SignInFragment : Fragment() {
             if (validate()) {
                 loader(true)
                 val request = AccountAuthRequest(viewModel.email.value!!, viewModel.password.value!!)
-                SignRepository.repository.authorize(lifecycleScope, request, success = {
+                Api.signRepository.authorize(lifecycleScope, request, success = {
                     findNavController().navigate(SignFragmentDirections.actionSignUp())
                 }, error = { code, message ->
                     if (code == 420) {

@@ -33,6 +33,6 @@ data class OrderTradesReport(
         @Json(name = "fee")
         val fee: kotlin.String? = null,
         @Json(name = "timestamp")
-        val timestamp: java.time.OffsetDateTime? = null
+        val timestamp: java.util.Date? = null
 )
 

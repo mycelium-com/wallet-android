@@ -30,7 +30,7 @@ import com.squareup.moshi.Json
 
 data class Ticker(
         @Json(name = "symbol")
-        val symbol: kotlin.String? = null,
+        val symbol: kotlin.String,
         /* Best ASK. */
         @Json(name = "ask")
         val ask: kotlin.String? = null,
@@ -39,7 +39,7 @@ data class Ticker(
         val bid: kotlin.String? = null,
         /* Last trade price */
         @Json(name = "last")
-        val last: kotlin.String? = null,
+        val last: kotlin.Double,
         /* Min trade price of the last 24 hours. */
         @Json(name = "low")
         val low: kotlin.String? = null,
@@ -48,15 +48,15 @@ data class Ticker(
         val high: kotlin.String? = null,
         /* Trade price 24 hours ago. */
         @Json(name = "open")
-        val open: kotlin.String? = null,
+        val open: kotlin.Double,
         /* Trading volume in commoduty currency of the last 24 hours. */
         @Json(name = "volume")
-        val volume: kotlin.String? = null,
+        val volume: kotlin.Double,
         /* Trading volume in currency of the last 24 hours. */
         @Json(name = "volumeQuoute")
         val volumeQuoute: kotlin.String? = null,
         /* Actual timestamp. */
         @Json(name = "timestamp")
-        val timestamp: java.time.OffsetDateTime? = null
+        val timestamp: java.util.Date? = null
 )
 

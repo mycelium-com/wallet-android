@@ -9,8 +9,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.TotpCreateResponse
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_backup_code.*
 
@@ -37,7 +38,7 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
         }
 
         loader(true)
-        SignRepository.repository.totpCreate(lifecycleScope, {
+        Api.signRepository.totpCreate(lifecycleScope, {
             response = it
             val (backupPassword, otpId, otpLink) = it!!
             backupCodeView.text = backupPassword.substring(0, backupPassword.length / 2 + 1) + "\n" + backupPassword.substring(backupPassword.length / 2 + 1)

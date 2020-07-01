@@ -1,6 +1,7 @@
 package com.mycelium.bequant.kyc.callback
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,11 +13,20 @@ import kotlinx.android.synthetic.main.fragment_bequant_kyc_approved_callback.*
 
 
 class CallbackApprovedFragment : Fragment(R.layout.fragment_bequant_kyc_approved_callback) {
-    val stepAdapter = StepAdapter()
+
+    private val stepAdapter = StepAdapter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.identity_auth)
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.identity_auth)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
+        }
 
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
@@ -29,4 +39,13 @@ class CallbackApprovedFragment : Fragment(R.layout.fragment_bequant_kyc_approved
             requireActivity().finish()
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.finish()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 }

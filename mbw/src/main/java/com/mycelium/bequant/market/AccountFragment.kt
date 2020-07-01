@@ -22,11 +22,13 @@ import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.HIDE_VALUE
 import com.mycelium.bequant.Constants.TYPE_ITEM
 import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
-import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.repositories.ApiRepository
 import com.mycelium.bequant.remote.model.BequantBalance
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -34,10 +36,11 @@ import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
-import com.mycelium.wallet.activity.util.toString
+import java.math.BigInteger
 
 class AccountFragment : Fragment() {
     val adapter = BequantAccountAdapter()
@@ -72,6 +75,7 @@ class AccountFragment : Fragment() {
         withdraw.setOnClickListener {
             findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
         }
+
         estBalanceCurrency.text = BequantPreference.getMockCastodialBalance().currencySymbol
         hideZeroBalance.isChecked = BequantPreference.hideZeroBalance()
         hideZeroBalance.setOnCheckedChangeListener { _, checked ->
@@ -121,14 +125,19 @@ class AccountFragment : Fragment() {
     }
 
     private fun requestBalances() {
-        if (BequantPreference.hasKeys()) {
-            ApiRepository.repository.balances({
-                balancesData = it
-                updateList()
-            }, { code, error ->
-                ErrorHandler(requireContext()).handle(error)
-            })
-        }
+        //somehow get rate and calculate balances crypto/fiat
+        loader(true)
+        viewModel.loadBalance({
+//            val balance = it?.find { it.currency == args.currency }
+//            val balanceValue = Value.valueOf(getCryptoCurrency(), BigInteger(balance?.available
+//                    ?: "0"))
+            viewModel.totalBalance.value = "0"
+//            viewModel.castodialBalance.value = balanceValue.toString(Denomination.UNIT)
+        }, { _, message ->
+            ErrorHandler(requireContext()).handle(message)
+        }, {
+            loader(false)
+        })
     }
 
     fun updateList(filter: String = "") {

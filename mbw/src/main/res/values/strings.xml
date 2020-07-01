@@ -1378,6 +1378,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="access_from_any_device">Access from any device</string>
     <string name="bequant_dont_fret_about_losing_your_phone">Don\'t fret about losing your phone - access\nyour crypto assets from any mobile or web\ndevice with our secure login process.</string>
     <string name="bequant_exchange_withdraw">Exchange, withdraw and deposit</string>
+    <string name="bequant_exchange_completed_pending">Transaction is pending</string>
+    <string name="bequant_exchange_completed_note">Note that it might take a while to process the transaction. Once the transaction is completed, your balance will be updated</string>
     <string name="bequant_offers_you_the_most_trusted_secure">Bequant offers you the most trusted, secure\nand convenient way to exchange, withdraw\nand deposit the worlds\' top traded\ncryptocurrencies, all within one app.</string>
     <string name="industry_leading_security">Industry-leading security</string>
     <string name="institutional_grade_crypto_storage">Institutional grade crypto storage and\nindustry-leading security, trusted by world\'s\nlargest crypto funds. You can manage your\ncrypto portfolio with confidence.</string>
@@ -1392,6 +1394,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="log_in">Log In</string>
     <string name="available">Available:</string>
     <string name="you_send">You send:</string>
+    <string name="bequant_order_rejected">Your order was rejected</string>
+    <string name="bequant_exchange_temporary_closed">Exchange temporary closed</string>
+    <string name="bequant_contact_support">Contact Support</string>
     <string name="hide_zero_balances">Hide Zero Balances</string>
     <string name="you_get">You get:</string>
     <string name="bequant_sign_up">Sign Up</string>

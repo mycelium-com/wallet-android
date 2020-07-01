@@ -53,7 +53,7 @@ class WithdrawFragment : Fragment() {
     }
 
     private fun getCryptoCurrency(): CryptoCurrency {
-        return when (args.currency) {
+        return when (args.currency?.toLowerCase()) {
             "btc" -> Utils.getBtcCoinType()
             "eth" -> Utils.getEthCoinType()
             else -> TODO("Wrong currency")

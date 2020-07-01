@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -21,18 +20,15 @@ import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.InputPhoneViewModel
-import com.mycelium.bequant.remote.KYCRepository
-import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantKycStep3Binding
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_step_3.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-class Step3Fragment : Fragment(R.layout.fragment_bequant_kyc_step_3) {
+class Step3Fragment : Fragment() {
 
     lateinit var headerViewModel: HeaderViewModel
     lateinit var viewModel: InputPhoneViewModel
@@ -108,29 +104,19 @@ class Step3Fragment : Fragment(R.layout.fragment_bequant_kyc_step_3) {
     private fun sendCode() {
         tvErrorCode.visibility = View.GONE
         loader(true)
-
         viewModel.getRequest()?.let { request ->
             val phone = "+${request.mobilePhoneCountryCode}${request.mobilePhone}"
             BequantPreference.setPhone(phone)
-            val applicant = KYCApplicant(phone, BequantPreference.getEmail())
-            KYCRepository.repository.create(viewModel.viewModelScope, applicant) {
-                KYCRepository.repository.mobileVerification(viewModel.viewModelScope) {
-                    loader(false)
-                    AlertDialog.Builder(requireContext())
-                            .setMessage(it)
-                            .setPositiveButton(R.string.ok) { _, _ ->
-                                findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
-                            }
-                            .show()
-                }
+            Api.kycRepository.mobileVerification(viewModel.viewModelScope) {
+                loader(false)
+                AlertDialog.Builder(requireContext())
+                        .setMessage(it)
+                        .setPositiveButton(R.string.ok) { _, _ ->
+                            findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
+                        }
+                        .show()
             }
         } ?: run {
-            tvErrorCode.visibility = View.VISIBLE
-        }
-    }
-
-    private fun showError(code: Int) {
-        lifecycleScope.launch(Dispatchers.Main) {
             tvErrorCode.visibility = View.VISIBLE
         }
     }

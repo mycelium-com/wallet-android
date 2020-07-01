@@ -27,7 +27,7 @@ import com.squareup.moshi.Json
 
 data class Candle(
         @Json(name = "timestamp")
-        val timestamp: java.time.OffsetDateTime,
+        val timestamp: java.util.Date,
         @Json(name = "open")
         val open: kotlin.String,
         @Json(name = "close")

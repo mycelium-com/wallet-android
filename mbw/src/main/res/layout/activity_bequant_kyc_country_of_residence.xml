@@ -12,7 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bequant_gray"
+        android:background="@color/bequant_gray_2"
         android:padding="16dp">
 
         <EditText

@@ -28,7 +28,9 @@ class BequantKycActivity : AppCompatActivity(R.layout.activity_bequant_kyc) {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
             when (item?.itemId) {
                 android.R.id.home -> {
-                    onBackPressed()
+                    if (!super.onOptionsItemSelected(item)) {
+                        onBackPressed()
+                    }
                     true
                 }
                 else -> super.onOptionsItemSelected(item)

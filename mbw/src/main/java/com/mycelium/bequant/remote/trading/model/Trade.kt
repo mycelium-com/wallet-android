@@ -48,7 +48,7 @@ data class Trade(
         @Json(name = "price")
         val price: kotlin.String,
         @Json(name = "timestamp")
-        val timestamp: java.time.OffsetDateTime,
+        val timestamp: java.util.Date,
         /* Margin position */
         @Json(name = "positionId")
         val positionId: java.math.BigDecimal? = null,

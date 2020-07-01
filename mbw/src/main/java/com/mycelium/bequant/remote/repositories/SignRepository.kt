@@ -1,15 +1,16 @@
-package com.mycelium.bequant.remote
+package com.mycelium.bequant.remote.repositories
 
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.remote.client.apis.AccountApi
 import com.mycelium.bequant.remote.client.apis.ApiKeyApi
-import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.client.models.*
+import com.mycelium.bequant.remote.doRequest
 import kotlinx.coroutines.CoroutineScope
 
 class SignRepository {
 
-    private val accountApi = createApi<AccountApi>()
+    private val accountApi = AccountApi.create()
     private val apiKeyApi = ApiKeyApi.create()
 
     fun signUp(scope: CoroutineScope,
@@ -39,7 +40,7 @@ class SignRepository {
 
     fun totpCreate(scope: CoroutineScope, success: (TotpCreateResponse?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            AccountApi.create().postAccountTotpCreate(TotpCreateRequest())
+            accountApi.postAccountTotpCreate(TotpCreateRequest())
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -67,13 +68,13 @@ class SignRepository {
 
     fun resetPassword(scope: CoroutineScope, request: AccountPasswordResetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            AccountApi.create().postAccountPasswordReset(request)
+            accountApi.postAccountPasswordReset(request)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
     fun resetPasswordSet(scope: CoroutineScope, request: AccountPasswordSetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            AccountApi.create().postAccountPasswordSet(request)
+            accountApi.postAccountPasswordSet(request)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -91,11 +92,6 @@ class SignRepository {
     }
 
     companion object {
-        val ENDPOINT = "https://xwpe71x4sg.execute-api.us-east-1.amazonaws.com/prd-reg/"
-
-        //        val ENDPOINT = "https://reg.bequant.io/"
-//        val API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWNlbGl1bSIsImp0aSI6ImJxN2g2M2ZzdmpvdG8xczVvaDEwIiwiaWF0IjoxNTg2NDM0ODI5LCJpc3MiOiJhdXRoLWFwaSIsImJpZCI6M30.0qvEnMxzbWF-P7eOpZDnSXwoOe5vDWluKFOFq5-tPaE"
-        val repository by lazy { SignRepository() }
     }
 
 }

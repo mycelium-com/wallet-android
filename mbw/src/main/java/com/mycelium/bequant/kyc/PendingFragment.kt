@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit
 
 class PendingFragment : Fragment(R.layout.fragment_bequant_kyc_final_pending) {
 
-    val stepAdapter = StepAdapter()
+    private val stepAdapter = StepAdapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)

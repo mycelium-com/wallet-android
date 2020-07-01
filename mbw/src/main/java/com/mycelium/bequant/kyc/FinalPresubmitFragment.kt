@@ -16,9 +16,9 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
-import com.mycelium.bequant.remote.KYCRepository
 import com.mycelium.bequant.remote.model.KYCDocument
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_final_presubmit.*
 import java.io.File
@@ -27,7 +27,7 @@ import java.util.*
 class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_presubmit) {
 
     val args: FinalPresubmitFragmentArgs by navArgs()
-    val stepAdapter = StepAdapter()
+    private val stepAdapter = StepAdapter()
     lateinit var kycRequest: KYCRequest
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +58,7 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
         }
         submitButton.setOnClickListener {
             loader(true)
-            KYCRepository.repository.uploadDocuments(lifecycleScope, mutableMapOf<File, KYCDocument>().apply {
+            Api.kycRepository.uploadDocuments(lifecycleScope, mutableMapOf<File, KYCDocument>().apply {
                 kycRequest.identityList.forEach {
                     put(File(it), KYCDocument.PASSPORT)
                 }
@@ -83,7 +83,6 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
             title.text = getString(R.string.thank_you_for_completing_the_application_form)
             subtitle1.text = getString(R.string.if_you_are_happy_with_the_content_please_submit_your_application_by_pressing_the_submit_button)
             subtitle2.text = getString(R.string.we_will_notify_you_of_the_outcome_of_the_application_as_soon_as_we_review_your_information_thank_you_for_your_patience)
-
         } else {
             title.text = getString(R.string.do_you_want_resubmit)
             subtitle1.visibility = GONE

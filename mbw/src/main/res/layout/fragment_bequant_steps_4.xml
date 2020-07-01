@@ -53,7 +53,8 @@
                     android:layout_marginTop="8dp"
                     android:alpha="0.5"
                     android:text="Accepted document:\nTravelling Passport, National Identity Card, Driving Licence "
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/identityList"
@@ -111,6 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:orientation="vertical"
+                    android:textSize="14sp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -153,13 +155,14 @@
                     android:layout_marginTop="8dp"
                     android:alpha="0.5"
                     android:text='Please submit a selfie in which you are holding your government-issued ID and a paper note. The ID should be the same you attached to this application. On the note you should handwrite your email address, the current date, and the words "for Bequant".'
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/selfieList"
                     android:layout_width="match_parent"
-                    android:layout_marginTop="16dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:orientation="vertical"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 

@@ -11,8 +11,8 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
-import com.mycelium.bequant.remote.KYCRepository
 import com.mycelium.bequant.remote.model.KYCStatus
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_start.*
 
@@ -20,7 +20,10 @@ import kotlinx.android.synthetic.main.fragment_bequant_kyc_start.*
 class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.identity_auth)
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.identity_auth)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
@@ -33,7 +36,7 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
         }
         if (BequantPreference.getKYCToken().isNotEmpty()) {
             loader(true)
-            KYCRepository.repository.status(lifecycleScope) { statusMsg ->
+            Api.kycRepository.status(lifecycleScope) { statusMsg ->
                 loader(false)
                 when (statusMsg.global) {
                     KYCStatus.PENDING ->
