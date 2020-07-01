@@ -56,7 +56,8 @@ class WithdrawFragment : Fragment() {
         return when (args.currency?.toLowerCase()) {
             "btc" -> Utils.getBtcCoinType()
             "eth" -> Utils.getEthCoinType()
-            else -> TODO("Wrong currency")
+            //TODO
+            else -> Utils.getBtcCoinType()
         }
     }
 
