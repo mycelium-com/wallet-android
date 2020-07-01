@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.ReceiveFragmentAdapter
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
@@ -18,6 +17,7 @@ import java.util.*
 
 class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
 
+    val DEMO_ADDRESS = "0x60c2a43cc69658ec4b02a65a07623d7192166f4e"
     val args by navArgs<ReceiveFragmentArgs>()
     lateinit var viewModel: ReceiveCommonViewModel
 
@@ -51,6 +51,9 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         this.loader(true)
         viewModel.depositAddress {
             this.loader(false)
+
+            //FOR DEMO
+            viewModel.address.value = DEMO_ADDRESS
         }
     }
 }

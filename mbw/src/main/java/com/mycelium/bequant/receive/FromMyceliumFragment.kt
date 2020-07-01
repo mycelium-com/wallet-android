@@ -33,6 +33,7 @@ import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthAddress
 import kotlinx.android.synthetic.main.fragment_bequant_receive_from_mycelium.*
 import kotlinx.android.synthetic.main.item_bequant_withdraw_pager_accounts.*
 
@@ -102,17 +103,18 @@ class FromMyceliumFragment : Fragment() {
         }
         confirm.setOnClickListener {
             val account = adapter.getItem(accountList.currentItem)
-            val address = Address.fromString(viewModel.address.value)
+
+            val addressString = parentViewModel?.address?.value?:""
             val uri: GenericAssetUri = when (account) {
                 is AbstractBtcAccount -> {
                     val type = Utils.getBtcCoinType()
-                    BitcoinUri.from(BtcAddress(type, address),
+                    BitcoinUri.from(BtcAddress(type,  Address.fromString(addressString)),
                             Value.zeroValue(type),
                             null, null)
                 }
                 is EthAccount -> {
                     val type = Utils.getEthCoinType()
-                    EthUri(BtcAddress(type, address),
+                    EthUri(EthAddress(type, addressString),
                             Value.zeroValue(type), null)
                 }
                 else -> TODO("Not supported account: $it")
