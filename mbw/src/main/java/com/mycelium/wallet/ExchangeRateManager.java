@@ -184,21 +184,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                     }
                 }
             }
-            //Get rates from Coinmarket
-            try {
-                CoinmarketcapRate rmcRate = CoinmarketcapApi.getRate();
-                if (rmcRate != null) {
-                    rateRmcBtc = rmcRate.getPriceBtc();
-                    storage.storeExchangeRate("RMC", "BTC", RMC_MARKET, String.valueOf(rateRmcBtc));
-                } else {
-                    Optional<String> rate = storage.getExchangeRate("RMC", "BTC", RMC_MARKET);
-                    if (rate.isPresent()) {
-                        rateRmcBtc = Float.parseFloat(rate.get());
-                    }
-                }
-            } catch (RetrofitError error) {
-                Log.e("ExcangeRateManager", "get rmc rate from Coinmarketcap ", error);
-            }
             Optional<String> rate = storage.getExchangeRate("BCH", "BTC", CHANGELLY_MARKET);
             if (rate.isPresent()) {
                 rateBchBtc = Float.parseFloat(rate.get());

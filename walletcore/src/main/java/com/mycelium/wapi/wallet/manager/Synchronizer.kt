@@ -32,16 +32,15 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
             } else {
                 accounts.filterNotNull().filter { it.isActive }
             }.filter { !it.isSyncing }
-            startSync(list)
+            runSync(list)
         }
     }
 
-    private fun startSync(list: List<WalletAccount<*>>) {
+    private fun runSync(list: List<WalletAccount<*>>) {
         //split synchronization by coinTypes in own threads
-        GlobalScope.launch(Dispatchers.Default) {
-                list.map {
-                    async {
-                        val accountLabel = it.label ?: ""
+        runBlocking {
+            list.map {
+                async {
                         logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
                         var isSyncSuccessful = false;
                         try {
@@ -50,10 +49,8 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                             logger.log(Level.WARNING,"Sync error", ex)
                         }
                         logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
-                    }
-                }.map {
-                    it.await()
                 }
+            }
         }.invokeOnCompletion {
             walletManager.state = State.READY
             walletManager.walletListener?.syncStopped()

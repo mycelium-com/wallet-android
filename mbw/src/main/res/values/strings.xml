@@ -105,6 +105,7 @@
     <string name="gas_used">Gas Used</string>
     <string name="gas_price">Gas Price</string>
     <string name="nonce">Nonce</string>
+    <string name="eth_internal_transfer">(%s has been transferred to the caller)</string>
     <string name="replace_transaction">Transaction to be replaced</string>
     <string name="gas_limit_error">Gas Limit must be at least 21000</string>
     <string name="input_data">Input Data</string>
@@ -511,7 +512,7 @@
         <item quantity="one">Contains %1$d address.</item>
         <item quantity="other">Contains %1$d addresses.</item>
     </plurals>
-    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
+    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$d transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
@@ -1160,7 +1161,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="this_is_read_only_account">This is watch-only account. In order to spend funds from it, you need to import the corresponding private key.\nYou can do it by selecting Accounts tab > Add New Account > Advanced and using either Scan or Clipboard option for key\'s importing.</string>
     <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
-    <string name="waiting_offer">Waiting offer…</string>
+    <string name="waiting_offer">Waiting for an offer…</string>
     <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>

@@ -38,7 +38,7 @@ class RecommendationsFragment : Fragment() {
         val adapter = RecommendationAdapter(mutableListOf<RecommendationInfo>().apply {
             add(RecommendationHeader(SettingsPreference.getPartnersHeaderTitle(),
                     SettingsPreference.getPartnersHeaderText()))
-            SettingsPreference.getPartners()?.forEach {
+            SettingsPreference.getPartners()?.filter { it.isEnabled ?: true }?.forEach {
                 add(getPartnerInfo(it))
             }
             add(RecommendationFooter())

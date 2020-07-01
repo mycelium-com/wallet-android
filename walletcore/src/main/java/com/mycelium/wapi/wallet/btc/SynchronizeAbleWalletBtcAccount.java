@@ -31,7 +31,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
    @Volatile
-   private boolean isSyncing;
+   private volatile boolean isSyncing;
 
    private String accountLabel;
 

@@ -1,14 +1,20 @@
 package com.mycelium.wallet.activity.main.adapter;
 
 import android.graphics.Paint;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.model.ActionButton;
 
@@ -56,7 +62,21 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             final ActionButton actionButton = buttons.get(position);
             Button button = ((ButtonHolder) holder).button;
             button.setText(actionButton.getText());
-            button.setCompoundDrawablesWithIntrinsicBounds(actionButton.getIcon(), 0, 0, 0);
+            if (actionButton.getIcon() != 0) {
+                button.setCompoundDrawablesWithIntrinsicBounds(actionButton.getIcon(), 0, 0, 0);
+            } else if (actionButton.getIconUrl() != null) {
+                int size = button.getResources().getDimensionPixelSize(R.dimen.button_ads_icon_size);
+                Glide.with(button.getContext())
+                        .load(actionButton.getIconUrl())
+                        .into(new SimpleTarget<Drawable>(size, size) {
+                            @Override
+                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                button.setCompoundDrawablesWithIntrinsicBounds(resource, null, null, null);
+                            }
+                        });
+            } else {
+                button.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            }
             button.setTextColor(actionButton.getTextColor() != 0 ?
                     actionButton.getTextColor() : button.getResources().getColor(R.color.btn_text_color));
             button.setPadding(button.getResources().getDimensionPixelSize(actionButton.getIcon() != 0 ?

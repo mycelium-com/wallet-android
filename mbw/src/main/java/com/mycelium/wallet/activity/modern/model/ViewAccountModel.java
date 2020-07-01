@@ -30,9 +30,7 @@ public class ViewAccountModel{
     public int syncTotalRetrievedTransactions;
     public boolean isSyncing;
 
-    public ViewAccountModel() {
-
-    }
+    public ViewAccountModel() {}
 
     public ViewAccountModel(AccountViewModel viewModel, Context context) {
         accountId = viewModel.getAccountId();

@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.modern.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Html
 import android.view.LayoutInflater
@@ -189,6 +190,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun buildGroupBase(group: AccountsGroupModel, groupHolder: GroupTitleViewHolder) {
         val title = group.getTitle(context)
         groupHolder.tvTitle.text = Html.fromHtml(title)

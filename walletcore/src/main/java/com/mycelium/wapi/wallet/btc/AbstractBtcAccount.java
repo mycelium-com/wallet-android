@@ -109,6 +109,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
@@ -414,7 +415,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          GetTransactionsResponse response;
          try {
             response = getTransactionsBatched(transactionsToAddOrUpdate).getResult();
-            handleNewExternalTransactions(response.transactions);
+            List<TransactionEx> txs = Lists.newLinkedList(response.transactions);
+            handleNewExternalTransactions(txs);
          } catch (WapiException e) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
@@ -465,26 +467,23 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return map;
    }
 
-   protected void handleNewExternalTransactions(Collection<TransactionExApi> transactions) throws WapiException {
-      // TODO: simplify. The "if" is not needed.
-      if (transactions.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
-         handleNewExternalTransactionsInt(transactions);
-         syncTotalRetrievedTransactions += transactions.size();
-         updateSyncProgress();
-      } else {
-         // We have quite a list of transactions to handle, do it in batches
-         ArrayList<TransactionExApi> all = new ArrayList<>(transactions);
+   protected void handleNewExternalTransactions(Collection<TransactionEx> transactions) throws WapiException {
+      handleNewExternalTransactions(transactions, false);
+   }
+
+   // HACK: skipping local handling of known transactions breaks the sync process. This should
+   // be fixed somewhere else to make allKnown obsolete.
+   protected void handleNewExternalTransactions(Collection<TransactionEx> transactions, boolean allKnown) throws WapiException {
+      ArrayList<TransactionEx> all = new ArrayList<>(transactions);
          for (int i = 0; i < all.size(); i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
             int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
-            Collection<TransactionExApi> sub = all.subList(i, endIndex);
-            handleNewExternalTransactionsInt(sub);
-            syncTotalRetrievedTransactions += (endIndex - i);
+         Collection<TransactionEx> sub = all.subList(i, endIndex);
+         handleNewExternalTransactionsInt(sub, allKnown);
             updateSyncProgress();
          }
       }
-   }
 
-   private void handleNewExternalTransactionsInt(Collection<TransactionExApi> transactions) throws WapiException {
+   private void handleNewExternalTransactionsInt(@Nonnull Collection<TransactionEx> transactions, boolean allKnown) throws WapiException {
       // Transform and put into two arrays with matching indexes
       List<BitcoinTransaction> txArray = new ArrayList<>(transactions.size());
       for (TransactionEx tex : transactions) {
@@ -500,7 +499,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       fetchStoreAndValidateParentOutputs(txArray, this instanceof SingleAddressAccount);
 
       // Store transaction locally
+      if (!allKnown) {
       _backing.putTransactions(transactions);
+         syncTotalRetrievedTransactions += transactions.size();
+      }
 
       for (BitcoinTransaction t : txArray) {
          onNewTransaction(t);
@@ -551,7 +553,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Fetch missing parent transactions
       if (toFetch.size() > 0) {
-         GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult(); // _wapi.getTransactionSummaries(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
+         GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult();
          for (TransactionExApi tx : result.transactions) {
             // Verify transaction hash. This is important as we don't want to
             // have a transaction output associated with an outpoint that
@@ -562,8 +564,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             if (hash.equals(tx.hash)) {
                parentTransactions.put(tx.txid, tx);
             } else {
-               _logger.log(Level.SEVERE, "Failed to validate transaction hash from server. Expected: " + tx.txid
-                       + " Calculated: " + hash);
                //TODO: Document what's happening here.
                //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to txhash to, right?
                throw new RuntimeException("Failed to validate transaction hash from server. Expected: " + tx.txid
