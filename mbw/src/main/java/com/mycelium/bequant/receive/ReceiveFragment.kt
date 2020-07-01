@@ -13,6 +13,7 @@ import com.mycelium.bequant.receive.adapter.ReceiveFragmentAdapter
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_receive.*
+import java.util.*
 
 
 class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
@@ -34,7 +35,7 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         pager.adapter = ReceiveFragmentAdapter(this, viewModel, supportedByMycelium)
         tabs.setupWithViewPager(pager)
         viewModel.error.observe(viewLifecycleOwner) {
-            //if no address just supress this message, because it is not error
+            //if no address just suppress this message, because it is not error
 //            ErrorHandler(requireContext()).handle(it)
         }
         viewModel.currency.observe(viewLifecycleOwner, Observer {
@@ -43,7 +44,7 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
     }
 
     private fun getSupportedByMycelium(currency: String): Boolean {
-        return currency.toLowerCase() in listOf("eth", "btc")
+        return currency.toLowerCase(Locale.getDefault()) in listOf("eth", "btc")
     }
 
     private fun requestDepositAddress(currency: String) {
