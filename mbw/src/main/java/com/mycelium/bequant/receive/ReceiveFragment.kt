@@ -17,7 +17,6 @@ import java.util.*
 
 class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
 
-    val DEMO_ADDRESS = "0x60c2a43cc69658ec4b02a65a07623d7192166f4e"
     val args by navArgs<ReceiveFragmentArgs>()
     lateinit var viewModel: ReceiveCommonViewModel
 
@@ -26,7 +25,7 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         viewModel = ViewModelProviders.of(this).get(ReceiveCommonViewModel::class.java)
         viewModel.currency.value = args.currency
 
-        requestDepositAddress(viewModel.currency.value!!)
+        fetchDepositAddress()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,7 +38,7 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
 //            ErrorHandler(requireContext()).handle(it)
         }
         viewModel.currency.observe(viewLifecycleOwner, Observer {
-            requestDepositAddress(viewModel.currency.value!!)
+            fetchDepositAddress()
         })
     }
 
@@ -47,13 +46,10 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
         return currency.toLowerCase(Locale.getDefault()) in listOf("eth", "btc")
     }
 
-    private fun requestDepositAddress(currency: String) {
+    private fun fetchDepositAddress() {
         this.loader(true)
-        viewModel.depositAddress {
+        viewModel.fetchDepositAddress {
             this.loader(false)
-
-            //FOR DEMO
-            viewModel.address.value = DEMO_ADDRESS
         }
     }
 }
