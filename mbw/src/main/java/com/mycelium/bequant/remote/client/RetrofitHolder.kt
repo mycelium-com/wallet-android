@@ -28,6 +28,16 @@ object RetrofitHolder {
                                         BequantPreference.getPrivateKey()))
                     }.build())
                 }
+                .addInterceptor {
+                    it.proceed(it.request().newBuilder().apply {
+                        header("Content-Type", "application/json")
+//                                    header("X-API-KEY", API_KEY)
+                        val containsAuth = it.request().headers().toMultimap().keys.contains("Authorization")
+                        if (!containsAuth && BequantPreference.getAccessToken().isNotEmpty()) {
+                            header("Authorization", "Bearer ${BequantPreference.getAccessToken()}")
+                        }
+                    }.build())
+                }
 //                .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::authorizationGenerator))
                 .apply {
                     if (BuildConfig.DEBUG) {
