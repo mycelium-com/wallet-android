@@ -1,21 +1,28 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
+import com.mycelium.wapi.wallet.GenericAddress;
 
 import java.math.BigInteger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class CryptoCurrency extends AbstractAsset {
+public class CryptoCurrency extends AbstractAsset {
     private static final long serialVersionUID = 1L;
-
 
     protected String id;
     protected Integer unitExponent;
     protected Integer friendlyDigits;
-    protected String addressPrefix;
-    protected FeePolicy feePolicy = FeePolicy.FEE_PER_KB;
     protected boolean isUtxosBased = true;
+
+    public CryptoCurrency(String id, String name, String symbol, Integer unitExponent, Integer friendlyDigits, boolean isUtxosBased) {
+        this.id = id;
+        this.name = name;
+        this.symbol = symbol;
+        this.unitExponent = unitExponent;
+        this.friendlyDigits = friendlyDigits;
+        this.isUtxosBased = isUtxosBased;
+    }
 
     @Override
     public String getName() {
@@ -41,13 +48,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return str.getBytes(Charsets.UTF_8);
     }
 
-    /**
-     Return an address prefix like NXT- or BURST-, otherwise and empty string
-     */
-    public String getAddressPrefix() {
-        return checkNotNull(addressPrefix, "A coin failed to set the address prefix");
-    }
-
     @Override
     public Value oneCoin() {
         if (oneCoin == null) {
@@ -57,13 +57,14 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return oneCoin;
     }
 
-    public FeePolicy getFeePolicy() {
-        return feePolicy;
-    }
-
     @Override
     public Value value(String string) {
         return Value.parse(this, string);
+    }
+
+    @Override
+    public GenericAddress parseAddress(String address) {
+        return null;
     }
 
     @Override
