@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 
 
 class HeaderViewModel : ViewModel() {
-    val visibility = MutableLiveData<Int>(View.GONE)
+    val visibility = MutableLiveData(View.GONE)
 
     fun hide() {
         visibility.value = View.GONE

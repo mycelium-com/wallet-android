@@ -135,6 +135,9 @@
                 android:defaultValue="true"
                 app:argType="boolean" />
         </action>
+        <action
+            android:id="@+id/actionFatca"
+            app:destination="@id/countryFailFragment"/>
     </fragment>
 
     <fragment

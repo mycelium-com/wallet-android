@@ -3,7 +3,6 @@ package com.mycelium.bequant.remote.repositories
 object Api {
     val accountRepository by lazy { AccountApiRepository() }
     val publicRepository by lazy { PublicApiRespository() }
-    val apiRepository by lazy { ApiRepository() }
     val kycRepository by lazy { KYCRepository() }
     val signRepository by lazy { SignRepository() }
     val tradingRepository by lazy { TradingApiRepository() }

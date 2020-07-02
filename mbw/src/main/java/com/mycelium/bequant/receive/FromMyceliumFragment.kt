@@ -109,13 +109,13 @@ class FromMyceliumFragment : Fragment() {
                 is AbstractBtcAccount -> {
                     val type = Utils.getBtcCoinType()
                     BitcoinUri.from(BtcAddress(type, Address.fromString(addressString)),
-                            Value.zeroValue(type),
+                            Value.parse(type, viewModel.amount.value!!),
                             null, null)
                 }
                 is EthAccount -> {
                     val type = Utils.getEthCoinType()
                     EthUri(EthAddress(type, addressString),
-                            Value.zeroValue(type), null)
+                            Value.parse(type, viewModel.amount.value!!), null)
                 }
                 else -> TODO("Not supported account: $it")
             }

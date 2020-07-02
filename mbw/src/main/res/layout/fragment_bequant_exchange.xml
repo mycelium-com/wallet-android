@@ -227,7 +227,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:enabled="@{!viewModel.available.equalZero() &amp;&amp; !viewModel.youSend.moreThan(viewModel.available)}"
+                android:enabled="@{!viewModel.available.equalZero() &amp;&amp; !viewModel.youSend.moreThan(viewModel.available) &amp;&amp; !viewModel.youSend.equalZero()}"
                 android:text="@string/exchange"
                 app:layout_constraintTop_toBottomOf="@id/clGetView" />
 
