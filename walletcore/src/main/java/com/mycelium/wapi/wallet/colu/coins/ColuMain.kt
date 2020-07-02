@@ -4,10 +4,10 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
-
-abstract class ColuMain : BitcoinBasedCryptoCurrency() {
+abstract class ColuMain(id: String?, name: String?, symbol: String?, unitExponent: Int?, friendlyDigits: Int?)
+    : CryptoCurrency(id, name, symbol, unitExponent, friendlyDigits, true) {
 
     override fun getName(): String = name
 

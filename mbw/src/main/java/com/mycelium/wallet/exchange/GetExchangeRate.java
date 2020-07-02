@@ -22,6 +22,7 @@ public class GetExchangeRate {
     private BigDecimal targetPrice;
     private ExchangeRate sourceExchangeRate;
     private ExchangeRate targetExchangeRate;
+    public Boolean hack = false;
 
     public GetExchangeRate(WalletManager walletManager, String targetCurrency, String sourceCurrency, ExchangeRateProvider exchangeRateManager) {
         this.targetCurrency = targetCurrency;
@@ -60,7 +61,7 @@ public class GetExchangeRate {
         sourceExchangeRate = null;
         targetExchangeRate = null;
 
-        if (isBtc(sourceCurrency) || isEth(sourceCurrency)
+        if (!hack && isBtc(sourceCurrency) || isEth(sourceCurrency)
                 || (isERC20Token(walletManager, sourceCurrency) && !isEth(targetCurrency))) {
             sourcePrice = BigDecimal.ONE;
         } else {
@@ -70,7 +71,7 @@ public class GetExchangeRate {
             }
         }
 
-        if (isBtc(targetCurrency) || isEth(targetCurrency) || isERC20Token(walletManager, targetCurrency)) {
+        if (!hack && isBtc(targetCurrency) || isEth(targetCurrency) || isERC20Token(walletManager, targetCurrency)) {
             targetPrice = BigDecimal.ONE;
         } else {
             targetExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency, targetCurrency);

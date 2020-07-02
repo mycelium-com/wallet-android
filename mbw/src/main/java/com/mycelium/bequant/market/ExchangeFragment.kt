@@ -20,6 +20,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.BlurBuilder
@@ -30,8 +31,6 @@ import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Transaction
 import com.mycelium.view.Denomination
-import com.mycelium.wallet.ExchangeRateManager
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
@@ -50,12 +49,13 @@ import kotlin.math.pow
 class ExchangeFragment : Fragment() {
 
     private lateinit var viewModel: ExchangeViewModel
-    private lateinit var exchangeRateManager: ExchangeRateManager
+    private lateinit var exchangeRateManager: BQExchangeRateManager
     var getViewActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        exchangeRateManager = MbwManager.getInstance(requireContext()).exchangeRateManager
+        exchangeRateManager = BQExchangeRateManager(requireContext())
+        exchangeRateManager.requestOptionalRefresh()
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
     }
 
@@ -143,7 +143,7 @@ class ExchangeFragment : Fragment() {
                     viewModel.youGetText.value = it.toString(Denomination.UNIT)
                 }
             } catch (e: NumberFormatException) {
-                viewModel.youGetText.value = it.toString(Denomination.UNIT)
+                viewModel.youGetText.value = it?.toString(Denomination.UNIT)
             }
             // calculate send value only if receive view active
             if (getViewActive) {
@@ -215,13 +215,13 @@ class ExchangeFragment : Fragment() {
             viewModel.tradingBalances.value = arrayOfBalances
         }, { code, error ->
             ErrorHandler(requireContext()).handle(error)
-        },{
+        }, {
         })
         Api.accountRepository.accountBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
             viewModel.accountBalances.value = arrayOfBalances
         }, { code, error ->
             ErrorHandler(requireContext()).handle(error)
-        },{
+        }, {
         })
     }
 
@@ -236,8 +236,9 @@ class ExchangeFragment : Fragment() {
         val tradingBalance = BigInteger(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
         if (tradingBalance < amount) {
             val lackAmount = amount - tradingBalance
+            val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
             loader(true)
-            Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmount.toString(),
+            Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
                     Transaction.Type.bankToExchange.value, {
                 // update balance after exchange
                 requestBalances()
@@ -246,7 +247,7 @@ class ExchangeFragment : Fragment() {
                 val quantity = youGet.value.toString() // TODO add check for compliance with quantityIncrement
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
                         "buy", quantity, "", "market", "", "",
-                        "", Date(), true, false, {
+                        "", Date(), false, false, {
                     loader(false)
                     requireActivity().runOnUiThread {
                         showSummary()
@@ -311,17 +312,26 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun recalculateDestinationPrice() {
-        val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
-        viewModel.rate.value = "1 ${singleCoin.type.symbol} ~ " +
-                "${exchangeRateManager.get(singleCoin, viewModel.youGet.value!!.type).toStringWithUnit(Denomination.UNIT)}"
+        viewModel.youGet.value?.let { youGetValue ->
+            val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
+            val destPrice = exchangeRateManager.get(singleCoin, youGetValue.type)
+            viewModel.rate.value = destPrice?.let { "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}" }
+                    ?: ""
+        }
     }
 
     private fun calculateSendValue() {
-        viewModel.youSend.value = exchangeRateManager.get(viewModel.youGet.value, viewModel.youSend.value!!.type)
+        viewModel.youGet.value?.let { youGetValue ->
+            viewModel.youSend.value = exchangeRateManager.get(youGetValue, viewModel.youSend.value!!.type)
+                    ?: Value.zeroValue(viewModel.youSend.value!!.type)
+        }
     }
 
     private fun calculateReceiveValue() {
-        viewModel.youGet.value = exchangeRateManager.get(viewModel.youSend.value, viewModel.youGet.value!!.type)
+        viewModel.youSend.value?.let { youSendValue ->
+            viewModel.youGet.value = exchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
+                    ?: Value.zeroValue(viewModel.youGet.value!!.type)
+        }
     }
 
     private fun updateYouSend(rate: Int) {
