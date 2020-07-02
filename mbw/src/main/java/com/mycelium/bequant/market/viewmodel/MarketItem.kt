@@ -21,7 +21,8 @@ open class AdapterItem(val viewType: Int) {
 }
 
 //TODO correct variables class
-class MarketItem(val currencies: String,
+class MarketItem(val from:String,
+                 val to:String,
                  val volume: Double,
                  val price: Double?,
                  val fiatPrice: Double?,

@@ -73,14 +73,15 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                     else {
                         100 - it.last / it.open * 100
                     }
-                    MarketItem("${it.symbol.substring(0, 3)} / ${it.symbol.substring(3)}",
+                    //TODO get correct symbol from symbols call (maybe from bqexchangermanager)
+                    MarketItem(it.symbol.substring(0, 3), it.symbol.substring(3),
                             it.volume, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
                 }
         marketItems = when (sortField) {
             0 -> if (sortDirection) {
-                marketItems.sortedByDescending { it.currencies }
+                marketItems.sortedByDescending { it.from + it.to }
             } else {
-                marketItems.sortedBy { it.currencies }
+                marketItems.sortedBy { it.from + it.to }
             }
             1 -> if (sortDirection) {
                 marketItems.sortedByDescending { it.volume }

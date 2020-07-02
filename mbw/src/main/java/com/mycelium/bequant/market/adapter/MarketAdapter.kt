@@ -19,7 +19,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.item_bequant_market.view.*
-import kotlinx.android.synthetic.main.item_bequant_market.view.volume
 
 
 class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<AdapterItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -38,8 +37,8 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
         when (item.viewType) {
             MARKET_ITEM -> {
                 item as MarketItem
-                val quoteCurrency = item.currencies.substring(6)
-                holder.itemView.currencies.text = item.currencies
+                val quoteCurrency = item.from
+                holder.itemView.currencies.text = "${item.from} / ${item.to}"
                 holder.itemView.volume.text = when {
                     quoteCurrency.equals("BTC", true) -> {
                         "Vol ${Value.valueOf(Utils.getBtcCoinType(), item.volume.toBigDecimal().unscaledValue()).toString(Denomination.UNIT)}"
@@ -83,7 +82,10 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
                     }
                 }
                 holder.itemView.setOnClickListener {
-                    LocalBroadcastManager.getInstance(holder.itemView.context).sendBroadcast(Intent(Constants.ACTION_EXCHANGE))
+                    LocalBroadcastManager.getInstance(holder.itemView.context)
+                            .sendBroadcast(Intent(Constants.ACTION_EXCHANGE)
+                                    .putExtra("from", item.from)
+                                    .putExtra("to", item.to))
                 }
             }
             MARKET_TITLE_ITEM -> {
@@ -149,7 +151,8 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
                         oldItem.volume == newItem.volume
                                 && oldItem.price == newItem.price
                                 && oldItem.change == newItem.change
-                                && oldItem.currencies == newItem.currencies
+                                && oldItem.from == newItem.from
+                                && oldItem.to == newItem.to
                                 && oldItem.fiatPrice == newItem.fiatPrice
                     }
                     MARKET_TITLE_ITEM -> {

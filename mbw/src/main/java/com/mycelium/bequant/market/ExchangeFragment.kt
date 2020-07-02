@@ -1,6 +1,9 @@
 package com.mycelium.bequant.market
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
@@ -19,12 +22,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.coroutineScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.BlurBuilder
 import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
@@ -52,11 +57,26 @@ class ExchangeFragment : Fragment() {
     private lateinit var exchangeRateManager: BQExchangeRateManager
     var getViewActive = false
 
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            Api.publicRepository.publicCurrencyGet(viewLifecycleOwner.lifecycle.coroutineScope,null,{
+                val currencies = it?.toList()?: listOf()
+                currencies.find { it.id == intent?.getStringExtra("from") }?.assetInfoById()?.let {
+                    viewModel.youSend.value = Value.zeroValue(it)
+                }
+                currencies.find { it.id == intent?.getStringExtra("to") }?.assetInfoById()?.let {
+                    viewModel.youGet.value = Value.zeroValue(it)
+                }
+            })
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         exchangeRateManager = BQExchangeRateManager(requireContext())
         exchangeRateManager.requestOptionalRefresh()
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -191,6 +211,11 @@ class ExchangeFragment : Fragment() {
         requestBalances()
     }
 
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        super.onDestroy()
+    }
+
     private fun updateAvailable() {
         val youSend = viewModel.youSend.value!!
 
@@ -232,22 +257,23 @@ class ExchangeFragment : Fragment() {
         clOrderRejected.visibility = View.GONE
 
         val currency = youSend.currencySymbol
-        val amount = youSend.value
-        val tradingBalance = BigInteger(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
+        val amount = youSend.valueAsBigDecimal
+        val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
         if (tradingBalance < amount) {
             val lackAmount = amount - tradingBalance
-            val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
+            //val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
+            var lackAmountString = lackAmount.toString()
             loader(true)
             Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
                     Transaction.Type.bankToExchange.value, {
                 // update balance after exchange
                 requestBalances()
                 // place market order
-                val symbol = youSend.currencySymbol + youGet.currencySymbol
-                val quantity = youGet.value.toString() // TODO add check for compliance with quantityIncrement
-                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
+                var symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+                val quantity = youGet.toPlainString()
+                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
                         "buy", quantity, "", "market", "", "",
-                        "", Date(), false, false, {
+                        "", null, false, false, {
                     loader(false)
                     requireActivity().runOnUiThread {
                         showSummary()
@@ -264,11 +290,11 @@ class ExchangeFragment : Fragment() {
                 loader(false)
             })
         } else {
-            val symbol = youSend.currencySymbol + youGet.currencySymbol
-            val quantity = youGet.value.toString()
-            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
+            var symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+            val quantity = youGet.toPlainString()
+            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
                     "buy", quantity, "", "market", "", "",
-                    "", Date(), true, false, {
+                    "", null, false, false, {
                 requireActivity().runOnUiThread {
                     showSummary()
                 }

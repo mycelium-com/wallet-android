@@ -7,7 +7,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Response<T>, successBlock: (T?) -> Unit, errorBlock: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Response<T>,
+                  successBlock: (T?) -> Unit,
+                  errorBlock: ((Int, String) -> Unit)? = null,
+                  finallyBlock: (() -> Unit)? = null) {
     coroutineScope.launch {
         withContext(Dispatchers.IO) {
             try {
@@ -16,17 +19,17 @@ fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Respons
                     if (response.isSuccessful) {
                         successBlock(response.body())
                     } else {
-                        errorBlock.invoke(response.code(), response.errorBody()?.string() ?: "")
+                        errorBlock?.invoke(response.code(), response.errorBody()?.string() ?: "")
                     }
                 }
             } catch (e: Exception) {
                 Log.w("Request", "excheption on request", e)
                 withContext(Dispatchers.Main) {
-                    errorBlock.invoke(400, e.localizedMessage)
+                    errorBlock?.invoke(400, e.localizedMessage)
                 }
             }
         }
     }.invokeOnCompletion {
-        finallyBlock.invoke()
+        finallyBlock?.invoke()
     }
 }

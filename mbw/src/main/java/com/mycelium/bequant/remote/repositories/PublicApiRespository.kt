@@ -33,12 +33,24 @@ class PublicApiRespository {
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
+    // maybe need put it to sharedpreference
+    private var publicCurrencies = arrayOf<Currency>()
 
     fun publicCurrencyGet(scope: CoroutineScope, currencies: String?,
-                          success: (Array<Currency>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        doRequest(scope, {
-            api.publicCurrencyGet(currencies)
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+                          success: (Array<Currency>?) -> Unit,
+                          error: ((Int, String) -> Unit)? = null,
+                          finally: (() -> Unit)? = null) {
+        if(currencies == null && publicCurrencies.isNotEmpty()) {
+            success.invoke(publicCurrencies)
+        }else {
+            doRequest(scope, {
+                api.publicCurrencyGet(currencies).apply {
+                    if(currencies == null) {
+                        publicCurrencies = this.body() ?: arrayOf()
+                    }
+                }
+            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        }
     }
 
     fun publicOrderbookGet(scope: CoroutineScope, symbols: String, limit: Int,

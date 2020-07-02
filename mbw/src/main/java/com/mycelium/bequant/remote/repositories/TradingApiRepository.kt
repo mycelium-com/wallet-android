@@ -17,7 +17,7 @@ class TradingApiRepository {
 
     fun orderPost(scope: CoroutineScope, symbol: String, side: String, quantity: String, clientOrderId: String,
                           type: String, timeInForce: String, price: String, stopPrice: String,
-                          expireTime: java.util.Date, strictValidate: Boolean, postOnly: Boolean,
+                          expireTime: java.util.Date?, strictValidate: Boolean, postOnly: Boolean,
                           success: (Order?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.orderPost(symbol, side, quantity, clientOrderId, type, timeInForce, price, stopPrice,
