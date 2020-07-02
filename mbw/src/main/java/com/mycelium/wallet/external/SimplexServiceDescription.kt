@@ -3,14 +3,15 @@ package com.mycelium.wallet.external
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.simplex.SimplexMainActivity
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
@@ -45,9 +46,10 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
                     .setTitle(R.string.select_you_region)
                     .setAdapter(adapter) { _, i ->
                         if (regions[adapter.getItem(i)] == true) {
-                            context.startActivity(Intent(context, SimplexMainActivity::class.java)
-                                    .putExtra("coinType", receivingAddress.coinType.symbol)
-                                    .putExtra("walletAddress", receivingAddress.toString()))
+                            context.startActivity(Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(BuildConfig.SIMPLEX +
+                                            "?crypto=${activeReceivingAddress.coinType.symbol}" +
+                                            "&address=$activeReceivingAddress")))
                         }
                     }
                     .create().show()

@@ -9,7 +9,6 @@ import androidx.work.WorkerParameters
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
-import com.mycelium.wallet.external.mediaflow.model.NewsContainer
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,7 +16,7 @@ import java.util.*
 class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
     override fun doWork(): Result {
-        if(!SettingsPreference.mediaFlowEnabled) {
+        if (!SettingsPreference.mediaFlowEnabled) {
             return Result.success()
         }
         val preference = context.getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
@@ -48,13 +47,10 @@ class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
             if (SettingsPreference.mediaFLowNotificationEnabled
                     && lastUpdateTime != null // not show for init load
             ) {
-                val newTopics = arrayListOf<News>()
-                topics.entries.forEach {
-                    if (it.value == NewsDatabase.SqlState.INSERTED) {
-                        newTopics.add(it.key)
-                    }
-                }
-                NewsSyncUtils.notifyAboutMediaFlowTopics(context, newTopics)
+                NewsSyncUtils.notifyAboutMediaFlowTopics(context,
+                        topics.entries
+                                .filter { it.value == NewsDatabase.SqlState.INSERTED }
+                                .map { it.key })
             }
             preference.edit()
                     .putString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_DONE)
@@ -67,12 +63,25 @@ class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
     private fun loadTopics(after: String?, failed: () -> Unit): Map<News, NewsDatabase.SqlState>? {
         var result: Map<News, NewsDatabase.SqlState>? = null
         try {
+            val categories = NewsFactory.service.categories().execute().body()
+            val tags = NewsFactory.service.tags().execute().body()
             result = fetchAllPages { nextPage ->
-                if (after != null && after.isNotEmpty()) {
-                    NewsFactory.service.updatedPosts(after, nextPage).execute().body()
+                var totalPageCount = 1
+                Pair(if (after != null && after.isNotEmpty()) {
+                    NewsFactory.service.updatedPosts("${after}T00:00:00", nextPage)
                 } else {
-                    NewsFactory.service.posts(nextPage).execute().body()
-                }
+                    NewsFactory.service.posts(nextPage)
+                }.execute().apply {
+                    totalPageCount = this.headers()["X-WP-TotalPages"]?.toInt() ?: 1
+                }.body()?.map {
+                    it.categories = it.categoriesIds.map { categoryId -> categories?.find { it.id == categoryId } }
+                    it.tags = it.tagsIds.map { tagId -> tags?.find { it.id == tagId } }
+                    it.author = NewsFactory.service.user(it.authorId).execute().body()
+                    if(it.featuredMediaId != null) {
+                        it.image = NewsFactory.service.media(it.featuredMediaId).execute().body()?.sourceUrl
+                    }
+                    it
+                }, totalPageCount)
             }.let { NewsDatabase.saveNews(it) }
         } catch (e: Exception) {
             failed.invoke()
@@ -81,15 +90,14 @@ class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
         return result
     }
 
-    private fun fetchAllPages(fetchPage: (String?) -> NewsContainer?) =
+    private fun fetchAllPages(fetchPage: (Int) -> Pair<List<News>?, Int>) =
             mutableListOf<News>().apply {
-                var nextPage: String? = ""
+                var i = 1
                 do {
-                    val newsContainer = fetchPage.invoke(nextPage)
-                    newsContainer?.posts?.let { posts ->
+                    val pair = fetchPage.invoke(i++)
+                    pair.first?.let { posts ->
                         addAll(posts)
                     }
-                    nextPage = newsContainer?.meta?.nextPage
-                } while (nextPage?.isNotEmpty() == true)
+                } while (i <= pair.second)
             }
 }

@@ -16,47 +16,46 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         walletManager.state = State.SYNCHRONIZING
         walletManager.walletListener?.syncStarted()
 
-        if (walletManager.isNetworkConnected) {
-            // If we have any lingering outgoing transactions broadcast them now
-            // this function goes over all accounts - it is reasonable to
-            // exclude this from SyncMode.onlyActiveAccount behaviour
-            if (!broadcastOutgoingTransactions()) {
-                return
-            }
+        try {
+            if (walletManager.isNetworkConnected) {
+                // If we have any lingering outgoing transactions broadcast them now
+                // this function goes over all accounts - it is reasonable to
+                // exclude this from SyncMode.onlyActiveAccount behaviour
+                if (!broadcastOutgoingTransactions()) {
+                    return
+                }
 
-            // Synchronize selected accounts with the blockchain
-            val list = if (accounts.isEmpty() ||
-                    syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
-                    syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
-                walletManager.getAllActiveAccounts()
-            } else {
-                accounts.filterNotNull().filter { it.isActive }
-            }.filter { !it.isSyncing }
-            startSync(list)
+                // Synchronize selected accounts with the blockchain
+                val list = if (accounts.isEmpty() ||
+                        syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
+                        syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
+                    walletManager.getAllActiveAccounts()
+                } else {
+                    accounts.filterNotNull().filter { it.isActive }
+                }.filter { !it.isSyncing }
+                runSync(list)
+            }
+        } finally {
+            walletManager.state = State.READY
+            walletManager.walletListener?.syncStopped()
         }
     }
 
-    private fun startSync(list: List<WalletAccount<*>>) {
+    private fun runSync(list: List<WalletAccount<*>>) {
         //split synchronization by coinTypes in own threads
-        GlobalScope.launch(Dispatchers.Default) {
-                list.map {
-                    async {
-                        val accountLabel = it.label ?: ""
-                        logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
-                        var isSyncSuccessful = false;
-                        try {
-                            isSyncSuccessful = it.synchronize(syncMode)
-                        } catch (ex: Exception) {
-                            logger.log(Level.WARNING,"Sync error", ex)
-                        }
-                        logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
+        runBlocking {
+            list.map {
+                async {
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}")
+                    val isSyncSuccessful = try {
+                        it.synchronize(syncMode)
+                    } catch (ex: Exception) {
+                        logger.log(Level.WARNING,"Sync error", ex)
+                        false
                     }
-                }.map {
-                    it.await()
+                    logger.log(Level.INFO, "Account ${it.id} sync result: $isSyncSuccessful")
                 }
-        }.invokeOnCompletion {
-            walletManager.state = State.READY
-            walletManager.walletListener?.syncStopped()
+            }
         }
     }
 

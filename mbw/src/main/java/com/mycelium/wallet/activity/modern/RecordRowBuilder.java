@@ -95,6 +95,27 @@ public class RecordRowBuilder {
             holder.icon.setImageDrawable(drawableForAccount);
         }
 
+        updateRMCInfo(holder, model);
+        int textColor = resources.getColor(R.color.white);
+        if (model.label.length() == 0) {
+            holder.tvLabel.setVisibility(GONE);
+        } else {
+            // Display name
+            holder.tvLabel.setVisibility(VISIBLE);
+            holder.tvLabel.setText(Html.fromHtml(model.label));
+            holder.tvLabel.setTextColor(textColor);
+        }
+
+        holder.tvAddress.setText(model.displayAddress);
+        holder.tvAddress.setTextColor(textColor);
+        updateSyncing(holder, model);
+        updateBalance(holder, model, textColor);
+        // Show/hide trader account message
+        holder.tvTraderKey.setVisibility(model.accountId.equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())
+                ? VISIBLE : GONE);
+    }
+
+    private void updateRMCInfo(AccountViewHolder holder, ViewAccountModel model) {
         if (model.isRMCLinkedAccount) {
             holder.tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -110,18 +131,9 @@ public class RecordRowBuilder {
         } else {
             holder.tvWhatIsIt.setVisibility(GONE);
         }
-        int textColor = resources.getColor(R.color.white);
-        if (model.label.length() == 0) {
-            holder.tvLabel.setVisibility(GONE);
-        } else {
-            // Display name
-            holder.tvLabel.setVisibility(VISIBLE);
-            holder.tvLabel.setText(Html.fromHtml(model.label));
-            holder.tvLabel.setTextColor(textColor);
-        }
+    }
 
-        holder.tvAddress.setText(model.displayAddress);
-        holder.tvAddress.setTextColor(textColor);
+    private void updateSyncing(AccountViewHolder holder, ViewAccountModel model) {
         if (model.isSyncing) {
             holder.tvProgressLayout.setVisibility(VISIBLE);
             if (model.syncTotalRetrievedTransactions == 0) {
@@ -129,14 +141,15 @@ public class RecordRowBuilder {
             } else {
                 holder.layoutProgressTxRetreived.setVisibility(VISIBLE);
                 holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
-                        Integer.toString(model.syncTotalRetrievedTransactions)));
+                        model.syncTotalRetrievedTransactions));
                 holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
             }
         } else {
             holder.tvProgressLayout.setVisibility(GONE);
         }
+    }
 
-        // Set balance
+    private void updateBalance(AccountViewHolder holder, ViewAccountModel model, int textColor) {
         if (model.isActive) {
             Balance balance = model.balance;
             holder.tvBalance.setVisibility(VISIBLE);
@@ -153,7 +166,6 @@ public class RecordRowBuilder {
                 holder.backupMissing.setText(R.string.backup_missing);
             }
             holder.tvAccountType.setVisibility(GONE);
-
         } else {
             // We don't show anything if the account is archived
             holder.tvBalance.setVisibility(GONE);
@@ -166,10 +178,6 @@ public class RecordRowBuilder {
                 holder.tvAccountType.setVisibility(GONE);
             }
         }
-
-        // Show/hide trader account message
-        holder.tvTraderKey.setVisibility(model.accountId.equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())
-                ? VISIBLE : GONE);
     }
 
     private View.OnClickListener whatIsSyncHandler = new View.OnClickListener() {

@@ -79,12 +79,14 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
-            blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
-                    ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
+            if (!result.success) {
+                return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, tx.gasLimit, tx.gasLimit)
+                    accountContext.nonce, null, true, tx.gasLimit, tx.gasLimit)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -207,12 +209,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.forEach { tx ->
                 tx.getTokenTransfer(token.contractAddress)?.also { transfer ->
-                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                            transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
-                            Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
-                                    ?: typicalEstimatedTransactionSize.toBigInteger())),
-                            tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
-                }
+                backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
+                        transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                        Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
+                                ?: typicalEstimatedTransactionSize.toBigInteger())),
+                        tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
+            }
             }
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore

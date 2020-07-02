@@ -31,9 +31,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                                   to: String,
                                                                                   nonce: BigInteger?,
                                                                                   gasLimit: BigInteger,
-                                                                                  gasUsed: BigInteger ->
-                createTransactionSummary(ownerAddress, txid, currency, blockNumber,
-                        timestamp, value, fee, confirmations, from, to, nonce, gasLimit, gasUsed)
+                                                                                  gasUsed: BigInteger,
+                                                                                  success: Boolean,
+                                                                                  internalValue: Value?->
+                createTransactionSummary(ownerAddress, txid, currency, blockNumber, timestamp,
+                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, internalValue, success)
             }).executeAsList()
 
     /**
@@ -51,9 +53,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                                             to: String,
                                                                                             nonce: BigInteger?,
                                                                                             gasLimit: BigInteger,
-                                                                                            gasUsed: BigInteger ->
-                createTransactionSummary(ownerAddress, txid, currency, blockNumber,
-                        timestamp, value, fee, confirmations, from, to, nonce, gasLimit, gasUsed)
+                                                                                            gasUsed: BigInteger,
+                                                                                            success: Boolean,
+                                                                                            internalValue: Value? ->
+                createTransactionSummary(ownerAddress, txid, currency, blockNumber, timestamp,
+                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, internalValue, success)
             }).executeAsList()
 
     fun getTransactionSummary(txidParameter: String, ownerAddress: String): TransactionSummary? =
@@ -68,9 +72,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                                     to: String,
                                                                                     nonce: BigInteger?,
                                                                                     gasLimit: BigInteger,
-                                                                                    gasUsed: BigInteger ->
-                createTransactionSummary(ownerAddress, txid, currency, blockNumber,
-                        timestamp, value, fee, confirmations, from, to, nonce, gasLimit, gasUsed)
+                                                                                    gasUsed: BigInteger,
+                                                                                    success: Boolean,
+                                                                                    internalValue: Value? ->
+                createTransactionSummary(ownerAddress, txid, currency, blockNumber, timestamp,
+                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed, internalValue, success)
             }).executeAsOneOrNull()
 
     fun getUnconfirmedTransactions(ownerAddress: String): List<EthTransactionSummary> =
@@ -86,16 +92,16 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                       nonce: BigInteger?,
                                                                       gasLimit: BigInteger,
                                                                       gasUsed: BigInteger ->
-                createTransactionSummary(ownerAddress, txid, currency, blockNumber,
-                        timestamp, value, fee, confirmations, from, to, nonce, gasLimit, gasUsed)
+                createTransactionSummary(ownerAddress, txid, currency, blockNumber, timestamp,
+                        value, fee, confirmations, from, to, nonce, gasLimit, gasUsed)
             }).executeAsList()
 
 
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String?, value: Value,
-                       gasPrice: Value, confirmations: Int, nonce: BigInteger,
+                       gasPrice: Value, confirmations: Int, nonce: BigInteger, internalValue: Value? = null, success: Boolean = true,
                        gasLimit: BigInteger = Transfer.GAS_LIMIT, gasUsed: BigInteger? = null) {
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
-        ethQueries.insertTransaction(txid, uuid, from, to ?: contractCreationAddress.addressString, nonce, gasLimit)
+        ethQueries.insertTransaction(txid, uuid, from, to ?: contractCreationAddress.addressString, nonce, gasLimit, success, internalValue)
         if (gasUsed != null) {
             updateGasUsed(txid, gasUsed, gasPrice)
         }
@@ -126,7 +132,9 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                          to: String,
                                          nonce: BigInteger?,
                                          gasLimit: BigInteger,
-                                         gasUsed: BigInteger): EthTransactionSummary {
+                                         gasUsed: BigInteger,
+                                         internalValue: Value? = null,
+                                         success: Boolean = true): EthTransactionSummary {
         val convertedValue = if (token != null) transformValueFromDb(token, value) else value
         val inputs = listOf(InputViewModel(EthAddress(currency, from), value, false))
         // "to" address may be empty if we have a contract funding transaction
@@ -135,23 +143,49 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         } else {
             listOf(OutputViewModel(EthAddress(currency, to), convertedValue, false))
         }
+
         val destAddresses = listOf(if (to.isEmpty()) contractCreationAddress else EthAddress(currency, to))
-        val transferred = if (from.equals(ownerAddress, true) && !to.equals(ownerAddress, true)) {
-            if (token != null) -convertedValue else -convertedValue - fee
-        } else if (!from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
-            convertedValue
-        } else if (from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
-            if (token != null) Value.zeroValue(token) else -fee // sent to ourselves
-        } else {
-            // transaction doesn't relate to us in any way. should not happen
-            throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
-        }
+        val transferred = if (token != null) getTokenTransferred(ownerAddress, from, to, convertedValue)
+                          else getEthTransferred(ownerAddress, from, to, convertedValue, fee, success, internalValue)
         return EthTransactionSummary(EthAddress(currency, from), EthAddress(currency, to), nonce,
-                convertedValue, gasLimit, gasUsed, currency, HexUtils.toBytes(txid.substring(2)),
+                convertedValue, internalValue, gasLimit, gasUsed, currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
                 confirmations, false, inputs, outputs,
                 destAddresses, null, Transfer.GAS_LIMIT.toInt(), fee)
     }
 
     private fun transformValueFromDb(token: ERC20Token, value: Value): Value = Value.valueOf(token, value.value)
+
+    private fun getTokenTransferred(ownerAddress: String, from: String, to: String, value: Value): Value {
+        return if (from.equals(ownerAddress, true) && !to.equals(ownerAddress, true)) {
+            // outgoing
+            -value
+        } else if (!from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
+            // incoming
+            value
+        } else if (from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
+            // self
+            Value.zeroValue(token!!)
+        } else {
+            // transaction doesn't relate to us in any way. should not happen
+            throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
+        }
+    }
+
+    private fun getEthTransferred(ownerAddress: String, from: String, to: String, value: Value,
+                                  fee: Value, success: Boolean, internalValue: Value?): Value {
+        return if (from.equals(ownerAddress, true) && !to.equals(ownerAddress, true)) {
+            // outgoing
+            if (success) -value - fee + (internalValue ?: Value.zeroValue(currency)) else -fee
+        } else if (!from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
+            // incoming
+            if (success) value else Value.zeroValue(currency)
+        } else if (from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
+            // self
+            -fee
+        } else {
+            // transaction doesn't relate to us in any way. should not happen
+            throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
+        }
+    }
 }

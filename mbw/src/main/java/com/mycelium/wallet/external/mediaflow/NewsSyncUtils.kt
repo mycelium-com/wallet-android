@@ -22,6 +22,7 @@ import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
+import com.mycelium.wallet.external.mediaflow.model.Content
 import com.mycelium.wallet.external.mediaflow.model.News
 import org.json.JSONException
 import org.json.JSONObject
@@ -103,9 +104,9 @@ object NewsSyncUtils {
                         if (dataObject.has(TITLE)) {
                             val news = News().apply {
                                 id = dataObject.getInt(ID)
-                                title = dataObject.getString(TITLE)
+                                title = Content(dataObject.getString(TITLE))
                                 image = dataObject.getString(IMAGE)
-                                content = dataObject.getString(MSG)
+                                content = Content(dataObject.getString(MSG))
                                 isFull = false
                             }
                             NewsDatabase.saveNews(listOf(news))
@@ -122,7 +123,7 @@ object NewsSyncUtils {
                         val topic = NewsDatabase.getTopic(dataObject.getInt(ID))
                         if (topic != null) {
                             topic.isFull = false // topic need sync
-                            topic.title = dataObject.getString(TITLE)
+                            topic.title = Content(dataObject.getString(TITLE))
                             topic.image = dataObject.getString(IMAGE)
                             NewsDatabase.saveNews(listOf(topic))
                             LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
@@ -147,16 +148,17 @@ object NewsSyncUtils {
                         .build())
     }
 
-    fun notifyAboutMediaFlowTopics(context: Context, newTopics: List<News>) {
+    fun notifyAboutMediaFlowTopics(context: Context, newTopicsRaw: List<News>) {
+        val newTopics = newTopicsRaw.filter { it.tags.map { it.name }.contains("important") }
         val builder = createNotificationMediaFlowBuilder(context)
 
         if (newTopics.size == 1) {
             val news = newTopics[0]
-            builder.setContentText(Html.fromHtml(news.title))
-            builder.setTicker(Html.fromHtml(news.title))
+            builder.setContentText(Html.fromHtml(news.title.rendered))
+            builder.setTicker(Html.fromHtml(news.title.rendered))
 
             val remoteViews = RemoteViews(context.packageName, R.layout.layout_news_notification)
-            remoteViews.setTextViewText(R.id.title, Html.fromHtml(news.title))
+            remoteViews.setTextViewText(R.id.title, Html.fromHtml(news.title.rendered))
 
             val activityIntent = createSingleNewsIntent(context, news)
             val pIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
@@ -170,7 +172,7 @@ object NewsSyncUtils {
             val inboxStyle = NotificationCompat.InboxStyle()
                     .setBigContentTitle(context.getString(R.string.media_flow_notification_title))
             newTopics.forEach { news ->
-                inboxStyle.addLine(Html.fromHtml(news.title))
+                inboxStyle.addLine(Html.fromHtml(news.title.rendered))
             }
             builder.setStyle(inboxStyle)
 

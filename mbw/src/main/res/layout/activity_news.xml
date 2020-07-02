@@ -97,6 +97,7 @@
                 tools:ignore="WebViewLayout">
 
                 <LinearLayout
+                    android:id="@+id/headLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -147,11 +148,11 @@
                 <ProgressBar
                     android:id="@+id/news_loading"
                     style="@style/AccountProgressBar"
-                    android:layout_marginTop="16dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    android:indeterminate="true" />
+                    android:layout_marginTop="16dp"
+                    android:indeterminate="true"
+                    android:visibility="invisible" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -206,5 +207,13 @@
         android:background="@drawable/shadow_mediaflow_appbar"
         app:layout_anchor="@+id/toolbar"
         app:layout_anchorGravity="bottom" />
+
+    <ImageView
+        android:id="@+id/bottomButtonBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="gone"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
