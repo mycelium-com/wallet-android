@@ -104,11 +104,11 @@ class FromMyceliumFragment : Fragment() {
         confirm.setOnClickListener {
             val account = adapter.getItem(accountList.currentItem)
 
-            val addressString = parentViewModel?.address?.value?:""
+            val addressString = parentViewModel?.address?.value ?: ""
             val uri: GenericAssetUri = when (account) {
                 is AbstractBtcAccount -> {
                     val type = Utils.getBtcCoinType()
-                    BitcoinUri.from(BtcAddress(type,  Address.fromString(addressString)),
+                    BitcoinUri.from(BtcAddress(type, Address.fromString(addressString)),
                             Value.zeroValue(type),
                             null, null)
                 }
@@ -121,17 +121,11 @@ class FromMyceliumFragment : Fragment() {
             }
 
             SendInitializationActivity.callMe(activity, account.id, uri, false);
-//                uriloader(true)
-//                viewModel.deposit(account, value, {
-//                    BroadcastDialog.create(account, false, it)
-//                    findNavController().popBackStack()
-//                }, {
-//                    ErrorHandler(requireActivity()).handle(it.toString())
-//                }, {
-//                    loader(false)
-//                })
-
         }
+//        loader(true)
+//        viewModel.loadBalance("") {
+//            loader(false)
+//        }
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
         }

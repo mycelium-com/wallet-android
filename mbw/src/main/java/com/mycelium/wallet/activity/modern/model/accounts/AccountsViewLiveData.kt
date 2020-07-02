@@ -3,8 +3,8 @@ package com.mycelium.wallet.activity.modern.model.accounts
 import android.annotation.SuppressLint
 import android.os.AsyncTask
 import com.mycelium.bequant.InvestmentAccount
-import com.mycelium.wallet.*
 import androidx.lifecycle.LiveData
+import com.mycelium.bequant.remote.trading.api.AccountApi
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -23,6 +23,7 @@ import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
+import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -103,7 +104,16 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map {
-                    if (it is InvestmentAccount) AccountInvestmentViewModel(it)
+                    if (it is InvestmentAccount){
+
+                        val accountApi : AccountApi = AccountApi.create()
+                        val balancesResponse = runBlocking {
+                            accountApi.accountBalanceGet()
+                        }
+                        val currency = balancesResponse?.body()?.find { it.currency?.toLowerCase() == "btc" }
+                        val balanceAsString = currency?.available ?:"0"+ " " + currency?.currency ?: "BTC"
+                        AccountInvestmentViewModel(it,balanceAsString)
+                    }
                     else AccountViewModel(it, mbwManager)
                 }
 
