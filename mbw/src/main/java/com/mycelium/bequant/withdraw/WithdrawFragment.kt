@@ -9,20 +9,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.megiontechnologies.Bitcoins
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.withdraw.adapter.WithdrawFragmentAdapter
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
-import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
-import java.math.BigInteger
 
 
 class WithdrawFragment : Fragment() {
@@ -79,8 +76,7 @@ class WithdrawFragment : Fragment() {
         loader(true)
         viewModel.loadBalance({
             val balance = it?.find { it.currency == args.currency }
-            val balanceValue = Value.valueOf(getCryptoCurrency(), BigInteger(balance?.available?:"0"))
-            viewModel.castodialBalance.value = balanceValue.toString(Denomination.UNIT)
+            viewModel.castodialBalance.value = Bitcoins.valueOf(balance?.available).toString()
         }, { _, message ->
             ErrorHandler(requireContext()).handle(message)
         }, {
