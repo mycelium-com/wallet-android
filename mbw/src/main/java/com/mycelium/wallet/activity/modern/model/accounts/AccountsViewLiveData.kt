@@ -113,7 +113,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                         }
                         val currency = balancesResponse.body()?.find { it.currency?.toLowerCase() == "btc" }
                         AccountInvestmentViewModel(it, Bitcoins.valueOf(currency?.available
-                                ?: "0").toString())
+                                ?: "0").toString() + " BTC")
                     } else AccountViewModel(it, mbwManager)
                 }
 
