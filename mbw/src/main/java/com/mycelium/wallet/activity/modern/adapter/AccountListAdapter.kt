@@ -9,10 +9,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
@@ -41,7 +43,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val walletManager = mbwManager.getWalletManager(false)
 
     val focusedAccount: WalletAccount<out GenericAddress>?
-        get() = focusedAccountId?.let { walletManager.getAccount(it)}
+        get() = focusedAccountId?.let { walletManager.getAccount(it) }
 
     init {
         layoutInflater = LayoutInflater.from(context)
@@ -55,6 +57,14 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         })
         val accountsGroupsList = listModel.accountsData.value!!
         refreshList(accountsGroupsList)
+
+        Api.accountRepository.accountBalanceGet(fragment.lifecycleScope, {
+            val find = it?.find { it.currency?.toLowerCase() == "btc" }
+        }, { _, _ ->
+
+        }, {
+
+        })
     }
 
     private fun refreshList(accountsGroupModels: List<AccountsGroupModel>) {
@@ -97,7 +107,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val updateOld = walletManager.getAccount(this.focusedAccountId!!) != null
         val oldSelectedPosition = findPosition(this.selectedAccountId)
         this.focusedAccountId = focusedAccountId
-        if(focusedAccountId != null && walletManager.getAccount(focusedAccountId)?.isActive == true) {
+        if (focusedAccountId != null && walletManager.getAccount(focusedAccountId)?.isActive == true) {
             this.selectedAccountId = focusedAccountId
             notifyItemChanged(oldSelectedPosition)
         }
@@ -196,7 +206,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 investHolder.balance.text = investItem.balance
                 investHolder.itemView.setOnClickListener {
 //                    walletManager.getAccount(investItem.accountId)?.run {
-                        investmentAccountClickListener?.onItemClick(item.account)
+                    investmentAccountClickListener?.onItemClick(item.account)
 //                    }
                 }
                 if (BequantPreference.isLogged()) {
@@ -232,7 +242,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         for (item in walletAccountList) {
             if (item.getType() == GROUP_TITLE_TYPE) {
                 for (account in (item as AccountsGroupModel).accountsList) {
-                    if (account.getType() == ACCOUNT_TYPE && (account as AccountViewModel) .isActive) {
+                    if (account.getType() == ACCOUNT_TYPE && (account as AccountViewModel).isActive) {
                         sum.add(account.balance!!.spendable)
                     }
                 }
