@@ -31,7 +31,7 @@ interface TradingApi {
 
     @FormUrlEncoded
     @POST("order")
-    suspend fun orderPost(@Field("symbol") symbol: kotlin.String, @Field("side") side: kotlin.String, @Field("quantity") quantity: kotlin.String, @Field("clientOrderId") clientOrderId: kotlin.String, @Field("type") type: kotlin.String, @Field("timeInForce") timeInForce: kotlin.String, @Field("price") price: kotlin.String, @Field("stopPrice") stopPrice: kotlin.String, @Field("expireTime") expireTime: java.util.Date, @Field("strictValidate") strictValidate: kotlin.Boolean, @Field("postOnly") postOnly: kotlin.Boolean): Response<Order>
+    suspend fun orderPost(@Field("symbol") symbol: kotlin.String, @Field("side") side: kotlin.String, @Field("quantity") quantity: kotlin.String, @Field("clientOrderId") clientOrderId: kotlin.String, @Field("type") type: kotlin.String, @Field("timeInForce") timeInForce: kotlin.String, @Field("price") price: kotlin.String, @Field("stopPrice") stopPrice: kotlin.String, @Field("expireTime") expireTime: java.util.Date?, @Field("strictValidate") strictValidate: kotlin.Boolean, @Field("postOnly") postOnly: kotlin.Boolean): Response<Order>
 
     @GET("trading/balance")
     suspend fun tradingBalanceGet(): Response<kotlin.Array<Balance>>

@@ -273,7 +273,7 @@ class ExchangeFragment : Fragment() {
                 val quantity = youGet.toPlainString()
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
                         "buy", quantity, "", "market", "", "",
-                        "", Date(), false, false, {
+                        "", null, false, false, {
                     loader(false)
                     requireActivity().runOnUiThread {
                         showSummary()
@@ -294,7 +294,7 @@ class ExchangeFragment : Fragment() {
             val quantity = youGet.toPlainString()
             Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
                     "buy", quantity, "", "market", "", "",
-                    "", Date(), true, false, {
+                    "", null, false, false, {
                 requireActivity().runOnUiThread {
                     showSummary()
                 }
