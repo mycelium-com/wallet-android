@@ -69,7 +69,7 @@ data class Order(
         @Json(name = "expireTime")
         val expireTime: java.util.Date? = null,
         @Json(name = "tradesReport")
-        val tradesReport: OrderTradesReport? = null
+        val tradesReport: kotlin.Array<OrderTradesReport>? = null
 ) {
 
     /**
