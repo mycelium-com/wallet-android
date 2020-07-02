@@ -27,7 +27,7 @@ interface PublicApi {
     suspend fun publicOrderbookSymbolGet(@Path("symbol") symbol: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("volume") volume: java.math.BigDecimal): Response<Orderbook>
 
     @GET("public/symbol")
-    suspend fun publicSymbolGet(@Query("symbols") symbols: kotlin.String): Response<kotlin.Array<Symbol>>
+    suspend fun publicSymbolGet(@Query("symbols") symbols: kotlin.String?): Response<kotlin.Array<Symbol>>
 
     @GET("public/symbol/{symbol}")
     suspend fun publicSymbolSymbolGet(@Path("symbol") symbol: kotlin.String): Response<Symbol>

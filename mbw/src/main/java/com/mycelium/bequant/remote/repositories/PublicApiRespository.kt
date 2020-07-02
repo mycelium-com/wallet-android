@@ -57,7 +57,7 @@ class PublicApiRespository {
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun publicSymbolGet(scope: CoroutineScope, symbols: String,
+    fun publicSymbolGet(scope: CoroutineScope, symbols: String?,
                         success: (Array<Symbol>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.publicSymbolGet(symbols)

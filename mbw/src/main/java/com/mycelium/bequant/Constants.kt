@@ -19,6 +19,7 @@ object Constants {
     const val ACTION_COUNTRY_SELECTED = "action_country_selected"
     const val ACTION_EXCHANGE = "action_exchange"
 
+    const val EXCHANGE_RATES= "bequant_exchange_rates"
     const val SESSION_KEY = "session"
     const val ACCESS_TOKEN_KEY = "access_token"
     const val EMAIL_KEY = "email"
