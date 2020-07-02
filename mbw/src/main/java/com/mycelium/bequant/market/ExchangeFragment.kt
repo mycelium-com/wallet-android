@@ -257,20 +257,21 @@ class ExchangeFragment : Fragment() {
         clOrderRejected.visibility = View.GONE
 
         val currency = youSend.currencySymbol
-        val amount = youSend.value
-        val tradingBalance = BigInteger(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
+        val amount = youSend.valueAsBigDecimal
+        val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
         if (tradingBalance < amount) {
             val lackAmount = amount - tradingBalance
-            val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
+            //val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
+            var lackAmountString = lackAmount.toString()
             loader(true)
             Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
                     Transaction.Type.bankToExchange.value, {
                 // update balance after exchange
                 requestBalances()
                 // place market order
-                val symbol = youSend.currencySymbol + youGet.currencySymbol
-                val quantity = youGet.value.toString() // TODO add check for compliance with quantityIncrement
-                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
+                var symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+                val quantity = youGet.toPlainString()
+                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
                         "buy", quantity, "", "market", "", "",
                         "", Date(), false, false, {
                     loader(false)
@@ -289,9 +290,9 @@ class ExchangeFragment : Fragment() {
                 loader(false)
             })
         } else {
-            val symbol = youSend.currencySymbol + youGet.currencySymbol
-            val quantity = youGet.value.toString()
-            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
+            var symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+            val quantity = youGet.toPlainString()
+            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
                     "buy", quantity, "", "market", "", "",
                     "", Date(), true, false, {
                 requireActivity().runOnUiThread {

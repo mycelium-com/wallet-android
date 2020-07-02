@@ -56,6 +56,10 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
 
     private var symbols = arrayOf<Symbol>()
 
+    fun findSymbol(a: String, b: String): Symbol? {
+        return symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a)}
+    }
+
     private inner class Fetcher : Runnable {
         override fun run() {
             if (symbols.isEmpty()) {
