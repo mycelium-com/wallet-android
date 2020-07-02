@@ -28,6 +28,7 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.trading.model.Transaction
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
@@ -40,11 +41,10 @@ import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.*
+import kotlin.math.pow
 
 
 class ExchangeFragment : Fragment() {
@@ -160,10 +160,10 @@ class ExchangeFragment : Fragment() {
             }
         })
         viewModel.accountBalances.observe(viewLifecycleOwner, Observer {
-            // TODO update vm.yousend
+            updateAvailable()
         })
         viewModel.tradingBalances.observe(viewLifecycleOwner, Observer {
-            // TODO update vm.yousend
+            updateAvailable()
         })
         sendSymbolLayout.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
@@ -191,6 +191,25 @@ class ExchangeFragment : Fragment() {
         requestBalances()
     }
 
+    private fun updateAvailable() {
+        val youSend = viewModel.youSend.value!!
+
+        val accountBalanceString = viewModel.accountBalances.value?.find { it.currency == youSend.type.symbol }?.available
+        val accountBalance = if (accountBalanceString == null) {
+            BigInteger.ZERO
+        } else {
+            (BigDecimal(accountBalanceString) * 10.0.pow(youSend.type.unitExponent).toBigDecimal()).toBigInteger()
+        }
+        val tradingBalanceString = viewModel.tradingBalances.value?.find { it.currency == youSend.type.symbol }?.available
+        val tradingBalance = if (tradingBalanceString == null) {
+            BigInteger.ZERO
+        } else {
+            (BigDecimal(tradingBalanceString) * 10.0.pow(youSend.type.unitExponent).toBigDecimal()).toBigInteger()
+        }
+        viewModel.available.value = Value.valueOf(youSend.type, tradingBalance + accountBalance)
+        updateYouSend(100)
+    }
+
     private fun requestBalances() {
         Api.tradingRepository.tradingBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
             viewModel.tradingBalances.value = arrayOfBalances
@@ -207,33 +226,60 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun makeExchange() {
-        clOrderRejected.visibility = View.GONE
-        loader(true)
-        GlobalScope.launch {
-            delay(2000L)
-            loader(false)
-            requireActivity().runOnUiThread {
-                showSummary()
-            }
-        }
+        val youSend = viewModel.youSend.value ?: return
+        val youGet = viewModel.youGet.value ?: return
 
-        // TODO test
-//        Api.accountRepository.accountCryptoTransferConvertPost(viewLifecycleOwner.lifecycle.coroutineScope,
-//                viewModel.youSend.value!!.currencySymbol,
-//                viewModel.youGet.value!!.currencySymbol,
-//                viewModel.youSend.value!!.value.toString(), {
-//            loader(false)
-//            requireActivity().runOnUiThread {
-//                showSummary()
-//            }
-//        }, { code, error ->
-//            ErrorHandler(requireContext()).handle(error)
-//            requireActivity().runOnUiThread {
-//                clOrderRejected.visibility = View.VISIBLE
-//            }
-//        }, {
-//            loader(false)
-//        })
+        clOrderRejected.visibility = View.GONE
+
+        val currency = youSend.currencySymbol
+        val amount = youSend.value
+        val tradingBalance = BigInteger(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
+        if (tradingBalance < amount) {
+            val lackAmount = amount - tradingBalance
+            loader(true)
+            Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmount.toString(),
+                    Transaction.Type.bankToExchange.value, {
+                // update balance after exchange
+                requestBalances()
+                // place market order
+                val symbol = youSend.currencySymbol + youGet.currencySymbol
+                val quantity = youGet.value.toString() // TODO add check for compliance with quantityIncrement
+                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
+                        "buy", quantity, "", "market", "", "",
+                        "", Date(), true, false, {
+                    loader(false)
+                    requireActivity().runOnUiThread {
+                        showSummary()
+                    }
+                }, { code, error ->
+                    ErrorHandler(requireContext()).handle(error)
+                    requireActivity().runOnUiThread {
+                        clOrderRejected.visibility = View.VISIBLE
+                    }
+                }, {})
+            }, { code, error ->
+                ErrorHandler(requireContext()).handle(error)
+            }, {
+                loader(false)
+            })
+        } else {
+            val symbol = youSend.currencySymbol + youGet.currencySymbol
+            val quantity = youGet.value.toString()
+            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
+                    "buy", quantity, "", "market", "", "",
+                    "", Date(), true, false, {
+                requireActivity().runOnUiThread {
+                    showSummary()
+                }
+            }, { code, error ->
+                ErrorHandler(requireContext()).handle(error)
+                requireActivity().runOnUiThread {
+                    clOrderRejected.visibility = View.VISIBLE
+                }
+            }, {
+                loader(false)
+            })
+        }
     }
 
     private fun showSummary() {
