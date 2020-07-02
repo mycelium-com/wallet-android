@@ -236,8 +236,9 @@ class ExchangeFragment : Fragment() {
         val tradingBalance = BigInteger(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
         if (tradingBalance < amount) {
             val lackAmount = amount - tradingBalance
+            val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
             loader(true)
-            Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmount.toString(),
+            Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
                     Transaction.Type.bankToExchange.value, {
                 // update balance after exchange
                 requestBalances()
@@ -246,7 +247,7 @@ class ExchangeFragment : Fragment() {
                 val quantity = youGet.value.toString() // TODO add check for compliance with quantityIncrement
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol,
                         "buy", quantity, "", "market", "", "",
-                        "", Date(), true, false, {
+                        "", Date(), false, false, {
                     loader(false)
                     requireActivity().runOnUiThread {
                         showSummary()
