@@ -1,7 +1,10 @@
 package com.mycelium.bequant.kyc.checkCode
 
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -10,20 +13,22 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.steps.Step3FragmentDirections
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
-import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantKycVerifyPhoneBinding
 import com.poovam.pinedittextfield.PinField
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_verify_phone.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
+import java.util.concurrent.TimeUnit
 
 class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone) {
 
@@ -57,8 +62,6 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
         }
         step.text = getString(R.string.step_n, 3)
         stepProgress.progress = 3
-//        tvSubtitle.text = getString(R.string.we_will_call_to_give_you_a_confirmation_code, kycRequest.phone)
-        stepProgress.progress = 3
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
@@ -82,6 +85,23 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
         tvTryAgain.setOnClickListener {
             resendCode()
         }
+        startTryAgainCountDown()
+    }
+
+    private fun startTryAgainCountDown() {
+        resendTimerLayout.visibility = VISIBLE
+        tryAgainLayout.visibility = GONE
+        object : CountDownTimer(TimeUnit.MINUTES.toMillis(1), 1000) {
+
+            override fun onTick(leftTime: Long) {
+                resendTime.text = "${TimeUnit.MILLISECONDS.toMinutes(leftTime)}:${TimeUnit.MILLISECONDS.toSeconds(leftTime % 60000)}"
+            }
+
+            override fun onFinish() {
+                resendTimerLayout.visibility = GONE
+                tryAgainLayout.visibility = VISIBLE
+            }
+        }.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -92,8 +112,8 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.stepper -> {
-                    item.icon = resources.getDrawable(if (stepperLayout.visibility == View.VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
-                    stepperLayout.visibility = if (stepperLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                    item.icon = resources.getDrawable(if (stepperLayout.visibility == VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
+                    stepperLayout.visibility = if (stepperLayout.visibility == VISIBLE) GONE else VISIBLE
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
@@ -101,13 +121,17 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     private fun resendCode() {
         loader(true)
-        Api.kycRepository.mobileVerification(viewModel.viewModelScope) {
-            loader(false)
+        Api.kycRepository.mobileVerification(viewModel.viewModelScope, {
+            startTryAgainCountDown()
             AlertDialog.Builder(requireContext())
                     .setMessage(it)
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                     }.show()
-        }
+        }, { code, error ->
+            ErrorHandler(requireContext()).handle(error)
+        }, {
+            loader(false)
+        })
     }
 
     private fun checkCode(code: String) {

@@ -1493,4 +1493,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="you_still_can_resubmit_info">You still have the ability to change and resubmit your information.</string>
     <string name="bequant_application_submit_time">Application submitted: %s</string>
     <string name="bequant_application_submit_time_left">Estimated review time: %dh left</string>
+    <string name="fatca_declaration">FATCA Declaration</string>
+    <string name="by_clicking_proceed_you_agree_to_our_terms_of_use">By clicking Proceed, you agree to our <font color="#F2E868">Terms of Use</font></string>
+    <string name="i_warrant_that_i_do_fall_under_fatca">I warrant that I do fall under FATCA</string>
+    <string name="i_warrant_that_i_do_not_fall_under_fatca">I warrant that I do not fall under FATCA</string>
+    <string name="fatca_legislations_requires">FATCA legislations requires certain U.S. taxpayers, who hold foreign financial assets, to report information about those assets on their annual income tax return. More information on eligibility can be found on <font color="#F2E868">www.irs.gov/fatca.</font> Please verify whether you fall under FATCA legislation.</string>
+    <string name="country">Country</string>
+    <string name="resend_verification_code">Resend verification code...</string>
+    <string name="nothing_happened">Nothing happened?</string>
 </resources>

@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
@@ -107,15 +108,16 @@ class Step3Fragment : Fragment() {
         viewModel.getRequest()?.let { request ->
             val phone = "+${request.mobilePhoneCountryCode}${request.mobilePhone}"
             BequantPreference.setPhone(phone)
-            Api.kycRepository.mobileVerification(viewModel.viewModelScope) {
-                loader(false)
+            Api.kycRepository.mobileVerification(viewModel.viewModelScope, {
                 AlertDialog.Builder(requireContext())
                         .setMessage(it)
                         .setPositiveButton(R.string.ok) { _, _ ->
                             findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
                         }
                         .show()
-            }
+            }, { code, error ->
+                ErrorHandler(requireContext()).handle(error)
+            }, { loader(false) })
         } ?: run {
             tvErrorCode.visibility = View.VISIBLE
         }

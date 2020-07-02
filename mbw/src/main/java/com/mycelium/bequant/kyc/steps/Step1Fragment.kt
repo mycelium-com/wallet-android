@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
@@ -97,8 +98,16 @@ class Step1Fragment : Fragment() {
         }
 
         btNext.setOnClickListener {
-            viewModel.fillModel(kycRequest)
-            findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
+            if(underFatca.isChecked) {
+                kycRequest.fatca = underFatca.isChecked
+                viewModel.fillModel(kycRequest)
+                findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
+            }else {
+                findNavController().navigate(Step1FragmentDirections.actionFatca())
+            }
+        }
+        termsOfUse.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_TERMS_OF_USER)))
         }
         viewModel.firstName.observe(viewLifecycleOwner, Observer {
             viewModel.nextButton.value = viewModel.isValid()
