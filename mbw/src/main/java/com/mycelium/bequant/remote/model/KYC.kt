@@ -19,6 +19,7 @@ data class KYCRequest(
         var last_name: String? = null,
         var nationality: String? = null,
         var zip: String? = null,
+        var fatca:Boolean = false,
         val identityList: MutableList<String> = mutableListOf(),
         val poaList: MutableList<String> = mutableListOf(),
         val selfieList: MutableList<String> = mutableListOf(),
@@ -35,6 +36,7 @@ fun KYCRequest.toModel(applicant: KYCApplicant): KYCApplicant {
     applicant.address.city = this.city ?: ""
     applicant.address.country = this.country ?: ""
     applicant.address.postcode = this.zip ?: ""
+    applicant.facta = this.fatca
     return applicant
 }
 

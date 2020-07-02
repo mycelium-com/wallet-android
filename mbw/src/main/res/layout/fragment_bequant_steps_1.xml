@@ -54,7 +54,8 @@
                     android:layout_marginTop="8dp"
                     android:alpha="0.5"
                     android:text="Please fill in your personal information as it appears on the proof of identity document."
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -63,7 +64,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="@string/first_name"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edFirstname"
@@ -81,7 +83,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="@string/last_name"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edLastname"
@@ -99,13 +102,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="@string/date_of_birth"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvDateOfBirth"
                     style="@style/Bequant.EditText"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:gravity="center_vertical"
                     android:hint="@string/mm_dd_yyyy"
                     android:text="@{viewModel.birthday != null ? @string/format(viewModel.birthday) : null}"
@@ -119,14 +124,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="@string/nationality"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvNationality"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableRight="@drawable/ic_arrow_drop_down"
+                    android:layout_marginTop="4dp"
+                    android:drawableEnd="@drawable/ic_arrow_drop_down"
                     android:gravity="center_vertical"
                     android:text="@{viewModel.nationality}"
                     tools:text="American" />
@@ -135,8 +142,8 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:text="FATCA Declaration"
+                    android:layout_marginTop="32dp"
+                    android:text="@string/fatca_declaration"
                     android:textSize="20sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -146,8 +153,9 @@
                     android:layout_marginTop="8dp"
                     android:alpha="0.5"
                     android:lineSpacingExtra="5dp"
-                    android:text="FATCA legislations requires certain U.S. taxpayers, who hold foreign financial assets, to report information about those assets on their annual income tax return. More information on eligibility can be found on www.irs.gov/fatca. Please verify whether you fall under FATCA legislation."
-                    android:textColor="@color/white" />
+                    android:text="@string/fatca_legislations_requires"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
 
                 <RadioGroup
@@ -156,27 +164,33 @@
                     android:layout_marginTop="12dp">
 
                     <RadioButton
+                        android:id="@+id/underFatca"
                         style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="10dp"
-                        android:text="I warrant that I do fall under FATCA" />
+                        android:text="@string/i_warrant_that_i_do_fall_under_fatca"
+                        android:textSize="16sp" />
 
                     <RadioButton
                         style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:paddingLeft="10dp"
-                        android:text="I warrant that I do not fall under FATCA " />
+                        android:text="@string/i_warrant_that_i_do_not_fall_under_fatca"
+                        android:textSize="16sp" />
                 </RadioGroup>
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/termsOfUse"
                     style="@style/Bequant.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="By clicking Proceed, you agree to our Terms of Use"
-                    android:textColor="@color/white" />
+                    android:text="@string/by_clicking_proceed_you_agree_to_our_terms_of_use"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <Button
                     android:id="@+id/btNext"
@@ -185,7 +199,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
                     android:enabled="@{viewModel.nextButton}"
-                    android:text="Next" />
+                    android:text="@string/next" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </ScrollView>
 
@@ -196,6 +210,6 @@
             app:headerViewModel="@{headerViewModel}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/stepHeader"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

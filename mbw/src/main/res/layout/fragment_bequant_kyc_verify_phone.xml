@@ -79,8 +79,35 @@
                 <!--        app:fieldBgColor="#23262A"-->
             </com.google.android.material.textfield.TextInputLayout>
 
+            <LinearLayout
+                android:id="@+id/resendTimerLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/resendVerificationCode"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/resend_verification_code"
+                    android:textColor="@color/bequant_gray_6"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/resendTime"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:textColor="@color/bequant_gray_6"
+                    android:textSize="14sp"
+                    tools:text="00:04" />
+            </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/tryAgainLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -91,8 +118,8 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:text="Nothing happened?"
+                    android:textSize="14sp"
+                    android:text="@string/nothing_happened"
                     android:textColor="@color/bequant_gray_6" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -101,8 +128,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
-                    android:background="@null"
-                    android:text="Try again"
+                    android:textSize="14sp"
+                    android:text="@string/try_again"
                     android:textColor="@color/bequant_yellow" />
             </LinearLayout>
         </LinearLayout>
@@ -114,6 +141,6 @@
             app:headerViewModel="@{headerViewModel}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/stepHeader"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

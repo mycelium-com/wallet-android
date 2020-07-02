@@ -35,16 +35,14 @@ class KYCRepository {
         })
     }
 
-    fun mobileVerification(scope: CoroutineScope, success: ((String) -> Unit)) {
+    fun mobileVerification(scope: CoroutineScope, success: ((String) -> Unit), error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             service.mobileVerification(BequantPreference.getKYCToken())
         }, {
             success.invoke(it?.message ?: "")
         }, { code, msg ->
-
-        }, {
-
-        })
+            error.invoke(code, msg)
+        }, finally)
     }
 
     fun checkMobileVerification(scope: CoroutineScope, code: String,
@@ -79,7 +77,7 @@ class KYCRepository {
     }
 
     fun uploadDocuments(scope: CoroutineScope, fileMap: Map<File, KYCDocument>, success: () -> Unit,
-                        error: (String) -> Unit, finally:() -> Unit) {
+                        error: (String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             var result: Response<KYCResponse> = Response.success(null)
             fileMap.forEach {

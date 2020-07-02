@@ -18,6 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
+        android:alpha="0.5"
         android:text="Rest assured, we are working to bring our functionality to all individuals. Please check back later and thank you for your understanding."
         android:textSize="14sp" />
 

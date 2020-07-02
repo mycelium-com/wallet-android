@@ -52,24 +52,26 @@
                     android:layout_marginTop="8dp"
                     android:alpha="0.5"
                     android:text="Please fill in your personal information as it appears on the proof of identity document."
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/Bequant.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:text="Line 1"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edLine1"
                     style="@style/Bequant.EditText"
-                    android:gravity="top"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_bequant_input_text"
+                    android:gravity="top"
                     android:lines="3"
                     android:text="@={viewModel.addressLine1}"
                     tools:text="2972 Westheimer Rd undefined Illinois 85486 United States, Santa Ana" />
@@ -78,7 +80,7 @@
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:orientation="horizontal">
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -86,7 +88,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Line 2"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/Bequant.TextView"
@@ -102,10 +105,10 @@
                     android:id="@+id/edLine2"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
-                    android:gravity="top"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_bequant_input_text"
+                    android:gravity="top"
                     android:lines="3"
                     android:text="@={viewModel.addressLine2}"
                     tools:text="2972 Westheimer Rd undefined Illinois 85486 United States, Santa Ana" />
@@ -114,17 +117,18 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:text="City"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edCity"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
-                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:singleLine="true"
                     android:text="@={viewModel.city}"
                     tools:text="London" />
 
@@ -132,18 +136,19 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="156dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
+                    android:inputType="textPostalAddress"
                     android:text="Postcode"
-                        android:inputType="textPostalAddress"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edPostcode"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
-                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:singleLine="true"
+                    android:inputType="number"
                     android:text="@={viewModel.postcode}"
                     tools:text="854322" />
 
@@ -151,8 +156,8 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="Country"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/country"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -160,9 +165,10 @@
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:singleLine="true"
+                    android:layout_marginTop="4dp"
                     android:drawableRight="@drawable/ic_arrow_drop_down"
                     android:gravity="center_vertical"
+                    android:singleLine="true"
                     android:text="@={viewModel.country}"
                     tools:text="America" />
 
@@ -171,9 +177,9 @@
                     style="@style/Bequant.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
                     android:enabled="@{viewModel.nextButton}"
-                    android:layout_marginTop="32dp"
-                    android:text="Next" />
+                    android:text="@string/next" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
         </ScrollView>
@@ -185,6 +191,6 @@
             app:headerViewModel="@{headerViewModel}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/stepHeader"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
