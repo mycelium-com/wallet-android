@@ -43,11 +43,13 @@ import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
+import java.math.BigDecimal
 
 class AccountFragment : Fragment() {
 
     val adapter = BequantAccountAdapter()
     var balancesData = listOf<BequantBalance>()
+    val mbwManager = MbwManager.getInstance(requireContext())
     lateinit var viewModel: AccountViewModel
 
     val receive = object : BroadcastReceiver() {
@@ -71,7 +73,7 @@ class AccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mbwManager = MbwManager.getInstance(requireContext())
+
         deposit.setOnClickListener {
             findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
         }
@@ -147,7 +149,7 @@ class AccountFragment : Fragment() {
                 continue
             }
 //            val btcRate = exchangeRateManager.getExchangeRate(currency!!, "BTC")
-            val usdRate = exchangeRateManager.getExchangeRate(currency, "USD")
+            val usdRate =  mbwManager.exchangeRateManager.getExchangeRate(currency, "USD")
             btcTotal = balances.map { Bitcoins.valueOf(it.available) }.map { it.toBigDecimal() }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
             fiatTotal  = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
         }

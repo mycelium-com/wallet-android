@@ -25,7 +25,7 @@ class TotalItem(val value: ValueSum) : AccountListItem(TOTAL_TYPE)
 
 class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
 
-    var accountClickListener: (() -> Unit)? = null
+    var accountClickListener: ((AccountItem) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -49,7 +49,7 @@ class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(Ite
                 accountHolder.label.text = accountItem.label
                 accountHolder.value.text = accountItem.value.toStringWithUnit(Denomination.UNIT)
                 accountHolder.itemView.setOnClickListener {
-                    accountClickListener?.invoke()
+                    accountClickListener?.invoke(item)
                 }
             }
             ACCOUNT_GROUP_TYPE -> {
