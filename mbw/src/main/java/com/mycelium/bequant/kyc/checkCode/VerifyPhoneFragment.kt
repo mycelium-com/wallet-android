@@ -45,8 +45,8 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
         }
 
         override fun onFinish() {
-            resendTimerLayout.visibility = GONE
-            tryAgainLayout.visibility = VISIBLE
+            resendTimerLayout?.visibility = GONE
+            tryAgainLayout?.visibility = VISIBLE
         }
     }
 
@@ -120,10 +120,6 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-    override fun onStop() {
-        resendTimer.cancel()
-        super.onStop()
-    }
 
     private fun resendCode() {
         loader(true)

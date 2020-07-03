@@ -78,6 +78,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                     true
                 }
                 R.id.kyc -> {
+                    BequantPreference.setKYCToken("")
                     startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
                     true
                 }
