@@ -39,7 +39,7 @@ data class Ticker(
         val bid: kotlin.String? = null,
         /* Last trade price */
         @Json(name = "last")
-        val last: kotlin.Double,
+        val last: kotlin.Double?,
         /* Min trade price of the last 24 hours. */
         @Json(name = "low")
         val low: kotlin.String? = null,
@@ -48,10 +48,10 @@ data class Ticker(
         val high: kotlin.String? = null,
         /* Trade price 24 hours ago. */
         @Json(name = "open")
-        val open: kotlin.Double,
+        val open: kotlin.Double?,
         /* Trading volume in commoduty currency of the last 24 hours. */
         @Json(name = "volume")
-        val volume: kotlin.Double,
+        val volume: kotlin.Double?,
         /* Trading volume in currency of the last 24 hours. */
         @Json(name = "volumeQuoute")
         val volumeQuoute: kotlin.String? = null,

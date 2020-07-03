@@ -75,7 +75,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                     }
                     //TODO get correct symbol from symbols call (maybe from bqexchangermanager)
                     MarketItem(it.symbol.substring(0, 3), it.symbol.substring(3),
-                            it.volume, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
+                            it.volume?:0.0, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
                 }
         marketItems = when (sortField) {
             0 -> if (sortDirection) {
