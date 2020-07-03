@@ -43,16 +43,12 @@ import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
-import java.math.BigDecimal
 
 class AccountFragment : Fragment() {
-    lateinit var exchangeRateManager: ExchangeRateManager
+
     val adapter = BequantAccountAdapter()
     var balancesData = listOf<BequantBalance>()
     lateinit var viewModel: AccountViewModel
-
-
-//    private lateinit var exchangeRateManager: BQExchangeRateManager
 
     val receive = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
@@ -64,10 +60,6 @@ class AccountFragment : Fragment() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(AccountViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receive, IntentFilter(Constants.ACTION_BEQUANT_KEYS))
-//        exchangeRateManager = BQExchangeRateManager(requireContext())
-//        exchangeRateManager.requestRefresh()
-
-        exchangeRateManager = MbwManager.getInstance(requireContext()).getExchangeRateManager()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -144,20 +136,20 @@ class AccountFragment : Fragment() {
         val tradingAccounts = viewModel.tradingBalances.value
 
         val totalBalances = mutableListOf<Balance>()
-        totalBalances.addAll(accountBalances?.toList() ?: emptyList())
-        totalBalances.addAll(tradingAccounts?.toList() ?: emptyList())
+        totalBalances.addAll(accountBalances?.toList()?: emptyList())
+        totalBalances.addAll(tradingAccounts?.toList()?: emptyList())
 
         var btcTotal = BigDecimal.ZERO
         var fiatTotal = BigDecimal.ZERO
         for ((currency, balances) in totalBalances.groupBy { it.currency }) {
             //for demo
-            if (currency?.toUpperCase() != "BTC") {
+            if (currency?.toUpperCase() != "BTC"){
                 continue
             }
 //            val btcRate = exchangeRateManager.getExchangeRate(currency!!, "BTC")
             val usdRate = exchangeRateManager.getExchangeRate(currency, "USD")
-            btcTotal = balances.map { BigDecimal(it.available) }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
-            fiatTotal = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
+            btcTotal = balances.map { Bitcoins.valueOf(it.available) }.map { it.toBigDecimal() }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
+            fiatTotal  = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
         }
 
         viewModel.totalBalance.value = btcTotal.toPlainString()
@@ -194,9 +186,5 @@ class AccountFragment : Fragment() {
                             if (viewModel.privateMode.value == true) HIDE_VALUE else it.available)
                 }
                 .filter { it.name.contains(filter, true) || it.symbol.contains(filter, true) })
-    }
-
-    fun BigDecimal.sum() {
-
     }
 }
