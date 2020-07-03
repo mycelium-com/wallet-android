@@ -19,6 +19,9 @@ class AccountViewModel : ViewModel() {
     val totalBalance = MutableLiveData<String>()
     val totalBalanceFiat = MutableLiveData<String>()
 
+    val tradingBalances = MutableLiveData<Array<Balance>>()
+    val accountBalances = MutableLiveData<Array<Balance>>()
+
     fun loadBalance(success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         Api.accountRepository.accountBalanceGet(viewModelScope, success = success, error = error, finally = finally)
     }
