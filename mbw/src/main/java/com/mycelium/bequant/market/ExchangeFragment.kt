@@ -8,6 +8,7 @@ import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,8 +48,8 @@ import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.*
 import kotlin.math.pow
+import kotlin.math.truncate
 
 
 class ExchangeFragment : Fragment() {
@@ -59,8 +60,8 @@ class ExchangeFragment : Fragment() {
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
-            Api.publicRepository.publicCurrencyGet(viewLifecycleOwner.lifecycle.coroutineScope,null,{
-                val currencies = it?.toList()?: listOf()
+            Api.publicRepository.publicCurrencyGet(viewLifecycleOwner.lifecycle.coroutineScope, null, {
+                val currencies = it?.toList() ?: listOf()
                 currencies.find { it.id == intent?.getStringExtra("from") }?.assetInfoById()?.let {
                     viewModel.youSend.value = Value.zeroValue(it)
                 }
@@ -148,6 +149,7 @@ class ExchangeFragment : Fragment() {
                 calculateReceiveValue()
             }
             recalculateDestinationPrice()
+            viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
@@ -170,6 +172,7 @@ class ExchangeFragment : Fragment() {
                 calculateSendValue()
             }
             recalculateDestinationPrice()
+            viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
@@ -184,6 +187,9 @@ class ExchangeFragment : Fragment() {
         })
         viewModel.tradingBalances.observe(viewLifecycleOwner, Observer {
             updateAvailable()
+        })
+        viewModel.available.observe(viewLifecycleOwner, Observer {
+            updateYouSend(100)
         })
         sendSymbolLayout.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
@@ -232,7 +238,6 @@ class ExchangeFragment : Fragment() {
             (BigDecimal(tradingBalanceString) * 10.0.pow(youSend.type.unitExponent).toBigDecimal()).toBigInteger()
         }
         viewModel.available.value = Value.valueOf(youSend.type, tradingBalance + accountBalance)
-        updateYouSend(100)
     }
 
     private fun requestBalances() {
@@ -258,25 +263,28 @@ class ExchangeFragment : Fragment() {
 
         val currency = youSend.currencySymbol
         val amount = youSend.valueAsBigDecimal
-        val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available ?: "0")
+        val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available
+                ?: "0")
         if (tradingBalance < amount) {
             val lackAmount = amount - tradingBalance
             //val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
-            var lackAmountString = lackAmount.toString()
+            val lackAmountString = lackAmount.toString()
             loader(true)
             Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
                     Transaction.Type.bankToExchange.value, {
                 // update balance after exchange
                 requestBalances()
                 // place market order
-                var symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+                val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+                var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
                 val quantity = youGet.toPlainString()
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
-                        "buy", quantity, "", "market", "", "",
+                        side, quantity, "", "market", "", "",
                         "", null, false, false, {
                     loader(false)
                     requireActivity().runOnUiThread {
                         showSummary()
+                        requestBalances()
                     }
                 }, { code, error ->
                     ErrorHandler(requireContext()).handle(error)
@@ -290,13 +298,15 @@ class ExchangeFragment : Fragment() {
                 loader(false)
             })
         } else {
-            var symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+            val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
             val quantity = youGet.toPlainString()
+            var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
             Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
-                    "buy", quantity, "", "market", "", "",
+                    side, quantity, "", "market", "", "",
                     "", null, false, false, {
                 requireActivity().runOnUiThread {
                     showSummary()
+                    requestBalances()
                 }
             }, { code, error ->
                 ErrorHandler(requireContext()).handle(error)
@@ -367,6 +377,32 @@ class ExchangeFragment : Fragment() {
             viewModel.youSend.value = Value.valueOf(available.type,
                     result.toBigDecimal().toBigInteger())
         }
+    }
+
+    private fun isEnoughFundsIncludingFees(): Boolean {
+        val available = viewModel.available.value ?: return false
+        val youSend = viewModel.youSend.value ?: return false
+        val youGet = viewModel.youGet.value ?: return false
+        val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol,
+                youSend.currencySymbol) ?: return false
+        if (available.equalZero()) return false
+        if (youSend.equalZero()) return false
+        if (youGet.equalZero()) return false
+
+        // conform youGet with quantityIncrement
+        // val cuttedYouGet = truncate((youGet.valueAsBigDecimal / BigDecimal(symbol.quantityIncrement)).toDouble()).toBigDecimal() * BigDecimal(symbol.quantityIncrement)
+
+        var price = youSend.valueAsBigDecimal / youGet.valueAsBigDecimal
+        // HACK: price that was calculated on our side 0.024964, on theirs - 0.024965
+        price += BigDecimal("0.000001")
+        val takeLiquidityRate = BigDecimal(symbol.takeLiquidityRate)
+        Log.i("asda", "price: $price, youSend.valueAsBigDecimal: ${youSend.valueAsBigDecimal}," +
+                "youGet.valueAsBigDecimal: ${youGet.valueAsBigDecimal}, takeLiquidityRate: $takeLiquidityRate," +
+                "price * youGet.valueAsBigDecimal: ${price * youGet.valueAsBigDecimal}," +
+                "price * youGet.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate): " +
+                "${price * youGet.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate)}," +
+                "available.valueAsBigDecimal: ${available.valueAsBigDecimal}")
+        return available.valueAsBigDecimal > price * youGet.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate)
     }
 
     companion object {

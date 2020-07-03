@@ -52,7 +52,7 @@ fun Currency.assetInfoById(): GenericAssetInfo? {
         when (id) {
             "BTC" -> Utils.getBtcCoinType()
             "ETH" -> Utils.getEthCoinType()
-            else -> CryptoCurrency( this@assetInfoById.id, this@assetInfoById.id, this@assetInfoById.fullName, this@assetInfoById.precisionPayout, 2, true)
+            else -> CryptoCurrency( this@assetInfoById.id, this@assetInfoById.fullName, this@assetInfoById.id, this@assetInfoById.precisionPayout, 2, true)
         }
     } else {
         FiatType(id.substring(0, 3))

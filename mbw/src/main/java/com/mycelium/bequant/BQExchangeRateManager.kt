@@ -115,9 +115,9 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
             mutableListOf<BQExchangeRate>().apply {
                 getPreferences().all.forEach {
 
-                    val currences = it.key.split("_")
-                    val fromCurrency = currences[0]
-                    val toCurrency = currences[1]
+                    val currencies = it.key.split("_")
+                    val fromCurrency = currencies[0]
+                    val toCurrency = currencies[1]
                     val price = try {
                         getPreferences().getString(it.key, "0")?.toDouble() ?: 0.0
                     } catch (nfe: NumberFormatException) {
