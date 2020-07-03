@@ -276,9 +276,10 @@ class ExchangeFragment : Fragment() {
                 requestBalances()
                 // place market order
                 val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+                var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
                 val quantity = youGet.toPlainString()
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
-                        "buy", quantity, "", "market", "", "",
+                        side, quantity, "", "market", "", "",
                         "", null, false, false, {
                     loader(false)
                     requireActivity().runOnUiThread {
@@ -299,8 +300,9 @@ class ExchangeFragment : Fragment() {
         } else {
             val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
             val quantity = youGet.toPlainString()
+            var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
             Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
-                    "buy", quantity, "", "market", "", "",
+                    side, quantity, "", "market", "", "",
                     "", null, false, false, {
                 requireActivity().runOnUiThread {
                     showSummary()

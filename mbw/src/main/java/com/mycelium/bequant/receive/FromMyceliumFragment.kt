@@ -1,6 +1,12 @@
 package com.mycelium.bequant.receive
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +16,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mrd.bitlib.model.Address
@@ -45,6 +52,16 @@ class FromMyceliumFragment : Fragment() {
 
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
 
+    val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val account = intent?.getParcelableExtra<SelectAccountFragment.AccountData>("account")
+            val find = mbwManager.getWalletManager(false).getActiveSpendingAccounts().find { it.label == account?.label }
+            Handler(Looper.getMainLooper()).post {
+                adapter.submitList(listOf(find))
+            }
+        }
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(FromMyceliumViewModel::class.java)
@@ -62,6 +79,10 @@ class FromMyceliumFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mbwManager = MbwManager.getInstance(requireContext())
+
+
+        //needs to be updated with better way
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(broadcastReceiver,IntentFilter("chooseAccount"))
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
             val accounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance()
                     .filter { it.coinType.symbol == coinSymbol }
@@ -130,5 +151,11 @@ class FromMyceliumFragment : Fragment() {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
         }
         viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(requireContext())
+                .unregisterReceiver(broadcastReceiver)
     }
 }
