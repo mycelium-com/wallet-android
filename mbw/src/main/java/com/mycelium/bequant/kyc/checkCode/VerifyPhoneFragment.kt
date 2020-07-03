@@ -38,6 +38,18 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     val args: VerifyPhoneFragmentArgs by navArgs()
 
+    var resendTimer = object : CountDownTimer(TimeUnit.MINUTES.toMillis(1), 1000) {
+
+        override fun onTick(leftTime: Long) {
+            resendTime?.text = "${TimeUnit.MILLISECONDS.toMinutes(leftTime)}:${TimeUnit.MILLISECONDS.toSeconds(leftTime % 60000)}"
+        }
+
+        override fun onFinish() {
+            resendTimerLayout.visibility = GONE
+            tryAgainLayout.visibility = VISIBLE
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -91,17 +103,7 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
     private fun startTryAgainCountDown() {
         resendTimerLayout.visibility = VISIBLE
         tryAgainLayout.visibility = GONE
-        object : CountDownTimer(TimeUnit.MINUTES.toMillis(1), 1000) {
-
-            override fun onTick(leftTime: Long) {
-                resendTime.text = "${TimeUnit.MILLISECONDS.toMinutes(leftTime)}:${TimeUnit.MILLISECONDS.toSeconds(leftTime % 60000)}"
-            }
-
-            override fun onFinish() {
-                resendTimerLayout.visibility = GONE
-                tryAgainLayout.visibility = VISIBLE
-            }
-        }.start()
+        resendTimer.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -118,6 +120,10 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+    override fun onStop() {
+        resendTimer.cancel()
+        super.onStop()
+    }
 
     private fun resendCode() {
         loader(true)
