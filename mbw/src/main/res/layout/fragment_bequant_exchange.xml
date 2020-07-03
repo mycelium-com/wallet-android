@@ -83,7 +83,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clSendView"
-                isRedColor="@{viewModel.youSend.moreThan(viewModel.available)}"
+                isRedColor="@{!viewModel.isEnoughFundsIncludingFees()}"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
@@ -139,7 +139,7 @@
                 android:layout_marginTop="4dp"
                 android:text="@string/insufficient_funds"
                 android:textColor="@color/bequant_red"
-                android:visibility="@{viewModel.youSend.moreThan(viewModel.available) ? View.VISIBLE : View.GONE}"
+                android:visibility="@{viewModel.isEnoughFundsIncludingFees() ? View.GONE : View.VISIBLE}"
                 app:layout_constraintTop_toBottomOf="@id/clSendView" />
 
             <TextView
@@ -148,6 +148,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@{viewModel.rate}"
+                style="@style/Bequant.TextMiddle"
                 app:layout_constraintTop_toBottomOf="@id/tvInsufficientFunds"
                 tools:text="1 BTC ~ 45 ETH" />
 
@@ -227,7 +228,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:enabled="@{!viewModel.available.equalZero() &amp;&amp; !viewModel.youSend.moreThan(viewModel.available) &amp;&amp; !viewModel.youSend.equalZero()}"
+                android:enabled="@{viewModel.isEnoughFundsIncludingFees()}"
                 android:text="@string/exchange"
                 app:layout_constraintTop_toBottomOf="@id/clGetView" />
 

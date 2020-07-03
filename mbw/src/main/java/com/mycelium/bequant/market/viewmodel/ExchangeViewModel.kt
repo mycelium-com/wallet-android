@@ -13,9 +13,9 @@ class ExchangeViewModel : ViewModel() {
     val youSend = MutableLiveData(Value.valueOf(Utils.getBtcCoinType(), available.value!!.value))
     val youGet = MutableLiveData(Value.valueOf(Utils.getEthCoinType(), 0))
     val rate = MutableLiveData("")
-    val accountBalances  = MutableLiveData<Array<Balance>>()
-    val tradingBalances  = MutableLiveData<Array<Balance>>()
-
+    val accountBalances = MutableLiveData<Array<Balance>>()
+    val tradingBalances = MutableLiveData<Array<Balance>>()
+    val isEnoughFundsIncludingFees = MutableLiveData<Boolean>(false)
     val youSendText = MutableLiveData<String>()
     val youGetText = MutableLiveData<String>()
 }
