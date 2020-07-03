@@ -184,8 +184,9 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             // self
             -fee
         } else {
-            // transaction doesn't relate to us in any way. should not happen
-            throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
+            // this can happen if the contract call that led to the funds transfer to user's account
+            // was initiated by a foreign account (not the user's)
+            internalValue ?: Value.zeroValue(currency)
         }
     }
 }
