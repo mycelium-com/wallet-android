@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.AsyncTask
 import com.mycelium.bequant.InvestmentAccount
 import androidx.lifecycle.LiveData
+import com.megiontechnologies.Bitcoins
 import com.mycelium.bequant.remote.trading.api.AccountApi
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -104,17 +105,16 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map {
-                    if (it is InvestmentAccount){
+                    if (it is InvestmentAccount) {
 
-                        val accountApi : AccountApi = AccountApi.create()
+                        val accountApi: AccountApi = AccountApi.create()
                         val balancesResponse = runBlocking {
                             accountApi.accountBalanceGet()
                         }
-                        val currency = balancesResponse?.body()?.find { it.currency?.toLowerCase() == "btc" }
-                        val balanceAsString = currency?.available ?:"0"+ " " + currency?.currency ?: "BTC"
-                        AccountInvestmentViewModel(it,balanceAsString)
-                    }
-                    else AccountViewModel(it, mbwManager)
+                        val currency = balancesResponse.body()?.find { it.currency?.toLowerCase() == "btc" }
+                        AccountInvestmentViewModel(it, Bitcoins.valueOf(currency?.available
+                                ?: "0").toString() + " BTC")
+                    } else AccountViewModel(it, mbwManager)
                 }
 
         private fun sortAccounts(accounts: Collection<WalletAccount<out GenericAddress>>) =

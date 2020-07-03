@@ -68,11 +68,8 @@ data class Order(
         val stopPrice: kotlin.String? = null,
         @Json(name = "expireTime")
         val expireTime: java.util.Date? = null,
-        /* Margin position */
-        @Json(name = "positionId")
-        val positionId: java.math.BigDecimal? = null,
         @Json(name = "tradesReport")
-        val tradesReport: OrderTradesReport? = null
+        val tradesReport: kotlin.Array<OrderTradesReport>? = null
 ) {
 
     /**

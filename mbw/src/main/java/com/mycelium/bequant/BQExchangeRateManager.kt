@@ -56,6 +56,10 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
 
     private var symbols = arrayOf<Symbol>()
 
+    fun findSymbol(a: String, b: String): Symbol? {
+        return symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a)}
+    }
+
     private inner class Fetcher : Runnable {
         override fun run() {
             if (symbols.isEmpty()) {
@@ -111,9 +115,9 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
             mutableListOf<BQExchangeRate>().apply {
                 getPreferences().all.forEach {
 
-                    val currences = it.key.split("_")
-                    val fromCurrency = currences[0]
-                    val toCurrency = currences[1]
+                    val currencies = it.key.split("_")
+                    val fromCurrency = currencies[0]
+                    val toCurrency = currencies[1]
                     val price = try {
                         getPreferences().getString(it.key, "0")?.toDouble() ?: 0.0
                     } catch (nfe: NumberFormatException) {
