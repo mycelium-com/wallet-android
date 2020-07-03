@@ -47,9 +47,9 @@ import java.math.BigDecimal
 
 class AccountFragment : Fragment() {
 
+    private lateinit var mbwManager: MbwManager
     val adapter = BequantAccountAdapter()
     var balancesData = listOf<BequantBalance>()
-    val mbwManager = MbwManager.getInstance(requireContext())
     lateinit var viewModel: AccountViewModel
 
     val receive = object : BroadcastReceiver() {
@@ -60,6 +60,8 @@ class AccountFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mbwManager = MbwManager.getInstance(requireContext())
         viewModel = ViewModelProviders.of(this).get(AccountViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receive, IntentFilter(Constants.ACTION_BEQUANT_KEYS))
     }
