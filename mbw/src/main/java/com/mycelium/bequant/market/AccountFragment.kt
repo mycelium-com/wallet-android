@@ -45,7 +45,7 @@ import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
 import java.math.BigDecimal
 
-class AccountFragment : Fragment() { 
+class AccountFragment : Fragment() {
     lateinit var exchangeRateManager: ExchangeRateManager
     val adapter = BequantAccountAdapter()
     var balancesData = listOf<BequantBalance>()
@@ -144,20 +144,20 @@ class AccountFragment : Fragment() {
         val tradingAccounts = viewModel.tradingBalances.value
 
         val totalBalances = mutableListOf<Balance>()
-        totalBalances.addAll(accountBalances?.toList()?: emptyList())
-        totalBalances.addAll(tradingAccounts?.toList()?: emptyList())
+        totalBalances.addAll(accountBalances?.toList() ?: emptyList())
+        totalBalances.addAll(tradingAccounts?.toList() ?: emptyList())
 
         var btcTotal = BigDecimal.ZERO
         var fiatTotal = BigDecimal.ZERO
         for ((currency, balances) in totalBalances.groupBy { it.currency }) {
             //for demo
-            if (currency?.toUpperCase() != "BTC"){
+            if (currency?.toUpperCase() != "BTC") {
                 continue
             }
 //            val btcRate = exchangeRateManager.getExchangeRate(currency!!, "BTC")
             val usdRate = exchangeRateManager.getExchangeRate(currency, "USD")
-            btcTotal = balances.map { Bitcoins.valueOf(it.available) }.map { it.toBigDecimal() }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
-            fiatTotal  = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
+            btcTotal = balances.map { BigDecimal(it.available) }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
+            fiatTotal = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
         }
 
         viewModel.totalBalance.value = btcTotal.toPlainString()
@@ -196,7 +196,7 @@ class AccountFragment : Fragment() {
                 .filter { it.name.contains(filter, true) || it.symbol.contains(filter, true) })
     }
 
-    fun BigDecimal.sum(){
+    fun BigDecimal.sum() {
 
     }
 }
