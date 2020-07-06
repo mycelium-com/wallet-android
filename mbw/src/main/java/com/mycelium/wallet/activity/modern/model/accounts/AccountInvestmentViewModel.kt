@@ -4,7 +4,7 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 
 
-class AccountInvestmentViewModel(val account: WalletAccount<out GenericAddress>, val balance:String) : AccountListItem {
+class AccountInvestmentViewModel(val account: WalletAccount<out GenericAddress>, val balance: String) : AccountListItem {
     val accountId = account.id!!
     var label = "Investment Account"
 
