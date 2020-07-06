@@ -51,6 +51,11 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
                 intTxs.addAll(response.result)
             }
 
+            val txsToAdd = intTxs.filterNot { intTx -> result.map { it.txid }.contains(intTx.hash) }
+            result.addAll(txsToAdd.map {
+                getTransaction(it.hash)
+            })
+
             // maps hash to [value of transferred eth within tx with the hash]
             val mapp = intTxs.map { tx ->
                 tx.hash to intTxs.filter {
@@ -86,6 +91,12 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
         val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
 
         return mapper.readValue(URL(urlString), NonceResponse::class.java).nonce
+    }
+
+    fun getTransaction(hash: String): Tx {
+        val urlString = "${endpoints.random()}/api/v2/tx/$hash"
+
+        return mapper.readValue(URL(urlString), Tx::class.java)
     }
 
     fun getTransactions(address: String, contractAddress: String? = null): List<Tx> {
