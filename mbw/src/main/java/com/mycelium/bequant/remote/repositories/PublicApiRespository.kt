@@ -40,12 +40,12 @@ class PublicApiRespository {
                           success: (Array<Currency>?) -> Unit,
                           error: ((Int, String) -> Unit)? = null,
                           finally: (() -> Unit)? = null) {
-        if(currencies == null && publicCurrencies.isNotEmpty()) {
+        if (currencies == null && publicCurrencies.isNotEmpty()) {
             success.invoke(publicCurrencies)
-        }else {
+        } else {
             doRequest(scope, {
                 api.publicCurrencyGet(currencies).apply {
-                    if(currencies == null) {
+                    if (currencies == null) {
                         publicCurrencies = this.body() ?: arrayOf()
                     }
                 }
@@ -69,11 +69,22 @@ class PublicApiRespository {
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
+    // maybe need put it to sharedpreference
+    private var publicSymbols = arrayOf<Symbol>()
+
     fun publicSymbolGet(scope: CoroutineScope, symbols: String?,
                         success: (Array<Symbol>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        doRequest(scope, {
-            api.publicSymbolGet(symbols)
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        if (symbols == null && publicSymbols.isNotEmpty()) {
+            success.invoke(publicSymbols)
+        } else {
+            doRequest(scope, {
+                api.publicSymbolGet(symbols).apply {
+                    if (symbols == null) {
+                        publicSymbols = this.body() ?: arrayOf()
+                    }
+                }
+            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        }
     }
 
     fun publicSymbolSymbolGet(scope: CoroutineScope, symbol: String,

@@ -1,12 +1,11 @@
 package com.mycelium.bequant
 
 import android.app.Activity
-import android.content.Context
-import android.content.SharedPreferences
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.exchange.GetExchangeRate
 import com.mycelium.wapi.model.ExchangeRate
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
@@ -20,7 +19,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
+object BQExchangeRateManager : ExchangeRateProvider {
 
     interface Observer {
         fun refreshingExchangeRatesSucceeded()
@@ -28,6 +27,7 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
         fun exchangeSourceChanged()
     }
 
+    private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(Constants.EXCHANGE_RATES, Activity.MODE_PRIVATE) }
     private var _latestRates = mutableMapOf<String, MutableMap<String, BQExchangeRate>?>()
     private var _latestRatesTime: Long = 0
 
@@ -35,11 +35,6 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
     private var _fetcher: Fetcher? = null
 
     private var _subscribers = mutableListOf<Observer>()
-
-    init {
-        _latestRatesTime = 0
-        _latestRates = HashMap()
-    }
 
     @Synchronized
     fun subscribe(subscriber: Observer) {
@@ -56,11 +51,12 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
 
     private var symbols = arrayOf<Symbol>()
 
-    fun findSymbol(a: String, b: String): Symbol? {
-        return symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a)}
-    }
+    fun findSymbol(a: String, b: String): Symbol? =
+            symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a) }
 
-    private inner class Fetcher : Runnable {
+    fun findSymbol(id: String): Symbol? = symbols.find { it.id == id }
+
+    private class Fetcher : Runnable {
         override fun run() {
             if (symbols.isEmpty()) {
                 Api.publicRepository.publicSymbolGet(GlobalScope, null, {
@@ -113,13 +109,12 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
 
     private fun localValues(): List<BQExchangeRate> =
             mutableListOf<BQExchangeRate>().apply {
-                getPreferences().all.forEach {
-
+                preference.all.forEach {
                     val currencies = it.key.split("_")
                     val fromCurrency = currencies[0]
                     val toCurrency = currencies[1]
                     val price = try {
-                        getPreferences().getString(it.key, "0")?.toDouble() ?: 0.0
+                        preference.getString(it.key, "0")?.toDouble() ?: 0.0
                     } catch (nfe: NumberFormatException) {
                         0.0
                     }
@@ -178,7 +173,7 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
     }
 
     private fun storeExchangeRate(fromCurrency: String, toCurrency: String, price: Double?) {
-        getPreferences().edit().putString(fromCurrency + "_" + toCurrency, price?.toString()).apply()
+        preference.edit().putString(fromCurrency + "_" + toCurrency, price?.toString()).apply()
     }
 
     /**
@@ -217,11 +212,9 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
     override fun getExchangeRate(fromCurrency: String, toCurrency: String): ExchangeRate? =
             getExchangeRate(fromCurrency, toCurrency, "bequant")
 
-    private fun getPreferences(): SharedPreferences =
-            context.getSharedPreferences(Constants.EXCHANGE_RATES, Activity.MODE_PRIVATE)
 
     fun get(value: Value, toCurrency: GenericAssetInfo): Value? {
-        val rate = GetExchangeRate(MbwManager.getInstance(context).getWalletManager(false),
+        val rate = GetExchangeRate(MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false),
                 toCurrency.symbol, value.type.symbol, this).apply { hack = true }.invoke()
         val rateValue = rate.rate
         return if (rateValue != null) {
@@ -234,38 +227,37 @@ class BQExchangeRateManager(val context: Context) : ExchangeRateProvider {
         }
     }
 
-    companion object {
-        private val MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5)
-        val BTC = "BTC"
-        private val _requestLock = Any()
 
-        /**
-         * the method is used to remove additional characters indicating testnet coins from currencies' symbols
-         * before making request to the server with these symbols as parameters, as server provides
-         * exchange rates only by pure symbols, i.e. BTC and not tBTC
-         */
-        private fun trimSymbolDecorations(symbol: String): String? {
-            if (BuildConfig.FLAVOR == "btctestnet") {
-                if (symbol.startsWith("t")) {
-                    return symbol.substring(1)
-                }
-                if (symbol.endsWith("t")) {
-                    return symbol.substring(0, symbol.length - 1)
-                }
-            }
-            return symbol
-        }
+    private val MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5)
+    val BTC = "BTC"
+    private val _requestLock = Any()
 
-        private fun addSymbolDecorations(symbol: String): String {
-            if (BuildConfig.FLAVOR == "btctestnet") {
-                if (symbol == "BTC") {
-                    return "t$symbol"
-                }
-                if (symbol == "MT") {
-                    return symbol + "t"
-                }
+    /**
+     * the method is used to remove additional characters indicating testnet coins from currencies' symbols
+     * before making request to the server with these symbols as parameters, as server provides
+     * exchange rates only by pure symbols, i.e. BTC and not tBTC
+     */
+    private fun trimSymbolDecorations(symbol: String): String? {
+        if (BuildConfig.FLAVOR == "btctestnet") {
+            if (symbol.startsWith("t")) {
+                return symbol.substring(1)
             }
-            return symbol
+            if (symbol.endsWith("t")) {
+                return symbol.substring(0, symbol.length - 1)
+            }
         }
+        return symbol
+    }
+
+    private fun addSymbolDecorations(symbol: String): String {
+        if (BuildConfig.FLAVOR == "btctestnet") {
+            if (symbol == "BTC") {
+                return "t$symbol"
+            }
+            if (symbol == "MT") {
+                return symbol + "t"
+            }
+        }
+        return symbol
     }
 }

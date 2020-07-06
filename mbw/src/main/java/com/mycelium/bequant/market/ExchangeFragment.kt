@@ -55,7 +55,6 @@ import kotlin.math.truncate
 class ExchangeFragment : Fragment() {
 
     private lateinit var viewModel: ExchangeViewModel
-    private lateinit var exchangeRateManager: BQExchangeRateManager
     var getViewActive = false
 
     val receiver = object : BroadcastReceiver() {
@@ -74,8 +73,7 @@ class ExchangeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        exchangeRateManager = BQExchangeRateManager(requireContext())
-        exchangeRateManager.requestOptionalRefresh()
+        BQExchangeRateManager.requestOptionalRefresh()
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
     }
@@ -275,7 +273,7 @@ class ExchangeFragment : Fragment() {
                 // update balance after exchange
                 requestBalances()
                 // place market order
-                val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+                val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
                 var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
                 val quantity = youGet.toPlainString()
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
@@ -298,7 +296,7 @@ class ExchangeFragment : Fragment() {
                 loader(false)
             })
         } else {
-            val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
+            val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
             val quantity = youGet.toPlainString()
             var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
             Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
@@ -350,7 +348,7 @@ class ExchangeFragment : Fragment() {
     private fun recalculateDestinationPrice() {
         viewModel.youGet.value?.let { youGetValue ->
             val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
-            val destPrice = exchangeRateManager.get(singleCoin, youGetValue.type)
+            val destPrice = BQExchangeRateManager.get(singleCoin, youGetValue.type)
             viewModel.rate.value = destPrice?.let { "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}" }
                     ?: ""
         }
@@ -358,14 +356,14 @@ class ExchangeFragment : Fragment() {
 
     private fun calculateSendValue() {
         viewModel.youGet.value?.let { youGetValue ->
-            viewModel.youSend.value = exchangeRateManager.get(youGetValue, viewModel.youSend.value!!.type)
+            viewModel.youSend.value = BQExchangeRateManager.get(youGetValue, viewModel.youSend.value!!.type)
                     ?: Value.zeroValue(viewModel.youSend.value!!.type)
         }
     }
 
     private fun calculateReceiveValue() {
         viewModel.youSend.value?.let { youSendValue ->
-            viewModel.youGet.value = exchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
+            viewModel.youGet.value = BQExchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
                     ?: Value.zeroValue(viewModel.youGet.value!!.type)
         }
     }
@@ -383,7 +381,7 @@ class ExchangeFragment : Fragment() {
         val available = viewModel.available.value ?: return false
         val youSend = viewModel.youSend.value ?: return false
         val youGet = viewModel.youGet.value ?: return false
-        val symbol = exchangeRateManager.findSymbol(youGet.currencySymbol,
+        val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
                 youSend.currencySymbol) ?: return false
         if (available.equalZero()) return false
         if (youSend.equalZero()) return false

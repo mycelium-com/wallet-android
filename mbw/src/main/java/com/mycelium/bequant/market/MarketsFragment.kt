@@ -10,6 +10,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
@@ -68,14 +69,17 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         var marketItems = tickersData
                 .filter { c -> !CurrencyCode.values().any { code -> c.symbol.contains(code.shortString, true) } }
                 .filter { if (filter.isNotEmpty()) it.symbol.contains(filter, true) else true }
-                .map {
+                .mapNotNull {
                     val change = if (it.last == null || it.open == null) null
                     else {
                         100 - it.last / it.open * 100
                     }
                     //TODO get correct symbol from symbols call (maybe from bqexchangermanager)
-                    MarketItem(it.symbol.substring(0, 3), it.symbol.substring(3),
-                            it.volume?:0.0, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
+                    BQExchangeRateManager.findSymbol(it.symbol)?.let { symbol ->
+                        MarketItem(symbol.baseCurrency, symbol.quoteCurrency,
+                                it.volume ?: 0.0, it.last,
+                                getUSDForPriceCurrency(symbol.baseCurrency), change)
+                    }
                 }
         marketItems = when (sortField) {
             0 -> if (sortDirection) {
