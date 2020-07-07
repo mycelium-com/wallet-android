@@ -78,7 +78,7 @@ object BQExchangeRateManager : ExchangeRateProvider {
                 tikers?.forEach { ticker ->
                     symbols.find { it.id == ticker.symbol }?.let { symbol ->
                         response.add(BQExchangeRate(symbol.baseCurrency, symbol.quoteCurrency,
-                                ticker.bid?.toDouble() ?: 0.0, ticker.timestamp))
+                                ticker.last ?: 0.0, ticker.timestamp))
                     }
                 }
                 synchronized(_requestLock) {

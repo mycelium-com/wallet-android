@@ -47,7 +47,7 @@ private fun <T> equalsValuesByImpl(a: T, b: T, selectors: Array<out (T) -> Any?>
     return true
 }
 
-fun Currency.assetInfoById(): GenericAssetInfo? {
+fun Currency.assetInfoById(): GenericAssetInfo {
     return if (crypto) {
         when (id) {
             "BTC" -> Utils.getBtcCoinType()

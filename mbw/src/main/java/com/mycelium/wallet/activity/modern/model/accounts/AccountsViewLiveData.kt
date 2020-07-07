@@ -2,16 +2,24 @@ package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.annotation.SuppressLint
 import android.os.AsyncTask
+import android.util.Log
 import com.mycelium.bequant.InvestmentAccount
 import androidx.lifecycle.LiveData
-import com.megiontechnologies.Bitcoins
+import com.mycelium.bequant.BQExchangeRateManager
+import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.remote.trading.api.AccountApi
+import com.mycelium.bequant.remote.trading.api.PublicApi
+import com.mycelium.bequant.remote.trading.api.TradingApi
+import com.mycelium.bequant.remote.trading.model.Balance
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.GenericAddress
@@ -20,14 +28,17 @@ import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.pow
 
 /**
  * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.
@@ -106,14 +117,51 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map {
                     if (it is InvestmentAccount) {
+                        BQExchangeRateManager.requestOptionalRefresh()
+                        GlobalScope.launch(Dispatchers.Main) {
+                            val accountApi: AccountApi = AccountApi.create()
+                            val tradingApi = TradingApi.create()
+                            val totalBalances = mutableListOf<Balance>()
+                            val balancesFetch = GlobalScope.async(Dispatchers.IO) {
+                                accountApi.accountBalanceGet().let { response ->
+                                    totalBalances.addAll(response.body()?.toList() ?: emptyList())
+                                }
+                                tradingApi.tradingBalanceGet().let { response ->
+                                    totalBalances.addAll(response.body()?.toList() ?: emptyList())
+                                }
+                            }
+                            balancesFetch.await()
 
-                        val accountApi: AccountApi = AccountApi.create()
-                        val balancesResponse = runBlocking {
-                            accountApi.accountBalanceGet()
+                            var btcTotal = BigDecimal.ZERO
+                            for ((currency, balances) in totalBalances.groupBy { it.currency }) {
+                                val currencySum = balances.map { BigDecimal(it.available) +
+                                        BigDecimal(it.reserved) }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
+
+                                if (currencySum == BigDecimal.ZERO) continue
+                                if (currency!!.toUpperCase() == "BTC") {
+                                    btcTotal += currencySum
+                                    continue
+                                }
+                                val publicApi = PublicApi.create()
+
+                                lateinit var currencyInfo: com.mycelium.bequant.remote.trading.model.Currency
+                                val currencyInfoFetch = async(Dispatchers.IO) {
+                                    publicApi.publicCurrencyGet(currency).let { response ->
+                                        currencyInfo = response.body()?.get(0)!!
+                                    }
+                                }
+                                currencyInfoFetch.await()
+
+                                val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
+                                        (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
+                                val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
+                                btcTotal += converted ?: BigDecimal.ZERO
+                            }
+                            BequantPreference.setMockCastodialBalance(Value.valueOf(Utils.getBtcCoinType(),
+                                    (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger()))
                         }
-                        val currency = balancesResponse.body()?.find { it.currency?.toLowerCase() == "btc" }
-                        AccountInvestmentViewModel(it, Bitcoins.valueOf(currency?.available
-                                ?: "0").toString() + " BTC")
+
+                        AccountInvestmentViewModel(it, BequantPreference.getMockCastodialBalance().toString())
                     } else AccountViewModel(it, mbwManager)
                 }
 
