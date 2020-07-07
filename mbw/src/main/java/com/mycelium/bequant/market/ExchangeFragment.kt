@@ -49,7 +49,6 @@ import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.math.pow
-import kotlin.math.truncate
 
 
 class ExchangeFragment : Fragment() {
@@ -278,7 +277,8 @@ class ExchangeFragment : Fragment() {
                 val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
                 var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
                 val quantity = youGet.toPlainString()
-                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
+                Log.i("asda", "side $side, symbol $symbol, quantity $quantity")
+                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
                         side, quantity, "", "market", "", "",
                         "", null, false, false, {
                     loader(false)
@@ -301,7 +301,8 @@ class ExchangeFragment : Fragment() {
             val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
             val quantity = youGet.toPlainString()
             var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
-            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol!!.id,
+            Log.i("asda", "side $side, symbol $symbol, quantity $quantity")
+            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
                     side, quantity, "", "market", "", "",
                     "", null, false, false, {
                 requireActivity().runOnUiThread {

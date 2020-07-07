@@ -4,9 +4,7 @@ import android.app.Activity
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.wallet.BuildConfig
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
-import com.mycelium.wallet.exchange.GetExchangeRate
 import com.mycelium.wapi.model.ExchangeRate
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
@@ -196,14 +194,13 @@ object BQExchangeRateManager : ExchangeRateProvider {
                 ?: //rate is too old or does not exists, exchange source seems to not be available
                 //we return a rate with null price to indicate there is something wrong with the exchange rate source
                 return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination)
-        val exchangeRate = latestRatesForTargetCurrency
 
-        if (exchangeRate.name == exchangeSource) {
+        if (latestRatesForTargetCurrency.name == exchangeSource) {
             //if the price is 0, obviously something went wrong
-            return if (exchangeRate.price == 0.0) {
+            return if (latestRatesForTargetCurrency.price == 0.0) {
                 //we return an exchange rate with null price -> indicating missing rate
                 ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination)
-            } else exchangeRate
+            } else latestRatesForTargetCurrency
             //everything is fine, return the rate
         }
         return null
@@ -214,9 +211,18 @@ object BQExchangeRateManager : ExchangeRateProvider {
 
 
     fun get(value: Value, toCurrency: GenericAssetInfo): Value? {
-        val rate = GetExchangeRate(MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false),
-                toCurrency.symbol, value.type.symbol, this).apply { hack = true }.invoke()
-        val rateValue = rate.rate
+        var price: BigDecimal? = null
+        var exchangeRate = getExchangeRate(value.type.symbol, toCurrency.symbol)
+        if (exchangeRate?.price != null) {
+            price = BigDecimal.valueOf(exchangeRate.price)
+        } else {
+            // try inversed pair
+            exchangeRate = getExchangeRate(toCurrency.symbol, value.type.symbol)
+            if (exchangeRate?.price != null) {
+                price = BigDecimal.valueOf(1 / exchangeRate.price)
+            }
+        }
+        val rateValue = price
         return if (rateValue != null) {
             val bigDecimal = rateValue.multiply(BigDecimal(value.value))
                     .movePointLeft(value.type.unitExponent)

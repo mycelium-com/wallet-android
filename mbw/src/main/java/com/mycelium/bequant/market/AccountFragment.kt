@@ -199,7 +199,7 @@ class AccountFragment : Fragment() {
         })
     }
 
-    fun updateList(filter: String = "") {
+    private fun updateList(filter: String = "") {
         adapter.submitList(balancesData
                 .filter { !BequantPreference.hideZeroBalance() || it.available != "0" }
                 .map {
