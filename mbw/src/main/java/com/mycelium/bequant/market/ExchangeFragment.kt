@@ -67,6 +67,7 @@ class ExchangeFragment : Fragment() {
                 currencies.find { it.id == intent?.getStringExtra("to") }?.assetInfoById()?.let {
                     viewModel.youGet.value = Value.zeroValue(it)
                 }
+                updateAvailable()
             })
         }
     }
@@ -207,6 +208,7 @@ class ExchangeFragment : Fragment() {
             val tempValue = viewModel.youSend.value
             viewModel.youSend.value = viewModel.youGet.value
             viewModel.youGet.value = tempValue
+            updateAvailable()
         }
         deposit.setOnClickListener { findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit")) }
         btContactSupport.setOnClickListener {

@@ -152,7 +152,7 @@ class AccountFragment : Fragment() {
             }
 //            val btcRate = exchangeRateManager.getExchangeRate(currency!!, "BTC")
             val usdRate =  mbwManager.exchangeRateManager.getExchangeRate(currency, "USD")
-            btcTotal = balances.map { Bitcoins.valueOf(it.available) }.map { it.toBigDecimal() }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
+            btcTotal = balances.map { BigDecimal(it.available) }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
             fiatTotal  = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
         }
 
