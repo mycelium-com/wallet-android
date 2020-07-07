@@ -74,7 +74,6 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                     else {
                         100 - it.last / it.open * 100
                     }
-                    //TODO get correct symbol from symbols call (maybe from bqexchangermanager)
                     BQExchangeRateManager.findSymbol(it.symbol)?.let { symbol ->
                         MarketItem(symbol.baseCurrency, symbol.quoteCurrency,
                                 it.volume ?: 0.0, it.last,

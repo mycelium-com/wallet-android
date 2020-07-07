@@ -13,11 +13,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.market.viewmodel.*
-import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.util.toString
-import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.item_bequant_market.view.*
 
 
@@ -37,32 +33,9 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
         when (item.viewType) {
             MARKET_ITEM -> {
                 item as MarketItem
-                val quoteCurrency = item.from
                 holder.itemView.currencies.text = "${item.from} / ${item.to}"
-                holder.itemView.volume.text = when {
-                    quoteCurrency.equals("BTC", true) -> {
-                        "Vol ${Value.valueOf(Utils.getBtcCoinType(), item.volume.toBigDecimal().unscaledValue()).toString(Denomination.UNIT)}"
-                    }
-                    quoteCurrency.equals("ETH", true) -> {
-                        "Vol ${Value.valueOf(Utils.getEthCoinType(), item.volume.toBigDecimal().unscaledValue()).toString(Denomination.UNIT)}"
-                    }
-                    else -> {
-                        "Vol ${item.volume}"
-                    }
-                }
-                holder.itemView.rate.text = if (item.price == null) {
-                    "N/A"
-                } else when {
-                    quoteCurrency.equals("BTC", true) -> {
-                        Value.valueOf(Utils.getBtcCoinType(), item.price.toBigDecimal().unscaledValue()).toString(Denomination.UNIT)
-                    }
-                    quoteCurrency.equals("ETH", true) -> {
-                        Value.valueOf(Utils.getEthCoinType(), item.price.toBigDecimal().unscaledValue()).toString(Denomination.UNIT)
-                    }
-                    else -> {
-                        "${item.price}"
-                    }
-                }
+                holder.itemView.volume.text = "Vol ${item.volume.toBigDecimal().toPlainString()}"
+                holder.itemView.rate.text = if (item.price == null) "N/A" else item.price.toBigDecimal().toPlainString()
                 holder.itemView.fiatPrice.text = if (item.fiatPrice == null) "N/A" else {
                     "$%.${2}f".format(item.fiatPrice)
                 }
