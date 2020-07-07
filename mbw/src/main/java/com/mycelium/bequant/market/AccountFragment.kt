@@ -18,7 +18,6 @@ import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
-import com.megiontechnologies.Bitcoins
 import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
@@ -29,11 +28,9 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
-import com.mycelium.bequant.remote.model.BequantBalance
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.view.Denomination
-import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
@@ -49,7 +46,7 @@ class AccountFragment : Fragment() {
 
     private lateinit var mbwManager: MbwManager
     val adapter = BequantAccountAdapter()
-    var balancesData = listOf<BequantBalance>()
+    var balancesData = mutableListOf<Balance>()
     lateinit var viewModel: AccountViewModel
 
     val receive = object : BroadcastReceiver() {
@@ -110,10 +107,12 @@ class AccountFragment : Fragment() {
         })
 
         viewModel.tradingBalances.observe(viewLifecycleOwner, Observer<Array<Balance>> { balances ->
+            updateBalanceData()
             updateBalances()
         })
 
         viewModel.accountBalances.observe(viewLifecycleOwner, Observer<Array<Balance>> { balances ->
+            updateBalanceData()
             updateBalances()
         })
 
@@ -135,6 +134,26 @@ class AccountFragment : Fragment() {
         requestBalances()
     }
 
+    private fun updateBalanceData() {
+        val accountBalances = viewModel.accountBalances.value
+        val tradingAccounts = viewModel.tradingBalances.value
+
+        val totalBalances = mutableListOf<Balance>()
+        totalBalances.addAll(accountBalances?.toList()?: emptyList())
+        totalBalances.addAll(tradingAccounts?.toList()?: emptyList())
+
+        val result = mutableListOf<Balance>()
+        for ((currency, balances) in totalBalances.groupBy { it.currency }) {
+            val currencySum = balances.map {
+                BigDecimal(it.available) +
+                        BigDecimal(it.reserved)
+            }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
+            result.add(Balance(currency, currencySum.toPlainString(), BigDecimal.ZERO.toPlainString()))
+        }
+        balancesData = result
+        updateList()
+    }
+
     private fun updateBalances() {
         val accountBalances = viewModel.accountBalances.value
         val tradingAccounts = viewModel.tradingBalances.value
@@ -147,7 +166,7 @@ class AccountFragment : Fragment() {
         var fiatTotal = BigDecimal.ZERO
         for ((currency, balances) in totalBalances.groupBy { it.currency }) {
             //for demo
-            if (currency?.toUpperCase() != "BTC"){
+            if (currency?.toUpperCase() != "BTC") {
                 continue
             }
 //            val btcRate = exchangeRateManager.getExchangeRate(currency!!, "BTC")
@@ -181,13 +200,11 @@ class AccountFragment : Fragment() {
     }
 
     fun updateList(filter: String = "") {
-        balancesData.find { it.currency == "BTC" }?.available =
-                BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
         adapter.submitList(balancesData
                 .filter { !BequantPreference.hideZeroBalance() || it.available != "0" }
                 .map {
-                    AccountItem(TYPE_ITEM, it.currency, it.currency,
-                            if (viewModel.privateMode.value == true) HIDE_VALUE else it.available)
+                    AccountItem(TYPE_ITEM, it.currency!!, it.currency,
+                            if (viewModel.privateMode.value == true) HIDE_VALUE else it.available!!)
                 }
                 .filter { it.name.contains(filter, true) || it.symbol.contains(filter, true) })
     }
