@@ -10,7 +10,6 @@ import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.remote.repositories.Api
-import com.mycelium.bequant.remote.trading.model.Currency
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
@@ -23,18 +22,14 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
                 .apply { setFromItem(1) })
         list.adapter = adapter
-
-        var response: List<Currency>? = null
-
         loader(true)
         Api.publicRepository.publicCurrencyGet(viewLifecycleOwner.lifecycle.coroutineScope, null, { list ->
-            response = list?.toList() ?: emptyList()
-            // and create CoinListItem with them
-            val coinsList = mutableListOf(CoinListItem(CoinAdapter.TYPE_SEARCH), CoinListItem(CoinAdapter.TYPE_SPACE))
-            response?.forEach {
-                coinsList.add(CoinListItem(CoinAdapter.TYPE_ITEM, it.assetInfoById()))
-            }
-            adapter.submitList(coinsList)
+            adapter.submitList(mutableListOf<CoinListItem>().apply {
+                add(CoinListItem(CoinAdapter.TYPE_SEARCH))
+                addAll((list?.toList()
+                        ?: emptyList()).map { CoinListItem(CoinAdapter.TYPE_ITEM, it.assetInfoById()) })
+                add(CoinListItem(CoinAdapter.TYPE_SPACE))
+            })
         }, { code, error ->
             ErrorHandler(requireContext()).handle(error)
         }, {

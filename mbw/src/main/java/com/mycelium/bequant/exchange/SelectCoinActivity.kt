@@ -15,6 +15,7 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pager.adapter = SelectCoinFragmentAdapter(this)
+        pager.offscreenPageLimit = 2
         TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = "You send"

@@ -47,6 +47,7 @@ class PublicApiRespository {
                           finally: (() -> Unit)? = null) {
         if (currencies == null && publicCurrencies.isNotEmpty()) {
             success.invoke(publicCurrencies)
+            finally?.invoke()
         } else {
             doRequest(scope, {
                 api.publicCurrencyGet(currencies).apply {
@@ -86,7 +87,7 @@ class PublicApiRespository {
             if (symbols == null) {
                 success.invoke(publicSymbols)
             } else {
-                success.invoke(publicSymbols.filter {  symbols.contains(it.id) }.toTypedArray())
+                success.invoke(publicSymbols.filter { symbols.contains(it.id) }.toTypedArray())
             }
             finally.invoke()
         } else {
