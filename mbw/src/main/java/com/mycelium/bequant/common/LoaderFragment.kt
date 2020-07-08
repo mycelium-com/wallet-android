@@ -1,6 +1,5 @@
 package com.mycelium.bequant.common
 
-import android.app.Activity
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -36,9 +35,10 @@ class LoaderFragment : DialogFragment() {
 fun Fragment.loader(show: Boolean) {
     if (show) {
         val loader = LoaderFragment()
-        loader.show(parentFragmentManager, Constants.LOADER_TAG)
+        loader.show(childFragmentManager, Constants.LOADER_TAG)
     } else {
-        val findFragmentByTag = parentFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
+        childFragmentManager.executePendingTransactions()
+        val findFragmentByTag = childFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
         if (findFragmentByTag is LoaderFragment) {
             if (findFragmentByTag.isAdded) {
                 findFragmentByTag.dismissAllowingStateLoss()

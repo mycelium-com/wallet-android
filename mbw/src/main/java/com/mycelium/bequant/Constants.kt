@@ -32,6 +32,7 @@ object Constants {
     const val COUNTRY_MODEL_KEY = "phoneModel"
     const val KYC_REQUEST_KEY ="kyc_request"
     const val KYC_STATUS_KEY ="kyc_status"
+    const val LAST_SYMBOLS_UPDATE = "last_symbols_update"
 
     const val REQUEST_CODE_EXCHANGE_COINS = 3001
 
