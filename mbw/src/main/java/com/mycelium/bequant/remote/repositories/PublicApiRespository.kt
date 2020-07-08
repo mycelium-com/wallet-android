@@ -1,13 +1,18 @@
 package com.mycelium.bequant.remote.repositories
 
+import android.app.Activity
+import com.google.gson.Gson
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.PublicApi
 import com.mycelium.bequant.remote.trading.model.*
+import com.mycelium.wallet.WalletApplication
 import kotlinx.coroutines.CoroutineScope
 
 class PublicApiRespository {
 
     private val api = PublicApi.create()
+    private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(Constants.PUBLIC_REPOSITORY, Activity.MODE_PRIVATE) }
 
 
     fun publicCandlesGet(scope: CoroutineScope,
@@ -69,13 +74,21 @@ class PublicApiRespository {
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    // maybe need put it to sharedpreference
-    private var publicSymbols = arrayOf<Symbol>()
+    private var publicSymbols: Array<Symbol>
+        get() = Gson().fromJson(preference.getString("symbols", "[]"), Array<Symbol>::class.java)
+        set(value) {
+            preference.edit().putString("symbols", Gson().toJson(value)).apply()
+        }
 
     fun publicSymbolGet(scope: CoroutineScope, symbols: String?,
                         success: (Array<Symbol>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        if (symbols == null && publicSymbols.isNotEmpty()) {
-            success.invoke(publicSymbols)
+        if (publicSymbols.isNotEmpty()) {
+            if (symbols == null) {
+                success.invoke(publicSymbols)
+            } else {
+                success.invoke(publicSymbols.filter {  symbols.contains(it.id) }.toTypedArray())
+            }
+            finally.invoke()
         } else {
             doRequest(scope, {
                 api.publicSymbolGet(symbols).apply {
@@ -89,17 +102,27 @@ class PublicApiRespository {
 
     fun publicSymbolSymbolGet(scope: CoroutineScope, symbol: String,
                               success: (Symbol?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        doRequest(scope, {
-            api.publicSymbolSymbolGet(symbol)
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        if (publicSymbols.isNotEmpty()) {
+            success.invoke(publicSymbols.find { it.id == symbol })
+            finally.invoke()
+        } else {
+            doRequest(scope, {
+                api.publicSymbolSymbolGet(symbol)
+            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        }
     }
 
     fun publicTickerGet(scope: CoroutineScope,
                         symbols: String?,
                         success: (Array<Ticker>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        doRequest(scope, {
-            api.publicTickerGet(symbols)
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        publicSymbolGet(scope, null, {
+            doRequest(scope, {
+                api.publicTickerGet(symbols)
+            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        }, { code, msg ->
+            error.invoke(code, msg)
+            finally.invoke()
+        }, {})
     }
 
     fun publicTickerSymbolGet(scope: CoroutineScope,

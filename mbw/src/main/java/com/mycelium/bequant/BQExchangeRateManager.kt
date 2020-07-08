@@ -52,8 +52,6 @@ object BQExchangeRateManager : ExchangeRateProvider {
     fun findSymbol(a: String, b: String): Symbol? =
             symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a) }
 
-    fun findSymbol(id: String): Symbol? = symbols.find { it.id == id }
-
     private class Fetcher : Runnable {
         override fun run() {
             if (symbols.isEmpty()) {

@@ -8,9 +8,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
@@ -18,6 +17,7 @@ import com.mycelium.bequant.market.adapter.MarketAdapter
 import com.mycelium.bequant.market.viewmodel.MarketItem
 import com.mycelium.bequant.market.viewmodel.MarketTitleItem
 import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Ticker
 import com.mycelium.wallet.R
 import com.mycelium.wapi.api.lib.CurrencyCode
@@ -55,55 +55,60 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
 
     private fun requestTickers() {
         loader(true)
-        Api.publicRepository.publicTickerGet(viewLifecycleOwner.lifecycle.coroutineScope,null,{
-            tickersData = it?.toList()?: emptyList()
+        Api.publicRepository.publicTickerGet(viewLifecycleOwner.lifecycleScope, null, {
+            tickersData = it?.toList() ?: emptyList()
             updateList()
         }, { code, error ->
             ErrorHandler(requireContext()).handle(error)
-        },{
+        }, {
             loader(false)
         })
     }
 
     private fun updateList(filter: String = "") {
-        var marketItems = tickersData
+        val filteredTickers = tickersData
                 .filter { c -> !CurrencyCode.values().any { code -> c.symbol.contains(code.shortString, true) } }
                 .filter { if (filter.isNotEmpty()) it.symbol.contains(filter, true) else true }
-                .mapNotNull {
-                    val change = if (it.last == null || it.open == null) null
-                    else {
-                        100 - it.last / it.open * 100
-                    }
-                    BQExchangeRateManager.findSymbol(it.symbol)?.let { symbol ->
-                        MarketItem(symbol.baseCurrency, symbol.quoteCurrency,
-                                it.volume ?: 0.0, it.last,
-                                getUSDForPriceCurrency(symbol.baseCurrency), change)
-                    }
+        Api.publicRepository.publicSymbolGet(viewLifecycleOwner.lifecycleScope,
+                filteredTickers.joinToString(",") { it.symbol }, { symbols: Array<Symbol>? ->
+            filteredTickers.mapNotNull { tiker ->
+                val change = if (tiker.last == null || tiker.open == null) null
+                else {
+                    100 - tiker.last / tiker.open * 100
                 }
-        marketItems = when (sortField) {
-            0 -> if (sortDirection) {
-                marketItems.sortedByDescending { it.from + it.to }
-            } else {
-                marketItems.sortedBy { it.from + it.to }
+                symbols?.find {
+                    it.id == tiker.symbol
+                }?.let { symbol ->
+                    MarketItem(symbol.baseCurrency, symbol.quoteCurrency,
+                            tiker.volume ?: 0.0, tiker.last,
+                            getUSDForPriceCurrency(symbol.baseCurrency), change)
+                }
+            }.let { marketItems ->
+                adapter.submitList(listOf(MarketTitleItem(sortField)) + when (sortField) {
+                    0 -> if (sortDirection) {
+                        marketItems.sortedByDescending { it.from + it.to }
+                    } else {
+                        marketItems.sortedBy { it.from + it.to }
+                    }
+                    1 -> if (sortDirection) {
+                        marketItems.sortedByDescending { it.volume }
+                    } else {
+                        marketItems.sortedBy { it.volume }
+                    }
+                    2 -> if (sortDirection) {
+                        marketItems.sortedByDescending { it.price }
+                    } else {
+                        marketItems.sortedBy { it.price }
+                    }
+                    3 -> if (sortDirection) {
+                        marketItems.sortedByDescending { it.change }
+                    } else {
+                        marketItems.sortedBy { it.change }
+                    }
+                    else -> marketItems
+                })
             }
-            1 -> if (sortDirection) {
-                marketItems.sortedByDescending { it.volume }
-            } else {
-                marketItems.sortedBy { it.volume }
-            }
-            2 -> if (sortDirection) {
-                marketItems.sortedByDescending { it.price }
-            } else {
-                marketItems.sortedBy { it.price }
-            }
-            3 -> if (sortDirection) {
-                marketItems.sortedByDescending { it.change }
-            } else {
-                marketItems.sortedBy { it.change }
-            }
-            else -> marketItems
-        }
-        adapter.submitList(listOf(MarketTitleItem(sortField)) + marketItems)
+        }, { code, msg -> ErrorHandler(requireContext()).handle(msg) }, {})
     }
 
     private fun getUSDForPriceCurrency(currency: String): Double? =
