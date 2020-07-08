@@ -8,7 +8,6 @@ import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,7 +44,10 @@ import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.*
 import kotlin.math.pow
+import kotlin.math.truncate
+import kotlin.concurrent.schedule
 
 
 class ExchangeFragment : Fragment() {
@@ -260,47 +262,45 @@ class ExchangeFragment : Fragment() {
         clOrderRejected.visibility = View.GONE
 
         val currency = youSend.currencySymbol
-        val amount = youSend.valueAsBigDecimal
+        val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
+                youSend.currencySymbol)
+        val amount = youSend.valueAsBigDecimal * (BigDecimal.ONE + BigDecimal(symbol!!.takeLiquidityRate))
         val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available
                 ?: "0")
+        val side = if (youGet.currencySymbol == symbol.baseCurrency) "buy" else "sell"
+        val quantity = youGet.toPlainString()
         if (tradingBalance < amount) {
-            val lackAmount = amount - tradingBalance
+            val lackAmount = (amount - tradingBalance).setScale(youSend.type.unitExponent, BigDecimal.ROUND_UP)
             //val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
             val lackAmountString = lackAmount.toString()
             loader(true)
             Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
                     Transaction.Type.bankToExchange.value, {
-                // update balance after exchange
                 requestBalances()
-                // place market order
-                val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
-                var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
-                val quantity = youGet.toPlainString()
-                Log.i("asda", "side $side, symbol $symbol, quantity $quantity")
-                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
-                        side, quantity, "", "market", "", "",
-                        "", null, false, false, {
-                    loader(false)
-                    requireActivity().runOnUiThread {
-                        showSummary()
-                        requestBalances()
-                    }
-                }, { code, error ->
-                    ErrorHandler(requireContext()).handle(error)
-                    requireActivity().runOnUiThread {
-                        clOrderRejected.visibility = View.VISIBLE
-                    }
-                }, {})
+                // wait for balance update
+                Timer("name", false).schedule(2000) {
+                    // place market order
+                    Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
+                            side, quantity, "", "market", "", "",
+                            "", null, false, false, {
+                        loader(false)
+                        requireActivity().runOnUiThread {
+                            showSummary()
+                            requestBalances()
+                        }
+                    }, { code, error ->
+                        ErrorHandler(requireContext()).handle(error)
+                        requireActivity().runOnUiThread {
+                            clOrderRejected.visibility = View.VISIBLE
+                        }
+                    }, {})
+                }
             }, { code, error ->
                 ErrorHandler(requireContext()).handle(error)
             }, {
                 loader(false)
             })
         } else {
-            val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)
-            val quantity = youGet.toPlainString()
-            var side = if (youGet.currencySymbol == symbol!!.baseCurrency) "buy" else "sell"
-            Log.i("asda", "side $side, symbol $symbol, quantity $quantity")
             Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
                     side, quantity, "", "market", "", "",
                     "", null, false, false, {
@@ -392,17 +392,8 @@ class ExchangeFragment : Fragment() {
         // conform youGet with quantityIncrement
         // val cuttedYouGet = truncate((youGet.valueAsBigDecimal / BigDecimal(symbol.quantityIncrement)).toDouble()).toBigDecimal() * BigDecimal(symbol.quantityIncrement)
 
-        var price = youSend.valueAsBigDecimal / youGet.valueAsBigDecimal
-        // HACK: price that was calculated on our side 0.024964, on theirs - 0.024965
-        price += BigDecimal("0.000001")
         val takeLiquidityRate = BigDecimal(symbol.takeLiquidityRate)
-        Log.i("asda", "price: $price, youSend.valueAsBigDecimal: ${youSend.valueAsBigDecimal}," +
-                "youGet.valueAsBigDecimal: ${youGet.valueAsBigDecimal}, takeLiquidityRate: $takeLiquidityRate," +
-                "price * youGet.valueAsBigDecimal: ${price * youGet.valueAsBigDecimal}," +
-                "price * youGet.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate): " +
-                "${price * youGet.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate)}," +
-                "available.valueAsBigDecimal: ${available.valueAsBigDecimal}")
-        return available.valueAsBigDecimal > price * youGet.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate)
+        return available.valueAsBigDecimal > youSend.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate)
     }
 
     companion object {
