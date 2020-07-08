@@ -3,11 +3,15 @@ package com.mycelium.bequant.remote.repositories
 import android.app.Activity
 import com.google.gson.Gson
 import com.mycelium.bequant.Constants
+import com.mycelium.bequant.Constants.LAST_SYMBOLS_UPDATE
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.PublicApi
 import com.mycelium.bequant.remote.trading.model.*
+import com.mycelium.bequant.remote.trading.model.Currency
 import com.mycelium.wallet.WalletApplication
 import kotlinx.coroutines.CoroutineScope
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class PublicApiRespository {
 
@@ -78,12 +82,16 @@ class PublicApiRespository {
     private var publicSymbols: Array<Symbol>
         get() = Gson().fromJson(preference.getString("symbols", "[]"), Array<Symbol>::class.java)
         set(value) {
-            preference.edit().putString("symbols", Gson().toJson(value)).apply()
+            preference.edit()
+                    .putString("symbols", Gson().toJson(value))
+                    .putLong(LAST_SYMBOLS_UPDATE, Date().time)
+                    .apply()
         }
 
     fun publicSymbolGet(scope: CoroutineScope, symbols: String?,
                         success: (Array<Symbol>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
-        if (publicSymbols.isNotEmpty()) {
+        if (publicSymbols.isNotEmpty()
+                && TimeUnit.MILLISECONDS.toDays(Date().time - preference.getLong(LAST_SYMBOLS_UPDATE, 0)) < 7) {
             if (symbols == null) {
                 success.invoke(publicSymbols)
             } else {
