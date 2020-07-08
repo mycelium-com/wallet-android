@@ -28,10 +28,7 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
-import com.mycelium.bequant.common.BlurBuilder
-import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.assetInfoById
-import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
@@ -209,7 +206,9 @@ class ExchangeFragment : Fragment() {
             viewModel.youGet.value = tempValue
             updateAvailable()
         }
-        deposit.setOnClickListener { findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit")) }
+        deposit.setOnClickListener {
+            findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
+        }
         btContactSupport.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
