@@ -40,7 +40,9 @@ class PendingFragment : Fragment(R.layout.fragment_bequant_kyc_final_pending) {
                 , ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE_EDITABLE)))
         stepAdapter.clickListener = {
             when (it) {
-                4 -> findNavController().navigate(PendingFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
+                4 -> findNavController().navigate(PendingFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest().apply {
+                    isResubmit = true
+                }))
             }
         }
         val submitDate = BequantPreference.getKYCSubmitDate()

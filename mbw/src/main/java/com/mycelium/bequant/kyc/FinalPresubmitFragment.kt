@@ -79,7 +79,6 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
             })
         }
         if (!kycRequest.isResubmit) {
-            kycRequest.isResubmit = true
             title.text = getString(R.string.thank_you_for_completing_the_application_form)
             subtitle1.text = getString(R.string.if_you_are_happy_with_the_content_please_submit_your_application_by_pressing_the_submit_button)
             subtitle2.text = getString(R.string.we_will_notify_you_of_the_outcome_of_the_application_as_soon_as_we_review_your_information_thank_you_for_your_patience)

@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.activity_bequant_market.*
+import kotlinx.android.synthetic.main.activity_bequant_kyc.*
 
 
 class BequantKycActivity : AppCompatActivity(R.layout.activity_bequant_kyc) {

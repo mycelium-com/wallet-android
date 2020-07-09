@@ -81,7 +81,7 @@ class Step4Fragment : Fragment() {
             viewModel.nextButton.value = viewModel.isValid()
         }
         identityAdapter.submitList(kycRequest.identityList.map {
-            Document(BitmapFactory.decodeFile(it), "Doc ${++counter}", KYCDocument.PASSPORT, it,
+            Document(BitmapFactory.decodeFile(it, bitmapOptions), "Doc ${++counter}", KYCDocument.PASSPORT, it,
                     progress = 100, loadStatus = LoadStatus.LOADED)
         })
         identityAdapter.removeListner = {
@@ -97,7 +97,7 @@ class Step4Fragment : Fragment() {
             viewModel.nextButton.value = viewModel.isValid()
         }
         proofAddressAdapter.submitList(kycRequest.poaList.map {
-            Document(BitmapFactory.decodeFile(it), "Doc ${++counter}", KYCDocument.POA, it)
+            Document(BitmapFactory.decodeFile(it, bitmapOptions), "Doc ${++counter}", KYCDocument.POA, it)
         })
         proofAddressAdapter.removeListner = {
             removeDialog { kycRequest.poaList.remove(it.name) }
@@ -112,7 +112,7 @@ class Step4Fragment : Fragment() {
             viewModel.nextButton.value = viewModel.isValid()
         }
         selfieAdapter.submitList(kycRequest.selfieList.map {
-            Document(BitmapFactory.decodeFile(it), "Doc ${++counter}", KYCDocument.SELFIE, it)
+            Document(BitmapFactory.decodeFile(it, bitmapOptions), "Doc ${++counter}", KYCDocument.SELFIE, it)
         })
         selfieAdapter.removeListner = {
             removeDialog { kycRequest.selfieList.remove(it.name) }
@@ -190,7 +190,7 @@ class Step4Fragment : Fragment() {
 
     private fun uploadImage(data: Intent?, adapter: DocumentAdapter, docType: KYCDocument, requestList: MutableList<String>) {
         (if (data?.data != null) getFileFromGallery(data) else DocumentAttachDialog.currentPhotoFile)?.run {
-            val item = Document(BitmapFactory.decodeFile(absolutePath), "Doc ${++counter}", docType, absolutePath)
+            val item = Document(BitmapFactory.decodeFile(absolutePath, bitmapOptions), "Doc ${++counter}", docType, absolutePath)
             adapter.submitList(adapter.currentList + item)
             upload(item, adapter, requestList)
         }
@@ -209,6 +209,7 @@ class Step4Fragment : Fragment() {
             }
 
     companion object {
+        val bitmapOptions = BitmapFactory.Options().apply { inSampleSize = 3; }
         const val REQUEST_CODE_INDENTITY = 1001
         const val REQUEST_CODE_PROOF_ADDRESS = 1002
         const val REQUEST_CODE_SELFIE = 1003

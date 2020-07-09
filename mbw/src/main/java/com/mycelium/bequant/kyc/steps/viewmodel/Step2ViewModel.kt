@@ -34,9 +34,6 @@ class Step2ViewModel : ViewModel() {
         if (addressLine1.value?.trim()?.isNotEmpty() != true) {
             return false
         }
-        if (addressLine2.value?.trim()?.isNotEmpty() != true) {
-            return false
-        }
         if (city.value?.trim()?.isNotEmpty() != true) {
             return false
         }
