@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -50,6 +51,12 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         search.doOnTextChanged { text, start, count, after ->
             updateList(text?.toString()?.trim() ?: "")
         }
+        search.setOnEditorActionListener { textView, i, keyEvent ->
+            updateList(search.text?.toString()?.trim() ?: "")
+            (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS)
+            true
+        }
         requestTickers()
     }
 
@@ -67,8 +74,12 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
 
     private fun updateList(filter: String = "") {
         val filteredTickers = tickersData
-                .filter { c -> !CurrencyCode.values().any { code -> c.symbol.contains(code.shortString, true) } }
-                .filter { if (filter.isNotEmpty()) it.symbol.contains(filter, true) else true }
+                .filter { ticker ->
+                    if (filter.isNotEmpty())
+                        filter.split(" ", "/").filter { it.trim().isNotEmpty() }
+                                .all { ticker.symbol.contains(it, true) }
+                    else true
+                }
         Api.publicRepository.publicSymbolGet(viewLifecycleOwner.lifecycleScope,
                 filteredTickers.joinToString(",") { it.symbol }, { symbols: Array<Symbol>? ->
             filteredTickers.mapNotNull { tiker ->
@@ -82,6 +93,10 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                     MarketItem(symbol.baseCurrency, symbol.quoteCurrency,
                             tiker.volume ?: 0.0, tiker.last,
                             getUSDForPriceCurrency(symbol.baseCurrency), change)
+                }
+            }.filter { c ->
+                !CurrencyCode.values().any { code ->
+                    c.from.equals(code.shortString, true) || c.to.equals(code.shortString, true)
                 }
             }.let { marketItems ->
                 adapter.submitList(listOf(MarketTitleItem(sortField)) + when (sortField) {
