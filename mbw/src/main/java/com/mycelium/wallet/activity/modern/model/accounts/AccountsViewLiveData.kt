@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.annotation.SuppressLint
 import android.os.AsyncTask
-import android.util.Log
 import com.mycelium.bequant.InvestmentAccount
 import androidx.lifecycle.LiveData
 import com.mycelium.bequant.BQExchangeRateManager
@@ -12,14 +11,13 @@ import com.mycelium.bequant.remote.trading.api.AccountApi
 import com.mycelium.bequant.remote.trading.api.PublicApi
 import com.mycelium.bequant.remote.trading.api.TradingApi
 import com.mycelium.bequant.remote.trading.model.Balance
-import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
-import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.GenericAddress
@@ -161,7 +159,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                                     (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger()))
                         }
 
-                        AccountInvestmentViewModel(it, BequantPreference.getMockCastodialBalance().toString())
+                        AccountInvestmentViewModel(it, BequantPreference.getMockCastodialBalance().toStringWithUnit())
                     } else AccountViewModel(it, mbwManager)
                 }
 
