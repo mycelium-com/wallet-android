@@ -9,7 +9,6 @@ import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +42,7 @@ import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
+import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.view.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
@@ -327,9 +327,30 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun showSummary() {
+        val youSend = viewModel.youSend.value!!
+        val youGet = viewModel.youGet.value!!
+        val available = viewModel.available.value!!
+        val oldAmountGetBigDecimal = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == youGet.currencySymbol }?.available
+                ?: "0") + BigDecimal(viewModel.accountBalances.value?.find { it.currency == youGet.currencySymbol }?.available
+                ?: "0")
+        val oldAmountGetValue = Value.valueOf(youGet.type, (oldAmountGetBigDecimal * 10.0.pow(youGet.type.unitExponent).toBigDecimal()).toBigInteger())
+        val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
+        val destPrice = BQExchangeRateManager.get(singleCoin, youGet.type)
+
         val dialogBuilder = AlertDialog.Builder(requireContext(), R.style.Theme_D1NoTitleDim)
-        val customLayout = layoutInflater.inflate(R.layout.dialog_bequant_exchange_summary, null)
-        dialogBuilder.setView(customLayout)
+        layoutInflater.inflate(R.layout.dialog_bequant_exchange_summary, null).apply {
+            amountSend.text = youSend.toStringWithUnit()
+            oldAmountSend.text = available.toStringWithUnit()
+            newAmountSend.text = (available - youSend).toStringWithUnit()
+            amountGet.text = "+ ${youGet.toStringWithUnit()}"
+            oldAmountGet.text = oldAmountGetValue.toStringWithUnit()
+            newAmountGet.text = (oldAmountGetValue + youGet).toStringWithUnit()
+            exchangeRate.text = destPrice?.let {
+                "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}"
+            } ?: ""
+            dialogBuilder.setView(this)
+        }
+
         val dialog = dialogBuilder.create()
         val blurredBg = BitmapDrawable(resources, BlurBuilder.blur(requireActivity()))
         dialog.window.setBackgroundDrawable(blurredBg)
