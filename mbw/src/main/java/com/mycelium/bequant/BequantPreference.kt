@@ -75,11 +75,11 @@ object BequantPreference {
         preference.edit().putBoolean(Constants.HIDE_ZERO_BALANCE_KEY, checked).apply()
     }
 
-    fun setMockCastodialBalance(value: Value) {
+    fun setLastKnownBalance(value: Value) {
         preference.edit().putString("balance", value.valueAsBigDecimal.toString()).apply()
     }
 
-    fun getMockCastodialBalance() = Value.parse(Utils.getBtcCoinType(),
+    fun getLastKnownBalance() = Value.parse(Utils.getBtcCoinType(),
             preference.getString("balance", "0") ?: "0")
 
     fun getKYCRequest() =

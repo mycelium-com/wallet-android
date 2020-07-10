@@ -1,17 +1,31 @@
 package com.mycelium.bequant
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mycelium.bequant.common.assetInfoById
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import kotlinx.coroutines.runBlocking
+import java.math.BigDecimal
 import java.util.*
+import kotlin.math.pow
 
 
 class InvestmentAccount : WalletAccount<BtcAddress> {
-    private val id = UUID.randomUUID()
+    private val id = UUID.nameUUIDFromBytes("bequant_account".toByteArray())
+
+    private var cachedBalance = Balance(BequantPreference.getLastKnownBalance(),
+            Value.zeroValue(Utils.getBtcCoinType()),
+            Value.zeroValue(Utils.getBtcCoinType()),
+            Value.zeroValue(Utils.getBtcCoinType()))
+
+    @Volatile
+    protected var syncing = false
+
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("Not yet implemented")
@@ -33,13 +47,13 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun getReceiveAddress(): GenericAddress = Utils.getBtcCoinType().parseAddress("2MvQpPibRGyNeV3jraAQnTZGHN23P5vRbhL")
+    override fun getReceiveAddress(): GenericAddress? = null
 
     override fun getCoinType(): CryptoCurrency = Utils.getBtcCoinType()
 
     override fun getBasedOnCoinType(): CryptoCurrency = Utils.getBtcCoinType()
 
-    override fun getAccountBalance(): Balance = Balance.getZeroBalance(Utils.getBtcCoinType())
+    override fun getAccountBalance(): Balance = cachedBalance
 
     override fun isMineAddress(address: GenericAddress?): Boolean = false
 
@@ -74,9 +88,52 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun synchronize(mode: SyncMode?): Boolean = true
+    override fun synchronize(mode: SyncMode?): Boolean {
+        syncing = true
+        val totalBalances = mutableListOf<com.mycelium.bequant.remote.trading.model.Balance>()
+        runBlocking {
+            Api.accountRepository.accountBalanceGet(this, { data ->
+                totalBalances.addAll(data?.toList() ?: emptyList())
+            }, { code, msg -> }, {})
+            Api.tradingRepository.tradingBalanceGet(this, { data ->
+                totalBalances.addAll(data?.toList() ?: emptyList())
+            }, { code, msg -> }, {})
+        }
+        var btcTotal = BigDecimal.ZERO
+        for ((currency, balances) in totalBalances.groupBy { it.currency }) {
+            val currencySum = balances.map {
+                BigDecimal(it.available) + BigDecimal(it.reserved)
+            }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
 
-    override fun getBlockChainHeight(): Int  = 0
+            if (currencySum == BigDecimal.ZERO) continue
+            if (currency!!.toUpperCase() == "BTC") {
+                btcTotal += currencySum
+                continue
+            }
+
+            lateinit var currencyInfo: com.mycelium.bequant.remote.trading.model.Currency
+            runBlocking {
+                Api.publicRepository.publicCurrencyCurrencyGet(this, currency, { response ->
+                    currencyInfo = response!!
+                }, { code, msg -> }, {})
+            }
+
+            val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
+                    (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
+            val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
+            btcTotal += converted ?: BigDecimal.ZERO
+        }
+        val balance = Value.valueOf(Utils.getBtcCoinType(), (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger())
+        BequantPreference.setLastKnownBalance(balance)
+        cachedBalance = Balance(balance,
+                Value.zeroValue(Utils.getBtcCoinType()),
+                Value.zeroValue(Utils.getBtcCoinType()),
+                Value.zeroValue(Utils.getBtcCoinType()))
+        syncing = false
+        return true
+    }
+
+    override fun getBlockChainHeight(): Int = 0
 
     override fun canSpend(): Boolean = true
 

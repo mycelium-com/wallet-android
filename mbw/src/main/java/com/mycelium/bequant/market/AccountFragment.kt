@@ -18,13 +18,11 @@ import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
-import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.HIDE_VALUE
 import com.mycelium.bequant.Constants.TYPE_ITEM
 import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
@@ -80,7 +78,7 @@ class AccountFragment : Fragment() {
             findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
         }
 
-        estBalanceCurrency.text = BequantPreference.getMockCastodialBalance().currencySymbol
+        estBalanceCurrency.text = BequantPreference.getLastKnownBalance().currencySymbol
         hideZeroBalance.isChecked = BequantPreference.hideZeroBalance()
         hideZeroBalance.setOnCheckedChangeListener { _, checked ->
             BequantPreference.setHideZeroBalance(checked)
@@ -99,9 +97,9 @@ class AccountFragment : Fragment() {
                 viewModel.totalBalance.value = HIDE_VALUE
                 viewModel.totalBalanceFiat.value = "~$HIDE_VALUE"
             } else {
-                viewModel.totalBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
+                viewModel.totalBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
                 viewModel.totalBalanceFiat.value = mbwManager.exchangeRateManager
-                        .get(BequantPreference.getMockCastodialBalance(), FiatType("USD"))?.toStringWithUnit(Denomination.UNIT)
+                        .get(BequantPreference.getLastKnownBalance(), FiatType("USD"))?.toStringWithUnit(Denomination.UNIT)
             }
             updateList()
         })

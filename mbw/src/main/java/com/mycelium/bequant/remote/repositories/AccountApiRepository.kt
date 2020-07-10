@@ -18,7 +18,7 @@ class AccountApiRepository {
     }
 
     fun accountBalanceGet(scope: CoroutineScope,
-                          success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
+                          success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.accountBalanceGet()
         }, successBlock = success, errorBlock = error, finallyBlock = finally)

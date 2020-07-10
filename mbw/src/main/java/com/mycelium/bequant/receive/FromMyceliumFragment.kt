@@ -150,7 +150,7 @@ class FromMyceliumFragment : Fragment() {
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
         }
-        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
+        viewModel.castodialBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
     }
 
     override fun onDestroy() {
