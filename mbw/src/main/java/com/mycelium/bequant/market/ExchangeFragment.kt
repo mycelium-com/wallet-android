@@ -47,6 +47,7 @@ import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.util.*
 import kotlin.math.pow
 import kotlin.concurrent.schedule
@@ -371,8 +372,13 @@ class ExchangeFragment : Fragment() {
 
     private fun calculateReceiveValue() {
         viewModel.youSend.value?.let { youSendValue ->
-            viewModel.youGet.value = BQExchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
+            val youSend = viewModel.youSend.value!!
+            val youGet = viewModel.youGet.value!!
+            val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
+                    youSend.currencySymbol)
+            var expected = BQExchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
                     ?: Value.zeroValue(viewModel.youGet.value!!.type)
+            viewModel.youGet.value = Value.parse(youGet.type, expected.valueAsBigDecimal.setScale(symbol!!.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
         }
     }
 
