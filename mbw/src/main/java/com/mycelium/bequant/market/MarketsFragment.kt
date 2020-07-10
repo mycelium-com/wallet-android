@@ -54,7 +54,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         search.setOnEditorActionListener { textView, i, keyEvent ->
             updateList(search.text?.toString()?.trim() ?: "")
             (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS)
+                    .hideSoftInputFromWindow(search.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
             true
         }
         requestTickers()

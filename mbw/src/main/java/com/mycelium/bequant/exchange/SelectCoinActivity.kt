@@ -1,16 +1,21 @@
 package com.mycelium.bequant.exchange
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.market.ExchangeFragment
 import com.mycelium.bequant.market.adapter.SelectCoinFragmentAdapter
 import com.mycelium.wallet.R
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import kotlinx.android.synthetic.main.activity_bequant_exchange_select_coin.*
 
 
 class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_select_coin) {
+    val youSendYouGetPair = MutableLiveData<Pair<GenericAssetInfo, GenericAssetInfo>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,11 +28,18 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
             }
         }.attach()
         pager.setCurrentItem(intent.getIntExtra(ExchangeFragment.PARENT, 0), true)
+        youSendYouGetPair.value = intent.getSerializableExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR) as Pair<GenericAssetInfo, GenericAssetInfo>
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_back_arrow))
             setTitle(R.string.exchange)
+        }
+        done.setOnClickListener {
+            val result = Intent()
+            result.putExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR, youSendYouGetPair.value)
+            setResult(Activity.RESULT_OK, result)
+            finish()
         }
     }
 

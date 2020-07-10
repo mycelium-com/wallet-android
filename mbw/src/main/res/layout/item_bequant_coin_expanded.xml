@@ -32,4 +32,28 @@
         app:layout_constraintStart_toEndOf="@+id/coinId"
         tools:text="Bitcoin" />
 
+    <ImageView
+        android:id="@+id/yellowArrow"
+        android:layout_width="10.67dp"
+        android:layout_height="10.67dp"
+        android:layout_marginEnd="26.67dp"
+        android:rotation="180"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_bequant_arrow_up" />
+
+    <ImageView
+        android:id="@+id/grayArrow"
+        android:layout_width="10.67dp"
+        android:layout_height="10.67dp"
+        android:layout_marginEnd="26.67dp"
+        android:rotation="-90"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_bequant_arrow_back" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

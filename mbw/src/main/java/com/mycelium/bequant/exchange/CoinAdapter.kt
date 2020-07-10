@@ -3,15 +3,19 @@ package com.mycelium.bequant.exchange
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.model.CoinListItem
+import com.mycelium.bequant.exchange.SelectCoinFragment.Companion.SEND
 import com.mycelium.wallet.R
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
 
 
-class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
+class CoinAdapter(private val role: String, var youSendYouGetPair: MutableLiveData<Pair<GenericAssetInfo, GenericAssetInfo>>)
+    : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 TYPE_SEARCH -> {
@@ -33,12 +37,33 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
 //                searchHolder.itemView.search.text =
             }
             TYPE_ITEM -> {
-//                item as MarketItem
-//                holder.itemView.currencies.text = item.currencies
-//                holder.itemView.volume.text = item.volume
-//                val itemHolder = holder as ItemViewHolder
                 holder.itemView.coinId.text = item.coin?.symbol
                 holder.itemView.coinFullName.text = item.coin?.name
+                if (item.coin?.symbol == youSendYouGetPair.value!!.first.symbol) {
+                    holder.itemView.grayArrow.visibility = View.VISIBLE
+                    holder.itemView.yellowArrow.visibility = View.GONE
+                } else if (item.coin?.symbol == youSendYouGetPair.value!!.second.symbol) {
+                    holder.itemView.grayArrow.visibility = View.GONE
+                    holder.itemView.yellowArrow.visibility = View.VISIBLE
+                } else {
+                    holder.itemView.grayArrow.visibility = View.GONE
+                    holder.itemView.yellowArrow.visibility = View.GONE
+                }
+                holder.itemView.setOnClickListener {
+                    youSendYouGetPair.value = if (role == SEND) {
+                        if (item.coin?.symbol != youSendYouGetPair.value!!.second.symbol) {
+                            Pair(item.coin!!, youSendYouGetPair.value!!.second)
+                        } else {
+                            Pair(youSendYouGetPair.value!!.second, youSendYouGetPair.value!!.first)
+                        }
+                    } else {
+                        if (item.coin?.symbol != youSendYouGetPair.value!!.first.symbol) {
+                            Pair(youSendYouGetPair.value!!.first, item.coin!!)
+                        } else {
+                            Pair(youSendYouGetPair.value!!.second, youSendYouGetPair.value!!.first)
+                        }
+                    }
+                }
             }
         }
     }

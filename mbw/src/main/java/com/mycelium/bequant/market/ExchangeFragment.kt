@@ -1,5 +1,6 @@
 package com.mycelium.bequant.market
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -8,6 +9,7 @@ import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +40,7 @@ import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
@@ -46,7 +49,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
 import kotlin.math.pow
-import kotlin.math.truncate
 import kotlin.concurrent.schedule
 
 
@@ -189,12 +191,16 @@ class ExchangeFragment : Fragment() {
             updateYouSend(100)
         })
         sendSymbolLayout.setOnClickListener {
+            val youSendYouGetPair = Pair(viewModel.youSend.value!!.type, viewModel.youGet.value!!.type)
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
-                    .putExtra(PARENT, YOU_SEND), REQUEST_CODE_EXCHANGE_COINS)
+                    .putExtra(PARENT, YOU_SEND)
+                    .putExtra(YOU_SEND_YOU_GET_PAIR, youSendYouGetPair), REQUEST_CODE_EXCHANGE_COINS)
         }
         getSymbolLayout.setOnClickListener {
+            val youSendYouGetPair = Pair(viewModel.youSend.value!!.type, viewModel.youGet.value!!.type)
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java)
-                    .putExtra(PARENT, YOU_GET), REQUEST_CODE_EXCHANGE_COINS)
+                    .putExtra(PARENT, YOU_GET)
+                    .putExtra(YOU_SEND_YOU_GET_PAIR, youSendYouGetPair), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
             // TODO add check that KYC has been passed or show BequantKycActivity
@@ -396,8 +402,17 @@ class ExchangeFragment : Fragment() {
         return available.valueAsBigDecimal > youSend.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE_EXCHANGE_COINS && resultCode == Activity.RESULT_OK) {
+            val youSendYouGetPair = data?.getSerializableExtra(YOU_SEND_YOU_GET_PAIR) as Pair<GenericAssetInfo, GenericAssetInfo>
+            viewModel.youSend.value = Value.zeroValue(youSendYouGetPair.first)
+            viewModel.youGet.value = Value.zeroValue(youSendYouGetPair.second)
+        }
+    }
+
     companion object {
         const val PARENT = "parent"
+        const val YOU_SEND_YOU_GET_PAIR = "youSendYouGetPair"
         const val YOU_SEND = 0
         const val YOU_GET = 1
     }
