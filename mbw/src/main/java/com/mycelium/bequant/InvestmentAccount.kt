@@ -67,26 +67,21 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<GenericTransactionSummary> {
-        TODO("Not yet implemented")
-    }
+    override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<GenericTransactionSummary> =
+            mutableListOf()
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> {
-        TODO("Not yet implemented")
-    }
+    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> =
+            mutableListOf()
 
-    override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
-        TODO("Not yet implemented")
-    }
+    override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> =
+            mutableListOf()
 
     override fun getLabel(): String = "Investment Account"
 
     override fun setLabel(label: String?) {
     }
 
-    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean = false
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
@@ -161,7 +156,6 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun broadcastOutgoingTransactions(): Boolean = false
 
     override fun removeAllQueuedTransactions() {
-        TODO("Not yet implemented")
     }
 
     override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: BtcAddress?): Value {

@@ -828,7 +828,10 @@ public class MbwManager {
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
 
-        walletManager.add(new InvestmentModule(getMetadataStorage()));
+        // need one account in WM
+        if(masterSeedManager.hasBip32MasterSeed()) {
+            walletManager.add(new InvestmentModule(getMetadataStorage()));
+        }
         walletManager.init();
         return walletManager;
     }
