@@ -45,6 +45,7 @@ import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.view.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
+import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -391,15 +392,20 @@ class ExchangeFragment : Fragment() {
         }
     }
 
-    private fun calculateReceiveValue() {
+    private fun calculateReceiveValue(attemptsLeft: Int = 3) {
         viewModel.youSend.value?.let { youSendValue ->
             val youSend = viewModel.youSend.value!!
             val youGet = viewModel.youGet.value!!
             val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
                     youSend.currencySymbol)
-            var expected = BQExchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
-                    ?: Value.zeroValue(viewModel.youGet.value!!.type)
-            viewModel.youGet.value = Value.parse(youGet.type, expected.valueAsBigDecimal.setScale(symbol!!.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+            if (symbol != null) {
+                val expected = BQExchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
+                        ?: Value.zeroValue(viewModel.youGet.value!!.type)
+                viewModel.youGet.value = Value.parse(youGet.type, expected.valueAsBigDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+            } else if (attemptsLeft > 0) {
+                Timer("timer", false).schedule(1000) {
+                    requireActivity().runOnUiThread { calculateReceiveValue(attemptsLeft - 1)} }
+            }
         }
     }
 
