@@ -2,6 +2,7 @@ package com.mycelium.bequant.remote
 
 import com.mycelium.bequant.remote.model.*
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -19,8 +20,8 @@ interface BequantKYCApiService {
     @Multipart
     @POST("eapi/applicant/fileupload")
     suspend fun uploadFile(@Query("uuid") uuid: String,
-                           @Query("id-doc-type") type: KYCDocument,
-                           @Query("country-iso-3166-3") country: String,
+                           @Part("id-doc-type") type: RequestBody,
+                           @Part("country-iso-3166-3") country: RequestBody,
                            @Part file: MultipartBody.Part): Response<KYCResponse>
 
     @GET("eapi/applicant/status")

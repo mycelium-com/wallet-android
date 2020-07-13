@@ -11,20 +11,21 @@ class Step1ViewModel : ViewModel() {
     val lastName = MutableLiveData<String>()
     val birthday = MutableLiveData<Date>()
     val nationality = MutableLiveData<String>()
+    val nationalityAcronum = MutableLiveData<String>()
     val nextButton = MutableLiveData<Boolean>()
 
     fun fromModel(kyc: KYCRequest) {
         firstName.value = kyc.first_name
         lastName.value = kyc.last_name
         birthday.value = kyc.birthday
-        nationality.value = kyc.nationality
+        nationalityAcronum.value = kyc.nationality
     }
 
     fun fillModel(kyc: KYCRequest) {
         kyc.first_name = firstName.value
         kyc.last_name = lastName.value
         kyc.birthday = birthday.value
-        kyc.nationality = nationality.value
+        kyc.nationality = nationalityAcronum.value
     }
 
     fun isValid(): Boolean {

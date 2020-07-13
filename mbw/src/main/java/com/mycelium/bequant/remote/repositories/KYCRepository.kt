@@ -11,13 +11,16 @@ import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.model.*
 import kotlinx.coroutines.CoroutineScope
+import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.File
+import java.text.SimpleDateFormat
 
 
 class KYCRepository {
@@ -68,7 +71,9 @@ class KYCRepository {
             val fileBody = ProgressRequestBody(file, "image")
             fileBody.progressListener = progress
             val multipartBody = MultipartBody.Part.createFormData("file", file.name, fileBody)
-            service.uploadFile(BequantPreference.getKYCToken(), type, "ITA", multipartBody)
+            val typeBody = RequestBody.create(MediaType.parse("text/plain"), type.toString())
+            val country = RequestBody.create(MediaType.parse("text/plain"), "ITA")
+            service.uploadFile(BequantPreference.getKYCToken(), typeBody, country, multipartBody)
         }, { response ->
             success.invoke()
         }, { code, msg ->
@@ -83,7 +88,9 @@ class KYCRepository {
             fileMap.forEach {
                 val fileBody = ProgressRequestBody(it.key, "image")
                 val multipartBody = MultipartBody.Part.createFormData("file", it.key.name, fileBody)
-                result = service.uploadFile(BequantPreference.getKYCToken(), it.value, "ITA", multipartBody)
+                val type = RequestBody.create(MediaType.parse("text/plain"), it.value.toString())
+                val country = RequestBody.create(MediaType.parse("text/plain"), "ITA")
+                result = service.uploadFile(BequantPreference.getKYCToken(), type, country, multipartBody)
             }
             result
         }, { response ->
@@ -114,6 +121,7 @@ class KYCRepository {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
                 .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
+                .setDateFormat(SimpleDateFormat("yyyy-MM-dd"))
 
         val retrofitBuilder by lazy { getBuilder() }
         val service by lazy {
