@@ -113,6 +113,10 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
                 R.id.stepper -> {
                     item.icon = resources.getDrawable(if (stepperLayout.visibility == VISIBLE) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up)
                     stepperLayout.visibility = if (stepperLayout.visibility == VISIBLE) GONE else VISIBLE

@@ -1,6 +1,7 @@
 package com.mycelium.bequant.kyc
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -90,4 +91,12 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
             submitButton.text = getString(R.string.resubmit)
         }
     }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 }

@@ -1,7 +1,6 @@
 package com.mycelium.bequant.kyc
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -24,15 +23,4 @@ class BequantKycActivity : AppCompatActivity(R.layout.activity_bequant_kyc) {
             supportActionBar?.title = it
         })
     }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
-                android.R.id.home -> {
-                    if (!super.onOptionsItemSelected(item)) {
-                        onBackPressed()
-                    }
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
 }
