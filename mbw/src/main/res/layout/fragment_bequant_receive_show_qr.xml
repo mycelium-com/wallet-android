@@ -178,7 +178,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/exo2medium"
-            android:text="@string/only_send_btc_to_this_address"
+            android:text="@{@string/only_send_btc_to_this_address(parentViewModel.currency)}"
             android:textColor="#49505C" />
     </LinearLayout>
 </layout>
