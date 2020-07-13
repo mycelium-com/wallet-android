@@ -150,7 +150,7 @@ class ExchangeFragment : Fragment() {
                 calculateReceiveValue()
             }
             recalculateDestinationPrice()
-            viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
+            //viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
@@ -173,7 +173,7 @@ class ExchangeFragment : Fragment() {
                 calculateSendValue()
             }
             recalculateDestinationPrice()
-            viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
+           // viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
