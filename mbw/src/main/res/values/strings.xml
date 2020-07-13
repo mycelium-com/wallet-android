@@ -1418,7 +1418,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="by_clicking_sign_up_you_agree_to_our_terms_of_use">By clicking Sign Up you agree to our <font color="#F2E868">Terms of Use</font></string>
     <string name="build_version">Build Version %s</string>
     <string name="next">Next</string>
-    <string name="only_send_btc_to_this_address">Only send BTC to this address. Sending any other digital asset will result in permanent loss.</string>
+    <string name="only_send_btc_to_this_address">Only send %s to this address. Sending any other digital asset will result in permanent loss.</string>
     <string name="important_notes">Important Notes</string>
     <string name="deposits_without_destination_tag_will_be_lost">Deposits without Destination Tag will be lost!</string>
     <string name="est_total_balance">Est. Total Balance</string>
