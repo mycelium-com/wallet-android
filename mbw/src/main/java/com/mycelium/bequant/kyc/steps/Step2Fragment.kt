@@ -44,7 +44,10 @@ class Step2Fragment : Fragment() {
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
-            viewModel.country.value = intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.name
+            intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.let {
+                viewModel.country.value = it.name
+                viewModel.countryAcronym.value = it.acronym
+            }
         }
     }
 
