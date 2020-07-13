@@ -74,6 +74,9 @@ class DocumentAttachDialog : BottomSheetDialogFragment() {
         // Create an image file name
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir = File(requireContext().getExternalFilesDir(null), "Pictures")
+        if(!storageDir.exists()) {
+            storageDir.mkdirs()
+        }
         return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir).apply {
             currentPhotoFile = this
         }
