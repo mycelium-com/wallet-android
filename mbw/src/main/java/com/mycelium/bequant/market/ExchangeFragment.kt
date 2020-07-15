@@ -5,10 +5,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Paint
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,13 +48,12 @@ import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.view.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 import kotlinx.android.synthetic.main.layout_value_keyboard.*
-import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
 import java.util.*
-import kotlin.math.pow
 import kotlin.concurrent.schedule
+import kotlin.math.pow
 
 
 class ExchangeFragment : Fragment() {
@@ -342,14 +344,22 @@ class ExchangeFragment : Fragment() {
         layoutInflater.inflate(R.layout.dialog_bequant_exchange_summary, null).apply {
             amountSend.text = youSend.toStringWithUnit()
             oldAmountSend.text = available.toStringWithUnit()
+            oldAmountSend.paintFlags = oldAmountSend.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             newAmountSend.text = (available - youSend).toStringWithUnit()
             amountGet.text = "+ ${youGet.toStringWithUnit()}"
             oldAmountGet.text = oldAmountGetValue.toStringWithUnit()
+            oldAmountGet.paintFlags = oldAmountGet.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             newAmountGet.text = (oldAmountGetValue + youGet).toStringWithUnit()
             exchangeRate.text = destPrice?.let {
                 "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}"
             } ?: ""
             dialogBuilder.setView(this)
+            val youGetEstimated = getString(R.string.bequant_exchange_summary_you_get_estimated)
+            val youGetEstimatedSpanned = SpannableString(youGetEstimated).apply {
+                setSpan(ForegroundColorSpan(resources.getColor(R.color.bequant_gray_6)),
+                        youGetEstimated.indexOf("("), youGetEstimated.indexOf(")") + 1, 0)
+            }
+            tvYouGetEstimated.text = youGetEstimatedSpanned
         }
 
         val dialog = dialogBuilder.create()

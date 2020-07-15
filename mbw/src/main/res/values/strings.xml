@@ -1428,6 +1428,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="we_sent_a_confirmation_email_to">We sent a confirmation email to</string>
     <string name="loading">Loading…</string>
     <string name="thank_you_for_signing_up_with_bequant">Thank you for signing up with Bequant!</string>
+    <string name="bequant_exchange_summary_you_get_estimated">You get (estimated)</string>
     <string name="residence_country">Residence country</string>
     <string name="bequant_password_weak">Weak</string>
     <string name="bequant_password_strong">Strong</string>
