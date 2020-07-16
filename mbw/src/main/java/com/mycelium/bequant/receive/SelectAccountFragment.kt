@@ -52,7 +52,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
         adapter.accountClickListener = { accountItem ->
             val selectedAccount = walletsAccounts.map { it.second }.flatten().find { it.label == accountItem.label }
             val accountData = AccountData(selectedAccount?.label)
-            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent("chooseAccount").putExtra("account", accountData))
+            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(CHOOSE_ACCOUNT_ACTION).putExtra(ACCOUNT_EXTRA, accountData))
             findNavController().popBackStack()
         }
     }
@@ -61,6 +61,10 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
     data class AccountData(val label: String?) : Parcelable
 
     companion object {
+
+        val CHOOSE_ACCOUNT_ACTION = "chooseAccount"
+        val ACCOUNT_EXTRA = "account"
+
         private fun getSpendableBalance(walletAccountList: List<WalletAccount<out GenericAddress>>): ValueSum {
             val sum = ValueSum()
             for (account in walletAccountList) {

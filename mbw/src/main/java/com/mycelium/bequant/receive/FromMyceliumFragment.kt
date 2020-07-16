@@ -54,14 +54,15 @@ class FromMyceliumFragment : Fragment() {
 
     val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val account = intent?.getParcelableExtra<SelectAccountFragment.AccountData>("account")
-            val find = mbwManager.getWalletManager(false).getActiveSpendingAccounts().find { it.label == account?.label }
+            val account = intent?.getParcelableExtra<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_EXTRA)
+            val selectedAccount = mbwManager.getWalletManager(false).getActiveSpendingAccounts().find { it.label == account?.label }
             Handler(Looper.getMainLooper()).post {
-                adapter.submitList(listOf(find))
+                adapter.submitList(listOf(selectedAccount))
             }
         }
 
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(FromMyceliumViewModel::class.java)
@@ -80,11 +81,10 @@ class FromMyceliumFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val mbwManager = MbwManager.getInstance(requireContext())
 
-
         //needs to be updated with better way
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(broadcastReceiver,IntentFilter("chooseAccount"))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(broadcastReceiver, IntentFilter(SelectAccountFragment.CHOOSE_ACCOUNT_ACTION))
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
-            val accounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance()
+            val accounts = mbwManager.getWalletManager(false).getActiveSpendingAccounts()
                     .filter { it.coinType.symbol == coinSymbol }
             adapter.submitList(accounts)
 
@@ -151,6 +151,7 @@ class FromMyceliumFragment : Fragment() {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
         }
         viewModel.castodialBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
+
     }
 
     override fun onDestroy() {
