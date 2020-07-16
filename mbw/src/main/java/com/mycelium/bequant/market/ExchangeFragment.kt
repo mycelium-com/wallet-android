@@ -29,6 +29,7 @@ import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.*
@@ -37,6 +38,7 @@ import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Transaction
 import com.mycelium.view.Denomination
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
@@ -44,6 +46,7 @@ import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.view.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
@@ -81,6 +84,7 @@ class ExchangeFragment : Fragment() {
         BQExchangeRateManager.requestOptionalRefresh()
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
+        MbwManager.getEventBus().register(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -175,7 +179,7 @@ class ExchangeFragment : Fragment() {
                 calculateSendValue()
             }
             recalculateDestinationPrice()
-           // viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
+            // viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
@@ -224,11 +228,21 @@ class ExchangeFragment : Fragment() {
         btContactSupport.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
-        requestBalances()
+    }
+
+    @Subscribe
+    fun tradingBalance(balance: TradingBalance) {
+        viewModel.tradingBalances.value = balance.balances
+    }
+
+    @Subscribe
+    fun tradingBalance(balance: AccountBalance) {
+        viewModel.accountBalances.value = balance.balances
     }
 
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        MbwManager.getEventBus().unregister(this)
         super.onDestroy()
     }
 
@@ -251,18 +265,7 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun requestBalances() {
-        Api.tradingRepository.tradingBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
-            viewModel.tradingBalances.value = arrayOfBalances
-        }, { code, error ->
-            ErrorHandler(requireContext()).handle(error)
-        }, {
-        })
-        Api.accountRepository.accountBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
-            viewModel.accountBalances.value = arrayOfBalances
-        }, { code, error ->
-            ErrorHandler(requireContext()).handle(error)
-        }, {
-        })
+        MbwManager.getEventBus().post(RequestBalance())
     }
 
     private fun makeExchange() {
@@ -414,7 +417,8 @@ class ExchangeFragment : Fragment() {
                 viewModel.youGet.value = Value.parse(youGet.type, expected.valueAsBigDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
             } else if (attemptsLeft > 0) {
                 Timer("timer", false).schedule(1000) {
-                    requireActivity().runOnUiThread { calculateReceiveValue(attemptsLeft - 1)} }
+                    requireActivity().runOnUiThread { calculateReceiveValue(attemptsLeft - 1) }
+                }
             }
         }
     }
