@@ -97,12 +97,13 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/tvYouGetEstimated"
             style="@style/Bequant.TextNormal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="You get (estimated)"
+            android:text="@string/bequant_exchange_summary_you_get_estimated"
             app:layout_constraintTop_toTopOf="@id/view" />
 
         <TextView
