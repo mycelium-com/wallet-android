@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -21,9 +22,11 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
 import com.mycelium.bequant.remote.repositories.Api
-import com.mycelium.bequant.remote.repositories.SignRepository
+import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.sign.SignActivity
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_bequant_main.*
 
 
@@ -42,13 +45,39 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             loader(true)
             Api.signRepository.getApiKeys(lifecycleScope, {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
+                Handler().postDelayed({ requestBalances() }, 2000)
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
             }, finally = {
                 loader(false)
             })
+        } else {
+            requestBalances()
         }
+        MbwManager.getEventBus().register(this)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
+    }
+
+    @Subscribe
+    fun requestBalance(request: RequestBalance) {
+        requestBalances()
+    }
+
+    fun requestBalances() {
+        if (BequantPreference.hasKeys()) {
+            Api.tradingRepository.tradingBalanceGet(lifecycleScope, { arrayOfBalances ->
+                MbwManager.getEventBus().post(TradingBalance(arrayOfBalances ?: arrayOf()))
+            }, { code, error ->
+                ErrorHandler(requireContext()).handle(error)
+            }, {
+            })
+            Api.accountRepository.accountBalanceGet(lifecycleScope, { arrayOfBalances ->
+                MbwManager.getEventBus().post(AccountBalance(arrayOfBalances ?: arrayOf()))
+            }, { code, error ->
+                ErrorHandler(requireContext()).handle(error)
+            }, {
+            })
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -100,3 +129,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         super.onDestroy()
     }
 }
+
+data class TradingBalance(val balances: Array<Balance>)
+data class AccountBalance(val balances: Array<Balance>)
+class RequestBalance

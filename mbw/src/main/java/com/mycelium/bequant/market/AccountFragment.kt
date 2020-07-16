@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +37,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
+import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
 import java.math.BigDecimal
@@ -47,18 +49,12 @@ class AccountFragment : Fragment() {
     var balancesData = mutableListOf<Balance>()
     lateinit var viewModel: AccountViewModel
 
-    val receive = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            requestBalances()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mbwManager = MbwManager.getInstance(requireContext())
         viewModel = ViewModelProviders.of(this).get(AccountViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receive, IntentFilter(Constants.ACTION_BEQUANT_KEYS))
+        MbwManager.getEventBus().register(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -129,7 +125,16 @@ class AccountFragment : Fragment() {
             viewModel.searchMode.value = true
             updateList()
         }
-        requestBalances()
+    }
+
+    @Subscribe
+    fun tradingBalance(balance: TradingBalance) {
+        viewModel.tradingBalances.value = balance.balances
+    }
+
+    @Subscribe
+    fun tradingBalance(balance: AccountBalance) {
+        viewModel.accountBalances.value = balance.balances
     }
 
     private fun updateBalanceData() {
@@ -177,24 +182,9 @@ class AccountFragment : Fragment() {
         viewModel.totalBalanceFiat.value = fiatTotal.setScale(2, BigDecimal.ROUND_CEILING).toPlainString() + " USD"
     }
 
-    override fun onDestroyView() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receive)
-        super.onDestroyView()
-    }
-
-    private fun requestBalances() {
-        Api.tradingRepository.tradingBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
-            viewModel.tradingBalances.value = arrayOfBalances
-        }, { code, error ->
-            ErrorHandler(requireContext()).handle(error)
-        }, {
-        })
-        Api.accountRepository.accountBalanceGet(viewLifecycleOwner.lifecycle.coroutineScope, { arrayOfBalances ->
-            viewModel.accountBalances.value = arrayOfBalances
-        }, { code, error ->
-            ErrorHandler(requireContext()).handle(error)
-        }, {
-        })
+    override fun onDestroy() {
+        MbwManager.getEventBus().unregister(this)
+        super.onDestroy()
     }
 
     private fun updateList(filter: String = "") {

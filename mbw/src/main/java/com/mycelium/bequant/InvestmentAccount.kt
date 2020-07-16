@@ -86,13 +86,16 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         val totalBalances = mutableListOf<com.mycelium.bequant.remote.trading.model.Balance>()
-        runBlocking {
-            Api.accountRepository.accountBalanceGet(this, { data ->
-                totalBalances.addAll(data?.toList() ?: emptyList())
-            }, { code, msg -> }, {})
-            Api.tradingRepository.tradingBalanceGet(this, { data ->
-                totalBalances.addAll(data?.toList() ?: emptyList())
-            }, { code, msg -> }, {})
+        if(BequantPreference.hasKeys()) {
+            runBlocking {
+
+                Api.accountRepository.accountBalanceGet(this, { data ->
+                    totalBalances.addAll(data?.toList() ?: emptyList())
+                }, { code, msg -> }, {})
+                Api.tradingRepository.tradingBalanceGet(this, { data ->
+                    totalBalances.addAll(data?.toList() ?: emptyList())
+                }, { code, msg -> }, {})
+            }
         }
         var btcTotal = BigDecimal.ZERO
         for ((currency, balances) in totalBalances.groupBy { it.currency }) {
