@@ -120,9 +120,10 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:background="@null"
+                android:digits="0123456789."
                 android:fontFamily="@font/exo2medium"
                 android:hint="0"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:text="@={viewModel.amount}"
                 android:textSize="16sp"
                 tools:text="100" />
