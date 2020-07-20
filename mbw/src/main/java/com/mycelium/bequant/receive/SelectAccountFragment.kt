@@ -1,11 +1,9 @@
 package com.mycelium.bequant.receive
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.receive.adapter.AccountAdapter
 import com.mycelium.bequant.receive.adapter.AccountGroupItem
@@ -52,7 +50,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
         adapter.accountClickListener = { accountItem ->
             val selectedAccount = walletsAccounts.map { it.second }.flatten().find { it.label == accountItem.label }
             val accountData = AccountData(selectedAccount?.label)
-            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(CHOOSE_ACCOUNT_ACTION).putExtra(ACCOUNT_EXTRA, accountData))
+            findNavController().previousBackStackEntry?.savedStateHandle?.set(ACCOUNT_KEY, accountData)
             findNavController().popBackStack()
         }
     }
@@ -62,8 +60,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
 
     companion object {
 
-        val CHOOSE_ACCOUNT_ACTION = "chooseAccount"
-        val ACCOUNT_EXTRA = "account"
+        val ACCOUNT_KEY = "chooseAccount"
 
         private fun getSpendableBalance(walletAccountList: List<WalletAccount<out GenericAddress>>): ValueSum {
             val sum = ValueSum()
