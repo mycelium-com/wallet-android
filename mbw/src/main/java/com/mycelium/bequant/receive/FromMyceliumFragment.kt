@@ -68,7 +68,7 @@ class FromMyceliumFragment : Fragment() {
         val mbwManager = MbwManager.getInstance(requireContext())
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)?.observe(viewLifecycleOwner, Observer {
             val account = it
-            val selectedAccount = mbwManager.getWalletManager(false).getActiveSpendingAccounts().find { it.label == account?.label }
+            val selectedAccount = mbwManager.getWalletManager(false).getAllActiveAccounts().find { it.label == account?.label }
             Handler(Looper.getMainLooper()).post {
                 adapter.submitList(listOf(selectedAccount))
             }
@@ -76,7 +76,6 @@ class FromMyceliumFragment : Fragment() {
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
             val accounts = mbwManager.getWalletManager(false).getActiveSpendingAccounts()
                     .filter { it.coinType.symbol == coinSymbol }
-                    .filter { it !is InvestmentAccount }
             adapter.submitList(accounts)
 
             if (mbwManager.hasFiatCurrency() && accounts.isNotEmpty()) {

@@ -16,10 +16,9 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.withdraw.adapter.WithdrawFragmentAdapter
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
+import java.util.*
 
 
 class WithdrawFragment : Fragment() {
@@ -43,19 +42,15 @@ class WithdrawFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadBalance()
-        pager.adapter = WithdrawFragmentAdapter(this, viewModel)
+        pager.adapter = WithdrawFragmentAdapter(this, viewModel, getSupportedByMycelium(args.currency
+                ?:"btc"))
         tabs.setupWithViewPager(pager)
         pager.offscreenPageLimit = 2
         send.setOnClickListener { withdraw() }
     }
 
-    private fun getCryptoCurrency(): CryptoCurrency {
-        return when (args.currency?.toLowerCase()) {
-            "btc" -> Utils.getBtcCoinType()
-            "eth" -> Utils.getEthCoinType()
-            //TODO
-            else -> Utils.getBtcCoinType()
-        }
+    private fun getSupportedByMycelium(currency: String): Boolean {
+        return currency.toLowerCase(Locale.getDefault()) in listOf("eth", "btc")
     }
 
     private fun withdraw() {

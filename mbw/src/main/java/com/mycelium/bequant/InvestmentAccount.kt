@@ -133,7 +133,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun getBlockChainHeight(): Int = 0
 
-    override fun canSpend(): Boolean = true
+    override fun canSpend(): Boolean = false
 
     override fun isSyncing(): Boolean = false
 
