@@ -21,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mrd.bitlib.model.Address
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.InvestmentAccount
 import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
 import com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
@@ -86,6 +87,7 @@ class FromMyceliumFragment : Fragment() {
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
             val accounts = mbwManager.getWalletManager(false).getActiveSpendingAccounts()
                     .filter { it.coinType.symbol == coinSymbol }
+                    .filter { it !is InvestmentAccount }
             adapter.submitList(accounts)
 
             if (mbwManager.hasFiatCurrency() && accounts.isNotEmpty()) {
