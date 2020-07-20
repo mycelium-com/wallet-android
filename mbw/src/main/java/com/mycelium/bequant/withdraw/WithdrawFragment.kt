@@ -18,6 +18,7 @@ import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
+import java.math.BigDecimal
 import java.util.*
 
 
@@ -46,6 +47,12 @@ class WithdrawFragment : Fragment() {
                 ?:"btc"))
         tabs.setupWithViewPager(pager)
         pager.offscreenPageLimit = 2
+        viewModel.amount.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
+            val custodialBalance = viewModel.castodialBalance.value?.toBigDecimalOrNull()
+                    ?: BigDecimal.ZERO
+            send.isEnabled = amount <= custodialBalance && amount > 0.toBigDecimal()
+        })
         send.setOnClickListener { withdraw() }
     }
 
