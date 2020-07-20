@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawAddressViewModel
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.StringHandlerActivity
 import com.mycelium.wallet.activity.util.getAddress
@@ -43,6 +44,9 @@ class WithdrawAddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        pasteFromClipboard.setOnClickListener {
+            viewModel.address.value = Utils.getClipboardString(requireContext())
+        }
         scanQR.setOnClickListener {
             val config = StringHandleConfig().apply {
                 addressAction = AddressAction()
