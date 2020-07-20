@@ -122,7 +122,7 @@
                 android:background="@null"
                 android:fontFamily="@font/exo2medium"
                 android:hint="0"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:text="@={viewModel.amount}"
                 android:textSize="16sp"
                 tools:text="100" />
