@@ -266,7 +266,7 @@
         <activity
             android:name="com.mycelium.bequant.market.BequantMarketActivity"
             android:theme="@style/Bequant"
-            android:windowSoftInputMode="stateHidden|adjustPan|adjustResize" />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity android:name="com.mycelium.bequant.kyc.BequantKycActivity"
                 android:theme="@style/Bequant"/>
         <activity android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
