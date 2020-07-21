@@ -55,7 +55,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
@@ -261,11 +260,6 @@ public class AddAccountActivity extends Activity {
             }
         });
         dialog.show();
-    }
-
-    @OnClick(R.id.btBequantCreate)
-    void onAddInvestmentAccount() {
-        startActivity(new Intent(this, BequantIntroActivity.class));
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
