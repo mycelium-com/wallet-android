@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -146,7 +147,9 @@ class FromMyceliumFragment : Fragment() {
         viewModel.amount.observe(viewLifecycleOwner) {
             val account = adapter.currentList.first()
             val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
-            confirm.isEnabled = amount < account.accountBalance.confirmed.valueAsBigDecimal && amount > 0.toBigDecimal()
+            val enoughAmount = amount < account.accountBalance.confirmed.valueAsBigDecimal && amount > 0.toBigDecimal()
+            edAmount.error = if (enoughAmount) null else getString(R.string.insufficient_funds)
+            confirm.isEnabled = enoughAmount
         }
     }
 

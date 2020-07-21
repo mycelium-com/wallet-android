@@ -27,7 +27,8 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/tilAmount">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -37,6 +38,7 @@
                 android:padding="8dp">
 
                 <EditText
+                    android:id="@+id/edAmount"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
