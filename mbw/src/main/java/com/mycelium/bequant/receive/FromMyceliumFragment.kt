@@ -8,15 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mrd.bitlib.model.Address
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.InvestmentAccount
 import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
 import com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
@@ -39,6 +40,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import kotlinx.android.synthetic.main.fragment_bequant_receive_from_mycelium.*
 import kotlinx.android.synthetic.main.item_bequant_withdraw_pager_accounts.*
+import java.math.BigDecimal
 
 class FromMyceliumFragment : Fragment() {
 
@@ -142,6 +144,13 @@ class FromMyceliumFragment : Fragment() {
         }
         viewModel.castodialBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
 
+        viewModel.amount.observe(viewLifecycleOwner) {
+            val account = adapter.currentList.first()
+            val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
+            val enoughAmount = amount < account.accountBalance.confirmed.valueAsBigDecimal && amount > 0.toBigDecimal()
+            edAmount.error = if (enoughAmount) null else getString(R.string.insufficient_funds)
+            confirm.isEnabled = enoughAmount
+        }
     }
 
 }

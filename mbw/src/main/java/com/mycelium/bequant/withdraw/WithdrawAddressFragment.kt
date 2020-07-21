@@ -2,17 +2,21 @@ package com.mycelium.bequant.withdraw
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawAddressViewModel
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.StringHandlerActivity
 import com.mycelium.wallet.activity.util.getAddress
@@ -22,6 +26,7 @@ import com.mycelium.wallet.content.StringHandleConfig
 import com.mycelium.wallet.content.actions.AddressAction
 import com.mycelium.wallet.content.actions.UriAction
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawAddressBinding
+import com.mycelium.wapi.wallet.AddressUtils
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw_address.*
 
 
@@ -43,6 +48,9 @@ class WithdrawAddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        pasteFromClipboard.setOnClickListener {
+            viewModel.address.value = Utils.getClipboardString(requireContext())
+        }
         scanQR.setOnClickListener {
             val config = StringHandleConfig().apply {
                 addressAction = AddressAction()
@@ -50,6 +58,18 @@ class WithdrawAddressFragment : Fragment() {
             }
             ScanActivity.callMe(this, SCAN_REQUEST, config)
         }
+
+        viewModel.address.observe(viewLifecycleOwner) {
+            val currency = parentViewModel?.currency?.value
+            val validAddress = when (currency?.toLowerCase()) {
+                "btc" -> AddressUtils.from(Utils.getBtcCoinType(), it) != null
+                "eth" -> AddressUtils.from(Utils.getEthCoinType(), it) != null
+                else -> true
+            }
+            address.background = ContextCompat.getDrawable(requireContext(), if (validAddress) R.drawable.bg_bequant_input_text else R.drawable.bg_bequant_input_text_error)
+            address.error = if (validAddress) null else "Wrong address"
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
