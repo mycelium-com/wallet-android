@@ -1398,7 +1398,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_exchange_temporary_closed">Exchange temporary closed</string>
     <string name="bequant_contact_support">Contact Support</string>
     <string name="hide_zero_balances">Hide Zero Balances</string>
-    <string name="you_get">You get:</string>
+    <string name="you_get">You get<font color="#49505C">(estimated)</font>:</string>
     <string name="bequant_sign_up">Sign Up</string>
     <string name="bequant_sign_in">Sign In</string>
     <string name="register">Register</string>

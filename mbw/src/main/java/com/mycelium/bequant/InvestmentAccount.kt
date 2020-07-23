@@ -97,36 +97,38 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
                 }, { code, msg -> }, {})
             }
         }
-        var btcTotal = BigDecimal.ZERO
-        for ((currency, balances) in totalBalances.groupBy { it.currency }) {
-            val currencySum = balances.map {
-                BigDecimal(it.available) + BigDecimal(it.reserved)
-            }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
+        if(totalBalances.isNotEmpty()) {
+            var btcTotal = BigDecimal.ZERO
+            for ((currency, balances) in totalBalances.groupBy { it.currency }) {
+                val currencySum = balances.map {
+                    BigDecimal(it.available) + BigDecimal(it.reserved)
+                }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
 
-            if (currencySum == BigDecimal.ZERO) continue
-            if (currency!!.toUpperCase() == "BTC") {
-                btcTotal += currencySum
-                continue
+                if (currencySum == BigDecimal.ZERO) continue
+                if (currency!!.toUpperCase() == "BTC") {
+                    btcTotal += currencySum
+                    continue
+                }
+
+                lateinit var currencyInfo: com.mycelium.bequant.remote.trading.model.Currency
+                runBlocking {
+                    Api.publicRepository.publicCurrencyCurrencyGet(this, currency, { response ->
+                        currencyInfo = response!!
+                    }, { code, msg -> }, {})
+                }
+
+                val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
+                        (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
+                val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
+                btcTotal += converted ?: BigDecimal.ZERO
             }
-
-            lateinit var currencyInfo: com.mycelium.bequant.remote.trading.model.Currency
-            runBlocking {
-                Api.publicRepository.publicCurrencyCurrencyGet(this, currency, { response ->
-                    currencyInfo = response!!
-                }, { code, msg -> }, {})
-            }
-
-            val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
-                    (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
-            val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
-            btcTotal += converted ?: BigDecimal.ZERO
+            val balance = Value.valueOf(Utils.getBtcCoinType(), (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger())
+            BequantPreference.setLastKnownBalance(balance)
+            cachedBalance = Balance(balance,
+                    Value.zeroValue(Utils.getBtcCoinType()),
+                    Value.zeroValue(Utils.getBtcCoinType()),
+                    Value.zeroValue(Utils.getBtcCoinType()))
         }
-        val balance = Value.valueOf(Utils.getBtcCoinType(), (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger())
-        BequantPreference.setLastKnownBalance(balance)
-        cachedBalance = Balance(balance,
-                Value.zeroValue(Utils.getBtcCoinType()),
-                Value.zeroValue(Utils.getBtcCoinType()),
-                Value.zeroValue(Utils.getBtcCoinType()))
         syncing = false
         return true
     }

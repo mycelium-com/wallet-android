@@ -4,13 +4,8 @@ import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.mycelium.bequant.BQExchangeRateManager
-import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.InvestmentAccount
-import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.getInvestmentAccounts
-import com.mycelium.bequant.remote.repositories.Api
-import com.mycelium.bequant.remote.trading.api.PublicApi
-import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -26,17 +21,13 @@ import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.*
-import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.pow
 
 /**
  * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.

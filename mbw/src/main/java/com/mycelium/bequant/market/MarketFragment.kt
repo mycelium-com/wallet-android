@@ -19,6 +19,7 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.getInvestmentAccounts
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
 import com.mycelium.bequant.remote.repositories.Api
@@ -26,6 +27,7 @@ import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wapi.wallet.SyncMode
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_bequant_main.*
 
@@ -53,6 +55,9 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             })
         } else {
             requestBalances()
+            MbwManager.getInstance(requireContext()).getWalletManager(false).let {
+                it.startSynchronization(SyncMode.NORMAL_FORCED, it.getInvestmentAccounts())
+            }
         }
         MbwManager.getEventBus().register(this)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
