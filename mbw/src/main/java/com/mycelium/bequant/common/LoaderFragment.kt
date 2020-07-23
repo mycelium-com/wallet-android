@@ -37,11 +37,13 @@ fun Fragment.loader(show: Boolean) {
         val loader = LoaderFragment()
         loader.show(childFragmentManager, Constants.LOADER_TAG)
     } else {
-        childFragmentManager.executePendingTransactions()
-        val findFragmentByTag = childFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
-        if (findFragmentByTag is LoaderFragment) {
-            if (findFragmentByTag.isAdded) {
-                findFragmentByTag.dismissAllowingStateLoss()
+        if (isAdded) {
+            childFragmentManager.executePendingTransactions()
+            val findFragmentByTag = childFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
+            if (findFragmentByTag is LoaderFragment) {
+                if (findFragmentByTag.isAdded) {
+                    findFragmentByTag.dismissAllowingStateLoss()
+                }
             }
         }
     }

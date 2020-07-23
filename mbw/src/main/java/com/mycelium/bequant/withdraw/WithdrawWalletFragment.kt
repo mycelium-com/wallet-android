@@ -2,10 +2,14 @@ package com.mycelium.bequant.withdraw
 
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mrd.bitlib.model.Address
 import com.mycelium.bequant.InvestmentAccount
 import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
@@ -23,12 +27,30 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
         accountList.adapter = adapter
         TabLayoutMediator(accountListTab, accountList) { tab, _ ->
         }.attach()
+
+
+
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
             val accounts = mbwManager.getWalletManager(false).getAllActiveAccounts()
                     .filter { it !is InvestmentAccount }
                     .filter { it.coinType.symbol == parentViewModel?.currency?.value }
             adapter.submitList(accounts)
+
+            accountList.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageScrollStateChanged(state: Int) {
+                }
+
+                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                }
+
+                override fun onPageSelected(position: Int) {
+                    parentViewModel!!.address.value =  Address(accounts[position].receiveAddress.getBytes()).toString()
+                }
+
+            })
         })
+
+
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
         }

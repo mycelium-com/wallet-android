@@ -44,7 +44,4 @@ object Constants {
     const val TYPE_SPACE = 1
 
     const val PUBLIC_REPOSITORY = "bequant_public_repository"
-
-
-    const val TEST_ADDRESS = "2N7Ua6ZmDgEzVB1crdZFYtCky3WxgVK1SPn"
 }

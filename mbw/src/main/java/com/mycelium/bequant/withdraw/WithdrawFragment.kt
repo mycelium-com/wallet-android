@@ -66,7 +66,6 @@ class WithdrawFragment : Fragment() {
 
     private fun withdraw() {
         if (viewModel.amount.value != null) {
-            viewModel.address.value = Constants.TEST_ADDRESS
             loader(true)
             viewModel.withdraw({
                 findNavController().popBackStack()
