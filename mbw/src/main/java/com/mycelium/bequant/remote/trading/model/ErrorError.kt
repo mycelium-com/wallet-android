@@ -25,7 +25,7 @@ data class ErrorError(
         @Json(name = "code")
         val code: String,
         @Json(name = "message")
-        val message: String,
+        val message: String?,
         @Json(name = "description")
         val description: String? = null
 )
