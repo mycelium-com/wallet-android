@@ -1,15 +1,12 @@
 package com.mycelium.bequant.withdraw
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
-import com.mrd.bitlib.model.Address
 import com.mycelium.bequant.InvestmentAccount
 import com.mycelium.bequant.receive.SelectAccountFragment
 import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
@@ -35,7 +32,7 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
         }
 
         override fun onPageSelected(position: Int) {
-            parentViewModel!!.address.value = Address(accounts[position].receiveAddress.getBytes()).toString()
+            parentViewModel!!.address.value = accounts[position].receiveAddress.toString()
         }
     }
 
@@ -49,8 +46,9 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)?.observe(viewLifecycleOwner, Observer {
             val account = it
             val selectedAccount = mbwManager.getWalletManager(false).getAllActiveAccounts().find { it.label == account?.label }
-            Handler(Looper.getMainLooper()).post {
-                adapter.submitList(listOf(selectedAccount))
+            val pageToSelect = accounts.indexOf(selectedAccount)
+            if (accountList.currentItem != pageToSelect) {
+                accountList.currentItem = pageToSelect
             }
         })
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
