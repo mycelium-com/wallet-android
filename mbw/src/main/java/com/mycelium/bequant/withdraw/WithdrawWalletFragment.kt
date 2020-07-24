@@ -56,7 +56,7 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
         })
 
         selectAccountMore.setOnClickListener {
-            findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
+            findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount(parentViewModel?.currency?.value))
         }
 
     }

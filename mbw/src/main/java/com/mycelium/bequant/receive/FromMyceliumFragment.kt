@@ -140,7 +140,7 @@ class FromMyceliumFragment : Fragment() {
 //            loader(false)
 //        }
         selectAccountMore.setOnClickListener {
-            findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
+            findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount(parentViewModel?.currency?.value))
         }
         viewModel.castodialBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
 
