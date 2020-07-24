@@ -15,7 +15,7 @@ class ErrorHandler(val context: Context) {
         try {
             val error = mapper.readValue(errorPayload, Error::class.java).error!!
             Toast.makeText(context, "${error.message}. ${error.description}", Toast.LENGTH_LONG).show()
-        } catch (ignore: JsonParseException) {
+        } catch (ignore: Exception) {
             Toast.makeText(context, "${errorPayload}", Toast.LENGTH_LONG).show()
         }
     }
