@@ -146,7 +146,7 @@ class NewsActivity : AppCompatActivity() {
 
         SettingsPreference.getMediaFlowContent()?.bannersDetails
                 ?.firstOrNull { banner ->
-                    banner.isEnabled && news.tags?.firstOrNull { it.name.equals(banner.tag, true) } != null
+                    banner.isEnabled && news.tags?.firstOrNull { it.name?.equals(banner.tag, true) ?: false } != null
                             && SettingsPreference.isContentEnabled(banner.parentId)
                 }?.let { banner ->
                     bottomButtonBanner.visibility = VISIBLE
