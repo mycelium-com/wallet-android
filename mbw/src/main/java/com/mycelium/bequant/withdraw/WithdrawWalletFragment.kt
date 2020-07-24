@@ -38,8 +38,8 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         accountList.adapter = adapter
+        accountList.registerOnPageChangeCallback(onPageChangeCallback)
         TabLayoutMediator(accountListTab, accountList) { tab, _ ->
         }.attach()
 
@@ -53,7 +53,6 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
         })
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
             adapter.submitList(accounts)
-            accountList.registerOnPageChangeCallback(onPageChangeCallback)
         })
 
         selectAccountMore.setOnClickListener {
@@ -63,7 +62,7 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         accountList.unregisterOnPageChangeCallback(onPageChangeCallback)
+        super.onDestroyView()
     }
 }
