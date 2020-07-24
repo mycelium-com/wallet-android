@@ -137,7 +137,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun canSpend(): Boolean = false
 
-    override fun isSyncing(): Boolean = false
+    override fun isSyncing(): Boolean = syncing
 
     override fun isArchived(): Boolean = false
 
@@ -185,9 +185,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun getDependentAccounts(): MutableList<WalletAccount<GenericAddress>> {
-        TODO("Not yet implemented")
-    }
+    override fun getDependentAccounts(): List<WalletAccount<GenericAddress>> = listOf()
 
     override fun queueTransaction(transaction: GenericTransaction) {
         TODO("Not yet implemented")
