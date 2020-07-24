@@ -1,6 +1,8 @@
 package com.mycelium.bequant.withdraw
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -18,7 +20,7 @@ import kotlinx.android.synthetic.main.item_bequant_withdraw_pager_accounts.*
 class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycelium_wallet) {
     var parentViewModel: WithdrawViewModel? = null
     val adapter = AccountPagerAdapter()
-    val mbwManager by lazy{ MbwManager.getInstance(requireContext()) }
+    val mbwManager by lazy { MbwManager.getInstance(requireContext()) }
     val accounts by lazy {
         mbwManager.getWalletManager(false).getAllActiveAccounts()
                 .filter { it !is InvestmentAccount }
@@ -43,17 +45,25 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
         TabLayoutMediator(accountListTab, accountList) { tab, _ ->
         }.attach()
 
+        adapter.submitList(accounts)
+
+        parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
+            if (adapter.currentList != accounts) {
+                adapter.submitList(accounts)
+            }
+        })
+
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)?.observe(viewLifecycleOwner, Observer {
             val account = it
             val selectedAccount = mbwManager.getWalletManager(false).getAllActiveAccounts().find { it.label == account?.label }
             val pageToSelect = accounts.indexOf(selectedAccount)
             if (accountList.currentItem != pageToSelect) {
-                accountList.currentItem = pageToSelect
+                Handler(Looper.getMainLooper()).post {
+                        accountList.setCurrentItem(pageToSelect, true)
+                }
             }
         })
-        parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
-            adapter.submitList(accounts)
-        })
+
 
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount(parentViewModel?.currency?.value))
