@@ -79,7 +79,7 @@ class WithdrawFragment : Fragment() {
                 val withdrawFromTrading = total - (viewModel.accountBalance.value
                         ?: BigDecimal.ZERO)
                 Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, args.currency!!, withdrawFromTrading.toPlainString(),
-                        Transaction.Type.bankToExchange.value, {
+                        Transaction.Type.exchangeToBank.value, {
                     usualWithraw()
                 }, { int, message ->
                     ErrorHandler(requireContext()).handle(message)
