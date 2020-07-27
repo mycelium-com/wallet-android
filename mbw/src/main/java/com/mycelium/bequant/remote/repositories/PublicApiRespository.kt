@@ -89,7 +89,7 @@ class PublicApiRespository {
         }
 
     fun publicSymbolGet(scope: CoroutineScope, symbols: String?,
-                        success: (Array<Symbol>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
+                        success: (Array<Symbol>?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         if (publicSymbols.isNotEmpty()
                 && TimeUnit.MILLISECONDS.toDays(Date().time - preference.getLong(LAST_SYMBOLS_UPDATE, 0)) < 7) {
             if (symbols == null) {
@@ -97,7 +97,7 @@ class PublicApiRespository {
             } else {
                 success.invoke(publicSymbols.filter { symbols.contains(it.id) }.toTypedArray())
             }
-            finally.invoke()
+            finally?.invoke()
         } else {
             doRequest(scope, {
                 api.publicSymbolGet(symbols).apply {
@@ -123,20 +123,20 @@ class PublicApiRespository {
 
     fun publicTickerGet(scope: CoroutineScope,
                         symbols: String?,
-                        success: (Array<Ticker>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
+                        success: (Array<Ticker>?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         publicSymbolGet(scope, null, {
             doRequest(scope, {
                 api.publicTickerGet(symbols)
             }, successBlock = success, errorBlock = error, finallyBlock = finally)
         }, { code, msg ->
             error.invoke(code, msg)
-            finally.invoke()
-        }, {})
+            finally?.invoke()
+        }, finally)
     }
 
     fun publicTickerSymbolGet(scope: CoroutineScope,
                               symbol: String,
-                              success: (Ticker?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
+                              success: (Ticker?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.publicTickerSymbolGet(symbol)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)

@@ -29,7 +29,6 @@ import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
-import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.*
@@ -399,24 +398,26 @@ class ExchangeFragment : Fragment() {
 
     private fun calculateSendValue() {
         viewModel.youGet.value?.let { youGetValue ->
-
             val youSend = viewModel.youSend.value!!
             val youGet = viewModel.youGet.value!!
-            val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
-                    youSend.currencySymbol)
-
-            if (symbol != null) {
-                var exchangeRateData = BQExchangeRateManager.getExchangeRate(symbol.baseCurrency, symbol.quoteCurrency)
-                var rate = BigDecimal.valueOf(exchangeRateData!!.price)
-                if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
-                    if (!youGet.isZero()) {
-                        var youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))))
-                        viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal)
+            BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)?.let { symbol ->
+                Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
+                    ticker?.let {
+                        if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
+                            val rate = BigDecimal(ticker.bid)
+                            if (!youGet.isZero()) {
+                                val youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))))
+                                viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal)
+                            }
+                        } else { //SELL base currency
+                            val rate = BigDecimal(ticker.ask)
+                            val youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
+                            viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+                        }
                     }
-                } else { //SELL base currency
-                    var youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
-                    viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
-                }
+                }, { code, msg ->
+                    ErrorHandler(requireContext()).handle(msg)
+                })
             }
         }
     }
@@ -425,24 +426,29 @@ class ExchangeFragment : Fragment() {
         viewModel.youSend.value?.let { youSendValue ->
             val youSend = viewModel.youSend.value!!
             val youGet = viewModel.youGet.value!!
-            val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
-                    youSend.currencySymbol)
-            if (symbol != null) {
-                var exchangeRateData = BQExchangeRateManager.getExchangeRate(symbol.baseCurrency, symbol.quoteCurrency)
-                var rate = BigDecimal.valueOf(exchangeRateData!!.price)
-
-                if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
-                    if (!youSend.isZero()) {
-                        var youGetDecimal = youSend.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
-                        viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+            BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol).let { symbol ->
+                if (symbol != null) {
+                    Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
+                        ticker?.let {
+                            if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
+                                val rate = BigDecimal(ticker.bid)
+                                if (!youSend.isZero()) {
+                                    val youGetDecimal = youSend.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
+                                    viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+                                }
+                            } else { //SELL base currency
+                                val rate = BigDecimal(ticker.ask)
+                                val youGetDecimal = youSend.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))))
+                                viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal)
+                            }
+                        }
+                    }, { code, msg ->
+                        ErrorHandler(requireContext()).handle(msg)
+                    })
+                } else if (attemptsLeft > 0) {
+                    Timer("timer", false).schedule(1000) {
+                        requireActivity().runOnUiThread { calculateReceiveValue(attemptsLeft - 1) }
                     }
-                } else { //SELL base currency
-                    var youGetDecimal =youSend.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))))
-                    viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal)
-                }
-            } else if (attemptsLeft > 0) {
-                Timer("timer", false).schedule(1000) {
-                    requireActivity().runOnUiThread { calculateReceiveValue(attemptsLeft - 1) }
                 }
             }
         }
