@@ -35,6 +35,7 @@ import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Transaction
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
@@ -277,7 +278,7 @@ class ExchangeFragment : Fragment() {
         BQExchangeRateManager.findSymbol(youGet.currencySymbol,
                 youSend.currencySymbol) { symbol ->
             var isBuy = youGet.currencySymbol == symbol!!.baseCurrency
-            val amount = if (isBuy) youSend.valueAsBigDecimal * (BigDecimal.ONE + BigDecimal(symbol.takeLiquidityRate)) else youSend.valueAsBigDecimal
+            val amount = youSend.valueAsBigDecimal
             val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available
                     ?: "0")
             val quantity = if (isBuy) youGet.toPlainString() else youSend.toPlainString()
@@ -397,6 +398,10 @@ class ExchangeFragment : Fragment() {
         }
     }
 
+    private fun getFee(symbol: Symbol): BigDecimal {
+        return BigDecimal(symbol.takeLiquidityRate);
+    }
+
     private fun calculateSendValue() {
         viewModel.youGet.value?.let { youGetValue ->
             val youSend = viewModel.youSend.value!!
@@ -408,12 +413,12 @@ class ExchangeFragment : Fragment() {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.bid)
                                 if (!youGet.isZero()) {
-                                    val youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))))
+                                    val youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))))
                                     viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal)
                                 }
                             } else { //SELL base currency
                                 val rate = BigDecimal(ticker.ask)
-                                val youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
+                                val youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                 viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                             }
                         }
@@ -436,12 +441,12 @@ class ExchangeFragment : Fragment() {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.bid)
                                 if (!youSend.isZero()) {
-                                    val youGetDecimal = youSend.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
+                                    val youGetDecimal = youSend.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                     viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                                 }
                             } else { //SELL base currency
                                 val rate = BigDecimal(ticker.ask)
-                                val youGetDecimal = youSend.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))))
+                                val youGetDecimal = youSend.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).minus(getFee(symbol))))
                                 viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal)
                             }
                         }
