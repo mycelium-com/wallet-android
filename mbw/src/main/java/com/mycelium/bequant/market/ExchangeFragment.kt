@@ -156,7 +156,7 @@ class ExchangeFragment : Fragment() {
                 calculateReceiveValue()
             }
             recalculateDestinationPrice()
-            //viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
+            viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
@@ -179,7 +179,7 @@ class ExchangeFragment : Fragment() {
                 calculateSendValue()
             }
             recalculateDestinationPrice()
-            // viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
+            viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
@@ -277,14 +277,13 @@ class ExchangeFragment : Fragment() {
         val currency = youSend.currencySymbol
         val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
                 youSend.currencySymbol)
-        val amount = youSend.valueAsBigDecimal * (BigDecimal.ONE + BigDecimal(symbol!!.takeLiquidityRate))
+        var isBuy = youGet.currencySymbol == symbol!!.baseCurrency
+        val amount = if (isBuy) youSend.valueAsBigDecimal * (BigDecimal.ONE + BigDecimal(symbol!!.takeLiquidityRate)) else youSend.valueAsBigDecimal
         val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available
                 ?: "0")
-        val side = if (youGet.currencySymbol == symbol.baseCurrency) "buy" else "sell"
-        val quantity = youGet.toPlainString()
+        val quantity = if (isBuy) youGet.toPlainString() else youSend.toPlainString()
         if (tradingBalance < amount) {
             val lackAmount = (amount - tradingBalance).setScale(youSend.type.unitExponent, BigDecimal.ROUND_UP)
-            //val lackAmountString = BigDecimal(lackAmount, youSend.type.unitExponent).stripTrailingZeros().toString()
             val lackAmountString = lackAmount.toString()
             loader(true)
             Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
@@ -294,7 +293,7 @@ class ExchangeFragment : Fragment() {
                 Timer("name", false).schedule(2000) {
                     // place market order
                     Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
-                            side, quantity, "", "market", "", "",
+                            if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
                             "", null, false, false, {
                         loader(false)
                         requireActivity().runOnUiThread {
@@ -315,7 +314,7 @@ class ExchangeFragment : Fragment() {
             })
         } else {
             Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
-                    side, quantity, "", "market", "", "",
+                    if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
                     "", null, false, false, {
                 requireActivity().runOnUiThread {
                     showSummary()
@@ -400,8 +399,25 @@ class ExchangeFragment : Fragment() {
 
     private fun calculateSendValue() {
         viewModel.youGet.value?.let { youGetValue ->
-            viewModel.youSend.value = BQExchangeRateManager.get(youGetValue, viewModel.youSend.value!!.type)
-                    ?: Value.zeroValue(viewModel.youSend.value!!.type)
+
+            val youSend = viewModel.youSend.value!!
+            val youGet = viewModel.youGet.value!!
+            val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
+                    youSend.currencySymbol)
+
+            if (symbol != null) {
+                var exchangeRateData = BQExchangeRateManager.getExchangeRate(symbol.baseCurrency, symbol.quoteCurrency)
+                var rate = BigDecimal.valueOf(exchangeRateData!!.price)
+                if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
+                    if (!youGet.isZero()) {
+                        var youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))))
+                        viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal)
+                    }
+                } else { //SELL base currency
+                    var youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
+                    viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+                }
+            }
         }
     }
 
@@ -412,9 +428,18 @@ class ExchangeFragment : Fragment() {
             val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
                     youSend.currencySymbol)
             if (symbol != null) {
-                val expected = BQExchangeRateManager.get(youSendValue, viewModel.youGet.value!!.type)
-                        ?: Value.zeroValue(viewModel.youGet.value!!.type)
-                viewModel.youGet.value = Value.parse(youGet.type, expected.valueAsBigDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+                var exchangeRateData = BQExchangeRateManager.getExchangeRate(symbol.baseCurrency, symbol.quoteCurrency)
+                var rate = BigDecimal.valueOf(exchangeRateData!!.price)
+
+                if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
+                    if (!youSend.isZero()) {
+                        var youGetDecimal = youSend.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
+                        viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
+                    }
+                } else { //SELL base currency
+                    var youGetDecimal =youSend.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))))
+                    viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal)
+                }
             } else if (attemptsLeft > 0) {
                 Timer("timer", false).schedule(1000) {
                     requireActivity().runOnUiThread { calculateReceiveValue(attemptsLeft - 1) }
@@ -436,17 +461,12 @@ class ExchangeFragment : Fragment() {
         val available = viewModel.available.value ?: return false
         val youSend = viewModel.youSend.value ?: return false
         val youGet = viewModel.youGet.value ?: return false
-        val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
-                youSend.currencySymbol) ?: return false
+
         if (available.equalZero()) return false
         if (youSend.equalZero()) return false
         if (youGet.equalZero()) return false
 
-        // conform youGet with quantityIncrement
-        // val cuttedYouGet = truncate((youGet.valueAsBigDecimal / BigDecimal(symbol.quantityIncrement)).toDouble()).toBigDecimal() * BigDecimal(symbol.quantityIncrement)
-
-        val takeLiquidityRate = BigDecimal(symbol.takeLiquidityRate)
-        return available.valueAsBigDecimal > youSend.valueAsBigDecimal * (BigDecimal.ONE + takeLiquidityRate)
+        return available.valueAsBigDecimal >= youSend.valueAsBigDecimal
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
