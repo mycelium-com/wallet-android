@@ -42,7 +42,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = null
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
-        pager.adapter = SignFragmentAdapter(this)
+        pager.adapter = SignFragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
         pager.offscreenPageLimit = 2
         tabMediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
@@ -72,6 +72,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
 
     override fun onDestroyView() {
         tabMediator?.detach()
+        pager.adapter = null
         super.onDestroyView()
     }
 

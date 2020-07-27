@@ -130,6 +130,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             }
 
     override fun onDestroy() {
+        MbwManager.getEventBus().unregister(this)
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
         super.onDestroy()
     }
