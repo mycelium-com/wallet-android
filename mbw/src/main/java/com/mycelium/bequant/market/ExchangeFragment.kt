@@ -159,7 +159,7 @@ class ExchangeFragment : Fragment() {
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
-                if (!equals(viewModel.youGet.value, it)) {
+                if (!equals(viewModel.youSend.value, it)) {
                     viewModel.youSend.value = viewModel.youSend.value?.type?.value(it)
                 }
             } catch (e: NumberFormatException) {
@@ -274,59 +274,60 @@ class ExchangeFragment : Fragment() {
         clOrderRejected.visibility = View.GONE
 
         val currency = youSend.currencySymbol
-        val symbol = BQExchangeRateManager.findSymbol(youGet.currencySymbol,
-                youSend.currencySymbol)
-        var isBuy = youGet.currencySymbol == symbol!!.baseCurrency
-        val amount = if (isBuy) youSend.valueAsBigDecimal * (BigDecimal.ONE + BigDecimal(symbol!!.takeLiquidityRate)) else youSend.valueAsBigDecimal
-        val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available
-                ?: "0")
-        val quantity = if (isBuy) youGet.toPlainString() else youSend.toPlainString()
-        if (tradingBalance < amount) {
-            val lackAmount = (amount - tradingBalance).setScale(youSend.type.unitExponent, BigDecimal.ROUND_UP)
-            val lackAmountString = lackAmount.toString()
-            loader(true)
-            Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
-                    Transaction.Type.bankToExchange.value, {
-                requestBalances()
-                // wait for balance update
-                Timer("name", false).schedule(2000) {
-                    // place market order
-                    Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
-                            if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
-                            "", null, false, false, {
-                        loader(false)
-                        requireActivity().runOnUiThread {
-                            showSummary()
-                            requestBalances()
-                        }
-                    }, { code, error ->
-                        ErrorHandler(requireContext()).handle(error)
-                        requireActivity().runOnUiThread {
-                            clOrderRejected.visibility = View.VISIBLE
-                        }
-                    }, {})
-                }
-            }, { code, error ->
-                ErrorHandler(requireContext()).handle(error)
-            }, {
-                loader(false)
-            })
-        } else {
-            Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
-                    if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
-                    "", null, false, false, {
-                requireActivity().runOnUiThread {
-                    showSummary()
+        BQExchangeRateManager.findSymbol(youGet.currencySymbol,
+                youSend.currencySymbol) { symbol ->
+            var isBuy = youGet.currencySymbol == symbol!!.baseCurrency
+            val amount = if (isBuy) youSend.valueAsBigDecimal * (BigDecimal.ONE + BigDecimal(symbol.takeLiquidityRate)) else youSend.valueAsBigDecimal
+            val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available
+                    ?: "0")
+            val quantity = if (isBuy) youGet.toPlainString() else youSend.toPlainString()
+            if (tradingBalance < amount) {
+                val lackAmount = (amount - tradingBalance).setScale(youSend.type.unitExponent, BigDecimal.ROUND_UP)
+                val lackAmountString = lackAmount.toString()
+                loader(true)
+                Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, currency, lackAmountString,
+                        Transaction.Type.bankToExchange.value, {
                     requestBalances()
-                }
-            }, { code, error ->
-                ErrorHandler(requireContext()).handle(error)
-                requireActivity().runOnUiThread {
-                    clOrderRejected.visibility = View.VISIBLE
-                }
-            }, {
-                loader(false)
-            })
+                    // wait for balance update
+                    Timer("name", false).schedule(2000) {
+                        // place market order
+                        Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
+                                if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
+                                "", null, false, false, {
+                            loader(false)
+                            requireActivity().runOnUiThread {
+                                showSummary()
+                                requestBalances()
+                            }
+                        }, { code, error ->
+                            ErrorHandler(requireContext()).handle(error)
+                            requireActivity().runOnUiThread {
+                                clOrderRejected.visibility = View.VISIBLE
+                            }
+                        }, {})
+                    }
+                }, { code, error ->
+                    ErrorHandler(requireContext()).handle(error)
+                }, {
+                    loader(false)
+                })
+            } else {
+                Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
+                        if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
+                        "", null, false, false, {
+                    requireActivity().runOnUiThread {
+                        showSummary()
+                        requestBalances()
+                    }
+                }, { code, error ->
+                    ErrorHandler(requireContext()).handle(error)
+                    requireActivity().runOnUiThread {
+                        clOrderRejected.visibility = View.VISIBLE
+                    }
+                }, {
+                    loader(false)
+                })
+            }
         }
     }
 
@@ -400,36 +401,38 @@ class ExchangeFragment : Fragment() {
         viewModel.youGet.value?.let { youGetValue ->
             val youSend = viewModel.youSend.value!!
             val youGet = viewModel.youGet.value!!
-            BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol)?.let { symbol ->
-                Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
-                    ticker?.let {
-                        if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
-                            val rate = BigDecimal(ticker.bid)
-                            if (!youGet.isZero()) {
-                                val youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))))
-                                viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal)
+            BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol) { symbol ->
+                if (symbol != null) {
+                    Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
+                        ticker?.let {
+                            if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
+                                val rate = BigDecimal(ticker.bid)
+                                if (!youGet.isZero()) {
+                                    val youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(BigDecimal(symbol.quantityIncrement))))
+                                    viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal)
+                                }
+                            } else { //SELL base currency
+                                val rate = BigDecimal(ticker.ask)
+                                val youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
+                                viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                             }
-                        } else { //SELL base currency
-                            val rate = BigDecimal(ticker.ask)
-                            val youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(BigDecimal(symbol.quantityIncrement))), RoundingMode.HALF_UP)
-                            viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                         }
-                    }
-                }, { code, msg ->
-                    ErrorHandler(requireContext()).handle(msg)
-                })
+                    }, { code, msg ->
+                        ErrorHandler(requireContext()).handle(msg)
+                    })
+                }
             }
         }
     }
 
-    private fun calculateReceiveValue(attemptsLeft: Int = 3) {
+    private fun calculateReceiveValue() {
         viewModel.youSend.value?.let { youSendValue ->
             val youSend = viewModel.youSend.value!!
             val youGet = viewModel.youGet.value!!
-            BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol).let { symbol ->
+            BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol) { symbol ->
                 if (symbol != null) {
                     Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
-                        ticker?.let {
+                         ticker?.let {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.bid)
                                 if (!youSend.isZero()) {
@@ -445,10 +448,6 @@ class ExchangeFragment : Fragment() {
                     }, { code, msg ->
                         ErrorHandler(requireContext()).handle(msg)
                     })
-                } else if (attemptsLeft > 0) {
-                    Timer("timer", false).schedule(1000) {
-                        requireActivity().runOnUiThread { calculateReceiveValue(attemptsLeft - 1) }
-                    }
                 }
             }
         }

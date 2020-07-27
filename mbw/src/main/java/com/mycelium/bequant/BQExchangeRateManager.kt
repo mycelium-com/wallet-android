@@ -49,8 +49,14 @@ object BQExchangeRateManager : ExchangeRateProvider {
 
     private var symbols = arrayOf<Symbol>()
 
-    fun findSymbol(a: String, b: String): Symbol? =
-            symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a) }
+    fun findSymbol(a: String, b: String, answer: (Symbol?) -> Unit) {
+        Api.publicRepository.publicSymbolGet(GlobalScope, null, {
+            if (it?.isNotEmpty() == true) {
+                symbols = it
+                answer.invoke(symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a) })
+            }
+        }, { _, _ -> })
+    }
 
     private class Fetcher : Runnable {
         override fun run() {
