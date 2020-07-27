@@ -33,7 +33,7 @@ import kotlinx.android.synthetic.main.fragment_bequant_main.*
 
 
 class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
-
+    var mediator: TabLayoutMediator? = null
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             pager.setCurrentItem(1, true)
@@ -87,15 +87,16 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pager.adapter = MarketFragmentAdapter(this)
+        pager.adapter = MarketFragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
         pager.offscreenPageLimit = 2
-        TabLayoutMediator(tabs, pager) { tab, position ->
+        mediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = "Markets"
                 1 -> tab.text = "Exchange"
                 2 -> tab.text = "Account"
             }
-        }.attach()
+        }
+        mediator?.attach()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -128,6 +129,13 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroyView() {
+        mediator?.detach()
+        mediator = null
+        pager.adapter = null
+        super.onDestroyView()
+    }
 
     override fun onDestroy() {
         MbwManager.getEventBus().unregister(this)

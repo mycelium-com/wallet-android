@@ -8,7 +8,8 @@ import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 import org.web3j.abi.datatypes.Bool
 
 
-class ReceiveFragmentAdapter(fa: Fragment, val vm: ReceiveCommonViewModel, val supportedByMycelium: Boolean) : FragmentStatePagerAdapter(fa.childFragmentManager) {
+class ReceiveFragmentAdapter(fa: Fragment, val vm: ReceiveCommonViewModel, val supportedByMycelium: Boolean) :
+        FragmentStatePagerAdapter(fa.childFragmentManager) {
 
     override fun getItem(position: Int): Fragment = getFragment(position)
 

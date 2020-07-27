@@ -153,4 +153,8 @@ class FromMyceliumFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        accountList.adapter = null
+        super.onDestroyView()
+    }
 }

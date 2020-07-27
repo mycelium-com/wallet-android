@@ -1,11 +1,6 @@
 package com.mycelium.bequant.market
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,19 +10,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.coroutineScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.HIDE_VALUE
 import com.mycelium.bequant.Constants.TYPE_ITEM
-import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
-import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
@@ -142,8 +132,8 @@ class AccountFragment : Fragment() {
         val tradingAccounts = viewModel.tradingBalances.value
 
         val totalBalances = mutableListOf<Balance>()
-        totalBalances.addAll(accountBalances?.toList()?: emptyList())
-        totalBalances.addAll(tradingAccounts?.toList()?: emptyList())
+        totalBalances.addAll(accountBalances?.toList() ?: emptyList())
+        totalBalances.addAll(tradingAccounts?.toList() ?: emptyList())
 
         val result = mutableListOf<Balance>()
         for ((currency, balances) in totalBalances.groupBy { it.currency }) {
@@ -162,8 +152,8 @@ class AccountFragment : Fragment() {
         val tradingAccounts = viewModel.tradingBalances.value
 
         val totalBalances = mutableListOf<Balance>()
-        totalBalances.addAll(accountBalances?.toList()?: emptyList())
-        totalBalances.addAll(tradingAccounts?.toList()?: emptyList())
+        totalBalances.addAll(accountBalances?.toList() ?: emptyList())
+        totalBalances.addAll(tradingAccounts?.toList() ?: emptyList())
 
         var btcTotal = BigDecimal.ZERO
         var fiatTotal = BigDecimal.ZERO
@@ -173,13 +163,18 @@ class AccountFragment : Fragment() {
                 continue
             }
 //            val btcRate = exchangeRateManager.getExchangeRate(currency!!, "BTC")
-            val usdRate =  mbwManager.exchangeRateManager.getExchangeRate(currency, "USD")
+            val usdRate = mbwManager.exchangeRateManager.getExchangeRate(currency, "USD")
             btcTotal = balances.map { BigDecimal(it.available) }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
-            fiatTotal  = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
+            fiatTotal = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
         }
 
         viewModel.totalBalance.value = btcTotal.toPlainString()
         viewModel.totalBalanceFiat.value = fiatTotal.setScale(2, BigDecimal.ROUND_CEILING).toPlainString() + " USD"
+    }
+
+    override fun onDestroyView() {
+        list.adapter = null
+        super.onDestroyView()
     }
 
     override fun onDestroy() {

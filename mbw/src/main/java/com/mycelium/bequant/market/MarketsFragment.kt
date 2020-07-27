@@ -131,6 +131,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
 
     override fun onDestroyView() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receive)
+        list.adapter = null
         super.onDestroyView()
     }
 }
