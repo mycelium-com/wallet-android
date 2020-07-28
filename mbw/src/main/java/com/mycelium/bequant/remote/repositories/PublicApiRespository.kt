@@ -121,24 +121,60 @@ class PublicApiRespository {
         }
     }
 
+    private var publicTickers = mutableMapOf<String, Ticker>()
+    private val minTimeToUpdate = 5000
+
     fun publicTickerGet(scope: CoroutineScope,
                         symbols: String?,
                         success: (Array<Ticker>?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
-        publicSymbolGet(scope, null, {
-            doRequest(scope, {
-                api.publicTickerGet(symbols)
-            }, successBlock = success, errorBlock = error, finallyBlock = finally)
-        }, { code, msg ->
-            error.invoke(code, msg)
+        if (publicTickers.isNotEmpty() &&
+                Date().time - (publicTickers[publicTickers.keys.first()]?.timestamp?.time
+                        ?: 0) < minTimeToUpdate) {
+            if (symbols == null) {
+                success.invoke(publicTickers.values.toTypedArray())
+            } else {
+                success.invoke(publicTickers.filter { symbols.contains(it.key) }.values.toTypedArray())
+            }
             finally?.invoke()
-        }, finally)
+        } else {
+            publicSymbolGet(scope, null, {
+                doRequest(scope, {
+                    api.publicTickerGet(symbols).apply {
+                        body()?.forEach {
+                            publicTickers[it.symbol] = it
+                        }
+                    }
+                }, successBlock = success, errorBlock = error, finallyBlock = finally)
+            }, { code, msg ->
+                error.invoke(code, msg)
+                finally?.invoke()
+            }, finally)
+        }
     }
 
     fun publicTickerSymbolGet(scope: CoroutineScope,
                               symbol: String,
                               success: (Ticker?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
+        val fromCache = publicTickers[symbol]
+        if (fromCache != null) {
+            success.invoke(fromCache)
+            finally?.invoke()
+            if (Date().time - (fromCache.timestamp?.time ?: 0) > minTimeToUpdate) {
+                publicTicker(scope, symbol, success, error)
+            }
+        } else {
+            publicTicker(scope, symbol, success, error, finally)
+        }
+    }
+
+    private fun publicTicker(scope: CoroutineScope, symbol: String,
+                             success: (Ticker?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
-            api.publicTickerSymbolGet(symbol)
+            api.publicTickerSymbolGet(symbol).apply {
+                body()?.let {
+                    publicTickers[it.symbol] = it
+                }
+            }
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
