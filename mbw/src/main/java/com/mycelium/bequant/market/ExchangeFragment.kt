@@ -294,7 +294,7 @@ class ExchangeFragment : Fragment() {
                         // place market order
                         Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
                                 if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
-                                "", null, false, false, {
+                                "", null, true, false, {
                             loader(false)
                             requireActivity().runOnUiThread {
                                 showSummary()
@@ -315,7 +315,7 @@ class ExchangeFragment : Fragment() {
             } else {
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
                         if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
-                        "", null, false, false, {
+                        "", null, true, false, {
                     requireActivity().runOnUiThread {
                         showSummary()
                         requestBalances()
@@ -411,13 +411,13 @@ class ExchangeFragment : Fragment() {
                     Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
                         ticker?.let {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
-                                val rate = BigDecimal(ticker.bid)
+                                val rate = BigDecimal(ticker.ask)
                                 if (!youGet.isZero()) {
                                     val youSendDecimal = youGet.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))))
                                     viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal)
                                 }
                             } else { //SELL base currency
-                                val rate = BigDecimal(ticker.ask)
+                                val rate = BigDecimal(ticker.bid)
                                 val youSendDecimal = youGet.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).minus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                 viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                             }
@@ -439,13 +439,13 @@ class ExchangeFragment : Fragment() {
                     Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
                          ticker?.let {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
-                                val rate = BigDecimal(ticker.bid)
+                                val rate = BigDecimal(ticker.ask)
                                 if (!youSend.isZero()) {
                                     val youGetDecimal = youSend.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                     viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                                 }
                             } else { //SELL base currency
-                                val rate = BigDecimal(ticker.ask)
+                                val rate = BigDecimal(ticker.bid)
                                 val youGetDecimal = youSend.valueAsBigDecimal.multiply(rate.multiply(BigDecimal.valueOf(1L).minus(getFee(symbol))))
                                 viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal)
                             }
