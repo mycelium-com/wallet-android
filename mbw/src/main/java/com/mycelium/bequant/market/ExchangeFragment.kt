@@ -470,12 +470,6 @@ class ExchangeFragment : Fragment() {
     private fun isEnoughFundsIncludingFees(): Boolean {
         val available = viewModel.available.value ?: return false
         val youSend = viewModel.youSend.value ?: return false
-        val youGet = viewModel.youGet.value ?: return false
-
-        if (available.equalZero()) return false
-        if (youSend.equalZero()) return false
-        if (youGet.equalZero()) return false
-
         return available.valueAsBigDecimal >= youSend.valueAsBigDecimal
     }
 
