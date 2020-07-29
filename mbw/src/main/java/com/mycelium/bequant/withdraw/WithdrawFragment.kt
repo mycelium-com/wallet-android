@@ -12,12 +12,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.getInvestmentAccounts
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Transaction
 import com.mycelium.bequant.withdraw.adapter.WithdrawFragmentAdapter
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
+import com.mycelium.wapi.wallet.SyncMode
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
 import kotlinx.android.synthetic.main.layout_bequant_amount.*
 import java.math.BigDecimal
@@ -92,12 +95,19 @@ class WithdrawFragment : Fragment() {
 
     private fun usualWithraw() {
         viewModel.withdraw({
+            startSyncInvestmentAccounts()
             findNavController().popBackStack()
         }, { int, message ->
             ErrorHandler(requireContext()).handle(message)
         }, {
             loader(false)
         })
+    }
+
+    private fun startSyncInvestmentAccounts() {
+        MbwManager.getInstance(requireContext()).getWalletManager(false).let {
+            it.startSynchronization(SyncMode.NORMAL_FORCED, it.getInvestmentAccounts())
+        }
     }
 
     private fun loadBalance() {
