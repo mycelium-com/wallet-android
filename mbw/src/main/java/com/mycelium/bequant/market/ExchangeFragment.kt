@@ -75,6 +75,8 @@ class ExchangeFragment : Fragment() {
                     viewModel.youGet.value = Value.zeroValue(it)
                 }
                 updateAvailable()
+                // check RadioButton with default "100%" value
+                send_percent.check(send_percent.findViewWithTag<RadioButton>(100).id)
             })
         }
     }
