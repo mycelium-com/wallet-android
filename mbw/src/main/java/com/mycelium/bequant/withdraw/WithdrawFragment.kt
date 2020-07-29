@@ -68,7 +68,7 @@ class WithdrawFragment : Fragment() {
         val moneyToWithdraw = BigDecimal(viewModel.amount.value)
         if (moneyToWithdraw > 0.toBigDecimal()) {
             val total = viewModel.accountBalance.value as BigDecimal + viewModel.tradingBalance.value as BigDecimal
-            if (moneyToWithdraw > total || args.currency == null) {
+            if (moneyToWithdraw > total) {
                 ErrorHandler(requireContext()).handle(getString(R.string.insufficient_funds))
                 return
             }

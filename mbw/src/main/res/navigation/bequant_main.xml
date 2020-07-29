@@ -31,8 +31,7 @@
             app:destination="@id/selectAccountFragment" />
         <argument
             android:name="currency"
-            app:argType="string"
-            app:nullable="true"/>
+            app:argType="string"/>
 
     </fragment>
     <fragment
