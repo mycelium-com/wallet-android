@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
@@ -37,8 +38,7 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
         }
         if (BequantPreference.getKYCToken().isNotEmpty()) {
             loader(true)
-            Api.kycRepository.status(lifecycleScope) { statusMsg ->
-                loader(false)
+            Api.kycRepository.status(lifecycleScope, { statusMsg ->
                 when (statusMsg.global) {
                     KYCStatus.PENDING ->
                         if (statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == false) {
@@ -53,7 +53,11 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
                     KYCStatus.REJECTED ->
                         findNavController().navigate(StartFragmentDirections.actionRejected())
                 }
-            }
+            }, { code, msg ->
+                ErrorHandler(requireContext()).handle(msg)
+            }, {
+                loader(false)
+            })
         }
     }
 

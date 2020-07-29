@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
@@ -24,7 +25,6 @@ import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step2ViewModel
-import com.mycelium.bequant.remote.repositories.KYCRepository
 import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.bequant.remote.model.toModel
@@ -98,10 +98,13 @@ class Step2Fragment : Fragment() {
             viewModel.fillModel(kycRequest)
             val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
             loader(true)
-            Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant)) {
-                loader(false)
+            Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
                 findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
-            }
+            }, { code, msg ->
+                ErrorHandler(requireContext()).handle(msg)
+            }, {
+                loader(false)
+            })
         }
 
         viewModel.addressLine1.observe(viewLifecycleOwner, Observer {

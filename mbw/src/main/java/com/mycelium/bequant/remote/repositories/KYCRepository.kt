@@ -24,18 +24,15 @@ import java.text.SimpleDateFormat
 
 
 class KYCRepository {
-    fun create(scope: CoroutineScope, applicant: KYCApplicant, success: (() -> Unit)) {
+    fun create(scope: CoroutineScope, applicant: KYCApplicant, success: (() -> Unit),
+               error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             service.create(KYCCreateRequest(applicant))
         }, {
             val uuid = it?.uuid ?: ""
             BequantPreference.setKYCToken(uuid)
             success.invoke()
-        }, { code, msg ->
-
-        }, {
-
-        })
+        }, error, finally)
     }
 
     fun mobileVerification(scope: CoroutineScope, success: ((String) -> Unit), error: (Int, String) -> Unit, finally: () -> Unit) {
@@ -102,17 +99,16 @@ class KYCRepository {
         })
     }
 
-    fun status(scope: CoroutineScope, success: ((StatusMessage) -> Unit)) {
+    fun status(scope: CoroutineScope, success: ((StatusMessage) -> Unit),
+               error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
             BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
             success.invoke(response?.message!!)
         }, { code, msg ->
-
-        }, {
-
-        })
+            error.invoke(code, msg)
+        }, finally)
     }
 
     companion object {
