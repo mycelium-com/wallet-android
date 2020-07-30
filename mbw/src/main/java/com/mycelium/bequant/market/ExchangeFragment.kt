@@ -60,7 +60,7 @@ import kotlin.math.pow
 
 
 class ExchangeFragment : Fragment() {
-
+    private var RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED = 0.1
     private lateinit var viewModel: ExchangeViewModel
     var getViewActive = false
 
@@ -296,7 +296,7 @@ class ExchangeFragment : Fragment() {
                         // place market order
                         Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
                                 if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
-                                "", null, true, false, {
+                                "", null, false, false, {
                             loader(false)
                             requireActivity().runOnUiThread {
                                 showSummary()
@@ -317,7 +317,7 @@ class ExchangeFragment : Fragment() {
             } else {
                 Api.tradingRepository.orderPost(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id,
                         if (isBuy) "buy" else "sell", quantity, "", "market", "", "",
-                        "", null, true, false, {
+                        "", null, false, false, {
                     requireActivity().runOnUiThread {
                         showSummary()
                         requestBalances()
@@ -443,7 +443,12 @@ class ExchangeFragment : Fragment() {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.ask)
                                 if (!youSend.isZero()) {
-                                    val youGetDecimal = youSend.valueAsBigDecimal.divide(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))), RoundingMode.HALF_DOWN)
+                                    var amountToSend = youSend.valueAsBigDecimal
+                                    val maximumWExchangedAmount = viewModel.available.value?.valueAsBigDecimal!!.multiply(BigDecimal(1 - RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED))
+                                    if (amountToSend.compareTo(maximumWExchangedAmount) == 1) {
+                                        amountToSend = maximumWExchangedAmount
+                                    }
+                                    val youGetDecimal = amountToSend.divide(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                     viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                                 }
                             } else { //SELL base currency
