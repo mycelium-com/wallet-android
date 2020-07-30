@@ -1,17 +1,12 @@
 package com.mycelium.bequant.market
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.adapter.MarketAdapter
@@ -23,6 +18,7 @@ import com.mycelium.bequant.remote.trading.model.Ticker
 import com.mycelium.wallet.R
 import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
+import java.util.*
 
 
 class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
@@ -31,23 +27,15 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     private val adapter = MarketAdapter { pos: Int, desc: Boolean ->
         sortField = pos
         sortDirection = desc
-        updateList()
+        updateList(search?.text?.toString()?.trim() ?: "")
     }
     private var tickersData = listOf<Ticker>()
-    private val receive = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            requestTickers()
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receive, IntentFilter(Constants.ACTION_BEQUANT_KEYS))
-    }
+    private var tickerTimer: Timer? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         list.adapter = adapter
+        list.itemAnimator = null
         search.doOnTextChanged { text, start, count, after ->
             updateList(text?.toString()?.trim() ?: "")
         }
@@ -57,14 +45,33 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                     .hideSoftInputFromWindow(search.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
             true
         }
-        requestTickers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tickerTimer = Timer("market-tickets", false)
+        tickerTimer?.schedule(object : TimerTask() {
+            override fun run() {
+                list?.post {
+                    requestTickers()
+                }
+            }
+        }, 0L, 5000L)
+    }
+
+    override fun onPause() {
+        tickerTimer?.cancel()
+        tickerTimer = null
+        super.onPause()
     }
 
     private fun requestTickers() {
-        loader(true)
+        if (tickersData.isEmpty()) {
+            loader(true)
+        }
         Api.publicRepository.publicTickerGet(viewLifecycleOwner.lifecycleScope, null, {
             tickersData = it?.toList() ?: emptyList()
-            updateList()
+            updateList(search?.text?.toString()?.trim() ?: "")
         }, { code, error ->
             ErrorHandler(requireContext()).handle(error)
         }, {
@@ -130,7 +137,6 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
             tickersData.firstOrNull { it.symbol.equals("${currency}USD", true) }?.last
 
     override fun onDestroyView() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receive)
         list.adapter = null
         super.onDestroyView()
     }
