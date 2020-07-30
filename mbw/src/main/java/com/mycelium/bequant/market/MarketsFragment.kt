@@ -27,7 +27,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     private val adapter = MarketAdapter { pos: Int, desc: Boolean ->
         sortField = pos
         sortDirection = desc
-        updateList()
+        updateList(search?.text?.toString()?.trim() ?: "")
     }
     private var tickersData = listOf<Ticker>()
     private var tickerTimer: Timer? = null
