@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
 
 class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_coin) {
     private val role: String by lazy {
-        requireArguments().getString(ROLE)
+        requireArguments().getString(ROLE)!!
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -369,7 +369,7 @@ class ExchangeFragment : Fragment() {
 
         val dialog = dialogBuilder.create()
         val blurredBg = BitmapDrawable(resources, BlurBuilder.blur(requireActivity()))
-        dialog.window.setBackgroundDrawable(blurredBg)
+        dialog.window!!.setBackgroundDrawable(blurredBg)
         dialog.show()
         dialog.btDone.setOnClickListener { dialog.cancel() }
     }
