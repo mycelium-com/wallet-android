@@ -99,8 +99,10 @@ object SettingsPreference {
         }
     }
 
-    private fun getPartnerInfo(id: String): PartnerInfo? =
-            gson.fromJson(sharedPreferences.getString("${PARTNER_KEY}-$id", ""), PartnerInfo::class.java)
+    private fun getPartnerInfo(id: String): PartnerInfo? {
+        val string = sharedPreferences.getString("${PARTNER_KEY}-$id", null) ?: return null
+        return gson.fromJson(string, PartnerInfo::class.java)
+    }
 
     @JvmStatic
     fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean("${PARTNER_ENABLED}-${partnerInfoId}", true)
