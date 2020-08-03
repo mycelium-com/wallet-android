@@ -97,7 +97,6 @@ dependencies {
       //USED BY KYC only, have to be reviewed later
     implementation "com.squareup.moshi:moshi-kotlin:1.8.0"
     implementation "com.squareup.moshi:moshi-adapters:1.8.0"
-    implementation "org.threeten:threetenbp:1.4.0"
     implementation "com.squareup.retrofit2:converter-scalars:2.8.1"
     implementation "com.squareup.retrofit2:converter-moshi:2.8.1"
     implementation "com.googlecode.libphonenumber:libphonenumber:8.12.2"
