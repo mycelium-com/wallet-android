@@ -13,16 +13,15 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param session 
  */
-@JsonClass(generateAdapter = true)
+
 data class SessionJWT (
-    @Json(name = "session")
+    @JsonProperty("session")
     val session: kotlin.String
 )
 

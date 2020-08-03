@@ -13,8 +13,7 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
@@ -23,15 +22,14 @@ import com.squareup.moshi.JsonClass
  * @param otpId 
  * @param status 
  */
-@JsonClass(generateAdapter = true)
 data class TotpResponse (
-    @Json(name = "created")
+    @JsonProperty("created")
     val created: kotlin.Long,
-    @Json(name = "name")
+    @JsonProperty("name")
     val name: kotlin.String,
-    @Json(name = "otp_id")
+    @JsonProperty("otp_id")
     val otpId: kotlin.Long,
-    @Json(name = "status")
+    @JsonProperty("status")
     val status: kotlin.String
 )
 

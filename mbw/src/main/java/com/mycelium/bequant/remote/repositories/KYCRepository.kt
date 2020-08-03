@@ -112,7 +112,7 @@ class KYCRepository {
     }
 
     companion object {
-        private val objectMapper = ObjectMapper()
+        val objectMapper = ObjectMapper()
                 .registerKotlinModule()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)

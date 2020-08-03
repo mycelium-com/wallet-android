@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -27,22 +27,22 @@ import com.squareup.moshi.Json
  */
 
 data class Symbol(
-        @Json(name = "id")
+        @JsonProperty("id")
         val id: kotlin.String,
-        @Json(name = "baseCurrency")
+        @JsonProperty("baseCurrency")
         val baseCurrency: kotlin.String,
-        @Json(name = "quoteCurrency")
+        @JsonProperty("quoteCurrency")
         val quoteCurrency: kotlin.String,
-        @Json(name = "quantityIncrement")
+        @JsonProperty("quantityIncrement")
         val quantityIncrement: kotlin.String,
         /* A tick size is the minimum price movement of a trading instrument. */
-        @Json(name = "tickSize")
+        @JsonProperty("tickSize")
         val tickSize: kotlin.String,
-        @Json(name = "takeLiquidityRate")
+        @JsonProperty("takeLiquidityRate")
         val takeLiquidityRate: kotlin.String? = null,
-        @Json(name = "provideLiquidityRate")
+        @JsonProperty("provideLiquidityRate")
         val provideLiquidityRate: kotlin.String? = null,
-        @Json(name = "feeCurrency")
+        @JsonProperty("feeCurrency")
         val feeCurrency: kotlin.String? = null
 )
 

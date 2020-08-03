@@ -11,7 +11,7 @@
  */
 package com.mycelium.bequant.remote.trading.model
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -23,17 +23,17 @@ import com.squareup.moshi.Json
  */
 
 data class Orderbook(
-        @Json(name = "ask")
+        @JsonProperty("ask")
         val ask: kotlin.Array<OrderbookAsk>? = null,
-        @Json(name = "bid")
+        @JsonProperty("bid")
         val bid: kotlin.Array<OrderbookAsk>? = null,
-        @Json(name = "timestamp")
+        @JsonProperty("timestamp")
         val timestamp: java.util.Date? = null,
         /* Ask average price for specified volume. Optional (only for volume requests) */
-        @Json(name = "askAveragePrice")
+        @JsonProperty("askAveragePrice")
         val askAveragePrice: kotlin.String? = null,
         /* Bid average price for specified volume. Optional (only for volume requests) */
-        @Json(name = "bidAveragePrice")
+        @JsonProperty("bidAveragePrice")
         val bidAveragePrice: kotlin.String? = null
 )
 

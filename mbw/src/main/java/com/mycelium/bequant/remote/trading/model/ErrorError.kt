@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -22,10 +22,10 @@ import com.squareup.moshi.Json
  */
 
 data class ErrorError(
-        @Json(name = "code")
+        @JsonProperty("code")
         val code: String,
-        @Json(name = "message")
+        @JsonProperty("message")
         val message: String?,
-        @Json(name = "description")
+        @JsonProperty("description")
         val description: String? = null
 )

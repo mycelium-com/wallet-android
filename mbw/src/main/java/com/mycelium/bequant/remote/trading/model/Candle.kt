@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -26,19 +26,19 @@ import com.squareup.moshi.Json
  */
 
 data class Candle(
-        @Json(name = "timestamp")
+        @JsonProperty("timestamp")
         val timestamp: java.util.Date,
-        @Json(name = "open")
+        @JsonProperty("open")
         val open: kotlin.String,
-        @Json(name = "close")
+        @JsonProperty("close")
         val close: kotlin.String,
-        @Json(name = "min")
+        @JsonProperty("min")
         val min: kotlin.String,
-        @Json(name = "max")
+        @JsonProperty("max")
         val max: kotlin.String,
-        @Json(name = "volume")
+        @JsonProperty("volume")
         val volume: kotlin.String,
-        @Json(name = "volumeQuote")
+        @JsonProperty("volumeQuote")
         val volumeQuote: kotlin.String
 )
 

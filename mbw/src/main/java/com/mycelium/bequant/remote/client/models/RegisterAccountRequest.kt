@@ -14,8 +14,7 @@ package com.mycelium.bequant.remote.client.models
 
 
 import android.os.Parcelable
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
 
 /**
@@ -23,12 +22,12 @@ import kotlinx.android.parcel.Parcelize
  * @param email 
  * @param password 
  */
-@JsonClass(generateAdapter = true)
+
 @Parcelize
 data class RegisterAccountRequest (
-    @Json(name = "email")
+    @JsonProperty("email")
     val email: kotlin.String,
-    @Json(name = "password")
+    @JsonProperty("password")
     val password: kotlin.String
 ) : Parcelable
 
