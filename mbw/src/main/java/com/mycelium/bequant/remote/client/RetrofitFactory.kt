@@ -1,9 +1,12 @@
 package com.mycelium.bequant.remote.client
 
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
-import com.mycelium.bequant.remote.repositories.KYCRepository
 import com.mycelium.wallet.BuildConfig
 import okhttp3.Call
 import okhttp3.Credentials
@@ -12,8 +15,16 @@ import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
+import java.text.SimpleDateFormat
 
 object RetrofitFactory {
+
+    val objectMapper = ObjectMapper()
+            .registerKotlinModule()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
+            .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
+            .setDateFormat(SimpleDateFormat("yyyy-MM-dd"))
 
     private fun getClientBuilder(withAccessToken: Boolean = false): OkHttpClient.Builder =
             OkHttpClient().newBuilder()
@@ -48,13 +59,13 @@ object RetrofitFactory {
                     })
                     .baseUrl(url)
                     .addConverterFactory(NullOnEmptyConverterFactory())
-                    .addConverterFactory(JacksonConverterFactory.create(KYCRepository.objectMapper))
+                    .addConverterFactory(JacksonConverterFactory.create(objectMapper))
 
 
     fun getRetrofit(url: String, withAccessToken: Boolean = false): Retrofit =
             getBuilder(url, withAccessToken)
                     .addConverterFactory(NullOnEmptyConverterFactory())
-                    .addConverterFactory(JacksonConverterFactory.create(KYCRepository.objectMapper))
+                    .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                     .build()
 
 }
