@@ -1,7 +1,6 @@
 package com.mycelium.bequant.remote.repositories
 
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
 import com.mycelium.bequant.remote.client.apis.AccountApi
 import com.mycelium.bequant.remote.client.apis.ApiKeyApi
 import com.mycelium.bequant.remote.client.models.*
@@ -57,6 +56,12 @@ class SignRepository {
     fun accountEmailConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.getAccountEmailConfirm(token)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+    }
+
+    fun accountOnceToken(scope: CoroutineScope, success: (OnceTokenResponse?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)?= null) {
+        doRequest(scope, {
+            accountApi.getAccountOnceToken()
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
