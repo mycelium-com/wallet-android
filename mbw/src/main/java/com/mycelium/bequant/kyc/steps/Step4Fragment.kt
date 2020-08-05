@@ -150,7 +150,7 @@ class Step4Fragment : Fragment() {
 
     private fun removeDialog(remove: () -> Unit) {
         AlertDialog.Builder(requireContext())
-                .setMessage("Do you want delete document?")
+                .setMessage("Do you want to delete the document?")
                 .setPositiveButton(R.string.yes) { _, _ ->
                     remove.invoke()
                 }.setNegativeButton(R.string.cancel) { _, _ -> }
