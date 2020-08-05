@@ -56,7 +56,7 @@ class KYCRepository {
                 error.invoke()
             }
         }, { code, msg ->
-
+            error.invoke()
         }, {
 
         })

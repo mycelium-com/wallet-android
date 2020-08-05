@@ -55,7 +55,7 @@ data class KYCApplicant(@JsonProperty("phone-full") val phone: String,
                         @JsonInclude(JsonInclude.Include.NON_NULL)
                         @JsonProperty("nationality-iso-3166-3") var nationality: String? = null,
                         @JsonInclude(JsonInclude.Include.NON_NULL)
-                        @JsonProperty("exchange-user-id") var userId: String? = "12321432",
+                        @JsonProperty("once-token") var userId: String? = null,
                         @JsonInclude(JsonInclude.Include.NON_NULL)
                         @JsonProperty("facta_declaration") var facta: Boolean? = null,
                         @JsonProperty("residential_address") var address: ResidentialAddress = ResidentialAddress())
