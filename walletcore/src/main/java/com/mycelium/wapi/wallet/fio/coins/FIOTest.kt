@@ -4,18 +4,9 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.families.EOSBasedCryptoCurrency
 
-class FIOTest private constructor() : EOSBasedCryptoCurrency() {
+object FIOTest : EOSBasedCryptoCurrency() {
     override fun parseAddress(addressString: String): Address {
         TODO()
-    }
-
-    companion object {
-        private val instance = FIOTest()
-
-        @Synchronized
-        fun get(): CryptoCurrency {
-            return instance
-        }
     }
 
     init {
