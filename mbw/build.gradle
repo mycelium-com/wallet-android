@@ -46,6 +46,7 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
+    implementation project(includePrefix + ':fiosdk')
 
     implementation "com.google.guava:guava:$guavaVersion"
     implementation "com.squareup.retrofit2:retrofit:2.6.1"
