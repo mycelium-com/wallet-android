@@ -37,10 +37,10 @@ class Step4Fragment : Fragment() {
 
     val args: Step4FragmentArgs by navArgs()
 
-    val identityAdapter = DocumentAdapter()
-    val proofAddressAdapter = DocumentAdapter()
-    val selfieAdapter = DocumentAdapter()
-    var counter: Int = 0
+    private val identityAdapter = DocumentAdapter()
+    private val proofAddressAdapter = DocumentAdapter()
+    private val selfieAdapter = DocumentAdapter()
+    private var counter: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
