@@ -121,25 +121,18 @@ class Step4Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
-        val identityClick = { v: View ->
+        fun uploadClick(requestCode: Int) = { v: View ->
             DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_INDENTITY)
+                setTargetFragment(this@Step4Fragment, requestCode)
             }.show(parentFragmentManager, "upload_document")
         }
+        val identityClick = uploadClick(REQUEST_CODE_INDENTITY)
         uploadIdentity.setOnClickListener(identityClick)
         addIdentity.setOnClickListener(identityClick)
-        val poaClick = { v: View ->
-            DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_PROOF_ADDRESS)
-            }.show(parentFragmentManager, "upload_document")
-        }
+        val poaClick = uploadClick(REQUEST_CODE_PROOF_ADDRESS)
         uploadProofAddress.setOnClickListener(poaClick)
         addProofAddress.setOnClickListener(poaClick)
-        val selfieClick = { v: View ->
-            DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_SELFIE)
-            }.show(parentFragmentManager, "upload_document")
-        }
+        val selfieClick = uploadClick(REQUEST_CODE_SELFIE)
         uploadSelfie.setOnClickListener(selfieClick)
         addSelfie.setOnClickListener(selfieClick)
 
