@@ -37,10 +37,10 @@ class Step4Fragment : Fragment() {
 
     val args: Step4FragmentArgs by navArgs()
 
-    val identityAdapter = DocumentAdapter()
-    val proofAddressAdapter = DocumentAdapter()
-    val selfieAdapter = DocumentAdapter()
-    var counter: Int = 0
+    private val identityAdapter = DocumentAdapter()
+    private val proofAddressAdapter = DocumentAdapter()
+    private val selfieAdapter = DocumentAdapter()
+    private var counter: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,25 +121,18 @@ class Step4Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
-        val identityClick = { v: View ->
+        fun uploadClick(requestCode: Int) = { v: View ->
             DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_IDENTITY)
+                setTargetFragment(this@Step4Fragment, requestCode)
             }.show(parentFragmentManager, "upload_document")
         }
+        val identityClick = uploadClick(REQUEST_CODE_IDENTITY)
         uploadIdentity.setOnClickListener(identityClick)
         addIdentity.setOnClickListener(identityClick)
-        val poaClick = { v: View ->
-            DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_PROOF_ADDRESS)
-            }.show(parentFragmentManager, "upload_document")
-        }
+        val poaClick = uploadClick(REQUEST_CODE_PROOF_ADDRESS)
         uploadProofAddress.setOnClickListener(poaClick)
         addProofAddress.setOnClickListener(poaClick)
-        val selfieClick = { v: View ->
-            DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_SELFIE)
-            }.show(parentFragmentManager, "upload_document")
-        }
+        val selfieClick = uploadClick(REQUEST_CODE_SELFIE)
         uploadSelfie.setOnClickListener(selfieClick)
         addSelfie.setOnClickListener(selfieClick)
 
@@ -150,7 +143,7 @@ class Step4Fragment : Fragment() {
 
     private fun removeDialog(remove: () -> Unit) {
         AlertDialog.Builder(requireContext())
-                .setMessage("Do you want delete document?")
+                .setMessage(getString(R.string.delete_document))
                 .setPositiveButton(R.string.yes) { _, _ ->
                     remove.invoke()
                 }.setNegativeButton(R.string.cancel, null)
@@ -190,13 +183,8 @@ class Step4Fragment : Fragment() {
         (if (data?.data != null) getFileFromGallery(data) else DocumentAttachDialog.currentPhotoFile)?.run {
             val item = Document(BitmapFactory.decodeFile(absolutePath, bitmapOptions), "Doc ${++counter}", docType, absolutePath)
             adapter.submitList(adapter.currentList + item)
-            upload(item, requestList)
+            requestList.add(File(item.url!!).absolutePath)
         }
-    }
-
-    private fun upload(item: Document, requestList: MutableList<String>) {
-        val outputFile = File(item.url!!)
-        requestList.add(outputFile.absolutePath)
     }
 
     private fun getFileFromGallery(data: Intent): File =

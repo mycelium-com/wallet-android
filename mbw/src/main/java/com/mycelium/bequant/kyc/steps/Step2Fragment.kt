@@ -46,7 +46,7 @@ class Step2Fragment : Fragment() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.let {
                 viewModel.country.value = it.name
-                viewModel.countryAcronym.value = it.acronym
+                viewModel.countryAcronym.value = it.acronym3
             }
         }
     }
@@ -95,33 +95,33 @@ class Step2Fragment : Fragment() {
             findNavController().navigate(Step2FragmentDirections.actionSelectCountry())
         }
         btNext.setOnClickListener {
-            viewModel.fillModel(kycRequest)
-            val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
             loader(true)
-            Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
-                findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
+            Api.signRepository.accountOnceToken(viewModel.viewModelScope, {
+                it?.token?.let { onceToken ->
+                    viewModel.fillModel(kycRequest)
+                    val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
+                    applicant.userId = onceToken
+                    Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
+                        findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
+                    }, { code, msg ->
+                        ErrorHandler(requireContext()).handle(msg)
+                    }, {
+                        loader(false)
+                    })
+                }
             }, { code, msg ->
-                ErrorHandler(requireContext()).handle(msg)
-            }, {
                 loader(false)
+                ErrorHandler(requireContext()).handle(msg)
             })
         }
 
-        viewModel.addressLine1.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.addressLine2.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.city.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.postcode.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.country.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
+        viewModel.run { 
+            listOf(addressLine1, addressLine2, city, postcode, country).forEach { 
+                it.observe(viewLifecycleOwner, Observer {
+                    viewModel.nextButton.value = viewModel.isValid()
+                })
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
