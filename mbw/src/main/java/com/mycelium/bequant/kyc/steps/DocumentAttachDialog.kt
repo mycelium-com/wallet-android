@@ -15,13 +15,11 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import kotlinx.android.synthetic.main.dialog_bequant_document_attach.*
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class DocumentAttachDialog : BottomSheetDialogFragment() {
-
     private var hasCameraPermission: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -30,20 +28,17 @@ class DocumentAttachDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         camera.setOnClickListener {
-
             hasCameraPermission = Utils.hasOrRequestAccess(this, Manifest.permission.CAMERA, CAMERA_REQUEST_CODE)
             if (!hasCameraPermission) {
                 // finishError(R.string.no_camera_permission);
                 return@setOnClickListener
             }
             startCamera()
-
             dismissAllowingStateLoss()
         }
         upload.setOnClickListener {
             targetFragment?.startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
-                    targetRequestCode or REQURST_CODE_GALARY)
-
+                    targetRequestCode)
             dismissAllowingStateLoss()
         }
     }
@@ -53,7 +48,7 @@ class DocumentAttachDialog : BottomSheetDialogFragment() {
         val authority = "${BuildConfig.APPLICATION_ID}.files"
         val photoURI = FileProvider.getUriForFile(requireContext(), authority, photoFile)
         targetFragment?.startActivityForResult(Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                .putExtra(MediaStore.EXTRA_OUTPUT, photoURI), targetRequestCode or REQURST_CODE_CAMERA)
+                .putExtra(MediaStore.EXTRA_OUTPUT, photoURI), targetRequestCode)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -69,10 +64,9 @@ class DocumentAttachDialog : BottomSheetDialogFragment() {
         }
     }
 
-    @Throws(IOException::class)
     private fun createImageFile(): File {
         // Create an image file name
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val storageDir = File(requireContext().filesDir, "tmp/bequant/Pictures")
         if(!storageDir.exists()) {
             storageDir.mkdirs()
@@ -84,8 +78,6 @@ class DocumentAttachDialog : BottomSheetDialogFragment() {
     }
 
     companion object {
-        const val REQURST_CODE_CAMERA = 1000
-        const val REQURST_CODE_GALARY = 2000
         private val CAMERA_REQUEST_CODE = 504
 
         var currentPhotoFile: File? = null
