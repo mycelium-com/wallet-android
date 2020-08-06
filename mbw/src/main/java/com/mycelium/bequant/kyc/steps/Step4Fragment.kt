@@ -143,7 +143,7 @@ class Step4Fragment : Fragment() {
 
     private fun removeDialog(remove: () -> Unit) {
         AlertDialog.Builder(requireContext())
-                .setMessage("Do you want to delete the document?")
+                .setMessage(getString(R.string.delete_document))
                 .setPositiveButton(R.string.yes) { _, _ ->
                     remove.invoke()
                 }.setNegativeButton(R.string.cancel) { _, _ -> }
@@ -189,13 +189,8 @@ class Step4Fragment : Fragment() {
         (if (data?.data != null) getFileFromGallery(data) else DocumentAttachDialog.currentPhotoFile)?.run {
             val item = Document(BitmapFactory.decodeFile(absolutePath, bitmapOptions), "Doc ${++counter}", docType, absolutePath)
             adapter.submitList(adapter.currentList + item)
-            upload(item, adapter, requestList)
+            requestList.add(File(item.url!!).absolutePath)
         }
-    }
-
-    private fun upload(item: Document, adapter: DocumentAdapter, requestList: MutableList<String>) {
-        val outputFile = File(item.url)
-        requestList.add(outputFile.absolutePath)
     }
 
     private fun getFileFromGallery(data: Intent): File =

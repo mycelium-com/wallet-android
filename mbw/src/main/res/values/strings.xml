@@ -1502,4 +1502,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="country">Country</string>
     <string name="resend_verification_code">Resend verification code...</string>
     <string name="nothing_happened">Nothing happened?</string>
+    <string name="delete_document">Do you want to delete the document?</string>
 </resources>
