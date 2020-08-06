@@ -115,21 +115,13 @@ class Step2Fragment : Fragment() {
             })
         }
 
-        viewModel.addressLine1.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.addressLine2.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.city.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.postcode.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.country.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
+        viewModel.run { 
+            listOf(addressLine1, addressLine2, city, postcode, country).forEach { 
+                it.observe(viewLifecycleOwner, Observer {
+                    viewModel.nextButton.value = viewModel.isValid()
+                })
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
