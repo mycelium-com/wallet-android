@@ -52,6 +52,7 @@ class WithdrawFragment : Fragment() {
                 ?: "btc"))
         tabs.setupWithViewPager(pager)
         pager.offscreenPageLimit = 2
+        send.isEnabled = false
         viewModel.amount.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
             val custodialBalance = viewModel.castodialBalance.value?.toBigDecimalOrNull()

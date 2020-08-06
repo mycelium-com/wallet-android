@@ -57,6 +57,7 @@ class WithdrawAddressFragment : Fragment() {
                 bitcoinUriAction = UriAction()
             }
             ScanActivity.callMe(this, SCAN_REQUEST, config)
+
         }
 
         viewModel.address.observe(viewLifecycleOwner) {
@@ -68,6 +69,7 @@ class WithdrawAddressFragment : Fragment() {
             }
             address.background = ContextCompat.getDrawable(requireContext(), if (validAddress) R.drawable.bg_bequant_input_text else R.drawable.bg_bequant_input_text_error)
             address.error = if (validAddress) null else "Wrong address"
+            parentViewModel?.address?.value = viewModel.address.value
         }
 
     }
