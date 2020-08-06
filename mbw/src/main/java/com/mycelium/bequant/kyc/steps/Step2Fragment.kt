@@ -46,7 +46,7 @@ class Step2Fragment : Fragment() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.let {
                 viewModel.country.value = it.name
-                viewModel.countryAcronym.value = it.acronym
+                viewModel.countryAcronym.value = it.acronym3
             }
         }
     }
