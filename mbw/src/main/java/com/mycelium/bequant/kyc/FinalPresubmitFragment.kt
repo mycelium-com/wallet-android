@@ -69,7 +69,7 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
                 kycRequest.selfieList.forEach {
                     put(File(it), KYCDocument.SELFIE)
                 }
-            }, {
+            }, kycRequest.country ?: "", {
                 BequantPreference.setKYCSubmitDate(Date())
                 Toast.makeText(requireActivity(), "Submitted", Toast.LENGTH_LONG).show()
                 findNavController().navigate(FinalPresubmitFragmentDirections.actionFinish())

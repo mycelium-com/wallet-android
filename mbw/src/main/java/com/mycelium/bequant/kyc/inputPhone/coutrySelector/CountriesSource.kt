@@ -7,7 +7,7 @@ import com.mycelium.wallet.WalletApplication
 import java.util.*
 
 object CountriesSource {
-
+    //countries harvest from https://github.com/Dinuks/country-nationality-list/blob/master/countries.json
     val nationalityModels by lazy {
         KYCRepository.objectMapper.readValue<List<NationalityModel>>(
                 WalletApplication.getInstance().assets.open("countries.json"))
