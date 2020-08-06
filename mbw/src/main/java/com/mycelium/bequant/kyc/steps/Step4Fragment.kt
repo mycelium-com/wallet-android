@@ -126,7 +126,7 @@ class Step4Fragment : Fragment() {
                 setTargetFragment(this@Step4Fragment, requestCode)
             }.show(parentFragmentManager, "upload_document")
         }
-        val identityClick = uploadClick(REQUEST_CODE_INDENTITY)
+        val identityClick = uploadClick(REQUEST_CODE_IDENTITY)
         uploadIdentity.setOnClickListener(identityClick)
         addIdentity.setOnClickListener(identityClick)
         val poaClick = uploadClick(REQUEST_CODE_PROOF_ADDRESS)
@@ -146,7 +146,7 @@ class Step4Fragment : Fragment() {
                 .setMessage(getString(R.string.delete_document))
                 .setPositiveButton(R.string.yes) { _, _ ->
                     remove.invoke()
-                }.setNegativeButton(R.string.cancel) { _, _ -> }
+                }.setNegativeButton(R.string.cancel, null)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -171,16 +171,10 @@ class Step4Fragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE_INDENTITY || requestCode % 10 == REQUEST_CODE_INDENTITY % 10) {
-                uploadImage(data, identityAdapter, KYCDocument.PASSPORT, kycRequest.identityList)
-            }
-
-            if (requestCode == REQUEST_CODE_PROOF_ADDRESS || requestCode % 10 == REQUEST_CODE_PROOF_ADDRESS % 10) {
-                uploadImage(data, proofAddressAdapter, KYCDocument.POA, kycRequest.poaList)
-            }
-
-            if (requestCode == REQUEST_CODE_SELFIE || requestCode % 10 == REQUEST_CODE_SELFIE % 10) {
-                uploadImage(data, selfieAdapter, KYCDocument.SELFIE, kycRequest.selfieList)
+            when (requestCode) {
+                REQUEST_CODE_IDENTITY -> uploadImage(data, identityAdapter, KYCDocument.PASSPORT, kycRequest.identityList)
+                REQUEST_CODE_PROOF_ADDRESS -> uploadImage(data, proofAddressAdapter, KYCDocument.POA, kycRequest.poaList)
+                REQUEST_CODE_SELFIE -> uploadImage(data, selfieAdapter, KYCDocument.SELFIE, kycRequest.selfieList)
             }
         }
     }
@@ -194,7 +188,7 @@ class Step4Fragment : Fragment() {
     }
 
     private fun getFileFromGallery(data: Intent): File =
-            File.createTempFile(SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()),
+            File.createTempFile(SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date()),
                     ".jpg", requireContext().cacheDir).apply {
                 MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data.data)
                         .compress(Bitmap.CompressFormat.JPEG, 100, this.outputStream())
@@ -202,7 +196,7 @@ class Step4Fragment : Fragment() {
 
     companion object {
         val bitmapOptions = BitmapFactory.Options().apply { inSampleSize = 3; }
-        const val REQUEST_CODE_INDENTITY = 1001
+        const val REQUEST_CODE_IDENTITY = 1001
         const val REQUEST_CODE_PROOF_ADDRESS = 1002
         const val REQUEST_CODE_SELFIE = 1003
     }
