@@ -8,6 +8,7 @@ object FIOMain : EOSBasedCryptoCurrency() {
         TODO()
     }
 
+    val url = "http://fioprotocol.io/v1/"
     init {
         id = "fio.main"
         name = "Fio"

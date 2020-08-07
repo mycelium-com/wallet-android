@@ -7,7 +7,7 @@ object FIOTest : EOSBasedCryptoCurrency() {
     override fun parseAddress(addressString: String): Address {
         TODO()
     }
-
+    const val url ="http://testnet.fioprotocol.io/v1/"
     init {
         id = "fio.test"
         name = "FIO Test"

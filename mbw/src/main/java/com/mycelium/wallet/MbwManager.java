@@ -833,7 +833,6 @@ public class MbwManager {
         FIOModule fioModule = new FIOModule(secureKeyValueStore,
                 walletDB, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)),
-                FIOSDK
                 accountListener);
         walletManager.add(fioModule);
 

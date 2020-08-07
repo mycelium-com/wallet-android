@@ -330,13 +330,15 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         val publicKeyBytes = coluAccount.getPrivateKey(null)!!.publicKey.publicKeyBytes
         val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
-        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(parameters))
+        //TODO fix this due conflict FIO (bitcoinj lib)
+        TODO("Fix this due conflict FIO (bitcoinj lib)")
+//        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(parameters))
 
-        for (i in 0 until signTx.inputs.size) {
-            val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
-            val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
-            signTx.getInput(i.toLong()).scriptSig = scriptSig
-        }
+//        for (i in 0 until signTx.inputs.size) {
+//            val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
+//            val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
+//            signTx.getInput(i.toLong()).scriptSig = scriptSig
+//        }
 
         val signedTransactionBytes = signTx.bitcoinSerialize()
         val signedBitlibTransaction: BitcoinTransaction

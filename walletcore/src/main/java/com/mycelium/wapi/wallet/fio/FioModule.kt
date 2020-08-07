@@ -4,6 +4,7 @@ import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.eth.toUUID
+import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
@@ -16,7 +17,6 @@ import java.util.*
 
 class FIOModule(
         private val secureStore: SecureKeyValueStore,
-        val credentials: Credentials? = null,
         private val walletDB: WalletDB,
         metaDataStorage: IMetaDataStorage,
         private val fioKeyManager: FioKeyManager,
@@ -26,7 +26,7 @@ class FIOModule(
     companion object {
 
         const val ID: String = "FIO"
-        const val URL: String = "HERE_URL"
+        const val URL: String = FIOTest.url
     }
 
     private val accounts = mutableMapOf<UUID, FioAccount>()
