@@ -4,6 +4,7 @@ import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.eth.toUUID
+import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -31,10 +32,15 @@ class FIOModule(
 
     private val accounts = mutableMapOf<UUID, FioAccount>()
 
-    private fun getFioSdk(accountIndex: Int): FIOSDK {
+    private fun getFioSdk(accountIndex: Int, config: FIOConfig): FIOSDK {
         val publicKey = HexUtils.toHex(fioKeyManager.getFioPublicKey(accountIndex).publicKeyBytes)
         val privateKey = HexUtils.toHex(fioKeyManager.getFioPrivateKey(accountIndex).privateKeyBytes)
-        return FIOSDK(privateKey, publicKey, "", AbiFIOSerializationProvider(), SoftKeySignatureProvider(), URL)
+        val url = if (config.isTestnet) FIOTest.url else FIOMain.url
+        return FIOSDK(privateKey, publicKey, "", AbiFIOSerializationProvider(), SoftKeySignatureProvider(), url)
+    }
+
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> {
+        return hashMapOf()
     }
 
     override val id: String
@@ -42,7 +48,7 @@ class FIOModule(
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val newIndex = getCurrentBip44Index() + 1
-        val newAccount = FioAccount(fioKeyManager, getFioSdk(newIndex), deriveKey(newIndex))
+        val newAccount = FioAccount(fioKeyManager, getFioSdk(newIndex, config as FIOConfig), deriveKey(newIndex))
         accounts[newAccount.id] = newAccount
         return newAccount
     }
@@ -61,7 +67,7 @@ class FIOModule(
             .filter { it.isDerivedFromInternalMasterseed }.size
 
     override fun canCreateAccount(config: Config): Boolean {
-        return true
+        return config is FIOConfig
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {

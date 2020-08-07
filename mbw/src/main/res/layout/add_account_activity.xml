@@ -57,6 +57,17 @@
                 android:layout_marginTop="24dp"/>
 
         <Button
+            android:id="@+id/btFIOCreate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:text="FIO create"
+            android:layout_marginTop="24dp"/>
+
+
+        <Button
                 android:id="@+id/btEthCreate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

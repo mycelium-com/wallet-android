@@ -74,6 +74,8 @@ import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
+import com.mycelium.wapi.wallet.fio.FIOConfig;
+import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,6 +117,7 @@ public class AddAccountActivity extends Activity {
 
         findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
         findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
+        findViewById(R.id.btFIOCreate).setOnClickListener(createFioAccount);
         if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
             findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
         } else {
@@ -286,6 +289,17 @@ public class AddAccountActivity extends Activity {
         }
     };
 
+    View.OnClickListener createFioAccount = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+                @Override
+                public void run() {
+                    createFIOAccount();
+                }
+            });
+        }
+    };
     View.OnClickListener createColuAccount = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -310,10 +324,33 @@ public class AddAccountActivity extends Activity {
         new HdCreationAsyncTask().execute();
     }
 
+    private void createFIOAccount() {
+        final WalletManager wallet = _mbwManager.getWalletManager(false);
+        // at this point, we have to have a master seed, since we created one on startup
+        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+        showProgress(R.string.hd_account_creation_started);
+        new FIOCreationAsyncTask().execute();
+    }
+
     private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         @Override
         protected UUID doInBackground(Void... params) {
             return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID account) {
+            _progress.dismiss();
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+            finishOk(account);
+        }
+    }
+
+    private class FIOCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        @Override
+        protected UUID doInBackground(Void... params) {
+            return _mbwManager.getWalletManager(false).createAccounts(new FIOConfig()).get(0);
         }
 
         @Override
