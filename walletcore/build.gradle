@@ -14,6 +14,7 @@ dependencies {
     implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':fiosdk')
+    implementation project(includePrefix + ':javaserializationprovider')
 
     implementation "com.google.guava:guava:$rootProject.guavaVersion"
     implementation "com.fasterxml.jackson.core:jackson-core:2.9.5"

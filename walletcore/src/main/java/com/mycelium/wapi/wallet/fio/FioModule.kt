@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.implementations.SoftKeySignatureProvider
+import fiofoundation.io.javaserializationprovider.AbiFIOSerializationProvider
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
 import java.util.*
@@ -33,7 +34,7 @@ class FIOModule(
     private fun getFioSdk(accountIndex: Int): FIOSDK {
         val publicKey = HexUtils.toHex(fioKeyManager.getFioPublicKey(accountIndex).publicKeyBytes)
         val privateKey = HexUtils.toHex(fioKeyManager.getFioPrivateKey(accountIndex).privateKeyBytes)
-        return FIOSDK(privateKey, publicKey, "", null, SoftKeySignatureProvider(), URL)
+        return FIOSDK(privateKey, publicKey, "", AbiFIOSerializationProvider(), SoftKeySignatureProvider(), URL)
     }
 
     override val id: String

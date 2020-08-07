@@ -1,0 +1,28 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+version = "1.0.0"
+
+repositories {
+    jcenter()
+}
+
+jar {
+    manifest {}
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.so'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation group: 'org.json', name: 'json', version: '20190722'
+
+    implementation project(":fiosdk")
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"
+
+repositories {
+    mavenCentral()
+}
