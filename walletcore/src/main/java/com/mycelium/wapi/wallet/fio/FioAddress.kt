@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.fio
 
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.fio.coins.FIOMain
 
 class FioAddress(override val coinType: CryptoCurrency, val fioAddressData: FioAddressData) : Address {
 
@@ -22,7 +23,7 @@ class FioAddress(override val coinType: CryptoCurrency, val fioAddressData: FioA
     }
 
     override fun getSubType(): String {
-        return fioAddressData.getType().name
+        return FIOMain.name
     }
 
     companion object {

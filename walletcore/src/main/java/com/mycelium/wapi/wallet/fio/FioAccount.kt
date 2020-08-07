@@ -1,15 +1,18 @@
 package com.mycelium.wapi.wallet.fio
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.crypto.PublicKey
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.toUUID
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import fiofoundation.io.fiosdk.FIOSDK
+import org.web3j.crypto.Credentials
 import java.util.*
 
-class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK) : WalletAccount<FioAddress> {
+class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val credentials: Credentials) : WalletAccount<FioAddress> {
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("Not yet implemented")
     }
@@ -27,15 +30,16 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK) : WalletA
     }
 
     override fun getReceiveAddress(): Address {
-        TODO("Not yet implemented")
+        val formatPubKey = fioKeyManager.formatPubKey(PublicKey(fiosdk.publicKey.toByteArray()))
+        return FioAddress(FIOMain, FioAddressData(formatPubKey))
     }
 
     override fun getCoinType(): CryptoCurrency {
-        TODO("Not yet implemented")
+        return FIOMain
     }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
-        TODO("Not yet implemented")
+        return FIOMain
     }
 
     override fun getAccountBalance(): Balance {
@@ -43,12 +47,11 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK) : WalletA
         return Balance(Value.valueOf(FIOMain, fioBalance.balance), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
     }
 
-    override fun isMineAddress(address: Address?): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun isMineAddress(address: Address?): Boolean = address == receiveAddress
+
 
     override fun isExchangeable(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun getTx(transactionId: ByteArray?): Transaction {
@@ -100,15 +103,15 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK) : WalletA
     }
 
     override fun isSyncing(): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun isArchived(): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun isActive(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun archiveAccount() {
@@ -124,16 +127,16 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK) : WalletA
     }
 
     override fun isVisible(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun isDerivedFromInternalMasterseed(): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
-    override fun getId(): UUID {
-        TODO("Not yet implemented")
-    }
+    override fun getId(): UUID = credentials?.ecKeyPair?.toUUID()
+            ?: UUID.nameUUIDFromBytes(receiveAddress.getBytes())
+
 
     override fun broadcastOutgoingTransactions(): Boolean {
         TODO("Not yet implemented")

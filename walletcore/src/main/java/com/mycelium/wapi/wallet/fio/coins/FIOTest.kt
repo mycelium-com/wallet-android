@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.fio.coins
 
 import com.mycelium.wapi.wallet.Address
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.families.EOSBasedCryptoCurrency
 
 object FIOTest : EOSBasedCryptoCurrency() {
