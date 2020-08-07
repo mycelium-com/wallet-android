@@ -5,9 +5,11 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.coins.FIOMain
+import fiofoundation.io.fiosdk.FIOSDK
 import java.util.*
 
-class FioAccount() : WalletAccount<FioAddress>  {
+class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK) : WalletAccount<FioAddress> {
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("Not yet implemented")
     }
@@ -37,7 +39,8 @@ class FioAccount() : WalletAccount<FioAddress>  {
     }
 
     override fun getAccountBalance(): Balance {
-        TODO("Not yet implemented")
+        val fioBalance = fiosdk.getFioBalance()
+        return Balance(Value.valueOf(FIOMain, fioBalance.balance), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
     }
 
     override fun isMineAddress(address: Address?): Boolean {

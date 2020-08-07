@@ -13,6 +13,7 @@ dependencies {
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
+    implementation project(includePrefix + ':fiosdk')
 
     implementation "com.google.guava:guava:$rootProject.guavaVersion"
     implementation "com.fasterxml.jackson.core:jackson-core:2.9.5"

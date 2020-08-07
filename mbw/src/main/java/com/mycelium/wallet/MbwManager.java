@@ -157,6 +157,8 @@ import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthBlockchainService;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.fio.FIOModule;
+import com.mycelium.wapi.wallet.fio.FioKeyManager;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.Backing;
@@ -826,6 +828,15 @@ public class MbwManager {
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
+
+
+        FIOModule fioModule = new FIOModule(secureKeyValueStore,
+                walletDB, getMetadataStorage(),
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)),
+                FIOSDK
+                accountListener);
+        walletManager.add(fioModule);
+
         walletManager.init();
         walletManager.startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
         return walletManager;

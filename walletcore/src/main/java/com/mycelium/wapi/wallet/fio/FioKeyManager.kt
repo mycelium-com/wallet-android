@@ -28,7 +28,7 @@ class FioKeyManager(private val masterSeedManager: MasterSeedManager) {
         val ripeMD160 = RIPEMD160Digest()
         ripeMD160.update(publicKey.publicKeyBytes, 0, publicKey.publicKeyBytes.size)
         ripeMD160.doFinal(out, 0)
-        var slicedHash = out.slice(IntRange(0,3))
+        var slicedHash = out.slice(IntRange(0, 3))
         return "FIO" + Base58.encode(publicKey.publicKeyBytes + slicedHash)
     }
 }
