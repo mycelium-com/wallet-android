@@ -25,34 +25,28 @@ class BequantAccountAdapter : ListAdapter<AccountItem, RecyclerView.ViewHolder>(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
-                TYPE_SEARCH -> {
-                    SearchHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_search, parent, false))
-                }
-                TYPE_ITEM -> {
-                    ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_account, parent, false))
-                }
-                else -> {
-                    SpaceHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_space, parent, false))
-                }
+                TYPE_SEARCH -> SearchHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_search, parent, false))
+                TYPE_ITEM -> ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_account, parent, false))
+                else -> SpaceHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_space, parent, false))
             }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         when (item.type) {
-            TYPE_SEARCH -> {
-                viewHolder.itemView.search.doOnTextChanged { text, start, count, after ->
+            TYPE_SEARCH -> viewHolder.itemView.run {
+                search.doOnTextChanged { text, _, _, _ ->
                     searchChangeListener?.invoke(text?.toString() ?: "")
                 }
-                viewHolder.itemView.clear.setOnClickListener {
+                clear.setOnClickListener {
                     viewHolder.itemView.search.text = null
                     searchClearListener?.invoke()
                 }
             }
-            TYPE_ITEM -> {
-                viewHolder.itemView.symbol.text = item.symbol
-                viewHolder.itemView.name.text = item.name
-                viewHolder.itemView.value.text = item.value
-                viewHolder.itemView.addButton.setOnClickListener {
+            TYPE_ITEM -> viewHolder.itemView.run {
+                symbol.text = item.symbol
+                name.text = item.name
+                value.text = item.value
+                addButton.setOnClickListener {
                     addCoinListener?.invoke(getItem(viewHolder.adapterPosition).symbol)
                 }
             }
@@ -66,6 +60,6 @@ class BequantAccountAdapter : ListAdapter<AccountItem, RecyclerView.ViewHolder>(
                 equalsValuesBy(oldItem, newItem, { it.name }, { it.symbol }, { it.value })
 
         override fun areContentsTheSame(oldItem: AccountItem, newItem: AccountItem): Boolean =
-                equalsValuesBy(oldItem, newItem, { it.name }, { it.symbol }, { it.value })
+                areItemsTheSame(oldItem, newItem)
     }
 }
