@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -209,12 +208,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.forEach { tx ->
                 tx.getTokenTransfer(token.contractAddress)?.also { transfer ->
-                backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                        transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
-                        Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
-                                ?: typicalEstimatedTransactionSize.toBigInteger())),
-                        tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
-            }
+                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
+                            transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                            Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
+                                    ?: typicalEstimatedTransactionSize.toBigInteger())),
+                            tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
+                }
             }
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore

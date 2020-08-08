@@ -110,6 +110,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
+
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
