@@ -37,10 +37,10 @@ class Step4Fragment : Fragment() {
 
     val args: Step4FragmentArgs by navArgs()
 
-    val identityAdapter = DocumentAdapter()
-    val proofAddressAdapter = DocumentAdapter()
-    val selfieAdapter = DocumentAdapter()
-    var counter: Int = 0
+    private val identityAdapter = DocumentAdapter()
+    private val proofAddressAdapter = DocumentAdapter()
+    private val selfieAdapter = DocumentAdapter()
+    private var counter: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,25 +121,18 @@ class Step4Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
-        val identityClick = { v: View ->
+        fun uploadClick(requestCode: Int) = { v: View ->
             DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_INDENTITY)
+                setTargetFragment(this@Step4Fragment, requestCode)
             }.show(parentFragmentManager, "upload_document")
         }
+        val identityClick = uploadClick(REQUEST_CODE_IDENTITY)
         uploadIdentity.setOnClickListener(identityClick)
         addIdentity.setOnClickListener(identityClick)
-        val poaClick = { v: View ->
-            DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_PROOF_ADDRESS)
-            }.show(parentFragmentManager, "upload_document")
-        }
+        val poaClick = uploadClick(REQUEST_CODE_PROOF_ADDRESS)
         uploadProofAddress.setOnClickListener(poaClick)
         addProofAddress.setOnClickListener(poaClick)
-        val selfieClick = { v: View ->
-            DocumentAttachDialog().apply {
-                setTargetFragment(this@Step4Fragment, REQUEST_CODE_SELFIE)
-            }.show(parentFragmentManager, "upload_document")
-        }
+        val selfieClick = uploadClick(REQUEST_CODE_SELFIE)
         uploadSelfie.setOnClickListener(selfieClick)
         addSelfie.setOnClickListener(selfieClick)
 
@@ -150,10 +143,10 @@ class Step4Fragment : Fragment() {
 
     private fun removeDialog(remove: () -> Unit) {
         AlertDialog.Builder(requireContext())
-                .setMessage("Do you want delete document?")
+                .setMessage(getString(R.string.delete_document))
                 .setPositiveButton(R.string.yes) { _, _ ->
                     remove.invoke()
-                }.setNegativeButton(R.string.cancel) { _, _ -> }
+                }.setNegativeButton(R.string.cancel, null)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -178,16 +171,10 @@ class Step4Fragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE_INDENTITY || requestCode % 10 == REQUEST_CODE_INDENTITY % 10) {
-                uploadImage(data, identityAdapter, KYCDocument.PASSPORT, kycRequest.identityList)
-            }
-
-            if (requestCode == REQUEST_CODE_PROOF_ADDRESS || requestCode % 10 == REQUEST_CODE_PROOF_ADDRESS % 10) {
-                uploadImage(data, proofAddressAdapter, KYCDocument.POA, kycRequest.poaList)
-            }
-
-            if (requestCode == REQUEST_CODE_SELFIE || requestCode % 10 == REQUEST_CODE_SELFIE % 10) {
-                uploadImage(data, selfieAdapter, KYCDocument.SELFIE, kycRequest.selfieList)
+            when (requestCode) {
+                REQUEST_CODE_IDENTITY -> uploadImage(data, identityAdapter, KYCDocument.PASSPORT, kycRequest.identityList)
+                REQUEST_CODE_PROOF_ADDRESS -> uploadImage(data, proofAddressAdapter, KYCDocument.POA, kycRequest.poaList)
+                REQUEST_CODE_SELFIE -> uploadImage(data, selfieAdapter, KYCDocument.SELFIE, kycRequest.selfieList)
             }
         }
     }
@@ -196,17 +183,12 @@ class Step4Fragment : Fragment() {
         (if (data?.data != null) getFileFromGallery(data) else DocumentAttachDialog.currentPhotoFile)?.run {
             val item = Document(BitmapFactory.decodeFile(absolutePath, bitmapOptions), "Doc ${++counter}", docType, absolutePath)
             adapter.submitList(adapter.currentList + item)
-            upload(item, adapter, requestList)
+            requestList.add(File(item.url!!).absolutePath)
         }
     }
 
-    private fun upload(item: Document, adapter: DocumentAdapter, requestList: MutableList<String>) {
-        val outputFile = File(item.url)
-        requestList.add(outputFile.absolutePath)
-    }
-
     private fun getFileFromGallery(data: Intent): File =
-            File.createTempFile(SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()),
+            File.createTempFile(SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date()),
                     ".jpg", requireContext().cacheDir).apply {
                 MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data.data)
                         .compress(Bitmap.CompressFormat.JPEG, 100, this.outputStream())
@@ -214,7 +196,7 @@ class Step4Fragment : Fragment() {
 
     companion object {
         val bitmapOptions = BitmapFactory.Options().apply { inSampleSize = 3; }
-        const val REQUEST_CODE_INDENTITY = 1001
+        const val REQUEST_CODE_IDENTITY = 1001
         const val REQUEST_CODE_PROOF_ADDRESS = 1002
         const val REQUEST_CODE_SELFIE = 1003
     }

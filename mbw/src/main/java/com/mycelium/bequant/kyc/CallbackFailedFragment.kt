@@ -17,8 +17,10 @@ class CallbackFailedFragment : Fragment(R.layout.fragment_bequant_kyc_callback_f
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.identity_auth)
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.identity_auth)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         backButton.setOnClickListener {
             findNavController().popBackStack()
         }

@@ -52,21 +52,21 @@ class KYCRepository {
                 error.invoke()
             }
         }, { code, msg ->
-
+            error.invoke()
         }, {
 
         })
     }
 
-    fun uploadDocument(scope: CoroutineScope, type: KYCDocument, file: File,
+    fun uploadDocument(scope: CoroutineScope, type: KYCDocument, file: File, country: String,
                        progress: ((Long, Long) -> Unit), success: () -> Unit, error: () -> Unit) {
         doRequest(scope, {
             val fileBody = ProgressRequestBody(file, "image")
             fileBody.progressListener = progress
             val multipartBody = MultipartBody.Part.createFormData("file", file.name, fileBody)
             val typeBody = RequestBody.create(MediaType.parse("text/plain"), type.toString())
-            val country = RequestBody.create(MediaType.parse("text/plain"), "ITA")
-            service.uploadFile(BequantPreference.getKYCToken(), typeBody, country, multipartBody)
+            val countryBody = RequestBody.create(MediaType.parse("text/plain"), country)
+            service.uploadFile(BequantPreference.getKYCToken(), typeBody, countryBody, multipartBody)
         }, { response ->
             success.invoke()
         }, { code, msg ->
@@ -74,15 +74,15 @@ class KYCRepository {
         }, {})
     }
 
-    fun uploadDocuments(scope: CoroutineScope, fileMap: Map<File, KYCDocument>, success: () -> Unit,
-                        error: (String) -> Unit, finally: () -> Unit) {
+    fun uploadDocuments(scope: CoroutineScope, fileMap: Map<File, KYCDocument>, country: String,
+                        success: () -> Unit, error: (String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             var result: Response<KYCResponse> = Response.success(null)
             fileMap.forEach {
                 val fileBody = ProgressRequestBody(it.key, "image")
                 val multipartBody = MultipartBody.Part.createFormData("file", it.key.name, fileBody)
                 val type = RequestBody.create(MediaType.parse("text/plain"), it.value.toString())
-                val country = RequestBody.create(MediaType.parse("text/plain"), "ITA")
+                val country = RequestBody.create(MediaType.parse("text/plain"), country)
                 result = service.uploadFile(BequantPreference.getKYCToken(), type, country, multipartBody)
             }
             result

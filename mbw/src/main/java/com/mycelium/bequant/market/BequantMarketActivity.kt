@@ -16,7 +16,7 @@ class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market
         super.onCreate(savedInstanceState)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        val logoMenuClick = { view: View ->
+        val logoMenuClick = { _: View ->
             val isOpened = logoMenu.visibility == VISIBLE
             logoMenu.visibility = if (isOpened) GONE else VISIBLE
             logoArrow.setImageDrawable(logoArrow.resources.getDrawable(

@@ -204,7 +204,7 @@
             android:name="kycRequest"
             app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
         <action
-            android:id="@+id/actionSubmit"
+            android:id="@+id/actionFinish"
             app:destination="@id/pendingFragment" />
         <action
             android:id="@+id/actionEditDocs"

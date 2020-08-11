@@ -4,4 +4,6 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class CountryModel(val name: String, val acronym:String, val code: Int, val nationality:String?=null) : Parcelable
+data class CountryModel(val name: String, val acronym:String,
+                        val acronym3:String,
+                        val code: Int, val nationality:String?=null) : Parcelable

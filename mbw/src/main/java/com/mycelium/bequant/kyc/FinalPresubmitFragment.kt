@@ -55,7 +55,7 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
             }
         }
         discardButton.setOnClickListener {
-            findNavController().navigate(FinalPresubmitFragmentDirections.actionSubmit())
+            findNavController().navigate(FinalPresubmitFragmentDirections.actionFinish())
         }
         submitButton.setOnClickListener {
             loader(true)
@@ -69,10 +69,10 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
                 kycRequest.selfieList.forEach {
                     put(File(it), KYCDocument.SELFIE)
                 }
-            }, {
+            }, kycRequest.country ?: "", {
                 BequantPreference.setKYCSubmitDate(Date())
                 Toast.makeText(requireActivity(), "Submitted", Toast.LENGTH_LONG).show()
-                findNavController().navigate(FinalPresubmitFragmentDirections.actionSubmit())
+                findNavController().navigate(FinalPresubmitFragmentDirections.actionFinish())
             }, {
                 ErrorHandler(requireContext()).handle(it)
             }, {

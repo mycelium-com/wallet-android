@@ -39,6 +39,18 @@ interface AccountApi {
     ): Response<Unit>
 
     /**
+     * Generate account once token
+     * Generate account once token
+     * Responses:
+     *  - 200: OK
+     *
+     * @return void
+     */
+    @GET("account/once-token")
+
+    suspend fun getAccountOnceToken(): Response<OnceTokenResponse>
+
+    /**
      * Password set with token HTML form
      * Password set with token  HTML form
      * Responses:
