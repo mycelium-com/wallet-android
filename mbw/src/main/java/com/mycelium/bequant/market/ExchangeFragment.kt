@@ -35,6 +35,7 @@ import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
+import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Transaction
 import com.mycelium.view.Denomination
@@ -98,27 +99,7 @@ class ExchangeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        for (i in 25..100 step 25) {
-            val rb = RadioButton(requireContext()).apply {
-                text = "$i%"
-                tag = i
-                setOnClickListener {
-                    updateYouSend((it.tag as Int))
-                }
-            }
-            val params: RadioGroup.LayoutParams = RadioGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            // convert dp to pixels as setMargins() works with pixels
-            val dpValue = 8
-            val dpRatio = requireContext().resources.displayMetrics.density
-            val pixelForDp = dpValue * dpRatio.toInt()
-            params.setMargins(0, 0, pixelForDp, 0)
-            rb.layoutParams = params
-            send_percent.addView(rb)
-        }
-        send_percent.apply {
-            (getChildAt(childCount - 1) as RadioButton).isChecked = true
-        }
+        createPercentageRadioButtons()
         numeric_keyboard.setInputListener(object : ValueKeyboard.SimpleInputListener() {
             override fun done() {
                 getViewActive = false
@@ -232,13 +213,37 @@ class ExchangeFragment : Fragment() {
         }
     }
 
+    private fun createPercentageRadioButtons() {
+        val params: RadioGroup.LayoutParams = RadioGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        // convert dp to pixels as setMargins() works with pixels
+        val dpValue = 8
+        val dpRatio = requireContext().resources.displayMetrics.density
+        val pixelForDp = dpValue * dpRatio.toInt()
+        params.setMargins(0, 0, pixelForDp, 0)
+        for (i in 25..100 step 25) {
+            val rb = RadioButton(requireContext()).apply {
+                text = "$i%"
+                tag = i
+                setOnClickListener {
+                    updateYouSend((it.tag as Int))
+                }
+            }
+            rb.layoutParams = params
+            send_percent.addView(rb)
+        }
+        send_percent.apply {
+            (getChildAt(childCount - 1) as RadioButton).isChecked = true
+        }
+    }
+
     @Subscribe
-    fun tradingBalance(balance: TradingBalance) {
+    fun onNewTradingBalance(balance: TradingBalance) {
         viewModel.tradingBalances.value = balance.balances
     }
 
     @Subscribe
-    fun tradingBalance(balance: AccountBalance) {
+    fun onNewAccountBalance(balance: AccountBalance) {
         viewModel.accountBalances.value = balance.balances
     }
 
@@ -279,7 +284,7 @@ class ExchangeFragment : Fragment() {
         val currency = youSend.currencySymbol
         BQExchangeRateManager.findSymbol(youGet.currencySymbol,
                 youSend.currencySymbol) { symbol ->
-            var isBuy = youGet.currencySymbol == symbol!!.baseCurrency
+            val isBuy = youGet.currencySymbol == symbol!!.baseCurrency
             val amount = youSend.valueAsBigDecimal
             val tradingBalance = BigDecimal(viewModel.tradingBalances.value?.find { it.currency == currency }?.available
                     ?: "0")
@@ -493,14 +498,15 @@ class ExchangeFragment : Fragment() {
         const val YOU_SEND_YOU_GET_PAIR = "youSendYouGetPair"
         const val YOU_SEND = 0
         const val YOU_GET = 1
+        private const val RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED = 0.1
     }
 }
 
 @BindingAdapter("isRedColor")
 fun setRedTextColor(target: ConstraintLayout, isRedColor: Boolean) {
-    if (isRedColor) {
-        target.setBackgroundResource(R.drawable.bg_bequant_text_with_stroke_red)
+    target.setBackgroundResource(if (isRedColor) {
+        R.drawable.bg_bequant_text_with_stroke_red
     } else {
-        target.setBackgroundResource(R.drawable.bg_bequant_text_with_stroke)
-    }
+        R.drawable.bg_bequant_text_with_stroke
+    })
 }
