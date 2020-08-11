@@ -1,12 +1,10 @@
 package com.mycelium.bequant.remote.client.models
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
-@JsonClass(generateAdapter = true)
 data class OnceTokenResponse(
-        @Json(name = "expiredAt")
+        @JsonProperty("expiredAt")
         val expiredAt: Long,
-        @Json(name = "token")
+        @JsonProperty("token")
         val token: String
 )
