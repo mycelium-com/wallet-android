@@ -33,10 +33,9 @@ import kotlinx.android.synthetic.main.item_bequant_search.*
 import java.math.BigDecimal
 
 class AccountFragment : Fragment() {
-
     private lateinit var mbwManager: MbwManager
     val adapter = BequantAccountAdapter()
-    var balancesData = mutableListOf<Balance>()
+    private var balancesData = mutableListOf<Balance>()
     lateinit var viewModel: AccountViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,12 +89,12 @@ class AccountFragment : Fragment() {
             updateList()
         })
 
-        viewModel.tradingBalances.observe(viewLifecycleOwner, Observer<Array<Balance>> { balances ->
+        viewModel.tradingBalances.observe(viewLifecycleOwner, Observer<Array<Balance>> {
             updateBalanceData()
             updateBalances()
         })
 
-        viewModel.accountBalances.observe(viewLifecycleOwner, Observer<Array<Balance>> { balances ->
+        viewModel.accountBalances.observe(viewLifecycleOwner, Observer<Array<Balance>> {
             updateBalanceData()
             updateBalances()
         })
@@ -103,7 +102,7 @@ class AccountFragment : Fragment() {
         privateModeButton.setOnClickListener {
             viewModel.privateMode.value = !(viewModel.privateMode.value ?: false)
         }
-        search.doOnTextChanged { text, start, count, after ->
+        search.doOnTextChanged { text, _, _, _ ->
             updateList(text?.toString() ?: "")
         }
         clear.setOnClickListener {
@@ -118,12 +117,12 @@ class AccountFragment : Fragment() {
     }
 
     @Subscribe
-    fun tradingBalance(balance: TradingBalance) {
+    fun onNewTradingBalance(balance: TradingBalance) {
         viewModel.tradingBalances.value = balance.balances
     }
 
     @Subscribe
-    fun tradingBalance(balance: AccountBalance) {
+    fun onNewAccountBalance(balance: AccountBalance) {
         viewModel.accountBalances.value = balance.balances
     }
 
@@ -138,8 +137,7 @@ class AccountFragment : Fragment() {
         val result = mutableListOf<Balance>()
         for ((currency, balances) in totalBalances.groupBy { it.currency }) {
             val currencySum = balances.map {
-                BigDecimal(it.available) +
-                        BigDecimal(it.reserved)
+                BigDecimal(it.available) + BigDecimal(it.reserved)
             }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
             result.add(Balance(currency, currencySum.toPlainString(), BigDecimal.ZERO.toPlainString()))
         }
