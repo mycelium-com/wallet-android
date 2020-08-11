@@ -49,7 +49,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mycelium.lt.api.model.Captcha;
 import com.mycelium.wallet.MbwManager;
@@ -57,6 +56,7 @@ import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetCaptcha;
@@ -195,7 +195,7 @@ public class SolveCaptchaActivity extends Activity implements NumberEntryListene
       @Override
       public void onLtError(int errorCode) {
          // Some other error
-         Toast.makeText(SolveCaptchaActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+         new Toaster(SolveCaptchaActivity.this).toast(R.string.lt_error_api_occurred, false);
          finish();
       }
 
@@ -219,7 +219,7 @@ public class SolveCaptchaActivity extends Activity implements NumberEntryListene
             setResult(RESULT_OK);
             finish();
          } else {
-            Toast.makeText(SolveCaptchaActivity.this, R.string.lt_captcha_wrong, Toast.LENGTH_LONG).show();
+            new Toaster(SolveCaptchaActivity.this).toast(R.string.lt_captcha_wrong, false);
             updateUi();
          }
       }

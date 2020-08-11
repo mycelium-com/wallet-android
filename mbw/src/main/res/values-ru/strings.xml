@@ -58,7 +58,7 @@
     <string name="copied_to_clipboard">Скопирован в буфер обмена</string>
     <string name="private_key">Приватный ключ</string>
     <string name="bitcoin_address_title">Биткойн адрес</string>
-    <string name="no_server_connection">Нет соединения с  сервером</string>
+    <string name="no_server_connection">Нет соединения с %s сервером</string>
     <string name="no_network_connection">Отсутствует сетевое подключение</string>
     <string name="invalid_bitcoin_uri">Недопустимый  биткойн URI</string>
     <string name="unrecognized_format">Неизвестный формат</string>

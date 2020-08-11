@@ -62,6 +62,7 @@ import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ExchangeValueKt;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -250,8 +251,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    @OnClick(R.id.btMax)
    void onMaxButtonClick() {
       if (Value.isNullOrZero(_maxSpendableAmount)) {
-         String msg = getResources().getString(R.string.insufficient_funds);
-         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+         new Toaster(this).toast(R.string.insufficient_funds, true);
       } else {
          _amount = _maxSpendableAmount;
          // set the current shown currency to the amount's currency
@@ -555,17 +555,14 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
                   // We do not have enough funds
                   if (amount.equalZero() || _account.getAccountBalance().getSpendable().lessThan(amount)) {
                      // We do not have enough funds for sending the requested amount
-                     String msg = getResources().getString(R.string.insufficient_funds);
-                     Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
+                     new Toaster(GetAmountActivity.this).toast(R.string.insufficient_funds, true);
                   } else {
                      // We do have enough funds for sending the requested amount, but
                      // not for the required fee
-                     String msg = getResources().getString(R.string.insufficient_funds_for_fee);
-                     Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
+                     new Toaster(GetAmountActivity.this).toast(R.string.insufficient_funds_for_fee, true);
                   }
                } else if(result == AmountValidation.ExchangeRateNotAvailable) {
-                  String msg = getResources().getString(R.string.exchange_rate_unavailable);
-                  Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
+                  new Toaster(GetAmountActivity.this).toast(R.string.exchange_rate_unavailable, true);
                }
                // else {
                // The amount we want to send is not large enough for the network to

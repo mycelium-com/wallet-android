@@ -50,6 +50,7 @@ import android.widget.Toast;
 import com.google.common.base.Strings;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 
 public abstract class GenericBlockExplorerLabel extends AppCompatTextView {
    private void init() {
@@ -96,7 +97,7 @@ public abstract class GenericBlockExplorerLabel extends AppCompatTextView {
             @Override
             public boolean onLongClick(View v) {
                Utils.setClipboardString(getLinkText(), GenericBlockExplorerLabel.this.getContext());
-               Toast.makeText(GenericBlockExplorerLabel.this.getContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+               new Toaster(GenericBlockExplorerLabel.this.getContext()).toast(R.string.copied_to_clipboard, true);
                return true;
             }
          });
@@ -107,8 +108,7 @@ public abstract class GenericBlockExplorerLabel extends AppCompatTextView {
                Intent intent = new Intent(Intent.ACTION_VIEW);
                intent.setData(Uri.parse(getLinkURL(blockExplorer)));
                GenericBlockExplorerLabel.this.getContext().startActivity(intent);
-               Toast.makeText(GenericBlockExplorerLabel.this.getContext(), R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT)
-                       .show();
+               new Toaster(GenericBlockExplorerLabel.this.getContext()).toast(R.string.redirecting_to_block_explorer, true);
             }
          });
       }

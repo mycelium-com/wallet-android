@@ -47,6 +47,7 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -199,7 +200,7 @@ public class VerifyWordListActivity extends AppCompatActivity implements WordAut
       if (word.equals(wordlist.get(currentWordIndex))) {
          askForNextWord();
       } else {
-         Toast.makeText(VerifyWordListActivity.this, R.string.verify_word_wrong, Toast.LENGTH_LONG).show();
+         new Toaster(VerifyWordListActivity.this).toast(R.string.verify_word_wrong, false);
       }
    }
 

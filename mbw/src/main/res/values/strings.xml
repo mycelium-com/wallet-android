@@ -73,7 +73,7 @@
     <string name="private_key">Private Key</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="approximate_fiat_value">%2$s %1$s</string>
-    <string name="no_server_connection">No Server Connection</string>
+    <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
@@ -1372,4 +1372,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="tx_replace_info_title">Transaction to be replaced</string>
     <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
     <string name="none">none</string>
+    <string name="service_unavailable">Service unavailable</string>
+    <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
 </resources>

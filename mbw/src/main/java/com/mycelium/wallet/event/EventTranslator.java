@@ -79,7 +79,7 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
    public void onAccountEvent(WalletManager wallet, UUID accountId, WalletManager.Event event) {
       switch (event) {
          case SERVER_CONNECTION_ERROR:
-            postEvent(new SyncFailed());
+            postEvent(new SyncFailed(accountId));
             break;
          case BROADCASTED_TRANSACTION_ACCEPTED:
             postEvent(new TransactionBroadcasted());

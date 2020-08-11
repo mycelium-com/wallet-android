@@ -13,6 +13,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -112,7 +113,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
             getPaymentUri()
         }
         Utils.setClipboardString(text, context)
-        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+        Toaster(context).toast(R.string.copied_to_clipboard, true)
     }
 
     fun setAmount(amount: Value) {

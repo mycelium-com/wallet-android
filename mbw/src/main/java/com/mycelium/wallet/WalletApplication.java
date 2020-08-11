@@ -52,6 +52,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
@@ -61,7 +62,6 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
@@ -242,6 +242,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                 MbwManager.getInstance(getApplicationContext()).setAppInForeground(false);
                 isBackground = true;
             }
+            Toaster.onStop();
         }
 
         @Override

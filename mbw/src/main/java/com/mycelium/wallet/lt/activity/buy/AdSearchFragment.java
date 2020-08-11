@@ -34,18 +34,12 @@
 
 package com.mycelium.wallet.lt.activity.buy;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -54,7 +48,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.mycelium.lt.api.model.AdSearchItem;
 import com.mycelium.lt.api.model.AdType;
@@ -63,6 +59,7 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidUtils;
@@ -71,6 +68,10 @@ import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.AdSearch;
 import com.mycelium.wallet.lt.api.GetAd;
 import com.mycelium.wallet.lt.api.GetPublicTraderInfo;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -350,7 +351,7 @@ public class AdSearchFragment extends Fragment {
                + _selected.location.longitude + "&z=12";
          intent.setData(Uri.parse(url));
          startActivity(intent);
-         Toast.makeText(getActivity(), R.string.lt_opening_map, Toast.LENGTH_LONG).show();
+         new Toaster(getActivity()).toast(R.string.lt_opening_map, false);
       }
    };
 

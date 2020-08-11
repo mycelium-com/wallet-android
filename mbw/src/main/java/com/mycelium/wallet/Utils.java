@@ -52,10 +52,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import androidx.annotation.StringRes;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +65,11 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -89,6 +90,7 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.CurrencyCode;
@@ -249,8 +251,7 @@ public class Utils {
    }
 
    public static void toastConnectionError(Context context) {
-      int resId = isConnected(context) ? R.string.no_server_connection : R.string.no_network_connection;
-      Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
+      new Toaster(context).toastConnectionError();
    }
 
    public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
@@ -500,7 +501,7 @@ public class Utils {
          clipboard.setPrimaryClip(ClipData.newPlainText("Mycelium", string));
       } catch (NullPointerException ex) {
          MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(context, context.getString(R.string.unable_to_set_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_set_clipboard, false);
       }
    }
 
@@ -519,11 +520,11 @@ public class Utils {
          //some devices reported java.lang.SecurityException: Permission Denial:
          // reading com.android.providers.media.MediaProvider uri content://media/external/file/6595
          // it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
-         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_get_clipboard, false);
          return "";
       } catch (NullPointerException ex) {
          MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_get_clipboard, false);
          return "";
       }
    }
@@ -537,7 +538,7 @@ public class Utils {
          }
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity, activity.getString(R.string.unable_to_clear_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(activity).toast(R.string.unable_to_clear_clipboard, false);
       }
    }
 

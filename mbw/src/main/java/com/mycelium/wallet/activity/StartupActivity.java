@@ -70,6 +70,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
@@ -465,10 +466,10 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             GetSpendingRecordActivity.callMeWithResult(this, bytes, REQUEST_FROM_URI);
          }
       } catch (FileNotFoundException e) {
-         Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.file_not_found, false);
          finish();
       } catch (IOException e) {
-         Toast.makeText(this, getString(R.string.payment_request_unable_to_read_payment_request), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.payment_request_unable_to_read_payment_request, false);
          finish();
       }
    }
@@ -487,7 +488,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       Optional<BitIDSignRequest> bitid = BitIDSignRequest.parse(intentUri);
       if (!bitid.isPresent()) {
          //Invalid bitid URI
-         Toast.makeText(this, R.string.invalid_bitid_uri, Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.invalid_bitid_uri, false);
          finish();
          return;
       }
@@ -513,7 +514,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       GenericAssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
       if (uri == null) {
          // Invalid Bitcoin URI
-         Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.invalid_bitcoin_uri, false);
          finish();
          return;
       }
@@ -525,7 +526,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       } else {
          if (uri.getAddress() == null && uri instanceof WithCallback && Strings.isNullOrEmpty(((WithCallback) uri).getCallbackURL())) {
             // Invalid Bitcoin URI
-            Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
+            new Toaster(this).toast(R.string.invalid_bitcoin_uri, false);
             finish();
             return;
          }

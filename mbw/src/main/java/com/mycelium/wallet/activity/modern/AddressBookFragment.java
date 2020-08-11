@@ -56,6 +56,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.fragment.app.Fragment;
+
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -339,7 +340,7 @@ public class AddressBookFragment extends Fragment {
                         SelectAssetDialog.getInstance(addresses).show(requireFragmentManager(), "dialog");
                     }
                 } else {
-                    Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+                    new Toaster(AddDialog.this.getContext()).toast(R.string.unrecognized_format, true);
                 }
                 AddDialog.this.dismiss();
             });
@@ -367,7 +368,7 @@ public class AddressBookFragment extends Fragment {
             }
             String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
             if (error != null) {
-                Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
+                new Toaster(getActivity()).toast(error, false);
             }
             return;
         }

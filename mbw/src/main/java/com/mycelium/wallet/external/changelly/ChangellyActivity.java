@@ -2,9 +2,6 @@ package com.mycelium.wallet.external.changelly;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
@@ -13,8 +10,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
@@ -109,7 +111,7 @@ public class ChangellyActivity extends AppCompatActivity {
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
-            Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
+            new Toaster(ChangellyActivity.this).toast("Error parsing double values", true);
             return;
         }
         changellyAPIService.getExchangeAmount(fromCurrency, toCurrency, dblAmount).enqueue(new GetOfferCallback(fromCurrency, toCurrency, dblAmount));
@@ -209,7 +211,7 @@ public class ChangellyActivity extends AppCompatActivity {
     }
 
     private void toast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        new Toaster(this).toast(msg, true);
     }
 
     /* Activity UI logic Start */

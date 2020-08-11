@@ -36,8 +36,6 @@ package com.mycelium.wallet.activity.main;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -48,13 +46,6 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.core.app.ShareCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -64,6 +55,16 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
@@ -109,9 +110,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
-import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -131,8 +130,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
-import static android.widget.Toast.LENGTH_LONG;
-import static android.widget.Toast.makeText;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TransactionHistoryFragment extends Fragment {
@@ -718,16 +715,16 @@ public class TransactionHistoryFragment extends Fragment {
          txFee -= i.getValue().getValueAsLong();
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
-         makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
+         new Toaster(getActivity()).toast(getResources().getString(R.string.bumping_not_necessary), false);
          return null;
       }
 
       try {
          return ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).createUnsignedCPFPTransaction(txid, feePerKB, txFee);
       } catch (InsufficientFundsException e) {
-         makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+         new Toaster(getActivity()).toast(R.string.insufficient_funds, false);
       } catch (UnableToBuildTransactionException e) {
-         makeText(getActivity(), getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
+         new Toaster(getActivity()).toast(getResources().getString(R.string.unable_to_build_tx), false);
       }
       return null;
    }

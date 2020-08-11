@@ -41,11 +41,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.StringRes;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.StringRes;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
@@ -56,6 +56,7 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -175,7 +176,7 @@ public class PopActivity extends Activity {
 
       URL url = getUrl(popRequest.getP());
       if (url == null) {
-         Toast.makeText(this, "Invalid URL:" + popRequest.getP(), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("Invalid URL:" + popRequest.getP(), false);
          finish();
          return;
       }
@@ -188,7 +189,7 @@ public class PopActivity extends Activity {
       } else if ("http".equals(protocol)) {
          textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
       } else {
-         Toast.makeText(this, "Unsupported protocol:" + url.getProtocol(), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("Unsupported protocol:" + url.getProtocol(), false);
          finish();
       }
    }
@@ -198,7 +199,7 @@ public class PopActivity extends Activity {
       try {
          url = new URL(pParam);
       } catch (MalformedURLException e) {
-         Toast.makeText(this, "Not a proper destination URL:" + pParam, Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("Not a proper destination URL:" + pParam, false);
          finish();
          return null;
       }
@@ -222,7 +223,7 @@ public class PopActivity extends Activity {
    public void sendPop(View view) {
       try {
          if (txidToProve == null) {
-            Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG).show();
+            new Toaster(this).toast(R.string.pop_no_transaction_selected, false);
          }
          WalletAccount account = _mbwManager.getSelectedAccount();
 
@@ -239,7 +240,7 @@ public class PopActivity extends Activity {
             }
          });
       } catch (Exception e) {
-         Toast.makeText(this, "An internal error occurred:" + e.getMessage(), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("An internal error occurred:" + e.getMessage(), false);
       }
    }
 
@@ -264,7 +265,7 @@ public class PopActivity extends Activity {
             if (networkInfo != null && networkInfo.isConnected()) {
                new SendPopTask().execute(pop);
             } else {
-               Toast.makeText(this, "No network available", Toast.LENGTH_LONG).show();
+               new Toaster(this).toast("No network available", false);
             }
          }
       } else {
@@ -316,7 +317,7 @@ public class PopActivity extends Activity {
       @Override
       protected void onPostExecute(String result) {
          if (result.equals("valid")) {
-            Toast.makeText(PopActivity.this, R.string.pop_success, Toast.LENGTH_LONG).show();
+            new Toaster(PopActivity.this).toast(R.string.pop_success, false);
             finish();
          } else {
             String serverMessage = result;

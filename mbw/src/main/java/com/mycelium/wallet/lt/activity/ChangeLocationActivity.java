@@ -41,13 +41,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.wallet.GpsLocationFetcher;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderManager;
 
 public class ChangeLocationActivity extends Activity {
@@ -114,8 +115,7 @@ public class ChangeLocationActivity extends Activity {
                _chosenAddress = location;
                updateUi();
             } else {
-               Toast.makeText(ChangeLocationActivity.this, R.string.lt_localization_not_available, Toast.LENGTH_LONG)
-                     .show();
+               new Toaster(ChangeLocationActivity.this).toast(R.string.lt_localization_not_available, false);
             }
          }
       };

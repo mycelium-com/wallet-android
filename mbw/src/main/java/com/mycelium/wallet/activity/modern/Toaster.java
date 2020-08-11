@@ -49,7 +49,7 @@ import com.mycelium.wallet.Utils;
  * come in rapid succession
  */
 public class Toaster {
-
+    private static Toast currentToast;
     private final Context context;
     private Activity activity;
     private Fragment fragment;
@@ -64,6 +64,10 @@ public class Toaster {
         context = fragment.getContext();
     }
 
+    public Toaster(Context context) {
+        this.context = context;
+    }
+
     public void toast(int resourceId, boolean shortDuration) {
         // Resolve the message from the resource id
         String message;
@@ -76,20 +80,39 @@ public class Toaster {
     }
 
     public void toast(String message, boolean shortDuration) {
+        cancelCurrentToast();
         if (fragment != null && !fragment.isAdded()) {            
             return;            
         }
-        Activity currentActivity = fragment != null ? fragment.getActivity() : activity;
-        Toast toast = Toast.makeText(currentActivity, message, Toast.LENGTH_SHORT);
-        toast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);        
-        toast.show();
+        Context currentContext = fragment != null ? fragment.getActivity() : activity;
+        if (currentContext == null) {
+            currentContext = context;
+        }
+        currentToast = Toast.makeText(currentContext, message, Toast.LENGTH_SHORT);
+        currentToast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
+        currentToast.show();
     }
 
     public void toastConnectionError() {
+        toastConnectionError("");
+    }
+
+    public void toastConnectionError(String additionInfo) {
         if (Utils.isConnected(context)) {
-            toast(R.string.no_server_connection, false);
+            toast(context.getString(R.string.no_server_connection, additionInfo), false);
         } else {
             toast(R.string.no_network_connection, true);
+        }
+    }
+
+    public static void onStop() {
+        cancelCurrentToast();
+    }
+
+    private static void cancelCurrentToast() {
+        if(currentToast != null) {
+            currentToast.cancel();
+            currentToast = null;
         }
     }
 }

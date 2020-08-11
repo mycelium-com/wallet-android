@@ -47,7 +47,6 @@ import android.os.StrictMode;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -83,6 +82,7 @@ import com.mycelium.net.ServerEndpoints;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.view.Denomination;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.GlobalBlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
@@ -1028,7 +1028,7 @@ public class MbwManager {
             @Override
             public void run() {
                 MbwManager.this.savePin(Pin.CLEAR_PIN);
-                Toast.makeText(_applicationContext, R.string.pin_cleared, Toast.LENGTH_LONG).show();
+                new Toaster(_applicationContext).toast(R.string.pin_cleared, false);
                 if (afterDialogClosed != null) {
                     afterDialogClosed.run();
                 }
@@ -1054,13 +1054,13 @@ public class MbwManager {
                     dialog.setTitle(R.string.pin_confirm_pin);
                 } else if (newPin.equals(pin.getPin())) {
                     MbwManager.this.savePin(pin);
-                    Toast.makeText(activity, R.string.pin_set, Toast.LENGTH_LONG).show();
+                    new Toaster(activity).toast(R.string.pin_set, false);
                     dialog.dismiss();
                     if (afterDialogClosed != null) {
                         afterDialogClosed.run();
                     }
                 } else {
-                    Toast.makeText(activity, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
+                    new Toaster(activity).toast(R.string.pin_codes_dont_match, false);
                     MbwManager.this.vibrate();
                     dialog.dismiss();
                     if (afterDialogClosed != null) {
@@ -1132,7 +1132,7 @@ public class MbwManager {
                         try {
                             Thread.sleep(millis);
                         } catch (InterruptedException ignored) {
-                            Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
+                            new Toaster(activity).toast(R.string.avoid_get_to_pin_check, false);
                             vibrate();
                             pinDialog.dismiss();
                             Thread.currentThread().interrupt();
@@ -1176,7 +1176,7 @@ public class MbwManager {
                                     .show();
                         } else {
                             // This pin is not resettable, you are out of luck
-                            Toast.makeText(activity, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
+                            new Toaster(activity).toast(R.string.pin_invalid_pin, false);
                             vibrate();
                             pinDialog.dismiss();
                         }
