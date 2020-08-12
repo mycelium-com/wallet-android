@@ -1,7 +1,5 @@
 package com.mycelium.bequant.exchange
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -34,12 +32,6 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
             setDisplayShowTitleEnabled(true)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_back_arrow))
             setTitle(R.string.exchange)
-        }
-        done.setOnClickListener {
-            val result = Intent()
-            result.putExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR, youSendYouGetPair.value)
-            setResult(Activity.RESULT_OK, result)
-            finish()
         }
     }
 

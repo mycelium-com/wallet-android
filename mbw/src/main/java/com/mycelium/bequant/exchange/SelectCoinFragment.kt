@@ -1,5 +1,7 @@
 package com.mycelium.bequant.exchange
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -10,12 +12,13 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.model.CoinListItem
+import com.mycelium.bequant.market.ExchangeFragment
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
 
-class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_coin) {
+class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_coin), CoinAdapter.ClickListener {
     private val role: String by lazy {
         requireArguments().getString(ROLE)!!
     }
@@ -24,7 +27,7 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
         super.onViewCreated(view, savedInstanceState)
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
                 .apply { setFromItem(1) })
-        val adapter = CoinAdapter(role, (requireActivity() as SelectCoinActivity).youSendYouGetPair)
+        val adapter = CoinAdapter(role, this, (requireActivity() as SelectCoinActivity).youSendYouGetPair)
         list.adapter = adapter
         loader(true)
         Api.publicRepository.publicCurrencyGet(viewLifecycleOwner.lifecycle.coroutineScope, null, { list ->
@@ -58,5 +61,12 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
         const val ROLE = "role"
         const val SEND = "send"
         const val GET = "get"
+    }
+
+    override fun onClick() {
+        val result = Intent()
+        result.putExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR, (requireActivity() as SelectCoinActivity).youSendYouGetPair.value)
+        requireActivity().setResult(Activity.RESULT_OK, result)
+        requireActivity().finish()
     }
 }

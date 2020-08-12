@@ -14,7 +14,8 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
 
 
-class CoinAdapter(private val role: String, var youSendYouGetPair: MutableLiveData<Pair<GenericAssetInfo, GenericAssetInfo>>)
+class CoinAdapter(private val role: String, private val listener: ClickListener,
+                  var youSendYouGetPair: MutableLiveData<Pair<GenericAssetInfo, GenericAssetInfo>>)
     : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -63,6 +64,7 @@ class CoinAdapter(private val role: String, var youSendYouGetPair: MutableLiveDa
                             Pair(youSendYouGetPair.value!!.second, youSendYouGetPair.value!!.first)
                         }
                     }
+                    listener.onClick()
                 }
             }
         }
@@ -85,6 +87,9 @@ class CoinAdapter(private val role: String, var youSendYouGetPair: MutableLiveDa
 
     class SpaceHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
+    interface ClickListener {
+        fun onClick()
+    }
 
     companion object {
         const val TYPE_SEARCH = 0
