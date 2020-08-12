@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/exo2regular"
         android:gravity="center"
-        android:text="@string/bequant_secure_custodial_storage"
+        android:text="@string/bequant_reliable_support"
         android:textColor="#F2E868"
         android:textSize="28sp" />
 
@@ -28,7 +28,7 @@
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
         android:gravity="center"
-        android:text="@string/global_support"
+        android:text="@string/bequant_professional_support"
         android:textColor="@color/white"
         android:textSize="20sp" />
 
