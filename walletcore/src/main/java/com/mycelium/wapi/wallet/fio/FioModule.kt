@@ -34,7 +34,9 @@ class FIOModule(
     private val accounts = mutableMapOf<UUID, FioAccount>()
 
     private fun getFioSdk(accountIndex: Int, config: FIOConfig): FIOSDK {
-        val publicKey = HexUtils.toHex(fioKeyManager.getFioPublicKey(accountIndex).publicKeyBytes)
+        val fioPublicKey = fioKeyManager.getFioPublicKey(accountIndex)
+
+        val publicKey = fioKeyManager.formatPubKey(fioPublicKey)
         val privateKey = HexUtils.toHex(fioKeyManager.getFioPrivateKey(accountIndex).privateKeyBytes)
         val url = if (config.isTestnet) FIOTest.url else FIOMain.url
         return FIOSDK(privateKey, publicKey, "", serializationProvider, SoftKeySignatureProvider(), url)
