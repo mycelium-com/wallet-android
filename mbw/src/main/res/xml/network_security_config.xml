@@ -6,5 +6,6 @@
         <domain includeSubdomains="true">media.mycelium.com</domain>
         <domain includeSubdomains="true">media-dev.mycelium.com</domain>
         <domain includeSubdomains="true">etherscan.io</domain>
+        <domain includeSubdomains="true">testnet.fioprotocol.io</domain>
     </domain-config>
 </network-security-config>

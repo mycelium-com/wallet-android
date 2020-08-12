@@ -142,7 +142,7 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
 
 
     override fun broadcastOutgoingTransactions(): Boolean {
-        return false
+        return true
     }
 
     override fun removeAllQueuedTransactions() {

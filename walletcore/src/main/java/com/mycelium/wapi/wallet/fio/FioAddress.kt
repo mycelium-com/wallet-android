@@ -11,7 +11,7 @@ class FioAddress(override val coinType: CryptoCurrency, val fioAddressData: FioA
     }
 
     override fun toString(): String {
-        return fioAddressData.toString()
+        return fioAddressData.formatPubKey
     }
 
     fun getAddress(): FioAddressData {

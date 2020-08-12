@@ -20,6 +20,7 @@ import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
+import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -67,7 +68,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
-                    R.string.eth_accounts_name to getEthERC20Accounts(walletManager)
+                    R.string.eth_accounts_name to getEthERC20Accounts(walletManager),
+                    R.string.fio_accounts_name to getFIOAccounts(walletManager)
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
@@ -97,6 +99,9 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
         private fun getEthERC20Accounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getEthAccounts() + walletManager.getERC20Accounts()
+
+        private fun getFIOAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
+                walletManager.getFioAccounts()
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }
