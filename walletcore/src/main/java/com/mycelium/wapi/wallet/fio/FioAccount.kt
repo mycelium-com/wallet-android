@@ -13,6 +13,8 @@ import org.web3j.crypto.Credentials
 import java.util.*
 
 class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val credentials: Credentials) : WalletAccount<FioAddress> {
+    private var balance: Balance =  Balance(Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
+
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("Not yet implemented")
     }
@@ -43,8 +45,7 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun getAccountBalance(): Balance {
-        val fioBalance = fiosdk.getFioBalance()
-        return Balance(Value.valueOf(FIOMain, fioBalance.balance), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
+        return balance
     }
 
     override fun isMineAddress(address: Address?): Boolean = address == receiveAddress
@@ -79,14 +80,16 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun setLabel(label: String?) {
-        TODO("Not yet implemented")
+        "FIO label"
     }
 
     override fun isSpendingUnconfirmed(tx: Transaction?): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
+        val fioBalance = fiosdk.getFioBalance()
+        balance =  Balance(Value.valueOf(FIOMain, fioBalance.balance), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
         return true
     }
 
@@ -151,11 +154,11 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int {
-        TODO("Not yet implemented")
+        return 0
     }
 
     override fun getTypicalEstimatedTransactionSize(): Int {
-        TODO("Not yet implemented")
+        return 0
     }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
