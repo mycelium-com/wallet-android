@@ -63,19 +63,19 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<TransactionSummary> {
-        TODO("Not yet implemented")
+        return mutableListOf()
     }
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummary> {
-        TODO("Not yet implemented")
+        return mutableListOf()
     }
 
     override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> {
-        TODO("Not yet implemented")
+        return mutableListOf()
     }
 
     override fun getLabel(): String {
-        TODO("Not yet implemented")
+        return "FIO"
     }
 
     override fun setLabel(label: String?) {
@@ -87,7 +87,7 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun getBlockChainHeight(): Int {
@@ -95,11 +95,11 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun canSpend(): Boolean {
-        TODO("Not yet implemented")
+       return true
     }
 
     override fun canSign(): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun isSyncing(): Boolean {
@@ -119,11 +119,11 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun activateAccount() {
-        TODO("Not yet implemented")
+
     }
 
     override fun dropCachedData() {
-        TODO("Not yet implemented")
+
     }
 
     override fun isVisible(): Boolean {
@@ -139,11 +139,11 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
 
 
     override fun broadcastOutgoingTransactions(): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun removeAllQueuedTransactions() {
-        TODO("Not yet implemented")
+
     }
 
     override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: FioAddress?): Value {
@@ -171,7 +171,7 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun getDependentAccounts(): MutableList<WalletAccount<Address>> {
-        TODO("Not yet implemented")
+       return mutableListOf()
     }
 
     override fun queueTransaction(transaction: Transaction) {

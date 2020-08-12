@@ -69,8 +69,8 @@ import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
@@ -116,9 +116,9 @@ import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
 import com.mycelium.wapi.content.eth.EthUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.CurrencySettings;
-import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
@@ -197,6 +197,7 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import fiofoundation.io.androidfioserializationprovider.AbiFIOSerializationProvider;
 import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -432,7 +433,8 @@ public class MbwManager {
                 resultMap.put(entry.getKey(), entry.getValue().get(0).getIdentifier());
             }
         } else {
-            resultMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>() {}.getType());
+            resultMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>() {
+            }.getType());
         }
         return new GlobalBlockExplorerManager(this, _environment.getBlockExplorerMap(), resultMap);
     }
@@ -445,7 +447,8 @@ public class MbwManager {
         if (preferenceValue == null) {
             resultMap.put(Utils.getBtcCoinType().getName(), MinerFee.NORMAL);
         } else {
-            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>(){}.getType());
+            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>() {
+            }.getType());
             for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
                 resultMap.put(entry.getKey(), MinerFee.fromString(entry.getValue()));
             }
@@ -461,7 +464,8 @@ public class MbwManager {
         if (preferenceValue == null) {
             resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
         } else {
-            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>(){}.getType());
+            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>() {
+            }.getType());
             for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
                 resultMap.put(Utils.getTypeByName(entry.getKey()), Denomination.fromString(entry.getValue()));
             }
@@ -471,7 +475,8 @@ public class MbwManager {
 
     private Map<AssetInfo, AssetInfo> getCurrentCurrenciesMap(String jsonString) {
         Gson gson = new GsonBuilder().create();
-        Type type = new TypeToken<Map<String, String>>(){}.getType();
+        Type type = new TypeToken<Map<String, String>>() {
+        }.getType();
         Map<AssetInfo, AssetInfo> result = new HashMap<>();
 
         Map<String, String> coinNamesMap = gson.fromJson(jsonString, type);
@@ -830,7 +835,7 @@ public class MbwManager {
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
 
 
-        FIOModule fioModule = new FIOModule(secureKeyValueStore,
+        FIOModule fioModule = new FIOModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
                 walletDB, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)),
                 accountListener);

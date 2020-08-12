@@ -11,12 +11,13 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.implementations.SoftKeySignatureProvider
-import fiofoundation.io.javaserializationprovider.AbiFIOSerializationProvider
+import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
 import java.util.*
 
 class FIOModule(
+        private val serializationProvider : ISerializationProvider,
         private val secureStore: SecureKeyValueStore,
         private val walletDB: WalletDB,
         metaDataStorage: IMetaDataStorage,
@@ -36,7 +37,7 @@ class FIOModule(
         val publicKey = HexUtils.toHex(fioKeyManager.getFioPublicKey(accountIndex).publicKeyBytes)
         val privateKey = HexUtils.toHex(fioKeyManager.getFioPrivateKey(accountIndex).privateKeyBytes)
         val url = if (config.isTestnet) FIOTest.url else FIOMain.url
-        return FIOSDK(privateKey, publicKey, "", AbiFIOSerializationProvider(), SoftKeySignatureProvider(), url)
+        return FIOSDK(privateKey, publicKey, "", serializationProvider, SoftKeySignatureProvider(), url)
     }
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> {

@@ -8,7 +8,6 @@ include 'mbwlib'
 include 'backuputil'
 include 'fiosdk'
 include 'androidfioserializationprovider'
-include 'javaserializationprovider'
 
 //on the servers, we don't want to build android projects
 //    nano /etc/profile.d/env.sh
