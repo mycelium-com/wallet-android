@@ -40,10 +40,8 @@ fun Fragment.loader(show: Boolean) {
         if (isAdded) {
             childFragmentManager.executePendingTransactions()
             val findFragmentByTag = childFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
-            if (findFragmentByTag is LoaderFragment) {
-                if (findFragmentByTag.isAdded) {
-                    findFragmentByTag.dismissAllowingStateLoss()
-                }
+            if (findFragmentByTag is LoaderFragment && findFragmentByTag.isAdded) {
+                findFragmentByTag.dismissAllowingStateLoss()
             }
         }
     }
@@ -55,10 +53,8 @@ fun AppCompatActivity.loader(show: Boolean) {
         loader.show(supportFragmentManager, Constants.LOADER_TAG)
     } else {
         val findFragmentByTag = supportFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
-        if (findFragmentByTag is LoaderFragment) {
-            if (findFragmentByTag.isAdded) {
-                findFragmentByTag.dismissAllowingStateLoss()
-            }
+        if (findFragmentByTag is LoaderFragment && findFragmentByTag.isAdded) {
+            findFragmentByTag.dismissAllowingStateLoss()
         }
     }
 }
