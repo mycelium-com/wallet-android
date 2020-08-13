@@ -94,7 +94,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
                 }
                 R.id.tryDemo -> {
                     requireActivity().finish()
-                    startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+                    BequantMarketActivity.start(requireContext(),true)
                     true
                 }
                 else -> super.onOptionsItemSelected(item)

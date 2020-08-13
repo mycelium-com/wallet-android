@@ -1,5 +1,6 @@
 package com.mycelium.bequant.market
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,7 @@ import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
 import com.mycelium.bequant.remote.trading.model.Balance
+import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -55,11 +57,21 @@ class AccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
         deposit.setOnClickListener {
+            if (isDemo){
+                startActivity(Intent(requireActivity(), SignActivity::class.java))
+                activity?.finish()
+                return@setOnClickListener
+            }
             findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
         }
         withdraw.setOnClickListener {
+            if (isDemo){
+                startActivity(Intent(requireActivity(), SignActivity::class.java))
+                activity?.finish()
+                return@setOnClickListener
+            }
             findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
         }
 
