@@ -43,10 +43,11 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        val broadcastManager = LocalBroadcastManager.getInstance(requireContext())
         if (!BequantPreference.isDemo() && !BequantPreference.hasKeys()) {
             loader(true)
             Api.signRepository.getApiKeys(lifecycleScope, {
-                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
+                broadcastManager.sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
                 Handler().postDelayed({ requestBalances() }, 5000) // server has lag(3-5 seconds) in move keys from reg.bequant.io to api.bequant.io, е
             }, error = { code, message ->
                 if(code != 420) {
@@ -62,7 +63,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             }
         }
         MbwManager.getEventBus().register(this)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
+        broadcastManager.registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
     }
 
     @Subscribe
@@ -70,17 +71,17 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         requestBalances()
     }
 
-    fun requestBalances() {
+    private fun requestBalances() {
         if (BequantPreference.hasKeys()) {
             Api.tradingRepository.tradingBalanceGet(lifecycleScope, { arrayOfBalances ->
                 MbwManager.getEventBus().post(TradingBalance(arrayOfBalances ?: arrayOf()))
-            }, { code, error ->
+            }, { _, error ->
                 ErrorHandler(requireContext()).handle(error)
             }, {
             })
             Api.accountRepository.accountBalanceGet(lifecycleScope, { arrayOfBalances ->
                 MbwManager.getEventBus().post(AccountBalance(arrayOfBalances ?: arrayOf()))
-            }, { code, error ->
+            }, { _, error ->
                 ErrorHandler(requireContext()).handle(error)
             }, {
             })

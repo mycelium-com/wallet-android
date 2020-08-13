@@ -21,6 +21,7 @@ import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
 import com.mycelium.bequant.remote.trading.model.Balance
+import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.bequant.signup.TwoFactorActivity
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
@@ -58,9 +59,12 @@ class AccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
         deposit.setOnClickListener {
-            if (!BequantPreference.hasKeys()) {
+            if (isDemo) {
+                startActivity(Intent(requireActivity(), SignActivity::class.java))
+                activity?.finish()
+            } else if (!BequantPreference.hasKeys()) {
                 ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
                         getString(R.string.bequant_enable_2fa),
                         getString(R.string.secure_your_account)) {
@@ -71,7 +75,10 @@ class AccountFragment : Fragment() {
             }
         }
         withdraw.setOnClickListener {
-            if (!BequantPreference.hasKeys()) {
+            if (isDemo) {
+                startActivity(Intent(requireActivity(), SignActivity::class.java))
+                activity?.finish()
+            } else if (!BequantPreference.hasKeys()) {
                 ModalDialog(getString(R.string.bequant_turn_2fa_withdraw),
                         getString(R.string.bequant_enable_2fa),
                         getString(R.string.secure_your_account)) {

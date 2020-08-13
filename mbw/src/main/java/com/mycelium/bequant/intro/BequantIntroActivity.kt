@@ -30,7 +30,7 @@ class BequantIntroActivity : AppCompatActivity(R.layout.activity_bequant_intro) 
             finish()
         }
         if (BequantPreference.isLogged()) {
-            startActivity(Intent(this, BequantMarketActivity::class.java))
+            BequantMarketActivity.start(this)
             finish()
         }
 //        else if (BequantPreference.isIntroShown()) {

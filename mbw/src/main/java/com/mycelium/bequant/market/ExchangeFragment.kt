@@ -62,7 +62,6 @@ import kotlin.math.pow
 
 
 class ExchangeFragment : Fragment() {
-    private var RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED = 0.1
     private lateinit var viewModel: ExchangeViewModel
     var getViewActive = false
 
@@ -465,11 +464,8 @@ class ExchangeFragment : Fragment() {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.ask)
                                 if (!youSend.isZero()) {
-                                    var amountToSend = youSend.valueAsBigDecimal
                                     val maximumWExchangedAmount = viewModel.available.value?.valueAsBigDecimal!!.multiply(BigDecimal(1 - RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED))
-                                    if (amountToSend.compareTo(maximumWExchangedAmount) == 1) {
-                                        amountToSend = maximumWExchangedAmount
-                                    }
+                                    val amountToSend = youSend.valueAsBigDecimal.min(maximumWExchangedAmount)
                                     val youGetDecimal = amountToSend.divide(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                     viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                                 }
@@ -479,7 +475,7 @@ class ExchangeFragment : Fragment() {
                                 viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal)
                             }
                         }
-                    }, { code, msg ->
+                    }, { _, msg ->
                         ErrorHandler(requireContext()).handle(msg)
                     })
                 }
@@ -488,8 +484,7 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun updateYouSend(rate: Int) {
-        val available = viewModel.available.value
-        if (available != null) {
+        viewModel.available.value?.also { available ->
             val result = available.value.toDouble() * (rate.toDouble() / 100)
             viewModel.youSend.value = Value.valueOf(available.type,
                     result.toBigDecimal().toBigInteger())
