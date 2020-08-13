@@ -48,8 +48,10 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             Api.signRepository.getApiKeys(lifecycleScope, {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
                 Handler().postDelayed({ requestBalances() }, 5000) // server has lag(3-5 seconds) in move keys from reg.bequant.io to api.bequant.io, е
-            }, error = { _, message ->
-                ErrorHandler(requireContext()).handle(message)
+            }, error = { code, message ->
+                if(code != 420) {
+                    ErrorHandler(requireContext()).handle(message)
+                }
             }, finally = {
                 loader(false)
             })

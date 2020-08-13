@@ -29,15 +29,16 @@ import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
-import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Transaction
+import com.mycelium.bequant.signup.TwoFactorActivity
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -196,7 +197,15 @@ class ExchangeFragment : Fragment() {
         exchange.setOnClickListener {
             // TODO add check that KYC has been passed or show BequantKycActivity
             // startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-            makeExchange()
+            if (!BequantPreference.hasKeys()) {
+                ModalDialog(getString(R.string.beuant_turn_2fa),
+                        getString(R.string.bequant_recomend_enable_2fa),
+                        getString(R.string.secure_your_account)) {
+                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else {
+                makeExchange()
+            }
         }
 
         icExchange.setOnClickListener {
@@ -206,7 +215,15 @@ class ExchangeFragment : Fragment() {
             updateAvailable()
         }
         deposit.setOnClickListener {
-            findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
+            if (!BequantPreference.hasKeys()) {
+                ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
+                        getString(R.string.bequant_enable_2fa),
+                        getString(R.string.secure_your_account)) {
+                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else {
+                findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
+            }
         }
         btContactSupport.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
@@ -444,7 +461,7 @@ class ExchangeFragment : Fragment() {
             BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol) { symbol ->
                 if (symbol != null) {
                     Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
-                         ticker?.let {
+                        ticker?.let {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.ask)
                                 if (!youSend.isZero()) {

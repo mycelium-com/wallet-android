@@ -6,7 +6,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -19,7 +22,8 @@ import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.repositories.SignRepository
+import com.mycelium.bequant.market.BequantMarketActivity
+import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.bequant.remote.client.models.AccountEmailConfirmResend
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
@@ -35,7 +39,16 @@ class RegistrationInfoFragment : Fragment() {
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
-            findNavController().navigate(RegistrationInfoFragmentDirections.actionFinish())
+            loader(true)
+            val request = AccountAuthRequest(args.register.email, args.register.password)
+            Api.signRepository.authorize(lifecycleScope, request, success = {
+                startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+                requireActivity().finish()
+            }, error = { code, message ->
+                ErrorHandler(requireContext()).handle(message)
+            }, finally = {
+                loader(false)
+            })
         }
     }
 
@@ -56,8 +69,10 @@ class RegistrationInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.setRegister(args.register)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = "Registration"
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.registration)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
+        }
         resendConfirmationEmail.setOnClickListener {
             loader(true)
             Api.signRepository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email), {},

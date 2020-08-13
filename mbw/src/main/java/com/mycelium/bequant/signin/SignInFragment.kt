@@ -18,7 +18,7 @@ import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.repositories.SignRepository
+import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.sign.SignFragmentDirections
@@ -61,7 +61,7 @@ class SignInFragment : Fragment() {
                 loader(true)
                 val request = AccountAuthRequest(viewModel.email.value!!, viewModel.password.value!!)
                 Api.signRepository.authorize(lifecycleScope, request, success = {
-                    findNavController().navigate(SignFragmentDirections.actionSignUp())
+                    startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
                 }, error = { code, message ->
                     if (code == 420) {
                         findNavController().navigate(SignFragmentDirections.actionSignIn(request))
@@ -92,11 +92,11 @@ class SignInFragment : Fragment() {
 
     private fun validate(): Boolean {
         if (viewModel.email.value?.isEmpty() != false) {
-            emailLayout.error = "Email shouldn't be empty"
+            emailLayout.error = getString(R.string.bequant_email_empty_error)
             return false
         }
         if (viewModel.password.value?.isEmpty() != false) {
-            passwordLayout?.error = "Can't be empty"
+            passwordLayout?.error = getString(R.string.bequant_field_empty_error)
             return false
         }
         return true

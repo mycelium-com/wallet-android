@@ -1506,4 +1506,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="resend_verification_code">Resend verification code...</string>
     <string name="nothing_happened">Nothing happened?</string>
     <string name="delete_document">Do you want to delete the document?</string>
+    <string name="registration">Registration</string>
+    <string name="bequant_email_empty_error">Email shouldn\'t be empty</string>
+    <string name="bequant_field_empty_error">Can\'t be empty</string>
+    <string name="bequant_turn_2fa_deposit">Turn on 2FA to make a deposit</string>
+    <string name="bequant_enable_2fa">You need to enable two-factor authentication</string>
+    <string name="secure_your_account">Secure your account</string>
+    <string name="beuant_turn_2fa">Turn on 2FA to secure your account</string>
+    <string name="bequant_recomend_enable_2fa">We strongly recommend enabling two-factor authentication</string>
+    <string name="bequant_turn_2fa_withdraw">Turn on 2FA to withdraw</string>
 </resources>

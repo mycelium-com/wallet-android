@@ -1,5 +1,6 @@
 package com.mycelium.bequant.market
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,10 +16,12 @@ import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants.HIDE_VALUE
 import com.mycelium.bequant.Constants.TYPE_ITEM
+import com.mycelium.bequant.common.ModalDialog
 import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
 import com.mycelium.bequant.remote.trading.model.Balance
+import com.mycelium.bequant.signup.TwoFactorActivity
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -57,10 +60,26 @@ class AccountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         deposit.setOnClickListener {
-            findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
+            if (!BequantPreference.hasKeys()) {
+                ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
+                        getString(R.string.bequant_enable_2fa),
+                        getString(R.string.secure_your_account)) {
+                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else {
+                findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
+            }
         }
         withdraw.setOnClickListener {
-            findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
+            if (!BequantPreference.hasKeys()) {
+                ModalDialog(getString(R.string.bequant_turn_2fa_withdraw),
+                        getString(R.string.bequant_enable_2fa),
+                        getString(R.string.secure_your_account)) {
+                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else {
+                findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
+            }
         }
 
         estBalanceCurrency.text = BequantPreference.getLastKnownBalance().currencySymbol
@@ -160,7 +179,6 @@ class AccountFragment : Fragment() {
             if (currency?.toUpperCase() != "BTC") {
                 continue
             }
-//            val btcRate = exchangeRateManager.getExchangeRate(currency!!, "BTC")
             val usdRate = mbwManager.exchangeRateManager.getExchangeRate(currency, "USD")
             btcTotal = balances.map { BigDecimal(it.available) }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
             fiatTotal = btcTotal.multiply(BigDecimal.valueOf(usdRate?.price!!))
