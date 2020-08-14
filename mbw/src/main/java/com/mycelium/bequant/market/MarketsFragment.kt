@@ -108,9 +108,8 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                                     getUSDForPriceCurrency(symbol.baseCurrency), change)
                         }
                     }.filter { marketItem ->
-                        !CurrencyCode.values().any { code ->
-                            marketItem.from.equals(code.shortString, true) || marketItem.to.equals(code.shortString, true)
-                        }
+                        // currently we don't support pairs with fiat on any side
+                        !(isFiat(marketItem.from) || isFiat(marketItem.to))
                     }.let { marketItems ->
                         fun <T, R : Comparable<R>> Iterable<T>.mSort(selector: (T) -> R?) =
                                 if (sortDirection) sortedByDescending(selector) else sortedBy(selector)
@@ -147,6 +146,11 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     private fun getUSDForPriceCurrency(currency: String): Double? =
             tickersData.firstOrNull { it.symbol.equals("${currency}USD", true) ||
                     it.symbol.equals("${currency}USDB", true)}?.last
+
+    // in bequant api GBPB is GBP, EURB is EUR, USDB is USD
+    private fun isFiat(currency: String): Boolean {
+        return currency == "GBPB" || currency == "EURB" || currency == "USDB"
+    }
 
     override fun onDestroyView() {
         list.adapter = null
