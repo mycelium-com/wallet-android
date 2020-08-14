@@ -19,6 +19,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 import java.util.*
+import kotlin.math.roundToInt
 
 
 class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
@@ -103,7 +104,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                             it.id == ticker.symbol
                         }?.let { symbol ->
                             MarketItem(symbol.baseCurrency, symbol.quoteCurrency,
-                                    ticker.volume ?: 0.0, ticker.last,
+                                    (convertToVolumeInUSDT(symbol, ticker.volume!!) ?: 0.0).roundToInt(), ticker.last,
                                     getUSDForPriceCurrency(symbol.baseCurrency), change)
                         }
                     }.filter { marketItem ->
@@ -128,8 +129,24 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         })
     }
 
+    private fun convertToVolumeInUSDT(symbol: Symbol, volume: Double): Double? {
+        return when {
+            getUSDForPriceCurrency(symbol.baseCurrency) != null -> {
+                volume * getUSDForPriceCurrency(symbol.baseCurrency)!!
+            }
+            getUSDForPriceCurrency(symbol.quoteCurrency) != null -> {
+                volume * getUSDForPriceCurrency(symbol.quoteCurrency)!!
+            }
+            else -> {
+                null
+            }
+        }
+    }
+
+    // for symbols with USD the USD can be represented either as "USD" or "USDB"
     private fun getUSDForPriceCurrency(currency: String): Double? =
-            tickersData.firstOrNull { it.symbol.equals("${currency}USD", true) }?.last
+            tickersData.firstOrNull { it.symbol.equals("${currency}USD", true) ||
+                    it.symbol.equals("${currency}USDB", true)}?.last
 
     override fun onDestroyView() {
         list.adapter = null
