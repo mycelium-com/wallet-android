@@ -7,11 +7,13 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavArgument
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.getInvestmentAccounts
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wapi.wallet.SyncMode
 import kotlinx.android.synthetic.main.activity_bequant_market.*
 
 
@@ -47,6 +49,13 @@ class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market
         myceliumWallet.setOnClickListener {
             finish()
             startActivity(Intent(this, ModernMain::class.java))
+        }
+        startSyncInvestmentAccounts()
+    }
+
+    private fun startSyncInvestmentAccounts() {
+        MbwManager.getInstance(applicationContext).getWalletManager(false).let {
+            it.startSynchronization(SyncMode.NORMAL_FORCED, it.getInvestmentAccounts())
         }
     }
 }
