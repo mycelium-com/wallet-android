@@ -21,8 +21,8 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
         pager.offscreenPageLimit = 2
         TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
-                0 -> tab.text = "You send"
-                1 -> tab.text = "You get"
+                0 -> tab.text = getString(R.string.bequant_you_send)
+                1 -> tab.text = getString(R.string.bequant_you_get)
             }
         }.attach()
         pager.setCurrentItem(intent.getIntExtra(ExchangeFragment.PARENT, 0), true)

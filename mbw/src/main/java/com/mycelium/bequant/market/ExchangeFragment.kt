@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Paint
-import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -17,7 +16,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
@@ -44,7 +42,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
@@ -52,7 +49,6 @@ import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.view.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
-import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -100,31 +96,13 @@ class ExchangeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         createPercentageRadioButtons()
-        numeric_keyboard.setInputListener(object : ValueKeyboard.SimpleInputListener() {
-            override fun done() {
+        sendView.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
                 getViewActive = false
-                stopCursor(sendView)
-                stopCursor(getView)
             }
-        })
-        clSendView.setOnClickListener {
-            numeric_keyboard.setMaxDecimals(viewModel.youSend.value?.type?.unitExponent ?: 8)
-            numeric_keyboard.visibility = View.VISIBLE
-            numeric_keyboard.inputTextView = sendView
-            numeric_keyboard.setEntry(sendView.text.toString())
-            startCursor(sendView)
-            stopCursor(getView)
-            getViewActive = false
-
         }
-        clGetView.setOnClickListener {
-            numeric_keyboard.setMaxDecimals(viewModel.youGet.value?.type?.unitExponent ?: 8)
-            numeric_keyboard.visibility = View.VISIBLE
-            numeric_keyboard.inputTextView = getView
-            numeric_keyboard.setEntry(getView.text.toString())
-            startCursor(getView)
-            stopCursor(sendView)
-            getViewActive = true
+        getView.setOnFocusChangeListener { _, hasFocus ->
+            getViewActive = hasFocus
         }
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
             try {
@@ -397,20 +375,6 @@ class ExchangeFragment : Fragment() {
 
     private fun equals(value: Value?, text: String?) = ((value?.valueAsBigDecimal
             ?: BigDecimal.ZERO) - BigDecimal(text ?: "")).unscaledValue() == BigInteger.ZERO
-
-    private fun startCursor(textView: TextView) {
-        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.bequant_input_cursor, 0)
-        textView.post {
-            val animationDrawable = textView.compoundDrawables[2] as AnimationDrawable
-            if (!animationDrawable.isRunning) {
-                animationDrawable.start()
-            }
-        }
-    }
-
-    private fun stopCursor(textView: TextView) {
-        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
-    }
 
     private fun recalculateDestinationPrice() {
         viewModel.youGet.value?.let { youGetValue ->
