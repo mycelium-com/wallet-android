@@ -98,7 +98,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                         val change = if (ticker.last == null || ticker.open == null) {
                             null
                         } else {
-                            100 - ticker.last / ticker.open * 100
+                            ticker.last / ticker.open * 100 - 100
                         }
                         symbols?.find {
                             it.id == ticker.symbol
