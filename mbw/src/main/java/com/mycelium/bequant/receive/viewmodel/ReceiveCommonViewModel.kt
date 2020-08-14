@@ -10,13 +10,18 @@ import java.io.Serializable
 
 class ReceiveCommonViewModel : ViewModel(), Serializable {
     fun fetchDepositAddress(finally: () -> Unit) {
-        currency.value?.let {
-            Api.accountRepository.cryptoAddressCurrencyGet(viewModelScope, it, {
-                address.value = it?.address
-                tag.value = it?.paymentId
-            }, { _, message ->
-                this.error.value = message
-            }, finally)
+        currency.value?.let { currencySymbol ->
+            Api.accountRepository.cryptoAddressCurrencyGet(
+                    viewModelScope,
+                    currencySymbol,
+                    {
+                        address.value = it?.address
+                        tag.value = it?.paymentId
+                    },
+                    { _, message ->
+                        error.value = message
+                    },
+                    finally)
         }
     }
 

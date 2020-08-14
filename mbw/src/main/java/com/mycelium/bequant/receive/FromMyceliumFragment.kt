@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -50,7 +49,6 @@ class FromMyceliumFragment : Fragment() {
 
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(FromMyceliumViewModel::class.java)
@@ -68,15 +66,18 @@ class FromMyceliumFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mbwManager = MbwManager.getInstance(requireContext())
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)?.observe(viewLifecycleOwner, Observer {
-            val account = it
-            val selectedAccount = mbwManager.getWalletManager(false).getAllActiveAccounts().find { it.label == account?.label }
+        findNavController().currentBackStackEntry?.savedStateHandle
+                ?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)
+                ?.observe(viewLifecycleOwner, Observer { account ->
+            val selectedAccount = mbwManager.getWalletManager(false)
+                    .getAllActiveAccounts().find { it.label == account?.label }
             Handler(Looper.getMainLooper()).post {
                 adapter.submitList(listOf(selectedAccount))
             }
         })
         parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
-            val accounts = mbwManager.getWalletManager(false).getActiveSpendingAccounts()
+            val accounts = mbwManager.getWalletManager(false)
+                    .getActiveSpendingAccounts()
                     .filter { it.coinType.symbol == coinSymbol }
             adapter.submitList(accounts)
 
@@ -93,7 +94,7 @@ class FromMyceliumFragment : Fragment() {
             }
         })
         accountList.adapter = adapter
-        TabLayoutMediator(accountListTab, accountList) { tab, _ ->
+        TabLayoutMediator(accountListTab, accountList) { _, _ ->
         }.attach()
 
         val selectorItems = viewModel.getCryptocurrenciesSymbols()
@@ -142,7 +143,7 @@ class FromMyceliumFragment : Fragment() {
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount(parentViewModel?.currency?.value))
         }
-        viewModel.castodialBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
+        viewModel.custodialBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
 
         viewModel.amount.observe(viewLifecycleOwner) {
             val account = adapter.currentList.first()

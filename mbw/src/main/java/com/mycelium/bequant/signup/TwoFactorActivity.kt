@@ -35,15 +35,17 @@ class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/totp/confirm") {
             loader(true)
-            Api.signRepository.accountTotpConfirm(lifecycleScope, intent.data?.getQueryParameter("token")
-                    ?: "", {
-                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
-            },
+            Api.signRepository.accountTotpConfirm(lifecycleScope,
+                    token = intent.data?.getQueryParameter("token") ?: "",
+                    success = {
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
+                    },
                     error = { _, message ->
                         ErrorHandler(this).handle(message)
-                    }, finally = {
-                loader(false)
-            })
+                    },
+                    finally = {
+                        loader(false)
+                    })
         }
     }
 }

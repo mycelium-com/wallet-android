@@ -75,18 +75,15 @@ class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(Ite
 
         override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
                 when (oldItem.viewType) {
-                    ACCOUNT_TYPE -> {
+                    ACCOUNT_TYPE ->
                         equalsValuesBy(oldItem as AccountItem, newItem as AccountItem,
                                 { it.label }, { it.value })
-                    }
-                    ACCOUNT_GROUP_TYPE -> {
+                    ACCOUNT_GROUP_TYPE ->
                         equalsValuesBy(oldItem as AccountGroupItem, newItem as AccountGroupItem,
                                 { it.label }, { it.value }, { it.isOpened })
-                    }
-                    TOTAL_TYPE -> {
+                    TOTAL_TYPE ->
                         equalsValuesBy(oldItem as TotalItem, newItem as TotalItem,
                                 { it.value })
-                    }
                     else -> oldItem == newItem
                 }
     }

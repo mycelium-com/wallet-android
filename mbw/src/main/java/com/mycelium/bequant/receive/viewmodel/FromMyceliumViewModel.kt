@@ -10,7 +10,7 @@ import com.mycelium.wallet.WalletApplication
 
 class FromMyceliumViewModel : ViewModel() {
     val oneCoinFiatRate = MutableLiveData<String>()
-    val castodialBalance = MutableLiveData<String>()
+    val custodialBalance = MutableLiveData<String>()
     val amount = MutableLiveData<String>()
     val amountFiat = MutableLiveData<String>()
     val address = MutableLiveData<String>()
@@ -25,7 +25,7 @@ class FromMyceliumViewModel : ViewModel() {
     fun loadBalance(currency:String, finally: () -> Unit) {
         Api.accountRepository.accountBalanceGet(viewModelScope, success = {
             val find = it?.find { it.currency == currency }
-            castodialBalance.value = find?.available
+            custodialBalance.value = find?.available
         }, error = { _, message->
 
         }, finally = finally)
