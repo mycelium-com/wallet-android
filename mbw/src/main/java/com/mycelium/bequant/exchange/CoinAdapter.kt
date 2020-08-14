@@ -3,6 +3,7 @@ package com.mycelium.bequant.exchange
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,11 +13,16 @@ import com.mycelium.bequant.exchange.SelectCoinFragment.Companion.SEND
 import com.mycelium.wallet.R
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
+import kotlinx.android.synthetic.main.item_bequant_search.view.*
 
 
 class CoinAdapter(private val role: String, private val listener: ClickListener,
                   var youSendYouGetPair: MutableLiveData<Pair<GenericAssetInfo, GenericAssetInfo>>)
     : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
+
+    var searchChangeListener: ((String) -> Unit)? = null
+    var searchClearListener: (() -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 TYPE_SEARCH -> {
@@ -34,8 +40,13 @@ class CoinAdapter(private val role: String, private val listener: ClickListener,
         val item = getItem(position)
         when (item.type) {
             TYPE_SEARCH -> {
-//                val searchHolder = holder as SearchHolder
-//                searchHolder.itemView.search.text =
+                holder.itemView.search.doOnTextChanged { text, _, _, _ ->
+                    searchChangeListener?.invoke(text?.toString() ?: "")
+                }
+                holder.itemView.clear.setOnClickListener {
+                    holder.itemView.search.text = null
+                    searchClearListener?.invoke()
+                }
             }
             TYPE_ITEM -> {
                 holder.itemView.coinId.text = item.coin?.symbol
