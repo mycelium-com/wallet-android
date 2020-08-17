@@ -271,6 +271,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 oldItem.getType() == ACCOUNT_TYPE -> {
                     (oldItem as AccountViewModel).accountId == (newItem as AccountViewModel).accountId
                 }
+                oldItem.getType() == INVESTMENT_TYPE -> {
+                    (oldItem as AccountInvestmentViewModel).accountId == (newItem as AccountInvestmentViewModel).accountId
+                }
                 else -> true
             }
         }

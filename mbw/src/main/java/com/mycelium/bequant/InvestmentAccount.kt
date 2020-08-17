@@ -18,10 +18,13 @@ import kotlin.math.pow
 class InvestmentAccount : WalletAccount<BtcAddress> {
     private val id = UUID.nameUUIDFromBytes("bequant_account".toByteArray())
 
-    private var cachedBalance = Balance(BequantPreference.getLastKnownBalance(),
-            Value.zeroValue(Utils.getBtcCoinType()),
-            Value.zeroValue(Utils.getBtcCoinType()),
-            Value.zeroValue(Utils.getBtcCoinType()))
+    private val cachedBalance: Balance
+        get() {
+                return Balance(BequantPreference.getLastKnownBalance(),
+                        Value.zeroValue(Utils.getBtcCoinType()),
+                        Value.zeroValue(Utils.getBtcCoinType()),
+                        Value.zeroValue(Utils.getBtcCoinType()))
+            }
 
     @Volatile
     protected var syncing = false
@@ -124,10 +127,6 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
             }
             val balance = Value.valueOf(Utils.getBtcCoinType(), (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger())
             BequantPreference.setLastKnownBalance(balance)
-            cachedBalance = Balance(balance,
-                    Value.zeroValue(Utils.getBtcCoinType()),
-                    Value.zeroValue(Utils.getBtcCoinType()),
-                    Value.zeroValue(Utils.getBtcCoinType()))
         }
         syncing = false
         return true
@@ -158,7 +157,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun getId(): UUID = id
 
-    override fun broadcastOutgoingTransactions(): Boolean = false
+    override fun broadcastOutgoingTransactions(): Boolean = true
 
     override fun removeAllQueuedTransactions() {
     }
