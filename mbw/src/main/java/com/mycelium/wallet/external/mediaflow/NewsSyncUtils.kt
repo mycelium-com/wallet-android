@@ -149,7 +149,7 @@ object NewsSyncUtils {
     }
 
     fun notifyAboutMediaFlowTopics(context: Context, newTopicsRaw: List<News>) {
-        val newTopics = newTopicsRaw.filter { it.tags.map { it.name }.contains("important") }
+        val newTopics = newTopicsRaw.filter { it.tags.any { it?.name == "important" } }
         val builder = createNotificationMediaFlowBuilder(context)
 
         if (newTopics.size == 1) {

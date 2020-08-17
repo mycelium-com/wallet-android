@@ -41,6 +41,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.TrafficStats;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
@@ -548,7 +549,7 @@ public class MbwManager {
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
         WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
-                tcpEndpoints.toArray(new TcpEndpoint[0]), version);
+                tcpEndpoints.toArray(new TcpEndpoint[0]), version, Build.VERSION.SDK_INT);
 
         wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
         return wapiClientElectrumX;
