@@ -16,7 +16,6 @@ import java.util.*
 
 
 class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
-
     val args by navArgs<ReceiveFragmentArgs>()
     lateinit var viewModel: ReceiveCommonViewModel
 

@@ -42,7 +42,6 @@ import kotlinx.android.synthetic.main.item_bequant_withdraw_pager_accounts.*
 import java.math.BigDecimal
 
 class FromMyceliumFragment : Fragment() {
-
     lateinit var viewModel: FromMyceliumViewModel
     var parentViewModel: ReceiveCommonViewModel? = null
     val adapter = AccountPagerAdapter()
@@ -62,10 +61,8 @@ class FromMyceliumFragment : Fragment() {
                         lifecycleOwner = this@FromMyceliumFragment
                     }.root
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mbwManager = MbwManager.getInstance(requireContext())
         findNavController().currentBackStackEntry?.savedStateHandle
                 ?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)
                 ?.observe(viewLifecycleOwner, Observer { account ->
@@ -106,7 +103,7 @@ class FromMyceliumFragment : Fragment() {
         coinSelector.setSelection(selectorItems.indexOf(parentViewModel?.currency?.value))
         coinSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {
-
+                // ignore
             }
 
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {

@@ -47,13 +47,17 @@ class ShowQRFragment : Fragment() {
 
     private fun createDepositAddress(currency: String) {
         loader(true)
-        viewModel.createDepositAddress(currency, {
-            parentViewModel?.address?.value = it?.address
-            parentViewModel?.tag?.value = it?.paymentId?.toString()
-        }, { code, message ->
-            ErrorHandler(requireContext()).handle(message)
-        },{
-            loader(false)
-        })
+        viewModel.createDepositAddress(
+                currency,
+                success = {
+                    parentViewModel?.address?.value = it?.address
+                    parentViewModel?.tag?.value = it?.paymentId
+                },
+                error = { _, message ->
+                    ErrorHandler(requireContext()).handle(message)
+                },
+                finally = {
+                    loader(false)
+                })
     }
 }
