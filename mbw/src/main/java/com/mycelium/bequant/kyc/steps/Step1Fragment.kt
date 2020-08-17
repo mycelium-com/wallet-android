@@ -1,6 +1,5 @@
 package com.mycelium.bequant.kyc.steps
 
-import android.app.DatePickerDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -19,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.BQDatePickerDialog
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
@@ -85,12 +85,11 @@ class Step1Fragment : Fragment() {
                 , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
 
         tvDateOfBirth.setOnClickListener {
-            val datePickerDialog = DatePickerDialog(requireContext(), { _, year, month, day ->
+            BQDatePickerDialog { year, month, day ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, month, day)
                 viewModel.birthday.value = calendar.time
-            }, 2000, 1, 1)
-            datePickerDialog.show()
+            }.show(childFragmentManager, "picker_dialog")
         }
         tvNationality.setOnClickListener {
             findNavController().navigate(Step1FragmentDirections.actionSelectCountry())

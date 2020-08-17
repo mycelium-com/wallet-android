@@ -547,4 +547,25 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:backgroundDimEnabled">true</item>
     </style>
+
+    <style name="DatePickerDialog" parent="android:style/Theme.Holo.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="colorControlNormal">@color/bequant_yellow</item>
+        <item name="android:colorControlNormal" tools:ignore="NewApi">@color/bequant_yellow</item>
+    </style>
+
+    <style name="Bequant.DatePickerStyle" >
+        <item name="android:datePickerMode" tools:targetApi="lollipop">spinner</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="NumberPickerStyle">
+        <item name="colorControlNormal">@color/bequant_yellow</item>
+        <item name="android:colorControlNormal" tools:targetApi="lollipop">@color/bequant_yellow</item>
+    </style>
 </resources>

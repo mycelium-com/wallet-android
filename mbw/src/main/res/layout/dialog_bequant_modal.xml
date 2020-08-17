@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginBottom="16dp"
-            app:srcCompat="@drawable/ic_close" />
+            app:srcCompat="@drawable/ic_bequant_clear" />
 
         <TextView
             android:id="@+id/titleView"
