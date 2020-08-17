@@ -312,6 +312,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                         newItem as AccountInvestmentViewModel
                         oldItem as AccountInvestmentViewModel
                         newItem.accountId == oldItem.accountId
+                                && newItem.balance == oldItem.balance
                     }
                     else -> oldItem == newItem
                 }
