@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -34,43 +34,43 @@ import com.squareup.moshi.Json
 
 data class Currency(
         /* Currency code */
-        @Json(name = "id")
+        @JsonProperty("id")
         val id: kotlin.String,
-        @Json(name = "fullName")
+        @JsonProperty("fullName")
         val fullName: kotlin.String,
         /* True for cryptocurrencies, false for fiat, ICO and others. */
-        @Json(name = "crypto")
+        @JsonProperty("crypto")
         val crypto: kotlin.Boolean,
         /* True if cryptocurrency support generate adress or paymentId for deposits */
-        @Json(name = "payinEnabled")
+        @JsonProperty("payinEnabled")
         val payinEnabled: kotlin.Boolean,
         /* True if cryptocurrency requred use paymentId for deposits */
-        @Json(name = "payinPaymentId")
+        @JsonProperty("payinPaymentId")
         val payinPaymentId: kotlin.Boolean,
         /* Confirmations count for cryptocurrency deposits */
-        @Json(name = "payinConfirmations")
+        @JsonProperty("payinConfirmations")
         val payinConfirmations: kotlin.Int,
-        @Json(name = "payoutEnabled")
+        @JsonProperty("payoutEnabled")
         val payoutEnabled: kotlin.Boolean,
         /* Default withdraw fee */
-        @Json(name = "payoutFee")
+        @JsonProperty("payoutFee")
         val payoutFee: kotlin.String,
         /* True if cryptocurrency allow use paymentId for withdraw */
-        @Json(name = "payoutIsPaymentId")
+        @JsonProperty("payoutIsPaymentId")
         val payoutIsPaymentId: kotlin.Boolean,
         /* True if currency delisted (stopped deposit and trading) */
-        @Json(name = "delisted")
+        @JsonProperty("delisted")
         val delisted: kotlin.Boolean,
-        @Json(name = "transferEnabled")
+        @JsonProperty("transferEnabled")
         val transferEnabled: kotlin.Boolean,
         /* Minimum withdraw amount */
-        @Json(name = "payoutMinimalAmount")
+        @JsonProperty("payoutMinimalAmount")
         val payoutMinimalAmount: kotlin.String,
         /* Currency precision for payout (number of digits after the decimal point) */
-        @Json(name = "precisionPayout")
+        @JsonProperty("precisionPayout")
         val precisionPayout: kotlin.Int,
         /* Currency precision for transfer (number of digits after the decimal point) */
-        @Json(name = "precisionTransfer")
+        @JsonProperty("precisionTransfer")
         val precisionTransfer: kotlin.Int
 )
 

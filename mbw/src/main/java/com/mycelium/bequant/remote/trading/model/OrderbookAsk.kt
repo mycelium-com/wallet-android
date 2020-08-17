@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -21,9 +21,9 @@ import com.squareup.moshi.Json
  */
 
 data class OrderbookAsk(
-        @Json(name = "price")
+        @JsonProperty("price")
         val price: kotlin.String? = null,
-        @Json(name = "size")
+        @JsonProperty("size")
         val size: kotlin.String? = null
 )
 

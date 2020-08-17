@@ -9,11 +9,11 @@ import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.getInvestmentAccounts
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
-import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wallet.event.AccountListChanged
+import com.squareup.otto.Bus
 import kotlinx.android.synthetic.main.activity_bequant_market.*
 
 
@@ -30,6 +30,8 @@ class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market
             context.startActivity(starter)
         }
     }
+
+    private val eventBus: Bus = MbwManager.getEventBus()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val inflater = (nav_host_fragment as NavHostFragment).navController.navInflater
@@ -50,12 +52,10 @@ class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market
             finish()
             startActivity(Intent(this, ModernMain::class.java))
         }
-        startSyncInvestmentAccounts()
+        update()
     }
 
-    private fun startSyncInvestmentAccounts() {
-        MbwManager.getInstance(applicationContext).getWalletManager(false).let {
-            it.startSynchronization(SyncMode.NORMAL_FORCED, it.getInvestmentAccounts())
-        }
+    private fun update() {
+        eventBus.post(AccountListChanged())
     }
 }

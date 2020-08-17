@@ -1387,6 +1387,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="industry_leading_security">Industry-leading security</string>
     <string name="institutional_grade_crypto_storage">Institutional grade crypto storage and\nindustry-leading security, trusted by world\'s\nlargest crypto funds. You can manage your\ncrypto portfolio with confidence.</string>
     <string name="bequant_professional_support">Professional Support teams based\nin London and Malta</string>
+    <string name="bequant_choose_service">Choose service</string>
+    <string name="bequant_mycelium_wallet">Mycelium Wallet</string>
+    <string name="bequant_investment_wallet">Investment Wallet</string>
     <string name="we_offer_extensive_support">We offer extensive support with maximum\n24 hour response time so you can be at\npeace that your issues are prioritized.</string>
     <string name="investment_wallet">Investment Wallet</string>
     <string name="investment_maximise_your_earning">Maximise your earning potential and put your crypto to work by seamlessly managing your digital assets</string>

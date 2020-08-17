@@ -13,8 +13,7 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
@@ -48,65 +47,64 @@ import com.squareup.moshi.JsonClass
  * @param taxId 
  * @param zip User's ZIP code
  */
-@JsonClass(generateAdapter = true)
 data class KycUser (
-    @Json(name = "address_1")
+    @JsonProperty("address_1")
     val address1: kotlin.String,
-    @Json(name = "birthday")
+    @JsonProperty("birthday")
     val birthday: kotlin.String,
-    @Json(name = "city")
+    @JsonProperty("city")
     val city: kotlin.String,
-    @Json(name = "country")
+    @JsonProperty("country")
     val country: kotlin.String,
-    @Json(name = "email")
+    @JsonProperty("email")
     val email: kotlin.String,
-    @Json(name = "first_name")
+    @JsonProperty("first_name")
     val firstName: kotlin.String,
-    @Json(name = "last_name")
+    @JsonProperty("last_name")
     val lastName: kotlin.String,
-    @Json(name = "nationality")
+    @JsonProperty("nationality")
     val nationality: kotlin.String,
-    @Json(name = "zip")
+    @JsonProperty("zip")
     val zip: kotlin.String,
-    @Json(name = "address_2")
+    @JsonProperty("address_2")
     val address2: kotlin.String? = null,
-    @Json(name = "address_confirmed")
+    @JsonProperty("address_confirmed")
     val addressConfirmed: kotlin.Boolean? = null,
-    @Json(name = "address_count")
+    @JsonProperty("address_count")
     val addressCount: kotlin.Int? = null,
-    @Json(name = "has_document_address")
+    @JsonProperty("has_document_address")
     val hasDocumentAddress: kotlin.Boolean? = null,
-    @Json(name = "has_document_identity")
+    @JsonProperty("has_document_identity")
     val hasDocumentIdentity: kotlin.Boolean? = null,
-    @Json(name = "has_document_selfie")
+    @JsonProperty("has_document_selfie")
     val hasDocumentSelfie: kotlin.Boolean? = null,
-    @Json(name = "identity_confirmed")
+    @JsonProperty("identity_confirmed")
     val identityConfirmed: kotlin.Boolean? = null,
-    @Json(name = "identity_count")
+    @JsonProperty("identity_count")
     val identityCount: kotlin.Int? = null,
-    @Json(name = "identity_type")
+    @JsonProperty("identity_type")
     val identityType: kotlin.String? = null,
-    @Json(name = "last_undeletable_identity")
+    @JsonProperty("last_undeletable_identity")
     val lastUndeletableIdentity: kotlin.Int? = null,
-    @Json(name = "last_undeletable_selfie")
+    @JsonProperty("last_undeletable_selfie")
     val lastUndeletableSelfie: kotlin.Int? = null,
-    @Json(name = "last_undeletable_utility_bill")
+    @JsonProperty("last_undeletable_utility_bill")
     val lastUndeletableUtilityBill: kotlin.Int? = null,
-    @Json(name = "mobile_confirmed")
+    @JsonProperty("mobile_confirmed")
     val mobileConfirmed: kotlin.Boolean? = null,
-    @Json(name = "mobile_phone")
+    @JsonProperty("mobile_phone")
     val mobilePhone: kotlin.String? = null,
-    @Json(name = "mobile_phone_country_code")
+    @JsonProperty("mobile_phone_country_code")
     val mobilePhoneCountryCode: kotlin.String? = null,
-    @Json(name = "poa_visible")
+    @JsonProperty("poa_visible")
     val poaVisible: kotlin.Boolean? = null,
-    @Json(name = "selfie_confirmed")
+    @JsonProperty("selfie_confirmed")
     val selfieConfirmed: kotlin.Boolean? = null,
-    @Json(name = "selfie_count")
+    @JsonProperty("selfie_count")
     val selfieCount: kotlin.Int? = null,
-    @Json(name = "state")
+    @JsonProperty("state")
     val state: kotlin.String? = null,
-    @Json(name = "tax_id")
+    @JsonProperty("tax_id")
     val taxId: kotlin.String? = null
 )
 

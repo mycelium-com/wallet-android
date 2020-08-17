@@ -19,6 +19,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 import java.util.*
+import kotlin.math.roundToInt
 
 
 class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
@@ -97,19 +98,18 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                         val change = if (ticker.last == null || ticker.open == null) {
                             null
                         } else {
-                            100 - ticker.last / ticker.open * 100
+                            ticker.last / ticker.open * 100 - 100
                         }
                         symbols?.find {
                             it.id == ticker.symbol
                         }?.let { symbol ->
                             MarketItem(symbol.baseCurrency, symbol.quoteCurrency,
-                                    ticker.volume ?: 0.0, ticker.last,
+                                    (convertToVolumeInUSDT(symbol, ticker.volume!!) ?: 0.0).roundToInt(), ticker.last,
                                     getUSDForPriceCurrency(symbol.baseCurrency), change)
                         }
                     }.filter { marketItem ->
-                        !CurrencyCode.values().any { code ->
-                            marketItem.from.equals(code.shortString, true) || marketItem.to.equals(code.shortString, true)
-                        }
+                        // currently we don't support pairs with fiat on any side
+                        !(isFiat(marketItem.from) || isFiat(marketItem.to))
                     }.let { marketItems ->
                         fun <T, R : Comparable<R>> Iterable<T>.mSort(selector: (T) -> R?) =
                                 if (sortDirection) sortedByDescending(selector) else sortedBy(selector)
@@ -128,8 +128,29 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         })
     }
 
+    private fun convertToVolumeInUSDT(symbol: Symbol, volume: Double): Double? {
+        return when {
+            getUSDForPriceCurrency(symbol.baseCurrency) != null -> {
+                volume * getUSDForPriceCurrency(symbol.baseCurrency)!!
+            }
+            getUSDForPriceCurrency(symbol.quoteCurrency) != null -> {
+                volume * getUSDForPriceCurrency(symbol.quoteCurrency)!!
+            }
+            else -> {
+                null
+            }
+        }
+    }
+
+    // for symbols with USD the USD can be represented either as "USD" or "USDB"
     private fun getUSDForPriceCurrency(currency: String): Double? =
-            tickersData.firstOrNull { it.symbol.equals("${currency}USD", true) }?.last
+            tickersData.firstOrNull { it.symbol.equals("${currency}USD", true) ||
+                    it.symbol.equals("${currency}USDB", true)}?.last
+
+    // in bequant api GBPB is GBP, EURB is EUR, USDB is USD
+    private fun isFiat(currency: String): Boolean {
+        return currency == "GBPB" || currency == "EURB" || currency == "USDB"
+    }
 
     override fun onDestroyView() {
         list.adapter = null

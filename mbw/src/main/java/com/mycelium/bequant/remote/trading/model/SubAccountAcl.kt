@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -22,11 +22,11 @@ import com.squareup.moshi.Json
  */
 
 data class SubAccountAcl(
-        @Json(name = "subAccountId")
+        @JsonProperty("subAccountId")
         val subAccountId: kotlin.Long? = null,
-        @Json(name = "isPayoutEnabled")
+        @JsonProperty("isPayoutEnabled")
         val isPayoutEnabled: kotlin.Boolean? = null,
-        @Json(name = "description")
+        @JsonProperty("description")
         val description: kotlin.String? = null
 )
 

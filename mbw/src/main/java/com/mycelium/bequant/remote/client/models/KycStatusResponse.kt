@@ -13,8 +13,7 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
@@ -23,15 +22,14 @@ import com.squareup.moshi.JsonClass
  * @param requestReason 
  * @param status 
  */
-@JsonClass(generateAdapter = true)
 data class KycStatusResponse (
-    @Json(name = "status")
+    @JsonProperty("status")
     val status: kotlin.String,
-    @Json(name = "message")
+    @JsonProperty("message")
     val message: kotlin.String? = null,
-    @Json(name = "reject_reason")
+    @JsonProperty("reject_reason")
     val rejectReason: kotlin.String? = null,
-    @Json(name = "request_reason")
+    @JsonProperty("request_reason")
     val requestReason: kotlin.String? = null
 )
 

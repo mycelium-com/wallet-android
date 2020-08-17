@@ -13,16 +13,17 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param passcode 
  */
-@JsonClass(generateAdapter = true)
+
 data class TotpCreateRequest (
-    @Json(name = "passcode")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("passcode")
     val passcode: kotlin.String? = null
 )
 

@@ -13,16 +13,14 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param publicKey 
  */
-@JsonClass(generateAdapter = true)
 data class ApiKeyDeleteRequest (
-    @Json(name = "public_key")
+    @JsonProperty("public_key")
     val publicKey: kotlin.String
 )
 

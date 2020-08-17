@@ -1,13 +1,10 @@
 package com.mycelium.bequant.remote.repositories
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants.KYC_ENDPOINT
 import com.mycelium.bequant.remote.BequantKYCApiService
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
+import com.mycelium.bequant.remote.client.RetrofitFactory.objectMapper
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.model.*
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +17,6 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.File
-import java.text.SimpleDateFormat
 
 
 class KYCRepository {
@@ -112,13 +108,6 @@ class KYCRepository {
     }
 
     companion object {
-        val objectMapper = ObjectMapper()
-                .registerKotlinModule()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
-                .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-                .setDateFormat(SimpleDateFormat("yyyy-MM-dd"))
-
         val retrofitBuilder by lazy { getBuilder() }
         val service by lazy {
             retrofitBuilder

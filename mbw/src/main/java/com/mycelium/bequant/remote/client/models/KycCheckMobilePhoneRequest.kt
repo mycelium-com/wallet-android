@@ -13,16 +13,14 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param code Phone number confirmation code
  */
-@JsonClass(generateAdapter = true)
 data class KycCheckMobilePhoneRequest (
-    @Json(name = "code")
+    @JsonProperty("code")
     val code: kotlin.Int
 )
 
