@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -22,11 +22,11 @@ import com.squareup.moshi.Json
  */
 
 data class Address(
-        @Json(name = "address")
+        @JsonProperty("address")
         val address: kotlin.String,
-        @Json(name = "paymentId")
+        @JsonProperty("paymentId")
         val paymentId: kotlin.String? = null,
-        @Json(name = "publicKey")
+        @JsonProperty("publicKey")
         val publicKey: kotlin.String? = null
 )
 

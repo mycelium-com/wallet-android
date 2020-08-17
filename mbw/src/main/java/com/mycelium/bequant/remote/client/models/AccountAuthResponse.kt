@@ -13,19 +13,17 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param accessToken 
  * @param session 
  */
-@JsonClass(generateAdapter = true)
 data class AccountAuthResponse (
-    @Json(name = "access_token")
+    @JsonProperty("access_token")
     val accessToken: kotlin.String,
-    @Json(name = "session")
+    @JsonProperty("session")
     val session: kotlin.String
 )
 

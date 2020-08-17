@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -29,34 +29,34 @@ import com.squareup.moshi.Json
  */
 
 data class Ticker(
-        @Json(name = "symbol")
+        @JsonProperty("symbol")
         val symbol: kotlin.String,
         /* Best ASK. */
-        @Json(name = "ask")
+        @JsonProperty("ask")
         val ask: kotlin.String? = null,
         /* Best BID. */
-        @Json(name = "bid")
+        @JsonProperty("bid")
         val bid: kotlin.String? = null,
         /* Last trade price */
-        @Json(name = "last")
+        @JsonProperty("last")
         val last: kotlin.Double?,
         /* Min trade price of the last 24 hours. */
-        @Json(name = "low")
+        @JsonProperty("low")
         val low: kotlin.String? = null,
         /* Max trade price of the last 24 hours. */
-        @Json(name = "high")
+        @JsonProperty("high")
         val high: kotlin.String? = null,
         /* Trade price 24 hours ago. */
-        @Json(name = "open")
+        @JsonProperty("open")
         val open: kotlin.Double?,
         /* Trading volume in commoduty currency of the last 24 hours. */
-        @Json(name = "volume")
+        @JsonProperty("volume")
         val volume: kotlin.Double?,
         /* Trading volume in currency of the last 24 hours. */
-        @Json(name = "volumeQuoute")
+        @JsonProperty("volumeQuoute")
         val volumeQuoute: kotlin.String? = null,
         /* Actual timestamp. */
-        @Json(name = "timestamp")
+        @JsonProperty("timestamp")
         val timestamp: java.util.Date? = null
 )
 

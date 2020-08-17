@@ -13,19 +13,17 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param code Error code
  * @param message Error message
  */
-@JsonClass(generateAdapter = true)
 data class Error (
-    @Json(name = "code")
+    @JsonProperty("code")
     val code: kotlin.Int,
-    @Json(name = "message")
+    @JsonProperty("message")
     val message: kotlin.String
 )
 

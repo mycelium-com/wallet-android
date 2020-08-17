@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -35,37 +35,37 @@ import com.squareup.moshi.Json
  */
 
 data class Transaction(
-        @Json(name = "id")
+        @JsonProperty("id")
         val id: kotlin.String,
-        @Json(name = "index")
+        @JsonProperty("index")
         val index: kotlin.String,
-        @Json(name = "currency")
+        @JsonProperty("currency")
         val currency: kotlin.String,
-        @Json(name = "amount")
+        @JsonProperty("amount")
         val amount: kotlin.String,
-        @Json(name = "status")
+        @JsonProperty("status")
         val status: Transaction.Status,
-        @Json(name = "type")
+        @JsonProperty("type")
         val type: Transaction.Type,
-        @Json(name = "fee")
+        @JsonProperty("fee")
         val fee: kotlin.String? = null,
-        @Json(name = "address")
+        @JsonProperty("address")
         val address: kotlin.String? = null,
-        @Json(name = "paymentId")
+        @JsonProperty("paymentId")
         val paymentId: kotlin.String? = null,
-        @Json(name = "hash")
+        @JsonProperty("hash")
         val hash: kotlin.String? = null,
-        @Json(name = "subType")
+        @JsonProperty("subType")
         val subType: Transaction.SubType? = null,
-        @Json(name = "offchainId")
+        @JsonProperty("offchainId")
         val offchainId: kotlin.String? = null,
-        @Json(name = "confirmations")
+        @JsonProperty("confirmations")
         val confirmations: java.math.BigDecimal? = null,
-        @Json(name = "createdAt")
+        @JsonProperty("createdAt")
         val createdAt: java.util.Date? = null,
-        @Json(name = "updatedAt")
+        @JsonProperty("updatedAt")
         val updatedAt: java.util.Date? = null,
-        @Json(name = "errorCode")
+        @JsonProperty("errorCode")
         val errorCode: Transaction.ErrorCode? = null
 ) {
 
@@ -75,13 +75,13 @@ data class Transaction(
      */
 
     enum class Status(val value: kotlin.String) {
-        @Json(name = "created")
+        @JsonProperty("created")
         created("created"),
-        @Json(name = "pending")
+        @JsonProperty("pending")
         pending("pending"),
-        @Json(name = "failed")
+        @JsonProperty("failed")
         failed("failed"),
-        @Json(name = "success")
+        @JsonProperty("success")
         success("success");
     }
 
@@ -91,17 +91,17 @@ data class Transaction(
      */
 
     enum class Type(val value: kotlin.String) {
-        @Json(name = "payout")
+        @JsonProperty("payout")
         payout("payout"),
-        @Json(name = "payin")
+        @JsonProperty("payin")
         payin("payin"),
-        @Json(name = "deposit")
+        @JsonProperty("deposit")
         deposit("deposit"),
-        @Json(name = "withdraw")
+        @JsonProperty("withdraw")
         withdraw("withdraw"),
-        @Json(name = "bankToExchange")
+        @JsonProperty("bankToExchange")
         bankToExchange("bankToExchange"),
-        @Json(name = "exchangeToBank")
+        @JsonProperty("exchangeToBank")
         exchangeToBank("exchangeToBank");
     }
 
@@ -111,9 +111,9 @@ data class Transaction(
      */
 
     enum class SubType(val value: kotlin.String) {
-        @Json(name = "offchain")
+        @JsonProperty("offchain")
         offchain("offchain"),
-        @Json(name = "swap")
+        @JsonProperty("swap")
         swap("swap");
     }
 
@@ -123,11 +123,11 @@ data class Transaction(
      */
 
     enum class ErrorCode(val value: kotlin.String) {
-        @Json(name = "INVALID_ADDRESS")
+        @JsonProperty("INVALID_ADDRESS")
         iNVALIDADDRESS("INVALID_ADDRESS"),
-        @Json(name = "INVALID_PAYMENT_ID")
+        @JsonProperty("INVALID_PAYMENT_ID")
         iNVALIDPAYMENTID("INVALID_PAYMENT_ID"),
-        @Json(name = "BAD_PRECISION")
+        @JsonProperty("BAD_PRECISION")
         bADPRECISION("BAD_PRECISION");
     }
 }

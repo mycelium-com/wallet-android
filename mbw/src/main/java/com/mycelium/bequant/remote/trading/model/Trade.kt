@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -31,31 +31,31 @@ import com.squareup.moshi.Json
  */
 
 data class Trade(
-        @Json(name = "id")
+        @JsonProperty("id")
         val id: kotlin.Long,
-        @Json(name = "clientOrderId")
+        @JsonProperty("clientOrderId")
         val clientOrderId: kotlin.String,
-        @Json(name = "orderId")
+        @JsonProperty("orderId")
         val orderId: kotlin.Long,
-        @Json(name = "symbol")
+        @JsonProperty("symbol")
         val symbol: kotlin.String,
-        @Json(name = "side")
+        @JsonProperty("side")
         val side: Trade.Side,
-        @Json(name = "quantity")
+        @JsonProperty("quantity")
         val quantity: kotlin.String,
-        @Json(name = "fee")
+        @JsonProperty("fee")
         val fee: kotlin.String,
-        @Json(name = "price")
+        @JsonProperty("price")
         val price: kotlin.String,
-        @Json(name = "timestamp")
+        @JsonProperty("timestamp")
         val timestamp: java.util.Date,
         /* Margin position */
-        @Json(name = "positionId")
+        @JsonProperty("positionId")
         val positionId: java.math.BigDecimal? = null,
         /* Margin profit or loss in currency */
-        @Json(name = "pnl")
+        @JsonProperty("pnl")
         val pnl: kotlin.Double? = null,
-        @Json(name = "liquidation")
+        @JsonProperty("liquidation")
         val liquidation: kotlin.Boolean? = null
 ) {
 
@@ -65,9 +65,9 @@ data class Trade(
      */
 
     enum class Side(val value: kotlin.String) {
-        @Json(name = "sell")
+        @JsonProperty("sell")
         sell("sell"),
-        @Json(name = "buy")
+        @JsonProperty("buy")
         buy("buy");
     }
 }
