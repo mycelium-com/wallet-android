@@ -43,8 +43,7 @@ object BequantPreference {
 
     fun getSession() = preference.getString(Constants.SESSION_KEY, null) ?: ""
 
-    // TODO maybe should be linked to private/public key (/api-key)
-    fun isLogged(): Boolean = getPrivateKey().isNotEmpty()
+    fun isLogged(): Boolean = getSession().isNotEmpty()
 
     fun isDemo(): Boolean = getAccessToken().isEmpty()
 

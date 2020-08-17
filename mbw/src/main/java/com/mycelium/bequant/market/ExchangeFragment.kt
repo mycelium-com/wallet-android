@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Paint
-import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -17,7 +16,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
@@ -29,21 +27,21 @@ import androidx.lifecycle.coroutineScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.bequant.remote.repositories.Api
-import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Transaction
+import com.mycelium.bequant.signup.TwoFactorActivity
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
@@ -51,7 +49,6 @@ import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.view.*
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
-import kotlinx.android.synthetic.main.layout_value_keyboard.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -61,7 +58,6 @@ import kotlin.math.pow
 
 
 class ExchangeFragment : Fragment() {
-    private var RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED = 0.1
     private lateinit var viewModel: ExchangeViewModel
     var getViewActive = false
 
@@ -100,31 +96,13 @@ class ExchangeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         createPercentageRadioButtons()
-        numeric_keyboard.setInputListener(object : ValueKeyboard.SimpleInputListener() {
-            override fun done() {
+        sendView.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
                 getViewActive = false
-                stopCursor(sendView)
-                stopCursor(getView)
             }
-        })
-        clSendView.setOnClickListener {
-            numeric_keyboard.setMaxDecimals(viewModel.youSend.value?.type?.unitExponent ?: 8)
-            numeric_keyboard.visibility = View.VISIBLE
-            numeric_keyboard.inputTextView = sendView
-            numeric_keyboard.setEntry(sendView.text.toString())
-            startCursor(sendView)
-            stopCursor(getView)
-            getViewActive = false
-
         }
-        clGetView.setOnClickListener {
-            numeric_keyboard.setMaxDecimals(viewModel.youGet.value?.type?.unitExponent ?: 8)
-            numeric_keyboard.visibility = View.VISIBLE
-            numeric_keyboard.inputTextView = getView
-            numeric_keyboard.setEntry(getView.text.toString())
-            startCursor(getView)
-            stopCursor(sendView)
-            getViewActive = true
+        getView.setOnFocusChangeListener { _, hasFocus ->
+            getViewActive = hasFocus
         }
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
             try {
@@ -196,7 +174,15 @@ class ExchangeFragment : Fragment() {
         exchange.setOnClickListener {
             // TODO add check that KYC has been passed or show BequantKycActivity
             // startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-            makeExchange()
+            if (!BequantPreference.hasKeys()) {
+                ModalDialog(getString(R.string.beuant_turn_2fa),
+                        getString(R.string.bequant_recomend_enable_2fa),
+                        getString(R.string.secure_your_account)) {
+                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else {
+                makeExchange()
+            }
         }
 
         icExchange.setOnClickListener {
@@ -206,7 +192,15 @@ class ExchangeFragment : Fragment() {
             updateAvailable()
         }
         deposit.setOnClickListener {
-            findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
+            if (!BequantPreference.hasKeys()) {
+                ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
+                        getString(R.string.bequant_enable_2fa),
+                        getString(R.string.secure_your_account)) {
+                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else {
+                findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
+            }
         }
         btContactSupport.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
@@ -382,20 +376,6 @@ class ExchangeFragment : Fragment() {
     private fun equals(value: Value?, text: String?) = ((value?.valueAsBigDecimal
             ?: BigDecimal.ZERO) - BigDecimal(text ?: "")).unscaledValue() == BigInteger.ZERO
 
-    private fun startCursor(textView: TextView) {
-        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.bequant_input_cursor, 0)
-        textView.post {
-            val animationDrawable = textView.compoundDrawables[2] as AnimationDrawable
-            if (!animationDrawable.isRunning) {
-                animationDrawable.start()
-            }
-        }
-    }
-
-    private fun stopCursor(textView: TextView) {
-        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
-    }
-
     private fun recalculateDestinationPrice() {
         viewModel.youGet.value?.let { youGetValue ->
             val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
@@ -444,15 +424,12 @@ class ExchangeFragment : Fragment() {
             BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol) { symbol ->
                 if (symbol != null) {
                     Api.publicRepository.publicTickerSymbolGet(viewLifecycleOwner.lifecycle.coroutineScope, symbol.id, { ticker ->
-                         ticker?.let {
+                        ticker?.let {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.ask)
                                 if (!youSend.isZero()) {
-                                    var amountToSend = youSend.valueAsBigDecimal
                                     val maximumWExchangedAmount = viewModel.available.value?.valueAsBigDecimal!!.multiply(BigDecimal(1 - RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED))
-                                    if (amountToSend.compareTo(maximumWExchangedAmount) == 1) {
-                                        amountToSend = maximumWExchangedAmount
-                                    }
+                                    val amountToSend = youSend.valueAsBigDecimal.min(maximumWExchangedAmount)
                                     val youGetDecimal = amountToSend.divide(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                     viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                                 }
@@ -462,7 +439,7 @@ class ExchangeFragment : Fragment() {
                                 viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal)
                             }
                         }
-                    }, { code, msg ->
+                    }, { _, msg ->
                         ErrorHandler(requireContext()).handle(msg)
                     })
                 }
@@ -471,8 +448,7 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun updateYouSend(rate: Int) {
-        val available = viewModel.available.value
-        if (available != null) {
+        viewModel.available.value?.also { available ->
             val result = available.value.toDouble() * (rate.toDouble() / 100)
             viewModel.youSend.value = Value.valueOf(available.type,
                     result.toBigDecimal().toBigInteger())

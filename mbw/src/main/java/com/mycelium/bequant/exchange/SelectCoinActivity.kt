@@ -1,7 +1,5 @@
 package com.mycelium.bequant.exchange
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -23,8 +21,8 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
         pager.offscreenPageLimit = 2
         TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
-                0 -> tab.text = "You send"
-                1 -> tab.text = "You get"
+                0 -> tab.text = getString(R.string.bequant_you_send)
+                1 -> tab.text = getString(R.string.bequant_you_get)
             }
         }.attach()
         pager.setCurrentItem(intent.getIntExtra(ExchangeFragment.PARENT, 0), true)
@@ -34,12 +32,6 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
             setDisplayShowTitleEnabled(true)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_back_arrow))
             setTitle(R.string.exchange)
-        }
-        done.setOnClickListener {
-            val result = Intent()
-            result.putExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR, youSendYouGetPair.value)
-            setResult(Activity.RESULT_OK, result)
-            finish()
         }
     }
 

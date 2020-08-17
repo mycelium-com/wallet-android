@@ -245,6 +245,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                     if (account.getType() == ACCOUNT_TYPE && (account as AccountViewModel).isActive) {
                         sum.add(account.balance!!.spendable)
                     }
+                    if (account.getType() == INVESTMENT_TYPE) {
+                        val account = account as AccountInvestmentViewModel
+                        sum.add(account.account.accountBalance.spendable)
+                    }
                 }
             }
         }
@@ -300,6 +304,11 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                         newItem as TotalViewModel
                         oldItem as TotalViewModel
                         newItem.balance.values == oldItem.balance.values
+                    }
+                    INVESTMENT_TYPE -> {
+                        newItem as AccountInvestmentViewModel
+                        oldItem as AccountInvestmentViewModel
+                        newItem.accountId == oldItem.accountId
                     }
                     else -> oldItem == newItem
                 }

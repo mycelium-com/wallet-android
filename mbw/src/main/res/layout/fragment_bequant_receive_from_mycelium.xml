@@ -58,7 +58,7 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/castodialLabel"
+                android:id="@+id/custodialLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/exo2medium"
@@ -76,11 +76,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/exo2medium"
-                android:text="@{viewModel.castodialBalance}"
+                android:text="@{viewModel.custodialBalance}"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/castodialLabel"
+                app:layout_constraintTop_toBottomOf="@id/custodialLabel"
                 tools:text="12.68456270" />
 
             <TextView

@@ -71,8 +71,7 @@
         android:layout_height="0dp"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:navGraph="@navigation/bequant_main" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <LinearLayout
         android:id="@+id/logoMenu"
@@ -87,27 +86,51 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <TextView
+            style="@style/Bequant.TextMiddle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bequant_gray_3"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:text="@string/bequant_choose_service" />
+
+        <TextView
             android:id="@+id/myceliumWallet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/bequant_gray_3"
             android:fontFamily="@font/exo2medium"
-            android:paddingStart="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:text="Mycelium Wallet"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:text="@string/bequant_mycelium_wallet"
             android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/investmentWallet"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/bequant_gray_3"
-            android:fontFamily="@font/exo2medium"
-            android:paddingStart="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:text="Investment Wallet"
-            android:textSize="16sp" />
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingTop="21dp"
+            android:paddingBottom="27dp">
+
+            <TextView
+                android:id="@+id/investmentWallet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/bequant_gray_3"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/bequant_investment_wallet"
+                android:textColor="@color/bequant_yellow"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingEnd="19dp"
+                app:srcCompat="@drawable/ic_bequant_yellow_check_mark" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

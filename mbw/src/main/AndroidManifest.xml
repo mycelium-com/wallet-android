@@ -287,18 +287,6 @@
                     android:scheme="https" />
             </intent-filter>
             <intent-filter
-                android:label="deeplink_to_totp_confirm">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="reg.bequant.io"
-                    android:pathPrefix="/account/totp/confirm"
-                    android:scheme="https" />
-            </intent-filter>
-            <intent-filter
                 android:label="deeplink_to_reset_password_confirm">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -308,6 +296,22 @@
                 <data
                     android:host="reg.bequant.io"
                     android:pathPrefix="/account/password/set"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.mycelium.bequant.signup.TwoFactorActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/BequantSign">
+            <intent-filter android:label="deeplink_to_totp_confirm">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="reg.bequant.io"
+                    android:pathPrefix="/account/totp/confirm"
                     android:scheme="https" />
             </intent-filter>
         </activity>

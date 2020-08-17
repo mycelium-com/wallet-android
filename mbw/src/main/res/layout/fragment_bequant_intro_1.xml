@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/exo2regular"
         android:gravity="center"
-        android:text="@string/bequant_secure_custodial_storage"
+        android:text="@string/bequant_secure_mobile_access"
         android:textColor="#F2E868"
         android:textSize="28sp" />
 

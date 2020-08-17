@@ -68,26 +68,6 @@
             app:nullable="false" />
     </fragment>
     <fragment
-        android:id="@+id/signUpTwoFactorFragment"
-        android:name="com.mycelium.bequant.signup.SignUpTwoFactorFragment"
-        android:label="SignUpTwoFactorFragment"
-        tools:layout="@layout/fragment_bequant_sign_up_two_factor">
-        <action
-            android:id="@+id/actionNext"
-            app:destination="@id/backupCodeFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/backupCodeFragment"
-        android:name="com.mycelium.bequant.signup.BackupCodeFragment"
-        android:label="BackupCodeFragment"
-        tools:layout="@layout/fragment_bequant_backup_code">
-        <action
-            android:id="@+id/actionNext"
-            app:destination="@id/setupCodeFragment">
-
-        </action>
-    </fragment>
-    <fragment
         android:id="@+id/resetPasswordInfoFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordInfoFragment"
         android:label="ResetPasswordInfoFragment"
@@ -121,41 +101,6 @@
         <argument
             android:name="token"
             app:argType="string" />
-    </fragment>
-    <fragment
-        android:id="@+id/setupCodeFragment"
-        android:name="com.mycelium.bequant.signup.SetupCodeFragment"
-        android:label="SetupCodeFragment"
-        tools:layout="@layout/fragment_bequant_setup_code">
-        <action
-            android:id="@+id/actionNext"
-            app:destination="@id/signUpTwoFactorPasscodeFragment"></action>
-        <argument
-            android:name="otp"
-            app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
-    </fragment>
-    <fragment
-        android:id="@+id/signUpTwoFactorPasscodeFragment"
-        android:name="com.mycelium.bequant.signup.SignUpTwoFactorPasscodeFragment"
-        android:label="SignUpTwoFactorPasscodeFragment"
-        tools:layout="@layout/fragment_bequant_sign_in_two_factor">
-        <action
-            android:id="@+id/actionNext"
-            app:destination="@id/registrationTotpFragment" />
-        <argument
-            android:name="otp"
-            app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
-    </fragment>
-    <fragment
-        android:id="@+id/registrationTotpFragment"
-        android:name="com.mycelium.bequant.signup.RegistrationTotpFragment"
-        android:label="RegistrationTotpFragment"
-        tools:layout="@layout/fragment_bequant_registration_totp">
-        <action
-            android:id="@+id/actionFinish"
-            app:destination="@id/signFragment"
-            app:popUpTo="@id/signFragment"
-            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/countrySelectorFragment"
