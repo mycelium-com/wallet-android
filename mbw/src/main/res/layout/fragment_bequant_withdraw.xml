@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/exo2medium"
-                    android:text="@{viewModel.castodialBalance}"
+                    android:text="@{viewModel.custodialBalance}"
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     app:layout_constraintLeft_toLeftOf="parent"

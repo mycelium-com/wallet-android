@@ -55,7 +55,7 @@ class WithdrawFragment : Fragment() {
         send.isEnabled = false
         viewModel.amount.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
-            val custodialBalance = viewModel.castodialBalance.value?.toBigDecimalOrNull()
+            val custodialBalance = viewModel.custodialBalance.value?.toBigDecimalOrNull()
                     ?: BigDecimal.ZERO
             val enoughAmount = amount <= custodialBalance
             edAmount.error = if (enoughAmount) null else getString(R.string.insufficient_funds)
@@ -120,10 +120,10 @@ class WithdrawFragment : Fragment() {
             viewModel.accountBalance.value = BigDecimal(accountBalanceStr ?: "0")
             viewModel.tradingBalance.value = BigDecimal(tradingBalanceStr ?: "0")
             val sum = (viewModel.accountBalance.value as BigDecimal) + (viewModel.tradingBalance.value as BigDecimal)
-            viewModel.castodialBalance.value = sum.toPlainString()
+            viewModel.custodialBalance.value = sum.toPlainString()
         }, { _, message ->
             ErrorHandler(requireContext()).handle(message)
-            viewModel.castodialBalance.value = "0.00"
+            viewModel.custodialBalance.value = "0.00"
         }, {
             loader(false)
         })

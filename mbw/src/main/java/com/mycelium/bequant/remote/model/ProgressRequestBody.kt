@@ -7,19 +7,15 @@ import okhttp3.RequestBody
 import okio.BufferedSink
 import java.io.File
 import java.io.FileInputStream
-import java.io.IOException
 
 class ProgressRequestBody(private val file: File, private val contentType: String) : RequestBody() {
-
     val handler = Handler(Looper.getMainLooper())
     var progressListener: ((Long, Long) -> Unit)? = null
 
     override fun contentType(): MediaType? = MediaType.parse("$contentType/*")
 
-    @Throws(IOException::class)
     override fun contentLength(): Long = file.length()
 
-    @Throws(IOException::class)
     override fun writeTo(sink: BufferedSink) {
         val fileLength = file.length()
         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
