@@ -11,7 +11,7 @@
  */
 package com.mycelium.bequant.remote.trading.model
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -20,9 +20,9 @@ import com.squareup.moshi.Json
  */
 
 data class SubAccountBalance(
-        @Json(name = "main")
+        @JsonProperty("main")
         val main: kotlin.Array<SubAccountBalanceMain>? = null,
-        @Json(name = "trading")
+        @JsonProperty("trading")
         val trading: kotlin.Array<SubAccountBalanceMain>? = null
 )
 

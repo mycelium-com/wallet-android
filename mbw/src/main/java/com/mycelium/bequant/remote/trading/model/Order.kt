@@ -11,7 +11,7 @@
  */
 package com.mycelium.bequant.remote.trading.model
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -36,39 +36,39 @@ import com.squareup.moshi.Json
  */
 
 data class Order(
-        @Json(name = "id")
+        @JsonProperty("id")
         val id: kotlin.Long,
-        @Json(name = "clientOrderId")
+        @JsonProperty("clientOrderId")
         val clientOrderId: kotlin.String,
-        @Json(name = "symbol")
+        @JsonProperty("symbol")
         val symbol: kotlin.String,
-        @Json(name = "side")
+        @JsonProperty("side")
         val side: Order.Side,
-        @Json(name = "status")
+        @JsonProperty("status")
         val status: Order.Status,
-        @Json(name = "type")
+        @JsonProperty("type")
         val type: Order.Type,
-        @Json(name = "timeInForce")
+        @JsonProperty("timeInForce")
         val timeInForce: Order.TimeInForce,
-        @Json(name = "quantity")
+        @JsonProperty("quantity")
         val quantity: kotlin.String,
-        @Json(name = "createdAt")
+        @JsonProperty("createdAt")
         val createdAt: java.util.Date,
-        @Json(name = "updatedAt")
+        @JsonProperty("updatedAt")
         val updatedAt: java.util.Date,
-        @Json(name = "price")
+        @JsonProperty("price")
         val price: kotlin.String? = null,
-        @Json(name = "avgPrice")
+        @JsonProperty("avgPrice")
         val avgPrice: kotlin.String? = null,
-        @Json(name = "cumQuantity")
+        @JsonProperty("cumQuantity")
         val cumQuantity: kotlin.String? = null,
-        @Json(name = "postOnly")
+        @JsonProperty("postOnly")
         val postOnly: kotlin.Boolean? = null,
-        @Json(name = "stopPrice")
+        @JsonProperty("stopPrice")
         val stopPrice: kotlin.String? = null,
-        @Json(name = "expireTime")
+        @JsonProperty("expireTime")
         val expireTime: java.util.Date? = null,
-        @Json(name = "tradesReport")
+        @JsonProperty("tradesReport")
         val tradesReport: kotlin.Array<OrderTradesReport>? = null
 ) {
 
@@ -78,9 +78,9 @@ data class Order(
      */
 
     enum class Side(val value: kotlin.String) {
-        @Json(name = "sell")
+        @JsonProperty("sell")
         sell("sell"),
-        @Json(name = "buy")
+        @JsonProperty("buy")
         buy("buy");
     }
 
@@ -90,17 +90,17 @@ data class Order(
      */
 
     enum class Status(val value: kotlin.String) {
-        @Json(name = "new")
+        @JsonProperty("new")
         new("new"),
-        @Json(name = "suspended")
+        @JsonProperty("suspended")
         suspended("suspended"),
-        @Json(name = "partiallyFilled")
+        @JsonProperty("partiallyFilled")
         partiallyFilled("partiallyFilled"),
-        @Json(name = "filled")
+        @JsonProperty("filled")
         filled("filled"),
-        @Json(name = "canceled")
+        @JsonProperty("canceled")
         canceled("canceled"),
-        @Json(name = "expired")
+        @JsonProperty("expired")
         expired("expired");
     }
 
@@ -110,13 +110,13 @@ data class Order(
      */
 
     enum class Type(val value: kotlin.String) {
-        @Json(name = "limit")
+        @JsonProperty("limit")
         limit("limit"),
-        @Json(name = "market")
+        @JsonProperty("market")
         market("market"),
-        @Json(name = "stopLimit")
+        @JsonProperty("stopLimit")
         stopLimit("stopLimit"),
-        @Json(name = "stopMarket")
+        @JsonProperty("stopMarket")
         stopMarket("stopMarket");
     }
 
@@ -126,15 +126,15 @@ data class Order(
      */
 
     enum class TimeInForce(val value: kotlin.String) {
-        @Json(name = "GTC")
+        @JsonProperty("GTC")
         gTC("GTC"),
-        @Json(name = "IOC")
+        @JsonProperty("IOC")
         iOC("IOC"),
-        @Json(name = "FOK")
+        @JsonProperty("FOK")
         fOK("FOK"),
-        @Json(name = "Day")
+        @JsonProperty("Day")
         day("Day"),
-        @Json(name = "GTD")
+        @JsonProperty("GTD")
         gTD("GTD");
     }
 }

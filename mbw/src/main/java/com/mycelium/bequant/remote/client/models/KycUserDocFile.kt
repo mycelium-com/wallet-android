@@ -13,19 +13,18 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param filename 
  * @param id 
  */
-@JsonClass(generateAdapter = true)
+
 data class KycUserDocFile (
-    @Json(name = "filename")
+    @JsonProperty("filename")
     val filename: kotlin.String,
-    @Json(name = "id")
+    @JsonProperty("id")
     val id: kotlin.Int
 )
 

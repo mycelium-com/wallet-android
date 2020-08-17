@@ -11,19 +11,14 @@
 */
 package com.mycelium.bequant.remote.client.models
 
-import com.mycelium.bequant.remote.client.models.TotpResponse
-
-
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param data 
  */
-@JsonClass(generateAdapter = true)
 data class TotpListResponse (
-    @Json(name = "data")
+    @JsonProperty("data")
     val data: kotlin.collections.List<TotpResponse>
 )
 

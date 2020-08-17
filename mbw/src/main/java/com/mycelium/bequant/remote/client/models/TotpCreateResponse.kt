@@ -14,8 +14,7 @@ package com.mycelium.bequant.remote.client.models
 
 
 import android.os.Parcelable
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
 
 /**
@@ -24,14 +23,13 @@ import kotlinx.android.parcel.Parcelize
  * @param otpId 
  * @param otpLink 
  */
-@JsonClass(generateAdapter = true)
 @Parcelize
 data class TotpCreateResponse (
-    @Json(name = "backup_password")
+    @JsonProperty("backup_password")
     val backupPassword: String,
-    @Json(name = "otp_id")
+    @JsonProperty("otp_id")
     val otpId: Long,
-    @Json(name = "otp_link")
+    @JsonProperty("otp_link")
     val otpLink: String
 ) : Parcelable
 

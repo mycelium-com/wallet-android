@@ -12,7 +12,7 @@
 package com.mycelium.bequant.remote.trading.model
 
 
-import com.squareup.moshi.Json
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  *
@@ -20,7 +20,7 @@ import com.squareup.moshi.Json
  */
 
 data class InlineResponse200(
-        @Json(name = "id")
+        @JsonProperty("id")
         val id: kotlin.String
 )
 

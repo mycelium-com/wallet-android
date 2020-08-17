@@ -13,8 +13,7 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
@@ -28,25 +27,24 @@ import com.squareup.moshi.JsonClass
  * @param nationality User's country of origin
  * @param zip User's ZIP code
  */
-@JsonClass(generateAdapter = true)
 data class KycCreateRequest (
-    @Json(name = "address_1")
+    @JsonProperty("address_1")
     val address1: kotlin.String? = null,
-    @Json(name = "address_2")
+    @JsonProperty("address_2")
     val address2: kotlin.String? = null,
-    @Json(name = "birthday")
+    @JsonProperty("birthday")
     val birthday: kotlin.String? = null,
-    @Json(name = "city")
+    @JsonProperty("city")
     val city: kotlin.String? = null,
-    @Json(name = "country")
+    @JsonProperty("country")
     val country: kotlin.String? = null,
-    @Json(name = "first_name")
+    @JsonProperty("first_name")
     val firstName: kotlin.String? = null,
-    @Json(name = "last_name")
+    @JsonProperty("last_name")
     val lastName: kotlin.String? = null,
-    @Json(name = "nationality")
+    @JsonProperty("nationality")
     val nationality: kotlin.String? = null,
-    @Json(name = "zip")
+    @JsonProperty("zip")
     val zip: kotlin.String? = null
 )
 

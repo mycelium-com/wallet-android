@@ -13,19 +13,20 @@ package com.mycelium.bequant.remote.client.models
 
 
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 
  * @param comment 
  * @param expireDurationSeconds 
  */
-@JsonClass(generateAdapter = true)
 data class ApiKeyRequest (
-    @Json(name = "comment")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("comment")
     val comment: kotlin.String? = null,
-    @Json(name = "expire_duration_seconds")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("expire_duration_seconds")
     val expireDurationSeconds: kotlin.Long? = null
 )
 
