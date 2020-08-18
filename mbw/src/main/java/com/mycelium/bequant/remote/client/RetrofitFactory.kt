@@ -16,15 +16,15 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.text.SimpleDateFormat
+import java.util.Locale
 
 object RetrofitFactory {
-
-    val objectMapper = ObjectMapper()
+    val objectMapper: ObjectMapper = ObjectMapper()
             .registerKotlinModule()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
             .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-            .setDateFormat(SimpleDateFormat("yyyy-MM-dd"))
+            .setDateFormat(SimpleDateFormat("yyyy-MM-dd", Locale.US))
 
     private fun getClientBuilder(withAccessToken: Boolean = false): OkHttpClient.Builder =
             OkHttpClient().newBuilder()
@@ -55,6 +55,7 @@ object RetrofitFactory {
                         //create client lazy on demand in background thread
                         //see https://www.zacsweers.dev/dagger-party-tricks-deferred-okhttp-init/
                         private val client by lazy { getClientBuilder(withAccessToken).build() }
+
                         override fun newCall(request: Request): Call = client.newCall(request)
                     })
                     .baseUrl(url)

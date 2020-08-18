@@ -10,7 +10,7 @@ class AccountApiRepository {
     private val api = AccountApi.create()
 
     fun accountCryptoWithdrawPost(scope: CoroutineScope,
-                                  currency: kotlin.String, amount: kotlin.String, address: kotlin.String, paymentId: kotlin.String? = null, includeFee: kotlin.Boolean? = null, autoCommit: kotlin.Boolean? = null, useOffchain: kotlin.String? = null,
+                                  currency: String, amount: String, address: String, paymentId: String? = null, includeFee: Boolean? = null, autoCommit: Boolean? = null, useOffchain: String? = null,
                                   success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.accountCryptoWithdrawPost(currency, amount, address, paymentId, includeFee, autoCommit, useOffchain)
@@ -65,7 +65,7 @@ class AccountApiRepository {
     }
 
     fun accountTransactionsGet(scope: CoroutineScope,
-                               currency: kotlin.String, sort: kotlin.String, by: kotlin.String, from: kotlin.String, till: kotlin.String, limit: kotlin.Int, offset: kotlin.Int,
+                               currency: String, sort: String, by: String, from: String, till: String, limit: Int, offset: Int,
                                success: (Array<Transaction>?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.accountTransactionsGet(currency, sort, by, from, till, limit, offset)
@@ -97,7 +97,7 @@ class AccountApiRepository {
     }
 
     fun accountTransferPost(scope: CoroutineScope,
-                            currency: kotlin.String, amount: kotlin.String, type: kotlin.String,
+                            currency: String, amount: String, type: String,
                             success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             api.accountTransferPost(currency, amount, type)

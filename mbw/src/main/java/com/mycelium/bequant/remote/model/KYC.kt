@@ -24,22 +24,21 @@ data class KYCRequest(
         val poaList: MutableList<String> = mutableListOf(),
         val selfieList: MutableList<String> = mutableListOf(),
         @Transient var isResubmit:Boolean = false
-) : Parcelable
-
-fun KYCRequest.toModel(applicant: KYCApplicant): KYCApplicant {
-    applicant.firstName = this.first_name
-    applicant.lastName = this.last_name
-    applicant.nationality = this.nationality
-    applicant.dob = this.birthday
-    applicant.address.address1 = this.address_1 ?: ""
-    applicant.address.address2 = this.address_2 ?: ""
-    applicant.address.city = this.city ?: ""
-    applicant.address.country = this.country ?: ""
-    applicant.address.postcode = this.zip ?: ""
-    applicant.facta = this.fatca
-    return applicant
+) : Parcelable {
+    fun toModel(applicant: KYCApplicant): KYCApplicant {
+        applicant.firstName = this.first_name
+        applicant.lastName = this.last_name
+        applicant.nationality = this.nationality
+        applicant.dob = this.birthday
+        applicant.address.address1 = this.address_1 ?: ""
+        applicant.address.address2 = this.address_2 ?: ""
+        applicant.address.city = this.city ?: ""
+        applicant.address.country = this.country ?: ""
+        applicant.address.postcode = this.zip ?: ""
+        applicant.facta = this.fatca
+        return applicant
+    }
 }
-
 
 data class KYCCreateRequest(var applicant: KYCApplicant)
 
