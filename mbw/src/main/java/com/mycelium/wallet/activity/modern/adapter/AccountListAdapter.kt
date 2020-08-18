@@ -138,7 +138,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             ACCOUNT_TYPE -> createAccountViewHolder(parent)
             TOTAL_BALANCE_TYPE -> createTotalBalanceViewHolder(parent)
             INVESTMENT_TYPE -> createInvestmentAccountViewHolder(parent)
-            else -> throw IllegalArgumentException("Unknow account type")
+            else -> throw IllegalArgumentException("Unknown account type")
         }
     }
 

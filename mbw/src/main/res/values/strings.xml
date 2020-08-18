@@ -1372,8 +1372,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
     <string name="none">none</string>
     <string name="send_mail">Send mail…</string>
-    <string name="add_investment_account">Add Investment Account</string>
-    <string name="activate_investment_account">Activate Investment Account</string>
     <string name="bequant_secure_custodial_storage">Secure custodial storage\nfor crypto on the go</string>
     <string name="bequant_secure_mobile_access">Secure Mobile or Web\naccess</string>
     <string name="bequant_over_70_trading_pairs">Over 70 trading pairs\nincluding fiat currencies</string>
@@ -1389,10 +1387,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_professional_support">Professional Support teams based\nin London and Malta</string>
     <string name="bequant_choose_service">Choose service</string>
     <string name="bequant_mycelium_wallet">Mycelium Wallet</string>
-    <string name="bequant_investment_wallet">Investment Wallet</string>
     <string name="we_offer_extensive_support">We offer extensive support with maximum\n24 hour response time so you can be at\npeace that your issues are prioritized.</string>
-    <string name="investment_wallet">Investment Wallet</string>
-    <string name="investment_maximise_your_earning">Maximise your earning potential and put your crypto to work by seamlessly managing your digital assets</string>
+    <string name="bequant_account_description_accounts_list">Store and exchange over 25+ coins\nincluding leading stablecoins and fiat\ncurrencies with lowest spreads.</string>
+    <string name="bequant_account_description_add_account">Gain secure access to over 20 major digital\ncoins and instantly and safely exchange,\nwithdraw and deposit coins to any address\nof your choice. Powered by Bequant, an\ninstitutional-grade exchange platform with\ntop liquidity and top-of-the-line security.</string>
     <string name="search_markets">Search markets</string>
     <string name="support_center">Support Center</string>
     <string name="kyc">KYC</string>
@@ -1465,6 +1462,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
     <string name="bequant_deposit">Deposit</string>
     <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
+    <string name="bequant_trading_account">Trading Account</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="step_n">Step %d</string>
     <string name="phone_number">Phone Number</string>
