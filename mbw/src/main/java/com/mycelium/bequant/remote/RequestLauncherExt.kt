@@ -19,11 +19,12 @@ fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Respons
                     if (response.isSuccessful) {
                         successBlock(response.body())
                     } else {
+                        @Suppress("BlockingMethodInNonBlockingContext")
                         errorBlock?.invoke(response.code(), response.errorBody()?.string() ?: "")
                     }
                 }
             } catch (e: Exception) {
-                Log.w("Request", "excheption on request", e)
+                Log.w("Request", "exception on request", e)
                 withContext(Dispatchers.Main) {
                     errorBlock?.invoke(400, e.message ?: "")
                 }

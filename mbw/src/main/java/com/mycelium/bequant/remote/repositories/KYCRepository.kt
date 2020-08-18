@@ -51,11 +51,9 @@ class KYCRepository {
             } else {
                 error.invoke()
             }
-        }, { code, msg ->
+        }, { _, msg ->
             error.invoke()
-        }, {
-
-        })
+        }, {})
     }
 
     fun uploadDocument(scope: CoroutineScope, type: KYCDocument, file: File, country: String,
@@ -82,13 +80,13 @@ class KYCRepository {
                 val fileBody = ProgressRequestBody(it.key, "image")
                 val multipartBody = MultipartBody.Part.createFormData("file", it.key.name, fileBody)
                 val type = RequestBody.create(MediaType.parse("text/plain"), it.value.toString())
-                val country = RequestBody.create(MediaType.parse("text/plain"), country)
-                result = service.uploadFile(BequantPreference.getKYCToken(), type, country, multipartBody)
+                val countryRequestBody = RequestBody.create(MediaType.parse("text/plain"), country)
+                result = service.uploadFile(BequantPreference.getKYCToken(), type, countryRequestBody, multipartBody)
             }
             result
-        }, { response ->
-            success.invoke()
-        }, { code, msg ->
+        }, {
+            success()
+        }, { _, msg ->
             error.invoke(msg)
         }, {
             finally.invoke()
