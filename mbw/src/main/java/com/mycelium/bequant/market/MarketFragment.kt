@@ -28,6 +28,7 @@ import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.SyncMode
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_bequant_main.*
@@ -123,6 +124,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                 }
                 R.id.logOut -> {
                     Api.signRepository.logout()
+                    MbwManager.getEventBus().post(AccountListChanged())
                     activity?.finish()
                     startActivity(Intent(requireContext(), SignActivity::class.java))
                     true

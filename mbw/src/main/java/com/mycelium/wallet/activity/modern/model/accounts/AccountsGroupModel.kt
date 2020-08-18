@@ -9,17 +9,19 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
  */
 class AccountsGroupModel(val titleId: Int, private val groupType: AccountListItem.Type,
                          val sum: ValueSum? = null,
-                         val accountsList: List<AccountListItem>, val coinType: CryptoCurrency) : AccountListItem {
+                         val accountsList: List<AccountListItem>, val coinType: CryptoCurrency,
+                         val isInvestmentAccount: Boolean) : AccountListItem {
 
     constructor(model: AccountsGroupModel) : this(model.titleId, model.groupType, model.sum,
-            model.accountsList, model.coinType)
+            model.accountsList, model.coinType, model.isInvestmentAccount)
 
     var isCollapsed = false // Is only used to handle state between updates.
 
     /**
      * @param context - context must be passed, as with language change title might change.
      */
-    fun getTitle(context: Context): String = context.getString(titleId)
+    fun getTitle(context: Context): String = if (isInvestmentAccount)
+        "<font color='#F2E868'>${context.getString(titleId)}</font>" else context.getString(titleId)
 
     override fun getType(): AccountListItem.Type = groupType
 

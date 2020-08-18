@@ -138,7 +138,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             ACCOUNT_TYPE -> createAccountViewHolder(parent)
             TOTAL_BALANCE_TYPE -> createTotalBalanceViewHolder(parent)
             INVESTMENT_TYPE -> createInvestmentAccountViewHolder(parent)
-            else -> throw IllegalArgumentException("Unknow account type")
+            else -> throw IllegalArgumentException("Unknown account type")
         }
     }
 
@@ -226,7 +226,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val title = group.getTitle(context)
         groupHolder.tvTitle.text = Html.fromHtml(title)
         val count = group.accountsList.size
-        groupHolder.tvAccountsCount.visibility = if (count > 0) View.VISIBLE else View.GONE
+        groupHolder.tvAccountsCount.visibility = if (count > 0 && !group.isInvestmentAccount) View.VISIBLE else View.GONE
         groupHolder.tvAccountsCount.text = "($count)"
         groupHolder.itemView.setOnClickListener {
             //Should be here as initial state in model is wrong

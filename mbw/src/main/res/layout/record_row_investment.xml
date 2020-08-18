@@ -27,7 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/ivIcon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Investment Account" />
+        tools:text="@string/bequant_trading_account" />
 
     <TextView
         android:id="@+id/tvBalance"
@@ -66,7 +66,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:gravity="center"
-        android:text="@string/investment_maximise_your_earning"
+        android:text="@string/bequant_account_description_accounts_list"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/ivIcon"

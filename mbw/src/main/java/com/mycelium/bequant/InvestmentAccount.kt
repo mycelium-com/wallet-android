@@ -79,7 +79,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> =
             mutableListOf()
 
-    override fun getLabel(): String = "Investment Account"
+    override fun getLabel(): String = "Trading Account"
 
     override fun setLabel(label: String?) {
     }

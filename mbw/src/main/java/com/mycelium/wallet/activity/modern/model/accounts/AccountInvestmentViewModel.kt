@@ -6,7 +6,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 
 class AccountInvestmentViewModel(val account: WalletAccount<out GenericAddress>, val balance: String) : AccountListItem {
     val accountId = account.id!!
-    var label = "Investment Account"
+    var label = "Trading Account"
 
     override fun getType(): AccountListItem.Type = AccountListItem.Type.INVESTMENT_TYPE
 }
