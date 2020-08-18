@@ -36,6 +36,7 @@
         tools:text="xxxx - xxxx - xxxx -\n xxxx - xxxx - xxxx" />
 
     <TextView
+        android:id="@+id/backupCodeNote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"

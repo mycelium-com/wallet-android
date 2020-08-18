@@ -22,6 +22,7 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.getInvestmentAccounts
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
+import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.sign.SignActivity
@@ -106,6 +107,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         inflater.inflate(R.menu.menu_bequant_market, menu)
         menu.findItem(R.id.logIn).isVisible = !BequantPreference.isLogged()
         menu.findItem(R.id.logOut).isVisible = BequantPreference.isLogged()
+        menu.findItem(R.id.kyc).isVisible = BequantPreference.getKYCStatus() != KYCStatus.APPROVED
         super.onCreateOptionsMenu(menu, inflater)
     }
 

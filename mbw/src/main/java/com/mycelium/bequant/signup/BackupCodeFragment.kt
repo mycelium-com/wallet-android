@@ -3,13 +3,14 @@ package com.mycelium.bequant.signup
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.TotpCreateResponse
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
@@ -27,10 +28,13 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_backup_code)
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.bequant_page_title_backup_code)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         next.isEnabled = false
         backupCodeWritten.setOnCheckedChangeListener { _, checked ->
+            backupCodeNote.visibility = if (checked) GONE else VISIBLE
             next.isEnabled = checked
         }
         next.setOnClickListener {
