@@ -42,10 +42,14 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         }
         search.setOnEditorActionListener { _, _, _ ->
             updateList(search.text?.toString()?.trim() ?: "")
-            (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .hideSoftInputFromWindow(search.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+            hideKeyboard()
             true
         }
+    }
+
+    private fun hideKeyboard() {
+        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .hideSoftInputFromWindow(search.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     override fun onResume() {
@@ -64,6 +68,8 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     override fun onPause() {
         tickerTimer?.cancel()
         tickerTimer = null
+        search.clearFocus()
+        hideKeyboard()
         super.onPause()
     }
 

@@ -14,6 +14,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
@@ -205,6 +206,19 @@ class ExchangeFragment : Fragment() {
         btContactSupport.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
+    }
+
+    private fun hideKeyboard(view: View) {
+        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+    }
+
+    override fun onPause() {
+        sendView.clearFocus()
+        hideKeyboard(sendView)
+        getView.clearFocus()
+        hideKeyboard(getView)
+        super.onPause()
     }
 
     private fun createPercentageRadioButtons() {
