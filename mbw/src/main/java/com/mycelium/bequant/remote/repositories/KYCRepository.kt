@@ -94,15 +94,36 @@ class KYCRepository {
     }
 
     fun status(scope: CoroutineScope, success: ((StatusMessage) -> Unit),
-               error: (Int, String) -> Unit, finally: () -> Unit) {
+               error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
             BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
             success.invoke(response?.message!!)
         }, { code, msg ->
-            error.invoke(code, msg)
+            error?.invoke(code, msg)
         }, finally)
+    }
+
+    fun kycToken(scope: CoroutineScope, success: ((String) -> Unit),
+                 error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
+        Api.signRepository.accountOnceToken(scope, {
+            it?.token?.let {onceToken ->
+                doRequest(scope, {
+                    service.kycToken(onceToken)
+                }, {
+                    it?.message?.uuid?.let { uuid ->
+                        BequantPreference.setKYCToken(uuid)
+                        success.invoke(uuid)
+                    }
+                }, { code, msg ->
+                    error?.invoke(code, msg)
+                }, finally)
+            }
+        }, { code, msg ->
+            error?.invoke(code, msg)
+            finally?.invoke()
+        })
     }
 
     companion object {

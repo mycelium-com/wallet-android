@@ -26,4 +26,7 @@ interface BequantKYCApiService {
 
     @GET("eapi/applicant/status")
     suspend fun status(@Query("uuid") uuid: String): Response<KYCStatusResponse>
+
+    @GET("eapi/applicant/getuuid")
+    suspend fun kycToken(@Query("once-token") onceToken: String): Response<KYCTokenResponse>
 }

@@ -32,6 +32,7 @@ import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.SyncMode
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_bequant_main.*
+import kotlinx.coroutines.GlobalScope
 
 
 class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
@@ -86,6 +87,13 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             }, { _, error ->
                 ErrorHandler(requireContext()).handle(error)
             }, {
+            })
+        }
+        if(BequantPreference.getKYCToken().isEmpty()) {
+            Api.kycRepository.kycToken(GlobalScope, {
+                Api.kycRepository.status(GlobalScope, {
+                    activity?.invalidateOptionsMenu()
+                })
             })
         }
     }

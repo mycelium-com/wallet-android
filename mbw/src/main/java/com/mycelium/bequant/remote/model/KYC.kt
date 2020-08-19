@@ -80,6 +80,12 @@ data class StatusMessage(val global: KYCStatus,
                          @JsonProperty("global_message") val message: String,
                          val sections: List<Map<String, Boolean>>)
 
+data class KYCTokenResponse(var status: Int?,
+                            var message: KYCTokenMessage?,
+                            var error: Int?)
+
+data class KYCTokenMessage(var uuid: String)
+
 data class KYCResponse(var status: Int?,
                        var message: String?,
                        var error: Int?)
