@@ -63,7 +63,6 @@ class AccountFragment : Fragment() {
         deposit.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
-                activity?.finish()
             } else if (!BequantPreference.hasKeys()) {
                 ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
                         getString(R.string.bequant_enable_2fa),
@@ -77,7 +76,6 @@ class AccountFragment : Fragment() {
         withdraw.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
-                activity?.finish()
             } else if (!BequantPreference.hasKeys()) {
                 ModalDialog(getString(R.string.bequant_turn_2fa_withdraw),
                         getString(R.string.bequant_enable_2fa),
