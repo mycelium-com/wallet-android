@@ -16,7 +16,7 @@ dependencies {
 
     api 'org.bouncycastle:bcprov-jdk15on:1.61'
     api 'org.bouncycastle:bcpkix-jdk15on:1.61'
-    api 'com.google.guava:guava:27.1-jre'
+    api 'com.google.guava:guava:27.1-android'
     api 'org.bitcoinj:bitcoinj-core:0.15.2'
 
 }
