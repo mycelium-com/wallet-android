@@ -48,6 +48,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
@@ -72,8 +76,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
-
-    private Logger rootLogger;
 
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
@@ -104,6 +106,13 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                     .build());
         }
         super.onCreate();
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Prompt the user to install/update/enable Google Play services.
+            GoogleApiAvailability.getInstance().showErrorNotification(this, e.getConnectionStatusCode());
+        } catch (GooglePlayServicesNotAvailableException ignore) {
+        }
         CommunicationManager.init(this);
         moduleMessageReceiver = new MbwMessageReceiver(this);
         applyLanguageChange(getBaseContext(), SettingsPreference.getLanguage());
