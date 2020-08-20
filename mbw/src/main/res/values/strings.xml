@@ -1518,4 +1518,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_turn_2fa_withdraw">Turn on 2FA to withdraw</string>
     <string name="bequant_you_send">You send</string>
     <string name="bequant_you_get">You get</string>
+    <string name="bequant_password_fair">Fair</string>
+    <string name="bequant_password_good">Good</string>
 </resources>

@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -18,8 +17,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.common.passwordLevel
-import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountPasswordSetRequest
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
@@ -50,14 +47,16 @@ class ResetPasswordChangeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_reset_password)
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.bequant_page_title_reset_password)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         val mail = args.email
         val token = args.token
         viewModel.email.value = mail
         viewModel.password.observe(this, Observer { value ->
             passwordLayout.error = null
-            calculatePasswordLevel(value)
+            viewModel.calculatePasswordLevel(value, passwordLevel, passwordLevelLabel)
         })
         viewModel.repeatPassword.observe(this, Observer { value ->
             repeatPasswordLayout.error = null
@@ -65,7 +64,8 @@ class ResetPasswordChangeFragment : Fragment() {
         password.setOnFocusChangeListener { _, focus ->
             passwordNote.setTextColor(if (focus) Color.WHITE else Color.parseColor("#49505C"))
             if (focus) {
-                calculatePasswordLevel(viewModel.password.value ?: "")
+                viewModel.calculatePasswordLevel(viewModel.password.value
+                        ?: "", passwordLevel, passwordLevelLabel)
             } else {
                 viewModel.passwordLevelVisibility.value = GONE
             }
@@ -91,27 +91,4 @@ class ResetPasswordChangeFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
-    private fun calculatePasswordLevel(password: String) {
-        val level = password.passwordLevel()
-        viewModel.passwordNoteVisibility.value = if (level > 0) GONE else VISIBLE
-        viewModel.passwordLevelVisibility.value = if (level > 0) VISIBLE else GONE
-        passwordLevel.progress = level * 30
-        passwordLevel.progressDrawable = resources.getDrawable(
-                when (level) {
-                    1 -> R.drawable.bequant_password_red_line
-                    2 -> R.drawable.bequant_password_yellow_line
-                    else -> R.drawable.bequant_password_green_line
-                })
-        viewModel.passwordLevelText.value = when (level) {
-            1 -> getString(R.string.bequant_password_weak)
-            2 -> getString(R.string.bequant_password_strong)
-            else -> getString(R.string.bequant_password_very_strong)
-        }
-        passwordLevelLabel.setTextColor(resources.getColor(when (level) {
-            1 -> R.color.bequant_red
-            2 -> R.color.bequant_password_yellow
-            else -> R.color.bequant_password_green
-        }))
-    }
 }
