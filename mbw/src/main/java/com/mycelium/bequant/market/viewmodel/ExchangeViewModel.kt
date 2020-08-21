@@ -16,6 +16,7 @@ class ExchangeViewModel : ViewModel() {
     val accountBalances = MutableLiveData<Array<Balance>>()
     val tradingBalances = MutableLiveData<Array<Balance>>()
     val isEnoughFundsIncludingFees = MutableLiveData<Boolean>(true)
+    val isExchangeEnabled = MutableLiveData<Boolean>(true)
     val youSendText = MutableLiveData<String>()
     val youGetText = MutableLiveData<String>()
 }

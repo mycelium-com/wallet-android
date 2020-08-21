@@ -123,6 +123,7 @@ class ExchangeFragment : Fragment() {
             }
             recalculateDestinationPrice()
             viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
+            updateExchangeEnabledFlag();
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
@@ -146,6 +147,7 @@ class ExchangeFragment : Fragment() {
             }
             recalculateDestinationPrice()
             viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
+            updateExchangeEnabledFlag();
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
@@ -263,6 +265,11 @@ class ExchangeFragment : Fragment() {
     @Subscribe
     fun onNewAccountBalance(balance: AccountBalance) {
         viewModel.accountBalances.value = balance.balances
+    }
+
+    fun updateExchangeEnabledFlag() {
+        val rateExists = viewModel.rate.value!!.isNotBlank();
+        viewModel.isExchangeEnabled.value = rateExists && isEnoughFundsIncludingFees();
     }
 
     override fun onDestroy() {
@@ -404,8 +411,12 @@ class ExchangeFragment : Fragment() {
         viewModel.youGet.value?.let { youGetValue ->
             val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
             val destPrice = BQExchangeRateManager.get(singleCoin, youGetValue.type)
-            viewModel.rate.value = destPrice?.let { "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}" }
-                    ?: ""
+            if (destPrice != null) {
+                viewModel.rate.value = destPrice.let { "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}" }
+            } else {
+                viewModel.rate.value = "";
+            }
+            updateExchangeEnabledFlag()
         }
     }
 
