@@ -60,6 +60,7 @@ import kotlin.math.pow
 
 class ExchangeFragment : Fragment() {
     private lateinit var viewModel: ExchangeViewModel
+    private var isDemo = false
     var getViewActive = false
 
     val receiver = object : BroadcastReceiver() {
@@ -96,6 +97,7 @@ class ExchangeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
         createPercentageRadioButtons()
         sendView.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
@@ -431,6 +433,11 @@ class ExchangeFragment : Fragment() {
         }
     }
 
+    private fun getAmountWithLimitsCorrection(available: BigDecimal, toSend: BigDecimal): BigDecimal {
+        val maximumWExchangedAmount = available.multiply(BigDecimal(1 - RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED))
+        return toSend.min(maximumWExchangedAmount)
+    }
+
     private fun calculateReceiveValue() {
         viewModel.youSend.value?.let { youSendValue ->
             val youSend = viewModel.youSend.value!!
@@ -442,8 +449,7 @@ class ExchangeFragment : Fragment() {
                             if (symbol.baseCurrency == youGet.currencySymbol) { // BUY base currency
                                 val rate = BigDecimal(ticker.ask)
                                 if (!youSend.isZero()) {
-                                    val maximumWExchangedAmount = viewModel.available.value?.valueAsBigDecimal!!.multiply(BigDecimal(1 - RESERVED_PERCENT_WHEN_FULL_AMOUNT_EXCHANGED))
-                                    val amountToSend = youSend.valueAsBigDecimal.min(maximumWExchangedAmount)
+                                    val amountToSend = if (!isDemo) getAmountWithLimitsCorrection(viewModel.available.value?.valueAsBigDecimal!!, youSend.valueAsBigDecimal) else youSend.valueAsBigDecimal
                                     val youGetDecimal = amountToSend.divide(rate.multiply(BigDecimal.valueOf(1L).plus(getFee(symbol))), RoundingMode.HALF_DOWN)
                                     viewModel.youGet.value = Value.parse(youGet.type, youGetDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                                 }
@@ -470,6 +476,10 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun isEnoughFundsIncludingFees(): Boolean {
+        // We don't need a warning about funds availability in case of demo
+        if (isDemo) {
+            return true;
+        }
         val available = viewModel.available.value ?: return false
         val youSend = viewModel.youSend.value ?: return false
         return available.valueAsBigDecimal >= youSend.valueAsBigDecimal
