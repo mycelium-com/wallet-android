@@ -63,9 +63,6 @@ data class Currency(
         val delisted: kotlin.Boolean,
         @JsonProperty("transferEnabled")
         val transferEnabled: kotlin.Boolean,
-        /* Minimum withdraw amount */
-        @JsonProperty("payoutMinimalAmount")
-        val payoutMinimalAmount: kotlin.String,
         /* Currency precision for payout (number of digits after the decimal point) */
         @JsonProperty("precisionPayout")
         val precisionPayout: kotlin.Int,
