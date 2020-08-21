@@ -269,8 +269,10 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity android:name="com.mycelium.bequant.kyc.BequantKycActivity"
                 android:theme="@style/Bequant"/>
-        <activity android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
-            android:theme="@style/BequantSign"/>
+        <activity
+            android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
+            android:theme="@style/BequantSign"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name="com.mycelium.bequant.sign.SignActivity"
             android:theme="@style/BequantSign"
             android:launchMode="singleInstance">
