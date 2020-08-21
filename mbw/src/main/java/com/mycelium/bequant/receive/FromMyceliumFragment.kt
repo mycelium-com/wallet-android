@@ -143,11 +143,26 @@ class FromMyceliumFragment : Fragment() {
         viewModel.custodialBalance.value = BequantPreference.getLastKnownBalance().toString(Denomination.UNIT)
 
         viewModel.amount.observe(viewLifecycleOwner) {
-            val account = adapter.currentList.first()
-            val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
-            val enoughAmount = amount < account.accountBalance.confirmed.valueAsBigDecimal && amount > 0.toBigDecimal()
-            edAmount.error = if (enoughAmount) null else getString(R.string.insufficient_funds)
-            confirm.isEnabled = enoughAmount
+            updateAmount(it)
+        }
+    }
+
+    private fun updateAmount(amountAsString: String) {
+        val account = adapter.currentList.first()
+        val amount = amountAsString.toBigDecimalOrNull() ?: BigDecimal.ZERO
+        val enoughAmount = amount < account.accountBalance.confirmed.valueAsBigDecimal && amount > 0.toBigDecimal()
+        edAmount.error = if (enoughAmount) null else getString(R.string.insufficient_funds)
+        confirm.isEnabled = enoughAmount
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (this.isVisible) {
+            if (!isVisibleToUser) {
+                edAmount.error = null
+            } else {
+                updateAmount(viewModel.amount.value ?: "")
+            }
         }
     }
 
