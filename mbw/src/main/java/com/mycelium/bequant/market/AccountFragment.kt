@@ -17,9 +17,11 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants.HIDE_VALUE
 import com.mycelium.bequant.Constants.TYPE_ITEM
 import com.mycelium.bequant.common.ModalDialog
+import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.AccountItem
 import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.market.viewmodel.AccountViewModel
+import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.bequant.signup.TwoFactorActivity
@@ -69,6 +71,12 @@ class AccountFragment : Fragment() {
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+                ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                        getString(R.string.bequant_kyc_verify_message),
+                        getString(R.string.bequant_kyc_verify_button)) {
+                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
             }
@@ -81,6 +89,12 @@ class AccountFragment : Fragment() {
                         getString(R.string.bequant_enable_2fa),
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+                ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                        getString(R.string.bequant_kyc_verify_message),
+                        getString(R.string.bequant_kyc_verify_button)) {
+                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))

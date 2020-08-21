@@ -33,7 +33,9 @@ import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
+import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
+import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Transaction
@@ -200,6 +202,12 @@ class ExchangeFragment : Fragment() {
                         getString(R.string.bequant_enable_2fa),
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+                ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                        getString(R.string.bequant_kyc_verify_message),
+                        getString(R.string.bequant_kyc_verify_button)) {
+                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
             } else {
                 findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
