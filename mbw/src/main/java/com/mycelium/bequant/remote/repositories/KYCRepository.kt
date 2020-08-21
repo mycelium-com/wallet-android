@@ -27,7 +27,7 @@ class KYCRepository {
         }, {
             val uuid = it?.uuid ?: ""
             BequantPreference.setKYCToken(uuid)
-            success.invoke()
+            success()
         }, error, finally)
     }
 
@@ -35,9 +35,9 @@ class KYCRepository {
         doRequest(scope, {
             service.mobileVerification(BequantPreference.getKYCToken())
         }, {
-            success.invoke(it?.message ?: "")
+            success(it?.message ?: "")
         }, { code, msg ->
-            error.invoke(code, msg)
+            error(code, msg)
         }, finally)
     }
 
@@ -47,12 +47,12 @@ class KYCRepository {
             service.checkMobileVerification(BequantPreference.getKYCToken(), code)
         }, {
             if (it?.message == "CODE_VALID") {
-                success.invoke()
+                success()
             } else {
-                error.invoke()
+                error()
             }
-        }, { _, msg ->
-            error.invoke()
+        }, { _, _ ->
+            error()
         }, {})
     }
 
@@ -65,10 +65,10 @@ class KYCRepository {
             val typeBody = RequestBody.create(MediaType.parse("text/plain"), type.toString())
             val countryBody = RequestBody.create(MediaType.parse("text/plain"), country)
             service.uploadFile(BequantPreference.getKYCToken(), typeBody, countryBody, multipartBody)
-        }, { response ->
-            success.invoke()
-        }, { code, msg ->
-            error.invoke()
+        }, {
+            success()
+        }, { _, _ ->
+            error()
         }, {})
     }
 
@@ -87,10 +87,8 @@ class KYCRepository {
         }, {
             success()
         }, { _, msg ->
-            error.invoke(msg)
-        }, {
-            finally.invoke()
-        })
+            error(msg)
+        }, finally)
     }
 
     fun status(scope: CoroutineScope, success: ((StatusMessage) -> Unit),
@@ -99,7 +97,7 @@ class KYCRepository {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
             BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
-            success.invoke(response?.message!!)
+            success(response?.message!!)
         }, { code, msg ->
             error?.invoke(code, msg)
         }, finally)
@@ -107,23 +105,29 @@ class KYCRepository {
 
     fun kycToken(scope: CoroutineScope, success: ((String) -> Unit),
                  error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
-        Api.signRepository.accountOnceToken(scope, {
-            it?.token?.let {onceToken ->
-                doRequest(scope, {
-                    service.kycToken(onceToken)
-                }, {
-                    it?.message?.uuid?.let { uuid ->
-                        BequantPreference.setKYCToken(uuid)
-                        success.invoke(uuid)
+        Api.signRepository.accountOnceToken(scope,
+                success = { onceTokenResponse ->
+                    onceTokenResponse?.token?.let { onceToken ->
+                        doRequest(scope,
+                                request = {
+                                    service.kycToken(onceToken)
+                                },
+                                successBlock = {
+                                    it?.message?.uuid?.let { uuid ->
+                                        BequantPreference.setKYCToken(uuid)
+                                        success(uuid)
+                                    }
+                                },
+                                errorBlock = { code, msg ->
+                                    error?.invoke(code, msg)
+                                },
+                                finallyBlock = finally)
                     }
-                }, { code, msg ->
+                },
+                error = { code, msg ->
                     error?.invoke(code, msg)
-                }, finally)
-            }
-        }, { code, msg ->
-            error?.invoke(code, msg)
-            finally?.invoke()
-        })
+                    finally?.invoke()
+                })
     }
 
     companion object {

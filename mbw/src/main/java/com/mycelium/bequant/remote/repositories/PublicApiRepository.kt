@@ -13,11 +13,9 @@ import kotlinx.coroutines.CoroutineScope
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class PublicApiRespository {
-
+class PublicApiRepository {
     private val api = PublicApi.create()
     private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(Constants.PUBLIC_REPOSITORY, Activity.MODE_PRIVATE) }
-
 
     fun publicCandlesGet(scope: CoroutineScope,
                          symbols: String, period: String, sort: String, from: String, till: String, limit: Int, offset: Int,
@@ -50,13 +48,13 @@ class PublicApiRespository {
                           error: ((Int, String) -> Unit)? = null,
                           finally: (() -> Unit)? = null) {
         if (currencies == null && publicCurrencies.isNotEmpty()) {
-            success.invoke(publicCurrencies)
+            success(publicCurrencies)
             finally?.invoke()
         } else {
             doRequest(scope, {
                 api.publicCurrencyGet(currencies).apply {
                     if (currencies == null) {
-                        publicCurrencies = this.body() ?: arrayOf()
+                        publicCurrencies = body() ?: arrayOf()
                     }
                 }
             }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -93,16 +91,16 @@ class PublicApiRespository {
         if (publicSymbols.isNotEmpty()
                 && TimeUnit.MILLISECONDS.toDays(Date().time - preference.getLong(LAST_SYMBOLS_UPDATE, 0)) < 7) {
             if (symbols == null) {
-                success.invoke(publicSymbols)
+                success(publicSymbols)
             } else {
-                success.invoke(publicSymbols.filter { symbols.contains(it.id) }.toTypedArray())
+                success(publicSymbols.filter { symbols.contains(it.id) }.toTypedArray())
             }
             finally?.invoke()
         } else {
             doRequest(scope, {
                 api.publicSymbolGet(symbols).apply {
                     if (symbols == null) {
-                        publicSymbols = this.body() ?: arrayOf()
+                        publicSymbols = body() ?: arrayOf()
                     }
                 }
             }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -112,8 +110,8 @@ class PublicApiRespository {
     fun publicSymbolSymbolGet(scope: CoroutineScope, symbol: String,
                               success: (Symbol?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         if (publicSymbols.isNotEmpty()) {
-            success.invoke(publicSymbols.find { it.id == symbol })
-            finally.invoke()
+            success(publicSymbols.find { it.id == symbol })
+            finally()
         } else {
             doRequest(scope, {
                 api.publicSymbolSymbolGet(symbol)
@@ -131,9 +129,9 @@ class PublicApiRespository {
                 Date().time - (publicTickers[publicTickers.keys.first()]?.timestamp?.time
                         ?: 0) < minTimeToUpdate) {
             if (symbols == null) {
-                success.invoke(publicTickers.values.toTypedArray())
+                success(publicTickers.values.toTypedArray())
             } else {
-                success.invoke(publicTickers.filter { symbols.contains(it.key) }.values.toTypedArray())
+                success(publicTickers.filter { symbols.contains(it.key) }.values.toTypedArray())
             }
             finally?.invoke()
         } else {
@@ -146,7 +144,7 @@ class PublicApiRespository {
                     }
                 }, successBlock = success, errorBlock = error, finallyBlock = finally)
             }, { code, msg ->
-                error.invoke(code, msg)
+                error(code, msg)
                 finally?.invoke()
             }, finally)
         }
@@ -155,16 +153,15 @@ class PublicApiRespository {
     fun publicTickerSymbolGet(scope: CoroutineScope,
                               symbol: String,
                               success: (Ticker?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
-        val fromCache = publicTickers[symbol]
-        if (fromCache != null) {
-            success.invoke(fromCache)
+        publicTickers[symbol]?.let { fromCache ->
+            success(fromCache)
             finally?.invoke()
             if (Date().time - (fromCache.timestamp?.time ?: 0) > minTimeToUpdate) {
                 publicTicker(scope, symbol, success, error)
             }
-        } else {
-            publicTicker(scope, symbol, success, error, finally)
         }
+                ?: publicTicker(scope, symbol, success, error, finally)
+
     }
 
     private fun publicTicker(scope: CoroutineScope, symbol: String,

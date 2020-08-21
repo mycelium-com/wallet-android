@@ -6,7 +6,6 @@ import com.mycelium.bequant.remote.trading.model.*
 import kotlinx.coroutines.CoroutineScope
 
 class AccountApiRepository {
-
     private val api = AccountApi.create()
 
     fun accountCryptoWithdrawPost(scope: CoroutineScope,

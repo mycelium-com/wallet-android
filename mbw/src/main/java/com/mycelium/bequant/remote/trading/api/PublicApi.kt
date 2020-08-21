@@ -6,43 +6,78 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.math.BigDecimal
 
 interface PublicApi {
     @GET("public/candles")
-    suspend fun publicCandlesGet(@Query("symbols") symbols: kotlin.String, @Query("period") period: kotlin.String, @Query("sort") sort: kotlin.String, @Query("from") from: kotlin.String, @Query("till") till: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("offset") offset: kotlin.Int): Response<kotlin.Any>
+    suspend fun publicCandlesGet(
+            @Query("symbols") symbols: String,
+            @Query("period") period: String,
+            @Query("sort") sort: String,
+            @Query("from") from: String,
+            @Query("till") till: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int): Response<Any>
 
     @GET("public/candles/{symbol}")
-    suspend fun publicCandlesSymbolGet(@Path("symbol") symbol: kotlin.String, @Query("period") period: kotlin.String, @Query("sort") sort: kotlin.String, @Query("from") from: kotlin.String, @Query("till") till: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("offset") offset: kotlin.Int): Response<kotlin.Array<Candle>>
+    suspend fun publicCandlesSymbolGet(
+            @Path("symbol") symbol: String,
+            @Query("period") period: String,
+            @Query("sort") sort: String,
+            @Query("from") from: String,
+            @Query("till") till: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int): Response<Array<Candle>>
 
     @GET("public/currency/{currency}")
-    suspend fun publicCurrencyCurrencyGet(@Path("currency") currency: kotlin.String): Response<Currency>
+    suspend fun publicCurrencyCurrencyGet(
+            @Path("currency") currency: String): Response<Currency>
 
     @GET("public/currency")
-    suspend fun publicCurrencyGet(@Query("currencies") currencies: kotlin.String?): Response<kotlin.Array<Currency>>
+    suspend fun publicCurrencyGet(
+            @Query("currencies") currencies: String?): Response<Array<Currency>>
 
     @GET("public/orderbook")
-    suspend fun publicOrderbookGet(@Query("symbols") symbols: kotlin.String, @Query("limit") limit: kotlin.Int): Response<kotlin.Any>
+    suspend fun publicOrderbookGet(
+            @Query("symbols") symbols: String,
+            @Query("limit") limit: Int): Response<Any>
 
     @GET("public/orderbook/{symbol}")
-    suspend fun publicOrderbookSymbolGet(@Path("symbol") symbol: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("volume") volume: java.math.BigDecimal): Response<Orderbook>
+    suspend fun publicOrderbookSymbolGet(
+            @Path("symbol") symbol: String,
+            @Query("limit") limit: Int,
+            @Query("volume") volume: BigDecimal): Response<Orderbook>
 
     @GET("public/symbol")
-    suspend fun publicSymbolGet(@Query("symbols") symbols: kotlin.String?): Response<kotlin.Array<Symbol>>
+    suspend fun publicSymbolGet(@Query("symbols") symbols: String?): Response<Array<Symbol>>
 
     @GET("public/symbol/{symbol}")
-    suspend fun publicSymbolSymbolGet(@Path("symbol") symbol: kotlin.String): Response<Symbol>
+    suspend fun publicSymbolSymbolGet(@Path("symbol") symbol: String): Response<Symbol>
 
     @GET("public/ticker")
-    suspend fun publicTickerGet(@Query("symbols") symbols: kotlin.String?): Response<kotlin.Array<Ticker>>
+    suspend fun publicTickerGet(@Query("symbols") symbols: String?): Response<Array<Ticker>>
 
     @GET("public/ticker/{symbol}")
-    suspend fun publicTickerSymbolGet(@Path("symbol") symbol: kotlin.String): Response<Ticker>
+    suspend fun publicTickerSymbolGet(@Path("symbol") symbol: String): Response<Ticker>
 
     @GET("public/trades")
-    suspend fun publicTradesGet(@Query("symbols") symbols: kotlin.String, @Query("sort") sort: kotlin.String, @Query("from") from: kotlin.String, @Query("till") till: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("offset") offset: kotlin.Int): Response<kotlin.Any>
+    suspend fun publicTradesGet(
+            @Query("symbols") symbols: String,
+            @Query("sort") sort: String,
+            @Query("from") from: String,
+            @Query("till") till: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int): Response<Any>
 
     @GET("public/trades/{symbol}")
-    suspend fun publicTradesSymbolGet(@Path("symbol") symbol: kotlin.String, @Query("sort") sort: kotlin.String, @Query("by") by: kotlin.String, @Query("from") from: kotlin.String, @Query("till") till: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("offset") offset: kotlin.Int): Response<kotlin.Array<PublicTrade>>
+    suspend fun publicTradesSymbolGet(
+            @Path("symbol") symbol: String,
+            @Query("sort") sort: String,
+            @Query("by") by: String,
+            @Query("from") from: String,
+            @Query("till") till: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int): Response<Array<PublicTrade>>
 
     companion object {
         fun create() = createApi<PublicApi>()

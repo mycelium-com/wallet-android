@@ -8,7 +8,6 @@ import com.mycelium.bequant.remote.doRequest
 import kotlinx.coroutines.CoroutineScope
 
 class SignRepository {
-
     private val accountApi = AccountApi.create()
     private val apiKeyApi = ApiKeyApi.create()
 
@@ -19,7 +18,6 @@ class SignRepository {
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-
     fun authorize(scope: CoroutineScope, request: AccountAuthRequest, success: (AccountAuthResponse?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.postAccountAuth(request)
@@ -27,7 +25,7 @@ class SignRepository {
             BequantPreference.setEmail(request.email)
             BequantPreference.setAccessToken(response?.accessToken ?: "")
             BequantPreference.setSession(response?.session ?: "")
-            success.invoke(response)
+            success(response)
         }, errorBlock = error, finallyBlock = finally)
     }
 
@@ -49,7 +47,7 @@ class SignRepository {
         }, {
             BequantPreference.setAccessToken(it?.accessToken ?: "")
             BequantPreference.setSession(it?.session ?: "")
-            success.invoke(it)
+            success(it)
         }, errorBlock = error, finallyBlock = finally)
     }
 
@@ -88,7 +86,7 @@ class SignRepository {
             apiKeyApi.postApiKey(ApiKeyRequest())
         }, {
             BequantPreference.setApiKeys(it?.privateKey, it?.publicKey)
-            success.invoke(it)
+            success(it)
         }, errorBlock = error, finallyBlock = finally)
     }
 

@@ -10,44 +10,71 @@ interface AccountApi {
     suspend fun accountBalanceGet(): Response<Array<Balance>>
 
     @GET("account/crypto/address/{currency}")
-    suspend fun accountCryptoAddressCurrencyGet(@Path("currency") currency: kotlin.String): Response<Address>
+    suspend fun accountCryptoAddressCurrencyGet(
+            @Path("currency") currency: String): Response<Address>
 
     @POST("account/crypto/address/{currency}")
-    suspend fun accountCryptoAddressCurrencyPost(@Path("currency") currency: kotlin.String): Response<Address>
+    suspend fun accountCryptoAddressCurrencyPost(
+            @Path("currency") currency: String): Response<Address>
 
     @FormUrlEncoded
     @POST("account/crypto/check-offchain-available")
-    suspend fun accountCryptoCheckOffchainAvailablePost(@Field("currency") currency: kotlin.String, @Field("address") address: kotlin.String, @Field("paymentId") paymentId: kotlin.String): Response<WithdrawConfirm>
+    suspend fun accountCryptoCheckOffchainAvailablePost(
+            @Field("currency") currency: String,
+            @Field("address") address: String,
+            @Field("paymentId") paymentId: String): Response<WithdrawConfirm>
 
     @GET("account/crypto/is-mine/{address}")
-    suspend fun accountCryptoIsMineAddressGet(@Path("address") address: kotlin.String): Response<AddressIsMineCheck>
+    suspend fun accountCryptoIsMineAddressGet(
+            @Path("address") address: String): Response<AddressIsMineCheck>
 
     @FormUrlEncoded
     @POST("account/crypto/transfer-convert")
-    suspend fun accountCryptoTransferConvertPost(@Field("fromCurrency") fromCurrency: kotlin.String, @Field("toCurrency") toCurrency: kotlin.String, @Field("amount") amount: kotlin.String): Response<kotlin.Array<kotlin.String>>
+    suspend fun accountCryptoTransferConvertPost(
+            @Field("fromCurrency") fromCurrency: String,
+            @Field("toCurrency") toCurrency: String,
+            @Field("amount") amount: String): Response<Array<String>>
 
     @DELETE("account/crypto/withdraw/{id}")
-    suspend fun accountCryptoWithdrawIdDelete(@Path("id") id: kotlin.String): Response<WithdrawConfirm>
+    suspend fun accountCryptoWithdrawIdDelete(
+            @Path("id") id: String): Response<WithdrawConfirm>
 
     @PUT("account/crypto/withdraw/{id}")
-    suspend fun accountCryptoWithdrawIdPut(@Path("id") id: kotlin.String): Response<WithdrawConfirm>
+    suspend fun accountCryptoWithdrawIdPut(
+            @Path("id") id: String): Response<WithdrawConfirm>
 
     @FormUrlEncoded
     @POST("account/crypto/withdraw")
-    suspend fun accountCryptoWithdrawPost(@Field("currency") currency: kotlin.String, @Field("amount") amount: kotlin.String, @Field("address") address: kotlin.String, @Field("paymentId") paymentId: kotlin.String?, @Field("includeFee") includeFee: kotlin.Boolean?, @Field("autoCommit") autoCommit: kotlin.Boolean?, @Field("useOffchain") useOffchain: kotlin.String?): Response<InlineResponse200>
+    suspend fun accountCryptoWithdrawPost(
+            @Field("currency") currency: String,
+            @Field("amount") amount: String,
+            @Field("address") address: String,
+            @Field("paymentId") paymentId: String?,
+            @Field("includeFee") includeFee: Boolean?,
+            @Field("autoCommit") autoCommit: Boolean?,
+            @Field("useOffchain") useOffchain: String?): Response<InlineResponse200>
 
     @GET("account/transactions")
-    suspend fun accountTransactionsGet(@Query("currency") currency: kotlin.String, @Query("sort") sort: kotlin.String, @Query("by") by: kotlin.String, @Query("from") from: kotlin.String, @Query("till") till: kotlin.String, @Query("limit") limit: kotlin.Int, @Query("offset") offset: kotlin.Int): Response<kotlin.Array<Transaction>>
+    suspend fun accountTransactionsGet(
+            @Query("currency") currency: String,
+            @Query("sort") sort: String,
+            @Query("by") by: String,
+            @Query("from") from: String,
+            @Query("till") till: String,
+            @Query("limit") limit: Int,
+            @Query("offset") offset: Int): Response<Array<Transaction>>
 
     @GET("account/transactions/{id}")
-    suspend fun accountTransactionsIdGet(@Path("id") id: kotlin.String): Response<Transaction>
+    suspend fun accountTransactionsIdGet(@Path("id") id: String): Response<Transaction>
 
     @FormUrlEncoded
     @POST("account/transfer")
-    suspend fun accountTransferPost(@Field("currency") currency: kotlin.String, @Field("amount") amount: kotlin.String, @Field("type") type: kotlin.String): Response<InlineResponse200>
+    suspend fun accountTransferPost(
+            @Field("currency") currency: String,
+            @Field("amount") amount: String,
+            @Field("type") type: String): Response<InlineResponse200>
 
     companion object {
-
         fun create(): AccountApi = createApi()
     }
 }
