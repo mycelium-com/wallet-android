@@ -23,11 +23,11 @@ import kotlinx.android.synthetic.main.menu_bequant_try_demo.view.*
 
 class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
 
-    var tabMediator: TabLayoutMediator? = null
+    private var tabMediator: TabLayoutMediator? = null
 
     val args by navArgs<SignFragmentArgs>()
 
-    val register = object : BroadcastReceiver() {
+    private val showRegisterReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             pager.setCurrentItem(0, true)
         }
@@ -40,8 +40,10 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = null
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = null
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         pager.adapter = SignFragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
         pager.offscreenPageLimit = 2
         tabMediator = TabLayoutMediator(tabs, pager) { tab, position ->
@@ -52,7 +54,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
         }
         tabMediator?.attach()
         pager.postDelayed({
-            when (args.tab?:"") {
+            when (args.tab) {
                 "signUp" -> pager.setCurrentItem(0, true)
                 "signIn" -> pager.setCurrentItem(1, true)
             }
@@ -62,11 +64,13 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(register, IntentFilter(ACTION_BEQUANT_SHOW_REGISTER))
+        LocalBroadcastManager
+                .getInstance(requireContext())
+                .registerReceiver(showRegisterReceiver, IntentFilter(ACTION_BEQUANT_SHOW_REGISTER))
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(register)
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(showRegisterReceiver)
         super.onPause()
     }
 
