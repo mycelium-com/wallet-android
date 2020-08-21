@@ -116,7 +116,8 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         inflater.inflate(R.menu.menu_bequant_market, menu)
         menu.findItem(R.id.logIn).isVisible = !BequantPreference.isLogged()
         menu.findItem(R.id.logOut).isVisible = BequantPreference.isLogged()
-        menu.findItem(R.id.kyc).isVisible = BequantPreference.getKYCStatus() != KYCStatus.APPROVED
+        val isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
+        menu.findItem(R.id.kyc).isVisible = BequantPreference.getKYCStatus() != KYCStatus.APPROVED && !isDemo
         super.onCreateOptionsMenu(menu, inflater)
     }
 

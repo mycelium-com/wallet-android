@@ -14,9 +14,6 @@
         android:layout_marginEnd="32dp"
         android:background="@drawable/bg_bequant_dialog_model"
         android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="16dp"
         android:paddingBottom="24dp">
 
         <ImageView
@@ -24,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginBottom="16dp"
+            android:padding="16dp"
             app:srcCompat="@drawable/ic_bequant_clear" />
 
         <TextView
@@ -32,6 +29,8 @@
             style="@style/Bequant.TextLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             tools:text="Turn on 2FA to secure your account" />
 
@@ -40,6 +39,8 @@
             style="@style/Bequant.TextNormal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             tools:text="We strongly recommend enabling two-factor authentication" />
 
@@ -48,6 +49,8 @@
             style="@style/Bequant.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             tools:text="Secure your account" />
     </LinearLayout>
 </FrameLayout>
