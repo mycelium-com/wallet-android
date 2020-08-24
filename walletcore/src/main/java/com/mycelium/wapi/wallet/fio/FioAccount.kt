@@ -13,11 +13,28 @@ import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import fiofoundation.io.fiosdk.toSUF
+import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetFIONamesResponse
 import org.web3j.crypto.Credentials
+import java.math.BigInteger
 import java.util.*
 
 class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: FIOSDK, val credentials: Credentials) : WalletAccount<FioAddress> {
-    private var balance: Balance =  Balance(Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
+    private var balance: Balance = Balance(Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
+
+    //TODO
+    val maxFee = BigInteger.ZERO
+
+    fun registerFIOAddress(fioAddress: String) {
+        fiosdk.registerFioAddress(fioAddress, maxFee)
+    }
+
+    fun registerFioDomain(fioDomain: String) {
+        fiosdk.registerFioDomain(fioDomain, maxFee)
+    }
+
+    fun getFioNames(): GetFIONamesResponse {
+        return fiosdk.getFioNames()
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("Not yet implemented")
@@ -110,7 +127,7 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
 
     override fun synchronize(mode: SyncMode?): Boolean {
         val fioBalance = fiosdk.getFioBalance()
-        balance =  Balance(Value.valueOf(FIOMain, fioBalance.balance), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
+        balance = Balance(Value.valueOf(FIOMain, fioBalance.balance), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
         return true
     }
 
@@ -119,7 +136,7 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
     }
 
     override fun canSpend(): Boolean {
-       return true
+        return true
     }
 
     override fun canSign(): Boolean {
@@ -191,7 +208,7 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
     override fun getDummyAddress(subType: String?): FioAddress = dummyAddress
 
     override fun getDependentAccounts(): MutableList<WalletAccount<Address>> {
-       return mutableListOf()
+        return mutableListOf()
     }
 
     override fun queueTransaction(transaction: Transaction) {

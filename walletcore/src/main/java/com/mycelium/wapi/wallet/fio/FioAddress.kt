@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.fio
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
+import fiofoundation.io.fiosdk.FIOSDK
 
 class FioAddress(override val coinType: CryptoCurrency, private val fioAddressData: FioAddressData) : Address {
 
