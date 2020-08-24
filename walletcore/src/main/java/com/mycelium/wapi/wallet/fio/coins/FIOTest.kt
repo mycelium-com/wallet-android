@@ -12,6 +12,6 @@ object FIOTest : EOSBasedCryptoCurrency() {
         id = "fio.test"
         name = "FIO Test"
         symbol = "tFIO"
-        unitExponent = 8
+        unitExponent = 9
     }
 }

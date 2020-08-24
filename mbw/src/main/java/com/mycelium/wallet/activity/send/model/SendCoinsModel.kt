@@ -142,7 +142,7 @@ abstract class SendCoinsModel(
     var sendScrollDefault = true
 
     protected val mbwManager = MbwManager.getInstance(context)
-    private var feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+    protected var feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
 
     var paymentRequestHandlerUUID: String? = null
     private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.getFiatCurrency(account.coinType))

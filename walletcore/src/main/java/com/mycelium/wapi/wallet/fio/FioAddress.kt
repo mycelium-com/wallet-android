@@ -4,7 +4,7 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 
-class FioAddress(override val coinType: CryptoCurrency, val fioAddressData: FioAddressData) : Address {
+class FioAddress(override val coinType: CryptoCurrency, private val fioAddressData: FioAddressData) : Address {
 
     override fun getBytes(): ByteArray {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

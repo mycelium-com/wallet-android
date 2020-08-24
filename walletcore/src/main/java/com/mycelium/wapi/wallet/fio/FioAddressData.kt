@@ -1,3 +1,5 @@
 package com.mycelium.wapi.wallet.fio
 
-data class FioAddressData(val formatPubKey: String)
+import java.io.Serializable
+
+data class FioAddressData(val formatPubKey: String): Serializable

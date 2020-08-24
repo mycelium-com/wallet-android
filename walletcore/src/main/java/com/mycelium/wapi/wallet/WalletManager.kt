@@ -11,6 +11,7 @@ import com.mycelium.wapi.wallet.manager.*
 import com.mycelium.wapi.wallet.providers.BtcFeeProvider
 import com.mycelium.wapi.wallet.providers.ColuFeeProvider
 import com.mycelium.wapi.wallet.providers.EthFeeProvider
+import com.mycelium.wapi.wallet.providers.FioFeeProvider
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
@@ -71,6 +72,7 @@ constructor(val network: NetworkParameters,
         feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
         feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
+        feeEstimations.addProvider(FioFeeProvider())
     }
 
     fun getAccountIds(): List<UUID> = accounts.keys().toList()

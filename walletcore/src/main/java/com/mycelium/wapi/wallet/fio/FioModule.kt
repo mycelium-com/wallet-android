@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.fio
 
+import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
@@ -10,7 +11,6 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
-import fiofoundation.io.fiosdk.implementations.SoftKeySignatureProvider
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
@@ -26,7 +26,6 @@ class FIOModule(
 ) : WalletModule(metaDataStorage) {
 
     companion object {
-
         const val ID: String = "FIO"
         const val URL: String = FIOTest.url
     }
@@ -37,9 +36,9 @@ class FIOModule(
         val fioPublicKey = fioKeyManager.getFioPublicKey(accountIndex)
 
         val publicKey = fioKeyManager.formatPubKey(fioPublicKey)
-        val privateKey = HexUtils.toHex(fioKeyManager.getFioPrivateKey(accountIndex).privateKeyBytes)
+        val privateKey = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(NetworkParameters.productionNetwork)
         val url = if (config.isTestnet) FIOTest.url else FIOMain.url
-        return FIOSDK(privateKey, publicKey, "", serializationProvider, SoftKeySignatureProvider(), url)
+        return FIOSDK.getInstance(privateKey, publicKey, serializationProvider, url)
     }
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> {

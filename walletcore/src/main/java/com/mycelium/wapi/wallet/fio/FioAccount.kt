@@ -1,39 +1,60 @@
 package com.mycelium.wapi.wallet.fio
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.crypto.PublicKey
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.toUUID
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import fiofoundation.io.fiosdk.FIOSDK
+import fiofoundation.io.fiosdk.errors.FIOError
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import fiofoundation.io.fiosdk.toSUF
 import org.web3j.crypto.Credentials
 import java.util.*
 
-class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val credentials: Credentials) : WalletAccount<FioAddress> {
+class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: FIOSDK, val credentials: Credentials) : WalletAccount<FioAddress> {
     private var balance: Balance =  Balance(Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("Not yet implemented")
     }
 
-    override fun createTx(address: Address?, amount: Value?, fee: Fee?, data: TransactionData?): Transaction {
-        TODO("Not yet implemented")
+    override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
+        if (amount > calculateMaxSpendableAmount((fee as FeePerKbFee).feePerKb, address as FioAddress)) {
+            throw BuildTransactionException(Throwable("Invalid amount"))
+        }
+
+        return FioTransaction(coinType, address.toString(), amount, "0.2".toSUF())
     }
 
     override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
-        TODO("Not yet implemented")
     }
 
     override fun broadcastTx(tx: Transaction?): BroadcastResult {
-        TODO("Not yet implemented")
+        val fioTx = tx as FioTransaction
+        return try {
+            val response = fiosdk.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee)
+            val actionTraceResponse = response.getActionTraceResponse()
+            if (actionTraceResponse != null && actionTraceResponse.status == "OK") {
+                BroadcastResult(BroadcastResultType.SUCCESS)
+            } else {
+                BroadcastResult("Status: ${actionTraceResponse?.status}", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            }
+        } catch (e: FIOError) {
+            e.printStackTrace()
+            BroadcastResult(e.toJson(), BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            BroadcastResult(e.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+        }
     }
 
     override fun getReceiveAddress(): Address {
-        val formatPubKey = fioKeyManager.formatPubKey(PublicKey(fiosdk.publicKey.toByteArray()))
-        return FioAddress(FIOMain, FioAddressData(formatPubKey))
+        return FioAddress(FIOMain, FioAddressData(fiosdk.publicKey))
     }
 
     override fun getCoinType(): CryptoCurrency {
@@ -150,7 +171,7 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
     }
 
     override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: FioAddress?): Value {
-        TODO("Not yet implemented")
+        return balance.spendable - (minerFeePerKilobyte ?: Value.zeroValue(coinType))
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int {
@@ -165,13 +186,9 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
         TODO("Not yet implemented")
     }
 
-    override fun getDummyAddress(): FioAddress {
-        TODO("Not yet implemented")
-    }
+    override fun getDummyAddress(): FioAddress = FioAddress(coinType, FioAddressData(""))
 
-    override fun getDummyAddress(subType: String?): FioAddress {
-        TODO("Not yet implemented")
-    }
+    override fun getDummyAddress(subType: String?): FioAddress = dummyAddress
 
     override fun getDependentAccounts(): MutableList<WalletAccount<Address>> {
        return mutableListOf()
@@ -181,4 +198,5 @@ class FioAccount(val fioKeyManager: FioKeyManager, val fiosdk: FIOSDK, val crede
         TODO("Not yet implemented")
     }
 
+    fun getTransferTokensFee() = fiosdk.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
 }
