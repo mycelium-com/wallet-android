@@ -61,5 +61,4 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
 }

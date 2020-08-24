@@ -21,10 +21,9 @@ import kotlinx.android.synthetic.main.fragment_bequant_setup_code.*
 
 
 class SetupCodeFragment : Fragment() {
-
     lateinit var viewModel: SetupCodeViewModel
-
     val args by navArgs<SetupCodeFragmentArgs>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -40,8 +39,10 @@ class SetupCodeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_setup_code)
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.bequant_page_title_setup_code)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         val uri = Uri.parse(args.otp.otpLink)
         viewModel.name.value = uri.pathSegments[0]
         viewModel.secretCode.value = uri.getQueryParameter("secret")
@@ -67,5 +68,4 @@ class SetupCodeFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
 }

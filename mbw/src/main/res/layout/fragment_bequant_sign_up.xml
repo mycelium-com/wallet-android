@@ -46,7 +46,7 @@
                 app:viewModel="@{viewModel}" />
 
             <TextView
-                android:id="@+id/counteySelector"
+                android:id="@+id/countrySelector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
