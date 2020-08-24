@@ -23,7 +23,6 @@ import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantRegistrationTotpBinding
-import kotlinx.android.synthetic.main.fragment_bequant_registration_totp.*
 import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
 
@@ -53,8 +52,10 @@ class RegistrationTotpFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.verify_via_email)
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.verify_via_email)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
+        }
         viewModel.email.value = BequantPreference.getEmail()
         checkIsEmailCorrect.visibility = GONE
         resendConfirmationEmail.setOnClickListener {
@@ -73,5 +74,4 @@ class RegistrationTotpFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
 }

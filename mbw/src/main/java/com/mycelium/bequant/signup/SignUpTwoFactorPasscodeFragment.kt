@@ -10,7 +10,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.repositories.SignRepository
 import com.mycelium.bequant.remote.client.models.TotpActivateRequest
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
@@ -20,8 +19,8 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign_in_two_factor.*
 
 
 class SignUpTwoFactorPasscodeFragment : Fragment(R.layout.fragment_bequant_sign_in_two_factor) {
-
     val args by navArgs<SignUpTwoFactorPasscodeFragmentArgs>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -29,21 +28,28 @@ class SignUpTwoFactorPasscodeFragment : Fragment(R.layout.fragment_bequant_sign_
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth)
-        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.bequant_page_title_two_factor_auth)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
         pasteFromClipboard.setOnClickListener {
             pinCode.setText(Utils.getClipboardString(requireContext()))
         }
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
                 loader(true)
-                Api.signRepository.totpActivate(this@SignUpTwoFactorPasscodeFragment.lifecycleScope, TotpActivateRequest(args.otp.otpId, enteredText), {
-                    findNavController().navigate(SignUpTwoFactorPasscodeFragmentDirections.actionNext())
-                }, error = { _, message ->
-                    ErrorHandler(requireContext()).handle(message)
-                }, finally = {
-                    loader(false)
-                })
+                Api.signRepository.totpActivate(
+                        this@SignUpTwoFactorPasscodeFragment.lifecycleScope,
+                        TotpActivateRequest(args.otp.otpId, enteredText),
+                        success = {
+                            findNavController().navigate(SignUpTwoFactorPasscodeFragmentDirections.actionNext())
+                        },
+                        error = { _, message ->
+                            ErrorHandler(requireContext()).handle(message)
+                        },
+                        finally = {
+                            loader(false)
+                        })
                 return true
             }
         }

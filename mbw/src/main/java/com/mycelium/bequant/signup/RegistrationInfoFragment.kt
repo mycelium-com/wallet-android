@@ -33,18 +33,17 @@ import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
 
 class RegistrationInfoFragment : Fragment() {
-
     val args by navArgs<RegistrationInfoFragmentArgs>()
     lateinit var viewModel: RegistrationInfoViewModel
 
-    val receiver = object : BroadcastReceiver() {
+    private val emailConfirmedReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             loader(true)
             val request = AccountAuthRequest(args.register.email, args.register.password)
             Api.signRepository.authorize(lifecycleScope, request, success = {
                 startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
                 requireActivity().finish()
-            }, error = { code, message ->
+            }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
             }, finally = {
                 loader(false)
@@ -56,7 +55,7 @@ class RegistrationInfoFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(ACTION_BEQUANT_EMAIL_CONFIRMED))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(emailConfirmedReceiver, IntentFilter(ACTION_BEQUANT_EMAIL_CONFIRMED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -75,7 +74,8 @@ class RegistrationInfoFragment : Fragment() {
         }
         resendConfirmationEmail.setOnClickListener {
             loader(true)
-            Api.signRepository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email), {},
+            Api.signRepository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email),
+                    success = { /* Email was sent. */ },
                     error = { _, message ->
                         ErrorHandler(requireContext()).handle(message)
                     }, finally = {
@@ -89,7 +89,7 @@ class RegistrationInfoFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(emailConfirmedReceiver)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
