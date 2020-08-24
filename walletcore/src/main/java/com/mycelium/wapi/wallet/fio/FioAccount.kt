@@ -45,7 +45,7 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
             throw BuildTransactionException(Throwable("Invalid amount"))
         }
 
-        return FioTransaction(coinType, address.toString(), amount, "0.2".toSUF())
+        return FioTransaction(coinType, address.toString(), amount, "1".toSUF())
     }
 
     override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
@@ -70,9 +70,7 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
         }
     }
 
-    override fun getReceiveAddress(): Address {
-        return FioAddress(FIOMain, FioAddressData(fiosdk.publicKey))
-    }
+    override fun getReceiveAddress(): Address = FioAddress(FIOMain, FioAddressData(fiosdk.publicKey))
 
     override fun getCoinType(): CryptoCurrency {
         return FIOMain
