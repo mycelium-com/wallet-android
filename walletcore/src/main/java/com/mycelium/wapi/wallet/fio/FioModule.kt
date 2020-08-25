@@ -51,6 +51,9 @@ class FIOModule(
     override fun createAccount(config: Config): WalletAccount<*> {
         val newIndex = getCurrentBip44Index() + 1
         val newAccount = FioAccount(fioKeyManager, getFioSdk(newIndex, config as FIOConfig), deriveKey(newIndex))
+        val baseLabel = "FIO $newIndex"
+        newAccount.label = createLabel(baseLabel)
+        storeLabel(newAccount.id, newAccount.label)
         accounts[newAccount.id] = newAccount
         return newAccount
     }

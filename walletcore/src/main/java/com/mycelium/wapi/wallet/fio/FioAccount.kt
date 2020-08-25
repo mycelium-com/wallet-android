@@ -17,12 +17,15 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetFIONamesRes
 import org.web3j.crypto.Credentials
 import java.math.BigInteger
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: FIOSDK, val credentials: Credentials) : WalletAccount<FioAddress> {
     private var balance: Balance = Balance(Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
-
+    private val logger: Logger = Logger.getLogger("asdaf")
     //TODO
     val maxFee = BigInteger.ZERO
+    private lateinit var label: String
 
     fun registerFIOAddress(fioAddress: String) {
         fiosdk.registerFioAddress(fioAddress, maxFee)
@@ -45,7 +48,8 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
             throw BuildTransactionException(Throwable("Invalid amount"))
         }
 
-        return FioTransaction(coinType, address.toString(), amount, "1".toSUF())
+        logger.log(Level.INFO, "asdaf fee: ${fee.feePerKb}")
+        return FioTransaction(coinType, address.toString(), amount, fee.feePerKb.value)
     }
 
     override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
@@ -112,15 +116,15 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
     }
 
     override fun getLabel(): String {
-        return "FIO"
+        return label
     }
 
     override fun setLabel(label: String?) {
-        "FIO label"
+        this.label = label ?: "FIO"
     }
 
     override fun isSpendingUnconfirmed(tx: Transaction?): Boolean {
-        return true
+        return false
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
