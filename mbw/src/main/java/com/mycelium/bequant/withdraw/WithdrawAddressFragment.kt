@@ -28,6 +28,7 @@ import com.mycelium.wallet.content.actions.UriAction
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawAddressBinding
 import com.mycelium.wapi.wallet.AddressUtils
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw_address.*
+import java.util.*
 
 
 class WithdrawAddressFragment : Fragment() {
@@ -57,21 +58,21 @@ class WithdrawAddressFragment : Fragment() {
                 bitcoinUriAction = UriAction()
             }
             ScanActivity.callMe(this, SCAN_REQUEST, config)
-
         }
 
         viewModel.address.observe(viewLifecycleOwner) {
             val currency = parentViewModel?.currency?.value
-            val validAddress = when (currency?.toLowerCase()) {
+            val validAddress = when (currency?.toLowerCase(Locale.US)) {
                 "btc" -> AddressUtils.from(Utils.getBtcCoinType(), it) != null
                 "eth" -> AddressUtils.from(Utils.getEthCoinType(), it) != null
                 else -> true
             }
-            address.background = ContextCompat.getDrawable(requireContext(), if (validAddress) R.drawable.bg_bequant_input_text else R.drawable.bg_bequant_input_text_error)
+            address.background = ContextCompat.getDrawable(requireContext(),
+                    if (validAddress) R.drawable.bg_bequant_input_text
+                    else R.drawable.bg_bequant_input_text_error)
             address.error = if (validAddress) null else "Wrong address"
             parentViewModel?.address?.value = viewModel.address.value
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -100,7 +101,7 @@ class WithdrawAddressFragment : Fragment() {
                     val uri = data.getAssetUri()
 //                    if (uri.address?.coinType == getAccount().coinType) {
                     viewModel.address.value = uri.address.toString()
-                    if (uri.value != null && uri.value!!.isPositive()) {
+                    if (uri.value?.isPositive() == true) {
                         parentViewModel?.amount?.value = uri.value?.valueAsBigDecimal.toString()
                     }
 //                    } else {

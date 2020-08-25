@@ -1,6 +1,7 @@
 package com.mycelium.bequant
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.bequant.remote.model.KYCStatus
@@ -11,7 +12,7 @@ import java.util.*
 
 
 object BequantPreference {
-    val preference by lazy { WalletApplication.getInstance().getSharedPreferences("bequant_main", Context.MODE_PRIVATE) }
+    private val preference: SharedPreferences by lazy { WalletApplication.getInstance().getSharedPreferences("bequant_main", Context.MODE_PRIVATE) }
 
     fun setPhone(phone: String) {
         preference.edit().putString(Constants.PHONE_KEY, phone).apply()
