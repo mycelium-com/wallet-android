@@ -6,6 +6,7 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast.*
+import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -45,6 +46,7 @@ import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
+import java.math.BigInteger
 import java.util.*
 import java.util.regex.Pattern
 
@@ -376,5 +378,23 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         if (!mbwManager.getWalletManager(true).startSynchronization(receivingAcc!!)) {
             MbwManager.getEventBus().post(SyncFailed())
         }
+    }
+}
+
+object Converter {
+    @InverseMethod("stringToBigInt")
+    @JvmStatic
+    fun bigIntToString(value: BigInteger?): String {
+        return value?.toString() ?: ""
+    }
+
+    @JvmStatic
+    fun stringToBigInt(value: String): BigInteger? {
+        return if (value.isNotEmpty()) BigInteger(value) else null
+    }
+
+    @JvmStatic
+    fun valueToStr(value: Value?): String {
+        return "Miner fee - ${value?.value ?: SendFioModel.DEFAULT_FEE} SUF"
     }
 }

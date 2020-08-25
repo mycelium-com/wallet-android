@@ -4,9 +4,8 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.widget.Toast
-import com.mycelium.wallet.R
-import androidx.databinding.InverseMethod
 import androidx.lifecycle.MutableLiveData
+import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.EthFeeFormatter
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.eth.EthUri
@@ -15,7 +14,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
-import java.math.BigInteger
 import java.util.regex.Pattern
 
 open class SendEthViewModel(application: Application) : SendCoinsViewModel(application) {
@@ -87,17 +85,4 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     }
 
     override fun getFeeFormatter() = EthFeeFormatter()
-}
-
-object Converter {
-    @InverseMethod("stringToBigInt")
-    @JvmStatic
-    fun bigIntToString(value: BigInteger?): String {
-        return value?.toString() ?: ""
-    }
-
-    @JvmStatic
-    fun stringToBigInt(value: String): BigInteger? {
-        return if (value.isNotEmpty()) BigInteger(value) else null
-    }
 }

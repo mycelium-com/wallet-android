@@ -33,10 +33,7 @@ import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.AnimationUtils
 import com.mycelium.wallet.content.HandleConfigFactory
-import com.mycelium.wallet.databinding.SendCoinsActivityBinding
-import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
-import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
-import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
+import com.mycelium.wallet.databinding.*
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
@@ -179,6 +176,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
                             }
+                            it.activity = this
+                        }
+            }
+            is FioAccount -> {
+                DataBindingUtil.setContentView<SendCoinsActivityFioBinding>(this, R.layout.send_coins_activity_fio)
+                        .also {
+                            it.viewModel = viewModel as SendFioViewModel
                             it.activity = this
                         }
             }

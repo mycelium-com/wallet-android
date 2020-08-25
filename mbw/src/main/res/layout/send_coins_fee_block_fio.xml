@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_activity">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.send.model.Converter" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendFioViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/llFee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <include
+                layout="@layout/send_coins_fee_heap"
+                bind:viewModel="@{viewModel}" />
+
+            <include layout="@layout/send_coins_fee_selector" />
+
+            <include layout="@layout/send_coins_fee_description" />
+        </LinearLayout>
+
+        <!--Fee information-->
+        <TextView
+            android:id="@+id/fioFee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:text="@{Converter.valueToStr(viewModel.selectedFee)}" />
+    </LinearLayout>
+
+</layout>
