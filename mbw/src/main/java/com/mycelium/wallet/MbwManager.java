@@ -158,6 +158,7 @@ import com.mycelium.wapi.wallet.eth.EthBlockchainService;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.fio.FIOModule;
+import com.mycelium.wapi.wallet.fio.FioBacking;
 import com.mycelium.wapi.wallet.fio.FioKeyManager;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
@@ -351,8 +352,9 @@ public class MbwManager {
         }
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(), AdaptersKt.getErc20ContextAdapter(),
-                AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
+                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioContextAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -836,9 +838,8 @@ public class MbwManager {
 
 
         FIOModule fioModule = new FIOModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
-                walletDB, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)),
-                accountListener);
+                new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener);
         walletManager.add(fioModule);
 
         walletManager.init();

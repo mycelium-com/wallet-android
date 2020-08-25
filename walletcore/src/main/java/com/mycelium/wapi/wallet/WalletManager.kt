@@ -72,7 +72,7 @@ constructor(val network: NetworkParameters,
         feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
         feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
-        feeEstimations.addProvider(FioFeeProvider())
+        feeEstimations.addProvider(FioFeeProvider(network.isTestnet))
     }
 
     fun getAccountIds(): List<UUID> = accounts.keys().toList()

@@ -6,23 +6,21 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.eth.toUUID
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
-import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
-import fiofoundation.io.fiosdk.toSUF
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetFIONamesResponse
-import org.web3j.crypto.Credentials
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: FIOSDK, val credentials: Credentials) : WalletAccount<FioAddress> {
-    private var balance: Balance = Balance(Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
+class FioAccount(private val accountContext: FioAccountContext,
+                 private val accountListener: AccountListener?,
+                 private val fiosdk: FIOSDK) : WalletAccount<FioAddress> {
     private val logger: Logger = Logger.getLogger("asdaf")
+
     //TODO
     val maxFee = BigInteger.ZERO
     private lateinit var label: String
@@ -74,26 +72,17 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
         }
     }
 
-    override fun getReceiveAddress(): Address = FioAddress(FIOMain, FioAddressData(fiosdk.publicKey))
+    override fun getReceiveAddress(): Address = FioAddress(coinType, FioAddressData(fiosdk.publicKey))
 
-    override fun getCoinType(): CryptoCurrency {
-        return FIOMain
-    }
+    override fun getCoinType(): CryptoCurrency = accountContext.currency
 
-    override fun getBasedOnCoinType(): CryptoCurrency {
-        return FIOMain
-    }
+    override fun getBasedOnCoinType(): CryptoCurrency = coinType
 
-    override fun getAccountBalance(): Balance {
-        return balance
-    }
+    override fun getAccountBalance(): Balance = accountContext.balance
 
     override fun isMineAddress(address: Address?): Boolean = address == receiveAddress
 
-
-    override fun isExchangeable(): Boolean {
-        return true
-    }
+    override fun isExchangeable(): Boolean = true
 
     override fun getTx(transactionId: ByteArray?): Transaction {
         TODO("Not yet implemented")
@@ -115,82 +104,67 @@ class FioAccount(private val fioKeyManager: FioKeyManager, private val fiosdk: F
         return mutableListOf()
     }
 
-    override fun getLabel(): String {
-        return label
-    }
+    override fun getLabel(): String = accountContext.accountName
 
     override fun setLabel(label: String?) {
         this.label = label ?: "FIO"
     }
 
-    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean {
-        return false
-    }
+    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false
 
     override fun synchronize(mode: SyncMode?): Boolean {
         val fioBalance = fiosdk.getFioBalance()
-        balance = Balance(Value.valueOf(FIOMain, fioBalance.balance), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain), Value.zeroValue(FIOMain))
+        val newBalance = Balance(Value.valueOf(coinType, fioBalance.balance),
+                Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
+        if (newBalance != accountContext.balance) {
+            accountContext.balance = newBalance
+            accountListener?.balanceUpdated(this)
+            return true
+        }
         return true
     }
 
-    override fun getBlockChainHeight(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getBlockChainHeight(): Int = accountContext.blockHeight
 
-    override fun canSpend(): Boolean {
-        return true
-    }
+    override fun canSpend(): Boolean = true
 
-    override fun canSign(): Boolean {
-        return false
-    }
+    override fun canSign(): Boolean = false
 
     override fun isSyncing(): Boolean {
         return false
     }
 
-    override fun isArchived(): Boolean {
-        return false
-    }
+    override fun isArchived(): Boolean = accountContext.archived
 
-    override fun isActive(): Boolean {
-        return true
-    }
+    override fun isActive(): Boolean = !isArchived
 
     override fun archiveAccount() {
-        TODO("Not yet implemented")
+        accountContext.archived = true
+        dropCachedData()
     }
 
     override fun activateAccount() {
-
+        accountContext.archived = false
+        dropCachedData()
     }
 
     override fun dropCachedData() {
-
+        accountContext.balance = Balance.getZeroBalance(coinType)
     }
 
-    override fun isVisible(): Boolean {
-        return true
-    }
+    override fun isVisible(): Boolean = true
 
-    override fun isDerivedFromInternalMasterseed(): Boolean {
-        return true
-    }
+    override fun isDerivedFromInternalMasterseed(): Boolean = true
 
-    override fun getId(): UUID = credentials?.ecKeyPair?.toUUID()
-            ?: UUID.nameUUIDFromBytes(receiveAddress.getBytes())
+    override fun getId(): UUID = accountContext.uuid
 
-
-    override fun broadcastOutgoingTransactions(): Boolean {
-        return true
-    }
+    override fun broadcastOutgoingTransactions(): Boolean = true
 
     override fun removeAllQueuedTransactions() {
-
     }
 
     override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: FioAddress?): Value {
-        return balance.spendable - (minerFeePerKilobyte ?: Value.zeroValue(coinType))
+        return accountBalance.spendable - (minerFeePerKilobyte ?: Value.zeroValue(coinType))
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int {
