@@ -63,7 +63,7 @@
             android:gravity="center"
             android:paddingStart="30dp"
             android:paddingEnd="30dp"
-            android:text="FIO create"
+            android:text="@string/hd_fio_account"
             android:layout_marginTop="24dp"/>
 
 

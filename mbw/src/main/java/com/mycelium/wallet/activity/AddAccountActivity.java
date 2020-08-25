@@ -75,7 +75,6 @@ import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.mycelium.wapi.wallet.fio.FIOConfig;
-import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -325,10 +324,7 @@ public class AddAccountActivity extends Activity {
     }
 
     private void createFIOAccount() {
-        final WalletManager wallet = _mbwManager.getWalletManager(false);
-        // at this point, we have to have a master seed, since we created one on startup
-        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
-        showProgress(R.string.hd_account_creation_started);
+        showProgress(R.string.fio_account_creation_started);
         new FIOCreationAsyncTask().execute();
     }
 
