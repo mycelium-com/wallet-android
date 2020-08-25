@@ -118,6 +118,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -612,7 +613,8 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_active);
         }
 
-        if (account.isActive() && !isBch && !(account instanceof AbstractEthERC20Account)) {
+        if (account.isActive() && !isBch && !(account instanceof AbstractEthERC20Account)
+                && !(account instanceof FioAccount)) {
             menus.add(R.menu.record_options_menu_outputs);
         }
 
