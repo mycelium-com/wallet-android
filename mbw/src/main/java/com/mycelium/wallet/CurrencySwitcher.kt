@@ -235,7 +235,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         val distinctTypes = sum.values.distinctBy { it.type }
 
         // if all of the values are of the same type then just add up
-        if (distinctTypes.size == 1 && distinctTypes[0] == toCurrency) {
+        if (distinctTypes.size == 1 && distinctTypes[0].type == toCurrency) {
             return sum.values.reduce { acc, value -> acc + value }
         }
         return sum.values.mapNotNull {
