@@ -21,11 +21,9 @@ class InvestmentModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDa
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
             mapOf<UUID, WalletAccount<*>>(account.id to account)
 
-
     override fun canCreateAccount(config: Config): Boolean = false
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean = false
-
 
     override fun getAccounts(): List<WalletAccount<*>> = listOf(account)
 

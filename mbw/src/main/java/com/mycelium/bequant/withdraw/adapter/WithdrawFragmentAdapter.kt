@@ -8,7 +8,6 @@ import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 
 
 class WithdrawFragmentAdapter(fragment: Fragment, val vm: WithdrawViewModel, val supportedByMycelium: Boolean) : FragmentStatePagerAdapter(fragment.childFragmentManager) {
-
     override fun getCount(): Int = if (supportedByMycelium) 2 else 1
 
     override fun getItem(position: Int): Fragment = when (position) {
@@ -16,8 +15,6 @@ class WithdrawFragmentAdapter(fragment: Fragment, val vm: WithdrawViewModel, val
         1 -> WithdrawWalletFragment().apply { parentViewModel = vm }
         else -> TODO("not implemented")
     }
-
-
 
     override fun getPageTitle(position: Int): CharSequence? =
             when (position) {
