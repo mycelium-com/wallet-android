@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.fio
 
+import com.google.common.base.Optional
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -18,7 +20,7 @@ import java.util.logging.Logger
 
 class FioAccount(private val accountContext: FioAccountContext,
                  private val accountListener: AccountListener?,
-                 private val fiosdk: FIOSDK) : WalletAccount<FioAddress> {
+                 private val fiosdk: FIOSDK) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger("asdaf")
 
     //TODO
@@ -192,4 +194,10 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     fun getTransferTokensFee() = fiosdk.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
+
+    override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
+            ExportableAccount.Data(Optional.of(fiosdk.getPrivateKey()),
+                    mutableMapOf<BipDerivationType, String>().apply {
+                        this[BipDerivationType.BIP44] = fiosdk.publicKey
+                    })
 }
