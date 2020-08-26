@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.fio
 
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
@@ -104,6 +105,9 @@ class FIOModule(
                     getCurrentBip44Index() + 1)
         }
     }
+
+    fun getBip44Path(account: FioAccount): HdKeyPath? =
+            HdKeyPath.valueOf("m/44'/235'/${account.accountIndex}'/0/0")
 
     companion object {
         const val ID: String = "FIO"

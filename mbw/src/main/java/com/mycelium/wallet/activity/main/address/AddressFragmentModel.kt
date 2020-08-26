@@ -1,9 +1,9 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import androidx.lifecycle.MutableLiveData
 import android.text.Html
 import android.text.Spanned
+import androidx.lifecycle.MutableLiveData
 import asStringRes
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.hdpath.HdKeyPath
@@ -20,6 +20,8 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthereumModule
+import com.mycelium.wapi.wallet.fio.FIOModule
+import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
@@ -74,6 +76,9 @@ class AddressFragmentModel(
         } else if (account is EthAccount) {
             val module = mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID) as EthereumModule
             bip32Path.value = module.getBip44Path(account.accountIndex)
+        } else if (account is FioAccount) {
+            val module = mbwManager.getWalletManager(false).getModuleById(FIOModule.ID) as FIOModule
+            bip32Path.value = module.getBip44Path(account)
         }
         accountAddress.value = account.receiveAddress
     }

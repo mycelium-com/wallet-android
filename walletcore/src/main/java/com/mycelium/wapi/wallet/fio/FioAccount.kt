@@ -27,6 +27,9 @@ class FioAccount(private val accountContext: FioAccountContext,
     val maxFee = BigInteger.ZERO
     private lateinit var label: String
 
+    val accountIndex: Int
+        get() = accountContext.accountIndex
+
     fun registerFIOAddress(fioAddress: String) {
         fiosdk.registerFioAddress(fioAddress, maxFee)
     }
