@@ -394,7 +394,7 @@ object Converter {
     }
 
     @JvmStatic
-    fun valueToStr(value: Value?): String {
-        return "Miner fee - ${value?.value ?: SendFioModel.DEFAULT_FEE} SUF"
-    }
+    fun valueToStr(value: Value?): String =
+            value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
+
 }

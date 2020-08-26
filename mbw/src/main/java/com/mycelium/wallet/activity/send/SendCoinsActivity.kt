@@ -199,7 +199,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                     }
 
     private fun initFeeView() {
-        feeValueList.setHasFixedSize(true)
+        feeValueList?.setHasFixedSize(true)
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
@@ -208,18 +208,18 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val feeViewAdapter = FeeViewAdapter(feeFirstItemWidth)
         feeViewAdapter.setFormatter(viewModel.getFeeFormatter())
 
-        feeValueList.adapter = feeViewAdapter
+        feeValueList?.adapter = feeViewAdapter
         feeViewAdapter.setDataset(viewModel.getFeeDataset().value)
         viewModel.getFeeDataset().observe(this, Observer { feeItems ->
             feeViewAdapter.setDataset(feeItems)
             val selectedFee = viewModel.getSelectedFee().value!!
             if (feeViewAdapter.selectedItem >= feeViewAdapter.itemCount ||
                     feeViewAdapter.getItem(feeViewAdapter.selectedItem).feePerKb != selectedFee.valueAsLong) {
-                feeValueList.setSelectedItem(selectedFee)
+                feeValueList?.setSelectedItem(selectedFee)
             }
         })
 
-        feeValueList.setSelectListener { adapter, position ->
+        feeValueList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeViewAdapter).getItem(position)
             viewModel.getSelectedFee().value = Value.valueOf(item.value.type, item.feePerKb)
 
@@ -231,19 +231,19 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     private fun initFeeLvlView() {
-        feeLvlList.setHasFixedSize(true)
+        feeLvlList?.setHasFixedSize(true)
         val feeLvlItems = viewModel.getFeeLvlItems()
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
         val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
-        feeLvlList.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
-        feeLvlList.setSelectListener { adapter, position ->
+        feeLvlList?.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
+        feeLvlList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeLvlViewAdapter).getItem(position)
             viewModel.getFeeLvl().value = item.minerFee
-            feeValueList.setSelectedItem(viewModel.getSelectedFee().value)
+            feeValueList?.setSelectedItem(viewModel.getSelectedFee().value)
         }
-        feeLvlList.setSelectedItem(viewModel.getFeeLvl().value)
+        feeLvlList?.setSelectedItem(viewModel.getFeeLvl().value)
     }
 
     fun onClickUnconfirmedWarning() {
