@@ -46,6 +46,8 @@ import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
+import com.mycelium.wapi.wallet.fio.FioAccount;
+import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,6 +102,10 @@ public class MbwTestEnvironment extends MbwEnvironment {
          }});
          put(EthTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
             add(new BlockExplorer("ETS", "etherscan.io", "https://ropsten.etherscan.io/address/", "https://ropsten.etherscan.io/tx/0x", null, null));
+         }});
+         put(FIOTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio-test.bloks.io/account/", "https://fio-test.bloks.io/transaction/", null, null));
+            add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.testnet.fioprotocol.io/account/", "https://explorer.testnet.fioprotocol.io/transaction/", null, null));
          }});
       }
    };
