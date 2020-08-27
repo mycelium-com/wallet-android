@@ -33,6 +33,7 @@ import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import asStringRes
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.fio.FioAccount
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
@@ -53,6 +54,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             is EthAccount -> viewModelProvider.get(ReceiveEthViewModel::class.java)
             is ERC20Account -> viewModelProvider.get(ReceiveERC20ViewModel::class.java)
+            is FioAccount -> viewModelProvider.get(ReceiveFIOViewModel::class.java)
             else -> viewModelProvider.get(ReceiveGenericCoinsViewModel::class.java)
         }
 
