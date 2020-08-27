@@ -126,6 +126,8 @@ import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.fio.coins.FIOMain;
+import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -1067,6 +1069,10 @@ public class Utils {
 
    public static CryptoCurrency getRmcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getFIOCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? FIOMain.INSTANCE : FIOTest.INSTANCE;
    }
 
    public static boolean isValidEmailAddress(String value) {

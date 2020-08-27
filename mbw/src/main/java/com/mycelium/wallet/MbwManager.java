@@ -115,6 +115,7 @@ import com.mycelium.wapi.content.colu.mss.MSSUriParser;
 import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
 import com.mycelium.wapi.content.eth.EthUriParser;
+import com.mycelium.wapi.content.fio.FIOUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -509,6 +510,7 @@ public class MbwManager {
         result.add(new MSSUriParser(network));
         result.add(new RMCUriParser(network));
         result.add(new EthUriParser(network, getSupportedERC20Tokens()));
+        result.add(new FIOUriParser(network));
         return result;
     }
 

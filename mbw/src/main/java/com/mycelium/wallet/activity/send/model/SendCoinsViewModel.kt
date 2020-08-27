@@ -36,6 +36,7 @@ import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
+import com.mycelium.wapi.content.fio.FIOUri
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
@@ -243,6 +244,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     coinType is ERC20Token && uri.asset.equals(coinType.contractAddress, true)
                 }
             }
+            is FIOUri -> coinType == Utils.getFIOCoinType()
             else -> false
         }
     }
