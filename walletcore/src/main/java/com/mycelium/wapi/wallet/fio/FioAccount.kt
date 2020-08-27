@@ -169,7 +169,9 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: FioAddress?): Value {
-        return accountBalance.spendable - (minerFeePerKilobyte ?: Value.zeroValue(coinType))
+        val spendableWithFee = accountBalance.spendable - (minerFeePerKilobyte
+                ?: Value.zeroValue(coinType))
+        return if (spendableWithFee.isNegative()) Value.zeroValue(coinType) else spendableWithFee
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int {
