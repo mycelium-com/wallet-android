@@ -1,6 +1,5 @@
 package fiofoundation.io.fiosdk
 
-import java.lang.Exception
 import fiofoundation.io.fiosdk.utilities.SUFUtils
 import java.math.BigInteger
 
@@ -105,7 +104,7 @@ fun String.isFioPublicKey(): Boolean
 {
     if(this.isNotEmpty())
     {
-        val fioRegEx = Regex("^FIO.+\$")
+        val fioRegEx = Regex("^FIO[a-zA-Z0-9]+\$")
         if(fioRegEx.matchEntire(this)!=null)
             return true
     }
