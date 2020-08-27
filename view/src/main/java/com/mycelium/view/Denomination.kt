@@ -55,6 +55,7 @@ enum class Denomination(val scale: Int, private val asciiString: String, private
                 "ubtc" //back compatibility
                     , "micro" -> MICRO
                 "bits" -> BITS
+                "nano" -> NANO
                 "finney" -> FINNEY
                 "szabo" -> SZABO
                 "gwei" -> GWEI
