@@ -5,6 +5,6 @@ object FIOMain : FIOToken() {
 
     init {
         id = "fio.main"
-        name = "Fio"
+        name = "FIO"
     }
 }

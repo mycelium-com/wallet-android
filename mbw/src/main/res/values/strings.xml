@@ -1376,4 +1376,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
     <string name="none">none</string>
     <string name="receive_title_fio">FIO Public key</string>
+    <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
 </resources>
