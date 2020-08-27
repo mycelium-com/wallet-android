@@ -7,4 +7,5 @@
     android:layout_height="wrap_content"
     android:text="@string/miner_fee_title"
     android:layout_gravity="center"
+    android:layout_marginTop="16dp"
     android:textSize="24sp" />

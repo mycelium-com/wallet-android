@@ -948,7 +948,7 @@ public class AccountsFragment extends Fragment {
      */
     private boolean accountProtected(WalletAccount toRemove) {
         // accounts not derived from master seed and ethereum account are not protected
-        if (!toRemove.isDerivedFromInternalMasterseed() || toRemove instanceof EthAccount) {
+        if (!(toRemove.isDerivedFromInternalMasterseed() && toRemove instanceof HDAccount) || toRemove instanceof EthAccount) {
             return false;
         }
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
