@@ -119,7 +119,7 @@ class Step3Fragment : Fragment() {
                             findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
                         }
                         .show()
-            }, { code, error ->
+            }, { _, error ->
                 ErrorHandler(requireContext()).handle(error)
             }, { loader(false) })
         } ?: run {

@@ -102,13 +102,13 @@ class Step2Fragment : Fragment() {
                     applicant.userId = onceToken
                     Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
                         findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
-                    }, { code, msg ->
+                    }, { _, msg ->
                         ErrorHandler(requireContext()).handle(msg)
                     }, {
                         loader(false)
                     })
                 }
-            }, { code, msg ->
+            }, { _, msg ->
                 loader(false)
                 ErrorHandler(requireContext()).handle(msg)
             })
