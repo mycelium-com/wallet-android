@@ -355,7 +355,7 @@ public class MbwManager {
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
-                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioContextAdapter());
+                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup

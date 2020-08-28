@@ -115,6 +115,8 @@ val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapter
 val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
         Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.valueAdapter)
 
+val fioAccountBackingAdapter = FioAccountBacking.Adapter(Adapters.uuidAdapter)
+
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.balanceAdapter)
 val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)

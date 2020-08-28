@@ -48,7 +48,9 @@ class FIOModule(
 
     private fun accountFromUUID(uuid: UUID): WalletAccount<*> {
         val accountContext = createAccountContext(uuid)
-        val account = FioAccount(accountContext, accountListener, getFioSdk(accountContext.accountIndex))
+        val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
+        val account = FioAccount(accountContext, fioAccountBacking, accountListener,
+                getFioSdk(accountContext.accountIndex))
         accounts[account.id] = account
         return account
     }
@@ -57,7 +59,8 @@ class FIOModule(
         val newIndex = getCurrentBip44Index() + 1
         val accountContext = createAccountContext(fioKeyManager.getUUID(newIndex))
         backing.createAccountContext(accountContext)
-        val newAccount = FioAccount(accountContext, accountListener, getFioSdk(newIndex))
+        val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
+        val newAccount = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdk(newIndex))
         newAccount.label = createLabel(accountContext.accountName)
         storeLabel(newAccount.id, newAccount.label)
         accounts[newAccount.id] = newAccount

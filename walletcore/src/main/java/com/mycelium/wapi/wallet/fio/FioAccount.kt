@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.fio
 import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -13,15 +14,19 @@ import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetFIONamesResponse
+import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
 class FioAccount(private val accountContext: FioAccountContext,
+                 private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
                  private val fiosdk: FIOSDK) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger("asdaf")
+    private val transactionService = FioTransactionHistoryService(accountContext.currency,
+            receiveAddress.toString(), Utils.generateActor(receiveAddress.toString()))
 
     //TODO
     val maxFee = BigInteger.ZERO
@@ -51,7 +56,6 @@ class FioAccount(private val accountContext: FioAccountContext,
             throw BuildTransactionException(Throwable("Invalid amount"))
         }
 
-        logger.log(Level.INFO, "asdaf fee: ${fee.feePerKb}")
         return FioTransaction(coinType, address.toString(), amount, fee.feePerKb.value)
     }
 
@@ -93,13 +97,11 @@ class FioAccount(private val accountContext: FioAccountContext,
         TODO("Not yet implemented")
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary {
-        TODO("Not yet implemented")
-    }
+    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
+            backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
-    override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<TransactionSummary> {
-        return mutableListOf()
-    }
+    override fun getTransactionSummaries(offset: Int, limit: Int) =
+            backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receiveAddress.toString())
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummary> {
         return mutableListOf()
@@ -118,6 +120,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false
 
     override fun synchronize(mode: SyncMode?): Boolean {
+        updateBlockHeight()
+        syncTransactions()
         val fioBalance = fiosdk.getFioBalance()
         val newBalance = Balance(Value.valueOf(coinType, fioBalance.balance),
                 Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
@@ -127,6 +131,24 @@ class FioAccount(private val accountContext: FioAccountContext,
             return true
         }
         return true
+    }
+
+    private fun updateBlockHeight() {
+        accountContext.blockHeight = transactionService.getLatestBlock()?.toInt()
+                ?: accountContext.blockHeight
+    }
+
+    private fun syncTransactions() {
+        transactionService.fetchTransactions(accountContext.blockHeight.toBigInteger()).forEach {
+            try {
+                backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
+                        it.fromAddress, it.toAddress, it.value,
+                        kotlin.math.max(accountContext.blockHeight - it.blockNumber.toInt(), 0), it.fee, it.memo)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.log(Level.INFO, "asdaf syncTransactions exception: ${e.message}")
+            }
+        }
     }
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight
