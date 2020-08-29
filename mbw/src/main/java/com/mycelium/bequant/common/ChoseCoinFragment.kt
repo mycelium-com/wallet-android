@@ -43,10 +43,10 @@ class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin
 
     private fun loadCurrencies() {
         loader(true)
-        Api.publicRepository.publicCurrencyGet(viewLifecycleOwner.lifecycle.coroutineScope,null,{
+        Api.publicRepository.publicCurrencyGet(viewLifecycleOwner.lifecycle.coroutineScope,null, {
             currencies = it?.toList()?: listOf()
             updateList()
-        }, {code, error ->
+        }, { _, error ->
             ErrorHandler(requireContext()).handle(error)
         },{
             loader(false)

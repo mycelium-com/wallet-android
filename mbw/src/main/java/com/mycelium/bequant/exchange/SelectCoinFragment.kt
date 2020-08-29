@@ -21,7 +21,6 @@ import com.mycelium.bequant.remote.trading.model.Currency
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
-import kotlinx.android.synthetic.main.fragment_news.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
 import kotlinx.android.synthetic.main.item_bequant_search.search
 
@@ -43,7 +42,7 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
             })
         }
         clear.setOnClickListener {
-            val inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(search.applicationWindowToken, 0)
             search.text = null
             updateData(adapter, currencyList)
@@ -53,7 +52,7 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
             currencyList.clear()
             currencyList.addAll(list ?: arrayOf())
             updateData(adapter, currencyList)
-        }, { code, error ->
+        }, { _, error ->
             ErrorHandler(requireContext()).handle(error)
         }, {
             loader(false)

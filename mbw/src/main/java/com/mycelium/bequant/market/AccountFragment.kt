@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
@@ -62,21 +63,27 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
+        fun askEnable2Fa(@StringRes title: Int) {
+            ModalDialog(getString(title),
+                    getString(R.string.bequant_enable_2fa),
+                    getString(R.string.secure_your_account)) {
+                startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+            }.show(childFragmentManager, "modal_dialog")
+        }
+        fun askDoKyc() {
+            ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                    getString(R.string.bequant_kyc_verify_message),
+                    getString(R.string.bequant_kyc_verify_button)) {
+                startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+            }.show(childFragmentManager, "modal_dialog")
+        }
         deposit.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
-                ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
-                        getString(R.string.bequant_enable_2fa),
-                        getString(R.string.secure_your_account)) {
-                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
+                askEnable2Fa(R.string.bequant_turn_2fa_deposit)
             } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
-                ModalDialog(getString(R.string.bequant_kyc_verify_title),
-                        getString(R.string.bequant_kyc_verify_message),
-                        getString(R.string.bequant_kyc_verify_button)) {
-                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
+                askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
             }
@@ -85,17 +92,9 @@ class AccountFragment : Fragment() {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
-                ModalDialog(getString(R.string.bequant_turn_2fa_withdraw),
-                        getString(R.string.bequant_enable_2fa),
-                        getString(R.string.secure_your_account)) {
-                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
+                askEnable2Fa(R.string.bequant_turn_2fa_withdraw)
             } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
-                ModalDialog(getString(R.string.bequant_kyc_verify_title),
-                        getString(R.string.bequant_kyc_verify_message),
-                        getString(R.string.bequant_kyc_verify_button)) {
-                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
+                askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
             }
