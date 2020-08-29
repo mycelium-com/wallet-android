@@ -20,7 +20,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthereumModule
-import com.mycelium.wapi.wallet.fio.FIOModule
+import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 
@@ -77,7 +77,7 @@ class AddressFragmentModel(
             val module = mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID) as EthereumModule
             bip32Path.value = module.getBip44Path(account.accountIndex)
         } else if (account is FioAccount) {
-            val module = mbwManager.getWalletManager(false).getModuleById(FIOModule.ID) as FIOModule
+            val module = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
             bip32Path.value = module.getBip44Path(account)
         }
         accountAddress.value = account.receiveAddress

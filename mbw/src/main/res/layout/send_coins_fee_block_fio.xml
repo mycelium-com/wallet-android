@@ -6,8 +6,6 @@
 
     <data>
 
-        <import type="com.mycelium.wallet.activity.send.model.Converter" />
-
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.send.model.SendFioViewModel" />
@@ -53,8 +51,8 @@
                     android:id="@+id/fioFeeFiat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
                     android:layout_marginStart="4dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginBottom="5dp"
                     android:ellipsize="middle"
                     android:fontFamily="sans-serif"

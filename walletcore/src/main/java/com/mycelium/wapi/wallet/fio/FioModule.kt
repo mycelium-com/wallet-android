@@ -15,7 +15,7 @@ import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
 import java.util.*
 
-class FIOModule(
+class FioModule(
         private val serializationProvider : ISerializationProvider,
         private val secureStore: SecureKeyValueStore,
         private val backing: Backing<FioAccountContext>,

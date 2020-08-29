@@ -158,7 +158,7 @@ import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthBlockchainService;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.fio.FIOModule;
+import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.fio.FioBacking;
 import com.mycelium.wapi.wallet.fio.FioKeyManager;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
@@ -839,7 +839,7 @@ public class MbwManager {
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
 
 
-        FIOModule fioModule = new FIOModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
+        FioModule fioModule = new FioModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
                 new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener);
         walletManager.add(fioModule);

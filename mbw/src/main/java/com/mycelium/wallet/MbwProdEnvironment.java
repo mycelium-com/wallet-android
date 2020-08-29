@@ -46,10 +46,8 @@ import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.fio.coins.FIOMain;
-import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -144,8 +142,8 @@ public class MbwProdEnvironment extends MbwEnvironment {
          add(new BlockExplorer("ENJ", "enjinx", "https://enjinx.io/eth/address/", "https://enjinx.io/eth/transaction/0x", null, null));
       }});
       put(FIOMain.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
-         add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio.bloks.io/account/", "https://fio-test.bloks.io/transaction/", null, null));
-         add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.fioprotocol.io/account/", "https://explorer.testnet.fioprotocol.io/transaction/", null, null));
+         add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio.bloks.io/account/", "https://fio.bloks.io/transaction/", null, null));
+         add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.fioprotocol.io/account/", "https://explorer.fioprotocol.io/transaction/", null, null));
       }});
    }};
 
