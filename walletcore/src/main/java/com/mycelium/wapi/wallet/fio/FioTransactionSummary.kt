@@ -5,7 +5,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 
 class FioTransactionSummary(val sender: FioAddress, val receiver: FioAddress, val memo: String?,
-                            type: CryptoCurrency?, id: ByteArray?, hash: ByteArray?,
+                            val sum: Value, type: CryptoCurrency?, id: ByteArray?, hash: ByteArray?,
                             transferred: Value?, timestamp: Long, height: Int, confirmations: Int,
                             isQueuedOutgoing: Boolean, inputs: List<InputViewModel>?,
                             outputs: List<OutputViewModel>?,

@@ -9,8 +9,9 @@ import java.util.UUID;
 CREATE TABLE IF NOT EXISTS FioAccountBacking (
     txid TEXT NOT NULL,
     uuid TEXT AS UUID NOT NULL,
-    fromAddress TEXT NOT NULL,
-    toAddress TEXT NOT NULL,
+    sender TEXT NOT NULL,
+    receiver TEXT NOT NULL,
+    transferred TEXT AS Value NOT NULL,
     memo TEXT,
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS FioAccountBacking (
 
 selectFioTransactionSummaries:
 SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    fb.fromAddress, fb.toAddress, fb.memo
+    fb.sender, fb.receiver, fb.transferred, fb.memo
 FROM FioAccountBacking AS fb
     INNER JOIN AccountBacking AS b
     ON fb.uuid = b.uuid AND fb.txid = b.txid
@@ -33,7 +34,7 @@ FROM FioAccountBacking AS fb
 
 selectFioTransactionSummariesSince:
 SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    fb.fromAddress, fb.toAddress, fb.memo
+    fb.sender, fb.receiver, fb.transferred, fb.memo
 FROM FioAccountBacking AS fb
     INNER JOIN AccountBacking AS b
     ON fb.uuid = b.uuid AND fb.txid = b.txid
@@ -42,15 +43,15 @@ FROM FioAccountBacking AS fb
 
 selectFioTransactionSummaryById:
 SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-     fb.fromAddress, fb.toAddress, fb.memo
+     fb.sender, fb.receiver, fb.transferred, fb.memo
 FROM FioAccountBacking AS fb
     INNER JOIN AccountBacking AS b
     ON fb.uuid = b.uuid AND fb.txid = b.txid
         WHERE fb.uuid = (?) AND fb.txid = (?);
 
 insertTransaction:
-INSERT OR REPLACE INTO FioAccountBacking(txid, uuid, fromAddress, toAddress, memo)
-VALUES (?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO FioAccountBacking(txid, uuid, sender, receiver, transferred, memo)
+VALUES (?, ?, ?, ?, ?, ?);
 
 deleteTransaction:
 DELETE FROM FioAccountBacking

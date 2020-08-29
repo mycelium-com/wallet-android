@@ -101,7 +101,7 @@ class FioAccount(private val accountContext: FioAccountContext,
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
-            backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receiveAddress.toString())
+            backing.getTransactionSummaries(offset.toLong(), limit.toLong())
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummary> {
         return mutableListOf()
@@ -142,8 +142,9 @@ class FioAccount(private val accountContext: FioAccountContext,
         transactionService.fetchTransactions(accountContext.blockHeight.toBigInteger()).forEach {
             try {
                 backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
-                        it.fromAddress, it.toAddress, it.value,
-                        kotlin.math.max(accountContext.blockHeight - it.blockNumber.toInt(), 0), it.fee, it.memo)
+                        it.fromAddress, it.toAddress, it.sum,
+                        kotlin.math.max(accountContext.blockHeight - it.blockNumber.toInt(), 0),
+                        it.fee, it.transferred, it.memo)
             } catch (e: Exception) {
                 e.printStackTrace()
                 logger.log(Level.INFO, "asdaf syncTransactions exception: ${e.message}")

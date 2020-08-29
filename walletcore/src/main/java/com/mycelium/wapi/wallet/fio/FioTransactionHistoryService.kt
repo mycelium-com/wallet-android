@@ -9,7 +9,6 @@ import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.SimpleDateFormat
@@ -90,12 +89,13 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         txs.map { it.actionTrace!! }.forEach {
             if (it.act!!.name == "trnsfiopubky") {
                 result.add(Tx(it.trxId,
-                        it.act!!.data!!.actor!!, // sender actor
-                        it.act.data!!.payee_public_key!!, // receiver
+                        it.act!!.data!!.actor!!,
+                        it.act.data!!.payee_public_key!!,
                         it.act.data.memo ?: "",
                         if (it.blockNum > BigInteger.ZERO) it.blockNum else BigInteger.ZERO,
-                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.mmm", Locale.US).parse(it.blockTime).time / 1000,
-                        getAmount(it.act.name, it.act.data, feeMap[it.trxId] ?: Value.zeroValue(coinType)),
+                        getTimestamp(it.blockTime),
+                        getTransferred(it.act.name, it.act.data, feeMap[it.trxId] ?: Value.zeroValue(coinType)),
+                        Value.valueOf(coinType, it.act.data.amount!!),
                         feeMap[it.trxId] ?: Value.zeroValue(coinType)
                 ))
             } else if (it.act!!.name == "transfer" && it.act!!.data!!.to != "fio.treasury") {
@@ -104,15 +104,21 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                         it.act.data.to!!,
                         it.act.data.memo ?: "",
                         if (it.blockNum > BigInteger.ZERO) it.blockNum else BigInteger.ZERO,
-                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.mmm", Locale.US).parse(it.blockTime).time / 1000,
-                        getAmount(it.act.name, it.act.data, feeMap[it.trxId] ?: Value.zeroValue(coinType)),
+                        getTimestamp(it.blockTime),
+                        getTransferred(it.act.name, it.act.data, feeMap[it.trxId] ?: Value.zeroValue(coinType)),
+                        Value.valueOf(coinType, it.act.data.amount!!),
                         feeMap[it.trxId] ?: Value.zeroValue(coinType)))
             }
         }
         return result
     }
 
-    private fun getAmount(type: String, data: GetActionsResponse.ActionObject.ActionTrace.Act.Data, fee: Value): Value {
+    private fun getTimestamp(timeString: String): Long {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.mmm", Locale.US)
+        return sdf.parse(timeString).time / 1000
+    }
+
+    private fun getTransferred(type: String, data: GetActionsResponse.ActionObject.ActionTrace.Act.Data, fee: Value): Value {
         when (type) {
             "trnsfiopubky" -> {
                 // Check if transaction is sent or received
@@ -150,12 +156,12 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
 }
 
 data class Tx(val txid: String, val fromAddress: String, val toAddress: String, val memo: String,
-              val blockNumber: BigInteger, val timestamp: Long,
-              val value: Value, val fee: Value) {
+              val blockNumber: BigInteger, val timestamp: Long, val transferred: Value,
+              val sum: Value, val fee: Value) {
 
     override fun toString(): String {
         return """{'txid':$txid, 'fromAddress':$fromAddress,'toAddress':$toAddress,'memo':$memo,
-            'blockNumber':$blockNumber,'timestamp':$timestamp,'value':$value,'fee':$fee}
+            'blockNumber':$blockNumber,'timestamp':$timestamp,'value':$sum,'fee':$fee}
         """.trimMargin()
     }
 }
