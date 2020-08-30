@@ -114,7 +114,8 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
     }
 
     private fun getTimestamp(timeString: String): Long {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.mmm", Locale.US)
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("GMT")
         return sdf.parse(timeString).time / 1000
     }
 
