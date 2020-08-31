@@ -55,7 +55,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
-        TODO("Not yet implemented")
+        // TODO("Not yet implemented")
     }
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
@@ -151,7 +151,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncTransactions() {
-        transactionService.fetchTransactions(accountContext.blockHeight.toBigInteger()).forEach {
+        transactionService.getTransactions(accountContext.blockHeight.toBigInteger()).forEach {
             try {
                 backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
                         it.fromAddress, it.toAddress, it.sum,
