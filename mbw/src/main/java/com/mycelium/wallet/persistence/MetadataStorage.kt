@@ -250,8 +250,8 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             "RMC Test" -> RMCCoinTest
             "Ethereum" -> EthMain
             "Ethereum test" -> EthTest
-            "Fio" -> FIOMain
-            "Fio test" -> FIOTest
+            "FIO" -> FIOMain
+            "FIO test" -> FIOTest
             else -> null
         }
     }

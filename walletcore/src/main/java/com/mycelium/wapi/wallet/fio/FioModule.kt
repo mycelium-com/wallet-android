@@ -100,7 +100,10 @@ class FioModule(
     }
 
     private fun getCurrentBip44Index() = accounts.values
-            .filter { it.isDerivedFromInternalMasterseed }.size
+            .filter { it.isDerivedFromInternalMasterseed }
+            .maxBy { it.accountIndex }
+            ?.accountIndex
+            ?: -1
 
     override fun canCreateAccount(config: Config): Boolean {
         return config is FIOMasterseedConfig || config is FIOAddressConfig
@@ -142,7 +145,7 @@ class FioModule(
             FioAccountContext(
                     uuid,
                     coinType,
-                    if (isReadOnly) "FIO Read-Only" else "FIO ${getCurrentBip44Index() + 1}",
+                    if (isReadOnly) "FIO Read-Only" else "FIO ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
                     backing::updateAccountContext,
                     if (isReadOnly) 0 else getCurrentBip44Index() + 1)
