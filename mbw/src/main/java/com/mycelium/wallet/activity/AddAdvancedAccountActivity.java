@@ -95,6 +95,8 @@ import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
+import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
+import com.mycelium.wapi.wallet.fio.FioAddress;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -169,7 +171,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    public void onResume() {
       super.onResume();
 
-      StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
+      StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle (
               HandleConfigFactory.returnKeyOrAddressOrHdNode(),
               Utils.getClipboardString(AddAdvancedAccountActivity.this),
               MbwManager.getInstance(this).getNetwork());
@@ -521,7 +523,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    enum AddressCheckResult {
-      AccountExists, HasColuAssets, NoColuAssets
+      AccountExists, HasColuAssets, NoColuAssets, NonBtc
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
@@ -550,10 +552,14 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             return AddressCheckResult.AccountExists;
          }
 
-         BtcAddress btcAddress = (BtcAddress) address;
-         ColuModule coluModule = (ColuModule) _mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
-         coluAssets = coluModule.getColuAssets(btcAddress.getAddress());
-         return coluAssets.isEmpty() ? AddressCheckResult.NoColuAssets : AddressCheckResult.HasColuAssets;
+         if (address instanceof BtcAddress) {
+            BtcAddress btcAddress = (BtcAddress) address;
+            ColuModule coluModule = (ColuModule) _mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
+            coluAssets = coluModule.getColuAssets(btcAddress.getAddress());
+            return coluAssets.isEmpty() ? AddressCheckResult.NoColuAssets : AddressCheckResult.HasColuAssets;
+         } else {
+            return AddressCheckResult.NonBtc;
+         }
       }
 
       @Override
@@ -593,6 +599,14 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                        .create()
                        .show();
                break;
+            case NonBtc:
+               switch (address.getCoinType().getSymbol()) {
+                  case "ETH": break;
+                  case "FIO":
+                     UUID id = _mbwManager.getWalletManager(false)
+                             .createAccounts(new FIOAddressConfig((FioAddress) address)).get(0);
+                     finishOk(id, false);
+               }
          }
       }
    }

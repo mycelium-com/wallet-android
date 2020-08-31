@@ -74,7 +74,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
-import com.mycelium.wapi.wallet.fio.FIOConfig;
+import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -346,7 +346,7 @@ public class AddAccountActivity extends Activity {
     private class FIOCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         @Override
         protected UUID doInBackground(Void... params) {
-            return _mbwManager.getWalletManager(false).createAccounts(new FIOConfig()).get(0);
+            return _mbwManager.getWalletManager(false).createAccounts(new FIOMasterseedConfig()).get(0);
         }
 
         @Override

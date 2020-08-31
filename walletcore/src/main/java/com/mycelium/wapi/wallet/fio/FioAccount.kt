@@ -10,6 +10,7 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
@@ -23,10 +24,16 @@ import java.util.logging.Logger
 class FioAccount(private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
-                 private val fiosdk: FIOSDK) : WalletAccount<FioAddress>, ExportableAccount {
+                 private val fiosdk: FIOSDK? = null,
+                 address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger("asdaf")
+    private val receivingAddress = fiosdk?.let { FioAddress(coinType, FioAddressData(it.publicKey)) }
+            ?: address!!
     private val transactionService = FioTransactionHistoryService(accountContext.currency,
             receiveAddress.toString(), Utils.generateActor(receiveAddress.toString()))
+    private val balanceService by lazy {
+        FioBalanceService(coinType as FIOToken, receivingAddress.toString())
+    }
 
     //TODO
     val maxFee = BigInteger.ZERO
@@ -36,15 +43,15 @@ class FioAccount(private val accountContext: FioAccountContext,
         get() = accountContext.accountIndex
 
     fun registerFIOAddress(fioAddress: String) {
-        fiosdk.registerFioAddress(fioAddress, maxFee)
+        fiosdk!!.registerFioAddress(fioAddress, maxFee)
     }
 
     fun registerFioDomain(fioDomain: String) {
-        fiosdk.registerFioDomain(fioDomain, maxFee)
+        fiosdk!!.registerFioDomain(fioDomain, maxFee)
     }
 
     fun getFioNames(): GetFIONamesResponse {
-        return fiosdk.getFioNames()
+        return fiosdk!!.getFioNames()
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -65,7 +72,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun broadcastTx(tx: Transaction?): BroadcastResult {
         val fioTx = tx as FioTransaction
         return try {
-            val response = fiosdk.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee)
+            val response = fiosdk!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee)
             val actionTraceResponse = response.getActionTraceResponse()
             if (actionTraceResponse != null && actionTraceResponse.status == "OK") {
                 BroadcastResult(BroadcastResultType.SUCCESS)
@@ -81,7 +88,7 @@ class FioAccount(private val accountContext: FioAccountContext,
         }
     }
 
-    override fun getReceiveAddress(): Address = FioAddress(coinType, FioAddressData(fiosdk.publicKey))
+    override fun getReceiveAddress(): Address = receivingAddress
 
     override fun getCoinType(): CryptoCurrency = accountContext.currency
 
@@ -122,13 +129,18 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun synchronize(mode: SyncMode?): Boolean {
         updateBlockHeight()
         syncTransactions()
-        val fioBalance = fiosdk.getFioBalance()
-        val newBalance = Balance(Value.valueOf(coinType, fioBalance.balance),
-                Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
-        if (newBalance != accountContext.balance) {
-            accountContext.balance = newBalance
-            accountListener?.balanceUpdated(this)
-            return true
+        try {
+            val fioBalance = fiosdk?.getFioBalance()?.balance ?: balanceService.getBalance()
+            val newBalance = Balance(Value.valueOf(coinType, fioBalance),
+                    Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
+            if (newBalance != accountContext.balance) {
+                accountContext.balance = newBalance
+                accountListener?.balanceUpdated(this)
+                return true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.log(Level.INFO, "asdaf update balance exception: ${e.message}")
         }
         return true
     }
@@ -154,7 +166,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight
 
-    override fun canSpend(): Boolean = true
+    override fun canSpend(): Boolean = fiosdk != null
 
     override fun canSign(): Boolean = false
 
@@ -182,7 +194,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun isVisible(): Boolean = true
 
-    override fun isDerivedFromInternalMasterseed(): Boolean = true
+    override fun isDerivedFromInternalMasterseed(): Boolean = fiosdk != null
 
     override fun getId(): UUID = accountContext.uuid
 
@@ -221,11 +233,11 @@ class FioAccount(private val accountContext: FioAccountContext,
         TODO("Not yet implemented")
     }
 
-    fun getTransferTokensFee() = fiosdk.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
+    fun getTransferTokensFee() = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
-            ExportableAccount.Data(Optional.of(fiosdk.getPrivateKey()),
+            ExportableAccount.Data(Optional.fromNullable(fiosdk?.getPrivateKey()),
                     mutableMapOf<BipDerivationType, String>().apply {
-                        this[BipDerivationType.BIP44] = fiosdk.publicKey
+                        this[BipDerivationType.BIP44] = fiosdk?.publicKey ?: receivingAddress.toString()
                     })
 }
