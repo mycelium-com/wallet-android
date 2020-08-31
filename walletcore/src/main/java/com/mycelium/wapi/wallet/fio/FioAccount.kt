@@ -32,6 +32,9 @@ class FioAccount(private val accountContext: FioAccountContext,
     val maxFee = BigInteger.ZERO
     private lateinit var label: String
 
+    @Volatile
+    protected var syncing = false
+
     val accountIndex: Int
         get() = accountContext.accountIndex
 
@@ -120,6 +123,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false
 
     override fun synchronize(mode: SyncMode?): Boolean {
+        syncing = true
         updateBlockHeight()
         syncTransactions()
         val fioBalance = fiosdk.getFioBalance()
@@ -128,8 +132,8 @@ class FioAccount(private val accountContext: FioAccountContext,
         if (newBalance != accountContext.balance) {
             accountContext.balance = newBalance
             accountListener?.balanceUpdated(this)
-            return true
         }
+        syncing = false
         return true
     }
 
@@ -158,9 +162,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun canSign(): Boolean = false
 
-    override fun isSyncing(): Boolean {
-        return false
-    }
+    override fun isSyncing(): Boolean = syncing
 
     override fun isArchived(): Boolean = accountContext.archived
 

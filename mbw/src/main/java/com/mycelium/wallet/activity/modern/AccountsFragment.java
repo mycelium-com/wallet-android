@@ -42,14 +42,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.view.ActionMode.Callback;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -61,9 +53,18 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.view.ActionMode.Callback;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.common.collect.Lists;
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -92,10 +93,10 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -106,8 +107,8 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -587,7 +588,12 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu);
         }
 
-        if (account instanceof SingleAddressAccount || account.isDerivedFromInternalMasterseed()) {
+        if (account instanceof FioAccount) {
+            menus.add(R.menu.record_options_menu_fio_map_address);
+        }
+
+        if (account instanceof SingleAddressAccount ||
+                (account.isDerivedFromInternalMasterseed() && !(account instanceof FioAccount))) {
             menus.add(R.menu.record_options_menu_backup);
         }
 
