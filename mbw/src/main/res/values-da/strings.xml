@@ -30,7 +30,7 @@
     <string name="insufficient_funds_for_fee">Utilstrækkelige midler til at betale gebyr</string>
     <string name="amount_too_small">Det beløb, du sender, er for lille</string>
     <string name="amount_too_small_short">Beløbet er for lille</string>
-    <string name="miner_fee_label">Gebyr:</string>
+    <string name="miner_fee_label">Gebyr</string>
     <string name="miner_fee_title">Transaktionsgebyr</string>
     <string name="synchronizing">Synkroniserer</string>
     <string name="transaction_not_sent">Transaktions publicering fejlede</string>

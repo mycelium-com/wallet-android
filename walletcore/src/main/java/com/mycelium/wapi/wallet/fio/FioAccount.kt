@@ -121,7 +121,9 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getLabel(): String = accountContext.accountName
 
     override fun setLabel(label: String?) {
-        this.label = label ?: "FIO"
+        label?.let {
+            accountContext.accountName = it
+        }
     }
 
     override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false

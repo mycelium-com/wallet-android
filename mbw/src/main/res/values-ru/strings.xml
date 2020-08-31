@@ -39,7 +39,7 @@
     <string name="amount_too_small">Сумма, которую вы отправляете, слишком мала</string>
     <string name="unable_to_build_tx">Не удаётся построить транзакцию</string>
     <string name="amount_too_small_short">Сумма слишком мала</string>
-    <string name="miner_fee_label">Вознаграждение:</string>
+    <string name="miner_fee_label">Вознаграждение</string>
     <string name="miner_fee_title">Вознаграждение майнера</string>
     <string name="synchronizing">Синхронизация</string>
     <string name="transaction_not_sent">Не удалось передать транзакцию</string>

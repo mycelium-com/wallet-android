@@ -38,7 +38,7 @@
     <string name="amount_too_small">Le montant que vous avez choisi est trop faible</string>
     <string name="unable_to_build_tx">Impossible de générer la transaction</string>
     <string name="amount_too_small_short">Montant trop faible</string>
-    <string name="miner_fee_label">Frais de transaction :</string>
+    <string name="miner_fee_label">Frais de transaction</string>
     <string name="miner_fee_title">Frais de transaction</string>
     <string name="synchronizing">Synchronisation</string>
     <string name="transaction_not_sent">Échec de l\'envoi de la transaction</string>

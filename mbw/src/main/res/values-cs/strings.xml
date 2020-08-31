@@ -38,7 +38,7 @@
     <string name="amount_too_small">Částka pro odeslání je příliš nízká</string>
     <string name="unable_to_build_tx">Nelze sestavit transakci</string>
     <string name="amount_too_small_short">Částka je příliš nízká</string>
-    <string name="miner_fee_label">Poplatek sítě:</string>
+    <string name="miner_fee_label">Poplatek sítě</string>
     <string name="miner_fee_title">Poplatek sítě</string>
     <string name="synchronizing">Aktualizuji</string>
     <string name="transaction_not_sent">Odesílání transakce selhalo</string>

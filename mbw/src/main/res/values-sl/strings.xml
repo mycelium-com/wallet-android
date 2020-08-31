@@ -39,7 +39,7 @@
     <string name="amount_too_small">Znesek je prenizek</string>
     <string name="unable_to_build_tx">Ne morem sestaviti nakazila</string>
     <string name="amount_too_small_short">Znesek prenizek</string>
-    <string name="miner_fee_label">Prispevek:</string>
+    <string name="miner_fee_label">Prispevek</string>
     <string name="miner_fee_title">Prispevek</string>
     <string name="synchronizing">Usklajevanje</string>
     <string name="transaction_not_sent">Pošiljanje nakazila spodletelo</string>

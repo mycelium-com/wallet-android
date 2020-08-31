@@ -13,6 +13,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
+import java.text.DateFormat
 import java.util.*
 
 class FioModule(
@@ -145,7 +146,8 @@ class FioModule(
             FioAccountContext(
                     uuid,
                     coinType,
-                    if (isReadOnly) "FIO Read-Only" else "FIO ${getCurrentBip44Index() + 2}",
+                    if (isReadOnly) DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+                    else "FIO ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
                     backing::updateAccountContext,
                     if (isReadOnly) 0 else getCurrentBip44Index() + 1)

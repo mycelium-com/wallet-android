@@ -38,7 +38,7 @@
     <string name="amount_too_small">匯款金額過少</string>
     <string name="unable_to_build_tx">無法生成交易</string>
     <string name="amount_too_small_short">金額過少</string>
-    <string name="miner_fee_label">交易手續費:</string>
+    <string name="miner_fee_label">交易手續費</string>
     <string name="miner_fee_title">交易手續費</string>
     <string name="synchronizing">正在同步</string>
     <string name="transaction_not_sent">播報交易失敗</string>
