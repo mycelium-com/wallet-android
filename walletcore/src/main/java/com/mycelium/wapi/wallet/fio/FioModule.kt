@@ -13,6 +13,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
+import java.text.DateFormat
 import java.util.*
 
 class FioModule(
@@ -47,36 +48,79 @@ class FioModule(
                     .associateBy({ it.uuid }, { accountFromUUID(it.uuid) })
 
     private fun accountFromUUID(uuid: UUID): WalletAccount<*> {
-        val accountContext = createAccountContext(uuid)
-        val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-        val account = FioAccount(accountContext, fioAccountBacking, accountListener,
-                getFioSdk(accountContext.accountIndex))
-        accounts[account.id] = account
-        return account
+        return if (secureStore.getPlaintextValue(uuid.toString().toByteArray()) != null) {
+            val fioAddress = FioAddress(coinType, FioAddressData(String(secureStore.getPlaintextValue(uuid.toString().toByteArray()))))
+            val accountContext = createAccountContext(uuid)
+            val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
+            val account = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+                    accountListener = accountListener, address = fioAddress)
+            accounts[account.id] = account
+            account
+        } else {
+            val accountContext = createAccountContext(uuid)
+            val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
+            val account = FioAccount(accountContext, fioAccountBacking, accountListener,
+                    getFioSdk(accountContext.accountIndex))
+            accounts[account.id] = account
+            account
+        }
     }
 
     override fun createAccount(config: Config): WalletAccount<*> {
-        val newIndex = getCurrentBip44Index() + 1
-        val accountContext = createAccountContext(fioKeyManager.getUUID(newIndex))
-        backing.createAccountContext(accountContext)
-        val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-        val newAccount = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdk(newIndex))
-        newAccount.label = createLabel(accountContext.accountName)
-        storeLabel(newAccount.id, newAccount.label)
-        accounts[newAccount.id] = newAccount
-        return newAccount
+        val result: WalletAccount<*>
+        val baseLabel: String
+        when (config) {
+            is FIOMasterseedConfig -> {
+                val newIndex = getCurrentBip44Index() + 1
+                val accountContext = createAccountContext(fioKeyManager.getUUID(newIndex))
+                baseLabel = accountContext.accountName
+                backing.createAccountContext(accountContext)
+                val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
+                result = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdk(newIndex))
+
+            }
+            is FIOAddressConfig -> {
+                val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
+                secureStore.storePlaintextValue(uuid.toString().toByteArray(),
+                        config.address.toString().toByteArray())
+                val accountContext = createAccountContext(uuid, isReadOnly = true)
+                baseLabel = accountContext.accountName
+                backing.createAccountContext(accountContext)
+                val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
+                result = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+                        accountListener = accountListener, address = config.address)
+            }
+            else -> {
+                throw NotImplementedError("Unknown config")
+            }
+        }
+        accounts[result.id] = result
+        result.label = createLabel(baseLabel)
+        storeLabel(result.id, result.label)
+        return result
     }
 
     private fun getCurrentBip44Index() = accounts.values
-            .filter { it.isDerivedFromInternalMasterseed }.size
+            .filter { it.isDerivedFromInternalMasterseed }
+            .maxBy { it.accountIndex }
+            ?.accountIndex
+            ?: -1
 
     override fun canCreateAccount(config: Config): Boolean {
-        return config is FIOConfig
+        return config is FIOMasterseedConfig || config is FIOAddressConfig
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
-        accounts.remove(walletAccount.id)
-        return true
+        return if (walletAccount is FioAccount) {
+            if (secureStore.getPlaintextValue(walletAccount.id.toString().toByteArray()) != null) {
+                secureStore.deletePlaintextValue(walletAccount.id.toString().toByteArray())
+            }
+            backing.deleteAccountContext(walletAccount.id)
+            accounts.remove(walletAccount.id)
+            true
+        } else {
+            false
+        }
     }
 
     override fun getAccounts(): List<WalletAccount<*>> {
@@ -87,7 +131,7 @@ class FioModule(
         return accounts[id]
     }
 
-    private fun createAccountContext(uuid: UUID): FioAccountContext {
+    private fun createAccountContext(uuid: UUID, isReadOnly: Boolean = false): FioAccountContext {
         val accountContextInDB = backing.loadAccountContext(uuid)
         return if (accountContextInDB != null) {
             FioAccountContext(accountContextInDB.uuid,
@@ -102,10 +146,11 @@ class FioModule(
             FioAccountContext(
                     uuid,
                     coinType,
-                    "FIO ${getCurrentBip44Index() + 1}",
+                    if (isReadOnly) DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+                    else "FIO ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
                     backing::updateAccountContext,
-                    getCurrentBip44Index() + 1)
+                    if (isReadOnly) 0 else getCurrentBip44Index() + 1)
         }
     }
 

@@ -26,7 +26,7 @@
     <string name="insufficient_funds_for_fee">수수료를 지불 할 수 있는 만큼의 잔고가 부족합니다. </string>
     <string name="amount_too_small">전송금액이 너무 작습니다</string>
     <string name="amount_too_small_short">너무 작은 전송금액</string>
-    <string name="miner_fee_label">채굴자 수수료:</string>
+    <string name="miner_fee_label">채굴자 수수료</string>
     <string name="miner_fee_title">채굴자 수수료</string>
     <string name="synchronizing">동기화</string>
     <string name="transaction_not_sent">거래전송이 실패하였습니다. </string>

@@ -37,7 +37,7 @@
     <string name="insufficient_funds_for_fee">Fonde të pamjaftueshme për të paguar tarifën</string>
     <string name="amount_too_small">Shuma që po dërgoni është tepër e vogël</string>
     <string name="amount_too_small_short">Shuma tepër e vogël</string>
-    <string name="miner_fee_label">Tarifa e transaksionit:</string>
+    <string name="miner_fee_label">Tarifa e transaksionit</string>
     <string name="miner_fee_title">Tarifa e transaksionit</string>
     <string name="synchronizing">Duke u sinkronizuar</string>
     <string name="transaction_not_sent">Transmetimi i transaksionit dështoj</string>

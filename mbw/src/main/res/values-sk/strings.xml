@@ -24,7 +24,7 @@
     <string name="insufficient_funds_for_fee">Nedostatok prostriedkov na zaplatenie poplatku</string>
     <string name="amount_too_small">Posielaná suma je primalá</string>
     <string name="amount_too_small_short">Suma transakcie je príliš malá</string>
-    <string name="miner_fee_label">Poplatok za transakciu:</string>
+    <string name="miner_fee_label">Poplatok za transakciu</string>
     <string name="miner_fee_title">Poplatok za transakciu</string>
     <string name="synchronizing">Synchronizuje sa</string>
     <string name="transaction_not_sent">Neúspešne sa odoslala transakcia</string>

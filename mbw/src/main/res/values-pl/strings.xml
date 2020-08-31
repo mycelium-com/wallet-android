@@ -36,7 +36,7 @@
     <string name="insufficient_funds_for_fee">Niewystarczające środki do uiszczenia opłaty</string>
     <string name="amount_too_small">Kwota, którą wysyłasz jest zbyt mala</string>
     <string name="amount_too_small_short">Kwota za mała</string>
-    <string name="miner_fee_label">Opłata dla górników:</string>
+    <string name="miner_fee_label">Opłata dla górników</string>
     <string name="miner_fee_title">Opłata dla górników</string>
     <string name="synchronizing">Synchronizuje</string>
     <string name="transaction_not_sent">Transakcja nie zrealizowana</string>

@@ -38,11 +38,10 @@ class FioDetailsFragment : DetailsFragment() {
 
         llValue.addView(getValue(tx.sum, null))
         llFee.addView(getValue(tx.fee!!, null))
-        if (tx.memo != null) {
+        if (tx.memo != null && tx.memo!!.isNotEmpty()) {
             tvMemo.text = tx.memo
-            tvMemo.visibility = View.VISIBLE
         } else {
-            tvMemo.visibility = View.GONE
+            tvMemo.text = resources.getText(R.string.rmc_no)
         }
     }
 

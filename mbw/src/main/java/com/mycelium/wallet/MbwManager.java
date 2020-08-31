@@ -158,6 +158,9 @@ import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthBlockchainService;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
+import com.mycelium.wapi.wallet.fio.FioAccountContext;
+import com.mycelium.wapi.wallet.fio.FioAddress;
 import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.fio.FioBacking;
 import com.mycelium.wapi.wallet.fio.FioKeyManager;
@@ -905,12 +908,18 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi,
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
-        Backing<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
+        Backing<EthAccountContext> ethGenericBacking = new InMemoryAccountContextsBacking<>();
         EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), networkParameters);
         configuration.addEthServerListChangedListener(ethBlockchainService);
-        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
+        EthereumModule ethModule = new EthereumModule(secureKeyValueStore, ethGenericBacking, db,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
-        walletManager.add(walletModule);
+        walletManager.add(ethModule);
+
+        Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
+        FioModule fioModule = new FioModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
+                fioGenericBacking, db, networkParameters, getMetadataStorage(),
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener);
+        walletManager.add(fioModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
     }
@@ -1403,6 +1412,8 @@ public class MbwManager {
                     new BtcAddress(Utils.getBtcCoinType(), ((BtcAddress) address).getAddress()))).get(0);
         } else if (address instanceof EthAddress) {
             accountId = _tempWalletManager.createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
+        } else if (address instanceof FioAddress) {
+            accountId = _tempWalletManager.createAccounts(new FIOAddressConfig((FioAddress) address)).get(0);
         } else {
             throw new IllegalArgumentException("Not implemented");
         }

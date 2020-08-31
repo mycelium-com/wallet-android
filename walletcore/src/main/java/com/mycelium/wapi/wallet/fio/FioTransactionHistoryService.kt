@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.coins.FIOToken
+import fiofoundation.io.fiosdk.utilities.Utils
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -17,7 +19,7 @@ import java.util.*
 class FioTransactionHistoryService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    fun fetchTransactions(latestBlockNum: BigInteger): List<Tx> {
+    fun getTransactions(latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
         val client = OkHttpClient()
         var requestBody = "{\"account_name\":\"$accountName\", \"pos\":-1, \"offset\":-1}"
@@ -68,13 +70,13 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
     fun getLatestBlock(): BigInteger? {
         val client = OkHttpClient()
         val request = Request.Builder()
-                .url("http://testnet.fioprotocol.io/v1/chain/get_info")
+                .url((coinType as FIOToken).url + "chain/get_info")
                 .post(RequestBody.create(null, ""))
                 .build()
         return try {
             val response = client.newCall(request).execute()
             val result = mapper.readValue(response.body()!!.string(), GetBlockInfoResponse::class.java)
-            result.last_irreversible_block_num.toBigInteger()
+            result.lastIrreversibleBlockNum.toBigInteger()
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -84,34 +86,47 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
     private fun transform(txs: MutableList<GetActionsResponse.ActionObject>): List<Tx> {
         val result: MutableList<Tx> = mutableListOf()
         val feeMap: Map<String, Value> = txs
-                .filter { it.actionTrace!!.act!!.name == "transfer" && it.actionTrace!!.act!!.data!!.to == "fio.treasury" }
+                .filter { isFee(it.actionTrace!!.act!!.name, it.actionTrace.act!!.data!!.to) }
                 .map { it.actionTrace!!.trxId to getQuantityValue(it.actionTrace.act!!.data!!.quantity!!) }.toMap()
         txs.map { it.actionTrace!! }.forEach {
-            if (it.act!!.name == "trnsfiopubky") {
+            val type = it.act!!.name
+            if (isTransferToPubKey(type) ||
+                    isTransferButNotFee(type, it.act.data!!.to)) {
+                val sender = if (isTransferToPubKey(type)) {
+                    it.act.data!!.actor!!
+                } else {
+                    it.act.data!!.from!!
+                }
+                val receiver = if (isTransferToPubKey(type)) {
+                    Utils.generateActor(it.act.data.payeePublicKey!!)
+                } else {
+                    it.act.data.to!!
+                }
+
                 result.add(Tx(it.trxId,
-                        it.act!!.data!!.actor!!,
-                        it.act.data!!.payee_public_key!!,
+                        sender,
+                        receiver,
                         it.act.data.memo ?: "",
                         if (it.blockNum > BigInteger.ZERO) it.blockNum else BigInteger.ZERO,
                         getTimestamp(it.blockTime),
-                        getTransferred(it.act.name, it.act.data, feeMap[it.trxId] ?: Value.zeroValue(coinType)),
+                        getTransferred(it.act.name, it.act.data, feeMap[it.trxId]
+                                ?: Value.zeroValue(coinType)),
                         Value.valueOf(coinType, it.act.data.amount!!),
                         feeMap[it.trxId] ?: Value.zeroValue(coinType)
                 ))
-            } else if (it.act!!.name == "transfer" && it.act!!.data!!.to != "fio.treasury") {
-                result.add(Tx(it.trxId,
-                        it.act.data!!.actor!!,
-                        it.act.data.to!!,
-                        it.act.data.memo ?: "",
-                        if (it.blockNum > BigInteger.ZERO) it.blockNum else BigInteger.ZERO,
-                        getTimestamp(it.blockTime),
-                        getTransferred(it.act.name, it.act.data, feeMap[it.trxId] ?: Value.zeroValue(coinType)),
-                        Value.valueOf(coinType, it.act.data.amount!!),
-                        feeMap[it.trxId] ?: Value.zeroValue(coinType)))
             }
         }
         return result
     }
+
+    private fun isTransferToPubKey(type: String) =
+            type == "trnsfiopubky"
+
+    private fun isTransferButNotFee(type: String, receiver: String?) =
+            type == "transfer" && receiver != "fio.treasury"
+
+    private fun isFee(type: String, receiver: String?) =
+            type == "transfer" && receiver == "fio.treasury"
 
     private fun getTimestamp(timeString: String): Long {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
@@ -123,7 +138,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         when (type) {
             "trnsfiopubky" -> {
                 // Check if transaction is sent or received
-                if (data.payee_public_key == ownerPublicKey) {
+                if (data.payeePublicKey == ownerPublicKey) {
                     // Check if sending to myself
                     if (data.actor == accountName) {
                         return Value.zeroValue(coinType)
@@ -166,8 +181,10 @@ data class Tx(val txid: String, val fromAddress: String, val toAddress: String, 
         """.trimMargin()
     }
 }
+
 class GetBlockInfoResponse {
-    val last_irreversible_block_num: String = ""
+    @JsonProperty("last_irreversible_block_num")
+    val lastIrreversibleBlockNum: String = ""
 }
 
 class GetActionsResponse {
@@ -203,9 +220,12 @@ class GetActionsResponse {
                 val hexData: String = ""
 
                 class Data {
-                    val payee_public_key: String? = null
+                    @JsonProperty("payee_public_key")
+                    val payeePublicKey: String? = null
                     val amount: Long? = null
-                    val max_fee: Long? = null
+
+                    @JsonProperty("max_fee")
+                    val maxFee: Long? = null
                     val actor: String? = null
                     val tpid: String? = null
                     val quantity: String? = null

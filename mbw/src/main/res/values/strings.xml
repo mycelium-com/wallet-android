@@ -45,7 +45,7 @@
     <string name="amount_too_small">The amount you are sending is too small</string>
     <string name="unable_to_build_tx">Unable to build transaction</string>
     <string name="amount_too_small_short">Amount too small</string>
-    <string name="miner_fee_label">Miner fee:</string>
+    <string name="miner_fee_label">Miner fee</string>
     <string name="miner_fee_title">Miner Fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>

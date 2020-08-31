@@ -38,7 +38,7 @@
     <string name="amount_too_small">Số lượng bạn đang gửi quá nhỏ</string>
     <string name="unable_to_build_tx">Không thể tạo giao dịch</string>
     <string name="amount_too_small_short">Số lượng quá nhỏ</string>
-    <string name="miner_fee_label">Phí giao dịch:</string>
+    <string name="miner_fee_label">Phí giao dịch</string>
     <string name="miner_fee_title">Phí giao dịch</string>
     <string name="synchronizing">Đồng bộ hóa</string>
     <string name="transaction_not_sent">Giao dịch không thành công</string>

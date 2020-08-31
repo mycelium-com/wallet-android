@@ -38,7 +38,7 @@
     <string name="amount_too_small">La cantidad que vas a enviar es demasiado pequeña</string>
     <string name="unable_to_build_tx">No se puede generar la transacción</string>
     <string name="amount_too_small_short">Importe demasiado pequeño</string>
-    <string name="miner_fee_label">Coste de operación:</string>
+    <string name="miner_fee_label">Coste de operación</string>
     <string name="miner_fee_title">Coste de operación</string>
     <string name="synchronizing">Sincronizando</string>
     <string name="transaction_not_sent">No se pudo transmitir la transacción</string>

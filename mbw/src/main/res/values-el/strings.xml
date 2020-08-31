@@ -38,7 +38,7 @@
     <string name="insufficient_funds_for_fee">Ανεπαρκείς πόροι για πληρωμή τέλους αποστολής</string>
     <string name="amount_too_small">Το ποσό που στέλνετε είναι πολύ μικρό</string>
     <string name="amount_too_small_short">Ποσό πολύ μικρό</string>
-    <string name="miner_fee_label">Τέλος αποστολής:</string>
+    <string name="miner_fee_label">Τέλος αποστολής</string>
     <string name="miner_fee_title">Τέλος Αποστολής</string>
     <string name="synchronizing">Συγχρονισμός</string>
     <string name="transaction_not_sent">Αποτυχία μετάδοσης συναλλαγής</string>
