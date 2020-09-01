@@ -109,7 +109,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 accounts.map {
                     if (it is InvestmentAccount) {
                         BQExchangeRateManager.requestOptionalRefresh()
-                        AccountInvestmentViewModel(it,it.accountBalance.confirmed.toStringWithUnit())
+                        AccountInvestmentViewModel(it, it.accountBalance.confirmed.toStringWithUnit())
                     } else AccountViewModel(it, mbwManager)
                 }
 

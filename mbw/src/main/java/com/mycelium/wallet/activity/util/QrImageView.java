@@ -71,7 +71,7 @@ public class QrImageView extends AppCompatImageView {
               0, 0);
       try {
          String data = a.getString(R.styleable.QrImageView_qrCode);
-         if(data!= null) {
+         if (data != null) {
             setQrCode(data);
          }
       } finally {

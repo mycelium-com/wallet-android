@@ -11,7 +11,7 @@ interface AccountListItem {
         ACCOUNT_TYPE(3),
         TOTAL_BALANCE_TYPE(4),
         GROUP_ARCHIVED_TITLE_TYPE(5),
-        UKNOWN(6),
+        UNKNOWN(6),
         INVESTMENT_TYPE(7);
 
         companion object {
@@ -22,7 +22,7 @@ interface AccountListItem {
                     4 -> TOTAL_BALANCE_TYPE
                     5 -> GROUP_ARCHIVED_TITLE_TYPE
                     7 -> INVESTMENT_TYPE
-                    else -> UKNOWN
+                    else -> UNKNOWN
                 }
             }
         }

@@ -44,6 +44,7 @@ object BequantPreference {
 
     fun getSession() = preference.getString(Constants.SESSION_KEY, null) ?: ""
 
+    @JvmStatic
     fun isLogged(): Boolean = getSession().isNotEmpty()
 
     fun isDemo(): Boolean = getAccessToken().isEmpty()
