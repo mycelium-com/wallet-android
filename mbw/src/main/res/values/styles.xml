@@ -380,7 +380,10 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-
+    <style name="MyceliumFIO" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 
     <style name="BuySell.Dialog" parent="MyceliumModern.Dialog">
         <item name="android:windowTitleStyle">@style/BlueDialogTitle</item>

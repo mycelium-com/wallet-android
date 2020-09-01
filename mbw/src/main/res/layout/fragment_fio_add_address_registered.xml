@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/registeredLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Address registered"
+        android:textSize="18sp"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@id/registeredMail" />
+
+    <TextView
+        android:id="@+id/registeredMail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="test@gmail.com"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/registeredExpiredIn"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:text="Expires 31.08.2021"
+        app:layout_constraintTop_toBottomOf="@id/registeredMail" />
+
+    <Button
+        android:id="@+id/finishButton"
+        style="@style/MyceliumButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finish"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
