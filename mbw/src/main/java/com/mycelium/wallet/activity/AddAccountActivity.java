@@ -450,7 +450,7 @@ public class AddAccountActivity extends Activity {
         MbwManager.getEventBus().register(this);
         super.onResume();
 
-        boolean logged = BequantPreference.INSTANCE.isLogged();
+        boolean logged = BequantPreference.isLogged();
         findViewById(R.id.btInvestmentCreate).setVisibility(logged ? View.GONE : View.VISIBLE);
     }
 
