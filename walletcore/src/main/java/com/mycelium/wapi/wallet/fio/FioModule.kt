@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.fio
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.generated.wallet.database.WalletDB
@@ -21,7 +22,7 @@ class FioModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: Backing<FioAccountContext>,
         private val walletDB: WalletDB,
-        networkParameters: NetworkParameters,
+        private val networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val fioKeyManager: FioKeyManager,
         private val accountListener: AccountListener?
@@ -39,8 +40,18 @@ class FioModule(
         val fioPublicKey = fioKeyManager.getFioPublicKey(accountIndex)
         val publicKey = fioKeyManager.formatPubKey(fioPublicKey)
         // in FIO WIF testnet private keys aren't used
-        val privateKey = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(NetworkParameters.productionNetwork)
+        val privateKey = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)
         return FIOSDK.getInstance(privateKey, publicKey, serializationProvider, coinType.url)
+    }
+
+    private fun getFioSdkByPrivkey(privateKey: InMemoryPrivateKey): FIOSDK {
+        val privkeyString = privateKey.getBase58EncodedPrivateKey(networkParameters)
+        return FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString), serializationProvider, coinType.url)
+    }
+
+    private fun getFioAddressByPrivkey(privateKey: InMemoryPrivateKey): FioAddress {
+        val privkeyString = privateKey.getBase58EncodedPrivateKey(networkParameters)
+        return FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(privkeyString)))
     }
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
@@ -77,7 +88,6 @@ class FioModule(
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdk(newIndex))
-
             }
             is FIOAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -89,6 +99,16 @@ class FioModule(
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
                         accountListener = accountListener, address = config.address)
+            }
+            is FIOPrivateKeyConfig -> {
+                val uuid = UUID.nameUUIDFromBytes(getFioAddressByPrivkey(config.privkey).getBytes())
+                secureStore.encryptAndStoreValue(uuid.toString().toByteArray(),
+                        config.privkey.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
+                val accountContext = createAccountContext(uuid, isReadOnly = true)
+                baseLabel = accountContext.accountName
+                backing.createAccountContext(accountContext)
+                val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
+                result = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdkByPrivkey(config.privkey))
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -107,7 +127,7 @@ class FioModule(
             ?: -1
 
     override fun canCreateAccount(config: Config): Boolean {
-        return config is FIOMasterseedConfig || config is FIOAddressConfig
+        return config is FIOMasterseedConfig || config is FIOAddressConfig || config is FIOPrivateKeyConfig
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {

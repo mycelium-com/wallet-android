@@ -58,6 +58,7 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.HandleUrlActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -395,10 +396,28 @@ public class BalanceFragment extends Fragment {
                 switch (type) {
                     case PRIVATE_KEY:
                         InMemoryPrivateKey key = getPrivateKey(data);
-                        UUID account = _mbwManager.createOnTheFlyAccount(key);
-                        //we dont know yet where at what to send
-                        SendInitializationActivity.callMeWithResult(getActivity(), account, true,
-                                StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                        // ask user what WIF privkey he/she scanned as there are options
+                        final int[] selectedItem = new int[1];
+                        CharSequence[] choices = new CharSequence[2];
+                        choices[0] = "BTC";
+                        choices[1] = "FIO";
+                        new AlertDialog.Builder(requireActivity())
+                                .setTitle("Choose blockchain")
+                                .setSingleChoiceItems(choices, 0, (dialogInterface, i) -> selectedItem[0] = i)
+                                .setPositiveButton(requireActivity().getString(R.string.ok), (dialogInterface, i) -> {
+                                    UUID account;
+                                    if (selectedItem[0] == 0) {
+                                        account = _mbwManager.createOnTheFlyAccount(key, Utils.getBtcCoinType());
+                                    } else {
+                                        account = _mbwManager.createOnTheFlyAccount(key, Utils.getFIOCoinType());
+                                    }
+
+                                    //we dont know yet where at what to send
+                                    SendInitializationActivity.callMeWithResult(getActivity(), account, true,
+                                            StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                                })
+                                .setNegativeButton(this.getString(R.string.cancel), null)
+                                .show();
                         break;
                     case ADDRESS:
                         Address address = getAddress(data);
