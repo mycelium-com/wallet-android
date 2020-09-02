@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Create a unique FIO Address"
+        android:text="Create a unique FIO Name"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@id/inputLabel"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,7 +19,7 @@
         android:id="@+id/inputLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="FIO Address"
+        android:text="FIO Name"
         app:layout_constraintBottom_toTopOf="@id/inputEditTextLayout" />
 
     <com.google.android.material.textfield.TextInputLayout

@@ -7,4 +7,9 @@
         android:title="Add FIO Address"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/miFioMapAccounts"
+        android:title="Map Crypto Accounts"
+        app:showAsAction="ifRoom"/>
+
 </menu>

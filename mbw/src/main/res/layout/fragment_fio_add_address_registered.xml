@@ -9,7 +9,7 @@
         android:id="@+id/registeredLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Address registered"
+        android:text="Name registered"
         android:textSize="18sp"
         android:layout_marginBottom="32dp"
         android:gravity="center"

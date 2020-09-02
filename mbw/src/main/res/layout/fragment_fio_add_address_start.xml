@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send and Receive with an easy to rememner FIO Address!"
+        android:text="Send and Receive with an easy to rememner FIO Name!"
         android:textSize="18sp" />
 
     <TextView
@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Similar to website names, your FIO Address can be used
+        android:text="Similar to website names, your FIO Name can be used
 to send you tokens/coins without ever having to see or
 send your public key." />
 

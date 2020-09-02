@@ -13,5 +13,6 @@
 
     <style name="MyceliumButtonModernBlue" parent="MyceliumButtonModern">
         <item name="android:background">@drawable/background_action_btn_blue</item>
+        <item name="android:textColor">@color/btn_text_color_white</item>
     </style>
 </resources>

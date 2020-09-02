@@ -7,7 +7,7 @@ import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_fio_add_address_registered.*
 
 
-class FIBAddAddressRegisteredFragment : Fragment(R.layout.fragment_fio_add_address_registered) {
+class FIOAddAddressRegisteredFragment : Fragment(R.layout.fragment_fio_add_address_registered) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         finishButton.setOnClickListener {

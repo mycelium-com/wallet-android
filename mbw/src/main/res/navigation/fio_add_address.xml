@@ -32,6 +32,6 @@
     </fragment>
     <fragment
         android:id="@+id/FIBAddAddressRegisteredFragment"
-        android:name="com.mycelium.wallet.activity.fio.mapaddress.FIBAddAddressRegisteredFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaddress.FIOAddAddressRegisteredFragment"
         android:label="FIBAddAddressRegisteredFragment" />
 </navigation>

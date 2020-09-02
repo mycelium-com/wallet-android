@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fio_map_account.xml"
+    app:startDestination="@id/accountMappingFragment">
+
+    <fragment
+        android:id="@+id/accountMappingFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaccount.AccountMappingFragment"
+        android:label="AccountMappingFragment"
+        tools:layout="@layout/fragment_fio_account_mapping">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/accountMappingConfirmFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/accountMappingConfirmFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaccount.AccountMappingConfirmFragment"
+        android:label="AccountMappingConfirmFragment"
+        tools:layout="@layout/fragment_fio_account_mapping_confirm" />
+</navigation>

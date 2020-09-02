@@ -73,6 +73,7 @@ import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.ExportFioKeyActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
+import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.fio.mapaddress.FIOAddAddressActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -719,6 +720,9 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miMapFioAddress:
                         startActivity(new Intent(requireActivity(), FIOAddAddressActivity.class));
+                        return true;
+                    case R.id.miFioMapAccounts:
+                        startActivity(new Intent(requireActivity(), AccountMappingActivity.class));
                         return true;
                     default:
                         return false;
