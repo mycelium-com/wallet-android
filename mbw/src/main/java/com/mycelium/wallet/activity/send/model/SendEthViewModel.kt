@@ -20,6 +20,7 @@ import java.util.regex.Pattern
 
 open class SendEthViewModel(application: Application) : SendCoinsViewModel(application) {
     override val uriPattern = Pattern.compile("[a-zA-Z0-9]+")!!
+    val toaster = Toaster(application)
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)
@@ -33,16 +34,16 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
             val token = mbwManager.supportedERC20Tokens.values.firstOrNull { it.contractAddress.equals(ethUri.asset, true) }
             if (token != null) {
                 if (getAccount() !is ERC20Account || token.id != getAccount().coinType.id) {
-                    Toaster(activity).toast(context.getString(R.string.payment_uri_wrong_account_erc20, token.name), false)
+                    toaster.toast(context.getString(R.string.payment_uri_wrong_account_erc20, token.name), false)
                 } else {
                     setParams(uri)
                 }
             } else {
-                Toaster(activity).toast(R.string.payment_uri_unsupported_token, false)
+                toaster.toast(R.string.payment_uri_unsupported_token, false)
             }
         } else {
             if (getAccount() !is EthAccount) {
-                Toaster(activity).toast(R.string.payment_uri_wrong_account_eth, false)
+                toaster.toast(R.string.payment_uri_wrong_account_eth, false)
             } else {
                 setParams(uri)
             }
@@ -55,7 +56,7 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         if (uri.value?.isPositive() == true) {
             //we set the amount to the one contained in the qr code, even if another one was entered previously
             if (!Value.isNullOrZero(model.amount.value)) {
-                Toaster(activity).toast(R.string.amount_changed, false)
+                toaster.toast(R.string.amount_changed, false)
             }
             model.amount.value = uri.value
         }

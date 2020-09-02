@@ -171,7 +171,7 @@ class BroadcastDialog : DialogFragment() {
                 }
             BroadcastResultType.SUCCESS -> {
                 // Toast success and finish
-                Toaster(activity).toast(R.string.transaction_sent, false)
+                activity?.let { Toaster(it).toast(R.string.transaction_sent, false) }
                 returnResult(broadcastResult)
             }
             else -> throw RuntimeException("Unknown broadcast result type ${broadcastResult.resultType}")
