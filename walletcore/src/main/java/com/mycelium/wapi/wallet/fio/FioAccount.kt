@@ -45,6 +45,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     val accountIndex: Int
         get() = accountContext.accountIndex
 
+    fun hasHadActivity() = accountContext.actionSequenceNumber != BigInteger.ZERO
+
     fun registerFIOAddress(fioAddress: String) {
         fiosdk!!.registerFioAddress(fioAddress, maxFee)
     }
@@ -168,6 +170,7 @@ class FioAccount(private val accountContext: FioAccountContext,
                 logger.log(Level.INFO, "asdaf syncTransactions exception: ${e.message}")
             }
         }
+        accountContext.actionSequenceNumber = transactionService.lastActionSequenceNumber
     }
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight
@@ -194,6 +197,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun dropCachedData() {
         accountContext.balance = Balance.getZeroBalance(coinType)
+        accountContext.actionSequenceNumber = BigInteger.ZERO
     }
 
     override fun isVisible(): Boolean = true

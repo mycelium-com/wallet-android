@@ -18,6 +18,7 @@ import java.util.*
 
 class FioTransactionHistoryService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    var lastActionSequenceNumber = BigInteger.ZERO
 
     fun getTransactions(latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
@@ -32,8 +33,8 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
             var result = mapper.readValue(response.body()!!.string(), GetActionsResponse::class.java)
 
             if (result.actions.isNotEmpty()) {
-                // get latest sec
-                var pos = result.actions[0].accountActionSeq
+                lastActionSequenceNumber = result.actions[0].accountActionSeq
+                var pos = lastActionSequenceNumber
                 val finish = false
                 while (!finish) {
                     if (pos < BigInteger.ZERO) {
