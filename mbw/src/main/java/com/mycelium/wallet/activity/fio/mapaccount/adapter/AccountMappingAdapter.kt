@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import kotlinx.android.synthetic.main.item_fio_account_mapping_account.view.*
 import kotlinx.android.synthetic.main.item_fio_account_mapping_group.view.*
 import java.util.*
@@ -16,22 +17,30 @@ open class Item(val type: Int)
 class ItemGroup(val title: String = "") : Item(AccountMappingAdapter.TYPE_GROUP)
 
 class ItemAccount(val accountId: UUID,
-                  val label: String = "",
-                  val summary: String = "",
+                  val label: String,
+                  val summary: String,
+                  val coinType: CryptoCurrency,
                   var isEnabled: Boolean = false) : Item(AccountMappingAdapter.TYPE_ACCOUNT)
+
+object ItemSubGroupDivider : Item(AccountMappingAdapter.TYPE_SUB_GROUP_DIVIDER)
+object ItemSpace : Item(AccountMappingAdapter.TYPE_SPACE)
 
 class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
     companion object {
         const val TYPE_GROUP = 0
         const val TYPE_ACCOUNT = 1
+        const val TYPE_SUB_GROUP_DIVIDER = 2
+        const val TYPE_SPACE = 3
     }
 
-    val selectChangeListener: ((ItemAccount) -> Unit)? = null
+    var selectChangeListener: ((ItemAccount) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, typeView: Int): RecyclerView.ViewHolder =
             when (typeView) {
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_group, parent, false))
                 TYPE_ACCOUNT -> AccountViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_account, parent, false))
+                TYPE_SUB_GROUP_DIVIDER -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_divider, parent, false))
+                TYPE_SPACE -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list_space, parent, false))
                 else -> TODO("Not Implemented")
             }
 
@@ -45,9 +54,10 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                 val item = getItem(position) as ItemAccount
                 holder.itemView.title.text = item.label
                 holder.itemView.summary.text = item.summary
+                holder.itemView.checkbox.setOnCheckedChangeListener(null)
                 holder.itemView.checkbox.isChecked = item.isEnabled
-                holder.itemView.checkbox.setOnCheckedChangeListener { compoundButton, b ->
-                    (getItem(holder.adapterPosition) as ItemAccount).isEnabled = b
+                holder.itemView.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                    (getItem(holder.adapterPosition) as ItemAccount).isEnabled = isChecked
                     selectChangeListener?.invoke(getItem(holder.adapterPosition) as ItemAccount)
                 }
             }
@@ -58,10 +68,11 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
 
     class GroupViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
     class AccountViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
+    class DividerViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<Item>() {
         override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =
-                oldItem.type == newItem.type
+                oldItem.type == newItem.type && oldItem == newItem
 
         override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean =
                 when (oldItem.type) {
@@ -77,6 +88,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                                 oldItem.label == newItem.label &&
                                 oldItem.isEnabled == newItem.isEnabled
                     }
+                    TYPE_SUB_GROUP_DIVIDER -> true
                     else -> false
                 }
     }

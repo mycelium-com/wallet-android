@@ -121,7 +121,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
         TYPE_TURN_OFF -> NewsTurnOff(layoutInflater.inflate(R.layout.item_mediaflow_turn_off, parent, false))
-        TYPE_SPACE -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
+        TYPE_SPACE -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_list_space, parent, false))
         TYPE_NEWS_CATEGORY -> NewsCategoryBtnHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_category_btn, parent, false))
         TYPE_NEWS_BIG -> NewsV2BigHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_big, parent, false), preferences)
         TYPE_NEWS -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
@@ -129,7 +129,7 @@ class NewsAdapter(val preferences: SharedPreferences)
         TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
         TYPE_NEWS_NO_BOOKMARKS -> NewsNoBookmarksHolder(layoutInflater.inflate(R.layout.item_mediaflow_no_bookmarks, parent, false))
         TYPE_BIG_BANNER -> CurrencycomBannerHolder(layoutInflater.inflate(R.layout.item_mediaflow_banner, parent, false))
-        else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
+        else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_list_space, parent, false))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

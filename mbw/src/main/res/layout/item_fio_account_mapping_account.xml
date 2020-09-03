@@ -47,6 +47,7 @@
             android:ellipsize="middle"
             android:fontFamily="sans-serif"
             android:singleLine="true"
+            android:visibility="gone"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="#b8bcbf"
             android:textSize="14sp" />

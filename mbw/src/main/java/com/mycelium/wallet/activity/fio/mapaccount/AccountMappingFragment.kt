@@ -10,10 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.fio.mapaccount.adapter.AccountMappingAdapter
-import com.mycelium.wallet.activity.fio.mapaccount.adapter.Item
-import com.mycelium.wallet.activity.fio.mapaccount.adapter.ItemAccount
-import com.mycelium.wallet.activity.fio.mapaccount.adapter.ItemGroup
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.*
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getActiveHDAccounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
@@ -31,38 +28,49 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        list.adapter = adapter
+
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = "Select Accounts to map to FIO Account"
+        }
+        list.adapter = adapter
+        list.itemAnimator = null
+        adapter.selectChangeListener = { accountItem ->
+            if (accountItem.isEnabled) {
+                data.filterIsInstance<ItemAccount>().filter { it.coinType == accountItem.coinType }.forEach {
+                    if (it.accountId != accountItem.accountId) {
+                        data[data.indexOf(it)] = ItemAccount(it.accountId, it.label, it.summary, it.coinType, false)
+                    }
+                }
+            }
+            adapter.submitList(data.toList())
         }
         val mbwManager = MbwManager.getInstance(requireContext())
         val walletManager = mbwManager.getWalletManager(false)
         data.clear()
         data.apply {
-            walletManager.getActiveHDAccounts().map { ItemAccount(it.id, it.label, it.receiveAddress.toString()) }.apply {
-                if (this.isNotEmpty()) {
-                    add(ItemGroup(getString(R.string.active_hd_accounts_name)))
-                    addAll(this)
+            val btcHDAccounts = walletManager.getActiveHDAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }
+            val btcSAAccounts = walletManager.getActiveBTCSingleAddressAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }
+            if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
+                add(ItemGroup(getString(R.string.bitcoin_name)))
+                addAll(btcHDAccounts)
+                if (btcSAAccounts.isNotEmpty()) {
+                    add(ItemSubGroupDivider)
+                    addAll(btcSAAccounts)
                 }
             }
-            walletManager.getActiveBTCSingleAddressAccounts().map { ItemAccount(it.id, it.label) }.apply {
-                if (this.isNotEmpty()) {
-                    add(ItemGroup(getString(R.string.active_bitcoin_sa_group_name)))
-                    addAll(this)
-                }
-            }
-            walletManager.getActiveEthAccounts().map { ItemAccount(it.id, it.label) }.apply {
+            walletManager.getActiveEthAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }.apply {
                 if (this.isNotEmpty()) {
                     add(ItemGroup(getString(R.string.eth_accounts_name)))
                     addAll(this)
                 }
             }
-            walletManager.getActiveFioAccounts().map { ItemAccount(it.id, it.label) }.apply {
+            walletManager.getActiveFioAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }.apply {
                 if (this.isNotEmpty()) {
                     add(ItemGroup(getString(R.string.fio_accounts_name)))
                     addAll(this)
                 }
             }
+            add(ItemSpace)
         }
         adapter.submitList(data)
         buttonContinue.setOnClickListener {
@@ -90,9 +98,9 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
         })
     }
 
-    private fun filterItems(newText: String?) {
-        if (newText != null && newText.isNotEmpty()) {
-            adapter.submitList(data.filter { it is ItemAccount && it.label.contains(newText, true) })
+    private fun filterItems(text: String?) {
+        if (text != null && text.isNotEmpty()) {
+            adapter.submitList(data.filter { it is ItemAccount && it.label.contains(text, true) } + ItemSpace)
         } else {
             adapter.submitList(data)
         }
