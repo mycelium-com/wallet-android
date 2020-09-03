@@ -37,7 +37,6 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     //TODO
     val maxFee = BigInteger.ZERO
-    private lateinit var label: String
 
     @Volatile
     protected var syncing = false

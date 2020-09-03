@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
+import java.lang.IllegalStateException
 import java.text.DateFormat
 import java.util.*
 
@@ -102,15 +103,22 @@ class FioModule(
                 result = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdkByNode(hdKeyNode))
             }
             is FIOAddressConfig -> {
-                val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
+                val pubkeyString = when (config.address.getSubType()) {
+                    FioAddressSubtype.ACTOR.toString() -> FioTransactionHistoryService.getPubkeyByActor(config.address.toString(), coinType)
+                    FioAddressSubtype.ADDRESS.toString() -> FioTransactionHistoryService.getPubkeyByFioAddress(config.address.toString(), coinType)
+                    else -> config.address.toString()
+                }
+                val fioAddress = FioAddress(coinType, FioAddressData(pubkeyString
+                        ?: throw IllegalStateException("Cannot find public key for: ${config.address}")))
+                val uuid = UUID.nameUUIDFromBytes(fioAddress.getBytes())
                 secureStore.storePlaintextValue(uuid.toString().toByteArray(),
-                        config.address.toString().toByteArray())
+                        fioAddress.toString().toByteArray())
                 val accountContext = createAccountContext(uuid, isReadOnly = true)
                 baseLabel = accountContext.accountName
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
-                        accountListener = accountListener, address = config.address)
+                        accountListener = accountListener, address = fioAddress)
             }
             is FIOPrivateKeyConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(getFioAddressByPrivkey(config.privkey).getBytes())
@@ -197,4 +205,3 @@ class FioModule(
 }
 
 fun WalletManager.getFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible }
-fun WalletManager.getActiveFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible && it.isActive }

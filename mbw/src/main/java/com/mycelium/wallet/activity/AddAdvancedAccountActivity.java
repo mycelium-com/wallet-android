@@ -600,13 +600,51 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                        .show();
                break;
             case NonBtc:
-               switch (address.getCoinType().getSymbol()) {
-                  case "ETH": break;
-                  case "FIO":
-                     UUID id = _mbwManager.getWalletManager(false)
-                             .createAccounts(new FIOAddressConfig((FioAddress) address)).get(0);
-                     finishOk(id, false);
+               if ("FIO".equals(address.getCoinType().getSymbol())) {
+                  new FIOCreationAsyncTask((FioAddress) address).execute();
                }
+         }
+      }
+   }
+
+   private class FIOCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+      private ProgressDialog _progress;
+      private FioAddress address;
+
+      FIOCreationAsyncTask(FioAddress address) {
+         this.address = address;
+      }
+
+      @Override
+      protected void onPreExecute() {
+         super.onPreExecute();
+         _progress = new ProgressDialog(AddAdvancedAccountActivity.this);
+         _progress.setCancelable(false);
+         _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+         _progress.setMessage(getString(R.string.fio_account_creation_started));
+         _progress.show();
+      }
+
+      @Override
+      protected UUID doInBackground(Void... params) {
+         try {
+            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new FIOAddressConfig(address));
+            if (accounts.size() > 0) {
+               return accounts.get(0);
+            }
+         } catch (Exception e) {
+            // ignore
+         }
+         return null;
+      }
+
+      @Override
+      protected void onPostExecute(UUID account) {
+         _progress.dismiss();
+         if (account != null) {
+            finishOk(account, false);
+         } else {
+            finishError(address, R.string.fio_account_import_error);
          }
       }
    }
@@ -660,6 +698,13 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       String accountType = getAccountType(address);
       Intent result = new Intent()
               .putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
+      setResult(RESULT_MSG, result);
+      finish();
+   }
+
+   private void finishError(Address address, int res) {
+      Intent result = new Intent()
+              .putExtra(AddAccountActivity.RESULT_MSG, getString(res, address.toString()));
       setResult(RESULT_MSG, result);
       finish();
    }

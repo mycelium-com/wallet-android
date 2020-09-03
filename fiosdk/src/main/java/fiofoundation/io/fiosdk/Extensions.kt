@@ -112,6 +112,21 @@ fun String.isFioPublicKey(): Boolean
     return false
 }
 
+fun String.isFioActor(): Boolean
+{
+    if(this.isNotEmpty())
+    {
+        if(this.length != 12) {
+            return false
+        }
+        val fioRegEx = Regex("[.a-z1-5]+\$")
+        if(fioRegEx.matchEntire(this)!=null)
+            return true
+    }
+
+    return false
+}
+
 fun String.isNativeBlockChainPublicAddress(): Boolean
 {
     if(this.isNotEmpty())
