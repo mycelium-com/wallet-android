@@ -718,7 +718,9 @@ public class AccountsFragment extends Fragment {
                         rescan();
                         return true;
                     case R.id.miMapFioAddress:
-                        startActivity(new Intent(requireActivity(), FIOAddAddressActivity.class));
+                        Intent intent = new Intent(requireActivity(), FIOAddAddressActivity.class)
+                                .putExtra("account", account.getId());
+                        startActivity(intent);
                         return true;
                     default:
                         return false;

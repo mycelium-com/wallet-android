@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send and Receive with an easy to rememner FIO Address!"
+        android:text="Send and Receive with an easy to remember FIO Address!"
         android:textSize="18sp" />
 
     <TextView

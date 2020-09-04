@@ -35,9 +35,6 @@ class FioAccount(private val accountContext: FioAccountContext,
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
     }
 
-    //TODO
-    val maxFee = BigInteger.ZERO
-
     @Volatile
     protected var syncing = false
 
@@ -46,12 +43,16 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     fun hasHadActivity() = accountContext.actionSequenceNumber != BigInteger.ZERO
 
-    fun registerFIOAddress(fioAddress: String) {
-        fiosdk!!.registerFioAddress(fioAddress, maxFee)
+    /**
+     * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
+     */
+    fun registerFIOAddress(fioAddress: String): String? {
+        return fiosdk!!.registerFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress))
+                .getActionTraceResponse()?.expiration
     }
 
     fun registerFioDomain(fioDomain: String) {
-        fiosdk!!.registerFioDomain(fioDomain, maxFee)
+        fiosdk!!.registerFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain))
     }
 
     fun getFioNames(): GetFIONamesResponse {
@@ -241,6 +242,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     fun getTransferTokensFee() = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
+
+    fun getFeeByEndpoint(endpoint: FIOApiEndPoints.FeeEndPoint) = fiosdk!!.getFee(endpoint).fee
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
             ExportableAccount.Data(Optional.fromNullable(fiosdk?.getPrivateKey()),
