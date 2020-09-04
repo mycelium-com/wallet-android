@@ -133,7 +133,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
 
             visibility = View.VISIBLE
-            val displayValue = currentValue?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
+            val displayValue = currentValue?.toString(currencySwitcher.getDenomination(coinType!!)!!)
             tvDisplayValue.text = if (currentValue?.type is EthCoin)
                 makeNDigitsAfterComma(displayValue, 4)
             else
@@ -165,7 +165,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
                 tvDisplayValue.text = value?.toPlainString()
             } else {
                 tvCurrency.text = currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
-                tvDisplayValue.text = value?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
+                tvDisplayValue.text = value?.toString(currencySwitcher.getDenomination(coinType!!)!!)
             }
             View.VISIBLE
         }

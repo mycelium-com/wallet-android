@@ -113,7 +113,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
         }
     }
 
-    override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsed: Boolean, coinType: CryptoCurrency): Map<BipDerivationType, HdKeyPath> {
+    override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsedOrAccountsLookahead: Boolean, coinType: CryptoCurrency): Map<BipDerivationType, HdKeyPath> {
         // this is the first call - no lastPath given
         if (lastPath == null) {
             return mapOf(BipDerivationType.BIP44 to HdKeyPath.BIP32_ROOT,
@@ -132,7 +132,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
             }
         } else {
             // otherwise just return the normal bip44 accounts
-            super.getAccountPathsToScan(lastPath, wasUsed, coinType)
+            super.getAccountPathsToScan(lastPath, wasUsedOrAccountsLookahead, coinType)
         }
     }
 }

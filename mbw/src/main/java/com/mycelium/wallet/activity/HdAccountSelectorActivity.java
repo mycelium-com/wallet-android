@@ -121,7 +121,8 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
                  startBackgroundScan();
                  updateUi();
               })
-              .setNegativeButton(this.getString(R.string.cancel), null)
+              .setNegativeButton(this.getString(R.string.cancel), (dialogInterface, i) -> super.finish())
+              .setCancelable(false)
               .show();
 
    }

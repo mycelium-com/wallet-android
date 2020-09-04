@@ -1264,11 +1264,11 @@ public class MbwManager {
     }
 
     public Denomination getDenomination(AssetInfo coinType) {
-        return _currencySwitcher.getDenomintation(coinType);
+        return _currencySwitcher.getDenomination(coinType);
     }
 
     public void setBitcoinDenomination(AssetInfo coinType, Denomination denomination) {
-        _currencySwitcher.setDenomintation(coinType, denomination);
+        _currencySwitcher.setDenomination(coinType, denomination);
         Gson gson = new GsonBuilder().create();
         Map<String, String> resultMap = new HashMap<>();
         for (Map.Entry<AssetInfo, Denomination> entry : _currencySwitcher.getDenominationMap().entrySet()) {
