@@ -1,6 +1,7 @@
 package com.mycelium.bequant.remote.repositories
 
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.KYC_ENDPOINT
 import com.mycelium.bequant.remote.BequantKYCApiService
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
@@ -146,7 +147,7 @@ class KYCRepository {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
                                     if (BequantPreference.getAccessToken().isNotEmpty()) {
-                                        header("x-access-token", "xyz")
+                                        header("x-access-token", Constants.KYC_ACCESS_TOKEN)
                                     }
                                 }.build())
                             }
