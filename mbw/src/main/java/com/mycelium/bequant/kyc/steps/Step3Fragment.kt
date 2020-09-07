@@ -113,12 +113,7 @@ class Step3Fragment : Fragment() {
             val phone = "+${request.mobilePhoneCountryCode}${request.mobilePhone}"
             BequantPreference.setPhone(phone)
             Api.kycRepository.mobileVerification(viewModel.viewModelScope, {
-                AlertDialog.Builder(requireContext())
-                        .setMessage(it)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
-                        }
-                        .show()
+                findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
             }, { _, error ->
                 ErrorHandler(requireContext()).handle(error)
             }, { loader(false) })
