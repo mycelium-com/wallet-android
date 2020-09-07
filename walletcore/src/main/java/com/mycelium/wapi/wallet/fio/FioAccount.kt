@@ -51,6 +51,8 @@ class FioAccount(private val accountContext: FioAccountContext,
                 .getActionTraceResponse()?.expiration
     }
 
+    fun isFIOAddressAvailable(fioAddress: String): Boolean = fiosdk!!.isAvailable(fioAddress).isAvailable
+
     fun registerFioDomain(fioDomain: String) {
         fiosdk!!.registerFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain))
     }

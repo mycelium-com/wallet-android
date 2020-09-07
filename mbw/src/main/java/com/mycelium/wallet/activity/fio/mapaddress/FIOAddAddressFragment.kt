@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -29,7 +30,7 @@ class FIOAddAddressFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        registerAddress.setOnClickListener {
+        btRegisterAddress.setOnClickListener {
             RegisterAddressTask(viewModel.account.value!!, viewModel.addressWithDomain.value!!) { expiration ->
                 if (expiration != null) {
                     viewModel.expirationDate.value = expiration
@@ -39,11 +40,19 @@ class FIOAddAddressFragment: Fragment() {
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
+        viewModel.remainingBalance.observe(viewLifecycleOwner, Observer {
+            btRegisterAddress.isEnabled = !it.equalZero()
+            if (it < viewModel.registrationFee.value!!) {
+                tvRemainingBalance.setTextColor(resources.getColor(R.color.red))
+            } else {
+                tvRemainingBalance.setTextColor(resources.getColor(R.color.white))
+            }
+        })
     }
 
     class RegisterAddressTask(
             val account: FioAccount,
-            val fioAddress: String,
+            private val fioAddress: String,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {

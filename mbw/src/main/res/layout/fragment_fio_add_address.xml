@@ -6,6 +6,8 @@
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.fio.mapaddress.FIORegisterAddressViewModel" />
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
     </data>
 
     <LinearLayout xmlns:tools="http://schemas.android.com/tools"
@@ -24,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="FIO Address"
+            android:text="@string/fio_address"
             android:textSize="18sp" />
 
         <TextView
@@ -40,14 +42,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="Registration Fee"
+            android:text="@string/fio_registration_fee"
             android:textSize="18sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@{viewModel.registrationFee}"
+            android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.registrationFee)}"
             tools:text="7.100 FIO" />
 
         <TextView
@@ -55,14 +57,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="Remaining FIO Balance"
+            android:text="@string/fio_remaining_balance"
             android:textSize="18sp" />
 
         <TextView
+            android:id="@+id/tvRemainingBalance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@{viewModel.remainingBalance}"
+            android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.remainingBalance)}"
             tools:text="0 FIO" />
 
         <View
@@ -71,11 +74,11 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/registerAddress"
+            android:id="@+id/btRegisterAddress"
             style="@style/MyceliumButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Register FIO Address" />
+            android:text="@string/fio_register_address" />
 
     </LinearLayout>
 </layout>

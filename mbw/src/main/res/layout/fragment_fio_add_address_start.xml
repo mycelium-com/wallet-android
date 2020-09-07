@@ -45,7 +45,7 @@ send your public key." />
         android:layout_weight="1" />
 
     <Button
-        android:id="@+id/nextButton"
+        android:id="@+id/btNextButton"
         style="@style/MyceliumButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -4,14 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentFioAddAddressInputBinding
-import fiofoundation.io.fiosdk.isFioAddress
 import kotlinx.android.synthetic.main.fragment_fio_add_address_input.*
 
 
@@ -27,21 +26,32 @@ class FIOAddAddressInputFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        nextButton.setOnClickListener {
+        btNextButton.setOnClickListener {
             findNavController().navigate(R.id.actionNext)
-
         }
-        domain.text = "@${viewModel.domain.value}"
+        tvDomain.text = "@${viewModel.domain.value}"
+        viewModel.isFioAddressValid.observe(viewLifecycleOwner, Observer {
+            doAddressCheck(viewModel.address.value!!)
+        })
+        viewModel.isFioAddressAvailable.observe(viewLifecycleOwner, Observer {
+            doAddressCheck(viewModel.address.value!!)
+        })
+        viewModel.isFioServiceAvailable.observe(viewLifecycleOwner, Observer {
+            doAddressCheck(viewModel.address.value!!)
+        })
+    }
 
-        inputEditText.doOnTextChanged { text, _, _, _ ->
-            if (text!!.isNotEmpty()) {
-                if (!viewModel.address.value!!.isFioAddress()) {
-                    inputEditTextLayout.isErrorEnabled = true
-                    inputEditTextLayout.error = "Invalid FIO address"
-                } else {
-                    inputEditTextLayout.isErrorEnabled = false
-                    inputEditTextLayout.error = null
-                }
+    private fun doAddressCheck(fioAddress: String) {
+        btNextButton.isEnabled = viewModel.isFioAddressValid.value!! && viewModel.isFioAddressAvailable.value!!
+                && viewModel.isFioServiceAvailable.value!!
+        inputEditTextLayout.error = ""
+        if (fioAddress.isNotEmpty()) {
+            if (!viewModel.isFioAddressValid.value!!) {
+                inputEditTextLayout.error = resources.getString(R.string.fio_address_is_invalid)
+            } else if (!viewModel.isFioServiceAvailable.value!!) {
+                inputEditTextLayout.error = resources.getString(R.string.fio_address_check_service_unavailable)
+            } else if (!viewModel.isFioAddressAvailable.value!!) {
+                inputEditTextLayout.error = resources.getString(R.string.fio_address_occupied)
             }
         }
     }

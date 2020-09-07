@@ -10,6 +10,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
+import fiofoundation.io.fiosdk.isFioAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import kotlinx.android.synthetic.main.activity_fio_add_address.*
 import java.util.*
@@ -24,7 +25,7 @@ class FIOAddAddressActivity : AppCompatActivity() {
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)
-            title = "Register FIO Address"
+            title = resources.getString(R.string.fio_register_address)
         }
 
         viewModel = ViewModelProviders.of(this).get(FIORegisterAddressViewModel::class.java)
@@ -34,7 +35,22 @@ class FIOAddAddressActivity : AppCompatActivity() {
         viewModel.address.observe(this, Observer {
             viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value}"
         })
-        viewModel.remainingBalance.value = fioAccount.accountBalance.spendable.toString()
+        viewModel.addressWithDomain.observe(this, Observer { addressWithDomain ->
+            if (viewModel.address.value!!.isNotEmpty()) {
+                viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
+                    if (addressValid) {
+                        CheckAddressAvailabilityTask(fioAccount, addressWithDomain) { isAvailable ->
+                            if (isAvailable != null) {
+                                viewModel.isFioAddressAvailable.value = isAvailable
+                            } else {
+                                viewModel.isFioServiceAvailable.value = false
+                            }
+                        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                    }
+                }
+            }
+        })
+        viewModel.remainingBalance.value = fioAccount.accountBalance.spendable
         UpdateFeeTask(fioAccount) { feeInSUF ->
             val coinType = fioAccount.coinType
 
@@ -43,7 +59,7 @@ class FIOAddAddressActivity : AppCompatActivity() {
             } else {
                 Value.valueOf(coinType, DEFAULT_FEE)
             }
-            viewModel.registrationFee.value = feeValue.toString()
+            viewModel.registrationFee.value = feeValue
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
@@ -68,6 +84,23 @@ class FIOAddAddressActivity : AppCompatActivity() {
         }
 
         override fun onPostExecute(result: String?) {
+            listener(result)
+        }
+    }
+
+    class CheckAddressAvailabilityTask(
+            val account: FioAccount,
+            private val fioAddress: String,
+            val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
+        override fun doInBackground(vararg args: Void): Boolean? {
+            return try {
+                account.isFIOAddressAvailable(fioAddress)
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        override fun onPostExecute(result: Boolean?) {
             listener(result)
         }
     }

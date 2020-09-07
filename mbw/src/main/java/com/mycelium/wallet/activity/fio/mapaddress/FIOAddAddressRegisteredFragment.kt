@@ -31,7 +31,12 @@ class FIOAddAddressRegisteredFragment : Fragment() {
             activity?.finish()
         }
         viewModel.expirationDate.observe(viewLifecycleOwner, Observer {
-            registeredExpiredIn.text = "Expires $it"
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+            sdf.timeZone = TimeZone.getTimeZone("GMT")
+            val date = sdf.parse(it)
+
+            val requiredSdf = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US)
+            registeredExpiredIn.text = "Expires ${requiredSdf.format(date)}"
         })
     }
 }

@@ -1378,4 +1378,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="none">none</string>
     <string name="receive_title_fio">FIO Public key</string>
     <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
+    <string name="fio_register_address">Register FIO Address</string>
+    <string name="fio_address">FIO Address</string>
+    <string name="fio_registration_fee">Registration Fee</string>
+    <string name="fio_remaining_balance">Remaining FIO Balance</string>
+    <string name="fio_create_unique_address">Create a unique FIO Address</string>
+    <string name="fio_address_is_invalid">Invalid FIO address</string>
+    <string name="fio_address_occupied">FIO address is occupied</string>
+    <string name="fio_address_check_service_unavailable">Can\'t perform FIO address availability check and FIO address registering due to service unavailability. Please check your internet connection and try again</string>
 </resources>
