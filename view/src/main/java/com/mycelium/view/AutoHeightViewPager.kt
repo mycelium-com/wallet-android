@@ -22,6 +22,5 @@ class AutoHeightViewPager(context: Context, attrs: AttributeSet) : ViewPager(con
         }
 
         super.onMeasure(widthMeasureSpec, heightSpec)
-
     }
 }

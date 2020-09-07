@@ -13,21 +13,20 @@ import kotlinx.coroutines.runBlocking
 import java.math.BigDecimal
 import java.util.*
 import kotlin.math.pow
+import com.mycelium.bequant.remote.trading.model.Balance as BequantBalance
 
 
 class InvestmentAccount : WalletAccount<BtcAddress> {
     private val id = UUID.nameUUIDFromBytes("bequant_account".toByteArray())
 
     private val cachedBalance: Balance
-        get() {
-                return Balance(BequantPreference.getLastKnownBalance(),
-                        Value.zeroValue(Utils.getBtcCoinType()),
-                        Value.zeroValue(Utils.getBtcCoinType()),
-                        Value.zeroValue(Utils.getBtcCoinType()))
-            }
+        get() = Balance(BequantPreference.getLastKnownBalance(),
+                Value.zeroValue(Utils.getBtcCoinType()),
+                Value.zeroValue(Utils.getBtcCoinType()),
+                Value.zeroValue(Utils.getBtcCoinType()))
 
     @Volatile
-    protected var syncing = false
+    private var syncing = false
 
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -88,16 +87,15 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
-        val totalBalances = mutableListOf<com.mycelium.bequant.remote.trading.model.Balance>()
+        val totalBalances = mutableListOf<BequantBalance>()
         if(BequantPreference.hasKeys()) {
             runBlocking {
-
                 Api.accountRepository.accountBalanceGet(this, { data ->
                     totalBalances.addAll(data?.toList() ?: emptyList())
-                }, { code, msg -> }, {})
+                }, { _, _ -> }, {})
                 Api.tradingRepository.tradingBalanceGet(this, { data ->
                     totalBalances.addAll(data?.toList() ?: emptyList())
-                }, { code, msg -> }, {})
+                }, { _, _ -> }, {})
             }
         }
         if(totalBalances.isNotEmpty()) {
@@ -108,22 +106,20 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
                 }.reduceRight { bigDecimal, acc -> acc.plus(bigDecimal) }
 
                 if (currencySum == BigDecimal.ZERO) continue
-                if (currency!!.toUpperCase() == "BTC") {
+                if (currency!!.toUpperCase(Locale.US) == "BTC") {
                     btcTotal += currencySum
                     continue
                 }
 
-                var currencyInfo: com.mycelium.bequant.remote.trading.model.Currency? = null
                 runBlocking {
-                    Api.publicRepository.publicCurrencyCurrencyGet(this, currency, { response ->
-                        currencyInfo = response
-                    }, { code, msg -> }, {})
-                }
-                currencyInfo?.let { currencyInfo ->
-                    val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
-                            (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
-                    val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
-                    btcTotal += converted ?: BigDecimal.ZERO
+                    Api.publicRepository.publicCurrencyCurrencyGet(this, currency, { currencyInfo ->
+                        currencyInfo?.let {
+                            val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
+                                    (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
+                            val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
+                            btcTotal += converted ?: BigDecimal.ZERO
+                        }
+                    }, { _, _ -> }, {})
                 }
             }
             val balance = Value.valueOf(Utils.getBtcCoinType(), (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger())

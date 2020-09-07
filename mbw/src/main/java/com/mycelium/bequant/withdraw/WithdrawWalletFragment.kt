@@ -28,9 +28,11 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
     }
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageScrollStateChanged(state: Int) {
+            // not needed
         }
 
         override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            // not needed
         }
 
         override fun onPageSelected(position: Int) {
@@ -42,18 +44,20 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
         super.onViewCreated(view, savedInstanceState)
         accountList.adapter = adapter
         accountList.registerOnPageChangeCallback(onPageChangeCallback)
-        TabLayoutMediator(accountListTab, accountList) { tab, _ ->
+        TabLayoutMediator(accountListTab, accountList) { _, _ ->
         }.attach()
 
         adapter.submitList(accounts)
 
-        parentViewModel?.currency?.observe(viewLifecycleOwner, Observer { coinSymbol ->
+        parentViewModel?.currency?.observe(viewLifecycleOwner, Observer {
             if (adapter.currentList != accounts) {
                 adapter.submitList(accounts)
             }
         })
 
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)?.observe(viewLifecycleOwner, Observer {
+        findNavController().currentBackStackEntry?.savedStateHandle
+                ?.getLiveData<SelectAccountFragment.AccountData>(SelectAccountFragment.ACCOUNT_KEY)
+                ?.observe(viewLifecycleOwner, Observer {
             val account = it
             val selectedAccount = mbwManager.getWalletManager(false).getAllActiveAccounts().find { it.label == account?.label }
             val pageToSelect = accounts.indexOf(selectedAccount)
@@ -64,11 +68,9 @@ class WithdrawWalletFragment : Fragment(R.layout.fragment_bequant_withdraw_mycel
             }
         })
 
-
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount(parentViewModel?.currency?.value))
         }
-
     }
 
     override fun onDestroyView() {

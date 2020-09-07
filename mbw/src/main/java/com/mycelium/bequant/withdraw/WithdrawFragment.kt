@@ -28,18 +28,19 @@ import java.util.*
 
 
 class WithdrawFragment : Fragment() {
-
     lateinit var viewModel: WithdrawViewModel
-
     val args by navArgs<WithdrawFragmentArgs>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(WithdrawViewModel::class.java)
-        viewModel.currency.value = args.currency
+        viewModel = ViewModelProviders.of(this).get(WithdrawViewModel::class.java).apply {
+            currency.value = args.currency
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantWithdrawBinding>(inflater, R.layout.fragment_bequant_withdraw, container, false)
+            DataBindingUtil.inflate<FragmentBequantWithdrawBinding>(inflater,
+                    R.layout.fragment_bequant_withdraw, container, false)
                     .apply {
                         viewModel = this@WithdrawFragment.viewModel
                         lifecycleOwner = this@WithdrawFragment
@@ -57,16 +58,15 @@ class WithdrawFragment : Fragment() {
             val amount = it.toBigDecimalOrNull() ?: BigDecimal.ZERO
             val custodialBalance = viewModel.custodialBalance.value?.toBigDecimalOrNull()
                     ?: BigDecimal.ZERO
-            val enoughAmount = amount <= custodialBalance
-            edAmount.error = if (enoughAmount) null else getString(R.string.insufficient_funds)
-            send.isEnabled = enoughAmount && amount > 0.toBigDecimal()
+            val hasSufficientFunds = amount <= custodialBalance
+            edAmount.error = if (hasSufficientFunds) null else getString(R.string.insufficient_funds)
+            send.isEnabled = hasSufficientFunds && amount > 0.toBigDecimal()
         })
         send.setOnClickListener { withdraw() }
     }
 
-    private fun getSupportedByMycelium(currency: String): Boolean {
-        return currency.toLowerCase(Locale.getDefault()) in listOf("eth", "btc")
-    }
+    private fun getSupportedByMycelium(currency: String): Boolean =
+            currency.toLowerCase(Locale.US) in listOf("eth", "btc")
 
     private fun withdraw() {
         val moneyToWithdraw = BigDecimal(viewModel.amount.value)
@@ -78,27 +78,27 @@ class WithdrawFragment : Fragment() {
             }
             loader(true)
             if (moneyToWithdraw < viewModel.accountBalance.value) {
-                usualWithraw()
+                usualWithdraw()
             } else {
                 val withdrawFromTrading = total - (viewModel.accountBalance.value
                         ?: BigDecimal.ZERO)
-                Api.accountRepository.accountTransferPost(viewLifecycleOwner.lifecycle.coroutineScope, args.currency!!, withdrawFromTrading.toPlainString(),
-                        Transaction.Type.exchangeToBank.value, {
-                    usualWithraw()
-                }, { int, message ->
-                    ErrorHandler(requireContext()).handle(message)
-                }, {
-                    loader(false)
-                })
+                Api.accountRepository.accountTransferPost(
+                        viewLifecycleOwner.lifecycle.coroutineScope,
+                        args.currency,
+                        withdrawFromTrading.toPlainString(),
+                        Transaction.Type.exchangeToBank.value,
+                        success = { usualWithdraw() },
+                        error = { _, message -> ErrorHandler(requireContext()).handle(message) },
+                        finally = { loader(false) })
             }
         }
     }
 
-    private fun usualWithraw() {
+    private fun usualWithdraw() {
         viewModel.withdraw({
             startSyncInvestmentAccounts()
             findNavController().popBackStack()
-        }, { int, message ->
+        }, { _, message ->
             ErrorHandler(requireContext()).handle(message)
         }, {
             loader(false)

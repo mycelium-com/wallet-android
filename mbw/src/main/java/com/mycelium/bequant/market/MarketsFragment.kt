@@ -16,7 +16,6 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Ticker
 import com.mycelium.wallet.R
-import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 import java.util.*
 import kotlin.math.roundToInt

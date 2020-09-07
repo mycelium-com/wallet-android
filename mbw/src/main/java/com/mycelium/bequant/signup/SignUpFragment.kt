@@ -24,7 +24,7 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
 import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
-import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
+import com.mycelium.bequant.Constants.LINK_TERMS_OF_USE
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
@@ -39,10 +39,9 @@ import kotlinx.android.synthetic.main.layout_password_registration.*
 
 
 class SignUpFragment : Fragment() {
-
     lateinit var viewModel: SignUpViewModel
 
-    val receiver = object : BroadcastReceiver() {
+    private val countrySelectedReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             viewModel.country.value = intent?.getParcelableExtra<CountryModel>(COUNTRY_MODEL_KEY)?.name
         }
@@ -52,7 +51,9 @@ class SignUpFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(SignUpViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(ACTION_COUNTRY_SELECTED))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+                countrySelectedReceiver,
+                IntentFilter(ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -64,14 +65,14 @@ class SignUpFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.email.observe(this, Observer { value ->
+        viewModel.email.observe(this, Observer {
             emailLayout.error = null
         })
         viewModel.password.observe(this, Observer { value ->
             passwordLayout.error = null
             viewModel.calculatePasswordLevel(value, passwordLevel, passwordLevelLabel)
         })
-        viewModel.repeatPassword.observe(this, Observer { value ->
+        viewModel.repeatPassword.observe(this, Observer {
             repeatPasswordLayout.error = null
         })
         password.setOnFocusChangeListener { _, focus ->
@@ -83,7 +84,7 @@ class SignUpFragment : Fragment() {
                 viewModel.passwordLevelVisibility.value = GONE
             }
         }
-        counteySelector.setOnClickListener {
+        countrySelector.setOnClickListener {
             findNavController().navigate(SignFragmentDirections.actionSelectCountry())
         }
         register.setOnClickListener {
@@ -100,7 +101,7 @@ class SignUpFragment : Fragment() {
             }
         }
         termsOfUse.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_TERMS_OF_USER)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_TERMS_OF_USE)))
         }
         supportCenter.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_SUPPORT_CENTER)))
@@ -123,7 +124,7 @@ class SignUpFragment : Fragment() {
 
 
     override fun onDestroy() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(countrySelectedReceiver)
         super.onDestroy()
     }
 

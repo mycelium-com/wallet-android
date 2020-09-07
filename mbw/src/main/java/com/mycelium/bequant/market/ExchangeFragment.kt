@@ -182,8 +182,8 @@ class ExchangeFragment : Fragment() {
             // TODO add check that KYC has been passed or show BequantKycActivity
             // startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
             if (!BequantPreference.hasKeys()) {
-                ModalDialog(getString(R.string.beuant_turn_2fa),
-                        getString(R.string.bequant_recomend_enable_2fa),
+                ModalDialog(getString(R.string.bequant_turn_2fa),
+                        getString(R.string.bequant_recommend_enable_2fa),
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
@@ -411,11 +411,8 @@ class ExchangeFragment : Fragment() {
         viewModel.youGet.value?.let { youGetValue ->
             val singleCoin = Value.valueOf(viewModel.youSend.value!!.type, 1, 0)
             val destPrice = BQExchangeRateManager.get(singleCoin, youGetValue.type)
-            if (destPrice != null) {
-                viewModel.rate.value = destPrice.let { "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}" }
-            } else {
-                viewModel.rate.value = "";
-            }
+            viewModel.rate.value = destPrice?.let { "${singleCoin.toStringWithUnit(Denomination.UNIT)} ~ ${it.toStringWithUnit(Denomination.UNIT)}" }
+                    ?: ""
             updateExchangeEnabledFlag()
         }
     }

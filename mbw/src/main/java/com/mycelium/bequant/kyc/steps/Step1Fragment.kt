@@ -105,7 +105,7 @@ class Step1Fragment : Fragment() {
             }
         }
         termsOfUse.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_TERMS_OF_USER)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_TERMS_OF_USE)))
         }
         viewModel.firstName.observe(viewLifecycleOwner, Observer {
             viewModel.nextButton.value = viewModel.isValid()

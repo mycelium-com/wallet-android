@@ -51,15 +51,19 @@ class CoinAdapter(private val role: String, private val listener: ClickListener,
             TYPE_ITEM -> {
                 holder.itemView.coinId.text = item.coin?.symbol
                 holder.itemView.coinFullName.text = item.coin?.name
-                if (item.coin?.symbol == youSendYouGetPair.value!!.first.symbol) {
-                    holder.itemView.grayArrow.visibility = View.VISIBLE
-                    holder.itemView.yellowArrow.visibility = View.GONE
-                } else if (item.coin?.symbol == youSendYouGetPair.value!!.second.symbol) {
-                    holder.itemView.grayArrow.visibility = View.GONE
-                    holder.itemView.yellowArrow.visibility = View.VISIBLE
-                } else {
-                    holder.itemView.grayArrow.visibility = View.GONE
-                    holder.itemView.yellowArrow.visibility = View.GONE
+                when (item.coin?.symbol) {
+                    youSendYouGetPair.value!!.first.symbol -> {
+                        holder.itemView.grayArrow.visibility = View.VISIBLE
+                        holder.itemView.yellowArrow.visibility = View.GONE
+                    }
+                    youSendYouGetPair.value!!.second.symbol -> {
+                        holder.itemView.grayArrow.visibility = View.GONE
+                        holder.itemView.yellowArrow.visibility = View.VISIBLE
+                    }
+                    else -> {
+                        holder.itemView.grayArrow.visibility = View.GONE
+                        holder.itemView.yellowArrow.visibility = View.GONE
+                    }
                 }
                 holder.itemView.setOnClickListener {
                     youSendYouGetPair.value = if (role == SEND) {

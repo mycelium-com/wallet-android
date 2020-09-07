@@ -21,7 +21,7 @@ class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market
 
     companion object {
 
-        val IS_DEMO_KEY = "is_demo_key"
+        const val IS_DEMO_KEY = "is_demo_key"
 
         @JvmStatic
         fun start(context: Context, isDemo: Boolean = false) {
@@ -32,6 +32,7 @@ class BequantMarketActivity : AppCompatActivity(R.layout.activity_bequant_market
     }
 
     private val eventBus: Bus = MbwManager.getEventBus()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val inflater = (nav_host_fragment as NavHostFragment).navController.navInflater

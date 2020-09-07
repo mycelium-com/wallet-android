@@ -217,7 +217,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                     investHolder.activateLink.visibility = View.VISIBLE
                 }
             }
-            UKNOWN -> throw IllegalArgumentException("Unknown view type")
+            UNKNOWN -> throw IllegalArgumentException("Unknown view type")
         }
     }
 
