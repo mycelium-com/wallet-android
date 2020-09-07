@@ -5,11 +5,10 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.mycelium.wallet.R
 
-class AccountMappingActivity : AppCompatActivity() {
+class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mapping) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_account_mapping)
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)
