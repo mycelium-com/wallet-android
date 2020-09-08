@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.fragment.app.Fragment
@@ -39,11 +40,14 @@ class FIOAddAddressInputFragment : Fragment() {
         viewModel.isFioServiceAvailable.observe(viewLifecycleOwner, Observer {
             doAddressCheck(viewModel.address.value!!)
         })
+        inputEditText.doOnTextChanged { _, _, _, _ ->
+            doAddressCheck(viewModel.address.value!!)
+        }
     }
 
     private fun doAddressCheck(fioAddress: String) {
         btNextButton.isEnabled = viewModel.isFioAddressValid.value!! && viewModel.isFioAddressAvailable.value!!
-                && viewModel.isFioServiceAvailable.value!!
+                && viewModel.isFioServiceAvailable.value!! && inputEditText.text!!.isNotEmpty()
         inputEditTextLayout.error = ""
         if (fioAddress.isNotEmpty()) {
             if (!viewModel.isFioAddressValid.value!!) {

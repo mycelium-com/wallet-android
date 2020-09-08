@@ -41,7 +41,7 @@ class FIOAddAddressFragment: Fragment() {
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
         viewModel.remainingBalance.observe(viewLifecycleOwner, Observer {
-            btRegisterAddress.isEnabled = !it.equalZero()
+            btRegisterAddress.isEnabled = it >= viewModel.registrationFee.value!!
             if (it < viewModel.registrationFee.value!!) {
                 tvRemainingBalance.setTextColor(resources.getColor(R.color.red))
             } else {
