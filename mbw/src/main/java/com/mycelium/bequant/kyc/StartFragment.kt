@@ -20,22 +20,10 @@ import kotlinx.android.synthetic.main.fragment_bequant_kyc_start.*
 
 
 class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.run {
-            title = getString(R.string.identity_auth)
-            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
-        }
-        val stepAdapter = StepAdapter()
-        stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(
-                ItemStep(1, getString(R.string.personal_info), StepState.FUTURE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.FUTURE)
-                , ItemStep(3, getString(R.string.phone_number), StepState.FUTURE)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
-        btnStart.setOnClickListener {
-            findNavController().navigate(StartFragmentDirections.actionNext())
-        }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         if (BequantPreference.getKYCToken().isNotEmpty()) {
             loader(true)
             Api.kycRepository.status(lifecycleScope, { statusMsg ->
@@ -58,6 +46,24 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
             }, {
                 loader(false)
             })
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (activity as AppCompatActivity?)?.supportActionBar?.run {
+            title = getString(R.string.identity_auth)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+        }
+        val stepAdapter = StepAdapter()
+        stepper.adapter = stepAdapter
+        stepAdapter.submitList(listOf(
+                ItemStep(1, getString(R.string.personal_info), StepState.FUTURE)
+                , ItemStep(2, getString(R.string.residential_address), StepState.FUTURE)
+                , ItemStep(3, getString(R.string.phone_number), StepState.FUTURE)
+                , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
+        btnStart.setOnClickListener {
+            findNavController().navigate(StartFragmentDirections.actionNext())
         }
     }
 
