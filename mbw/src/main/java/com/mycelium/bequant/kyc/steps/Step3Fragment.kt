@@ -19,6 +19,7 @@ import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
@@ -90,6 +91,9 @@ class Step3Fragment : Fragment() {
         }
         tvCountry.setOnClickListener {
             findNavController().navigate(Step3FragmentDirections.actionChooseCountry())
+        }
+        if (viewModel.countryModel.value == null) {
+            viewModel.countryModel.value = CountriesSource.countryModels.firstOrNull { it.acronym3 == kycRequest.country }
         }
     }
 

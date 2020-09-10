@@ -35,7 +35,23 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
                             findNavController().navigate(StartFragmentDirections.actionPending())
                         }
                     KYCStatus.INCOMPLETE ->
-                        findNavController().navigate(StartFragmentDirections.actionPending())
+                        when {
+                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "personal_information" }?.value == false -> {
+                                findNavController().navigate(StartFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
+                            }
+                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "residential_address" }?.value == false -> {
+                                findNavController().navigate(StartFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
+                            }
+                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == false -> {
+                                findNavController().navigate(StartFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
+                            }
+                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "documents" }?.value == false -> {
+                                findNavController().navigate(StartFragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
+                            }
+                            else -> {
+                                findNavController().navigate(StartFragmentDirections.actionPending())
+                            }
+                        }
                     KYCStatus.APPROVED ->
                         findNavController().navigate(StartFragmentDirections.actionApproved())
                     KYCStatus.REJECTED ->
