@@ -22,7 +22,7 @@ import java.io.File
 
 class KYCRepository {
     fun create(scope: CoroutineScope, applicant: KYCApplicant, success: (() -> Unit),
-               error: (Int, String) -> Unit, finally: () -> Unit) {
+               error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             service.create(KYCCreateRequest(applicant))
         }, {

@@ -1,18 +1,21 @@
 package com.mycelium.bequant.kyc.steps
 
-import android.app.Activity.RESULT_OK
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
@@ -21,6 +24,7 @@ import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.InputPhoneViewModel
+import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
@@ -37,12 +41,21 @@ class Step3Fragment : Fragment() {
 
     val args: Step3FragmentArgs by navArgs()
 
+    private val countrySelectedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            viewModel.countryModel.value = intent?.getParcelableExtra(COUNTRY_MODEL_KEY)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         kycRequest = args.kycRequest ?: KYCRequest()
         viewModel = ViewModelProviders.of(this).get(InputPhoneViewModel::class.java)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+                countrySelectedReceiver,
+                IntentFilter(Constants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -99,24 +112,35 @@ class Step3Fragment : Fragment() {
                 else -> super.onOptionsItemSelected(item)
             }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            viewModel.countryModel.value = data?.getParcelableExtra(COUNTRY_MODEL_KEY)
-        }
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(countrySelectedReceiver)
+        super.onDestroy()
     }
 
     private fun sendCode() {
         tvErrorCode.visibility = View.GONE
-        loader(true)
         viewModel.getRequest()?.let { request ->
-            val phone = "+${request.mobilePhoneCountryCode}${request.mobilePhone}"
-            BequantPreference.setPhone(phone)
-            Api.kycRepository.mobileVerification(viewModel.viewModelScope, {
-                findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
-            }, { _, error ->
-                ErrorHandler(requireContext()).handle(error)
-            }, { loader(false) })
+            BequantPreference.setPhone("+${request.mobilePhoneCountryCode}${request.mobilePhone}")
+            loader(true)
+            Api.signRepository.accountOnceToken(viewModel.viewModelScope, {
+                it?.token?.let { onceToken ->
+                    val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
+                    applicant.userId = onceToken
+                    Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
+                        Api.kycRepository.mobileVerification(viewModel.viewModelScope, {
+                            findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
+                        }, { _, error ->
+                            ErrorHandler(requireContext()).handle(error)
+                        }, { loader(false) })
+                    }, { _, msg ->
+                        loader(false)
+                        ErrorHandler(requireContext()).handle(msg)
+                    })
+                }
+            }, { _, msg ->
+                loader(false)
+                ErrorHandler(requireContext()).handle(msg)
+            })
         } ?: run {
             tvErrorCode.visibility = View.VISIBLE
         }

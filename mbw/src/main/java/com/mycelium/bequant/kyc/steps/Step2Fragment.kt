@@ -94,24 +94,8 @@ class Step2Fragment : Fragment() {
             findNavController().navigate(Step2FragmentDirections.actionSelectCountry())
         }
         btNext.setOnClickListener {
-            loader(true)
-            Api.signRepository.accountOnceToken(viewModel.viewModelScope, {
-                it?.token?.let { onceToken ->
-                    viewModel.fillModel(kycRequest)
-                    val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
-                    applicant.userId = onceToken
-                    Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
-                        findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
-                    }, { _, msg ->
-                        ErrorHandler(requireContext()).handle(msg)
-                    }, {
-                        loader(false)
-                    })
-                }
-            }, { _, msg ->
-                loader(false)
-                ErrorHandler(requireContext()).handle(msg)
-            })
+            viewModel.fromModel(kycRequest)
+            findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
         }
 
         viewModel.run { 
