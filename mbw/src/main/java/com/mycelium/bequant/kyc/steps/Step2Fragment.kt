@@ -94,7 +94,7 @@ class Step2Fragment : Fragment() {
             findNavController().navigate(Step2FragmentDirections.actionSelectCountry())
         }
         btNext.setOnClickListener {
-            viewModel.fromModel(kycRequest)
+            viewModel.fillModel(kycRequest)
             findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
         }
 
