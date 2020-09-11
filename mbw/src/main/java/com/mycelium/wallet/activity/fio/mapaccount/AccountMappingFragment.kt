@@ -10,11 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.*
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getActiveHDAccounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
-import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 
 
@@ -32,24 +32,34 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = "Select accounts for mapping"
         }
+        val mbwManager = MbwManager.getInstance(requireContext())
+        val walletManager = mbwManager.getWalletManager(false)
+        title.text = getString(R.string.select_account_to_accociate, mbwManager.selectedAccount.label)
         list.adapter = adapter
         list.itemAnimator = null
         adapter.selectChangeListener = { accountItem ->
             if (accountItem.isEnabled) {
                 data.filterIsInstance<ItemAccount>().filter { it.coinType == accountItem.coinType }.forEach {
                     if (it.accountId != accountItem.accountId) {
-                        data[data.indexOf(it)] = ItemAccount(it.accountId, it.label, it.summary, it.coinType, false)
+                        data[data.indexOf(it)] = ItemAccount(it.accountId, it.label, it.summary,
+                                it.icon, it.coinType, false)
                     }
                 }
             }
             adapter.submitList(data.toList())
         }
-        val mbwManager = MbwManager.getInstance(requireContext())
-        val walletManager = mbwManager.getWalletManager(false)
         data.clear()
         data.apply {
-            val btcHDAccounts = walletManager.getActiveHDAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }
-            val btcSAAccounts = walletManager.getActiveBTCSingleAddressAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }
+            val btcHDAccounts = walletManager.getActiveHDAccounts().map {
+                ItemAccount(it.id, it.label, "",
+                        Utils.getDrawableForAccount(it, false, resources),
+                        it.coinType)
+            }
+            val btcSAAccounts = walletManager.getActiveBTCSingleAddressAccounts().map {
+                ItemAccount(it.id, it.label, "",
+                        Utils.getDrawableForAccount(it, false, resources),
+                        it.coinType)
+            }
             if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
                 add(ItemGroup(getString(R.string.bitcoin_name)))
                 if (btcHDAccounts.isNotEmpty()) {
@@ -61,15 +71,12 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
                     addAll(btcSAAccounts)
                 }
             }
-            walletManager.getActiveEthAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }.apply {
+            walletManager.getActiveEthAccounts().map {
+                ItemAccount(it.id, it.label, "",
+                        Utils.getDrawableForAccount(it, false, resources), it.coinType)
+            }.apply {
                 if (this.isNotEmpty()) {
                     add(ItemGroup(getString(R.string.eth_accounts_name)))
-                    addAll(this)
-                }
-            }
-            walletManager.getActiveFioAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }.apply {
-                if (this.isNotEmpty()) {
-                    add(ItemGroup(getString(R.string.fio_accounts_name)))
                     addAll(this)
                 }
             }

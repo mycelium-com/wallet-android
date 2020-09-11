@@ -1377,4 +1377,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="none">none</string>
     <string name="receive_title_fio">FIO Public key</string>
     <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
+    <string name="select_account_to_accociate">Select accounts which you want to associate (map) with your FIO account \"%s\".\nYou can only select one account per cryptocurrency i.e. one BTC account (HD or SA), one ETH account.</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.mapaccount.adapter
 
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,7 @@ class ItemGroup(val title: String = "") : Item(AccountMappingAdapter.TYPE_GROUP)
 class ItemAccount(val accountId: UUID,
                   val label: String,
                   val summary: String,
+                  val icon: Drawable,
                   val coinType: CryptoCurrency,
                   var isEnabled: Boolean = false) : Item(AccountMappingAdapter.TYPE_ACCOUNT)
 
@@ -61,6 +63,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                 holder.itemView.summary.text = item.summary
                 holder.itemView.checkbox.setOnCheckedChangeListener(null)
                 holder.itemView.checkbox.isChecked = item.isEnabled
+                holder.itemView.icon.setImageDrawable(item.icon)
                 holder.itemView.checkbox.setOnCheckedChangeListener { _, isChecked ->
                     (getItem(holder.adapterPosition) as ItemAccount).isEnabled = isChecked
                     selectChangeListener?.invoke(getItem(holder.adapterPosition) as ItemAccount)

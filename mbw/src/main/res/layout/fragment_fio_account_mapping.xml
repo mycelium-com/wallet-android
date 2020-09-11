@@ -11,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Select accounts which you want to associate (map) with your FIO account Account Label.
-You can only select one account per cryptocurrency i.e. one BTC account (HD or SA), one ETH account and one FIO account."
+        android:text="@string/select_account_to_accociate"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@id/list"
         app:layout_constraintTop_toTopOf="parent" />

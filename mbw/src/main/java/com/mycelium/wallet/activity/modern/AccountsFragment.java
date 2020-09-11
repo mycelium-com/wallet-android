@@ -77,6 +77,7 @@ import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.fio.mapaddress.FIOAddAddressActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
+import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
@@ -673,6 +674,11 @@ public class AccountsFragment extends Fragment {
 
             @Override
             public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                MenuItem item = menu.findItem(R.id.miMakeBackup);
+                if (item != null) {
+                    item.setShowAsAction(AccountViewModel.showBackupMissingWarning(_mbwManager.getSelectedAccount(), _mbwManager) ?
+                            MenuItem.SHOW_AS_ACTION_IF_ROOM : MenuItem.SHOW_AS_ACTION_NEVER);
+                }
                 return true;
             }
 
