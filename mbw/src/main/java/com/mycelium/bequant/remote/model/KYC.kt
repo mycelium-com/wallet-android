@@ -19,11 +19,11 @@ data class KYCRequest(
         var last_name: String? = null,
         var nationality: String? = null,
         var zip: String? = null,
-        var fatca:Boolean = false,
+        var fatca: Boolean = false,
         val identityList: MutableList<String> = mutableListOf(),
         val poaList: MutableList<String> = mutableListOf(),
         val selfieList: MutableList<String> = mutableListOf(),
-        @Transient var isResubmit:Boolean = false
+        @Transient var isResubmit: Boolean = false
 ) : Parcelable {
     fun toModel(applicant: KYCApplicant): KYCApplicant {
         applicant.firstName = this.first_name
@@ -95,4 +95,8 @@ enum class KYCDocument {
     EXP, POA, DRIVERS_FRONT_SIDE, DRIVERS_BACK_SIDE
 }
 
-enum class KYCStatus { NONE, PENDING, INCOMPLETE, REJECTED, APPROVED, SIGNED_OFF }
+enum class KYCStatus {
+    NONE, PENDING, INCOMPLETE, REJECTED, APPROVED,
+    @JsonProperty("SIGNED-OFF")
+    SIGNED_OFF
+}
