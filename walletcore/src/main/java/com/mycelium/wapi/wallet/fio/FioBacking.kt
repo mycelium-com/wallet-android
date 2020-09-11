@@ -5,6 +5,7 @@ import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.Backing
+import java.math.BigInteger
 import java.util.*
 
 open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<AccountContext>)
@@ -18,9 +19,10 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
                        archived: Boolean,
                        balance: Balance,
                        blockHeight: Int,
-                       accountIndex: Int ->
+                       accountIndex: Int,
+                       actionSequenceNumber: BigInteger ->
                 FioAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, archived, blockHeight)
+                        accountIndex, archived, blockHeight, actionSequenceNumber)
             })
             .executeAsList()
 
@@ -31,15 +33,16 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
                        archived: Boolean,
                        balance: Balance,
                        blockHeight: Int,
-                       accountIndex: Int ->
+                       accountIndex: Int,
+                       actionSequenceNumber: BigInteger ->
                 FioAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, archived, blockHeight)
+                        accountIndex, archived, blockHeight, actionSequenceNumber)
             })
             .executeAsOneOrNull()
 
     override fun createAccountContext(context: FioAccountContext) {
         generalBacking.createAccountContext(context)
-        fioQueries.insert(context.uuid, context.accountIndex)
+        fioQueries.insert(context.uuid, context.accountIndex, context.actionSequenceNumber)
     }
 
     override fun deleteAccountContext(uuid: UUID) {

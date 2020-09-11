@@ -143,6 +143,11 @@ android {
     dataBinding {
         enabled = true
     }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     configurations {
         all*.exclude module: 'jcip-annotations'
         all*.exclude module: 'jsr305'

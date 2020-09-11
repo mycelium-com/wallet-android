@@ -567,7 +567,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             String content = data.getStringExtra("base58Key");
             if (content != null) {
                InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
-               UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(key);
+               UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(key, Utils.getBtcCoinType());
                SendInitializationActivity.callMe(this, onTheFlyAccount, true);
                finish();
                return;

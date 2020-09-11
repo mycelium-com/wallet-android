@@ -35,22 +35,26 @@ class FioAccount(private val accountContext: FioAccountContext,
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
     }
 
-    //TODO
-    val maxFee = BigInteger.ZERO
-    private lateinit var label: String
-
     @Volatile
     protected var syncing = false
 
     val accountIndex: Int
         get() = accountContext.accountIndex
 
-    fun registerFIOAddress(fioAddress: String) {
-        fiosdk!!.registerFioAddress(fioAddress, maxFee)
+    fun hasHadActivity() = accountContext.actionSequenceNumber != BigInteger.ZERO
+
+    /**
+     * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
+     */
+    fun registerFIOAddress(fioAddress: String): String? {
+        return fiosdk!!.registerFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress))
+                .getActionTraceResponse()?.expiration
     }
 
+    fun isFIOAddressAvailable(fioAddress: String): Boolean = fiosdk!!.isAvailable(fioAddress).isAvailable
+
     fun registerFioDomain(fioDomain: String) {
-        fiosdk!!.registerFioDomain(fioDomain, maxFee)
+        fiosdk!!.registerFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain))
     }
 
     fun getFioNames(): GetFIONamesResponse {
@@ -168,6 +172,7 @@ class FioAccount(private val accountContext: FioAccountContext,
                 logger.log(Level.INFO, "asdaf syncTransactions exception: ${e.message}")
             }
         }
+        accountContext.actionSequenceNumber = transactionService.lastActionSequenceNumber
     }
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight
@@ -194,6 +199,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun dropCachedData() {
         accountContext.balance = Balance.getZeroBalance(coinType)
+        accountContext.actionSequenceNumber = BigInteger.ZERO
     }
 
     override fun isVisible(): Boolean = true
@@ -238,6 +244,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     fun getTransferTokensFee() = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
+
+    fun getFeeByEndpoint(endpoint: FIOApiEndPoints.FeeEndPoint) = fiosdk!!.getFee(endpoint).fee
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
             ExportableAccount.Data(Optional.fromNullable(fiosdk?.getPrivateKey()),

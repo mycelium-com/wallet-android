@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.fragment_fio_add_address_start.*
 class FIOAddAddressStartFragment : Fragment(R.layout.fragment_fio_add_address_start) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        nextButton.setOnClickListener {
+        btNextButton.setOnClickListener {
             findNavController().navigate(R.id.actionNext)
         }
     }

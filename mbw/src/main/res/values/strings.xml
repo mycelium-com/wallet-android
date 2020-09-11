@@ -1022,6 +1022,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Restore address as</string>
     <string name="account_already_exist">This Bitcoin address is already restored as %s account.</string>
+    <string name="fio_account_import_error">Cannot find FIO address/account: %s.\nCheck correctness of address/account or internet connection.</string>
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
     <string name="not_available">N/A</string>
@@ -1378,4 +1379,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="receive_title_fio">FIO Public key</string>
     <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
     <string name="select_account_to_accociate">Select accounts which you want to associate (map) with your FIO account \"%s\".\nYou can only select one account per cryptocurrency i.e. one BTC account (HD or SA), one ETH account.</string>
+    <string name="fio_register_address">Register FIO Name</string>
+    <string name="fio_address">FIO Address</string>
+    <string name="fio_registration_fee">Registration Fee</string>
+    <string name="fio_remaining_balance">Remaining FIO Balance</string>
+    <string name="fio_create_unique_address">Create a unique FIO Name</string>
+    <string name="fio_address_is_invalid">Invalid FIO Name</string>
+    <string name="fio_address_occupied">FIO Name is occupied</string>
+    <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name availability check and FIO Name registering due to service unavailability. Please check your internet connection and try again</string>
 </resources>

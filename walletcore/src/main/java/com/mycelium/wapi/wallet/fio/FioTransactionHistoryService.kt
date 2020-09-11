@@ -18,6 +18,7 @@ import java.util.*
 
 class FioTransactionHistoryService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    var lastActionSequenceNumber: BigInteger = BigInteger.ZERO
 
     fun getTransactions(latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
@@ -32,8 +33,8 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
             var result = mapper.readValue(response.body()!!.string(), GetActionsResponse::class.java)
 
             if (result.actions.isNotEmpty()) {
-                // get latest sec
-                var pos = result.actions[0].accountActionSeq
+                lastActionSequenceNumber = result.actions[0].accountActionSeq
+                var pos = lastActionSequenceNumber
                 val finish = false
                 while (!finish) {
                     if (pos < BigInteger.ZERO) {
@@ -58,8 +59,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                         e.printStackTrace()
                     }
                 }
-                val txs = transform(actions)
-                return txs
+                return transform(actions)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -169,6 +169,46 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
 
     val url = "https://fiotestnet.greymass.com/v1/history/get_actions"
     val offset = BigInteger.valueOf(20)
+
+    companion object {
+        @JvmStatic
+        fun getPubkeyByActor(actor: String, coinType: CryptoCurrency): String? {
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val client = OkHttpClient()
+            val requestBody = "{\"account_name\":\"$actor\"}"
+            val request = Request.Builder()
+                    .url((coinType as FIOToken).url + "chain/get_account")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            return try {
+                val response = client.newCall(request).execute()
+                val result = mapper.readValue(response.body()!!.string(), GetAccountResponse::class.java)
+                result.permissions[0].requiredAuth!!.keys[0].key
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
+        @JvmStatic
+        fun getPubkeyByFioAddress(fioAddress: String, coinType: CryptoCurrency): String? {
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val client = OkHttpClient()
+            val requestBody = "{\"fio_address\":\"$fioAddress\",\"chain_code\":\"FIO\",\"token_code\":\"FIO\"}"
+            val request = Request.Builder()
+                    .url((coinType as FIOToken).url + "chain/get_pub_address")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            return try {
+                val response = client.newCall(request).execute()
+                val result = mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
+                result.publicAddress
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
 }
 
 data class Tx(val txid: String, val fromAddress: String, val toAddress: String, val memo: String,
@@ -180,6 +220,28 @@ data class Tx(val txid: String, val fromAddress: String, val toAddress: String, 
             'blockNumber':$blockNumber,'timestamp':$timestamp,'value':$sum,'fee':$fee}
         """.trimMargin()
     }
+}
+
+class GetAccountResponse {
+    val permissions: List<Permission> = emptyList()
+
+    class Permission {
+        @JsonProperty("required_auth")
+        val requiredAuth: RequiredAuth? = null
+
+        class RequiredAuth {
+            var keys: List<Key> = emptyList()
+
+            class Key {
+                val key: String = ""
+            }
+        }
+    }
+}
+
+class GetPubAddressResponse {
+    @JsonProperty("public_address")
+    val publicAddress: String? = null
 }
 
 class GetBlockInfoResponse {

@@ -20,6 +20,7 @@
         tools:layout="@layout/fragment_fio_add_address_input">
         <action
             android:id="@+id/actionNext"
+
             app:destination="@id/FIOAddAddressFragment" />
     </fragment>
     <fragment

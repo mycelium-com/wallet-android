@@ -3,9 +3,10 @@ package com.mycelium.wapi.wallet.fio
 import com.mrd.bitlib.bitcoinj.Base58
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.fio.coins.FIOMain
 
-class FioAddress(override val coinType: CryptoCurrency, private val fioAddressData: FioAddressData) : Address {
+class FioAddress(override val coinType: CryptoCurrency,
+                 private val fioAddressData: FioAddressData,
+                 private val subType: FioAddressSubtype = FioAddressSubtype.PUBLIC_KEY) : Address {
 
     override fun getBytes(): ByteArray = Base58.decode(fioAddressData.formatPubKey.substring(3))
 
@@ -21,9 +22,7 @@ class FioAddress(override val coinType: CryptoCurrency, private val fioAddressDa
 
     }
 
-    override fun getSubType(): String {
-        return FIOMain.name
-    }
+    override fun getSubType(): String = subType.toString()
 
     companion object {
         @JvmStatic
@@ -31,4 +30,8 @@ class FioAddress(override val coinType: CryptoCurrency, private val fioAddressDa
             TODO("Not yet implemented")
         }
     }
+}
+
+enum class FioAddressSubtype {
+    PUBLIC_KEY, ADDRESS, ACTOR
 }
