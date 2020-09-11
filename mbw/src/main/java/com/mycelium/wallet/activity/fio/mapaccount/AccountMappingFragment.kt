@@ -30,7 +30,7 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
         super.onViewCreated(view, savedInstanceState)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "Select Accounts to map to FIO Account"
+            title = "Select accounts for mapping"
         }
         list.adapter = adapter
         list.itemAnimator = null
@@ -52,9 +52,12 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
             val btcSAAccounts = walletManager.getActiveBTCSingleAddressAccounts().map { ItemAccount(it.id, it.label, "", it.coinType) }
             if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
                 add(ItemGroup(getString(R.string.bitcoin_name)))
-                addAll(btcHDAccounts)
+                if (btcHDAccounts.isNotEmpty()) {
+                    add(ItemSubGroup(getString(R.string.active_hd_accounts_name)))
+                    addAll(btcHDAccounts)
+                }
                 if (btcSAAccounts.isNotEmpty()) {
-                    add(ItemSubGroupDivider)
+                    add(ItemSubGroup(getString(R.string.active_bitcoin_sa_group_name)))
                     addAll(btcSAAccounts)
                 }
             }

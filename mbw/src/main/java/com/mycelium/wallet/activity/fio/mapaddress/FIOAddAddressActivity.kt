@@ -16,7 +16,7 @@ class FIOAddAddressActivity : AppCompatActivity() {
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)
-            title = "Register FIO Address"
+            title = "Register FIO Name"
         }
     }
 

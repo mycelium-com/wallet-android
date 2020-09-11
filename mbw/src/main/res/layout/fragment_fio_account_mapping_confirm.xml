@@ -12,13 +12,7 @@
         android:layout_weight="1" />
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="FIO Name"
-        android:textSize="18sp" />
-
-    <TextView
+        android:id="@+id/mapNameMsg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"

@@ -15,13 +15,14 @@ class AccountMappingConfirmFragment : Fragment(R.layout.fragment_fio_account_map
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "Confirm Accounts to map to FIO Account"
+            title = " Confirm accounts mapping"
         }
+        mapNameMsg.text = String.format("Please double check and confirm that the following accounts will be associated (mapped) with the FIO name \"%s\"", "test@fio.com")
         val accounts = arguments?.getStringArray("accounts")
         val manager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         accountLabels.text = accounts?.map { manager.getAccount(UUID.fromString(it))?.label }?.joinToString("\n")
         confirmButton.setOnClickListener {
-            Toaster(requireActivity()).toast("Accounts mapped", false)
+            Toaster(requireActivity()).toast("Accounts were successfully mapped", false)
             requireActivity().finish()
         }
         updateButton()

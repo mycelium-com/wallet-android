@@ -6,21 +6,32 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Select accounts which you want to associate (map) with your FIO account Account Label.
+You can only select one account per cryptocurrency i.e. one BTC account (HD or SA), one ETH account and one FIO account."
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@id/list"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title"
         tools:listitem="@layout/item_fio_account_mapping_account" />
 
     <Button
         android:id="@+id/buttonContinue"
+        style="@style/MyceliumButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        style="@style/MyceliumButtonModernBlue"
         android:text="@string/button_continue"
         app:layout_constraintBottom_toBottomOf="parent" />
 

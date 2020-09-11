@@ -76,6 +76,7 @@ import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.fio.mapaddress.FIOAddAddressActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
+import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
@@ -254,7 +255,7 @@ public class AccountsFragment extends Fragment {
                 eventBus.post(new ExtraAccountsChanged());
                 eventBus.post(new AccountChanged(accountid));
             }
-        } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
+        } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
                     .setPositiveButton(R.string.button_ok, null)
@@ -492,7 +493,7 @@ public class AccountsFragment extends Fragment {
         if (linkedAccounts.size() > 1) {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName);
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
+            String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
         } else {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName);
@@ -511,7 +512,7 @@ public class AccountsFragment extends Fragment {
             List<String> linkedAccountStrings = new ArrayList<>();
             for (WalletAccount linkedAccount : linkedAccounts) {
                 Balance linkedBalance = linkedAccount.getAccountBalance();
-                String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
                 String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
                 linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>");
             }
@@ -521,7 +522,7 @@ public class AccountsFragment extends Fragment {
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible() && !(accountToDelete instanceof ERC20Account)) {
             Balance linkedBalance = linkedAccounts.get(0).getAccountBalance();
             String linkedValueString = getBalanceString(linkedAccounts.get(0).getCoinType(), linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
+            String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
                     linkedAccountName, linkedValueString) + "\n" +
                     getString(R.string.both_rmc_will_deleted, accountName, linkedAccountName);
@@ -585,7 +586,7 @@ public class AccountsFragment extends Fragment {
                 || account instanceof Bip44BCHAccount;
 
         final List<Integer> menus = Lists.newArrayList();
-        if(!(account instanceof ColuAccount)
+        if (!(account instanceof ColuAccount)
                 && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
             menus.add(R.menu.record_options_menu);
         }
@@ -603,7 +604,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if(account instanceof ColuAccount) {
+        if (account instanceof ColuAccount) {
             //TODO: distinguish between ColuAccount in single address mode and HD mode
             menus.add(R.menu.record_options_menu_backup);
             menus.add(R.menu.record_options_menu_backup_verify);
@@ -636,8 +637,13 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
-        if(account.isDerivedFromInternalMasterseed() && account instanceof HDAccount) {
+        if (account.isDerivedFromInternalMasterseed() && account instanceof HDAccount) {
             menus.add(R.menu.record_fio_pub_key_export);
+        }
+
+        if (account instanceof HDAccount || account instanceof SingleAddressAccount ||
+                account instanceof EthAccount) {
+            menus.add(R.menu.record_map_to_fio);
         }
 
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
@@ -724,6 +730,9 @@ public class AccountsFragment extends Fragment {
                     case R.id.miFioMapAccounts:
                         startActivity(new Intent(requireActivity(), AccountMappingActivity.class));
                         return true;
+                    case R.id.miMapToFio:
+                        FioHelper.chooseAccountToMap(requireContext(), walletManager);
+                        return true;
                     default:
                         return false;
                 }
@@ -762,7 +771,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
-        if(account instanceof ColuAccount) {
+        if (account instanceof ColuAccount) {
             //ColuAccount class can be single or HD
             //TODO: test if account is single address or HD and do wordlist backup instead
             //start legacy backup if a single key or watch only was selected
@@ -809,7 +818,7 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(getString(R.string.selected_hd_info), true);
         } else if (account instanceof SingleAddressAccount) {
             _toaster.toast(getString(R.string.selected_single_info), true);
-        } else if(account instanceof ColuAccount) {
+        } else if (account instanceof ColuAccount) {
             _toaster.toast(getString(R.string.selected_colu_info
                     , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())), true);
         }
@@ -1077,7 +1086,7 @@ public class AccountsFragment extends Fragment {
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
             Balance linkedBalance = linkedAccounts.get(0).getAccountBalance();
             String linkedValueString = getBalanceString(linkedAccounts.get(0).getCoinType(), linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
+            String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                     linkedAccountName, linkedValueString);
         } else {
@@ -1174,7 +1183,8 @@ public class AccountsFragment extends Fragment {
 
     private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
         @Override
-        public void onLtError(int errorCode) { }
+        public void onLtError(int errorCode) {
+        }
 
         @Override
         public void onLtAccountDeleted(DeleteTrader request) {

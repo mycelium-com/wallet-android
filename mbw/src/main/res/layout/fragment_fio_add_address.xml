@@ -63,6 +63,6 @@
         style="@style/MyceliumButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Register FIO Address" />
+        android:text="Register FIO Name" />
 
 </LinearLayout>

@@ -7,9 +7,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.GroupViewHolder
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.SubGroupViewHolder
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import kotlinx.android.synthetic.main.item_fio_account_mapping_account.view.*
-import kotlinx.android.synthetic.main.item_fio_account_mapping_group.view.*
 import java.util.*
 
 open class Item(val type: Int)
@@ -22,14 +23,14 @@ class ItemAccount(val accountId: UUID,
                   val coinType: CryptoCurrency,
                   var isEnabled: Boolean = false) : Item(AccountMappingAdapter.TYPE_ACCOUNT)
 
-object ItemSubGroupDivider : Item(AccountMappingAdapter.TYPE_SUB_GROUP_DIVIDER)
+class ItemSubGroup(val title: String = "") : Item(AccountMappingAdapter.TYPE_SUB_GROUP)
 object ItemSpace : Item(AccountMappingAdapter.TYPE_SPACE)
 
 class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
     companion object {
         const val TYPE_GROUP = 0
         const val TYPE_ACCOUNT = 1
-        const val TYPE_SUB_GROUP_DIVIDER = 2
+        const val TYPE_SUB_GROUP = 2
         const val TYPE_SPACE = 3
     }
 
@@ -39,7 +40,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
             when (typeView) {
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_group, parent, false))
                 TYPE_ACCOUNT -> AccountViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_account, parent, false))
-                TYPE_SUB_GROUP_DIVIDER -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_divider, parent, false))
+                TYPE_SUB_GROUP -> SubGroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_sub_group, parent, false))
                 TYPE_SPACE -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list_space, parent, false))
                 else -> TODO("Not Implemented")
             }
@@ -48,7 +49,11 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
         when (getItemViewType(position)) {
             TYPE_GROUP -> {
                 val item = getItem(position) as ItemGroup
-                holder.itemView.text.text = item.title
+                (holder as GroupViewHolder).title.text = item.title
+            }
+            TYPE_SUB_GROUP -> {
+                val item = getItem(position) as ItemSubGroup
+                (holder as SubGroupViewHolder).title.text = item.title
             }
             TYPE_ACCOUNT -> {
                 val item = getItem(position) as ItemAccount
@@ -66,7 +71,6 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    class GroupViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
     class AccountViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
     class DividerViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -88,7 +92,11 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                                 oldItem.label == newItem.label &&
                                 oldItem.isEnabled == newItem.isEnabled
                     }
-                    TYPE_SUB_GROUP_DIVIDER -> true
+                    TYPE_SUB_GROUP -> {
+                        oldItem as ItemSubGroup
+                        newItem as ItemSubGroup
+                        oldItem.title == newItem.title
+                    }
                     else -> false
                 }
     }

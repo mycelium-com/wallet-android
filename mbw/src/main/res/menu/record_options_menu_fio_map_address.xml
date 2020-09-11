@@ -4,12 +4,12 @@
 
     <item
         android:id="@+id/miMapFioAddress"
-        android:title="Add FIO Address"
+        android:title="Add FIO Name"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/miFioMapAccounts"
-        android:title="Map Crypto Accounts"
+        android:title="Map Accounts"
         app:showAsAction="ifRoom"/>
 
 </menu>
