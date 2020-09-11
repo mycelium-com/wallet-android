@@ -13,8 +13,9 @@ import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.FIOError
+import fiofoundation.io.fiosdk.models.FIOAddress
+import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
-import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetFIONamesResponse
 import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
 import java.util.*
@@ -35,6 +36,14 @@ class FioAccount(private val accountContext: FioAccountContext,
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
     }
 
+    var registeredFIONames: MutableList<String> = accountContext.registeredFIONames?.toMutableList()
+            ?: mutableListOf()
+
+    private fun addRegisteredAddress(address: String) {
+        registeredFIONames.add(address)
+        accountContext.registeredFIONames = registeredFIONames
+    }
+
     @Volatile
     protected var syncing = false
 
@@ -47,18 +56,25 @@ class FioAccount(private val accountContext: FioAccountContext,
      * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
      */
     fun registerFIOAddress(fioAddress: String): String? {
-        return fiosdk!!.registerFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress))
-                .getActionTraceResponse()?.expiration
+        return fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
+                getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration?.also {
+            addRegisteredAddress(fioAddress)
+        }
     }
 
     fun isFIOAddressAvailable(fioAddress: String): Boolean = fiosdk!!.isAvailable(fioAddress).isAvailable
 
-    fun registerFioDomain(fioDomain: String) {
-        fiosdk!!.registerFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain))
+    @ExperimentalUnsignedTypes
+    fun addPubAddress(fioAddress: String, publicAddresses: List<TokenPublicAddress>) {
+        fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee).processed
     }
 
-    fun getFioNames(): GetFIONamesResponse {
-        return fiosdk!!.getFioNames()
+    private fun getFioNames(): List<FIOAddress> {
+        return try {
+            fiosdk!!.getFioNames().fioAddresses ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -137,6 +153,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
+        syncFioAddresses()
         updateBlockHeight()
         syncTransactions()
         try {
@@ -153,6 +170,15 @@ class FioAccount(private val accountContext: FioAccountContext,
         }
         syncing = false
         return true
+    }
+
+    private fun syncFioAddresses() {
+        val fioNames = getFioNames()
+        fioNames.map { it.fioAddress }.forEach {
+            if (it !in registeredFIONames) {
+                addRegisteredAddress(it)
+            }
+        }
     }
 
     private fun updateBlockHeight() {

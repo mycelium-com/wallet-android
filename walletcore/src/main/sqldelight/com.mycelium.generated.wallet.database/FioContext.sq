@@ -10,31 +10,37 @@ CREATE TABLE IF NOT EXISTS FioContext(
     uuid TEXT AS UUID PRIMARY KEY NOT NULL,
     accountIndex INTEGER AS Int NOT NULL,
     actionSequenceNumber TEXT AS BigInteger NOT NULL,
+    registeredFIONames TEXT AS List<String>,
     FOREIGN KEY (uuid)
         REFERENCES AccountContext (uuid)
         ON DELETE CASCADE
 );
 
 selectAllFioContexts:
-SELECT fc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, fc.accountIndex, fc.actionSequenceNumber
+SELECT fc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, fc.accountIndex, fc.actionSequenceNumber, fc.registeredFIONames
 FROM FioContext AS fc
   INNER JOIN AccountContext AS c
   ON fc.uuid = c.uuid;
 
 selectFioContextByUUID:
-SELECT fc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, fc.accountIndex, fc.actionSequenceNumber
+SELECT fc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, fc.accountIndex, fc.actionSequenceNumber, fc.registeredFIONames
 FROM FioContext AS fc
     INNER JOIN AccountContext AS c
     ON fc.uuid = c.uuid
         WHERE fc.uuid = (?);
 
 insert:
-INSERT INTO FioContext(uuid, accountIndex, actionSequenceNumber)
-VALUES (?, ?, ?);
+INSERT INTO FioContext(uuid, accountIndex, actionSequenceNumber, registeredFIONames)
+VALUES (?, ?, ?, ?);
 
 insertFullObject:
-INSERT INTO FioContext(uuid, accountIndex, actionSequenceNumber)
+INSERT INTO FioContext(uuid, accountIndex, actionSequenceNumber, registeredFIONames)
 VALUES ?;
+
+update:
+UPDATE FioContext
+SET actionSequenceNumber = (?), registeredFIONames = (?)
+WHERE uuid = (?);
 
 delete:
 DELETE FROM FioContext

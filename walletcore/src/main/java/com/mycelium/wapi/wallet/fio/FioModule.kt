@@ -38,6 +38,12 @@ class FioModule(
         assetsList.add(coinType)
     }
 
+    fun getAllFIONames() = accounts.values.map { it.registeredFIONames }.flatten()
+
+    fun getFioAccountByFioName(fioName: String): UUID? = accounts.values.firstOrNull {
+        fioName in it.registeredFIONames
+    }?.id
+
     private fun getFioSdk(accountIndex: Int): FIOSDK {
         val privkeyString = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)
         return FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString), serializationProvider, coinType.url)
@@ -181,6 +187,7 @@ class FioModule(
                     accountContextInDB.balance,
                     backing::updateAccountContext,
                     accountContextInDB.accountIndex,
+                    accountContextInDB.registeredFIONames,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
                     accountContextInDB.actionSequenceNumber)

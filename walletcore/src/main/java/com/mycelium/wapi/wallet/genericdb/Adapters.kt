@@ -123,7 +123,7 @@ val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigInt
 
 val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
 
-val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter)
+val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)
 
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)

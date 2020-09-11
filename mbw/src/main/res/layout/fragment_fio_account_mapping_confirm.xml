@@ -1,58 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+    <data>
 
-    <TextView
-        android:id="@+id/mapNameMsg"
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.mapaccount.FIOMapPubAddressViewModel" />
+    </data>
+
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="test@fio.com"
-        tools:text="test@fio.com" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:text="Map Accounts"
-        android:textSize="18sp" />
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-    <TextView
-        android:id="@+id/accountLabels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Account 1\nFio Account"
-        android:textSize="18sp" />
+        <TextView
+            android:id="@+id/mapNameMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{viewModel.fioAddress}"
+            tools:text="test@fio.com" />
 
-    <View
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="Map Accounts"
+            android:textSize="18sp" />
 
-    <CheckBox
-        android:id="@+id/acknowledge"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="I acknowledge that, once connected, one address from each connected wallet will become public" />
+        <TextView
+            android:id="@+id/accountLabels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Account 1\nFio Account"
+            android:textSize="18sp" />
 
-    <Button
-        android:id="@+id/confirmButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        style="@style/MyceliumButtonModernBlue"
-        android:text="Confirm" />
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-</LinearLayout>
+        <CheckBox
+            android:id="@+id/acknowledge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="I acknowledge that, once connected, one address from each connected wallet will become public" />
+
+        <Button
+            android:id="@+id/confirmButton"
+            style="@style/MyceliumButtonModernBlue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Confirm" />
+
+    </LinearLayout>
+</layout>
