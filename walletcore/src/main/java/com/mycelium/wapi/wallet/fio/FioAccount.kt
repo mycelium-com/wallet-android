@@ -65,8 +65,10 @@ class FioAccount(private val accountContext: FioAccountContext,
     fun isFIOAddressAvailable(fioAddress: String): Boolean = fiosdk!!.isAvailable(fioAddress).isAvailable
 
     @ExperimentalUnsignedTypes
-    fun addPubAddress(fioAddress: String, publicAddresses: List<TokenPublicAddress>) {
-        fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee).processed
+    fun addPubAddress(fioAddress: String, publicAddresses: List<TokenPublicAddress>): Boolean {
+        val actionTraceResponse = fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee)
+                .getActionTraceResponse()
+        return actionTraceResponse != null && actionTraceResponse.status == "OK"
     }
 
     private fun getFioNames(): List<FIOAddress> {
