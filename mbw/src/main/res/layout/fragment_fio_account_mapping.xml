@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="@string/select_account_to_accociate"
+        android:text="@string/select_name_to_associate"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@id/list"
         app:layout_constraintTop_toTopOf="parent" />

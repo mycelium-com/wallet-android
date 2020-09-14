@@ -7,6 +7,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -19,8 +20,10 @@ import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 
 
 class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
+    private val viewModel: FIOMapPubAddressViewModel by activityViewModels()
     val adapter = AccountMappingAdapter()
     val data = mutableListOf<Item>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -34,7 +37,7 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
         }
         val mbwManager = MbwManager.getInstance(requireContext())
         val walletManager = mbwManager.getWalletManager(false)
-        title.text = getString(R.string.select_account_to_accociate, mbwManager.selectedAccount.label)
+        title.text = getString(R.string.select_name_to_associate, viewModel.fioAddress.value)
         list.adapter = adapter
         list.itemAnimator = null
         adapter.selectChangeListener = { accountItem ->

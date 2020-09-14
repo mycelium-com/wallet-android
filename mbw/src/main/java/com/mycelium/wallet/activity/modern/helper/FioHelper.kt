@@ -17,7 +17,7 @@ object FioHelper {
 
         if (names.size > 1) {
             AlertDialog.Builder(context)
-                    .setTitle("Select FIO Account to map")
+                    .setTitle("Select FIO Name to map")
                     .setItems(names.toTypedArray()) { _, position ->
                         context.startActivity(Intent(context, AccountMappingActivity::class.java)
                                 .putExtra("fioAccount", fioModule.getFioAccountByFioName(names[position]))

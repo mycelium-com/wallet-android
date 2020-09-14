@@ -13,6 +13,18 @@
                 android:layout_height="10dp"/>
 
         <Button
+            android:id="@+id/btCreateFioRequest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="@string/fio_create_request"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="10dp"/>
+
+        <Button
                 android:id="@+id/btShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

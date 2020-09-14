@@ -24,7 +24,7 @@ class AccountMappingConfirmFragment : Fragment(R.layout.fragment_fio_account_map
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = " Confirm accounts mapping"
         }
-        mapNameMsg.text = String.format("Please double check and confirm that the following accounts will be associated (mapped) with the FIO name \"%s\"", viewModel.fioAddress.value)
+        mapNameMsg.text = String.format("Please double check and confirm that the following accounts will be associated (mapped) with the FIO Name \"%s\"", viewModel.fioAddress.value)
         val accounts = arguments?.getStringArray("accounts")
         val manager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         accountLabels.text = accounts?.map { manager.getAccount(UUID.fromString(it))?.label }?.joinToString("\n")
