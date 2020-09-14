@@ -205,7 +205,7 @@ class ExchangeFragment : Fragment() {
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 ModalDialog(getString(R.string.bequant_kyc_verify_title),
                         getString(R.string.bequant_kyc_verify_message),
                         getString(R.string.bequant_kyc_verify_button)) {

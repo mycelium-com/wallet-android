@@ -96,7 +96,7 @@ enum class KYCDocument {
 }
 
 enum class KYCStatus {
-    NONE, PENDING, INCOMPLETE, REJECTED, APPROVED,
+    NONE, PENDING, INCOMPLETE, REJECTED, VERIFIED,
     @JsonProperty("SIGNED-OFF")
     SIGNED_OFF
 }

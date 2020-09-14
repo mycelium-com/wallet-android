@@ -82,7 +82,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_deposit)
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
@@ -93,7 +93,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_withdraw)
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
