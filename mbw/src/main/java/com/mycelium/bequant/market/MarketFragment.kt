@@ -95,6 +95,10 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                     activity?.invalidateOptionsMenu()
                 })
             })
+        } else {
+            Api.kycRepository.status(GlobalScope, {
+                activity?.invalidateOptionsMenu()
+            })
         }
     }
 
