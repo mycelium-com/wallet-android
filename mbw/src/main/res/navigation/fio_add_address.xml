@@ -29,10 +29,10 @@
         android:label="FIOAddAddressFragment">
         <action
             android:id="@+id/actionNext"
-            app:destination="@id/FIBAddAddressRegisteredFragment" />
+            app:destination="@id/FIOAddAddressRegisteredFragment" />
     </fragment>
     <fragment
-        android:id="@+id/FIBAddAddressRegisteredFragment"
+        android:id="@+id/FIOAddAddressRegisteredFragment"
         android:name="com.mycelium.wallet.activity.fio.mapaddress.FIOAddAddressRegisteredFragment"
-        android:label="FIBAddAddressRegisteredFragment" />
+        android:label="FIOAddAddressRegisteredFragment" />
 </navigation>

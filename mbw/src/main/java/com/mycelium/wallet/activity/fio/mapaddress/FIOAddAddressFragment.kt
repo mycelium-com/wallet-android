@@ -17,7 +17,7 @@ import com.mycelium.wapi.wallet.fio.FioAccount
 import kotlinx.android.synthetic.main.fragment_fio_add_address.*
 
 
-class FIOAddAddressFragment: Fragment() {
+class FIOAddAddressFragment : Fragment() {
     private val viewModel: FIORegisterAddressViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
