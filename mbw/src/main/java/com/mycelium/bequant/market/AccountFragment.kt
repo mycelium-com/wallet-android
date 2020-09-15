@@ -80,10 +80,10 @@ class AccountFragment : Fragment() {
         deposit.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
-            } else if (!BequantPreference.hasKeys()) {
-                askEnable2Fa(R.string.bequant_turn_2fa_deposit)
             } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
+            } else if (!BequantPreference.hasKeys()) {
+                askEnable2Fa(R.string.bequant_turn_2fa_deposit)
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
             }
@@ -91,10 +91,10 @@ class AccountFragment : Fragment() {
         withdraw.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
-            } else if (!BequantPreference.hasKeys()) {
-                askEnable2Fa(R.string.bequant_turn_2fa_withdraw)
             } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
+            } else if (!BequantPreference.hasKeys()) {
+                askEnable2Fa(R.string.bequant_turn_2fa_withdraw)
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
             }

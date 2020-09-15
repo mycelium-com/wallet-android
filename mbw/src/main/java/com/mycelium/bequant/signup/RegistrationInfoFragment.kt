@@ -28,7 +28,7 @@ import com.mycelium.bequant.remote.client.models.AccountEmailConfirmResend
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBindingImpl
+import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBinding
 import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
 
@@ -41,7 +41,8 @@ class RegistrationInfoFragment : Fragment() {
             loader(true)
             val request = AccountAuthRequest(args.register.email, args.register.password)
             Api.signRepository.authorize(lifecycleScope, request, success = {
-                startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+                startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
+                        .putExtra("from", "registration"))
                 requireActivity().finish()
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
@@ -59,7 +60,7 @@ class RegistrationInfoFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantRegistrationInfoBindingImpl>(inflater, R.layout.fragment_bequant_registration_info, container, false)
+            DataBindingUtil.inflate<FragmentBequantRegistrationInfoBinding>(inflater, R.layout.fragment_bequant_registration_info, container, false)
                     .apply {
                         viewModel = this@RegistrationInfoFragment.viewModel
                         lifecycleOwner = this@RegistrationInfoFragment

@@ -32,7 +32,8 @@ class RegistrationTotpFragment : Fragment() {
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
-            startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+            startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
+                    .putExtra("from", "totp_registration"))
         }
     }
 

@@ -89,17 +89,19 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             }, {
             })
         }
-        if(BequantPreference.getKYCToken().isEmpty()) {
+        if (BequantPreference.getKYCToken().isEmpty()) {
             Api.kycRepository.kycToken(GlobalScope, {
-                Api.kycRepository.status(GlobalScope, {
-                    activity?.invalidateOptionsMenu()
-                })
+                checkStatus()
             })
         } else {
-            Api.kycRepository.status(GlobalScope, {
-                activity?.invalidateOptionsMenu()
-            })
+            checkStatus()
         }
+    }
+
+    private fun checkStatus() {
+        Api.kycRepository.status(GlobalScope, {
+            activity?.invalidateOptionsMenu()
+        })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

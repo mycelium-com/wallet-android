@@ -179,9 +179,9 @@ class ExchangeFragment : Fragment() {
                     .putExtra(YOU_SEND_YOU_GET_PAIR, youSendYouGetPair), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
-            // TODO add check that KYC has been passed or show BequantKycActivity
-            // startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-            if (!BequantPreference.hasKeys()) {
+            if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
+            } else if (!BequantPreference.hasKeys()) {
                 ModalDialog(getString(R.string.bequant_turn_2fa),
                         getString(R.string.bequant_recommend_enable_2fa),
                         getString(R.string.secure_your_account)) {
@@ -199,17 +199,13 @@ class ExchangeFragment : Fragment() {
             updateAvailable()
         }
         deposit.setOnClickListener {
-            if (!BequantPreference.hasKeys()) {
+            if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
+            } else if (!BequantPreference.hasKeys()) {
                 ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
                         getString(R.string.bequant_enable_2fa),
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
-                ModalDialog(getString(R.string.bequant_kyc_verify_title),
-                        getString(R.string.bequant_kyc_verify_message),
-                        getString(R.string.bequant_kyc_verify_button)) {
-                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
             } else {
                 findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
@@ -218,6 +214,14 @@ class ExchangeFragment : Fragment() {
         btContactSupport.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
+    }
+
+    fun askDoKyc() {
+        ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                getString(R.string.bequant_kyc_verify_message),
+                getString(R.string.bequant_kyc_verify_button)) {
+            startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+        }.show(childFragmentManager, "modal_dialog")
     }
 
     private fun hideKeyboard(view: View) {
