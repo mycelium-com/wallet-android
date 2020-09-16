@@ -52,7 +52,6 @@ dependencies {
     implementation project(includePrefix + ':fiosdk')
     implementation project(includePrefix + ':androidfioserializationprovider')
 
-
     implementation "com.google.guava:guava:$guavaVersion"
     implementation "com.squareup.retrofit2:retrofit:2.6.1"
     implementation "com.squareup.retrofit2:converter-gson:2.6.1"
