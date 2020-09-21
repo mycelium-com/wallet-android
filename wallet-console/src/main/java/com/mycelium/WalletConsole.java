@@ -95,7 +95,7 @@ class WalletConsole {
         });
 
         final TcpEndpoint[] tcpEndpoints = new TcpEndpoint[]{new TcpEndpoint("electrumx.mycelium.com", 4432)};
-        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, "0");
+        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, "0", 1);
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy();
 

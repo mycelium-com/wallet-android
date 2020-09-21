@@ -24,7 +24,7 @@ public interface NewsApiService {
     @GET("categories")
     Call<List<Category>> categories();
 
-    @GET("tags")
+    @GET("tags?per_page=100")
     Call<List<Tag>> tags();
 
     @GET("users/{id}")

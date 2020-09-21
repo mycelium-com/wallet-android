@@ -82,15 +82,15 @@ class NewsAdapter(val preferences: SharedPreferences)
                     showBanner && it.isEnabled && SettingsPreference.isContentEnabled(it.parentId)
                 } ?: listOf()
                 NewsUtils.sort(dataMap.keys.toMutableList()).forEachIndexed { index, category ->
-                    val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
-                            ?: listOf()
+                val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
+                        ?: listOf()
                     banners.firstOrNull { it.index == index }?.let {
                         data.add(Entry(TYPE_BIG_BANNER, null, it))
-                    }
+                }
                     sortedList.firstOrNull()?.also { primaryNews ->
                         data.add(Entry(TYPE_NEWS_CATEGORY, primaryNews))
                         data.add(Entry(TYPE_NEWS_BIG, primaryNews, null, primaryNews.isFavorite(preferences)))
-                    }
+                }
                     for (i in 1..3) {
                         sortedList.getOrNull(i)?.also { secondaryNews ->
                             data.add(Entry(TYPE_NEWS, secondaryNews, null, secondaryNews.isFavorite(preferences)))
@@ -218,7 +218,7 @@ class NewsAdapter(val preferences: SharedPreferences)
                     TYPE_NEWS, TYPE_NEWS_BIG -> {
                         oldItem.news?.title?.rendered == newItem.news?.title?.rendered
                                 && oldItem.news?.content?.rendered == newItem.news?.content?.rendered
-                                && oldItem.favorite == newItem.favorite
+                        && oldItem.favorite == newItem.favorite
                                 && oldItem.news?.image == newItem.news?.image
                     }
                     TYPE_BIG_BANNER -> {
@@ -247,7 +247,6 @@ class NewsAdapter(val preferences: SharedPreferences)
         const val TYPE_TURN_OFF = 8
 
         const val TYPE_BIG_BANNER = 9
-
 
         val ALL = Category("All")
     }
