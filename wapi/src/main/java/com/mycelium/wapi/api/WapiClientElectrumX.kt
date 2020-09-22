@@ -31,7 +31,8 @@ import kotlin.collections.ArrayList
 class WapiClientElectrumX(
         serverEndpoints: ServerEndpoints,
         endpoints: Array<TcpEndpoint>,
-        versionCode: String)
+        versionCode: String,
+        androidApiVersion: Int)
     : WapiClient(serverEndpoints, versionCode), ServerElectrumListChangedListener {
     private val logger = Logger.getLogger(WapiClientElectrumX::class.java.getSimpleName())
     @Volatile
@@ -45,7 +46,7 @@ class WapiClientElectrumX(
             rpcResponse.getParams(Array<BlockHeader>::class.java)!![0].height
         }
     }
-    private var rpcClient = JsonRpcTcpClient(endpoints)
+    private var rpcClient = JsonRpcTcpClient(endpoints, androidApiVersion)
 
     private fun updateClient() {
         rpcClient.setActive(isNetworkConnected)

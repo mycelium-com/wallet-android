@@ -41,6 +41,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.TrafficStats;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
@@ -563,7 +564,7 @@ public class MbwManager {
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
         WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
-                tcpEndpoints.toArray(new TcpEndpoint[0]), version);
+                tcpEndpoints.toArray(new TcpEndpoint[0]), version, Build.VERSION.SDK_INT);
 
         wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
         return wapiClientElectrumX;
@@ -843,13 +844,10 @@ public class MbwManager {
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
-
-
         FioModule fioModule = new FioModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
                 new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener);
         walletManager.add(fioModule);
-
         walletManager.init();
         walletManager.startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
         return walletManager;
@@ -911,10 +909,10 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi,
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
-        Backing<EthAccountContext> ethGenericBacking = new InMemoryAccountContextsBacking<>();
+        Backing<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
         EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), networkParameters);
         configuration.addEthServerListChangedListener(ethBlockchainService);
-        EthereumModule ethModule = new EthereumModule(secureKeyValueStore, ethGenericBacking, db,
+        EthereumModule ethModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(ethModule);
 
@@ -1432,7 +1430,6 @@ public class MbwManager {
         } else {
             accountId = _tempWalletManager.createAccounts(new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher())).get(0);
         }
-
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.startSynchronization(accountId);
         return accountId;

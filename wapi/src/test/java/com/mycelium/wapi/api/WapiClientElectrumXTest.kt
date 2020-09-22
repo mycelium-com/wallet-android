@@ -17,7 +17,7 @@ class WapiClientElectrumXTest {
     fun setup() {
         val tcpEndpoints = arrayOf(TcpEndpoint("localhost", 30000))
         val wapiEndpoints: ServerEndpoints = mock(ServerEndpoints::class.java) as ServerEndpoints
-        sut = WapiClientElectrumX(wapiEndpoints, tcpEndpoints, version)
+        sut = WapiClientElectrumX(wapiEndpoints, tcpEndpoints, version, 29)
     }
 
     @Test
