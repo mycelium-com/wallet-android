@@ -44,6 +44,7 @@ abstract class SendCoinsModel(
     val receivingAddressText: MutableLiveData<String> = MutableLiveData()
     val receivingAddressAdditional: MutableLiveData<String> = MutableLiveData()
     val receivingLabel: MutableLiveData<String> = MutableLiveData()
+    val senderLabel: MutableLiveData<String> = MutableLiveData()
     val feeDataset: MutableLiveData<List<FeeItem>> = MutableLiveData()
     val clipboardUri: MutableLiveData<AssetUri?> = MutableLiveData()
     val errorText: MutableLiveData<String> = MutableLiveData()
@@ -172,6 +173,7 @@ abstract class SendCoinsModel(
         receivingAddressText.value = ""
         receivingAddressAdditional.value = ""
         receivingLabel.value = ""
+        senderLabel.value = mbwManager.selectedAccount.label
         amountFormatted.value = ""
         alternativeAmountFormatted.value = ""
         feeWarning.value = ""

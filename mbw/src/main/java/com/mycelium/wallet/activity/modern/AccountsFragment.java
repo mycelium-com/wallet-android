@@ -591,7 +591,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu);
         }
 
-        if (account instanceof FioAccount) {
+        if (account instanceof FioAccount && account.canSpend()) {
             menus.add(R.menu.record_options_menu_fio_map_address);
         }
 
