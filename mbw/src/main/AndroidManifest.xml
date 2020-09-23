@@ -260,7 +260,7 @@
             android:screenOrientation="landscape"/>
         <activity android:name=".activity.export.ExportFioKeyActivity" />
         <activity
-            android:name=".activity.fio.mapaddress.FIOAddAddressActivity"
+            android:name=".activity.fio.registername.RegisterFioNameActivity"
             android:theme="@style/MyceliumFIO" />
         <activity android:name=".activity.fio.mapaccount.AccountMappingActivity"
             android:theme="@style/MyceliumSettings"/>
