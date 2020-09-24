@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +14,12 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.*
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel
+import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wallet.databinding.FragmentFioAccountMappingBinding
 import com.mycelium.wapi.wallet.btc.bip44.getActiveHDAccounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
-import kotlinx.android.synthetic.main.fragment_fio_account_mapping.acknowledge
 
 
 class AccountMappingFragment : Fragment() {
@@ -42,13 +43,12 @@ class AccountMappingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "Connect Accounts"
+            title = "FIO Name details"
         }
         val mbwManager = MbwManager.getInstance(requireContext())
         val walletManager = mbwManager.getWalletManager(false)
         list.adapter = adapter
         list.itemAnimator = null
-        list.addItemDecoration(AccountListDivider(resources.getDrawable(R.drawable.divider_fio_account_list)))
         adapter.selectChangeListener = { accountItem ->
             if (accountItem.isEnabled) {
                 data.filterIsInstance<ItemAccount>().filter { it.coinType == accountItem.coinType }.forEach {
@@ -73,14 +73,18 @@ class AccountMappingFragment : Fragment() {
                         it.coinType)
             }
             if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
-                add(ItemGroup(getString(R.string.bitcoin_name)))
+                add(ItemGroup(getString(R.string.bitcoin_name) + " (${btcHDAccounts.size + btcSAAccounts.size})"))
                 if (btcHDAccounts.isNotEmpty()) {
                     add(ItemSubGroup(getString(R.string.active_hd_accounts_name)))
+                    add(ItemDivider)
                     addAll(btcHDAccounts)
+                    add(ItemDivider)
                 }
                 if (btcSAAccounts.isNotEmpty()) {
                     add(ItemSubGroup(getString(R.string.active_bitcoin_sa_group_name)))
+                    add(ItemDivider)
                     addAll(btcSAAccounts)
+                    add(ItemDivider)
                 }
             }
             walletManager.getActiveEthAccounts().map {
@@ -88,8 +92,10 @@ class AccountMappingFragment : Fragment() {
                         Utils.getDrawableForAccount(it, false, resources), it.coinType)
             }.apply {
                 if (this.isNotEmpty()) {
-                    add(ItemGroup(getString(R.string.eth_accounts_name)))
+                    add(ItemGroup(getString(R.string.ethereum_name) + " (${this.size})"))
+                    add(ItemDivider)
                     addAll(this)
+                    add(ItemDivider)
                 }
             }
             add(ItemSpace)
@@ -100,6 +106,10 @@ class AccountMappingFragment : Fragment() {
 //            findNavController().navigate(R.id.actionNext, Bundle().apply {
 //                putStringArray("accounts", data.filterIsInstance<ItemAccount>().filter { it.isEnabled }.map { it.accountId.toString() }.toTypedArray())
 //            })
+        }
+        renewFIOName.setOnClickListener {
+            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
+                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
         }
     }
 

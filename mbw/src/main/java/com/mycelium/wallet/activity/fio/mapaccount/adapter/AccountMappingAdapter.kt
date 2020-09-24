@@ -27,6 +27,7 @@ class ItemAccount(val accountId: UUID,
 
 class ItemSubGroup(val title: String = "") : Item(AccountMappingAdapter.TYPE_SUB_GROUP)
 object ItemSpace : Item(AccountMappingAdapter.TYPE_SPACE)
+object ItemDivider : Item(AccountMappingAdapter.TYPE_DIVIDER)
 
 class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
     companion object {
@@ -34,6 +35,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
         const val TYPE_ACCOUNT = 1
         const val TYPE_SUB_GROUP = 2
         const val TYPE_SPACE = 3
+        const val TYPE_DIVIDER = 4
     }
 
     var selectChangeListener: ((ItemAccount) -> Unit)? = null
@@ -43,7 +45,8 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_group, parent, false))
                 TYPE_ACCOUNT -> AccountViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_account, parent, false))
                 TYPE_SUB_GROUP -> SubGroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_sub_group, parent, false))
-                TYPE_SPACE -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list_space, parent, false))
+                TYPE_SPACE -> SpaceViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list_space, parent, false))
+                TYPE_DIVIDER -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_list_divider, parent, false))
                 else -> TODO("Not Implemented")
             }
 
@@ -68,6 +71,9 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                     (getItem(holder.adapterPosition) as ItemAccount).isEnabled = isChecked
                     selectChangeListener?.invoke(getItem(holder.adapterPosition) as ItemAccount)
                 }
+                holder.itemView.setOnClickListener {
+                    holder.itemView.checkbox.isChecked = !holder.itemView.checkbox.isChecked
+                }
             }
         }
     }
@@ -75,6 +81,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
     class AccountViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
+    class SpaceViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
     class DividerViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<Item>() {
@@ -100,6 +107,8 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                         newItem as ItemSubGroup
                         oldItem.title == newItem.title
                     }
+                    TYPE_SPACE -> true
+                    TYPE_DIVIDER -> true
                     else -> false
                 }
     }

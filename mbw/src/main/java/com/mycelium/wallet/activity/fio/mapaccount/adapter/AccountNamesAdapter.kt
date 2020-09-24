@@ -6,10 +6,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.AccountViewHolder
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.NameViewHolder
+import com.mycelium.wapi.wallet.WalletAccount
 
 
-class FIONameItem(val title: String) : Item(AccountNamesAdapter.TYPE_FIO_NAME)
+class FIONameItem(val title: String, val mappedAccountCount: Int = 0) : Item(AccountNamesAdapter.TYPE_FIO_NAME)
+class AccountItem(val account: WalletAccount<*>, val accountType: String) : Item(AccountNamesAdapter.TYPE_ACCOUNT)
 
 class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
     companion object {
@@ -17,10 +21,14 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
         const val TYPE_ACCOUNT = 1
     }
 
+    var fioNameClickListener: ((String) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 TYPE_FIO_NAME -> NameViewHolder(LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_fio_account_mapping_name, parent, false))
+                        .inflate(R.layout.item_fio_name_details_name, parent, false))
+                TYPE_ACCOUNT -> AccountViewHolder(LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_fio_name_details_account, parent, false))
                 else -> TODO("Not implemented")
             }
 
@@ -28,12 +36,26 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is NameViewHolder -> {
-                (getItem(position) as FIONameItem).let {
-                    holder.title.text = it.title
+                (getItem(position) as FIONameItem).let { item ->
+                    holder.title.text = item.title + " (${item.mappedAccountCount})"
+                    holder.itemView.setOnClickListener {
+                        fioNameClickListener?.invoke(item.title)
+                    }
+                }
+            }
+            is AccountViewHolder -> {
+                (getItem(position) as AccountItem).let {
+                    holder.label.text = it.account.label
+                    holder.type.text = it.accountType
+                    holder.icon.setImageDrawable(Utils.getDrawableForAccount(it.account, false, holder.icon.resources))
+                    holder.balance.coinType = it.account.coinType
+                    holder.balance.setValue(it.account.accountBalance.spendable)
                 }
             }
         }
     }
+
+    override fun getItemViewType(position: Int): Int = getItem(position).type
 
     class DiffCallback : DiffUtil.ItemCallback<Item>() {
         override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =
@@ -45,6 +67,12 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
                         newItem as FIONameItem
                         oldItem as FIONameItem
                         oldItem.title == newItem.title
+                    }
+                    TYPE_ACCOUNT -> {
+                        newItem as AccountItem
+                        oldItem as AccountItem
+                        oldItem.accountType == newItem.accountType &&
+                                oldItem.account == newItem.account
                     }
                     else -> oldItem == newItem
                 }

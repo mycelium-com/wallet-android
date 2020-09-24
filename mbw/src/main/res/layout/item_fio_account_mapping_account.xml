@@ -14,8 +14,8 @@
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_gravity="center"
         android:layout_marginStart="16dp"
         android:adjustViewBounds="true"
@@ -58,8 +58,9 @@
 
     <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/checkbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:thumb="@drawable/preference_switch"
-        app:track="@drawable/preference_switch_track" />
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:button="@drawable/checkbox_fio_mapping"
+        android:background="@drawable/bg_checkbox_fio_mapping"
+        />
 </LinearLayout>

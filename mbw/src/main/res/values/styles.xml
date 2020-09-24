@@ -440,4 +440,13 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
+
+    <style name="MyceliumButton.FIO">
+        <item name="android:minHeight">44dp</item>
+    </style>
+
+    <style name="MyceliumButton.FIO.Gray">
+        <item name="android:background">@drawable/btn_gray</item>
+    </style>
+
 </resources>

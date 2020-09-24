@@ -12,7 +12,11 @@
         tools:layout="@layout/fragment_fio_name_details">
         <action
             android:id="@+id/actionNext"
-            app:destination="@id/accountMappingFragment" />
+            app:destination="@id/accountMappingFragment">
+            <argument
+                android:name="fioName"
+                app:argType="string" />
+        </action>
     </fragment>
 
     <fragment

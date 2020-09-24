@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -7,8 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.AccountItem
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.AccountNamesAdapter
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.FIONameItem
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.Item
+import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
+import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_fio_name_details.*
 
@@ -23,11 +28,28 @@ class FioNameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
         }
         list.adapter = adapter
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
+        registeredOn.text = getString(R.string.following_fio_names_registered_on_s, MbwManager.getInstance(requireContext()).selectedAccount.label)
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-        val names = fioModule.getAllFIONames()
-        adapter.submitList(names.map { FIONameItem(it) })
-        addFIOName.setOnClickListener {
+        adapter.fioNameClickListener = {
             findNavController().navigate(R.id.actionNext)
+        }
+        adapter.submitList(mutableListOf<Item>().apply {
+            fioModule.getAllFIONames().forEach { fioName ->
+                add(FIONameItem(fioName, 1))
+                fioModule.getFioAccountByFioName(fioName)?.let {
+                    walletManager.getAccount(it)?.let { account ->
+                        add(AccountItem(account, "asasas"))
+                    }
+                }
+            }
+        })
+        addFIOName.setOnClickListener {
+            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
+                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
+        }
+        addFIODomain.setOnClickListener {
+            startActivity(Intent(requireActivity(), RegisterFIODomainActivity::class.java)
+                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
         }
     }
 }
