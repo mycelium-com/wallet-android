@@ -4,17 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
+
     <TextView
         android:id="@+id/text"
+        style="@style/FIOAccountSubGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2c2c2c"
         android:fontFamily="sans-serif"
         android:paddingStart="32dp"
         android:paddingTop="4dp"
         android:paddingEnd="32dp"
         android:paddingBottom="5dp"
-        android:textColor="@color/common_blue"
-        android:textSize="14sp"
         tools:text="text" />
 </LinearLayout>

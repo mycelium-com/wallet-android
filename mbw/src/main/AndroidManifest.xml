@@ -263,7 +263,7 @@
             android:name=".activity.fio.mapaddress.FIOAddAddressActivity"
             android:theme="@style/MyceliumFIO" />
         <activity android:name=".activity.fio.mapaccount.AccountMappingActivity"
-            android:theme="@style/MyceliumSettings"/>
+            android:theme="@style/MyceliumFIOMapping"/>
 
     </application>
 </manifest>

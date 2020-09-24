@@ -1,45 +1,54 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.*
+import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
+import com.mycelium.wallet.databinding.FragmentFioAccountMappingBinding
 import com.mycelium.wapi.wallet.btc.bip44.getActiveHDAccounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
+import kotlinx.android.synthetic.main.fragment_fio_account_mapping.acknowledge
 
 
-class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
+class AccountMappingFragment : Fragment() {
     private val viewModel: FIOMapPubAddressViewModel by activityViewModels()
     val adapter = AccountMappingAdapter()
     val data = mutableListOf<Item>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setHasOptionsMenu(true)
+//    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+            DataBindingUtil.inflate<FragmentFioAccountMappingBinding>(inflater, R.layout.fragment_fio_account_mapping, container, false)
+                    .apply {
+                        viewModel = this@AccountMappingFragment.viewModel
+                        lifecycleOwner = this@AccountMappingFragment
+                    }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "Select accounts for mapping"
+            title = "Connect Accounts"
         }
         val mbwManager = MbwManager.getInstance(requireContext())
         val walletManager = mbwManager.getWalletManager(false)
-        title.text = getString(R.string.select_name_to_associate, viewModel.fioAddress.value)
         list.adapter = adapter
         list.itemAnimator = null
+        list.addItemDecoration(AccountListDivider(resources.getDrawable(R.drawable.divider_fio_account_list)))
         adapter.selectChangeListener = { accountItem ->
             if (accountItem.isEnabled) {
                 data.filterIsInstance<ItemAccount>().filter { it.coinType == accountItem.coinType }.forEach {
@@ -87,35 +96,36 @@ class AccountMappingFragment : Fragment(R.layout.fragment_fio_account_mapping) {
         }
         adapter.submitList(data)
         buttonContinue.setOnClickListener {
-            findNavController().navigate(R.id.actionNext, Bundle().apply {
-                putStringArray("accounts", data.filterIsInstance<ItemAccount>().filter { it.isEnabled }.map { it.accountId.toString() }.toTypedArray())
-            })
+            TODO("account mapping not implemented")
+//            findNavController().navigate(R.id.actionNext, Bundle().apply {
+//                putStringArray("accounts", data.filterIsInstance<ItemAccount>().filter { it.isEnabled }.map { it.accountId.toString() }.toTypedArray())
+//            })
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_fio_map_account, menu)
-        val searchItem = menu.findItem(R.id.action_search)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                filterItems(query)
-                return true
-            }
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        super.onCreateOptionsMenu(menu, inflater)
+//        inflater.inflate(R.menu.menu_fio_map_account, menu)
+//        val searchItem = menu.findItem(R.id.action_search)
+//        val searchView = searchItem.actionView as SearchView
+//        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                filterItems(query)
+//                return true
+//            }
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                filterItems(newText)
+//                return true
+//            }
+//        })
+//    }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                filterItems(newText)
-                return true
-            }
-        })
-    }
-
-    private fun filterItems(text: String?) {
-        if (text != null && text.isNotEmpty()) {
-            adapter.submitList(data.filter { it is ItemAccount && it.label.contains(text, true) } + ItemSpace)
-        } else {
-            adapter.submitList(data)
-        }
-    }
+//    private fun filterItems(text: String?) {
+//        if (text != null && text.isNotEmpty()) {
+//            adapter.submitList(data.filter { it is ItemAccount && it.label.contains(text, true) } + ItemSpace)
+//        } else {
+//            adapter.submitList(data)
+//        }
+//    }
 }

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.wallet.fio.FioAccount
 import fiofoundation.io.fiosdk.models.TokenPublicAddress

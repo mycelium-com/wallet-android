@@ -3,12 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#2c2c2c"
+    android:background="#0C1011"
     android:baselineAligned="false"
     android:gravity="center_vertical"
-    android:minHeight="?android:attr/listPreferredItemHeight"
     android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:paddingTop="8dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp">
 
 
     <ImageView
@@ -18,7 +19,7 @@
         android:layout_gravity="center"
         android:layout_marginStart="16dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/multikeys_grey"/>
+        android:src="@drawable/multikeys_grey" />
 
     <LinearLayout
         android:layout_width="0dip"
@@ -33,14 +34,14 @@
 
         <TextView
             android:id="@+id/title"
+            style="@style/fio_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:ellipsize="marquee"
+            android:ellipsize="end"
             android:fadingEdge="horizontal"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/preference_title_color" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/summary"
@@ -49,13 +50,13 @@
             android:ellipsize="middle"
             android:fontFamily="sans-serif"
             android:singleLine="true"
-            android:visibility="gone"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="#b8bcbf"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:visibility="gone" />
     </LinearLayout>
 
-    <androidx.appcompat.widget.SwitchCompat
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
