@@ -1380,12 +1380,16 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
     <string name="select_name_to_associate">Connect accounts (map) with you FIO Name. Only 1 account per each cryptocurrency can be mapped with 1 FIO Name.</string>
     <string name="fio_register_address">Register FIO Name</string>
+    <string name="fio_create_name_title">Create FIO Name</string>
     <string name="fio_address">FIO Address</string>
     <string name="fio_registration_fee">Registration Fee</string>
     <string name="fio_remaining_balance">Remaining FIO Balance</string>
     <string name="fio_create_unique_address">Create a unique FIO Name</string>
     <string name="fio_create_request">Create FIO Request</string>
     <string name="fio_address_is_invalid">Invalid FIO Name</string>
-    <string name="fio_address_occupied">FIO Name is occupied</string>
+    <string name="fio_address_occupied">This FIO Name is not available for registration. You can register on your own FIO domain</string>
+    <string name="fio_address_available">This FIO Name is available for registration.</string>
     <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name availability check and FIO Name registering due to service unavailability. Please check your internet connection and try again</string>
+    <string name="fio_create_name_description"><b>Create FIO Name</b> - new simple way to Send and Request crypto without knowing public address!\n\n- Works across all tokens and coins\n- Secured from your wallet\n- Completely decentralized\n\nUse easy-to-remember unique FIO name like my_unique_fio@mycelium to send or request funds for any tokens or coins!</string>
+    <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
 </resources>

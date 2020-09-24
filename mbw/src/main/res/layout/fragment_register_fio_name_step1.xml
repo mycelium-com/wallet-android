@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.registername.RegisterFioNameViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/create_fio_name_bg"
+        android:padding="18dp">
+
+        <ImageView
+            android:id="@+id/imFioLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="13dp"
+            android:text="@string/fio_create_name_title"
+            android:textColor="#E6FFFFFF"
+            android:textSize="22sp"
+            app:layout_constraintStart_toEndOf="@id/imFioLogo"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="13dp"
+            android:text="Step 1/2"
+            android:textColor="#99FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvTitle"
+            app:layout_constraintStart_toEndOf="@id/tvTitle"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputEditTextLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:hint="your username"
+            android:paddingTop="24dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/spinner"
+            app:layout_constraintTop_toBottomOf="@id/imFioLogo">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-"
+                android:inputType="text"
+                android:maxLength="62"
+                android:singleLine="true"
+                android:text="@={viewModel.address}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/tvDomain"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"-->
+        <!--            app:layout_constraintRight_toRightOf="parent"-->
+        <!--            tools:text="\@mycelium" />-->
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/send_coin_spinner_selector"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:text="\@mycelium" />
+
+        <TextView
+            android:id="@+id/tvHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter unique username to create FIO Name"
+            android:textColor="#99FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/inputEditTextLayout" />
+
+        <TextView
+            android:id="@+id/tvFeeInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/inputEditTextLayout"
+            tools:text="Register FIO name and use FIO services for 9.066079 FIO/year including 100 comission free transactions." />
+
+        <TextView
+            android:id="@+id/tvFeeInfo2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp"
+            android:text="This payment is required by the FIO Protocol and not by Mycelium."
+            android:textColor="#99FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFeeInfo" />
+
+        <Button
+            android:id="@+id/btNextButton"
+            style="@style/MyceliumButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFeeInfo2" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
