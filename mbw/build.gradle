@@ -24,6 +24,15 @@ configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == "com.google.guava"
+                && details.requested.name == "guava") {
+            details.useTarget("com.google.guava:guava:$guavaVersion")
+        }
+    }
+}
+
 kapt {
     useBuildCache = true
     javacOptions {
