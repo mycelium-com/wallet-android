@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -102,7 +103,8 @@ class AccountMappingFragment : Fragment() {
         }
         adapter.submitList(data)
         buttonContinue.setOnClickListener {
-            TODO("account mapping not implemented")
+//            TODO("account mapping not implemented")
+            findNavController().popBackStack()
 //            findNavController().navigate(R.id.actionNext, Bundle().apply {
 //                putStringArray("accounts", data.filterIsInstance<ItemAccount>().filter { it.isEnabled }.map { it.accountId.toString() }.toTypedArray())
 //            })
