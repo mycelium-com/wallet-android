@@ -1,8 +1,8 @@
 package com.mycelium.wallet.activity.fio.registername
 
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +29,7 @@ class RegisterFioNameStep1Fragment : Fragment() {
                     .apply {
                         viewModel = this@RegisterFioNameStep1Fragment.viewModel.apply {
                             spinner?.adapter = ArrayAdapter(context,
-                                    R.layout.layout_send_coin_transaction_replace, R.id.text, listOf("@mycelium", "@secondoption", "Register FIO Domain")).apply {
+                                    R.layout.layout_fio_dropdown, R.id.text, listOf("@mycelium", "@secondoption", "Register FIO Domain")).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }
                             spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -37,8 +37,10 @@ class RegisterFioNameStep1Fragment : Fragment() {
                                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                                     if (spinner.selectedItem.toString() != "Register FIO Domain") {
                                         viewModel!!.domain.value = spinner.selectedItem.toString()
+                                        Log.i("asdaf", "asdaf viewModel.domain.value: ${viewModel!!.domain.value}")
+                                    } else {
+                                        requireActivity().finish()
                                     }
-                                    Log.i("asdaf", "asdaf viewModel.domain.value: ${viewModel!!.domain.value}")
                                 }
                             }
                         }
@@ -47,13 +49,13 @@ class RegisterFioNameStep1Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        spinner.setSelection((spinner.adapter as ArrayAdapter<String>).getPosition(viewModel.domain.value))
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
             tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
         })
         btNextButton.setOnClickListener {
             findNavController().navigate(R.id.actionNext)
         }
-//        tvDomain.text = "@${viewModel.domain.value}"
         viewModel.isFioAddressValid.observe(viewLifecycleOwner, Observer {
             doAddressCheck(viewModel.address.value!!)
         })
@@ -71,22 +73,35 @@ class RegisterFioNameStep1Fragment : Fragment() {
     private fun doAddressCheck(fioAddress: String) {
         btNextButton.isEnabled = viewModel.isFioAddressValid.value!! && viewModel.isFioAddressAvailable.value!!
                 && viewModel.isFioServiceAvailable.value!! && inputEditText.text!!.isNotEmpty()
-        tvHint.text = ""
-        tvHint.setTextColor(Color.WHITE)
+        setDefaults()
         if (fioAddress.isNotEmpty()) {
             if (!viewModel.isFioAddressValid.value!!) {
-                tvHint.text = resources.getString(R.string.fio_address_is_invalid)
-                tvHint.setTextColor(Color.RED)
+                showErrorOrSuccess(R.string.fio_address_is_invalid, isError = true)
             } else if (!viewModel.isFioServiceAvailable.value!!) {
-                tvHint.text = resources.getString(R.string.fio_address_check_service_unavailable)
-                tvHint.setTextColor(Color.RED)
+                showErrorOrSuccess(R.string.fio_address_check_service_unavailable, isError = true)
             } else if (!viewModel.isFioAddressAvailable.value!!) {
-                tvHint.text = resources.getString(R.string.fio_address_occupied)
-                tvHint.setTextColor(Color.RED)
+                showErrorOrSuccess(R.string.fio_address_occupied, isError = true)
             } else {
-                tvHint.text = resources.getString(R.string.fio_address_available)
-                tvHint.setTextColor(Color.GREEN)
+                showErrorOrSuccess(R.string.fio_address_available, isError = false)
             }
         }
+    }
+
+    private fun setDefaults() {
+        tvHint.text = resources.getString(R.string.fio_create_name_hint_text)
+        tvHint.setTextColor(resources.getColor(R.color.fio_white_alpha_0_6))
+        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
+        tvHint.setCompoundDrawables(null, null, null, null)
+    }
+
+    private fun showErrorOrSuccess(messageRes: Int, isError: Boolean) {
+        val drawableRes = if (isError) R.drawable.ic_fio_name_error else R.drawable.ic_fio_name_ok
+        val colorRes = if (isError) R.color.fio_red else R.color.fio_green
+
+        tvHint.text = resources.getString(messageRes)
+        tvHint.setCompoundDrawablesWithIntrinsicBounds(resources.getDrawable(drawableRes), null, null, null)
+        tvHint.compoundDrawablePadding = 3
+        tvHint.setTextColor(resources.getColor(colorRes))
+        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.toFloat())
     }
 }

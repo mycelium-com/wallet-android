@@ -208,6 +208,44 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 null
             }
         }
+
+        @JvmStatic
+        fun getFeeByEndpoint(fioToken: FIOToken, endpoint: String, fioAddress: String = ""): String? {
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val client = OkHttpClient()
+            val requestBody = "{\"end_point\":\"$endpoint\",\"fio_address\":\"$fioAddress\"}"
+            val request = Request.Builder()
+                    .url(fioToken.url + "chain/get_fee")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            return try {
+                val response = client.newCall(request).execute()
+                val result = mapper.readValue(response.body()!!.string(), GetFeeResponse::class.java)
+                result.fee
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
+        @JvmStatic
+        fun isFioNameAvailable(fioToken: FIOToken, fioName: String): Boolean? {
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val client = OkHttpClient()
+            val requestBody = "{\"fio_name\":\"$fioName\"}"
+            val request = Request.Builder()
+                    .url(fioToken.url + "chain/avail_check")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            return try {
+                val response = client.newCall(request).execute()
+                val result = mapper.readValue(response.body()!!.string(), AvailCheckResponse::class.java)
+                result.isAvailable
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
     }
 }
 
@@ -242,6 +280,19 @@ class GetAccountResponse {
 class GetPubAddressResponse {
     @JsonProperty("public_address")
     val publicAddress: String? = null
+}
+
+class GetFeeResponse {
+    val fee: String? = null
+}
+
+class AvailCheckResponse {
+    //1 - FIO Address or Domain is registered
+    //0 - FIO Address or Domain is not registered
+    @JsonProperty("is_registered")
+    private val isRegistered1: String? = null
+    val isAvailable: Boolean
+        get() = !isRegistered1!!.toBoolean()
 }
 
 class GetBlockInfoResponse {

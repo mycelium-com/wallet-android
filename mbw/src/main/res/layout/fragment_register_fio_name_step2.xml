@@ -34,8 +34,8 @@
             android:paddingStart="13dp"
             android:text="Confirm FIO Name"
             android:textColor="#E6FFFFFF"
-            android:textStyle="bold"
             android:textSize="22sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/imFioLogo"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -97,7 +97,7 @@
             android:id="@+id/spinnerFioAccounts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/send_coin_spinner_selector"
+            android:background="@null"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@id/tvConnectedFioAccount"
             app:layout_constraintStart_toEndOf="@id/tvConnectedFioAccount"
@@ -139,18 +139,30 @@
             android:id="@+id/spinnerPayFromAccounts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/send_coin_spinner_selector"
+            android:background="@null"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@id/tvPayFrom"
             app:layout_constraintStart_toEndOf="@id/tvPayFrom"
             app:layout_constraintTop_toTopOf="@id/tvPayFrom" />
 
+        <TextView
+            android:id="@+id/tvNotEnoughFundsError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="70dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/fio_not_sufficient_funds_on_selected_account"
+            android:textColor="@color/fio_red"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPayFrom" />
+
         <Button
             android:id="@+id/btNextButton"
-            style="@style/MyceliumButton"
+            style="@style/FioNameRegistrationButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="26dp"
             android:text="Confirm FIO Name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvPayFrom" />

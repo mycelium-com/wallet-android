@@ -68,19 +68,11 @@
                 android:text="@={viewModel.address}" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!--        <TextView-->
-        <!--            android:id="@+id/tvDomain"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"-->
-        <!--            app:layout_constraintRight_toRightOf="parent"-->
-        <!--            tools:text="\@mycelium" />-->
-
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner"
+            android:background="@null"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/send_coin_spinner_selector"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"
             app:layout_constraintRight_toRightOf="parent"
@@ -90,7 +82,7 @@
             android:id="@+id/tvHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Enter unique username to create FIO Name"
+            android:text="@string/fio_create_name_hint_text"
             android:textColor="#99FFFFFF"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -100,7 +92,7 @@
             android:id="@+id/tvFeeInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="58dp"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/inputEditTextLayout"
@@ -119,7 +111,7 @@
 
         <Button
             android:id="@+id/btNextButton"
-            style="@style/MyceliumButton"
+            style="@style/FioNameRegistrationButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Next"

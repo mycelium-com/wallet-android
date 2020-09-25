@@ -7,14 +7,14 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
+import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.isFioAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import kotlinx.android.synthetic.main.activity_fio_add_address.*
-import java.util.*
 
 class RegisterFioNameActivity : AppCompatActivity() {
     private lateinit var viewModel: RegisterFioNameViewModel
@@ -32,12 +32,12 @@ class RegisterFioNameActivity : AppCompatActivity() {
 
         viewModel = ViewModelProviders.of(this).get(RegisterFioNameViewModel::class.java)
 
-        val accountid = intent.getSerializableExtra("account") as UUID
-        val fioAccount = MbwManager.getInstance(this.application).getWalletManager(false).getAccount(accountid) as FioAccount
-        viewModel.account.value = fioAccount
         // set default fee at first, it will be updated in async task
-        viewModel.registrationFee.value = Value.valueOf(fioAccount.coinType, DEFAULT_FEE)
+        viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
         viewModel.address.observe(this, Observer {
+            viewModel.addressWithDomain.value = "${viewModel.address.value}${viewModel.domain.value}"
+        })
+        viewModel.domain.observe(this, Observer {
             viewModel.addressWithDomain.value = "${viewModel.address.value}${viewModel.domain.value}"
         })
         viewModel.addressWithDomain.observe(this, Observer { addressWithDomain ->
@@ -45,7 +45,7 @@ class RegisterFioNameActivity : AppCompatActivity() {
                 viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
                     if (addressValid) {
                         Log.i("asdaf", "asdaf checking avail. for $addressWithDomain")
-                        CheckAddressAvailabilityTask(fioAccount, addressWithDomain) { isAvailable ->
+                        CheckAddressAvailabilityTask(addressWithDomain) { isAvailable ->
                             if (isAvailable != null) {
                                 viewModel.isFioAddressAvailable.value = isAvailable
                             } else {
@@ -56,12 +56,10 @@ class RegisterFioNameActivity : AppCompatActivity() {
                 }
             }
         })
-        viewModel.remainingBalance.value = fioAccount.accountBalance.spendable
-        UpdateFeeTask(fioAccount) { feeInSUF ->
-            val coinType = fioAccount.coinType
-
+        UpdateFeeTask { feeInSUF ->
             if (feeInSUF != null) {
-                viewModel.registrationFee.value = Value.valueOf(coinType, feeInSUF)
+                viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
+                Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
@@ -76,11 +74,11 @@ class RegisterFioNameActivity : AppCompatActivity() {
             }
 
     class UpdateFeeTask(
-            val account: FioAccount,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
-                account.getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress).toString()
+                FioTransactionHistoryService.getFeeByEndpoint(Utils.getFIOCoinType() as FIOToken,
+                        FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint).toString()
             } catch (e: Exception) {
                 null
             }
@@ -92,12 +90,12 @@ class RegisterFioNameActivity : AppCompatActivity() {
     }
 
     class CheckAddressAvailabilityTask(
-            val account: FioAccount,
             private val addressWithDomain: String,
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                account.isFIOAddressAvailable(addressWithDomain)
+                FioTransactionHistoryService.isFioNameAvailable(Utils.getFIOCoinType() as FIOToken,
+                        addressWithDomain)
             } catch (e: Exception) {
                 null
             }
