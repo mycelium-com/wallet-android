@@ -54,7 +54,7 @@ data class Currency(
         val payoutEnabled: kotlin.Boolean,
         /* Default withdraw fee */
         @JsonProperty("payoutFee")
-        val payoutFee: kotlin.String,
+        val payoutFee: kotlin.String?,
         /* True if cryptocurrency allow use paymentId for withdraw */
         @JsonProperty("payoutIsPaymentId")
         val payoutIsPaymentId: kotlin.Boolean,

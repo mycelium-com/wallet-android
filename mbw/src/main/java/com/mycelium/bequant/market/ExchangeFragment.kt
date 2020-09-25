@@ -273,7 +273,8 @@ class ExchangeFragment : Fragment() {
 
     fun updateExchangeEnabledFlag() {
         val rateExists = viewModel.rate.value!!.isNotBlank();
-        viewModel.isExchangeEnabled.value = rateExists && isEnoughFundsIncludingFees();
+        val moreThanZero = viewModel.youSend.value?.isPositive() ?: false
+        viewModel.isExchangeEnabled.value = rateExists && isEnoughFundsIncludingFees() && moreThanZero;
     }
 
     override fun onDestroy() {
