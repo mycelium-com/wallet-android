@@ -130,6 +130,7 @@ class Step3Fragment : Fragment() {
                 it?.token?.let { onceToken ->
                     val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
                     applicant.userId = onceToken
+                    BequantPreference.setKYCRequest(kycRequest)
                     Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
                         Api.kycRepository.mobileVerification(viewModel.viewModelScope, {
                             findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))

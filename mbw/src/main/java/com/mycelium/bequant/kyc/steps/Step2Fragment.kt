@@ -95,6 +95,7 @@ class Step2Fragment : Fragment() {
         }
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
+            BequantPreference.setKYCRequest(kycRequest)
             findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
         }
 

@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.BQDatePickerDialog
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
@@ -101,6 +102,7 @@ class Step1Fragment : Fragment() {
             } else {
                 kycRequest.fatca = underFatca.isChecked
                 viewModel.fillModel(kycRequest)
+                BequantPreference.setKYCRequest(kycRequest)
                 findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
             }
         }
