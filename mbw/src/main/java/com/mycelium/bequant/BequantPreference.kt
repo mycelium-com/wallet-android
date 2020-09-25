@@ -98,6 +98,12 @@ object BequantPreference {
         preference.edit().putString(Constants.KYC_STATUS_KEY, status.toString()).apply()
     }
 
+    fun getKYCStatusMessage() = preference.getString(Constants.KYC_STATUS_MESSAGE_KEY, "")
+
+    fun setKYCStatusMessage(message: String) {
+        preference.edit().putString(Constants.KYC_STATUS_MESSAGE_KEY, message).apply()
+    }
+
     fun setKYCSubmitDate(date: Date) {
         preference.edit().putLong("kyc_submit_date", date.time).apply()
     }

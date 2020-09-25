@@ -18,6 +18,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.ModalDialog
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.getInvestmentAccounts
 import com.mycelium.bequant.kyc.BequantKycActivity
@@ -26,6 +27,7 @@ import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Balance
 import com.mycelium.bequant.sign.SignActivity
+import com.mycelium.bequant.signup.TwoFactorActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountListChanged
@@ -53,7 +55,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                 broadcastManager.sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
                 Handler().postDelayed({ requestBalances() }, 5000) // server has lag(3-5 seconds) in move keys from reg.bequant.io to api.bequant.io, е
             }, error = { code, message ->
-                if(code != 420) {
+                if (code != 420) {
                     ErrorHandler(requireContext()).handle(message)
                 }
             }, finally = {
@@ -67,6 +69,22 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         }
         MbwManager.getEventBus().register(this)
         broadcastManager.registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
+        when (arguments?.getString("from")) {
+            "registration" -> {
+                ModalDialog(getString(R.string.bequant_turn_2fa),
+                        getString(R.string.bequant_recommend_enable_2fa),
+                        getString(R.string.secure_your_account)) {
+                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            }
+            "totp_registration" -> {
+                ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                        getString(R.string.bequant_kyc_verify_message),
+                        getString(R.string.bequant_kyc_verify_button)) {
+                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+                }.show(childFragmentManager, "modal_dialog")
+            }
+        }
     }
 
     @Subscribe

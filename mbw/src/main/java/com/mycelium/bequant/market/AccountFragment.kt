@@ -70,6 +70,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
             }.show(childFragmentManager, "modal_dialog")
         }
+
         fun askDoKyc() {
             ModalDialog(getString(R.string.bequant_kyc_verify_title),
                     getString(R.string.bequant_kyc_verify_message),
@@ -80,10 +81,10 @@ class AccountFragment : Fragment() {
         deposit.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
-                askDoKyc()
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_deposit)
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
             }
@@ -91,10 +92,10 @@ class AccountFragment : Fragment() {
         withdraw.setOnClickListener {
             if (isDemo) {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
-                askDoKyc()
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_withdraw)
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
             }

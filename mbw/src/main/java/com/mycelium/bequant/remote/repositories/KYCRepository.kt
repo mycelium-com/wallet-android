@@ -24,7 +24,11 @@ class KYCRepository {
     fun create(scope: CoroutineScope, applicant: KYCApplicant, success: (() -> Unit),
                error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
-            service.create(KYCCreateRequest(applicant))
+            if (BequantPreference.getKYCStatus() == KYCStatus.INCOMPLETE) {
+                service.update(applicant)
+            } else {
+                service.create(KYCCreateRequest(applicant))
+            }
         }, {
             val uuid = it?.uuid ?: ""
             BequantPreference.setKYCToken(uuid)
@@ -98,6 +102,7 @@ class KYCRepository {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
             BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
+            BequantPreference.setKYCStatusMessage(response?.message?.message ?: "")
             success(response?.message!!)
         }, { code, msg ->
             error?.invoke(code, msg)

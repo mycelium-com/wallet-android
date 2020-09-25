@@ -11,6 +11,9 @@ interface BequantKYCApiService {
     @POST("eapi/applicant/create")
     suspend fun create(@Body request: KYCCreateRequest): Response<KYCCreateResponse>
 
+    @PATCH("eapi/applicant/update")
+    suspend fun update(@Body request: KYCApplicant): Response<KYCCreateResponse>
+
     @POST("eapi/applicant/reqmobileverification")
     suspend fun mobileVerification(@Query("uuid") uuid: String): Response<KYCResponse>
 

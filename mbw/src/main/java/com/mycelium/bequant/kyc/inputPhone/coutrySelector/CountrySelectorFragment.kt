@@ -81,10 +81,13 @@ class CountrySelectorFragment : Fragment() {
             if (text.isNullOrEmpty()) {
                 adapter.submitList(countryModels)
             } else {
-                val filter = countryModels.filter {
-                    it.name.toLowerCase().contains(text.toLowerCase()) || it.acronym.toLowerCase().contains(text.toLowerCase())
-                }
-                adapter.submitList(filter)
+                adapter.submitList(countryModels.filter {
+                    if (args.nationality) {
+                        it.nationality?.contains(text, true) == true || it.acronym3.contains(text, true)
+                    } else {
+                        it.name.contains(text, true) || it.acronym3.contains(text, true)
+                    }
+                })
             }
         })
     }

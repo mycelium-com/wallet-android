@@ -39,10 +39,10 @@ class CallbackRejectFragment : Fragment(R.layout.fragment_kyc_reject_callback) {
                 , ItemStep(4, getString(R.string.doc_selfie), StepState.ERROR)))
         stepAdapter.clickListener = {
             when (it) {
-                3 -> findNavController().navigate(CallbackRejectFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
+                4 -> findNavController().navigate(CallbackRejectFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
             }
         }
-        message.text = ""
+        message.text = BequantPreference.getKYCStatusMessage()
         seeMore.setOnClickListener {
             seeMore.visibility = View.GONE
             message.visibility = View.VISIBLE
