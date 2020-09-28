@@ -175,7 +175,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         fun getPubkeyByActor(actor: String, coinType: CryptoCurrency): String? {
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
-            val requestBody = "{\"account_name\":\"$actor\"}"
+            val requestBody = """{"account_name":"$actor"}"""
             val request = Request.Builder()
                     .url((coinType as FIOToken).url + "chain/get_account")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
@@ -194,7 +194,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         fun getPubkeyByFioAddress(fioAddress: String, coinType: CryptoCurrency): String? {
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
-            val requestBody = "{\"fio_address\":\"$fioAddress\",\"chain_code\":\"FIO\",\"token_code\":\"FIO\"}"
+            val requestBody = """{"fio_address":"$fioAddress","chain_code":"FIO","token_code":"FIO"}"""
             val request = Request.Builder()
                     .url((coinType as FIOToken).url + "chain/get_pub_address")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
@@ -213,7 +213,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         fun getFeeByEndpoint(fioToken: FIOToken, endpoint: String, fioAddress: String = ""): String? {
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
-            val requestBody = "{\"end_point\":\"$endpoint\",\"fio_address\":\"$fioAddress\"}"
+            val requestBody = """{"end_point":"$endpoint","fio_address":"$fioAddress"}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/get_fee")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
@@ -232,7 +232,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         fun isFioNameAvailable(fioToken: FIOToken, fioName: String): Boolean? {
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
-            val requestBody = "{\"fio_name\":\"$fioName\"}"
+            val requestBody = """{"fio_name":"$fioName"}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/avail_check")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))

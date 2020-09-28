@@ -77,16 +77,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    val receivingFioAddress: MutableLiveData<String?> = object : MutableLiveData<String?>() {
-        override fun setValue(value: String?) {
-            if (value != this.value) {
-                super.setValue(value)
-                receiverChanged.onNext(Unit)
-                txRebuildPublisher.onNext(Unit)
-            }
-        }
-    }
-
     val transactionStatus: MutableLiveData<TransactionStatus> = object : MutableLiveData<TransactionStatus>() {
         override fun setValue(value: TransactionStatus) {
             if (value != this.value) {

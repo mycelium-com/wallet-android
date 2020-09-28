@@ -10,12 +10,21 @@ import android.view.View
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.fio.FioModule
+import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
+import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import fiofoundation.io.fiosdk.isFioAddress
 import kotlinx.android.synthetic.main.manual_entry.*
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import kotlin.concurrent.thread
 
 class ManualAddressEntry : Activity() {
     private var coinAddress: Address? = null
@@ -49,17 +58,14 @@ class ManualAddressEntry : Activity() {
                         this@ManualAddressEntry,
                         R.layout.fio_address_item,
                         fioNames.filter {
-                    it.startsWith(entered.toString(), true)
-                }.toTypedArray())
+                            it.startsWith(entered.toString(), true)
+                        }.toTypedArray())
             }
         })
         btOk.setOnClickListener { _ ->
-            val result = Intent().apply {
-                putExtra(ADDRESS_RESULT_NAME, coinAddress)
-                putExtra(FIO_ADDRESS_RESULT_NAME, fioAddress)
-            }
-            this@ManualAddressEntry.setResult(RESULT_OK, result)
-            finish()
+            coinAddress?.run {
+                finishOk(this)
+            } ?: tryFioFinish()
         }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
         val account = mbwManager.selectedAccount
@@ -71,6 +77,34 @@ class ManualAddressEntry : Activity() {
 
         // Load saved state
         entered = savedInstanceState?.getString("entered") ?: ""
+    }
+
+    private fun finishOk(address: Address) {
+        val result = Intent().apply {
+            putExtra(ADDRESS_RESULT_NAME, address)
+        }
+        setResult(RESULT_OK, result)
+        finish()
+    }
+
+    private fun tryFioFinish() {
+        thread {
+            val coinType = mbwManager.selectedAccount.coinType
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val client = OkHttpClient()
+            val requestBody = """{"fio_address":"$fioAddress","chain_code":"BTC","token_code":"BTC"}"""
+            val request = Request.Builder()
+                    .url("${FIOTest.url}chain/get_pub_address")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            try {
+                val response = client.newCall(request).execute()
+                val result = mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
+                finishOk(coinType.parseAddress(result.publicAddress!!)!!)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     override fun onResume() {
@@ -85,6 +119,5 @@ class ManualAddressEntry : Activity() {
 
     companion object {
         const val ADDRESS_RESULT_NAME = "address"
-        const val FIO_ADDRESS_RESULT_NAME = "fioAddress"
     }
 }
