@@ -59,7 +59,6 @@
             android:layout_height="wrap_content"
             tools:text="FIO 1"
             android:fontFamily="sans-serif-medium"
-            android:text="FIO 1"
             android:textSize="16sp"
             app:layout_constraintBaseline_toBaselineOf="@id/tvConnectedFioAccountTitle"
             app:layout_constraintStart_toEndOf="@id/tvConnectedFioAccountTitle" />
@@ -121,14 +120,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
-            android:text="Connect FIO Name “myfiowallet@mycelium” with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key."
+            tools:text="@string/fio_connect_accounts_desc"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvConnectAccounts" />
 
         <Button
             android:id="@+id/btConnectAccounts"
-            style="@style/MyceliumButton"
+            style="@style/FioNameRegistrationButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="34dp"
@@ -138,7 +137,7 @@
 
         <Button
             android:id="@+id/btFinish"
-            style="@style/MyceliumButton"
+            style="@style/FioNameRegistrationButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

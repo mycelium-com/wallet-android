@@ -33,6 +33,8 @@ class RegisterFioNameCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         tvFioName.text = fioName
+        tvConnectAccountsDesc.text = resources.getString(R.string.fio_connect_accounts_desc, fioName)
+        tvConnectedFioAccount.text = fioAccountLabel
     }
 
     companion object {

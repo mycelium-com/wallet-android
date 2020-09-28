@@ -39,6 +39,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
     }
 
     var selectChangeListener: ((ItemAccount) -> Unit)? = null
+    var groupClickListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, typeView: Int): RecyclerView.ViewHolder =
             when (typeView) {

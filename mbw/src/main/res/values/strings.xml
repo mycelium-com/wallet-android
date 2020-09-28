@@ -1395,4 +1395,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="following_fio_names_registered_on_s">Following FIO names registered on %s</string>
     <string name="add_new_fio_name">Add new FIO Name</string>
     <string name="create_fio_domain">Create FIO Domain</string>
+    <string name="fio_connect_accounts_desc">Connect FIO Name \"%s\" with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key.</string>
+    <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
+    <string name="fio_create_name_hint_text">Enter unique username to create FIO Name</string>
 </resources>

@@ -61,5 +61,11 @@
     <color name="btn_text_color">#5aa7e6</color>
     <color name="media_flow_status_color">#881a1a1a</color>
 
+    <color name="fio_green">#51F129</color>
+    <color name="fio_red">#D21614</color>
+    <color name="fio_white_alpha_0_6">#99FFFFFF</color>
+    <color name="fio_white_alpha_0_8">#CCFFFFFF</color>
+    <color name="fio_white_alpha_0_9">#E5FFFFFF</color>
+
     <fraction name="background_alpha">50%</fraction>
 </resources>

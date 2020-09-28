@@ -279,6 +279,11 @@
         <item name="android:textColor">@color/button_text_color</item>
     </style>
 
+    <style name="FioNameRegistrationButton" parent="MyceliumButton">
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingTop">14dp</item>
+    </style>
+
     <style name="MyceliumButton.Blue">
         <item name="android:textColor">@color/button_blue_text_color</item>
     </style>
