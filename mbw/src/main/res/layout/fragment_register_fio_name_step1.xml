@@ -30,8 +30,9 @@
             android:layout_height="wrap_content"
             android:paddingStart="13dp"
             android:text="@string/fio_create_name_title"
-            android:textColor="#E6FFFFFF"
-            android:textSize="22sp"
+            android:textColor="@color/fio_white_alpha_0_9"
+            android:textSize="24sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/imFioLogo"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,8 +41,9 @@
             android:layout_height="wrap_content"
             android:paddingStart="13dp"
             android:text="Step 1/2"
-            android:textColor="#99FFFFFF"
-            android:textSize="12sp"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@id/tvTitle"
             app:layout_constraintStart_toEndOf="@id/tvTitle"
             app:layout_constraintTop_toTopOf="parent" />
@@ -52,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:hint="your username"
-            android:paddingTop="24dp"
+            android:layout_marginTop="40dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/spinner"
             app:layout_constraintTop_toBottomOf="@id/imFioLogo">
@@ -73,7 +75,7 @@
             android:background="@null"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="16sp"
             app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"
             app:layout_constraintRight_toRightOf="parent"
             tools:text="\@mycelium" />
@@ -83,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fio_create_name_hint_text"
-            android:textColor="#99FFFFFF"
+            android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/inputEditTextLayout" />
@@ -102,9 +104,9 @@
             android:id="@+id/tvFeeInfo2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="20dp"
+            android:paddingBottom="22dp"
             android:text="This payment is required by the FIO Protocol and not by Mycelium."
-            android:textColor="#99FFFFFF"
+            android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFeeInfo" />
