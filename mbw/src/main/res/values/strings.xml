@@ -1392,7 +1392,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name availability check and FIO Name registering due to service unavailability. Please check your internet connection and try again</string>
     <string name="fio_create_name_description"><b>Create FIO Name</b> - new simple way to Send and Request crypto without knowing public address!\n\n- Works across all tokens and coins\n- Secured from your wallet\n- Completely decentralized\n\nUse easy-to-remember unique FIO name like my_unique_fio@mycelium to send or request funds for any tokens or coins!</string>
     <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
-    <string name="fio_connect_accounts_desc">Connect FIO Name \"%s\" with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key.</string>
+    <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key.]]></string>
     <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
     <string name="fio_create_name_hint_text">Enter unique username to create FIO Name</string>
 </resources>

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
@@ -33,7 +34,8 @@ class RegisterFioNameCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         tvFioName.text = fioName
-        tvConnectAccountsDesc.text = resources.getString(R.string.fio_connect_accounts_desc, fioName)
+        tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_connect_accounts_desc, fioName),
+                HtmlCompat.FROM_HTML_MODE_COMPACT)
         tvConnectedFioAccount.text = fioAccountLabel
     }
 
