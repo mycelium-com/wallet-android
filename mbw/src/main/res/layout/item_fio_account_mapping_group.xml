@@ -3,25 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingTop="24dp"
+    android:paddingBottom="8dp">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:background="@drawable/pref_category_divider_first" />
+    <ImageView
+        android:id="@+id/expandIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/ic_expand_more_white_24dp" />
 
     <TextView
         android:id="@+id/title"
+        style="@style/FIOAccountGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2c2c2c"
-        android:fontFamily="sans-serif"
         android:paddingStart="16dp"
-        android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="10dp"
-        android:textColor="@color/common_blue"
-        android:textSize="16sp"
         tools:text="text" />
 
 </LinearLayout>

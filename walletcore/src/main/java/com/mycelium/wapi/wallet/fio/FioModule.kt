@@ -219,4 +219,5 @@ class FioModule(
 }
 
 fun WalletManager.getFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible }
+        .map { it as FioAccount }.sortedBy { it.accountIndex }
 fun WalletManager.getActiveFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible && it.isActive }

@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mycelium.wallet">
-
     <!-- basics -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <!-- sending an NFC payment request -->
-    <uses-permission android:name="android.permission.NFC" />
-    <!-- scanning qr codes -->
-    <uses-permission android:name="android.permission.CAMERA" />
-    <!-- location for local trader -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- the license checker -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- sending an NFC payment request -->
+    <uses-permission android:name="android.permission.NFC" /> <!-- scanning qr codes -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- location for local trader -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- the license checker -->
     <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
 
     <uses-feature
@@ -26,8 +19,7 @@
         android:required="false" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
-        android:required="false" />
-    <!-- nexus 7 has no backside camera but frontside camera should be able to scan -->
+        android:required="false" /> <!-- nexus 7 has no backside camera but frontside camera should be able to scan -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -35,14 +27,16 @@
     <application
         android:name=".WalletApplication"
         android:allowBackup="false"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/MyceliumModern">
-        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
+        <activity android:name=".activity.fio.registerdomain.RegisterFIODomainActivity"></activity>
 
-        <!-- file provider to enable secure intent sharing for encrypted backups -->
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="true" /> <!-- file provider to enable secure intent sharing for encrypted backups -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"
@@ -51,11 +45,8 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/my_paths" />
-        </provider>
-
-        <!-- Service for Cloud Messaging -->
-        <service
-            android:name=".lt.notification.FcmListenerService">
+        </provider> <!-- Service for Cloud Messaging -->
+        <service android:name=".lt.notification.FcmListenerService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -64,13 +55,10 @@
             android:name=".service.TaskExecutionService"
             android:enabled="true"
             android:exported="false"
-            android:process=":Task" />
-        <!-- hack - hardcode to be able to support froyo -->
+            android:process=":Task" /> <!-- hack - hardcode to be able to support froyo -->
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
-        <!-- Startup -->
+            android:value="@integer/google_play_services_version" /> <!-- Startup -->
         <activity
             android:name=".activity.StartupActivity"
             android:label="@string/app_short_name"
@@ -162,18 +150,20 @@
             android:name=".activity.CustomCaptureActivity"
             android:stateNotNeeded="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
-        <activity android:name=".activity.TransactionDetailsActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen"/>
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activity.TransactionDetailsActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen" />
         <activity
             android:name=".activity.settings.SettingsActivity"
             android:label="@string/settings"
-            android:theme="@style/MyceliumSettings"/>
+            android:theme="@style/MyceliumSettings" />
         <activity
             android:name=".activity.settings.SetLocalCurrencyActivity"
             android:theme="@style/MyceliumSettings" />
-        <activity android:name=".activity.export.ExportAsQrActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen"/>
+        <activity
+            android:name=".activity.export.ExportAsQrActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen" />
         <activity android:name=".activity.export.BackupToPdfActivity" />
         <activity android:name=".activity.export.MrdDecryptDataActivity" />
         <activity android:name=".activity.export.VerifyBackupActivity" />
@@ -183,15 +173,18 @@
         <activity android:name=".activity.send.InstantWalletActivity" />
         <activity android:name=".activity.send.SendInitializationActivity" />
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
-        <activity android:name=".activity.send.SendCoinsActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen"/>
+        <activity
+            android:name=".activity.send.SendCoinsActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen" />
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
-        <activity android:name=".activity.receive.ReceiveCoinsActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen"/>
+        <activity
+            android:name=".activity.receive.ReceiveCoinsActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen" />
         <activity android:name=".simplex.SimplexMainActivity" />
-        <activity android:name=".external.changelly.ChangellyActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".external.changelly.ChangellyActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".external.changelly.ChangellyOfferActivity" />
         <activity android:name=".lt.activity.LtMainActivity" />
         <activity android:name=".lt.activity.CreateTrader1Activity" />
@@ -214,7 +207,8 @@
         <activity android:name=".lt.activity.sell.CreateOrEditAdActivity" />
         <activity android:name=".lt.activity.SendRequestActivity" />
         <activity android:name=".activity.UpdateNotificationActivity" />
-        <activity android:name=".activity.RestartPopupActivity"
+        <activity
+            android:name=".activity.RestartPopupActivity"
             android:theme="@style/MyceliumModern.Dialog.Transparent" />
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
@@ -245,25 +239,32 @@
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
         <activity android:name=".external.BuySellSelectActivity" />
-        <activity android:name=".activity.MessageVerifyActivity"/>
-        <activity android:name=".external.changelly.bch.ExchangeActivity"
-            android:theme="@style/MyceliumExchange"/>
-        <activity android:name=".activity.settings.SetSegwitChangeActivity"
-            android:theme="@style/MyceliumSettings"/>
+        <activity android:name=".activity.MessageVerifyActivity" />
+        <activity
+            android:name=".external.changelly.bch.ExchangeActivity"
+            android:theme="@style/MyceliumExchange" />
+        <activity
+            android:name=".activity.settings.SetSegwitChangeActivity"
+            android:theme="@style/MyceliumSettings" />
         <activity
             android:name=".activity.news.NewsActivity"
-            android:theme="@style/MyceliumNews" >
-            <meta-data android:name="android.app.default_searchable"
+            android:theme="@style/MyceliumNews">
+            <meta-data
+                android:name="android.app.default_searchable"
                 android:value=".activity.news.NewsSearchableActivity" />
         </activity>
-        <activity android:name=".activity.news.NewsImageActivity"
-            android:screenOrientation="landscape"/>
+        <activity
+            android:name=".activity.news.NewsImageActivity"
+            android:screenOrientation="landscape" />
         <activity android:name=".activity.export.ExportFioKeyActivity" />
         <activity
-            android:name=".activity.fio.mapaddress.FIOAddAddressActivity"
+            android:name=".activity.fio.registername.RegisterFioNameActivity"
             android:theme="@style/MyceliumFIO" />
-        <activity android:name=".activity.fio.mapaccount.AccountMappingActivity"
-            android:theme="@style/MyceliumSettings"/>
-
+        <activity
+            android:name=".activity.fio.mapaccount.AccountMappingActivity"
+            android:theme="@style/MyceliumFIOMapping" />
+        <activity android:name=".activity.fio.domain.FIODomainActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
     </application>
+
 </manifest>

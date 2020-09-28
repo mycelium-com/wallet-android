@@ -5,7 +5,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.mapaccount.FIOMapPubAddressViewModel" />
+            type="com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel" />
     </data>
 
     <LinearLayout xmlns:tools="http://schemas.android.com/tools"
