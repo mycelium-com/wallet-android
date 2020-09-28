@@ -263,6 +263,8 @@
         <activity
             android:name=".activity.fio.mapaccount.AccountMappingActivity"
             android:theme="@style/MyceliumFIOMapping" />
+        <activity android:name=".activity.fio.domain.FIODomainActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
     </application>
 
 </manifest>
