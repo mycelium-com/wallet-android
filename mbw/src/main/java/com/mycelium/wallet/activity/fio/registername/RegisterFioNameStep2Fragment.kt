@@ -31,7 +31,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
                             val walletManager = MbwManager.getInstance(context).getWalletManager(false)
                             val fioAccounts = walletManager.getFioAccounts()
                             spinnerFioAccounts?.adapter = ArrayAdapter(context,
-                                    R.layout.layout_fio_dropdown, R.id.text, fioAccounts.map { it.label }).apply {
+                                    R.layout.layout_fio_dropdown_medium_font, R.id.text, fioAccounts.map { it.label }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }
                             spinnerFioAccounts.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -41,7 +41,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
                                 }
                             }
                             spinnerPayFromAccounts?.adapter = ArrayAdapter(context,
-                                    R.layout.layout_fio_dropdown, R.id.text,
+                                    R.layout.layout_fio_dropdown_medium_font, R.id.text,
                                     fioAccounts.map { "${it.label} ${it.accountBalance.spendable.toStringWithUnit()}" }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }

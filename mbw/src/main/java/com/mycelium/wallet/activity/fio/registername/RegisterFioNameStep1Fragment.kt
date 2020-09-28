@@ -65,8 +65,8 @@ class RegisterFioNameStep1Fragment : Fragment() {
         viewModel.isFioServiceAvailable.observe(viewLifecycleOwner, Observer {
             doAddressCheck(viewModel.address.value!!)
         })
-        inputEditText.doOnTextChanged { _, _, _, _ ->
-            doAddressCheck(viewModel.address.value!!)
+        inputEditText.doOnTextChanged { text: CharSequence?, _, _, _ ->
+            doAddressCheck(text.toString())
         }
     }
 
