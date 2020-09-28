@@ -44,6 +44,13 @@ class FioModule(
         fioName in it.registeredFIONames
     }?.id
 
+    fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
+            .executeAsList().sortedBy { "${it.name}@${it.domain}" }
+
+    fun addKnownName(fioName: FioName) = walletDB.fioKnownNamesQueries.insert(fioName)
+
+    fun deleteKnownName(fioName: FioName) = walletDB.fioKnownNamesQueries.delete(fioName)
+
     private fun getFioSdk(accountIndex: Int): FIOSDK {
         val privkeyString = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)
         return FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString), serializationProvider, coinType.url)
