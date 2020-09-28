@@ -16,7 +16,7 @@ import java.util.*
 
 open class Item(val type: Int)
 
-class ItemGroup(val title: String = "") : Item(AccountMappingAdapter.TYPE_GROUP)
+class ItemGroup(val title: String = "", val accountCount: Int = 0, var isClosed: Boolean = true) : Item(AccountMappingAdapter.TYPE_GROUP)
 
 class ItemAccount(val accountId: UUID,
                   val label: String,
@@ -26,24 +26,25 @@ class ItemAccount(val accountId: UUID,
                   var isEnabled: Boolean = false) : Item(AccountMappingAdapter.TYPE_ACCOUNT)
 
 class ItemSubGroup(val title: String = "") : Item(AccountMappingAdapter.TYPE_SUB_GROUP)
-object ItemSpace : Item(AccountMappingAdapter.TYPE_SPACE)
+class ItemDivider(val bottomMargin: Int = 0) : Item(AccountMappingAdapter.TYPE_DIVIDER)
 
 class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
     companion object {
         const val TYPE_GROUP = 0
         const val TYPE_ACCOUNT = 1
         const val TYPE_SUB_GROUP = 2
-        const val TYPE_SPACE = 3
+        const val TYPE_DIVIDER = 4
     }
 
     var selectChangeListener: ((ItemAccount) -> Unit)? = null
+    var groupClickListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, typeView: Int): RecyclerView.ViewHolder =
             when (typeView) {
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_group, parent, false))
                 TYPE_ACCOUNT -> AccountViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_account, parent, false))
                 TYPE_SUB_GROUP -> SubGroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_sub_group, parent, false))
-                TYPE_SPACE -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list_space, parent, false))
+                TYPE_DIVIDER -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_list_divider, parent, false))
                 else -> TODO("Not Implemented")
             }
 
@@ -51,7 +52,15 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
         when (getItemViewType(position)) {
             TYPE_GROUP -> {
                 val item = getItem(position) as ItemGroup
-                (holder as GroupViewHolder).title.text = item.title
+                (holder as GroupViewHolder).run {
+                    expandIcon.rotation = if (item.isClosed) 180f else 0f
+                    title.text = "${item.title} (${item.accountCount})"
+                    itemView.setOnClickListener {
+                        item.isClosed = !item.isClosed
+                        expandIcon.rotation = if (item.isClosed) 180f else 0f
+                        groupClickListener?.invoke(item.title)
+                    }
+                }
             }
             TYPE_SUB_GROUP -> {
                 val item = getItem(position) as ItemSubGroup
@@ -67,6 +76,14 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                 holder.itemView.checkbox.setOnCheckedChangeListener { _, isChecked ->
                     (getItem(holder.adapterPosition) as ItemAccount).isEnabled = isChecked
                     selectChangeListener?.invoke(getItem(holder.adapterPosition) as ItemAccount)
+                }
+                holder.itemView.setOnClickListener {
+                    holder.itemView.checkbox.isChecked = !holder.itemView.checkbox.isChecked
+                }
+            }
+            TYPE_DIVIDER -> {
+                (getItem(position) as ItemDivider).run {
+                    holder.itemView.setPadding(0, 0, 0, bottomMargin)
                 }
             }
         }
@@ -86,7 +103,9 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                     TYPE_GROUP -> {
                         oldItem as ItemGroup
                         newItem as ItemGroup
-                        oldItem.title == newItem.title
+                        oldItem.title == newItem.title &&
+                                oldItem.accountCount == newItem.accountCount &&
+                                oldItem.isClosed == newItem.isClosed
                     }
                     TYPE_ACCOUNT -> {
                         oldItem as ItemAccount
@@ -100,6 +119,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
                         newItem as ItemSubGroup
                         oldItem.title == newItem.title
                     }
+                    TYPE_DIVIDER -> true
                     else -> false
                 }
     }

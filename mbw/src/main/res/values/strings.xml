@@ -1378,7 +1378,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="none">none</string>
     <string name="receive_title_fio">FIO Public key</string>
     <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
-    <string name="select_name_to_associate">Select accounts which you want to associate (map) with your FIO Name \"%s\".\nYou can only select one account per cryptocurrency i.e. one BTC account (HD or SA), one ETH account.</string>
+    <string name="select_name_to_associate">Connect accounts (map) with you FIO Name. Only 1 account per each cryptocurrency can be mapped with 1 FIO Name.</string>
     <string name="fio_register_address">Register FIO Name</string>
     <string name="fio_create_name_title">Create FIO Name</string>
     <string name="fio_address">FIO Address</string>
@@ -1392,6 +1392,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name availability check and FIO Name registering due to service unavailability. Please check your internet connection and try again</string>
     <string name="fio_create_name_description"><b>Create FIO Name</b> - new simple way to Send and Request crypto without knowing public address!\n\n- Works across all tokens and coins\n- Secured from your wallet\n- Completely decentralized\n\nUse easy-to-remember unique FIO name like my_unique_fio@mycelium to send or request funds for any tokens or coins!</string>
     <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
+    <string name="following_fio_names_registered_on_s">Following FIO names registered on %s</string>
+    <string name="add_new_fio_name">Add new FIO Name</string>
+    <string name="create_fio_domain">Create FIO Domain</string>
     <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key.]]></string>
     <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
     <string name="fio_create_name_hint_text">Enter unique username to create FIO Name</string>

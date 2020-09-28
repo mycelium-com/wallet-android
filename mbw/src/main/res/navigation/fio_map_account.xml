@@ -3,7 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fio_map_account.xml"
-    app:startDestination="@id/accountMappingFragment">
+    app:startDestination="@id/fioNameDetailsFragment">
+
+    <fragment
+        android:id="@+id/fioNameDetailsFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaccount.FioNameDetailsFragment"
+        android:label="FioNameDetailsFragment"
+        tools:layout="@layout/fragment_fio_name_details">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/accountMappingFragment">
+            <argument
+                android:name="fioName"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/accountMappingFragment"
