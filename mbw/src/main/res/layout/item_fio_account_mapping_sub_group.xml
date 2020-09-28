@@ -3,17 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
 
     <TextView
         android:id="@+id/text"
         style="@style/FIOAccountSubGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
         android:paddingStart="32dp"
-        android:paddingTop="4dp"
         android:paddingEnd="32dp"
-        android:paddingBottom="5dp"
         tools:text="text" />
 </LinearLayout>

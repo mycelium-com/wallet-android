@@ -12,7 +12,7 @@ import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.NameViewHo
 import com.mycelium.wapi.wallet.WalletAccount
 
 
-class FIONameItem(val title: String, val mappedAccountCount: Int = 0) : Item(AccountNamesAdapter.TYPE_FIO_NAME)
+class FIONameItem(val title: String, val mappedAccountCount: Int = 0, var isClosed: Boolean = true) : Item(AccountNamesAdapter.TYPE_FIO_NAME)
 class AccountItem(val account: WalletAccount<*>, val accountType: String) : Item(AccountNamesAdapter.TYPE_ACCOUNT)
 
 class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -22,6 +22,7 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
     }
 
     var fioNameClickListener: ((String) -> Unit)? = null
+    var switchGroupVisibilityListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -38,8 +39,14 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
             is NameViewHolder -> {
                 (getItem(position) as FIONameItem).let { item ->
                     holder.title.text = item.title + " (${item.mappedAccountCount})"
+                    holder.expandIcon.rotation = if (item.isClosed) 180f else 0f
                     holder.itemView.setOnClickListener {
                         fioNameClickListener?.invoke(item.title)
+                    }
+                    holder.expandIcon.setOnClickListener {
+                        item.isClosed = !item.isClosed
+                        holder.expandIcon.rotation = if (item.isClosed) 180f else 0f
+                        switchGroupVisibilityListener?.invoke(item.title)
                     }
                 }
             }
@@ -66,7 +73,9 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
                     TYPE_FIO_NAME -> {
                         newItem as FIONameItem
                         oldItem as FIONameItem
-                        oldItem.title == newItem.title
+                        oldItem.title == newItem.title &&
+                                oldItem.isClosed == newItem.isClosed &&
+                                oldItem.mappedAccountCount == newItem.mappedAccountCount
                     }
                     TYPE_ACCOUNT -> {
                         newItem as AccountItem

@@ -5,9 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingTop="28dp"
+    android:paddingBottom="8dp">
 
     <ImageView
+        android:id="@+id/expandIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -19,11 +22,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:fontFamily="sans-serif"
         android:paddingStart="16dp"
-        android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="10dp"
         android:singleLine="true"
         tools:text="text" />
 

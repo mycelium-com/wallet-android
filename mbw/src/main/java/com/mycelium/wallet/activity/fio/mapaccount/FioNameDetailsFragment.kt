@@ -1,6 +1,8 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import com.mycelium.wallet.activity.fio.mapaccount.adapter.FIONameItem
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.Item
 import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_fio_name_details.*
 
@@ -27,22 +30,19 @@ class FioNameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
             title = "FIO names"
         }
         list.adapter = adapter
+        list.itemAnimator = null
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         registeredOn.text = getString(R.string.following_fio_names_registered_on_s, MbwManager.getInstance(requireContext()).selectedAccount.label)
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         adapter.fioNameClickListener = {
             findNavController().navigate(R.id.actionNext)
         }
-        adapter.submitList(mutableListOf<Item>().apply {
-            fioModule.getAllFIONames().forEach { fioName ->
-                add(FIONameItem(fioName, 1))
-                fioModule.getFioAccountByFioName(fioName)?.let {
-                    walletManager.getAccount(it)?.let { account ->
-                        add(AccountItem(account, "asasas"))
-                    }
-                }
-            }
-        })
+        val preference = requireContext().getSharedPreferences("fio_name_details_preference", Context.MODE_PRIVATE)
+        adapter.switchGroupVisibilityListener = { fioName ->
+            preference.edit().putBoolean("isClosed${fioName}", !preference.getBoolean("isClosed${fioName}", true)).apply()
+            updateList(fioModule, preference, walletManager)
+        }
+        updateList(fioModule, preference, walletManager)
         addFIOName.setOnClickListener {
             startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
                     .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
@@ -51,5 +51,21 @@ class FioNameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
             startActivity(Intent(requireActivity(), RegisterFIODomainActivity::class.java)
                     .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
         }
+    }
+
+    private fun updateList(fioModule: FioModule, preference: SharedPreferences, walletManager: WalletManager) {
+        adapter.submitList(mutableListOf<Item>().apply {
+            fioModule.getAllFIONames().forEach { fioName ->
+                val isClosed = preference.getBoolean("isClosed${fioName}", true)
+                add(FIONameItem(fioName, 1, isClosed))
+                if (isClosed) {
+                    fioModule.getFioAccountByFioName(fioName)?.let {
+                        walletManager.getAccount(it)?.let { account ->
+                            add(AccountItem(account, "asasas"))
+                        }
+                    }
+                }
+            }
+        })
     }
 }

@@ -4,9 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingTop="24dp"
+    android:paddingBottom="8dp">
 
     <ImageView
+        android:id="@+id/expandIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -17,11 +20,8 @@
         style="@style/FIOAccountGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
         android:paddingStart="16dp"
-        android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="10dp"
         tools:text="text" />
 
 </LinearLayout>

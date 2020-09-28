@@ -1,6 +1,8 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +20,7 @@ import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressVie
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wallet.databinding.FragmentFioAccountMappingBinding
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.bip44.getActiveHDAccounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
@@ -61,6 +64,26 @@ class AccountMappingFragment : Fragment() {
             }
             adapter.submitList(data.toList())
         }
+        val preference = requireContext().getSharedPreferences("fio_account_mapping_preference", Context.MODE_PRIVATE)
+        adapter.groupClickListener = {
+            preference.edit().putBoolean("isClosed$it", !preference.getBoolean("isClosed$it", false)).apply()
+            updateList(walletManager, preference)
+        }
+        updateList(walletManager, preference)
+        buttonContinue.setOnClickListener {
+//            TODO("account mapping not implemented")
+            findNavController().popBackStack()
+//            findNavController().navigate(R.id.actionNext, Bundle().apply {
+//                putStringArray("accounts", data.filterIsInstance<ItemAccount>().filter { it.isEnabled }.map { it.accountId.toString() }.toTypedArray())
+//            })
+        }
+        renewFIOName.setOnClickListener {
+            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
+                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
+        }
+    }
+
+    private fun updateList(walletManager: WalletManager, preference: SharedPreferences) {
         data.clear()
         data.apply {
             val btcHDAccounts = walletManager.getActiveHDAccounts().map {
@@ -74,18 +97,20 @@ class AccountMappingFragment : Fragment() {
                         it.coinType)
             }
             if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
-                add(ItemGroup(getString(R.string.bitcoin_name) + " (${btcHDAccounts.size + btcSAAccounts.size})"))
-                if (btcHDAccounts.isNotEmpty()) {
+                val title = getString(R.string.bitcoin_name)
+                val isClosed = preference.getBoolean("isClosed$title", false)
+                add(ItemGroup(title, btcHDAccounts.size + btcSAAccounts.size, isClosed))
+                if (btcHDAccounts.isNotEmpty() && !isClosed) {
                     add(ItemSubGroup(getString(R.string.active_hd_accounts_name)))
-                    add(ItemDivider)
+                    add(ItemDivider())
                     addAll(btcHDAccounts)
-                    add(ItemDivider)
+                    add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
                 }
-                if (btcSAAccounts.isNotEmpty()) {
+                if (btcSAAccounts.isNotEmpty() && !isClosed) {
                     add(ItemSubGroup(getString(R.string.active_bitcoin_sa_group_name)))
-                    add(ItemDivider)
+                    add(ItemDivider())
                     addAll(btcSAAccounts)
-                    add(ItemDivider)
+                    add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
                 }
             }
             walletManager.getActiveEthAccounts().map {
@@ -93,26 +118,18 @@ class AccountMappingFragment : Fragment() {
                         Utils.getDrawableForAccount(it, false, resources), it.coinType)
             }.apply {
                 if (this.isNotEmpty()) {
-                    add(ItemGroup(getString(R.string.ethereum_name) + " (${this.size})"))
-                    add(ItemDivider)
-                    addAll(this)
-                    add(ItemDivider)
+                    val title = getString(R.string.ethereum_name)
+                    val isClosed = preference.getBoolean("isClosed$title", false)
+                    add(ItemGroup(title, this.size, isClosed))
+                    if (!isClosed) {
+                        add(ItemDivider())
+                        addAll(this)
+                        add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
+                    }
                 }
             }
-            add(ItemSpace)
         }
-        adapter.submitList(data)
-        buttonContinue.setOnClickListener {
-//            TODO("account mapping not implemented")
-            findNavController().popBackStack()
-//            findNavController().navigate(R.id.actionNext, Bundle().apply {
-//                putStringArray("accounts", data.filterIsInstance<ItemAccount>().filter { it.isEnabled }.map { it.accountId.toString() }.toTypedArray())
-//            })
-        }
-        renewFIOName.setOnClickListener {
-            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
-                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
-        }
+        adapter.submitList(data.toList())
     }
 
 //    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
