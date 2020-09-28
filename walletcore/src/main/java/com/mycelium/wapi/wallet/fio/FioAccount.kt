@@ -45,7 +45,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     @Volatile
-    protected var syncing = false
+    private var syncing = false
 
     val accountIndex: Int
         get() = accountContext.accountIndex
@@ -55,12 +55,11 @@ class FioAccount(private val accountContext: FioAccountContext,
     /**
      * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
      */
-    fun registerFIOAddress(fioAddress: String): String? {
-        return fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
-                getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration?.also {
-            addRegisteredAddress(fioAddress)
-        }
-    }
+    fun registerFIOAddress(fioAddress: String): String? =
+            fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
+                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration?.also {
+                addRegisteredAddress(fioAddress)
+            }
 
     fun isFIOAddressAvailable(fioAddress: String): Boolean = fiosdk!!.isAvailable(fioAddress).isAvailable
 
@@ -71,12 +70,10 @@ class FioAccount(private val accountContext: FioAccountContext,
         return actionTraceResponse != null && actionTraceResponse.status == "OK"
     }
 
-    private fun getFioNames(): List<FIOAddress> {
-        return try {
-            fiosdk!!.getFioNames().fioAddresses ?: emptyList()
-        } catch (e: Exception) {
-            emptyList()
-        }
+    private fun getFioNames(): List<FIOAddress> = try {
+        fiosdk!!.getFioNames().fioAddresses ?: emptyList()
+    } catch (e: Exception) {
+        emptyList()
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {

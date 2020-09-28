@@ -58,7 +58,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     lateinit var amountHint: String
         private set
 
-    protected val mbwManager = MbwManager.getInstance(context)!!
+    protected val mbwManager = MbwManager.getInstance(context)
     protected lateinit var model: SendCoinsModel
     protected var progressDialog: ProgressDialog? = null
 
@@ -283,6 +283,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         } else if (requestCode == SendCoinsActivity.MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
                     data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
+            model.receivingFioAddress.value =
+                    data.getStringExtra(ManualAddressEntry.FIO_ADDRESS_RESULT_NAME)
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
                     (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction

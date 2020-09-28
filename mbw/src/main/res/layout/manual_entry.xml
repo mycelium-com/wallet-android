@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="30dp"
-        android:text="@string/enter_bitcoin_address"
+        android:text="@string/enter_recipient_title"
         android:textSize="24sp" />
 
     <View
@@ -20,45 +21,72 @@
     </View>
 
     <EditText
-        android:id="@+id/etAddress"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textAutoComplete"
-        android:padding="20dp"
-        android:typeface="monospace" />
+            android:id="@+id/etRecipient"
+            android:hint="@string/enter_recipient_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="6dp"
+            android:inputType="textAutoComplete"
+            android:typeface="monospace" />
 
     <TextView
-        android:id="@+id/tvBitcoinAddressValid"
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="15dp"
-        android:text="@string/bitcoin_address_valid"
-        android:textColor="@color/green"
-        android:textSize="18sp"
-        android:visibility="gone" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="6dp"
+            android:text="@string/enter_recipient_description" />
 
     <TextView
-        android:id="@+id/tvBitcoinAddressInvalid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="15dp"
-        android:text="@string/bitcoin_address_invalid"
-        android:textColor="@color/red"
-        android:textSize="18sp" />
+            android:id="@+id/tvRecipientValid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="6dp"
+            android:text="@string/recipient_valid"
+            android:textColor="@color/green"
+            android:textSize="18sp"
+            tools:visibility="visible"
+            android:visibility="gone" />
+
+    <TextView
+            android:id="@+id/tvRecipientInvalid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="6dp"
+            android:text="@string/recipient_invalid"
+            android:textColor="@color/red"
+            android:textSize="18sp" />
 
     <Button
-        android:id="@+id/btOk"
+            android:id="@+id/btOk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="6dp"
+            android:text="@string/ok"
+            android:textSize="20sp" />
+    <LinearLayout
+            android:id="@+id/llKnownFioNames"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="6dp"
+            android:orientation="vertical">
+        <TextView
+                android:text="@string/fio_names"
+                android:textAllCaps="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        <ListView
+                android:id="@+id/lvKnownFioNames"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@null"/>
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:text="@string/ok"
-        android:textSize="20sp" />
+    </LinearLayout>
 
 </LinearLayout>
