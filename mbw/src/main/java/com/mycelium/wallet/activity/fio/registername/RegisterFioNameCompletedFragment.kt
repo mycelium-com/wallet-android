@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
@@ -11,6 +12,15 @@ import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
 
 class RegisterFioNameCompletedFragment : Fragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // without this the navigation through back button would return to previous fragment (name registration and the payment)
+        // but the desired behavior here is to finish the activity as we have completed the registration
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            requireActivity().finish()
+        }.apply { this.isEnabled = true }
+    }
+
     private val fioName: String by lazy {
         requireArguments().getSerializable("fioName") as String
     }

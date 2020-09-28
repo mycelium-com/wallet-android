@@ -168,7 +168,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="26dp"
-            android:text="Confirm FIO Name"
+            android:text="@string/fio_confirm_and_pay"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvPayFrom" />
     </androidx.constraintlayout.widget.ConstraintLayout>
