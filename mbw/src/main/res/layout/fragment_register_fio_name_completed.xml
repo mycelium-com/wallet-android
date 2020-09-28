@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+            app:srcCompat="@drawable/ic_fio_logo_gray" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -25,8 +25,8 @@
             android:layout_height="wrap_content"
             android:paddingStart="13dp"
             android:text="FIO Name registered:"
-            android:textColor="#99FFFFFF"
-            android:textSize="22sp"
+            android:textColor="@color/fio_white_alpha_0_9"
+            android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@id/imFioLogo"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,8 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
             android:text="Connected to FIO account: "
-            android:textColor="#E5FFFFFF"
-            android:fontFamily="sans-serif-light"
+            android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFioName" />
@@ -77,9 +76,9 @@
             android:id="@+id/tvExpirationDateTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="7dp"
+            android:layout_marginTop="6dp"
             android:text="Expiration date: "
-            android:textColor="#E5FFFFFF"
+            android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvConnectedFioAccountTitle" />
@@ -91,6 +90,7 @@
             tools:text="September 20, 2021 at 6:23pm"
             android:text="September 20, 2021 at 6:23pm"
             android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
             app:layout_constraintBaseline_toBaselineOf="@id/tvExpirationDateTitle"
             app:layout_constraintStart_toEndOf="@id/tvExpirationDateTitle" />
 
@@ -108,7 +108,7 @@
             android:id="@+id/tvConnectAccounts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="29dp"
             android:text="Connect accounts to FIO Name"
             android:textSize="22sp"
             android:textStyle="bold"

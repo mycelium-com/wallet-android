@@ -100,6 +100,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:textSize="16sp"
+            android:dropDownWidth="wrap_content"
             app:layout_constraintBottom_toBottomOf="@id/tvConnectedFioAccount"
             app:layout_constraintStart_toEndOf="@id/tvConnectedFioAccount"
             app:layout_constraintTop_toTopOf="@id/tvConnectedFioAccount" />
