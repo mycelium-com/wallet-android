@@ -28,6 +28,8 @@ class ManualAddressEntry : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.manual_entry)
         mbwManager = MbwManager.getInstance(this)
+        val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+        val fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }.toTypedArray()
         etRecipient.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
@@ -43,12 +45,12 @@ class ManualAddressEntry : Activity() {
                 tvRecipientInvalid.visibility = if (!recipientValid) View.VISIBLE else View.GONE
                 tvRecipientValid.visibility = if (recipientValid) View.VISIBLE else View.GONE
                 btOk.isEnabled = recipientValid
-                val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-                val fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }.toTypedArray()
-                lvKnownFioNames.adapter = ArrayAdapter<String>(this@ManualAddressEntry, R.layout.fio_address_item, fioNames)
-                lvKnownFioNames.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-                    etRecipient.setText(parent.adapter.getItem(position) as String)
-                }
+                lvKnownFioNames.adapter = ArrayAdapter<String>(
+                        this@ManualAddressEntry,
+                        R.layout.fio_address_item,
+                        fioNames.filter {
+                    it.startsWith(entered.toString(), true)
+                }.toTypedArray())
             }
         })
         btOk.setOnClickListener { _ ->
@@ -60,10 +62,12 @@ class ManualAddressEntry : Activity() {
             finish()
         }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
-        val account = mbwManager!!.selectedAccount
+        val account = mbwManager.selectedAccount
         tvTitle.text = getString(R.string.enter_address, account.coinType.name)
-        val fioModule = mbwManager!!.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-        lvKnownFioNames.adapter = ArrayAdapter<String>(this, R.layout.fio_address_item, fioModule.getAllFIONames())
+        lvKnownFioNames.adapter = ArrayAdapter<String>(this, R.layout.fio_address_item, fioNames)
+        lvKnownFioNames.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+            etRecipient.setText(parent.adapter.getItem(position) as String)
+        }
 
         // Load saved state
         entered = savedInstanceState?.getString("entered") ?: ""
