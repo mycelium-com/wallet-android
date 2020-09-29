@@ -58,7 +58,7 @@ class FIODomainsFragment : Fragment(R.layout.fragment_fio_domains) {
         adapter.submitList(mutableListOf<Item>().apply {
             val domain = "my-own-domain"
             val isClosed = preference.getBoolean("isClosed${domain}", true)
-            add(FIODomainItem(domain, 2))
+            add(FIODomainItem(domain, 2, isClosed))
             if (!isClosed) {
                 add(FIONameItem("name1@my-own-domain", Date()))
                 add(FIONameItem("name2@my-own-domain", Date()))
