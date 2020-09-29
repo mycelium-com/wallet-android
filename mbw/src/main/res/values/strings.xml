@@ -1398,4 +1398,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key.]]></string>
     <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
     <string name="fio_create_name_hint_text">Enter unique username to create FIO Name</string>
+    <string name="tab_fio_requests">FIO Requests</string>
 </resources>

@@ -101,8 +101,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@{viewModel.sendTo}"
+
                         tools:text="newAddress@domain" />
+                    <!--                        android:text="@{viewModel.sendTo}"-->
                 </LinearLayout>
 
                 <LinearLayout
@@ -118,8 +119,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@{viewModel.sendTo}"
                         tools:text="newAddress@domain" />
+
+<!--                    android:text="@{viewModel.sendTo}"-->
                 </LinearLayout>
 
                 <LinearLayout
@@ -157,9 +159,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@{viewModel.payingFrom}"
                         android:textColor="@color/fio_green"
                         tools:text="newAddress@domain" />
+
+<!--                    android:text="@{viewModel.payingFrom}"-->
                 </LinearLayout>
 
 
