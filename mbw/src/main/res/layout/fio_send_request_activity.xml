@@ -154,7 +154,7 @@
 
                 <!-- Send -->
                 <include
-                    layout="@layout/send_fio_send_section"
+                    layout="@layout/fio_send_section"
                     app:activity="@{activity}"
                     app:viewModel="@{viewModel}" />
             </LinearLayout>
