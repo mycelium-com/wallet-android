@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.View
 import android.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -34,6 +35,7 @@ import asStringRes
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import kotlinx.android.synthetic.main.receive_coins_activity_share.*
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
@@ -66,11 +68,25 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
         activateNfc()
 
-        initDatabinding(account)
+        val binding = initDatabinding(account)
+        initWithBindings(binding)
 
         if (viewModel is ReceiveBtcViewModel &&
                 (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
             createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
+        }
+    }
+
+    fun initWithBindings(binding: ViewDataBinding?) {
+        when(binding){
+            is ReceiveCoinsActivityBinding -> {
+                btCreateFioRequest.setOnClickListener {
+                    viewModel.createFioRequest()
+                }
+            }
+            is ReceiveCoinsActivityBtcBinding -> {
+
+            }
         }
     }
 
@@ -108,7 +124,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         })
     }
 
-    private fun initDatabinding(account: WalletAccount<*>) {
+    private fun initDatabinding(account: WalletAccount<*>): ViewDataBinding? {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
@@ -127,6 +143,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                     else -> getDefaultBinding()
                 }
         receiveCoinsActivityNBinding.setLifecycleOwner(this)
+
+
+        return receiveCoinsActivityNBinding
     }
 
     private fun getDefaultBinding(): ReceiveCoinsActivityBinding =

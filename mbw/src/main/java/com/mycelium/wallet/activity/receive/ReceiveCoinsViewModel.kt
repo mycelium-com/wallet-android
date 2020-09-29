@@ -141,6 +141,10 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
     }
 
+    fun createFioRequest() {
+
+    }
+
     companion object {
         const val GET_AMOUNT_RESULT_CODE = 1
     }

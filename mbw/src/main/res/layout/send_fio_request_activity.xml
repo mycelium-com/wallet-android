@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:id="@+id/root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:text="Send to:" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.sendTo}"
+                        tools:text="newAddress@domain" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:text="Sent from:" />
+
+                    <androidx.appcompat.widget.AppCompatSpinner
+                        android:id="@+id/fromFioNameSpinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/send_coin_spinner_selector"
+                        android:textSize="14sp"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvNonceLabel" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:text="Paying from" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.payingFrom}"
+                        android:textColor="@color/fio_green"
+                        tools:text="newAddress@domain" />
+                </LinearLayout>
+                <!--                &lt;!&ndash;Heading, containing buttons, or currently selected address&ndash;&gt;-->
+                <!--                <include-->
+                <!--                    layout="@layout/send_coins_heading"-->
+                <!--                    app:viewModel="@{viewModel}"-->
+                <!--                    app:activity="@{activity}" />-->
+
+
+                <!--Warnings-->
+                <include
+                    layout="@layout/send_coins_activity_warnings_heap"
+                    app:activity="@{activity}"
+                    app:viewModel="@{viewModel}" />
+
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Enter amount" />
+
+                    <!--Contains amount selection-->
+                    <include
+                        layout="@layout/send_coins_amount"
+                        app:activity="@{activity}"
+                        app:viewModel="@{viewModel}" />
+
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="Memo Received" />
+
+                <TextView
+                    android:id="@+id/tvMemo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    tools:text="Please give me money to party" />
+                <!--Fee selector-->
+                <include
+                    layout="@layout/send_coins_fee_block"
+                    app:viewModel="@{viewModel}" />
+                <!-- Amount Error -->
+                <include
+                    layout="@layout/send_coins_insufficient"
+                    app:viewModel="@{viewModel}" />
+
+                <!--Update progress bar-->
+                <include
+                    layout="@layout/send_coins_progress"
+                    app:viewModel="@{viewModel}" />
+
+                <!-- Send -->
+                <include
+                    layout="@layout/send_fio_send_section"
+                    app:activity="@{activity}"
+                    app:viewModel="@{viewModel}" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</layout>
