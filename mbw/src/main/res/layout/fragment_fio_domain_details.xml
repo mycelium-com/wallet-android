@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.domain.viewmodel.FIODomainViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fioNameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:background="@drawable/bg_fio_rectangle">
+
+                <ImageView
+                    android:id="@+id/coinIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="12dp"
+                    android:scaleType="center"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+
+                <TextView
+                    android:id="@+id/fioName"
+                    style="@style/myfiowallet"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="myfiowallet@mycelium"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/coinIcon"
+                    app:layout_constraintLeft_toRightOf="@id/coinIcon"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/coinIcon" />
+
+                <TextView
+                    android:id="@+id/expireDate"
+                    style="@style/fio_account"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Expiration date:"
+                    app:layout_constraintLeft_toRightOf="@id/coinIcon"
+                    app:layout_constraintTop_toBottomOf="@id/fioName"
+                    app:layout_goneMarginBottom="16dp" />
+
+                <TextView
+                    android:id="@+id/expireDateValue"
+                    style="@style/fio_account"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="2021-09-20\n17:39:10"
+                    app:layout_constraintBottom_toTopOf="@id/renewFIOName"
+                    app:layout_constraintLeft_toRightOf="@id/expireDate"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fioName"
+                    app:layout_goneMarginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/renewFIOName"
+                    style="@style/MyceliumButton.FIO"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="Renew FIO Domain"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                style="@style/fio_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="FIO Name/s registered under selected domain:" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                tools:listitem="@layout/item_fio_account_mapping_account" />
+
+
+            <Button
+                android:id="@+id/createFIOName"
+                style="@style/MyceliumButton.FIO"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="Create new FIO Name"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

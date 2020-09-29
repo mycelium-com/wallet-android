@@ -683,12 +683,23 @@ public class AccountsFragment extends Fragment {
 
             @Override
             public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                switch (id) {
+                    case R.id.miMapFioAddress:
+                        Intent intent = new Intent(requireActivity(), RegisterFioNameActivity.class)
+                                .putExtra("account", account.getId());
+                        startActivity(intent);
+                        return true;
+                    case R.id.miFioMapAccounts:
+                    case R.id.miMapToFio:
+                        FioHelper.chooseAccountToMap(requireActivity(), walletManager);
+                        return true;
+                }
                 // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
                 if (requireFocusedAccount().isSyncing()) {
                     _toaster.toast(R.string.synchronizing_please_wait, false);
                     return true;
                 }
-                int id = menuItem.getItemId();
                 switch (id) {
                     case R.id.miActivate:
                         activateSelected();
@@ -728,15 +739,6 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miRescan:
                         rescan();
-                        return true;
-                    case R.id.miMapFioAddress:
-                        Intent intent = new Intent(requireActivity(), RegisterFioNameActivity.class)
-                                .putExtra("account", account.getId());
-                        startActivity(intent);
-                        return true;
-                    case R.id.miFioMapAccounts:
-                    case R.id.miMapToFio:
-                        FioHelper.chooseAccountToMap(requireActivity(), walletManager);
                         return true;
                     default:
                         return false;
