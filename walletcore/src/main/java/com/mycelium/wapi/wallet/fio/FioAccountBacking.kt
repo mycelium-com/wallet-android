@@ -7,12 +7,26 @@ import com.mycelium.wapi.wallet.OutputViewModel
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import org.web3j.tx.Transfer
 import java.util.*
 
 class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
     private val fioQueries = walletDB.fioAccountBackingQueries
     private val queries = walletDB.accountBackingQueries
+
+    fun putRequestsSummaries(list: List<FIORequestContent>) {
+        list.forEach {
+            fioQueries.insertRequest(
+                    it.fioRequestId.longValueExact(),
+                    it.payerFioAddress,
+                    it.payeeFioAddress,
+                    it.payerFioAddress,
+                    it.payeeFioAddress,
+                    it.content,
+                    it.timeStamp)
+        }
+    }
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
             fioQueries.selectFioTransactionSummaries(uuid, limit, offset, mapper = { txid: String,

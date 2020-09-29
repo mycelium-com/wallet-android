@@ -155,6 +155,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
+        syncFioRequests()
         syncFioAddresses()
         updateBlockHeight()
         syncTransactions()
@@ -168,10 +169,16 @@ class FioAccount(private val accountContext: FioAccountContext,
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.log(Level.INFO, "asdaf update balance exception: ${e.message}")
+            logger.log(Level.INFO, "update balance exception: ${e.message}")
         }
         syncing = false
         return true
+    }
+
+    private fun syncFioRequests() {
+        val sentFioRequests = fiosdk?.getSentFioRequests()?: emptyList()
+        val pendingFioRequests = fiosdk?.getPendingFioRequests()?: emptyList()
+        backing.putRequestsSummaries(sentFioRequests + pendingFioRequests)
     }
 
     private fun syncFioAddresses() {
