@@ -28,6 +28,20 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         }
     }
 
+    fun getRequestsSummaries(): List<FIORequestContent> {
+        return fioQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp ->
+            val fioRequestContent = FIORequestContent()
+            fioRequestContent.fioRequestId = fio_request_id.toBigInteger()
+            fioRequestContent.payerFioAddress = payer_fio_address
+            fioRequestContent.payeeFioAddress = payee_fio_address
+            fioRequestContent.payerFioPublicKey = payer_fio_public_key
+            fioRequestContent.payeeFioPublicKey = payee_fio_public_key
+            fioRequestContent.content = content
+            fioRequestContent.timeStamp = time_stamp
+            fioRequestContent
+        }.executeAsList()
+    }
+
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
             fioQueries.selectFioTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
                                                                                      currency: CryptoCurrency,
