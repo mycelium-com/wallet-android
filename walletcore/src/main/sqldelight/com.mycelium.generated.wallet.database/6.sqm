@@ -1,0 +1,5 @@
+import com.mycelium.wapi.wallet.fio.FioName;
+
+CREATE TABLE IF NOT EXISTS FioKnownNames(
+    name TEXT AS FioName PRIMARY KEY
+);

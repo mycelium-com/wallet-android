@@ -9,7 +9,7 @@ SELECT name
 FROM FioKnownNames;
 
 insert:
-INSERT INTO FioKnownNames(name)
+INSERT OR REPLACE INTO FioKnownNames(name)
 VALUES (?);
 
 delete:
