@@ -6,8 +6,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -18,6 +17,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
@@ -31,6 +31,7 @@ import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import java.io.IOException
 import java.util.*
 
 class ManualAddressEntry : Activity() {
@@ -40,15 +41,18 @@ class ManualAddressEntry : Activity() {
     private lateinit var mbwManager: MbwManager
     private lateinit var fioModule: FioModule
     private lateinit var fioNames: Array<String>
+    private lateinit var coinType: CryptoCurrency
     private val fioNameToNbpaMap = mutableMapOf<String, String>()
     private var fioQueryCounter = 0
     private val checkedFioNames = mutableSetOf<String>()
+    private var noConnection = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.manual_entry)
         mbwManager = MbwManager.getInstance(this)
+        coinType = mbwManager.selectedAccount.coinType
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }.toTypedArray()
         etRecipient.addTextChangedListener(object : TextWatcher {
@@ -62,8 +66,7 @@ class ManualAddressEntry : Activity() {
             finishOk(coinAddress!!)
         }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
-        val account = mbwManager.selectedAccount
-        tvTitle.text = getString(R.string.enter_address, account.coinType.name)
+        tvTitle.text = getString(R.string.enter_address, coinType.name)
         lvKnownFioNames.adapter = ArrayAdapter<String>(this, R.layout.fio_address_item, fioNames)
         lvKnownFioNames.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
             etRecipient.setText(parent.adapter.getItem(position) as String)
@@ -74,24 +77,31 @@ class ManualAddressEntry : Activity() {
     }
 
     private fun updateUI() {
-        entered = etRecipient.text.toString()
-        val currencyType = mbwManager.selectedAccount.coinType
-        if (entered?.isFioAddress() == true) {
-            coinAddress = currencyType.parseAddress(fioNameToNbpaMap[entered!!])
-            if (coinAddress == null && !checkedFioNames.contains(entered!!)) {
-                // query fio for a native blockchain public address
-                CoroutineScope(Dispatchers.Main).launch { tryFio(entered!!) }
+        val isFio: Boolean = etRecipient.text.toString().isFioAddress()
+        coinAddress = coinType.parseAddress(fioNameToNbpaMap[etRecipient.text.toString()])
+        if (entered != etRecipient.text.toString()) {
+            entered = etRecipient.text.toString()
+            if (isFio) {
+                if (coinAddress == null && !checkedFioNames.contains(entered!!)) {
+                    // query fio for a native blockchain public address
+                    CoroutineScope(Dispatchers.Main).launch { tryFio(entered!!) }
+                }
+                fioAddress = entered
+            } else {
+                coinAddress = coinType.parseAddress(entered!!.trim { it <= ' ' })
+                fioAddress = null
             }
-            fioAddress = entered
-        } else {
-            coinAddress = currencyType.parseAddress(entered!!.trim { it <= ' ' })
-            fioAddress = null
         }
-
         val recipientValid = coinAddress != null
-        tvCheckingFioAddress.visibility = if (fioQueryCounter > 0) VISIBLE else GONE
-        tvRecipientInvalid.visibility = if (fioQueryCounter <= 0 && !recipientValid) VISIBLE else GONE
-        tvRecipientValid.visibility = if (fioQueryCounter <= 0 && recipientValid) VISIBLE else GONE
+        for (tv in listOf(tvCheckingFioAddress, tvRecipientInvalid, tvRecipientValid,
+                tvNoConnection)) { tv.visibility = GONE }
+        when {
+            entered?.isEmpty() ?: true -> tvRecipientValid.visibility = INVISIBLE
+            recipientValid -> tvRecipientValid.visibility = VISIBLE
+            fioQueryCounter > 0 -> tvCheckingFioAddress.visibility = VISIBLE
+            noConnection && isFio -> tvNoConnection.visibility = VISIBLE
+            else -> tvRecipientInvalid.visibility = VISIBLE
+        }
         btOk.isEnabled = recipientValid
         val filteredNames = fioNames.filter {
                     it.startsWith(entered.toString(), true)
@@ -121,7 +131,6 @@ class ManualAddressEntry : Activity() {
         fioQueryCounter++
         updateUI()
         withContext(Dispatchers.IO) {
-            val coinType = mbwManager.selectedAccount.coinType
             val fioSymbol = coinType.symbol.toUpperCase(Locale.US)
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
@@ -132,10 +141,15 @@ class ManualAddressEntry : Activity() {
                         .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                         .build()
                 val response = client.newCall(request).execute()
+                noConnection = false
                 val result = mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
-                val npbaString = result.publicAddress ?: throw Exception("No public address found!")
-                fioModule.addKnownName(FioName(address))
-                fioNameToNbpaMap[address] = npbaString
+                result.publicAddress?.let { npbaString ->
+                    fioModule.addKnownName(FioName(address))
+                    fioNameToNbpaMap[address] = npbaString
+                }
+            } catch (e: IOException) {
+                checkedFioNames.remove(address)
+                noConnection = true
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     e.printStackTrace()
