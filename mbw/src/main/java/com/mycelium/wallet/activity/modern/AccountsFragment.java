@@ -685,8 +685,21 @@ public class AccountsFragment extends Fragment {
             @Override
             public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                 int id = menuItem.getItemId();
+                switch (id) {
+                    case R.id.miMapFioAddress:
+                        Intent intent = new Intent(requireActivity(), RegisterFioNameActivity.class);
+                        startActivity(intent);
+                        return true;
+                    case R.id.miRegisterFioDomain:
+                        startActivity(new Intent(requireActivity(), RegisterFIODomainActivity.class));
+                        return true;
+                    case R.id.miFioMapAccounts:
+                    case R.id.miMapToFio:
+                        FioHelper.chooseAccountToMap(requireActivity(), walletManager);
+                        return true;
+                }
                 // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-                if (requireFocusedAccount().isSyncing() && !okToIgnoreSync(id)) {
+                if (requireFocusedAccount().isSyncing()) {
                     _toaster.toast(R.string.synchronizing_please_wait, false);
                     return true;
                 }
@@ -730,17 +743,6 @@ public class AccountsFragment extends Fragment {
                     case R.id.miRescan:
                         rescan();
                         return true;
-                    case R.id.miMapFioAddress:
-                        Intent intent = new Intent(requireActivity(), RegisterFioNameActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.miRegisterFioDomain:
-                        startActivity(new Intent(requireActivity(), RegisterFIODomainActivity.class));
-                        return true;
-                    case R.id.miFioMapAccounts:
-                    case R.id.miMapToFio:
-                        FioHelper.chooseAccountToMap(requireActivity(), walletManager);
-                        return true;
                     default:
                         return false;
                 }
@@ -761,13 +763,6 @@ public class AccountsFragment extends Fragment {
         // starting for some reason, and this would clear the focus and force
         // an update.
         accountListAdapter.setFocusedAccountId(account.getId());
-    }
-
-    private boolean okToIgnoreSync(int miRes) {
-        return miRes == R.id.miMapFioAddress ||
-                miRes == R.id.miFioMapAccounts ||
-                miRes == R.id.miRegisterFioDomain ||
-                miRes == R.id.miMapToFio;
     }
 
     private void verifySingleKeyBackup() {

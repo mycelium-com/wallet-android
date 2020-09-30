@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.AccountViewHolder
-import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.NameViewHolder
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.GroupRowViewHolder
 import com.mycelium.wapi.wallet.WalletAccount
 
 
@@ -26,8 +26,8 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
-                TYPE_FIO_NAME -> NameViewHolder(LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_fio_name_details_name, parent, false))
+                TYPE_FIO_NAME -> GroupRowViewHolder(LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_fio_group_row, parent, false))
                 TYPE_ACCOUNT -> AccountViewHolder(LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_fio_name_details_account, parent, false))
                 else -> TODO("Not implemented")
@@ -36,7 +36,7 @@ class AccountNamesAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallb
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is NameViewHolder -> {
+            is GroupRowViewHolder -> {
                 (getItem(position) as FIONameItem).let { item ->
                     holder.title.text = item.title + " (${item.mappedAccountCount})"
                     holder.expandIcon.rotation = if (item.isClosed) 180f else 0f

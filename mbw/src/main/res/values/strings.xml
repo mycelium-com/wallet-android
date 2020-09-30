@@ -1407,4 +1407,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_create_domain_hint">Enter FIO Domain</string>
     <string name="fio_confirm_and_pay">Confirm &amp; Pay</string>
     <string name="fio_register_domain_desc">Register your own custom FIO Domain, where you can create and register any FIO names you want.</string>
+    <string name="fio_protocol_decentralized">The <font color="#2AA5DB"><u><b>FIO Protocol</b></u></font> is a decentralized service layer that bridges the gap between crypto endpoints such as wallets, exchanges, crypto payment processors, and any other application in which crypto assets are held and/or transferred.</string>
+    <string name="fio_name_readable_wallet_identifier"><b>FIO Name</b> - a human-readable wallet identifier (such as john@edge or alice@gold) which eliminates the need to see, or even know of, blockchain public addresses. FIO Addresses automatically support any token in a wallet/exchange, and requires no manual mapping.</string>
+    <string name="fio_requests_ability_to_request_funds"><b>FIO Requests</b> - the ability to request funds from any other wallet, utilizing in-wallet/app notifications and simple approvals. FIO Requests are fully encrypted between counter-parties, and do not interfere with the actual underlying blockchain transactions.</string>
 </resources>
