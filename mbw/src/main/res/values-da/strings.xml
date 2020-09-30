@@ -17,7 +17,6 @@
     <string name="confirmations">%d bekræftelser</string>
     <string name="receive">Modtag</string>
     <string name="private_key_deleted">Privat nøgle slettet.</string>
-    <string name="enter_recipient_title">Vælg modtageradresse</string>
     <string name="recipient_title">Modtageradresse</string>
     <string name="amount_label">Beløb:</string>
     <string name="amount_title">Beløb</string>

@@ -25,7 +25,6 @@
     <string name="send">Pošlji</string>
     <string name="receive">Prejmi</string>
     <string name="private_key_deleted">Zasebni ključ izbrisan</string>
-    <string name="enter_recipient_title">Vnesite prejemni naslov</string>
     <string name="recipient_title">Prejemni naslov</string>
     <string name="amount_label">Znesek:</string>
     <string name="amount_title">Znesek</string>

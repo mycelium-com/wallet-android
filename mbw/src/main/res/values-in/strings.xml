@@ -24,7 +24,6 @@
     <string name="send">Kirim</string>
     <string name="receive">Terima</string>
     <string name="private_key_deleted">Private key dihapus.</string>
-    <string name="enter_recipient_title">Masukkan alamat Penerima</string>
     <string name="recipient_title">Alamat Penerima</string>
     <string name="amount_label">Jumlah:</string>
     <string name="amount_title">Jumlah</string>

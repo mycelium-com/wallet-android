@@ -31,8 +31,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Enter Recipient</string>
-    <string name="enter_recipient_hint">Recipient Bitcoin Address or FIO Name</string>
-    <string name="enter_recipient_description">Enter Recipient Address or FIO Name</string>
+    <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
+    <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
     <string name="recipient_title">Recipient Address</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_title">Amount</string>

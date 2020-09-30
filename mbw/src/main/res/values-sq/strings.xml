@@ -24,7 +24,6 @@
     <string name="send">Dërgo</string>
     <string name="receive">Prano</string>
     <string name="private_key_deleted">Çelësi privat është fshirë.</string>
-    <string name="enter_recipient_title">Shkruaj adresën e marrësit</string>
     <string name="recipient_title">Adresa e marrësit</string>
     <string name="amount_label">Shuma:</string>
     <string name="amount_title">Shuma</string>

@@ -24,7 +24,6 @@
     <string name="send">Senden</string>
     <string name="receive">Empfangen</string>
     <string name="private_key_deleted">Privater Schlüssel entfernt, Bitcoin-Adresse bleibt bestehen</string>
-    <string name="enter_recipient_title">Empfänger-Adresse eingeben</string>
     <string name="recipient_title">Empfänger-Adresse</string>
     <string name="amount_label">Betrag</string>
     <string name="amount_title">Betrag</string>

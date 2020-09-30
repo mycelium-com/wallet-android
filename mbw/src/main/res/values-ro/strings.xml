@@ -16,7 +16,6 @@
     <string name="send">Trimite</string>
     <string name="receive">Primeşte</string>
     <string name="private_key_deleted">Cheie privată ştearsă.</string>
-    <string name="enter_recipient_title">Introdu adresa destinatarului</string>
     <string name="recipient_title">Adresa Destinatarului</string>
     <string name="amount_label">Suma:</string>
     <string name="amount_title">Suma</string>

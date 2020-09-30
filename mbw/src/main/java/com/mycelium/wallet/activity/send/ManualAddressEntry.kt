@@ -1,16 +1,17 @@
 package com.mycelium.wallet.activity.send
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.view.View.*
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.wallet.MbwManager
@@ -34,7 +35,7 @@ import okhttp3.RequestBody
 import java.io.IOException
 import java.util.*
 
-class ManualAddressEntry : Activity() {
+class ManualAddressEntry : AppCompatActivity() {
     private var coinAddress: Address? = null
     private var fioAddress: String? = null
     private var entered: String? = null
@@ -49,6 +50,12 @@ class ManualAddressEntry : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+        supportActionBar?.run {
+            title = getString(R.string.enter_recipient_title)
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.manual_entry)
         mbwManager = MbwManager.getInstance(this)
@@ -66,7 +73,8 @@ class ManualAddressEntry : Activity() {
             finishOk(coinAddress!!)
         }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
-        tvTitle.text = getString(R.string.enter_address, coinType.name)
+        etRecipient.hint = getString(R.string.enter_recipient_hint, coinType.name)
+        tvEnterRecipientDescription.text = getString(R.string.enter_recipient_description, coinType.name)
         lvKnownFioNames.adapter = ArrayAdapter<String>(this, R.layout.fio_address_item, fioNames)
         lvKnownFioNames.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
             etRecipient.setText(parent.adapter.getItem(position) as String)
@@ -75,6 +83,15 @@ class ManualAddressEntry : Activity() {
         // Load saved state
         entered = savedInstanceState?.getString("entered") ?: ""
     }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 
     private fun updateUI() {
         val isFio: Boolean = etRecipient.text.toString().isFioAddress()

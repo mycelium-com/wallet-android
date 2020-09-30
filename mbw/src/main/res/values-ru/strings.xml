@@ -25,7 +25,6 @@
     <string name="receive">Получить</string>
     <string name="private_key_deleted">Приватный ключ удален.</string>
     <string name="account_deleted">Аккаунт удален</string>
-    <string name="enter_recipient_title">Введите адрес получателя</string>
     <string name="recipient_title">Адрес получателя</string>
     <string name="amount_label">Количество:</string>
     <string name="amount_title">Сумма</string>

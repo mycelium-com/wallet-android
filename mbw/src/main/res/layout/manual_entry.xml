@@ -6,15 +6,6 @@
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="30dp"
-        android:text="@string/enter_recipient_title"
-        android:textSize="24sp" />
-
     <View
         android:layout_width="1dp"
         android:layout_height="20dp" >
@@ -31,6 +22,7 @@
             android:typeface="monospace" />
 
     <TextView
+            android:id="@+id/tvEnterRecipientDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
