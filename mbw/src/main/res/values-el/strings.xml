@@ -139,8 +139,6 @@
     <string name="broadcasting_transaction">Η Συνδιαλλαγή Εκπέμπεται</string>
     <string name="transaction_rejected_message">Η συνδιαλλαγή απορρίφθηκε από το δίκτυο. Αυτό υποδεικνύει ότι το πορτοφόλι σας είναι εκτός συγχρονισμού</string>
     <string name="enter_bitcoin_address">Εισαγάγετε Διεύθυνση Bitcoin</string>
-    <string name="bitcoin_address_invalid">Μη έγκυρη Διεύθυνση Bitcoin</string>
-    <string name="recipient_valid">Έγκυρη Διεύθυνση Bitcoin</string>
     <string name="redirecting_to_block_explorer">Προωθείστε σε πλοηγητή για μπλοκ</string>
     <string name="enter_local_currency">Επιλέξτε το τοπικό σας νόμισμα</string>
     <string name="using_address_from_clipboard">Γίνεται χρήση διεύθυνσης από το πρόχειρο</string>

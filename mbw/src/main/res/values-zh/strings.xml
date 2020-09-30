@@ -140,8 +140,6 @@
     <string name="broadcasting_transaction">正在播报交易</string>
     <string name="transaction_rejected_message">交易被网络拒绝。这表明您的钱包没有同步</string>
     <string name="enter_bitcoin_address">输入比特币地址</string>
-    <string name="bitcoin_address_invalid">比特币地址无效</string>
-    <string name="recipient_valid">比特币地址有效</string>
     <string name="redirecting_to_block_explorer">将重定向到一个块浏览器</string>
     <string name="enter_local_currency">请输入您的本地货币</string>
     <string name="using_address_from_clipboard">使用剪贴板中的地址</string>

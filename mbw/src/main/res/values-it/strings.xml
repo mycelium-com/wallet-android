@@ -133,8 +133,6 @@
     <string name="broadcasting_transaction">Trasmissione della transazione</string>
     <string name="transaction_rejected_message">La transazione è stata rifiutata dalla rete. Questo significa che il tuo portafogli non è sincronizzato</string>
     <string name="enter_bitcoin_address">Inserisci indirizzo Bitcoin</string>
-    <string name="bitcoin_address_invalid">Indirizzo bitcoin non valido</string>
-    <string name="recipient_valid">Indirizzo bitcoin valido</string>
     <string name="redirecting_to_block_explorer">Reindirizzamento verso un block explorer</string>
     <string name="enter_local_currency">Inserire la valuta locale</string>
     <string name="using_address_from_clipboard">Indirizzo copiato dagli appunti in uso</string>

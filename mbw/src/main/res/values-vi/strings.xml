@@ -124,8 +124,6 @@
     <string name="slow_network">Tốc độ internet của bạn có vẻ hơi chậm.\nMong bạn kiên nhẫn chờ đợi trong phút chốc&#8230;</string>
     <string name="broadcasting_transaction">Đang phát sóng giao dịch</string>
     <string name="enter_bitcoin_address">Nhập địa chỉ Bitcoin</string>
-    <string name="bitcoin_address_invalid">Địa chỉ Bitcoin không hợp lệ</string>
-    <string name="recipient_valid">Địa chỉ Bitcoin hợp lệ</string>
     <string name="enter_local_currency">Nhập nội tệ của bạn</string>
     <string name="using_address_from_clipboard">Lấy địa chỉ từ clipboard</string>
     <string name="confirm_delete_pk_title">Chắc chứ?</string>

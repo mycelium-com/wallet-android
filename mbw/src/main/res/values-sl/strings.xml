@@ -141,8 +141,6 @@
     <string name="broadcasting_transaction">Pošiljam nakazilo</string>
     <string name="transaction_rejected_message">Omrežje je zavrnilo nakazilo. Vaša denarnica najbrž ni usklajena z omrežjem.</string>
     <string name="enter_bitcoin_address">Vnesite bitcoin naslov</string>
-    <string name="bitcoin_address_invalid">Neveljaven bitcoin naslov</string>
-    <string name="recipient_valid">Naslov je veljaven</string>
     <string name="redirecting_to_block_explorer">Preusmerjam na raziskovalec blokov</string>
     <string name="enter_local_currency">Vnesite lokalno valuto</string>
     <string name="using_address_from_clipboard">Uporabljen naslov z odložišča</string>

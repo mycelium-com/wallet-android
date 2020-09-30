@@ -121,8 +121,6 @@
     <string name="slow_network">Twoje połączenie sieciowe wydaje się bardzo wolne.\n Z odrobiną cierpliwości może się uda&#8230;</string>
     <string name="broadcasting_transaction">Nadawanie transakcji</string>
     <string name="enter_bitcoin_address">Wprowadź adres BTC</string>
-    <string name="bitcoin_address_invalid">Nieprawidłowy adres BTC</string>
-    <string name="recipient_valid">Poprawny adres BTC</string>
     <string name="enter_local_currency">Wprowadź lokalną  walutę</string>
     <string name="using_address_from_clipboard">Używam adres ze schowka</string>
     <string name="confirm_delete_pk_title">Czy na pewno?</string>
