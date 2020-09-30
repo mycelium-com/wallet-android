@@ -69,9 +69,7 @@ class ManualAddressEntry : AppCompatActivity() {
                 updateUI()
             }
         })
-        btOk.setOnClickListener { _ ->
-            finishOk(coinAddress!!)
-        }
+        btOk.setOnClickListener { finishOk(coinAddress!!) }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
         etRecipient.hint = getString(R.string.enter_recipient_hint, coinType.name)
         tvEnterRecipientDescription.text = getString(R.string.enter_recipient_description, coinType.name)
