@@ -38,6 +38,7 @@ class ManualAddressEntry : Activity() {
     private var entered: String? = null
     private lateinit var mbwManager: MbwManager
     private lateinit var fioModule: FioModule
+    private lateinit var fioNames: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -45,28 +46,12 @@ class ManualAddressEntry : Activity() {
         setContentView(R.layout.manual_entry)
         mbwManager = MbwManager.getInstance(this)
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-        val fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }.toTypedArray()
+        fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }.toTypedArray()
         etRecipient.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
             override fun afterTextChanged(editable: Editable) {
-                entered = editable.toString()
-
-                val currencyType = mbwManager.selectedAccount.coinType
-                coinAddress = currencyType.parseAddress(entered!!.trim { it <= ' ' })
-
-                fioAddress = if (entered?.isFioAddress() == true) entered else null
-
-                val recipientValid = coinAddress != null || fioAddress != null
-                tvRecipientInvalid.visibility = if (!recipientValid) View.VISIBLE else View.GONE
-                tvRecipientValid.visibility = if (recipientValid) View.VISIBLE else View.GONE
-                btOk.isEnabled = recipientValid
-                lvKnownFioNames.adapter = ArrayAdapter<String>(
-                        this@ManualAddressEntry,
-                        R.layout.fio_address_item,
-                        fioNames.filter {
-                            it.startsWith(entered.toString(), true)
-                        }.toTypedArray())
+                updateUI()
             }
         })
         btOk.setOnClickListener { _ ->
@@ -84,6 +69,30 @@ class ManualAddressEntry : Activity() {
 
         // Load saved state
         entered = savedInstanceState?.getString("entered") ?: ""
+    }
+
+    private fun updateUI() {
+        entered = etRecipient.text.toString()
+
+        val currencyType = mbwManager.selectedAccount.coinType
+        coinAddress = currencyType.parseAddress(entered!!.trim { it <= ' ' })
+
+        fioAddress = if (entered?.isFioAddress() == true) entered else null
+
+        val recipientValid = coinAddress != null || fioAddress != null
+        tvRecipientInvalid.visibility = if (!recipientValid) View.VISIBLE else View.GONE
+        tvRecipientValid.visibility = if (recipientValid) View.VISIBLE else View.GONE
+        btOk.isEnabled = recipientValid
+        val filteredNames = fioNames.filter {
+                    it.startsWith(entered.toString(), true)
+                }.toTypedArray()
+        if (filteredNames.isEmpty()) {
+            llKnownFioNames.visibility = View.GONE
+        } else {
+            lvKnownFioNames.adapter = ArrayAdapter<String>(this@ManualAddressEntry,
+                    R.layout.fio_address_item, filteredNames)
+            llKnownFioNames.visibility = View.VISIBLE
+        }
     }
 
     private fun finishOk(address: Address) {
