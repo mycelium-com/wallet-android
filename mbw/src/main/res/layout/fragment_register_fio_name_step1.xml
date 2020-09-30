@@ -78,6 +78,7 @@
             android:textSize="16sp"
             app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"
             app:layout_constraintRight_toRightOf="parent"
+            tools:listitem="@layout/layout_fio_dropdown"
             tools:text="\@mycelium" />
 
         <TextView

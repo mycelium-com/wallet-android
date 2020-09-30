@@ -27,7 +27,7 @@ class FIONameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "FIO names"
+            title = getString(R.string.my_fio_names)
         }
         list.adapter = adapter
         list.itemAnimator = null
