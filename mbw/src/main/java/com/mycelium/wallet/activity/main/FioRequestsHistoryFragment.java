@@ -164,7 +164,7 @@ public class FioRequestsHistoryFragment extends Fragment {
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       if (_root == null) {
-         _root = inflater.inflate(R.layout.main_transaction_history_view, container, false);
+         _root = inflater.inflate(R.layout.fio_request_history_view, container, false);
          ButterKnife.bind(this, _root);
          btnReload.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -78,20 +78,20 @@ public class FioRequestArrayAdapter extends ArrayAdapter<FIORequestContent> {
    public View getView(final int position, View convertView, ViewGroup parent) {
       // Only inflate a new view if we are not reusing an old one
       View rowView = convertView;
-//      if (rowView == null) {
-//         LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//         rowView = Preconditions.checkNotNull(inflater.inflate(R.layout.transaction_row, parent, false));
-//      }
-//
-//      // Make sure we are still added
-//      if (_containerFragment != null && !_containerFragment.isAdded()) {
-//         // We have observed that the fragment can be disconnected at this
-//         // point
-//         return rowView;
-//      }
-//
-//      final FIORequestContent record = getItem(position);
-//
+      if (rowView == null) {
+         LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+         rowView = Preconditions.checkNotNull(inflater.inflate(R.layout.fio_request_row, parent, false));
+      }
+
+      // Make sure we are still added
+      if (_containerFragment != null && !_containerFragment.isAdded()) {
+         // We have observed that the fragment can be disconnected at this
+         // point
+         return rowView;
+      }
+
+      final FIORequestContent record = getItem(position);
+
 //      // Determine Color
 //      int color;
 //      if (record.isIncoming()) {
@@ -104,7 +104,7 @@ public class FioRequestArrayAdapter extends ArrayAdapter<FIORequestContent> {
 //      Date date = new Date(record.getTimestamp() * 1000L);
 //      TextView tvDate = rowView.findViewById(R.id.tvDate);
 //      tvDate.setText(_dateFormat.format(date));
-//
+
 //      // Set value
 //      TextView tvAmount = rowView.findViewById(R.id.tvAmount);
 //      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(),
