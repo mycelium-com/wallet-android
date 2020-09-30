@@ -78,8 +78,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
-import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
-import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
+import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter;
+import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastDialog;
 import com.mycelium.wallet.activity.send.SendCoinsActivity;
@@ -100,7 +100,6 @@ import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.OutputViewModel;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.Transaction;
-import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -111,6 +110,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -128,6 +128,7 @@ import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent;
 
 import static android.app.Activity.RESULT_OK;
 import static android.widget.Toast.LENGTH_LONG;
@@ -151,13 +152,13 @@ public class FioRequestsHistoryFragment extends Fragment {
    private final AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
    @BindView(R.id.tvNoTransactions)
    TextView noTransactionMessage;
-   private List<TransactionSummary> history = new ArrayList<>();
+   private List<FIORequestContent> history = new ArrayList<>();
 
    @BindView(R.id.btRescan)
    View btnReload;
 
    private FioRequestHistoryAdapter adapter;
-   private TransactionHistoryModel model;
+   private FioRequestsHistoryModel model;
    private ListView listView;
 
    @Override
@@ -184,23 +185,16 @@ public class FioRequestsHistoryFragment extends Fragment {
       if (adapter == null) {
          adapter = new FioRequestHistoryAdapter(getActivity(), history);
          updateWrapper(adapter);
-         model.getTransactionHistory().observe(this, new Observer<Set<? extends TransactionSummary>>() {
+         model.getTransactionHistory().observe(this, new Observer<Set<? extends FIORequestContent>>() {
             @Override
-            public void onChanged(@Nullable Set<? extends TransactionSummary> transaction) {
+            public void onChanged(@Nullable Set<? extends FIORequestContent> transaction) {
                history.clear();
                history.addAll(transaction);
-               adapter.sort(new Comparator<TransactionSummary>() {
+               adapter.sort(new Comparator<FIORequestContent>() {
                   @Override
-                  public int compare(TransactionSummary ts1, TransactionSummary ts2) {
-                     if (ts1.getConfirmations() == 0 && ts2.getConfirmations() == 0) {
-                        return Long.compare(ts2.getTimestamp(), ts1.getTimestamp());
-                     } else if (ts1.getConfirmations() == 0) {
-                        return -1;
-                     } else if (ts2.getConfirmations() == 0) {
-                        return 1;
-                     } else {
-                        return Long.compare(ts2.getTimestamp(), ts1.getTimestamp());
-                     }
+                  public int compare(FIORequestContent ts1, FIORequestContent ts2) {
+                     //TODO migrate to real compare
+                     return ts1.getTimeStamp().compareTo(ts2.getTimeStamp());
                   }
                });
                adapter.notifyDataSetChanged();
@@ -213,7 +207,7 @@ public class FioRequestsHistoryFragment extends Fragment {
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      model = ViewModelProviders.of(this).get(TransactionHistoryModel.class);
+      model = ViewModelProviders.of(this).get(FioRequestsHistoryModel.class);
       setHasOptionsMenu(true);
       super.onCreate(savedInstanceState);
       // cache the addressbook for faster lookup
@@ -293,13 +287,13 @@ public class FioRequestsHistoryFragment extends Fragment {
       accountsWithPartialHistory.add(event.getAccountId());
    }
 
-   private void doShowDetails(TransactionSummary selected) {
+   private void doShowDetails(FIORequestContent selected) {
       if (selected == null) {
          return;
       }
       // Open transaction details
       Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class)
-              .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.getId());
+              .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.getFioRequestId());
       startActivity(intent);
    }
 
@@ -318,7 +312,7 @@ public class FioRequestsHistoryFragment extends Fragment {
       listView.setAdapter(adapter);
       listView.setOnScrollListener(new AbsListView.OnScrollListener() {
          private static final int OFFSET = 20;
-         private final List<TransactionSummary> toAdd = new ArrayList<>();
+         private final List<FIORequestContent> toAdd = new ArrayList<>();
          @Override
          public void onScrollStateChanged(AbsListView view, int scrollState) {
             synchronized (toAdd) {
@@ -354,14 +348,14 @@ public class FioRequestsHistoryFragment extends Fragment {
    }
 
    static class Preloader extends AsyncTask<Void, Void, Void> {
-      private final List<TransactionSummary> toAdd;
+      private final List<FIORequestContent> toAdd;
       private final WalletAccount account;
       private final int offset;
       private final int limit;
       private final AtomicBoolean success;
       private final MbwManager _mbwManager;
 
-      Preloader(List<TransactionSummary> toAdd, WalletAccount account, MbwManager _mbwManager
+      Preloader(List<FIORequestContent> toAdd, WalletAccount account, MbwManager _mbwManager
               , int offset, int limit, AtomicBoolean success) {
          this.toAdd = toAdd;
          this.account = account;
@@ -373,8 +367,9 @@ public class FioRequestsHistoryFragment extends Fragment {
 
       @Override
       protected Void doInBackground(Void... voids) {
-         List<TransactionSummary> preloadedData = account.getTransactionSummaries(offset, limit);
-         if(account.equals(_mbwManager.getSelectedAccount())) {
+         FioAccount account = (FioAccount) this.account;
+         List<FIORequestContent> preloadedData  = account.getRequests();
+         if(this.account.equals(_mbwManager.getSelectedAccount())) {
             synchronized (toAdd) {
                toAdd.addAll(preloadedData);
                success.set(toAdd.size() == limit);
@@ -406,19 +401,19 @@ public class FioRequestsHistoryFragment extends Fragment {
       }
    }
 
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item) {
-      final int itemId = item.getItemId();
-      switch (itemId) {
-         case R.id.miExportHistory:
-            shareTransactionHistory();
-            return true;
-      }
-      return super.onOptionsItemSelected(item);
-   }
+//   @Override
+//   public boolean onOptionsItemSelected(MenuItem item) {
+//      final int itemId = item.getItemId();
+//      switch (itemId) {
+//         case R.id.miExportHistory:
+//            shareTransactionHistory();
+//            return true;
+//      }
+//      return super.onOptionsItemSelected(item);
+//   }
 
-   private class FioRequestHistoryAdapter extends TransactionArrayAdapter {
-      FioRequestHistoryAdapter(Context context, List<TransactionSummary> transactions) {
+   private class FioRequestHistoryAdapter extends FioRequestArrayAdapter {
+      FioRequestHistoryAdapter(Context context, List<FIORequestContent> transactions) {
          super(context, transactions, FioRequestsHistoryFragment.this, model.getAddressBook(), false);
       }
 
@@ -434,7 +429,7 @@ public class FioRequestsHistoryFragment extends Fragment {
             return rowView;
          }
 
-         final TransactionSummary record = checkNotNull(getItem(position));
+         final FIORequestContent record = checkNotNull(getItem(position));
          final AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
 
          rowView.setOnClickListener(new View.OnClickListener() {
@@ -445,178 +440,178 @@ public class FioRequestsHistoryFragment extends Fragment {
                   public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                      actionMode.getMenuInflater().inflate(R.menu.transaction_history_context_menu, menu);
                      //we only allow address book entries for outgoing transactions
-                     updateActionBar(actionMode, menu);
+//                     updateActionBar(actionMode, menu);
                      return true;
                   }
 
                   @Override
                   public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                     updateActionBar(actionMode, menu);
+//                     updateActionBar(actionMode, menu);
                      return true;
                   }
 
-                  //We need implementations of GenericTransactionSummary for using something like
+                  //We need implementations of GenericFIORequestContent for using something like
                   //hasDetails|canCancel
                   //I set default values
-                  private void updateActionBar(ActionMode actionMode, Menu menu) {
-                     checkNotNull(menu.findItem(R.id.miShowDetails));
-                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
-                     if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
-                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
-                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
-                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
-                       checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
-                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
-                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(false);
-                     } else {
-                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
-                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
-                           .setVisible((record.getConfirmations() == 0));
-                       checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend()));
-                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
-                           .setVisible(record.getConfirmations() == 0);
-                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
-                     }
-                     if (_mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
-                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
-                                .setVisible(record.getConfirmations() == 0);
-                     }
-                     currentActionMode = actionMode;
-                     listView.setItemChecked(position, true);
-                  }
+//                  private void updateActionBar(ActionMode actionMode, Menu menu) {
+//                     checkNotNull(menu.findItem(R.id.miShowDetails));
+//                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
+//                     if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
+//                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
+//                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
+//                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
+//                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
+//                       checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
+//                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
+//                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(false);
+//                     } else {
+//                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
+//                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
+//                           .setVisible((record.getConfirmations() == 0));
+//                       checkNotNull(menu.findItem(R.id.miBumpFee))
+//                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend()));
+//                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
+//                           .setVisible(record.getConfirmations() == 0);
+//                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
+//                     }
+//                     if (_mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
+//                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
+//                                .setVisible(record.getConfirmations() == 0);
+//                     }
+//                     currentActionMode = actionMode;
+//                     listView.setItemChecked(position, true);
+//                  }
 
                   @Override
                   public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                     final int itemId = menuItem.getItemId();
-                     switch (itemId) {
-                        case R.id.miShowDetails:
-                           doShowDetails(record);
-                           finishActionMode();
-                           return true;
-                        case R.id.miSetLabel:
-                           setTransactionLabel(record);
-                           finishActionMode();
-                           break;
-                        case R.id.miAddToAddressBook:
-                           String defaultName = "";
-                           if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-                              defaultName = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
-                           }
-                           Address address = record.getDestinationAddresses().get(0);
-                           EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
-                                   address, defaultName, addressLabelChanged);
-                           break;
-                        case R.id.miCancelTransaction:
-                           new AlertDialog.Builder(getActivity())
-                                   .setTitle(_context.getString(R.string.remove_queued_transaction_title))
-                                   .setMessage(_context.getString(R.string.remove_queued_transaction))
-                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         boolean okay = ((WalletBtcAccount) _mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
-                                         dialog.dismiss();
-                                         if (okay) {
-                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
-                                         } else {
-                                            new Toaster(requireActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
-                                         }
-                                         finishActionMode();
-                                      }
-                                   })
-                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         dialog.dismiss();
-                                      }
-                                   })
-                                   .create().show();
-                           break;
-                        case R.id.miDeleteUnconfirmedTransaction:
-                           new AlertDialog.Builder(getActivity())
-                                   .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
-                                   .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
-                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-                                         if (selectedAccount instanceof WalletBtcAccount) {
-                                            ((WalletBtcAccount) _mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
-                                            dialog.dismiss();
-                                            finishActionMode();
-                                         } else if (selectedAccount instanceof AbstractEthERC20Account) {
-                                            ((AbstractEthERC20Account) _mbwManager.getSelectedAccount()).deleteTransaction("0x" + HexUtils.toHex(record.getId()));
-                                            dialog.dismiss();
-                                            finishActionMode();
-                                         }
-                                      }
-                                   })
-                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         dialog.dismiss();
-                                      }
-                                   })
-                                   .create().show();
-                           break;
-                        case R.id.miRebroadcastTransaction:
-                           new AlertDialog.Builder(getActivity())
-                                   .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
-                                   .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
-                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
-                                         broadcastDialog.show(getFragmentManager(), "broadcast");
-                                         dialog.dismiss();
-                                      }
-                                   })
-                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         dialog.dismiss();
-                                      }
-                                   })
-                                   .create().show();
-                           break;
-                        case R.id.miBumpFee:
-                           AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                                   .setTitle(_context.getString(R.string.bump_fee_title))
-                                   .setMessage(_context.getString(R.string.description_bump_fee_placeholder))
-                                   .setPositiveButton(R.string.yes, null)
-                                   .setNegativeButton(R.string.no, null).create();
-                           final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(Sha256Hash.of(record.getId()), alertDialog, _context);
-                           alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                              @Override
-                              public void onDismiss(DialogInterface dialog) {
-                                 updateParentTask.cancel(true);
-                              }
-                           });
-                           alertDialog.show();
-                           alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-                           updateParentTask.execute();
-                           break;
-                        case R.id.miShare:
-                           new AlertDialog.Builder(getActivity())
-                                   .setTitle(R.string.share_transaction_manually_title)
-                                   .setMessage(R.string.share_transaction_manually_description)
-                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                      @Override
-                                      public void onClick(DialogInterface dialog, int which) {
-                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().
-                                                 getTx(record.getId()).txBytes());
-                                         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                                         shareIntent.setType("text/plain");
-                                         shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
-                                         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_transaction)));
-                                         dialog.dismiss();
-                                      }
-                                   })
-                                   .setNegativeButton(R.string.no, null)
-                                   .create().show();
-                           break;
-                     }
+//                     final int itemId = menuItem.getItemId();
+//                     switch (itemId) {
+//                        case R.id.miShowDetails:
+//                           doShowDetails(record);
+//                           finishActionMode();
+//                           return true;
+//                        case R.id.miSetLabel:
+//                           setTransactionLabel(record);
+//                           finishActionMode();
+//                           break;
+//                        case R.id.miAddToAddressBook:
+//                           String defaultName = "";
+//                           if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+//                              defaultName = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
+//                           }
+//                           Address address = record.getDestinationAddresses().get(0);
+//                           EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
+//                                   address, defaultName, addressLabelChanged);
+//                           break;
+//                        case R.id.miCancelTransaction:
+//                           new AlertDialog.Builder(getActivity())
+//                                   .setTitle(_context.getString(R.string.remove_queued_transaction_title))
+//                                   .setMessage(_context.getString(R.string.remove_queued_transaction))
+//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+//                                      @Override
+//                                      public void onClick(DialogInterface dialog, int which) {
+//                                         boolean okay = ((WalletBtcAccount) _mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
+//                                         dialog.dismiss();
+//                                         if (okay) {
+//                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
+//                                         } else {
+//                                            new Toaster(requireActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
+//                                         }
+//                                         finishActionMode();
+//                                      }
+//                                   })
+//                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+//                                      @Override
+//                                      public void onClick(DialogInterface dialog, int which) {
+//                                         dialog.dismiss();
+//                                      }
+//                                   })
+//                                   .create().show();
+//                           break;
+//                        case R.id.miDeleteUnconfirmedTransaction:
+//                           new AlertDialog.Builder(getActivity())
+//                                   .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
+//                                   .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
+//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+//                                      @Override
+//                                      public void onClick(DialogInterface dialog, int which) {
+//                                         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+//                                         if (selectedAccount instanceof WalletBtcAccount) {
+//                                            ((WalletBtcAccount) _mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
+//                                            dialog.dismiss();
+//                                            finishActionMode();
+//                                         } else if (selectedAccount instanceof AbstractEthERC20Account) {
+//                                            ((AbstractEthERC20Account) _mbwManager.getSelectedAccount()).deleteTransaction("0x" + HexUtils.toHex(record.getId()));
+//                                            dialog.dismiss();
+//                                            finishActionMode();
+//                                         }
+//                                      }
+//                                   })
+//                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+//                                      @Override
+//                                      public void onClick(DialogInterface dialog, int which) {
+//                                         dialog.dismiss();
+//                                      }
+//                                   })
+//                                   .create().show();
+//                           break;
+//                        case R.id.miRebroadcastTransaction:
+//                           new AlertDialog.Builder(getActivity())
+//                                   .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
+//                                   .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
+//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+//                                      @Override
+//                                      public void onClick(DialogInterface dialog, int which) {
+//                                         BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
+//                                         broadcastDialog.show(getFragmentManager(), "broadcast");
+//                                         dialog.dismiss();
+//                                      }
+//                                   })
+//                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+//                                      @Override
+//                                      public void onClick(DialogInterface dialog, int which) {
+//                                         dialog.dismiss();
+//                                      }
+//                                   })
+//                                   .create().show();
+//                           break;
+//                        case R.id.miBumpFee:
+//                           AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+//                                   .setTitle(_context.getString(R.string.bump_fee_title))
+//                                   .setMessage(_context.getString(R.string.description_bump_fee_placeholder))
+//                                   .setPositiveButton(R.string.yes, null)
+//                                   .setNegativeButton(R.string.no, null).create();
+//                           final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(Sha256Hash.of(record.getId()), alertDialog, _context);
+//                           alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                              @Override
+//                              public void onDismiss(DialogInterface dialog) {
+//                                 updateParentTask.cancel(true);
+//                              }
+//                           });
+//                           alertDialog.show();
+//                           alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+//                           updateParentTask.execute();
+//                           break;
+//                        case R.id.miShare:
+//                           new AlertDialog.Builder(getActivity())
+//                                   .setTitle(R.string.share_transaction_manually_title)
+//                                   .setMessage(R.string.share_transaction_manually_description)
+//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+//                                      @Override
+//                                      public void onClick(DialogInterface dialog, int which) {
+//                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().
+//                                                 getTx(record.getId()).txBytes());
+//                                         Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//                                         shareIntent.setType("text/plain");
+//                                         shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
+//                                         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_transaction)));
+//                                         dialog.dismiss();
+//                                      }
+//                                   })
+//                                   .setNegativeButton(R.string.no, null)
+//                                   .create().show();
+//                           break;
+//                     }
                      return false;
                   }
 
@@ -635,101 +630,101 @@ public class FioRequestsHistoryFragment extends Fragment {
    /**
     * Async task to perform fetching parent transactions of current transaction from server
     */
-   @SuppressLint("StaticFieldLeak")
-   private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
-      private Logger logger = Logger.getLogger(UpdateParentTask.class.getSimpleName());
-      private final Sha256Hash txid;
-      private final AlertDialog alertDialog;
-      private final Context context;
-
-      UpdateParentTask(Sha256Hash txid, AlertDialog alertDialog, Context context) {
-         this.txid = txid;
-         this.alertDialog = alertDialog;
-         this.context = context;
-      }
-
-      @Override
-      protected Boolean doInBackground(Void... voids) {
-         if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
-            AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
-            TransactionEx transactionEx = selectedAccount.getTransaction(txid);
-            BitcoinTransaction transaction = TransactionEx.toTransaction(transactionEx);
-            try {
-               selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction), true);
-            } catch (WapiException e) {
-               logger.log(Level.SEVERE, "Can't load parent", e);
-               return false;
-            }
-         }
-         return true;
-      }
-
-      @Override
-      protected void onPostExecute(Boolean isResultOk) {
-         super.onPostExecute(isResultOk);
-         if (isResultOk) {
-            final long fee = _mbwManager.getFeeProvider(_mbwManager.getSelectedAccount().getCoinType())
-                    .getEstimation()
-                    .getHigh()
-                    .getValueAsLong();
-            final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
-            if(unsigned != null) {
-               long txFee = unsigned.calculateFee();
-               Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
-               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue,
-                       _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
-               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue,
-                       _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
-               if(!Value.isNullOrZero(txFeeCurrencyValue)) {
-                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue,
-                          _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + ")";
-               }
-               alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
-               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), (dialog, which) -> _mbwManager.runPinProtectedFunction(getActivity(), () -> {
-                  CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                  BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
-                  Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
-                  startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
-                  dialog.dismiss();
-                  finishActionMode();
-               }));
-               alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
-            } else {
-               alertDialog.dismiss();
-            }
-         } else {
-            alertDialog.dismiss();
-         }
-      }
-   }
-   /**
-    * This method determins the parent's size and fee and builds a transaction that spends from its outputs but with a fee that lifts the parent and the child to high priority.
-    * TODO: consider upstream chains of unconfirmed
-    * TODO: consider parallel attempts to PFP
-    */
-   private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
-      TransactionSummary transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
-      long txFee = 0;
-      for(OutputViewModel i : transaction.getInputs()) {
-         txFee += i.getValue().getValueAsLong();
-      }
-      for(OutputViewModel i : transaction.getOutputs()) {
-         txFee -= i.getValue().getValueAsLong();
-      }
-      if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
-         makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
-         return null;
-      }
-
-      try {
-         return ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).createUnsignedCPFPTransaction(txid, feePerKB, txFee);
-      } catch (InsufficientBtcException e) {
-         makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
-      } catch (UnableToBuildTransactionException e) {
-         makeText(getActivity(), getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
-      }
-      return null;
-   }
+//   @SuppressLint("StaticFieldLeak")
+//   private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
+//      private Logger logger = Logger.getLogger(UpdateParentTask.class.getSimpleName());
+//      private final Sha256Hash txid;
+//      private final AlertDialog alertDialog;
+//      private final Context context;
+//
+//      UpdateParentTask(Sha256Hash txid, AlertDialog alertDialog, Context context) {
+//         this.txid = txid;
+//         this.alertDialog = alertDialog;
+//         this.context = context;
+//      }
+//
+//      @Override
+//      protected Boolean doInBackground(Void... voids) {
+//         if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
+//            AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
+//            TransactionEx transactionEx = selectedAccount.getTransaction(txid);
+//            BitcoinTransaction transaction = TransactionEx.toTransaction(transactionEx);
+//            try {
+//               selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction), true);
+//            } catch (WapiException e) {
+//               logger.log(Level.SEVERE, "Can't load parent", e);
+//               return false;
+//            }
+//         }
+//         return true;
+//      }
+//
+//      @Override
+//      protected void onPostExecute(Boolean isResultOk) {
+//         super.onPostExecute(isResultOk);
+//         if (isResultOk) {
+//            final long fee = _mbwManager.getFeeProvider(_mbwManager.getSelectedAccount().getCoinType())
+//                    .getEstimation()
+//                    .getHigh()
+//                    .getValueAsLong();
+//            final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
+//            if(unsigned != null) {
+//               long txFee = unsigned.calculateFee();
+//               Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
+//               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue,
+//                       _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
+//               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue,
+//                       _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
+//               if(!Value.isNullOrZero(txFeeCurrencyValue)) {
+//                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue,
+//                          _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + ")";
+//               }
+//               alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
+//               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), (dialog, which) -> _mbwManager.runPinProtectedFunction(getActivity(), () -> {
+//                  CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+//                  BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
+//                  Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
+//                  startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+//                  dialog.dismiss();
+//                  finishActionMode();
+//               }));
+//               alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+//            } else {
+//               alertDialog.dismiss();
+//            }
+//         } else {
+//            alertDialog.dismiss();
+//         }
+//      }
+//   }
+//   /**
+//    * This method determins the parent's size and fee and builds a transaction that spends from its outputs but with a fee that lifts the parent and the child to high priority.
+//    * TODO: consider upstream chains of unconfirmed
+//    * TODO: consider parallel attempts to PFP
+//    */
+//   private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
+//      FIORequestContent transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
+//      long txFee = 0;
+//      for(OutputViewModel i : transaction.getInputs()) {
+//         txFee += i.getValue().getValueAsLong();
+//      }
+//      for(OutputViewModel i : transaction.getOutputs()) {
+//         txFee -= i.getValue().getValueAsLong();
+//      }
+//      if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
+//         makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
+//         return null;
+//      }
+//
+//      try {
+//         return ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).createUnsignedCPFPTransaction(txid, feePerKB, txFee);
+//      } catch (InsufficientBtcException e) {
+//         makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+//      } catch (UnableToBuildTransactionException e) {
+//         makeText(getActivity(), getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
+//      }
+//      return null;
+//   }
 
    private EnterAddressLabelUtil.AddressLabelChangedHandler addressLabelChanged = new EnterAddressLabelUtil.AddressLabelChangedHandler() {
       @Override
@@ -738,9 +733,9 @@ public class FioRequestsHistoryFragment extends Fragment {
       }
    };
 
-   private void setTransactionLabel(TransactionSummary record) {
-      EnterAddressLabelUtil.enterTransactionLabel(requireContext(), Sha256Hash.of(record.getId()), _storage, transactionLabelChanged);
-   }
+//   private void setTransactionLabel(FIORequestContent record) {
+//      EnterAddressLabelUtil.enterTransactionLabel(requireContext(), Sha256Hash.of(record.getId()), _storage, transactionLabelChanged);
+//   }
 
    private EnterAddressLabelUtil.TransactionLabelChangedHandler transactionLabelChanged = new EnterAddressLabelUtil.TransactionLabelChangedHandler() {
       @Override
@@ -749,42 +744,42 @@ public class FioRequestsHistoryFragment extends Fragment {
       }
    };
 
-   private void shareTransactionHistory() {
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      MetadataStorage metaData = _mbwManager.getMetadataStorage();
-      try {
-         String accountLabel = _storage.getLabelByAccount(account.getId()).replaceAll("[^A-Za-z0-9]", "_");
-
-         String fileName = "MyceliumExport_" + accountLabel + "_" + System.currentTimeMillis() + ".csv";
-
-         List<TransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
-
-         File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
-             requireActivity().getFileStreamPath(fileName));
-         PackageManager packageManager = Preconditions.checkNotNull(requireActivity().getPackageManager());
-         PackageInfo packageInfo = packageManager.getPackageInfo(requireActivity().getPackageName(), PackageManager.GET_PROVIDERS);
-         for (ProviderInfo info : packageInfo.providers) {
-            if (info.name.equals("androidx.core.content.FileProvider")) {
-               String authority = info.authority;
-               Uri uri = FileProvider.getUriForFile(requireContext(), authority, historyData);
-               Intent intent = ShareCompat.IntentBuilder.from(requireActivity())
-                       .setStream(uri)  // uri from FileProvider
-                       .setType("text/plain")
-                       .setSubject(getResources().getString(R.string.transaction_history_title))
-                       .setText(getResources().getString(R.string.transaction_history_title))
-                       .getIntent()
-                       .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-               List<ResolveInfo> resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-               for (ResolveInfo resolveInfo : resInfoList) {
-                  String packageName = resolveInfo.activityInfo.packageName;
-                  getActivity().grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-               }
-               startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
-            }
-         }
-      } catch (IOException | PackageManager.NameNotFoundException e) {
-         new Toaster(requireActivity()).toast("Export failed. Check your logs", false);
-         e.printStackTrace();
-      }
-   }
+//   private void shareTransactionHistory() {
+//      WalletAccount account = _mbwManager.getSelectedAccount();
+//      MetadataStorage metaData = _mbwManager.getMetadataStorage();
+//      try {
+//         String accountLabel = _storage.getLabelByAccount(account.getId()).replaceAll("[^A-Za-z0-9]", "_");
+//
+//         String fileName = "MyceliumExport_" + accountLabel + "_" + System.currentTimeMillis() + ".csv";
+//
+//         List<FIORequestContent> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
+//
+//         File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
+//             requireActivity().getFileStreamPath(fileName));
+//         PackageManager packageManager = Preconditions.checkNotNull(requireActivity().getPackageManager());
+//         PackageInfo packageInfo = packageManager.getPackageInfo(requireActivity().getPackageName(), PackageManager.GET_PROVIDERS);
+//         for (ProviderInfo info : packageInfo.providers) {
+//            if (info.name.equals("androidx.core.content.FileProvider")) {
+//               String authority = info.authority;
+//               Uri uri = FileProvider.getUriForFile(requireContext(), authority, historyData);
+//               Intent intent = ShareCompat.IntentBuilder.from(requireActivity())
+//                       .setStream(uri)  // uri from FileProvider
+//                       .setType("text/plain")
+//                       .setSubject(getResources().getString(R.string.transaction_history_title))
+//                       .setText(getResources().getString(R.string.transaction_history_title))
+//                       .getIntent()
+//                       .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//               List<ResolveInfo> resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+//               for (ResolveInfo resolveInfo : resInfoList) {
+//                  String packageName = resolveInfo.activityInfo.packageName;
+//                  getActivity().grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//               }
+//               startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
+//            }
+//         }
+//      } catch (IOException | PackageManager.NameNotFoundException e) {
+//         new Toaster(requireActivity()).toast("Export failed. Check your logs", false);
+//         e.printStackTrace();
+//      }
+//   }
 }
