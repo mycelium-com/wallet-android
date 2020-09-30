@@ -79,7 +79,7 @@ class RegisterFioNameActivity : AppCompatActivity() {
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
-                FioTransactionHistoryService.getFeeByEndpoint(Utils.getFIOCoinType() as FIOToken,
+                FioTransactionHistoryService.getFeeByEndpoint(Utils.getFIOCoinType(),
                         endpoint).toString()
             } catch (e: Exception) {
                 null
@@ -96,7 +96,7 @@ class RegisterFioNameActivity : AppCompatActivity() {
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                FioTransactionHistoryService.isFioNameOrDomainAvailable(Utils.getFIOCoinType() as FIOToken,
+                FioTransactionHistoryService.isFioNameOrDomainAvailable(Utils.getFIOCoinType(),
                         addressWithDomain)
             } catch (e: Exception) {
                 null

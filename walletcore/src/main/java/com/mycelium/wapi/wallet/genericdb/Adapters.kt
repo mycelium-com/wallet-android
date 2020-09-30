@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.mycelium.generated.wallet.database.*
 import com.mycelium.generated.wallet.database.EthAccountBacking
 import com.mycelium.wapi.wallet.coins.*
+import com.mycelium.wapi.wallet.fio.FioName
 import com.squareup.sqldelight.ColumnAdapter
 import java.math.BigInteger
 import java.util.*
@@ -16,6 +17,15 @@ object Adapters {
         override fun decode(databaseValue: String) = databaseValue.let(UUID::fromString)
 
         override fun encode(value: UUID) = value.toString()
+    }
+
+    val fioNameAdapter = object : ColumnAdapter<FioName, String> {
+        override fun decode(databaseValue: String) = databaseValue.let {
+            val nameDomain = it.split("@")
+            FioName(nameDomain[0], nameDomain[1])
+        }
+
+        override fun encode(value: FioName) = "${value.name}@${value.domain}"
     }
 
     val cryptoCurrencyAdapter = object : ColumnAdapter<CryptoCurrency, String> {
@@ -124,6 +134,8 @@ val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigInt
 val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
 
 val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)
+
+val fioKnownNamesAdapter = FioKnownNames.Adapter(Adapters.fioNameAdapter)
 
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)
