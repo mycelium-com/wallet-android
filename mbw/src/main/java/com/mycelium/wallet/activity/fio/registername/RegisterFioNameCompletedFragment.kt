@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.registername
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
 
 class RegisterFioNameCompletedFragment : Fragment() {
@@ -42,6 +44,9 @@ class RegisterFioNameCompletedFragment : Fragment() {
         }
         btFinish.setOnClickListener {
             requireActivity().finish()
+        }
+        btConnectAccounts.setOnClickListener {
+            startActivity(Intent(context, AccountMappingActivity::class.java))
         }
         tvFioName.text = fioName
         tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_connect_accounts_desc, fioName),

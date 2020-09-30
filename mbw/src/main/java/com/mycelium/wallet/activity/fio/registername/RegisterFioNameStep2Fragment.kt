@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.getFioAccounts
@@ -24,6 +25,7 @@ import kotlinx.android.synthetic.main.fragment_register_fio_name_step2.*
 
 class RegisterFioNameStep2Fragment : Fragment() {
     private val viewModel: RegisterFioNameViewModel by activityViewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // without this the navigation through back button would finish the activity

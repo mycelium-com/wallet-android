@@ -136,8 +136,6 @@
     <string name="broadcasting_transaction">Sänder transaktion</string>
     <string name="transaction_rejected_message">Transaktionen förkastades av nätverket. Detta tyder på att din plånbok är i osynk</string>
     <string name="enter_bitcoin_address">Ange bitcoin-adress</string>
-    <string name="bitcoin_address_invalid">Ogiltig bitcoin-adress</string>
-    <string name="bitcoin_address_valid">Bitcoin-adress giltig</string>
     <string name="redirecting_to_block_explorer">Omdirigerar till en block-utforskare</string>
     <string name="enter_local_currency">Ange din lokala valuta</string>
     <string name="using_address_from_clipboard">Använder adress från urklipp</string>

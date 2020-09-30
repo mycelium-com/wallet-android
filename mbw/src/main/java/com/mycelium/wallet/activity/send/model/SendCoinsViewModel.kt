@@ -58,7 +58,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     lateinit var amountHint: String
         private set
 
-    protected val mbwManager = MbwManager.getInstance(context)!!
+    protected val mbwManager = MbwManager.getInstance(context)
     protected lateinit var model: SendCoinsModel
     protected var progressDialog: ProgressDialog? = null
 

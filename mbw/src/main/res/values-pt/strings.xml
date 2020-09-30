@@ -138,8 +138,6 @@
     <string name="broadcasting_transaction">Transmitindo Transação</string>
     <string name="transaction_rejected_message">A transação foi rejeitada pela rede. Isso indica que a sua carteira está dessincronizada</string>
     <string name="enter_bitcoin_address">Insira o Endereço Bitcoin</string>
-    <string name="bitcoin_address_invalid">Endereço Bitcoin Inválido</string>
-    <string name="bitcoin_address_valid">Endereço Bitcoin Válido</string>
     <string name="redirecting_to_block_explorer">Redirecionando para um navegador de blocos</string>
     <string name="enter_local_currency">Insira sua moeda local</string>
     <string name="using_address_from_clipboard">Usando endereço da área de transferência</string>

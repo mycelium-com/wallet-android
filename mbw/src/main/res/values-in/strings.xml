@@ -103,8 +103,6 @@
     <string name="synchronizing_please_wait">Sinkronasi, harap tunggu &#8230;</string>
     <string name="paste">Salin</string>
     <string name="enter_bitcoin_address">Masukkan Alamat Bitcoin</string>
-    <string name="bitcoin_address_invalid">Alamat Bitcoin Salah</string>
-    <string name="bitcoin_address_valid">Alamat Bitcoin Benar</string>
     <string name="enter_local_currency">Masukkan mata uang lokal</string>
     <string name="using_address_from_clipboard">Menggunakan alamat dari clipboard</string>
     <string name="my_accounts">Akun Saya</string>

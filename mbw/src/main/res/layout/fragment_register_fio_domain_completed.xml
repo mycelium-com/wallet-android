@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="18dp">
+
+        <ImageView
+            android:id="@+id/imFioLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvTitle"
+            app:srcCompat="@drawable/ic_fio_logo_gray" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="13dp"
+            android:text="FIO Domain registered:"
+            android:textColor="@color/fio_white_alpha_0_9"
+            android:textSize="20sp"
+            app:layout_constraintStart_toEndOf="@id/imFioLogo"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvFioName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imFioLogo"
+            tools:text="\@my-own-domain" />
+
+        <TextView
+            android:id="@+id/tvExpirationDateTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Expiration date: "
+            android:textColor="@color/fio_white_alpha_0_9"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFioName" />
+
+        <TextView
+            android:id="@+id/tvExpirationDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="September 20, 2021 at 6:23pm"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvExpirationDateTitle"
+            app:layout_constraintStart_toEndOf="@id/tvExpirationDateTitle"
+            tools:text="September 20, 2021 at 6:23pm" />
+
+        <ImageView
+            android:id="@+id/icInfo2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dp"
+            app:layout_constraintBottom_toBottomOf="@id/tvExpirationDate"
+            app:layout_constraintStart_toEndOf="@+id/tvExpirationDate"
+            app:layout_constraintTop_toTopOf="@id/tvExpirationDate"
+            app:srcCompat="@drawable/ic_fio_info" />
+
+        <TextView
+            android:id="@+id/tvConnectAccounts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="29dp"
+            android:text="Register new FIO Name"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvExpirationDateTitle" />
+
+        <TextView
+            android:id="@+id/tvConnectAccountsDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvConnectAccounts"
+            tools:text="@string/fio_connect_accounts_desc" />
+
+        <Button
+            android:id="@+id/btConnectAccounts"
+            style="@style/FioNameRegistrationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:text="Register FIO Name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvConnectAccountsDesc" />
+
+        <Button
+            android:id="@+id/btFinish"
+            style="@style/FioNameRegistrationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_btn_fio"
+            android:text="Register later"
+            android:textColor="#88FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btConnectAccounts" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

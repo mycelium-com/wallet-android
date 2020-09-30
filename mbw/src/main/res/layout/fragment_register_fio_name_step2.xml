@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.registername.RegisterFioNameViewModel" />
+            type="com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel" />
 
         <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
 
@@ -23,8 +23,8 @@
             android:id="@+id/imFioLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvTitle"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
             app:srcCompat="@drawable/ic_fiopresale_icon_small" />
 
         <TextView
@@ -45,7 +45,7 @@
             android:paddingStart="13dp"
             android:text="Step 2/2"
             android:textColor="@color/fio_white_alpha_0_6"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@id/tvTitle"
             app:layout_constraintStart_toEndOf="@id/tvTitle"
@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
-            android:textSize="14sp"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imFioLogo"
             tools:text="Register FIO name and use FIO services for 9.066079 FIO/year including 100 comission free transactions." />

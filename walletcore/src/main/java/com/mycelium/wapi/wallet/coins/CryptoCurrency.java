@@ -9,7 +9,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class CryptoCurrency extends AbstractAsset {
     private static final long serialVersionUID = 1L;
 
-
     protected String id;
     protected Integer unitExponent;
     protected Integer friendlyDigits;

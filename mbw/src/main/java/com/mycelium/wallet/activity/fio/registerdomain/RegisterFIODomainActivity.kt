@@ -1,10 +1,26 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
+import androidx.databinding.InverseMethod
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
+import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
+import com.mycelium.wallet.activity.send.model.SendFioModel
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.coins.Value
+import fiofoundation.io.fiosdk.isFioDomain
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import java.math.BigInteger
 
 class RegisterFIODomainActivity : AppCompatActivity() {
+    private lateinit var viewModel: RegisterFioDomainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,5 +31,42 @@ class RegisterFIODomainActivity : AppCompatActivity() {
             setDisplayShowTitleEnabled(true)
             title = "Register FIO Domain"
         }
+        supportFragmentManager.beginTransaction().add(R.id.container, RegisterFioDomainFragment()).commit()
+
+        viewModel = ViewModelProviders.of(this).get(RegisterFioDomainViewModel::class.java)
+
+        // set default fee at first, it will be updated in async task
+        viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), RegisterFioNameActivity.DEFAULT_FEE)
+        viewModel.domain.observe(this, Observer { domain ->
+            if (viewModel.domain.value!!.isNotEmpty()) {
+                viewModel.isFioDomainValid.value = domain.isFioDomain().also { domainValid ->
+                    if (domainValid) {
+                        Log.i("asdaf", "asdaf checking avail. for $domain")
+                        RegisterFioNameActivity.CheckAddressAvailabilityTask(domain) { isAvailable ->
+                            if (isAvailable != null) {
+                                viewModel.isFioDomainAvailable.value = isAvailable
+                            } else {
+                                viewModel.isFioServiceAvailable.value = false
+                            }
+                        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                    }
+                }
+            }
+        })
+        RegisterFioNameActivity.UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint) { feeInSUF ->
+            if (feeInSUF != null) {
+                viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
+                Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 }

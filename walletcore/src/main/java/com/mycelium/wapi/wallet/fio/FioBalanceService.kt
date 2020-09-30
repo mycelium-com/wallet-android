@@ -14,7 +14,7 @@ class FioBalanceService(private val coinType: FIOToken, private val ownerPublicK
 
     fun getBalance(): BigInteger {
         val client = OkHttpClient()
-        val requestBody = "{\"fio_public_key\":\"$ownerPublicKey\"}"
+        val requestBody = """{"fio_public_key":"$ownerPublicKey"}"""
         val request = Request.Builder()
                 .url(coinType.url + "chain/get_fio_balance")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))

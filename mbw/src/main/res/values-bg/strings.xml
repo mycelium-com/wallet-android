@@ -139,8 +139,6 @@
     <string name="broadcasting_transaction">Излъчване на транзакция</string>
     <string name="transaction_rejected_message">Транзакцията е отхвърлена от мрежата. Това показва че портфейлът ви не е синхронизиран</string>
     <string name="enter_bitcoin_address">Въведете биткоин адрес</string>
-    <string name="bitcoin_address_invalid">Невалиден биткоин адрес</string>
-    <string name="bitcoin_address_valid">Биткоин адресът е валиден</string>
     <string name="redirecting_to_block_explorer">Пренасочване към block explorer</string>
     <string name="enter_local_currency">Въведете вашата местна валута</string>
     <string name="using_address_from_clipboard">Използва се адрес от клипборда</string>
