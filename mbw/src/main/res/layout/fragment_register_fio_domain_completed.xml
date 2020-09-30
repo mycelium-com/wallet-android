@@ -15,9 +15,9 @@
             android:id="@+id/imFioLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/tvTitle"
-            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
             app:srcCompat="@drawable/ic_fio_logo_gray" />
 
         <TextView
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="13dp"
-            android:text="FIO Name registered:"
+            android:text="FIO Domain registered:"
             android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@id/imFioLogo"
@@ -40,38 +40,7 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imFioLogo"
-            tools:text="myfiowallet@mycelium" />
-
-        <TextView
-            android:id="@+id/tvConnectedFioAccountTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="7dp"
-            android:text="Connected to FIO account: "
-            android:textColor="@color/fio_white_alpha_0_9"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvFioName" />
-
-        <TextView
-            android:id="@+id/tvConnectedFioAccount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="FIO 1"
-            android:fontFamily="sans-serif-medium"
-            android:textSize="14sp"
-            app:layout_constraintBaseline_toBaselineOf="@id/tvConnectedFioAccountTitle"
-            app:layout_constraintStart_toEndOf="@id/tvConnectedFioAccountTitle" />
-
-        <ImageView
-            android:id="@+id/icInfo1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            app:layout_constraintBottom_toBottomOf="@id/tvConnectedFioAccount"
-            app:layout_constraintStart_toEndOf="@+id/tvConnectedFioAccount"
-            app:layout_constraintTop_toTopOf="@id/tvConnectedFioAccount"
-            app:srcCompat="@drawable/ic_fio_info" />
+            tools:text="\@my-own-domain" />
 
         <TextView
             android:id="@+id/tvExpirationDateTitle"
@@ -82,18 +51,18 @@
             android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvConnectedFioAccountTitle" />
+            app:layout_constraintTop_toBottomOf="@id/tvFioName" />
 
         <TextView
             android:id="@+id/tvExpirationDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="September 20, 2021 at 6:23pm"
+            android:fontFamily="sans-serif-medium"
             android:text="September 20, 2021 at 6:23pm"
             android:textSize="14sp"
-            android:fontFamily="sans-serif-medium"
             app:layout_constraintBaseline_toBaselineOf="@id/tvExpirationDateTitle"
-            app:layout_constraintStart_toEndOf="@id/tvExpirationDateTitle" />
+            app:layout_constraintStart_toEndOf="@id/tvExpirationDateTitle"
+            tools:text="September 20, 2021 at 6:23pm" />
 
         <ImageView
             android:id="@+id/icInfo2"
@@ -110,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="29dp"
-            android:text="Connect accounts to FIO Name"
+            android:text="Register new FIO Name"
             android:textSize="22sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -121,10 +90,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
-            tools:text="@string/fio_connect_accounts_desc"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvConnectAccounts" />
+            app:layout_constraintTop_toBottomOf="@id/tvConnectAccounts"
+            tools:text="@string/fio_connect_accounts_desc" />
 
         <Button
             android:id="@+id/btConnectAccounts"
@@ -132,7 +101,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="34dp"
-            android:text="Connect Accounts"
+            android:text="Register FIO Name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvConnectAccountsDesc" />
 
@@ -142,9 +111,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Connect later"
-            android:textColor="#88FFFFFF"
             android:background="@drawable/bg_btn_fio"
+            android:text="Register later"
+            android:textColor="#88FFFFFF"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btConnectAccounts" />
     </androidx.constraintlayout.widget.ConstraintLayout>

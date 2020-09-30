@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.registername.RegisterFioNameViewModel" />
+            type="com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

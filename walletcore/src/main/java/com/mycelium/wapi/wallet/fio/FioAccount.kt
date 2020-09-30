@@ -61,7 +61,13 @@ class FioAccount(private val accountContext: FioAccountContext,
                 addRegisteredAddress(fioAddress)
             }
 
-    fun isFIOAddressAvailable(fioAddress: String): Boolean = fiosdk!!.isAvailable(fioAddress).isAvailable
+    /**
+     * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
+     */
+    fun registerFIOADomain(fioDomain: String): String? {
+        return fiosdk!!.registerFioDomain(fioDomain, receivingAddress.toString(),
+                getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration
+    }
 
     @ExperimentalUnsignedTypes
     fun addPubAddress(fioAddress: String, publicAddresses: List<TokenPublicAddress>): Boolean {

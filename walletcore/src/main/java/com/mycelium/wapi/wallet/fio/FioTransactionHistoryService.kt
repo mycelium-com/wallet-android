@@ -229,10 +229,10 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         }
 
         @JvmStatic
-        fun isFioNameAvailable(fioToken: FIOToken, fioName: String): Boolean? {
+        fun isFioNameOrDomainAvailable(fioToken: FIOToken, fioNameOrDomain: String): Boolean? {
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
-            val requestBody = """{"fio_name":"$fioName"}"""
+            val requestBody = """{"fio_name":"$fioNameOrDomain"}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/avail_check")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
@@ -292,7 +292,7 @@ class AvailCheckResponse {
     @JsonProperty("is_registered")
     private val isRegistered1: String? = null
     val isAvailable: Boolean
-        get() = !isRegistered1!!.toBoolean()
+        get() = isRegistered1!! != "1"
 }
 
 class GetBlockInfoResponse {

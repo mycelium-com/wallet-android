@@ -7,7 +7,8 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel" />
+            type="com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,9 +21,9 @@
             android:id="@+id/imFioLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/tvTitle"
-            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
             app:srcCompat="@drawable/ic_fiopresale_icon_small" />
 
         <TextView
@@ -30,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="13dp"
-            android:text="@string/fio_create_name_title"
+            android:text="@string/fio_create_domain_title"
             android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -52,11 +53,11 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/inputEditTextLayout"
             android:layout_width="0dp"
-            android:minWidth="160dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:hint="your username"
             android:layout_marginTop="30dp"
+            android:layout_marginEnd="8dp"
+            android:hint="domain-name"
+            android:minWidth="160dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/spinner"
             app:layout_constraintTop_toBottomOf="@id/imFioLogo">
@@ -64,20 +65,20 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputEditText"
                 android:layout_width="match_parent"
-                android:textSize="14sp"
                 android:layout_height="wrap_content"
                 android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-"
                 android:inputType="text"
                 android:maxLength="62"
                 android:singleLine="true"
-                android:text="@={viewModel.address}" />
+                android:text="@={viewModel.domain}"
+                android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner"
-            android:background="@null"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"
             app:layout_constraintRight_toRightOf="parent"
@@ -87,7 +88,7 @@
             android:id="@+id/tvHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/fio_create_name_hint_text"
+            android:text="Enter FIO Domain"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -101,7 +102,7 @@
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/inputEditTextLayout"
-            tools:text="Register FIO name and use FIO services for 9.066079 FIO/year including 100 comission free transactions." />
+            tools:text="@string/fio_annual_fee_domain" />
 
         <TextView
             android:id="@+id/tvFeeInfo2"
