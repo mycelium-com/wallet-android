@@ -6,7 +6,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
-import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -39,6 +40,9 @@ class ManualAddressEntry : Activity() {
     private lateinit var mbwManager: MbwManager
     private lateinit var fioModule: FioModule
     private lateinit var fioNames: Array<String>
+    private val fioNameToNbpaMap = mutableMapOf<String, String>()
+    private var fioQueryCounter = 0
+    private val checkedFioNames = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -55,9 +59,7 @@ class ManualAddressEntry : Activity() {
             }
         })
         btOk.setOnClickListener { _ ->
-            coinAddress?.run {
-                finishOk(this)
-            } ?: CoroutineScope(Dispatchers.Main).launch { tryFioFinish() }
+            finishOk(coinAddress!!)
         }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
         val account = mbwManager.selectedAccount
@@ -73,25 +75,33 @@ class ManualAddressEntry : Activity() {
 
     private fun updateUI() {
         entered = etRecipient.text.toString()
-
         val currencyType = mbwManager.selectedAccount.coinType
-        coinAddress = currencyType.parseAddress(entered!!.trim { it <= ' ' })
+        if (entered?.isFioAddress() == true) {
+            coinAddress = currencyType.parseAddress(fioNameToNbpaMap[entered!!])
+            if (coinAddress == null && !checkedFioNames.contains(entered!!)) {
+                // query fio for a native blockchain public address
+                CoroutineScope(Dispatchers.Main).launch { tryFio(entered!!) }
+            }
+            fioAddress = entered
+        } else {
+            coinAddress = currencyType.parseAddress(entered!!.trim { it <= ' ' })
+            fioAddress = null
+        }
 
-        fioAddress = if (entered?.isFioAddress() == true) entered else null
-
-        val recipientValid = coinAddress != null || fioAddress != null
-        tvRecipientInvalid.visibility = if (!recipientValid) View.VISIBLE else View.GONE
-        tvRecipientValid.visibility = if (recipientValid) View.VISIBLE else View.GONE
+        val recipientValid = coinAddress != null
+        tvCheckingFioAddress.visibility = if (fioQueryCounter > 0) VISIBLE else GONE
+        tvRecipientInvalid.visibility = if (fioQueryCounter <= 0 && !recipientValid) VISIBLE else GONE
+        tvRecipientValid.visibility = if (fioQueryCounter <= 0 && recipientValid) VISIBLE else GONE
         btOk.isEnabled = recipientValid
         val filteredNames = fioNames.filter {
                     it.startsWith(entered.toString(), true)
                 }.toTypedArray()
         if (filteredNames.isEmpty()) {
-            llKnownFioNames.visibility = View.GONE
+            llKnownFioNames.visibility = GONE
         } else {
             lvKnownFioNames.adapter = ArrayAdapter<String>(this@ManualAddressEntry,
                     R.layout.fio_address_item, filteredNames)
-            llKnownFioNames.visibility = View.VISIBLE
+            llKnownFioNames.visibility = VISIBLE
         }
     }
 
@@ -103,26 +113,38 @@ class ManualAddressEntry : Activity() {
         finish()
     }
 
-    private suspend fun tryFioFinish() {
+    /**
+     * Query FIO for the given fio address
+     */
+    private suspend fun tryFio(address: String) {
+        checkedFioNames.add(address)
+        fioQueryCounter++
+        updateUI()
         withContext(Dispatchers.IO) {
             val coinType = mbwManager.selectedAccount.coinType
             val fioSymbol = coinType.symbol.toUpperCase(Locale.US)
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
             try {
-                val requestBody = """{"fio_address":"$fioAddress","chain_code":"$fioSymbol","token_code":"$fioSymbol"}"""
+                val requestBody = """{"fio_address":"$address","chain_code":"$fioSymbol","token_code":"$fioSymbol"}"""
                 val request = Request.Builder()
                         .url("${Utils.getFIOCoinType().url}chain/get_pub_address")
                         .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                         .build()
                 val response = client.newCall(request).execute()
                 val result = mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
-                finishOk(coinType.parseAddress(result.publicAddress ?: throw Exception("No public address found!"))!!)
-                fioModule.addKnownName(FioName(fioAddress!!))
+                val npbaString = result.publicAddress ?: throw Exception("No public address found!")
+                fioModule.addKnownName(FioName(address))
+                fioNameToNbpaMap[address] = npbaString
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     e.printStackTrace()
-                    Toast.makeText(this@ManualAddressEntry, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ManualAddressEntry, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                fioQueryCounter--
+                withContext(Dispatchers.Main) {
+                    updateUI()
                 }
             }
         }

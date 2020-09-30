@@ -51,6 +51,18 @@
             android:visibility="gone" />
 
     <TextView
+            android:id="@+id/tvCheckingFioAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="6dp"
+            android:text="@string/checking_fio_address"
+            android:textSize="18sp"
+            tools:visibility="visible"
+            android:visibility="gone" />
+
+    <TextView
             android:id="@+id/tvRecipientInvalid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
