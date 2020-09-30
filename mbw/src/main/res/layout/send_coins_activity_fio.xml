@@ -37,9 +37,6 @@
                     bind:viewModel="@{viewModel}"
                     bind:activity="@{activity}" />
 
-                <include
-                    layout="@layout/send_coins_sender"
-                    bind:viewModel="@{viewModel}" />
 
                 <!--Warnings-->
                 <include
@@ -66,8 +63,6 @@
                         layout="@layout/send_coins_amount"
                         bind:activity="@{activity}"
                         bind:viewModel="@{viewModel}" />
-
-                    <include layout="@layout/send_coins_advanced_block_fio"/>
 
                     <!--Fee selector-->
                     <include
