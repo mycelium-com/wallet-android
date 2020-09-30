@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
@@ -56,7 +57,7 @@ class RegisterFioNameActivity : AppCompatActivity() {
                 }
             }
         })
-        UpdateFeeTask { feeInSUF ->
+        UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
                 Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
@@ -74,11 +75,12 @@ class RegisterFioNameActivity : AppCompatActivity() {
             }
 
     class UpdateFeeTask(
+            val endpoint: String,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
                 FioTransactionHistoryService.getFeeByEndpoint(Utils.getFIOCoinType() as FIOToken,
-                        FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint).toString()
+                        endpoint).toString()
             } catch (e: Exception) {
                 null
             }
@@ -94,7 +96,7 @@ class RegisterFioNameActivity : AppCompatActivity() {
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                FioTransactionHistoryService.isFioNameAvailable(Utils.getFIOCoinType() as FIOToken,
+                FioTransactionHistoryService.isFioNameOrDomainAvailable(Utils.getFIOCoinType() as FIOToken,
                         addressWithDomain)
             } catch (e: Exception) {
                 null

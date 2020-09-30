@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel" />
+            type="com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel" />
 
         <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
 
@@ -23,8 +23,8 @@
             android:id="@+id/imFioLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/tvTitle"
             app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+            app:layout_constraintTop_toTopOf="@id/tvTitle"
             app:srcCompat="@drawable/ic_fiopresale_icon_small" />
 
         <TextView
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="13dp"
-            android:text="Confirm FIO Name"
+            android:text="Confirm FIO Domain"
             android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -59,19 +59,18 @@
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imFioLogo"
-            tools:text="Register FIO name and use FIO services for 9.066079 FIO/year including 100 comission free transactions." />
+            tools:text="@string/fio_annual_fee_domain" />
 
         <TextView
             android:id="@+id/tvFioName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:text="@{viewModel.addressWithDomain}"
-            android:textSize="20sp"
             android:fontFamily="sans-serif-medium"
+            android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvFeeInfo"
-            tools:text="myfiowallet@mycelium" />
+            tools:text="\@my-own-domain" />
 
         <ImageView
             android:id="@+id/icEdit"
@@ -99,8 +98,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:textSize="16sp"
             android:dropDownWidth="wrap_content"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@id/tvConnectedFioAccount"
             app:layout_constraintStart_toEndOf="@id/tvConnectedFioAccount"
             app:layout_constraintTop_toTopOf="@id/tvConnectedFioAccount" />
@@ -120,9 +119,9 @@
             android:id="@+id/tvAnnualFee"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.registrationFee)}"
             android:textSize="16sp"
-            android:fontFamily="sans-serif-medium"
             app:layout_constraintBaseline_toBaselineOf="@id/tvAnnualFeeTitle"
             app:layout_constraintStart_toEndOf="@id/tvAnnualFeeTitle"
             tools:text="9.066079 FIO" />
@@ -158,9 +157,9 @@
             android:text="@string/fio_not_sufficient_funds_on_selected_account"
             android:textColor="@color/fio_red"
             android:textSize="12sp"
+            app:layout_constraintBottom_toTopOf="@id/btNextButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvPayFrom"
-            app:layout_constraintBottom_toTopOf="@id/btNextButton" />
+            app:layout_constraintTop_toBottomOf="@id/tvPayFrom" />
 
         <Button
             android:id="@+id/btNextButton"

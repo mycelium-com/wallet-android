@@ -8,6 +8,11 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/miRegisterFioDomain"
+        android:title="Register FIO Domain"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/miFioMapAccounts"
         android:title="Map Accounts"
         app:showAsAction="ifRoom"/>

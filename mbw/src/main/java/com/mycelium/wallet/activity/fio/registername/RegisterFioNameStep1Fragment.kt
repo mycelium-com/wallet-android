@@ -1,5 +1,7 @@
 package com.mycelium.wallet.activity.fio.registername
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -8,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -15,6 +18,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
+import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep1BindingImpl
 import kotlinx.android.synthetic.main.fragment_register_fio_name_confirm.btNextButton
@@ -28,8 +33,7 @@ class RegisterFioNameStep1Fragment : Fragment() {
             DataBindingUtil.inflate<FragmentRegisterFioNameStep1BindingImpl>(inflater, R.layout.fragment_register_fio_name_step1, container, false)
                     .apply {
                         viewModel = this@RegisterFioNameStep1Fragment.viewModel.apply {
-                            spinner?.adapter = ArrayAdapter(context,
-                                    R.layout.layout_fio_dropdown, R.id.text, listOf("@mycelium", "@secondoption", "Register FIO Domain")).apply {
+                            spinner?.adapter = DomainsAdapter(requireContext(), listOf("@mycelium", "@secondoption", "Register FIO Domain")).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }
                             spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -39,7 +43,9 @@ class RegisterFioNameStep1Fragment : Fragment() {
                                         viewModel!!.domain.value = spinner.selectedItem.toString()
                                         Log.i("asdaf", "asdaf viewModel.domain.value: ${viewModel!!.domain.value}")
                                     } else {
-                                        requireActivity().finish()
+                                        startActivity(Intent(requireActivity(), RegisterFIODomainActivity::class.java))
+                                        // to prevent "Register FIO Domain" being set as spinner selected value
+                                        spinner.setSelection((spinner.adapter as ArrayAdapter<String>).getPosition(viewModel!!.domain.value))
                                     }
                                 }
                             }
@@ -103,5 +109,19 @@ class RegisterFioNameStep1Fragment : Fragment() {
         tvHint.compoundDrawablePadding = 3
         tvHint.setTextColor(resources.getColor(colorRes))
         tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.toFloat())
+    }
+}
+
+class DomainsAdapter(context: Context, val items: List<CharSequence>) : ArrayAdapter<CharSequence>(context,
+        R.layout.layout_fio_dropdown, R.id.text, items) {
+
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val tv = super.getDropDownView(position, convertView, parent) as TextView
+        if (position == items.size - 1) {
+            tv.setCompoundDrawablesWithIntrinsicBounds(null, null,
+                    context.resources.getDrawable(R.drawable.ic_fio_right_arrow), null)
+            tv.compoundDrawablePadding = 7
+        }
+        return tv
     }
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/register_fio_domain_steps"
+    app:startDestination="@id/start">
+    <fragment
+        android:id="@+id/start"
+        android:name="com.mycelium.wallet.activity.fio.registerdomain.RegisterFioDomainStep1Fragment"
+        tools:layout="@layout/fragment_register_fio_domain_step1">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/RegisterFioDomainStep2Fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/RegisterFioDomainStep2Fragment"
+        android:name="com.mycelium.wallet.activity.fio.registerdomain.RegisterFioDomainStep2Fragment"
+        android:label="RegisterFioDomainStep2Fragment"
+        tools:layout="@layout/fragment_register_fio_domain_step2">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/start" />
+    </fragment>
+</navigation>

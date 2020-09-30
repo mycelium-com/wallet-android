@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.fio.registername
+package com.mycelium.wallet.activity.fio.registerdomain
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,16 +15,14 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
+import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
+import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.getFioAccounts
-import kotlinx.android.synthetic.main.fragment_register_fio_name_confirm.btNextButton
-import kotlinx.android.synthetic.main.fragment_register_fio_name_step2.*
+import kotlinx.android.synthetic.main.fragment_register_fio_domain_step2.*
 
-
-class RegisterFioNameStep2Fragment : Fragment() {
-    private val viewModel: RegisterFioNameViewModel by activityViewModels()
+class RegisterFioDomainStep2Fragment : Fragment() {
+    private val viewModel: RegisterFioDomainViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +34,9 @@ class RegisterFioNameStep2Fragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentRegisterFioNameStep2BindingImpl>(inflater, R.layout.fragment_register_fio_name_step2, container, false)
+            DataBindingUtil.inflate<FragmentRegisterFioDomainStep2BindingImpl>(inflater, R.layout.fragment_register_fio_domain_step2, container, false)
                     .apply {
-                        viewModel = this@RegisterFioNameStep2Fragment.viewModel.apply {
+                        viewModel = this@RegisterFioDomainStep2Fragment.viewModel.apply {
                             val walletManager = MbwManager.getInstance(context).getWalletManager(false)
                             val fioAccounts = walletManager.getFioAccounts()
                             spinnerFioAccounts?.adapter = ArrayAdapter(context,
@@ -63,24 +61,26 @@ class RegisterFioNameStep2Fragment : Fragment() {
                                 }
                             }
                         }
-                        lifecycleOwner = this@RegisterFioNameStep2Fragment
+                        lifecycleOwner = this@RegisterFioDomainStep2Fragment
                     }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tvNotEnoughFundsError.visibility = View.GONE
         btNextButton.setOnClickListener {
             requireActivity().supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.container,
-                            RegisterFioNameCompletedFragment.newInstance(viewModel.addressWithDomain.value!!,
-                                    viewModel.fioAccountToRegisterName.value!!.label, ""))
-                    .addToBackStack(null)
+                            RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!, ""))
                     .commit()
         }
+        icEdit.setOnClickListener {
+            findNavController().popBackStack()
+        }
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
-            tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
+            tvFeeInfo.text = resources.getString(R.string.fio_annual_fee_domain, it.toStringWithUnit())
         })
+        tvFioName.text = "@${viewModel.domain.value}"
+        tvNotEnoughFundsError.visibility = View.GONE
         viewModel.accountToPayFeeFrom.observe(viewLifecycleOwner, Observer {
             val isNotEnoughFunds = it.accountBalance.spendable < viewModel.registrationFee.value!!
             tvNotEnoughFundsError.visibility = if (isNotEnoughFunds) View.VISIBLE else View.GONE
@@ -88,8 +88,5 @@ class RegisterFioNameStep2Fragment : Fragment() {
             (spinnerPayFromAccounts.getChildAt(0) as? TextView)?.setTextColor(
                     if (isNotEnoughFunds) resources.getColor(R.color.fio_red) else resources.getColor(R.color.white))
         })
-        icEdit.setOnClickListener {
-            findNavController().navigate(R.id.actionNext)
-        }
     }
 }
