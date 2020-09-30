@@ -138,8 +138,7 @@
     <string name="broadcasting_transaction">Odesílání transakce</string>
     <string name="transaction_rejected_message">Transakce byla zamítnuta sítí. To naznačuje, že vaše peněženka není synchronizovaná</string>
     <string name="enter_bitcoin_address">Zadej Bitcoin adresu</string>
-    <string name="bitcoin_address_invalid">Neplatná Bitcoin adresa</string>
-    <string name="bitcoin_address_valid">Platná Bitcoin adresa</string>
+    <string name="recipient_valid">Platná Bitcoin adresa</string>
     <string name="redirecting_to_block_explorer">Přesměrovávám na block explorer</string>
     <string name="enter_local_currency">Zadej lokální měnu</string>
     <string name="using_address_from_clipboard">Pomocí adresy ze schránky</string>

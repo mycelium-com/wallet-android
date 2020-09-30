@@ -126,8 +126,7 @@
     <string name="broadcasting_transaction">Udsender transaktion</string>
     <string name="transaction_rejected_message">Transaktionen blev afvist af netværket. Dette indikerer, at din tegnebog ikke er synkroniseret</string>
     <string name="enter_bitcoin_address">Indtast Bitcoinadresse</string>
-    <string name="bitcoin_address_invalid">Ugyldig Bitcoinadresse</string>
-    <string name="bitcoin_address_valid">Bitcoinadressen er gyldig</string>
+    <string name="recipient_valid">Bitcoinadressen er gyldig</string>
     <string name="enter_local_currency">Vælg din lokale valuta</string>
     <string name="using_address_from_clipboard">Brug adresse fra udklipsholderen</string>
     <string name="my_accounts">Mine konti</string>

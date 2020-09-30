@@ -138,8 +138,7 @@
     <string name="broadcasting_transaction">取引を配信しています。</string>
     <string name="transaction_rejected_message">ネットワークによりこの取引は拒否されました。あなたのウォレットは同期していません</string>
     <string name="enter_bitcoin_address">ビットコインアドレスをご入力ください。</string>
-    <string name="bitcoin_address_invalid">無効なアドレスです。</string>
-    <string name="bitcoin_address_valid">有効なアドレスです。</string>
+    <string name="recipient_valid">有効なアドレスです。</string>
     <string name="redirecting_to_block_explorer">ブロックエクスプローラーにリダイレクト中</string>
     <string name="enter_local_currency">お使いの通貨をご入力ください。</string>
     <string name="using_address_from_clipboard">クリップボードからのアドレス</string>

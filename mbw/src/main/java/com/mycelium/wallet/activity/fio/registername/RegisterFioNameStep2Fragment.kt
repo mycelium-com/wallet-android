@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -14,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.getFioAccounts
@@ -23,6 +25,15 @@ import kotlinx.android.synthetic.main.fragment_register_fio_name_step2.*
 
 class RegisterFioNameStep2Fragment : Fragment() {
     private val viewModel: RegisterFioNameViewModel by activityViewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // without this the navigation through back button would finish the activity
+        // but the desired behavior here is to return back to step 1
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            findNavController().navigate(R.id.actionNext)
+        }.apply { this.isEnabled = true }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             DataBindingUtil.inflate<FragmentRegisterFioNameStep2BindingImpl>(inflater, R.layout.fragment_register_fio_name_step2, container, false)
@@ -66,7 +77,6 @@ class RegisterFioNameStep2Fragment : Fragment() {
                                     viewModel.fioAccountToRegisterName.value!!.label, ""))
                     .addToBackStack(null)
                     .commit()
-
         }
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
             tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())

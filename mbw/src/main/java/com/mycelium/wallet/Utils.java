@@ -128,6 +128,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 import com.mycelium.wapi.wallet.fio.coins.FIOTest;
+import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -1071,7 +1072,7 @@ public class Utils {
       return BuildConfig.FLAVOR.equals("prodnet") ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
    }
 
-   public static CryptoCurrency getFIOCoinType() {
+   public static FIOToken getFIOCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? FIOMain.INSTANCE : FIOTest.INSTANCE;
    }
 

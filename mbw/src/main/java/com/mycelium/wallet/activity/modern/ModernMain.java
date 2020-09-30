@@ -68,6 +68,8 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
+import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
+import com.mycelium.wallet.activity.fio.domain.FIODomainActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
@@ -397,6 +399,7 @@ public class ModernMain extends AppCompatActivity {
         inflater.inflate(R.menu.record_options_menu_global, menu);
         inflater.inflate(R.menu.addressbook_options_global, menu);
         inflater.inflate(R.menu.verify_message, menu);
+        inflater.inflate(R.menu.record_fio_options, menu);
         return true;
     }
 
@@ -506,6 +509,12 @@ public class ModernMain extends AppCompatActivity {
                 break;
             case R.id.miVerifyMessage:
                 startActivity(new Intent(this, MessageVerifyActivity.class));
+                break;
+            case R.id.miMyDomain:
+                startActivity(new Intent(this, FIODomainActivity.class));
+                break;
+            case R.id.miAboutFIOProtocol:
+                new AboutFIOProtocolDialog().show(getSupportFragmentManager(), "modal");
                 break;
         }
         return super.onOptionsItemSelected(item);

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fioNameDetailsFragment"
-        android:name="com.mycelium.wallet.activity.fio.mapaccount.FioNameDetailsFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaccount.FIONameDetailsFragment"
         android:label="FioNameDetailsFragment"
         tools:layout="@layout/fragment_fio_name_details">
         <action

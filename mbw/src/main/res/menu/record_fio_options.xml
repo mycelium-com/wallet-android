@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/miMyDomain"
+        android:title="My FIO Domain/s" />
+
+    <item
+        android:id="@+id/miAboutFIOProtocol"
+        android:title="About FIO Protocol" />
+</menu>

@@ -30,7 +30,9 @@
     <string name="account_deleted">Account deleted.</string>
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
-    <string name="enter_recipient_title">Enter Recipient Address</string>
+    <string name="enter_recipient_title">Enter Recipient</string>
+    <string name="enter_recipient_hint">Recipient Bitcoin Address or FIO Name</string>
+    <string name="enter_recipient_description">Enter Recipient Address or FIO Name</string>
     <string name="recipient_title">Recipient Address</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_title">Amount</string>
@@ -171,7 +173,7 @@
     <string name="cold_storage_title">Cold Storage Spending</string>
     <string name="cold_storage_desc">You are about to spend from a private key in cold storage. This could be a private key paper backup or a private key slip from a Bitcoin ATM. Following Formats are supported:\nPrivate Key, Master Seed, xPriv Key\n\nOnce the transaction has been sent every trace of it will be erased from the internal memory.</string>
     <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
-    <string name="manual_entry">Manual Entry</string>
+    <string name="manual_entry">Enter Address or FIO Name</string>
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
@@ -206,8 +208,8 @@
     <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
-    <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
-    <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
+    <string name="recipient_invalid">Recipient Invalid</string>
+    <string name="recipient_valid">Recipient Valid</string>
     <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
     <string name="enter_local_currency">Enter your local currency</string>
     <string name="using_address_from_clipboard">Using address from clipboard</string>
@@ -1381,22 +1383,35 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="select_name_to_associate">Connect accounts (map) with you FIO Name. Only 1 account per each cryptocurrency can be mapped with 1 FIO Name.</string>
     <string name="fio_register_address">Register FIO Name</string>
     <string name="fio_create_name_title">Create FIO Name</string>
+    <string name="fio_create_domain_title">Create FIO Domain</string>
     <string name="fio_address">FIO Address</string>
     <string name="fio_registration_fee">Registration Fee</string>
     <string name="fio_remaining_balance">Remaining FIO Balance</string>
     <string name="fio_create_unique_address">Create a unique FIO Name</string>
     <string name="fio_create_request">Create FIO Request</string>
     <string name="fio_address_is_invalid">Invalid FIO Name</string>
+    <string name="fio_domain_is_invalid">Invalid FIO Domain</string>
     <string name="fio_address_occupied">This FIO Name is not available for registration. You can register on your own FIO domain</string>
+    <string name="fio_domain_occupied">This FIO Domain is not available for registration</string>
     <string name="fio_address_available">This FIO Name is available for registration.</string>
-    <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name availability check and FIO Name registering due to service unavailability. Please check your internet connection and try again</string>
+    <string name="fio_domain_available">This FIO Domain is available for registration.</string>
+    <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name/Domain availability check and FIO Name/Domain registering due to service unavailability. Please check your internet connection and try again</string>
     <string name="fio_create_name_description"><b>Create FIO Name</b> - new simple way to Send and Request crypto without knowing public address!\n\n- Works across all tokens and coins\n- Secured from your wallet\n- Completely decentralized\n\nUse easy-to-remember unique FIO name like my_unique_fio@mycelium to send or request funds for any tokens or coins!</string>
     <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
+    <string name="fio_annual_fee_domain">Register FIO Domain for %s/year and create any FIO names you’d like with your personal domain.</string>
     <string name="following_fio_names_registered_on_s">Following FIO names registered on %s</string>
     <string name="add_new_fio_name">Add new FIO Name</string>
     <string name="create_fio_domain">Create FIO Domain</string>
     <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key.]]></string>
+    <string name="fio_create_name_desc"><![CDATA[Create and Register new FIO Names to your FIO Domain <b>%s</b> and easily send and request funds for any cryptocurrency.]]></string>
     <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
     <string name="fio_create_name_hint_text">Enter unique username to create FIO Name</string>
     <string name="tab_fio_requests">FIO Requests</string>
+    <string name="fio_create_domain_hint">Enter FIO Domain</string>
+    <string name="fio_confirm_and_pay">Confirm &amp; Pay</string>
+    <string name="fio_register_domain_desc">Register your own custom FIO Domain, where you can create and register any FIO names you want.</string>
+    <string name="fio_protocol_decentralized">The <font color="#2AA5DB"><u><b>FIO Protocol</b></u></font> is a decentralized service layer that bridges the gap between crypto endpoints such as wallets, exchanges, crypto payment processors, and any other application in which crypto assets are held and/or transferred.</string>
+    <string name="fio_name_readable_wallet_identifier"><b>FIO Name</b> - a human-readable wallet identifier (such as john@edge or alice@gold) which eliminates the need to see, or even know of, blockchain public addresses. FIO Addresses automatically support any token in a wallet/exchange, and requires no manual mapping.</string>
+    <string name="fio_requests_ability_to_request_funds"><b>FIO Requests</b> - the ability to request funds from any other wallet, utilizing in-wallet/app notifications and simple approvals. FIO Requests are fully encrypted between counter-parties, and do not interfere with the actual underlying blockchain transactions.</string>
+    <string name="fio_names">Fio Names</string>
 </resources>

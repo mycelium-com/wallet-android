@@ -136,8 +136,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
     <string name="broadcasting_transaction">Transaktion wird durchgeführt</string>
     <string name="transaction_rejected_message">Die Transaktion wurde vom Netzwerk abgelehnt. Dies weist darauf hin, dass Ihre Wallet nicht synchronisiert ist</string>
     <string name="enter_bitcoin_address">Bitcoin-Adresse eingeben</string>
-    <string name="bitcoin_address_invalid">Ungültige Bitcoin-Adresse</string>
-    <string name="bitcoin_address_valid">Gültige Bitcoin-Adresse</string>
+    <string name="recipient_valid">Gültige Bitcoin-Adresse</string>
     <string name="redirecting_to_block_explorer">Sie werden zu einem Block-Explorer umgeleitet</string>
     <string name="enter_local_currency">Geben Sie Ihre lokale Währung ein</string>
     <string name="using_address_from_clipboard">Bitcoin-Adresse aus der Zwischenablage wird verwendet</string>

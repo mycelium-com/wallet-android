@@ -101,8 +101,7 @@
     <string name="paste">Inseraţi din clipboard</string>
     <string name="broadcasting_transaction">Emitere Tranzacţie</string>
     <string name="enter_bitcoin_address">Introdu Adresa Bitcoin</string>
-    <string name="bitcoin_address_invalid">Adresă Bitcoin Invalidă</string>
-    <string name="bitcoin_address_valid">Adresă Bitcoin Validă</string>
+    <string name="recipient_valid">Adresă Bitcoin Validă</string>
     <string name="enter_local_currency">Alege moneda locală</string>
     <string name="using_address_from_clipboard">Folosire adresă din clipboard</string>
     <string name="confirm_delete_pk_title">Eşti sigur?</string>

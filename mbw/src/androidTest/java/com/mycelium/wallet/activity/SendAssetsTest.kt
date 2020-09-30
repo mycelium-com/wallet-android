@@ -69,7 +69,7 @@ class SendAssetsTest {
         intended(hasComponent(SendCoinsActivity::class.java.name))
         onView(withId(R.id.btManualEntry)).perform(click())
         intended(hasComponent(ManualAddressEntry::class.java.name))
-        onView(withId(R.id.etAddress)).perform(ViewActions.typeText(addressSendTo))
+        onView(withId(R.id.etRecipient)).perform(ViewActions.typeText(addressSendTo))
         onView(withId(R.id.btOk)).perform(click())
         onView(withId(R.id.btEnterAmount)).perform(click())
         intended(hasComponent(GetAmountActivity::class.java.name))

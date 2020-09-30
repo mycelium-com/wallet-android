@@ -21,7 +21,7 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_fio_name_details.*
 
 
-class FioNameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
+class FIONameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
     val adapter = AccountNamesAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

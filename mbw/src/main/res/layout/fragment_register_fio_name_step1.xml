@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.registername.RegisterFioNameViewModel" />
+            type="com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,7 +21,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvTitle"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
             app:srcCompat="@drawable/ic_fiopresale_icon_small" />
 
         <TextView
@@ -42,7 +43,7 @@
             android:paddingStart="13dp"
             android:text="Step 1/2"
             android:textColor="@color/fio_white_alpha_0_6"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@id/tvTitle"
             app:layout_constraintStart_toEndOf="@id/tvTitle"
@@ -51,10 +52,11 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/inputEditTextLayout"
             android:layout_width="0dp"
+            android:minWidth="160dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:hint="your username"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="30dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/spinner"
             app:layout_constraintTop_toBottomOf="@id/imFioLogo">
@@ -62,6 +64,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputEditText"
                 android:layout_width="match_parent"
+                android:textSize="14sp"
                 android:layout_height="wrap_content"
                 android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-"
                 android:inputType="text"
@@ -75,7 +78,7 @@
             android:background="@null"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/inputEditTextLayout"
             app:layout_constraintRight_toRightOf="parent"
             tools:text="\@mycelium" />
@@ -95,7 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="58dp"
-            android:textSize="14sp"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/inputEditTextLayout"
             tools:text="Register FIO name and use FIO services for 9.066079 FIO/year including 100 comission free transactions." />
