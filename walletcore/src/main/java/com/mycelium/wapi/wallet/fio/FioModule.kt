@@ -39,10 +39,10 @@ class FioModule(
         assetsList.add(coinType)
     }
 
-    fun getAllFIONames() = accounts.values.map { it.registeredFIONames }.flatten()
+    fun getAllFIONames() = accounts.values.map { it.registeredFIONames.map { it.name } }.flatten()
 
-    fun getFioAccountByFioName(fioName: String): UUID? = accounts.values.firstOrNull {
-        fioName in it.registeredFIONames
+    fun getFioAccountByFioName(fioName: String): UUID? = accounts.values.firstOrNull { fioAccount ->
+        fioName in fioAccount.registeredFIONames.map { it.name }
     }?.id
 
     fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
@@ -208,6 +208,7 @@ class FioModule(
                     backing::updateAccountContext,
                     accountContextInDB.accountIndex,
                     accountContextInDB.registeredFIONames,
+                    accountContextInDB.registeredFIODomains,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
                     accountContextInDB.actionSequenceNumber)
