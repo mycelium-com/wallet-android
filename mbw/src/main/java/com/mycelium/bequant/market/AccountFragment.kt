@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
@@ -110,7 +111,15 @@ class AccountFragment : Fragment() {
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         list.adapter = adapter
         adapter.addCoinListener = {
-            findNavController().navigate(MarketFragmentDirections.actionDeposit(it))
+            when (it) {
+                "EURB", "USDB", "GBPB" -> {
+                    AlertDialog.Builder(requireContext())
+                            .setMessage(getString(R.string.bequant_fiat_tx_not_supported))
+                            .setPositiveButton(R.string.button_ok) { _, _ ->
+                            }.show()
+                }
+                else -> findNavController().navigate(MarketFragmentDirections.actionDeposit(it))
+            }
         }
         viewModel.privateMode.observe(viewLifecycleOwner, Observer {
             privateModeButton.setImageDrawable(ContextCompat.getDrawable(requireContext(),

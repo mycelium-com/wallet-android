@@ -1523,4 +1523,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_kyc_verify_title">Verify your account</string>
     <string name="bequant_kyc_verify_button">Get verified</string>
     <string name="bequant_kyc_verify_message">Dear customer, please note that in order to use the platform, i.e. make deposits, withdraws and trading, you are required to be verified through our KYC procedure.\n\nAfter the verification is finished you will be granted with the equivalent of 100 BTC daily and unlimited monthly withdrawals.</string>
+    <string name="bequant_fiat_tx_not_supported">Fiat transactions are not yet supported directly in the mycelium app.\n\nIf you wish to deposit or withdraw fiat please go to <font color="#F2E868"><u>bequant.io</u></font> and follow the simple instructions on the platform.</string>
 </resources>
