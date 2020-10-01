@@ -10,7 +10,6 @@ import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.paymentrequest.PaymentRequestException
@@ -159,15 +158,6 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     fun getTransactionLabel() = model.transactionLabel
 
     fun getTransactionData() = model.transactionData
-
-    fun getRecipientTitle(receivingAddressText: MutableLiveData<String>) =
-            when {
-                receivingAddressText.value?.contains("@") == true -> "Recipient FIO Name"
-                receivingAddressText.value?.isNotEmpty() == true || hasPaymentRequestHandler(model.paymentRequestHandler.value) -> context.getString(R.string.recipient_title)
-                else -> context.getString(R.string.enter_recipient_title)
-            }
-
-    fun getSenderLabel() = model.senderLabel
 
     fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
             this::hasPaymentRequestHandler)

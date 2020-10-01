@@ -40,7 +40,7 @@ class FIODomainDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "Domain details"
+            title = getString(R.string.domain_details)
         }
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         list.adapter = adapter

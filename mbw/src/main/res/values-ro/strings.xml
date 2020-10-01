@@ -16,7 +16,6 @@
     <string name="send">Trimite</string>
     <string name="receive">Primeşte</string>
     <string name="private_key_deleted">Cheie privată ştearsă.</string>
-    <string name="enter_recipient_title">Introdu adresa destinatarului</string>
     <string name="recipient_title">Adresa Destinatarului</string>
     <string name="amount_label">Suma:</string>
     <string name="amount_title">Suma</string>
@@ -101,7 +100,6 @@
     <string name="paste">Inseraţi din clipboard</string>
     <string name="broadcasting_transaction">Emitere Tranzacţie</string>
     <string name="enter_bitcoin_address">Introdu Adresa Bitcoin</string>
-    <string name="recipient_valid">Adresă Bitcoin Validă</string>
     <string name="enter_local_currency">Alege moneda locală</string>
     <string name="using_address_from_clipboard">Folosire adresă din clipboard</string>
     <string name="confirm_delete_pk_title">Eşti sigur?</string>

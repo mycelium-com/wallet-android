@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="Following FIO Domains registered" />
+            android:text="@string/following_fio_domains_registered" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"

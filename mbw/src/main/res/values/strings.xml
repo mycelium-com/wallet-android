@@ -31,8 +31,8 @@
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
     <string name="enter_recipient_title">Enter Recipient</string>
-    <string name="enter_recipient_hint">Recipient Bitcoin Address or FIO Name</string>
-    <string name="enter_recipient_description">Enter Recipient Address or FIO Name</string>
+    <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
+    <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
     <string name="recipient_title">Recipient Address</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_title">Amount</string>
@@ -208,6 +208,7 @@
     <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
+    <string name="checking_fio_address">Checking FIO Name</string>
     <string name="recipient_invalid">Recipient Invalid</string>
     <string name="recipient_valid">Recipient Valid</string>
     <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
@@ -1414,4 +1415,17 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_name_readable_wallet_identifier"><b>FIO Name</b> - a human-readable wallet identifier (such as john@edge or alice@gold) which eliminates the need to see, or even know of, blockchain public addresses. FIO Addresses automatically support any token in a wallet/exchange, and requires no manual mapping.</string>
     <string name="fio_requests_ability_to_request_funds"><b>FIO Requests</b> - the ability to request funds from any other wallet, utilizing in-wallet/app notifications and simple approvals. FIO Requests are fully encrypted between counter-parties, and do not interfere with the actual underlying blockchain transactions.</string>
     <string name="fio_names">Fio Names</string>
+    <string name="my_fio_names">My FIO Names</string>
+    <string name="fio_name_details">FIO Name details</string>
+    <string name="my_fio_domains">My FIO Domains</string>
+    <string name="following_fio_domains_registered">Following FIO Domains registered</string>
+    <string name="renew_fio_name">Renew FIO Name</string>
+    <string name="fio_account_s">FIO Account: %s</string>
+    <string name="fio_acknowledge_mapping">I acknowledge that, once connected, one address from each connected wallet will become public</string>
+    <string name="connect_accounts">Connect Accounts</string>
+    <string name="domain_details">Domain details</string>
+    <string name="renew_fio_domain">Renew FIO Domain</string>
+    <string name="fio_names_registered">FIO Name/s registered under selected domain:</string>
+    <string name="create_new_fio_name">Create new FIO Name</string>
+    <string name="expiration_date">Expiration date:</string>
 </resources>

@@ -28,7 +28,7 @@ class FIODomainsFragment : Fragment(R.layout.fragment_fio_domains) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "My FIO Domain/s"
+            title = getString(R.string.my_fio_domains)
         }
         list.adapter = adapter
         list.itemAnimator = null

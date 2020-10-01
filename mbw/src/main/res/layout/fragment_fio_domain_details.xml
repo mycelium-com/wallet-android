@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    android:text="Expiration date:"
+                    android:text="@string/expiration_date"
                     app:layout_constraintLeft_toRightOf="@id/coinIcon"
                     app:layout_constraintTop_toBottomOf="@id/fioName"
                     app:layout_goneMarginBottom="16dp" />
@@ -68,12 +68,13 @@
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    android:text="2021-09-20\n17:39:10"
+                    android:text="@{viewModel.dateToString(viewModel.fioDomainExpireDate)}"
                     app:layout_constraintBottom_toTopOf="@id/renewFIOName"
                     app:layout_constraintLeft_toRightOf="@id/expireDate"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fioName"
-                    app:layout_goneMarginBottom="16dp" />
+                    app:layout_goneMarginBottom="16dp"
+                    tools:text="2021-09-20\n17:39:10" />
 
                 <Button
                     android:id="@+id/renewFIOName"
@@ -81,7 +82,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:text="Renew FIO Domain"
+                    android:text="@string/renew_fio_domain"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
 
@@ -93,8 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="FIO Name/s registered under selected domain:" />
-
+                android:text="@string/fio_names_registered" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list"
@@ -106,16 +106,14 @@
                 app:layout_constraintTop_toBottomOf="@id/title"
                 tools:listitem="@layout/item_fio_account_mapping_account" />
 
-
             <Button
                 android:id="@+id/createFIOName"
                 style="@style/MyceliumButton.FIO"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="Create new FIO Name"
+                android:text="@string/create_new_fio_name"
                 app:layout_constraintBottom_toBottomOf="parent" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>
