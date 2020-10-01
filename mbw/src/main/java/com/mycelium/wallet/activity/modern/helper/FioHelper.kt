@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wapi.wallet.WalletManager
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 object FioHelper {
@@ -32,5 +34,17 @@ object FioHelper {
 //        } else {
 //            Toaster(context).toast("No FIO Names currently to map with. Register FIO Name first", false)
 //        }
+    }
+
+    @JvmStatic
+    fun transformExpirationDate(dateStr: String): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("GMT")
+        val date = sdf.parse(dateStr)
+
+        // val requiredSdf = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US) - old format
+        // new format - September 20, 2021 at 6:23pm
+        val requiredSdf = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a", Locale.US)
+        return requiredSdf.format(date)
     }
 }

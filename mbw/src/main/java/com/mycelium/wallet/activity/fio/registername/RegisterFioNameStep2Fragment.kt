@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.registername
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,8 +17,10 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
+import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import kotlinx.android.synthetic.main.fragment_register_fio_name_confirm.btNextButton
 import kotlinx.android.synthetic.main.fragment_register_fio_name_step2.*
@@ -49,6 +52,11 @@ class RegisterFioNameStep2Fragment : Fragment() {
                                 override fun onNothingSelected(p0: AdapterView<*>?) {}
                                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                                     viewModel!!.fioAccountToRegisterName.value = fioAccounts[p2]
+                                    // temporary account to register on and to pay fee from are the same
+                                    // until the ability of paying with other currencies is implemented
+                                    // TODO remove next line when it's ready
+                                    spinnerPayFromAccounts.setSelection((spinnerPayFromAccounts.adapter as ArrayAdapter<String>).getPosition(
+                                            "${fioAccounts[p2].label} ${fioAccounts[p2].accountBalance.spendable.toStringWithUnit()}"))
                                 }
                             }
                             spinnerPayFromAccounts?.adapter = ArrayAdapter(context,
@@ -60,6 +68,11 @@ class RegisterFioNameStep2Fragment : Fragment() {
                                 override fun onNothingSelected(p0: AdapterView<*>?) {}
                                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                                     viewModel!!.accountToPayFeeFrom.value = fioAccounts[p2]
+                                    // temporary account to register on and to pay fee from are the same
+                                    // until the ability of paying with other currencies is implemented
+                                    // TODO remove next line when it's ready
+                                    spinnerFioAccounts.setSelection((spinnerFioAccounts.adapter as ArrayAdapter<String>).getPosition(
+                                            fioAccounts[p2].label))
                                 }
                             }
                         }
@@ -70,13 +83,19 @@ class RegisterFioNameStep2Fragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         tvNotEnoughFundsError.visibility = View.GONE
         btNextButton.setOnClickListener {
-            requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.container,
-                            RegisterFioNameCompletedFragment.newInstance(viewModel.addressWithDomain.value!!,
-                                    viewModel.fioAccountToRegisterName.value!!.label, ""))
-                    .addToBackStack(null)
-                    .commit()
+            RegisterAddressTask(viewModel.fioAccountToRegisterName.value!!, viewModel.addressWithDomain.value!!) { expiration ->
+                if (expiration != null) {
+                    requireActivity().supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.container,
+                                    RegisterFioNameCompletedFragment.newInstance(viewModel.addressWithDomain.value!!,
+                                            viewModel.fioAccountToRegisterName.value!!.label, expiration))
+                            .addToBackStack(null)
+                            .commit()
+                } else {
+                    Toaster(this).toast("Something went wrong", true)
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
             tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
@@ -91,5 +110,22 @@ class RegisterFioNameStep2Fragment : Fragment() {
         icEdit.setOnClickListener {
             findNavController().navigate(R.id.actionNext)
         }
+    }
+}
+
+class RegisterAddressTask(
+        val account: FioAccount,
+        private val fioAddress: String,
+        val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
+    override fun doInBackground(vararg args: Void): String? {
+        return try {
+            account.registerFIOAddress(fioAddress)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override fun onPostExecute(result: String?) {
+        listener(result)
     }
 }
