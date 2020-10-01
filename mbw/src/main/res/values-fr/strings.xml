@@ -24,7 +24,6 @@
     <string name="send">Envoyer</string>
     <string name="receive">Recevoir</string>
     <string name="private_key_deleted">Clé privée supprimée.</string>
-    <string name="enter_recipient_title">Entrez l\'adresse du destinataire</string>
     <string name="recipient_title">Adresse du destinataire</string>
     <string name="amount_label">Montant :</string>
     <string name="amount_title">Montant</string>
@@ -135,7 +134,6 @@
     <string name="broadcasting_transaction">Diffusion de la transaction</string>
     <string name="transaction_rejected_message">La transaction a été rejetée par le réseau. Cela indique que votre portefeuille est désynchronisé</string>
     <string name="enter_bitcoin_address">Entrez l\'adresse Bitcoin</string>
-    <string name="recipient_valid">Adresse Bitcoin valide</string>
     <string name="redirecting_to_block_explorer">Redirection vers un explorateur de blocs</string>
     <string name="enter_local_currency">Entrez votre devise locale</string>
     <string name="using_address_from_clipboard">Adresse depuis le presse-papier</string>

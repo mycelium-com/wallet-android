@@ -23,7 +23,6 @@
     <string name="send">Verzenden</string>
     <string name="receive">Ontvangen</string>
     <string name="private_key_deleted">Private key verwijderd.</string>
-    <string name="enter_recipient_title">Voer adres ontvanger in</string>
     <string name="recipient_title">Adres van ontvanger</string>
     <string name="amount_label">Bedrag:</string>
     <string name="amount_title">Bedrag</string>
@@ -133,7 +132,6 @@
     <string name="broadcasting_transaction">Verzenden transactie</string>
     <string name="transaction_rejected_message">De transactie is geweigerd door het netwerk. Dit geeft aan dat uw portemonnee niet gesynchroniseerd is</string>
     <string name="enter_bitcoin_address">Bitcoin adres invoeren</string>
-    <string name="recipient_valid">Bitcoin adres geldig</string>
     <string name="redirecting_to_block_explorer">U wordt doorgestuurd naar een block explorer</string>
     <string name="enter_local_currency">Voer uw lokale valuta in</string>
     <string name="using_address_from_clipboard">Maak gebruik van adres op klembord</string>

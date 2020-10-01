@@ -37,7 +37,6 @@
                     bind:viewModel="@{viewModel}"
                     bind:activity="@{activity}" />
 
-                <include layout="@layout/send_coins_sender" />
 
                 <!--Warnings-->
                 <include

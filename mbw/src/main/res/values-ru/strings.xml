@@ -25,7 +25,6 @@
     <string name="receive">Получить</string>
     <string name="private_key_deleted">Приватный ключ удален.</string>
     <string name="account_deleted">Аккаунт удален</string>
-    <string name="enter_recipient_title">Введите адрес получателя</string>
     <string name="recipient_title">Адрес получателя</string>
     <string name="amount_label">Количество:</string>
     <string name="amount_title">Сумма</string>
@@ -168,7 +167,6 @@
     <string name="broadcasting_transaction">Транзакция  передается</string>
     <string name="transaction_rejected_message">Транзакция отвергнута сетью. Это может говорить о том, что ваш бумажник не синхронизирован</string>
     <string name="enter_bitcoin_address">Введите биткойн адрес</string>
-    <string name="recipient_valid">Биткойн адрес годен</string>
     <string name="redirecting_to_block_explorer">Перенаправление в обозреватель блоков</string>
     <string name="enter_local_currency">Введите вашу  валюту</string>
     <string name="using_address_from_clipboard">Использование  адреса из буфера обмена</string>
