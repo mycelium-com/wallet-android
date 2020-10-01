@@ -135,7 +135,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
-    fun getRequests() = backing.getRequestsContent()
+    fun getRequestsGroups() = backing.getRequestsGroups()
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong())
@@ -183,7 +183,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     private fun syncFioRequests() {
         val sentFioRequests = fiosdk?.getSentFioRequests()?: emptyList()
         val pendingFioRequests = fiosdk?.getPendingFioRequests()?: emptyList()
-        backing.putRequestsSummaries(sentFioRequests + pendingFioRequests)
+        backing.putRequests("sent",sentFioRequests)
+        backing.putRequests("pending",pendingFioRequests)
     }
 
     private fun syncFioAddresses() {

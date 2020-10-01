@@ -15,7 +15,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     private val fioQueries = walletDB.fioAccountBackingQueries
     private val queries = walletDB.accountBackingQueries
 
-    fun putRequestsSummaries(list: List<FIORequestContent>) {
+    fun putRequests( status:String, list: List<FIORequestContent>) {
         list.forEach {
             fioQueries.insertRequest(
                     it.fioRequestId.longValueExact(),
@@ -24,12 +24,15 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                     it.payerFioAddress,
                     it.payeeFioAddress,
                     it.content,
-                    it.timeStamp)
+                    it.timeStamp,
+                    status)
         }
     }
 
-    fun getRequestsContent(): List<FIORequestContent> {
-        return fioQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp ->
+    fun getRequestsGroups(): List<FioGroup> {
+        val fioSentGroup = FioGroup("sent", mutableListOf())
+        val fioPendingGroup = FioGroup("pending", mutableListOf())
+        val fioContents = fioQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp, status ->
             val fioRequestContent = FIORequestContent()
             fioRequestContent.fioRequestId = fio_request_id.toBigInteger()
             fioRequestContent.payerFioAddress = payer_fio_address
@@ -38,8 +41,17 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             fioRequestContent.payeeFioPublicKey = payee_fio_public_key
             fioRequestContent.content = content
             fioRequestContent.timeStamp = time_stamp
+
+            if (status == "sent"){
+                fioSentGroup.children.add(fioRequestContent)
+            }
+            if (status == "pending"){
+                fioPendingGroup.children.add(fioRequestContent)
+            }
             fioRequestContent
         }.executeAsList()
+
+        return listOf(fioSentGroup, fioPendingGroup)
     }
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =

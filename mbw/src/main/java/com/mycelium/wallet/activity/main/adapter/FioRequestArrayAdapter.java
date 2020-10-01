@@ -1,49 +1,19 @@
 package com.mycelium.wallet.activity.main.adapter;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
-import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.SendCoinsActivity;
-import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
-import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
-import com.mycelium.wallet.activity.util.ValueExtensionsKt;
-import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.Address;
-import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.coins.AssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.fio.FioGroup;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent;
-
-import static android.content.Context.MODE_PRIVATE;
-import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
-import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
 public class FioRequestArrayAdapter extends BaseExpandableListAdapter {
 //    private final MetadataStorage _storage;

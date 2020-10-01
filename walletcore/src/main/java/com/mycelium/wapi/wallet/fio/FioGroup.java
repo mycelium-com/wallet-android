@@ -1,8 +1,6 @@
-package com.mycelium.wallet.activity.main.adapter;
+package com.mycelium.wapi.wallet.fio;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent;
 
