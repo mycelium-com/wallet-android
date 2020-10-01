@@ -17,7 +17,29 @@
         android:padding="18dp">
 
 
+        <ImageView
+            android:id="@+id/imFioLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvTitle"
+            app:srcCompat="@drawable/ic_back_arrow" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="13dp"
+            android:text="@string/fio_enter_fio_name_title"
+            android:textColor="@color/fio_white_alpha_0_9"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/imFioLogo" />
+
         <LinearLayout
+            android:layout_marginTop="16dp"
+            android:layout_below="@id/imFioLogo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
