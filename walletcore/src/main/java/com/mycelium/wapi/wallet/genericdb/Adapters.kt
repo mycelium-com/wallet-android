@@ -137,5 +137,7 @@ val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigInt
 
 val fioKnownNamesAdapter = FioKnownNames.Adapter(Adapters.fioNameAdapter)
 
+val fioNameAccountMappingsAdapter = FioNameAccountMappings.Adapter(Adapters.uuidAdapter)
+
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)

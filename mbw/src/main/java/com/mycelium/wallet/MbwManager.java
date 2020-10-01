@@ -363,7 +363,8 @@ public class MbwManager {
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter());
+                AdaptersKt.getFioKnownNamesAdapter(),
+                AdaptersKt.getFioNameAccountMappingsAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -847,7 +848,7 @@ public class MbwManager {
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
         FioModule fioModule = new FioModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
                 new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener);
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
         walletManager.add(fioModule);
         walletManager.init();
         walletManager.startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
@@ -920,7 +921,7 @@ public class MbwManager {
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
         FioModule fioModule = new FioModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
                 fioGenericBacking, db, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener);
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
         walletManager.add(fioModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

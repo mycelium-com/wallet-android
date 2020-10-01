@@ -27,7 +27,8 @@ class FioModule(
         private val networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val fioKeyManager: FioKeyManager,
-        private val accountListener: AccountListener?
+        private val accountListener: AccountListener?,
+        private val walletManager: WalletManager
 ) : WalletModule(metaDataStorage) {
 
     private val coinType = if (networkParameters.isProdnet) FIOMain else FIOTest
@@ -50,6 +51,18 @@ class FioModule(
     fun addKnownName(fioName: FioName) = walletDB.fioKnownNamesQueries.insert(fioName)
 
     fun deleteKnownName(fioName: FioName) = walletDB.fioKnownNamesQueries.delete(fioName)
+
+    fun getConnectedAccounts(fioName: String): List<WalletAccount<*>> {
+        var connected = ArrayList<WalletAccount<*>>()
+        var accountsList = walletDB.fioNameAccountMappingsQueries.selectAccountsUuidByFioName(fioName).executeAsList()
+        accountsList.forEach {
+            var account = walletManager.getAccount(it)
+            if (account != null) {
+                connected.add(account)
+            }
+        }
+        return connected
+    }
 
     private fun getFioSdk(accountIndex: Int): FIOSDK {
         val privkeyString = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)

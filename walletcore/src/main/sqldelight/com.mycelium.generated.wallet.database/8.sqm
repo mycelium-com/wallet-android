@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS FioNameAccountMappings(
+    name TEXT PRIMARY KEY,
+    pubAddress TEXT NOT NULL,
+    chainCode TEXT NOT NULL,
+    tokenCode TEXT NOT NULL,
+    accountUuid TEXT NOT NULL
+);
