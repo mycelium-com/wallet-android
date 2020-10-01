@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel" />
+            type="com.mycelium.wallet.activity.fio.requests.viewmodels.EnterFioNameViewModel" />
 
     </data>
 
