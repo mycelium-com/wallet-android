@@ -11,7 +11,6 @@
     <string name="send">Poslať</string>
     <string name="receive">Prijať</string>
     <string name="private_key_deleted">Privátny kľúč bol vymazaný.</string>
-    <string name="enter_recipient_title">Vložte Príjemcovú Adresu</string>
     <string name="recipient_title">Príjemcova Adresa</string>
     <string name="amount_label">Suma:</string>
     <string name="amount_title">Suma</string>

@@ -23,7 +23,6 @@
     <string name="send">Wyślij</string>
     <string name="receive">Otrzymaj</string>
     <string name="private_key_deleted">Klucz prywatny został usunięty.</string>
-    <string name="enter_recipient_title">Wprowadz adres odbiorcy BTC </string>
     <string name="recipient_title">Adres odbiorcy</string>
     <string name="amount_label">Kwota:</string>
     <string name="amount_title">Kwota</string>

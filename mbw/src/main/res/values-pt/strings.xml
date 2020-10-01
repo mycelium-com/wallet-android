@@ -25,7 +25,6 @@
     <string name="send">Enviar</string>
     <string name="receive">Receber</string>
     <string name="private_key_deleted">Chave privada apagada.</string>
-    <string name="enter_recipient_title">Insira o Endereço do Recipiente</string>
     <string name="recipient_title">Endereço do Recipiente</string>
     <string name="amount_label">Quantia:</string>
     <string name="amount_title">Quantia</string>

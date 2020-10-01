@@ -24,7 +24,6 @@
     <string name="send">Odeslat</string>
     <string name="receive">Přijmout</string>
     <string name="private_key_deleted">Soukromý klíč odstraněn.</string>
-    <string name="enter_recipient_title">Zadejte adresu příjemce</string>
     <string name="recipient_title">Adresa příjemce</string>
     <string name="amount_label">Částka:</string>
     <string name="amount_title">Částka</string>

@@ -24,7 +24,6 @@
     <string name="receive">קבל</string>
     <string name="private_key_deleted">המפתח נמחק.</string>
     <string name="account_deleted">חשבון נמחק.</string>
-    <string name="enter_recipient_title">הכניסו כתובת מקבלת</string>
     <string name="recipient_title">כתובת מקבלת</string>
     <string name="amount_label">סכום:</string>
     <string name="amount_title">סכום</string>

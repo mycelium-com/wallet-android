@@ -25,7 +25,6 @@
     <string name="send">Αποστολή</string>
     <string name="receive">Λήψη</string>
     <string name="private_key_deleted">Το μυστικό κλειδί διεγράφη.</string>
-    <string name="enter_recipient_title">Εισαγάγετε Διεύθυνση Παραλήπτη</string>
     <string name="recipient_title">Διεύθυνση Παραλήπτη</string>
     <string name="amount_label">Ποσό:</string>
     <string name="amount_title">Ποσό</string>

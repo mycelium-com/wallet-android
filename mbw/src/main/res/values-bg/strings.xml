@@ -25,7 +25,6 @@
     <string name="send">Изпрати</string>
     <string name="receive">Приеми</string>
     <string name="private_key_deleted">Частният ключ е изтрит.</string>
-    <string name="enter_recipient_title">Въведете приемащия адрес</string>
     <string name="recipient_title">Приемащ адрес</string>
     <string name="amount_label">Сума:</string>
     <string name="amount_title">Сума</string>

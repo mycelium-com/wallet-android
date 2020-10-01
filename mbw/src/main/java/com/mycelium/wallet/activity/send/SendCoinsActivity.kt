@@ -49,7 +49,6 @@ import com.mycelium.wapi.wallet.fio.FioAccount
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
-import kotlinx.android.synthetic.main.send_coins_sender.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -164,13 +163,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             is HDAccount, is SingleAddressAccount -> {
                 DataBindingUtil.setContentView<SendCoinsActivityBtcBinding>(this, R.layout.send_coins_activity_btc)
                         .also {
-                            it.viewModel = (viewModel as SendBtcViewModel).apply {
-                                fromFioNameSpinner?.adapter = ArrayAdapter(context,
-                                        R.layout.layout_send_coin_transaction_replace, R.id.text,
-                                        arrayOf("aa@mycelium", "ab@mycelium")).apply {
-                                    setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
-                                }
-                            }
+                            it.viewModel = viewModel as SendBtcViewModel
                             it.activity = this
                         }
             }
@@ -182,11 +175,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                                         R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
-                                fromFioNameSpinner?.adapter = ArrayAdapter(context,
-                                        R.layout.layout_send_coin_transaction_replace, R.id.text,
-                                        arrayOf("aa@mycelium", "ab@mycelium")).apply {
-                                    setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
-                                }
                             }
                             it.activity = this
                         }
@@ -194,13 +182,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             is FioAccount -> {
                 DataBindingUtil.setContentView<SendCoinsActivityFioBinding>(this, R.layout.send_coins_activity_fio)
                         .also {
-                            it.viewModel = (viewModel as SendFioViewModel).apply {
-                                fromFioNameSpinner?.adapter = ArrayAdapter(context,
-                                        R.layout.layout_send_coin_transaction_replace, R.id.text,
-                                        arrayOf("aa@mycelium", "ab@mycelium")).apply {
-                                    setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
-                                }
-                            }
+                            it.viewModel = viewModel as SendFioViewModel
                             it.activity = this
                         }
             }

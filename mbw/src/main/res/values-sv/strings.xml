@@ -25,7 +25,6 @@
     <string name="send">Skicka</string>
     <string name="receive">Ta emot</string>
     <string name="private_key_deleted">Privat nyckel borttagen.</string>
-    <string name="enter_recipient_title">Ange mottagaradress</string>
     <string name="recipient_title">Mottagaradress</string>
     <string name="amount_label">Belopp:</string>
     <string name="amount_title">Belopp</string>

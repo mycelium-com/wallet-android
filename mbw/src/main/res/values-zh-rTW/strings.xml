@@ -25,7 +25,6 @@
     <string name="send">匯款</string>
     <string name="receive">接收</string>
     <string name="private_key_deleted">私鑰已清除</string>
-    <string name="enter_recipient_title">請輸入收款地址</string>
     <string name="recipient_title">收款地址</string>
     <string name="amount_label">金額:</string>
     <string name="amount_title">金額</string>

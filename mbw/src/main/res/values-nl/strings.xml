@@ -23,7 +23,6 @@
     <string name="send">Verzenden</string>
     <string name="receive">Ontvangen</string>
     <string name="private_key_deleted">Private key verwijderd.</string>
-    <string name="enter_recipient_title">Voer adres ontvanger in</string>
     <string name="recipient_title">Adres van ontvanger</string>
     <string name="amount_label">Bedrag:</string>
     <string name="amount_title">Bedrag</string>

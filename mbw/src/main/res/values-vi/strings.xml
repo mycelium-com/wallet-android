@@ -24,7 +24,6 @@
     <string name="send">Gửi</string>
     <string name="receive">Nhận</string>
     <string name="private_key_deleted">Private key đã xóa.</string>
-    <string name="enter_recipient_title">Nhập địa chỉ người nhận</string>
     <string name="recipient_title">Địa chỉ người nhận</string>
     <string name="amount_label">Số lượng:</string>
     <string name="amount_title">Số lượng</string>

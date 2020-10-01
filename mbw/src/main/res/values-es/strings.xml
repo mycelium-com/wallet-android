@@ -24,7 +24,6 @@
     <string name="send">Enviar</string>
     <string name="receive">Recibir</string>
     <string name="private_key_deleted">Clave Privada borrada.</string>
-    <string name="enter_recipient_title">Introduce la Dirección del Destinatario</string>
     <string name="recipient_title">Dirección del destinatario</string>
     <string name="amount_label">Importe:</string>
     <string name="amount_title">Importe</string>
