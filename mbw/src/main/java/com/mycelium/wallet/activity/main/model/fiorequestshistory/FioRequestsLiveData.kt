@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import android.os.AsyncTask
 import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.activity.main.adapter.FioGroup
 import com.mycelium.wallet.event.*
+import com.mycelium.wapi.wallet.fio.FioAccount
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import java.lang.ref.WeakReference
@@ -16,9 +18,9 @@ import kotlin.math.max
 /**
  * This class is intended to manage transaction history for current selected account.
  */
-class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<Set<FIORequestContent>>() {
+class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<Set<FioGroup>>() {
     private var account = mbwManager.selectedAccount!!
-    private var historyList = mutableSetOf<FIORequestContent>()
+    private var historyList = mutableSetOf<FioGroup>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<FIORequestContent>, List<FIORequestContent>>>? = null
@@ -31,7 +33,7 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<Set<FIORequestC
         startHistoryUpdate()
     }
 
-    fun appendList(list: List<FIORequestContent>) {
+    fun appendList(list: Set<FioGroup>) {
         historyList.addAll(list)
         value = historyList
     }
@@ -66,8 +68,9 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<Set<FIORequestC
             }
         }
 
-        override fun doInBackground(vararg voids: Void): List<FIORequestContent>  =
-                account.getTransactionSummaries(0, max(20, value!!.size)) as List<FIORequestContent>
+        override fun doInBackground(vararg voids: Void): List<FIORequestContent> {
+            return (account as FioAccount).getRequests()
+        }
 
         override fun onPostExecute(transactions: List<FIORequestContent>) {
             if (account === mbwManager.selectedAccount) {
@@ -77,7 +80,8 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<Set<FIORequestC
     }
 
     private fun updateValue(newValue: List<FIORequestContent>) {
-        historyList = newValue.toMutableSet()
+        val groups =  mutableSetOf<FioGroup>(FioGroup("send",newValue) , FioGroup("pending",newValue))
+        historyList = groups
         value = historyList
     }
 

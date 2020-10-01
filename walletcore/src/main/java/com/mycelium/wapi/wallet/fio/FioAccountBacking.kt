@@ -28,7 +28,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         }
     }
 
-    fun getRequestsSummaries(): List<FIORequestContent> {
+    fun getRequestsContent(): List<FIORequestContent> {
         return fioQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp ->
             val fioRequestContent = FIORequestContent()
             fioRequestContent.fioRequestId = fio_request_id.toBigInteger()

@@ -1,12 +1,18 @@
 package com.mycelium.wallet.activity.main.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckedTextView;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -39,58 +45,54 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
-public class FioRequestArrayAdapter extends ArrayAdapter<FIORequestContent> {
-   private final MetadataStorage _storage;
-   protected Context _context;
-   private DateFormat _dateFormat;
-   private MbwManager _mbwManager;
-   private Fragment _containerFragment;
-   private SharedPreferences transactionFiatValuePref;
-   private Map<Address, String> _addressBook;
-   private boolean _alwaysShowAddress;
-   private Set<String> exchangeTransactions;
+public class FioRequestArrayAdapter extends BaseExpandableListAdapter {
+//    private final MetadataStorage _storage;
+//    protected Context _context;
+//    private DateFormat _dateFormat;
+//    private MbwManager _mbwManager;
+//    private Fragment _containerFragment;
+//    private SharedPreferences transactionFiatValuePref;
+//    private Map<Address, String> _addressBook;
+//    private boolean _alwaysShowAddress;
+//    private Set<String> exchangeTransactions;
+//
+//    public FioRequestArrayAdapter(Context context,
+//                                  List<Map<String,FIORequestContent>> transactions,
+//                                  Fragment containerFragment,
+//                                  Map<Address, String> addressBook,
+//                                  boolean alwaysShowAddress) {
+//        super(context, transactions, R.layout.transaction_row, new String[]{"sd"}, );
+//        _context = context;
+//        _dateFormat = new AdaptiveDateFormat(context);
+//        _mbwManager = MbwManager.getInstance(context);
+//        _containerFragment = containerFragment;
+//        _storage = _mbwManager.getMetadataStorage();
+//        _addressBook = addressBook;
+//        _alwaysShowAddress = alwaysShowAddress;
+//        transactionFiatValuePref = context.getSharedPreferences(SendCoinsActivity.TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
+//
+//        SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_EXCHANGE, MODE_PRIVATE);
+//        exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
+//    }
 
-   public FioRequestArrayAdapter(Context context, List<FIORequestContent> transactions, Map<Address, String> addressBook) {
-      this(context, transactions, null, addressBook, true);
-   }
-
-   public FioRequestArrayAdapter(Context context,
-                                 List<FIORequestContent> transactions,
-                                 Fragment containerFragment,
-                                 Map<Address, String> addressBook,
-                                 boolean alwaysShowAddress) {
-      super(context, R.layout.transaction_row, transactions);
-      _context = context;
-      _dateFormat = new AdaptiveDateFormat(context);
-      _mbwManager = MbwManager.getInstance(context);
-      _containerFragment = containerFragment;
-      _storage = _mbwManager.getMetadataStorage();
-      _addressBook = addressBook;
-      _alwaysShowAddress = alwaysShowAddress;
-      transactionFiatValuePref = context.getSharedPreferences(SendCoinsActivity.TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
-
-      SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_EXCHANGE, MODE_PRIVATE);
-      exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
-   }
-
-   @NonNull
-   @Override
-   public View getView(final int position, View convertView, ViewGroup parent) {
-      // Only inflate a new view if we are not reusing an old one
-      View rowView = convertView;
-      if (rowView == null) {
-         LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         rowView = Preconditions.checkNotNull(inflater.inflate(R.layout.fio_request_row, parent, false));
-      }
-
-      // Make sure we are still added
-      if (_containerFragment != null && !_containerFragment.isAdded()) {
-         // We have observed that the fragment can be disconnected at this
-         // point
-         return rowView;
-      }
-
-      final FIORequestContent record = getItem(position);
+//    @NonNull
+//    @Override
+//    public View getView(final int position, View convertView, ViewGroup parent) {
+//        // Only inflate a new view if we are not reusing an old one
+//        View rowView = convertView;
+//        if (rowView == null) {
+//            LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//            rowView = Preconditions.checkNotNull(inflater.inflate(R.layout.fio_request_row, parent, false));
+//        }
+//
+//        // Make sure we are still added
+//        if (_containerFragment != null && !_containerFragment.isAdded()) {
+//            // We have observed that the fragment can be disconnected at this
+//            // point
+//            return rowView;
+//        }
+//
+//        final FIORequestContent record = getItem(position);
 
 //      // Determine Color
 //      int color;
@@ -227,6 +229,106 @@ public class FioRequestArrayAdapter extends ArrayAdapter<FIORequestContent> {
 //      }
 //
 //      rowView.setTag(record);
-      return rowView;
+//        return rowView;
+//    }
+
+   private final List<FioGroup> groups;
+   public LayoutInflater inflater;
+   public Activity activity;
+
+   public FioRequestArrayAdapter(Activity act, List<FioGroup> groups) {
+      activity = act;
+      this.groups = groups;
+      inflater = act.getLayoutInflater();
+   }
+
+   @Override
+   public Object getChild(int groupPosition, int childPosition) {
+      return groups.get(groupPosition).children.get(childPosition);
+   }
+
+   @Override
+   public long getChildId(int groupPosition, int childPosition) {
+      return 0;
+   }
+
+   @Override
+   public View getChildView(int groupPosition, final int childPosition,
+                            boolean isLastChild, View convertView, ViewGroup parent) {
+      final FIORequestContent children = (FIORequestContent) getChild(groupPosition, childPosition);
+      TextView text = null;
+      if (convertView == null) {
+         convertView = inflater.inflate(R.layout.fio_request_row, null);
+      }
+
+      TextView address = convertView.findViewById(R.id.tvDate);
+      address.setText(String.format("From: %s", children.getPayeeFioAddress()));
+
+      TextView memo = convertView.findViewById(R.id.tvTransactionLabel);
+      memo.setText("Memo");
+
+      TextView amount = convertView.findViewById(R.id.tvAmount);
+      amount.setText("12 BTC");
+
+      TextView tvFiatAmount = convertView.findViewById(R.id.tvFiatAmount);
+      tvFiatAmount.setText("133 USD");
+//
+//      convertView.setOnClickListener(v -> Toast.makeText(activity, children,
+//              Toast.LENGTH_SHORT).show());
+      return convertView;
+   }
+
+   @Override
+   public int getChildrenCount(int groupPosition) {
+      return groups.get(groupPosition).children.size();
+   }
+
+   @Override
+   public Object getGroup(int groupPosition) {
+      return groups.get(groupPosition);
+   }
+
+   @Override
+   public int getGroupCount() {
+      return groups.size();
+   }
+
+   @Override
+   public void onGroupCollapsed(int groupPosition) {
+      super.onGroupCollapsed(groupPosition);
+   }
+
+   @Override
+   public void onGroupExpanded(int groupPosition) {
+      super.onGroupExpanded(groupPosition);
+   }
+
+   @Override
+   public long getGroupId(int groupPosition) {
+      return 0;
+   }
+
+   @Override
+   public View getGroupView(int groupPosition, boolean isExpanded,
+                            View convertView, ViewGroup parent) {
+      if (convertView == null) {
+         convertView = inflater.inflate(R.layout.fio_request_listrow_group, null);
+      }
+      FioGroup group = (FioGroup) getGroup(groupPosition);
+      CheckedTextView checkedTextView = (CheckedTextView) convertView;
+      checkedTextView.setText(group.status);
+      checkedTextView.setChecked(isExpanded);
+
+      return convertView;
+   }
+
+   @Override
+   public boolean hasStableIds() {
+      return false;
+   }
+
+   @Override
+   public boolean isChildSelectable(int groupPosition, int childPosition) {
+      return false;
    }
 }

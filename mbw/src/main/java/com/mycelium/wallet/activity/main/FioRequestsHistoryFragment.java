@@ -34,58 +34,38 @@
 
 package com.mycelium.wallet.activity.main;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
-import androidx.core.app.ShareCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder.InsufficientBtcException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
+import com.mycelium.wallet.activity.main.adapter.FioGroup;
 import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter;
 import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryModel;
-import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastDialog;
 import com.mycelium.wallet.activity.send.SendCoinsActivity;
-import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
-import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
@@ -94,27 +74,12 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TooManyTransactions;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.wallet.Address;
-import com.mycelium.wapi.wallet.OutputViewModel;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcTransaction;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.squareup.otto.Subscribe;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -123,15 +88,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent;
 
 import static android.app.Activity.RESULT_OK;
-import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.makeText;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -152,14 +114,14 @@ public class FioRequestsHistoryFragment extends Fragment {
    private final AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
    @BindView(R.id.tvNoTransactions)
    TextView noTransactionMessage;
-   private List<FIORequestContent> history = new ArrayList<>();
+   private Set<FioGroup> history = new HashSet<>();
 
    @BindView(R.id.btRescan)
    View btnReload;
 
-   private FioRequestHistoryAdapter adapter;
+   private FioRequestArrayAdapter adapter;
    private FioRequestsHistoryModel model;
-   private ListView listView;
+   private ExpandableListView listView;
 
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -183,20 +145,23 @@ public class FioRequestsHistoryFragment extends Fragment {
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
       listView = _root.findViewById(R.id.lvTransactionHistory);
       if (adapter == null) {
-         adapter = new FioRequestHistoryAdapter(getActivity(), history);
-         updateWrapper(adapter);
-         model.getTransactionHistory().observe(this, new Observer<Set<? extends FIORequestContent>>() {
+         List<FioGroup> fioGroupList = new ArrayList<FioGroup>();
+         fioGroupList.addAll(history);
+         adapter = new FioRequestArrayAdapter(getActivity(), fioGroupList );
+//         updateWrapper(adapter);
+
+         model.getFioRequestHistory().observe(this, new Observer<Set<? extends FioGroup>>() {
             @Override
-            public void onChanged(@Nullable Set<? extends FIORequestContent> transaction) {
+            public void onChanged(Set<? extends FioGroup> fioGroups) {
                history.clear();
-               history.addAll(transaction);
-               adapter.sort(new Comparator<FIORequestContent>() {
-                  @Override
-                  public int compare(FIORequestContent ts1, FIORequestContent ts2) {
-                     //TODO migrate to real compare
-                     return ts1.getTimeStamp().compareTo(ts2.getTimeStamp());
-                  }
-               });
+               history.addAll(fioGroups);
+//               adapter.sort(new Comparator<FIORequestContent>() {
+//                  @Override
+//                  public int compare(FIORequestContent ts1, FIORequestContent ts2) {
+//                     //TODO migrate to real compare
+//                     return ts1.getTimeStamp().compareTo(ts2.getTimeStamp());
+//                  }
+//               });
                adapter.notifyDataSetChanged();
                showHistory(!history.isEmpty());
                refreshList();
@@ -273,7 +238,7 @@ public class FioRequestsHistoryFragment extends Fragment {
    public void selectedAccountChanged(SelectedAccountChanged event) {
       isLoadingPossible.set(true);
       listView.setSelection(0);
-      updateWrapper(adapter);
+//      updateWrapper(adapter);
    }
 
    @Subscribe
@@ -307,45 +272,45 @@ public class FioRequestsHistoryFragment extends Fragment {
       }
    }
 
-   private void updateWrapper(FioRequestHistoryAdapter adapter) {
-      this.adapter = adapter;
-      listView.setAdapter(adapter);
-      listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-         private static final int OFFSET = 20;
-         private final List<FIORequestContent> toAdd = new ArrayList<>();
-         @Override
-         public void onScrollStateChanged(AbsListView view, int scrollState) {
-            synchronized (toAdd) {
-               if (!toAdd.isEmpty() && view.getLastVisiblePosition() == history.size() - 1) {
-                  model.getTransactionHistory().appendList(toAdd);
-                  toAdd.clear();
-               }
-            }
-         }
-
-         @Override
-         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            // We should preload data to provide glitch free experience.
-            // If no items loaded we should do nothing, as it's LiveData duty.
-            if (firstVisibleItem + visibleItemCount >= totalItemCount - OFFSET && visibleItemCount != 0) {
-               boolean toAddEmpty;
-               synchronized (toAdd) {
-                  toAddEmpty = toAdd.isEmpty();
-               }
-               if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
-                          OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-               }
-               if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
-                  synchronized (toAdd) {
-                     model.getTransactionHistory().appendList(toAdd);
-                     toAdd.clear();
-                  }
-               }
-            }
-         }
-      });
-   }
+//   private void updateWrapper(FioRequestArrayAdapter adapter) {
+//      this.adapter = adapter;
+//      listView.setAdapter(adapter);
+//      listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+//         private static final int OFFSET = 20;
+//         private final List<FIORequestContent> toAdd = new ArrayList<>();
+//         @Override
+//         public void onScrollStateChanged(AbsListView view, int scrollState) {
+//            synchronized (toAdd) {
+//               if (!toAdd.isEmpty() && view.getLastVisiblePosition() == history.size() - 1) {
+//                  model.getFioRequestHistory().appendList(toAdd);
+//                  toAdd.clear();
+//               }
+//            }
+//         }
+//
+//         @Override
+//         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+//            // We should preload data to provide glitch free experience.
+//            // If no items loaded we should do nothing, as it's LiveData duty.
+//            if (firstVisibleItem + visibleItemCount >= totalItemCount - OFFSET && visibleItemCount != 0) {
+//               boolean toAddEmpty;
+//               synchronized (toAdd) {
+//                  toAddEmpty = toAdd.isEmpty();
+//               }
+//               if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
+//                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
+//                          OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//               }
+//               if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
+//                  synchronized (toAdd) {
+//                     model.getFioRequestHistory().appendList(toAdd);
+//                     toAdd.clear();
+//                  }
+//               }
+//            }
+//         }
+//      });
+//   }
 
    static class Preloader extends AsyncTask<Void, Void, Void> {
       private final List<FIORequestContent> toAdd;
@@ -396,9 +361,9 @@ public class FioRequestsHistoryFragment extends Fragment {
    @Override
    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
       super.onCreateOptionsMenu(menu, inflater);
-      if (adapter != null && adapter.getCount() > 0) {
-         inflater.inflate(R.menu.export_history, menu);
-      }
+//      if (adapter != null && adapter.getCount() > 0) {
+//         inflater.inflate(R.menu.export_history, menu);
+//      }
    }
 
 //   @Override
@@ -411,221 +376,6 @@ public class FioRequestsHistoryFragment extends Fragment {
 //      }
 //      return super.onOptionsItemSelected(item);
 //   }
-
-   private class FioRequestHistoryAdapter extends FioRequestArrayAdapter {
-      FioRequestHistoryAdapter(Context context, List<FIORequestContent> transactions) {
-         super(context, transactions, FioRequestsHistoryFragment.this, model.getAddressBook(), false);
-      }
-
-      @NonNull
-      @Override
-      public View getView(final int position, View convertView, ViewGroup parent) {
-         View rowView = super.getView(position, convertView, parent);
-
-         // Make sure we are still added
-         if (!isAdded()) {
-            // We have observed that the fragment can be disconnected at this
-            // point
-            return rowView;
-         }
-
-         final FIORequestContent record = checkNotNull(getItem(position));
-         final AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-
-         rowView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-               currentActionMode = appCompatActivity.startSupportActionMode(new ActionMode.Callback() {
-                  @Override
-                  public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-                     actionMode.getMenuInflater().inflate(R.menu.transaction_history_context_menu, menu);
-                     //we only allow address book entries for outgoing transactions
-//                     updateActionBar(actionMode, menu);
-                     return true;
-                  }
-
-                  @Override
-                  public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-//                     updateActionBar(actionMode, menu);
-                     return true;
-                  }
-
-                  //We need implementations of GenericFIORequestContent for using something like
-                  //hasDetails|canCancel
-                  //I set default values
-//                  private void updateActionBar(ActionMode actionMode, Menu menu) {
-//                     checkNotNull(menu.findItem(R.id.miShowDetails));
-//                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
-//                     if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-//                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
-//                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
-//                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
-//                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
-//                       checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
-//                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
-//                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(false);
-//                     } else {
-//                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
-//                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
-//                           .setVisible((record.getConfirmations() == 0));
-//                       checkNotNull(menu.findItem(R.id.miBumpFee))
-//                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend()));
-//                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
-//                           .setVisible(record.getConfirmations() == 0);
-//                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
-//                     }
-//                     if (_mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
-//                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
-//                                .setVisible(record.getConfirmations() == 0);
-//                     }
-//                     currentActionMode = actionMode;
-//                     listView.setItemChecked(position, true);
-//                  }
-
-                  @Override
-                  public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-//                     final int itemId = menuItem.getItemId();
-//                     switch (itemId) {
-//                        case R.id.miShowDetails:
-//                           doShowDetails(record);
-//                           finishActionMode();
-//                           return true;
-//                        case R.id.miSetLabel:
-//                           setTransactionLabel(record);
-//                           finishActionMode();
-//                           break;
-//                        case R.id.miAddToAddressBook:
-//                           String defaultName = "";
-//                           if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-//                              defaultName = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
-//                           }
-//                           Address address = record.getDestinationAddresses().get(0);
-//                           EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
-//                                   address, defaultName, addressLabelChanged);
-//                           break;
-//                        case R.id.miCancelTransaction:
-//                           new AlertDialog.Builder(getActivity())
-//                                   .setTitle(_context.getString(R.string.remove_queued_transaction_title))
-//                                   .setMessage(_context.getString(R.string.remove_queued_transaction))
-//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-//                                      @Override
-//                                      public void onClick(DialogInterface dialog, int which) {
-//                                         boolean okay = ((WalletBtcAccount) _mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
-//                                         dialog.dismiss();
-//                                         if (okay) {
-//                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
-//                                         } else {
-//                                            new Toaster(requireActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
-//                                         }
-//                                         finishActionMode();
-//                                      }
-//                                   })
-//                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-//                                      @Override
-//                                      public void onClick(DialogInterface dialog, int which) {
-//                                         dialog.dismiss();
-//                                      }
-//                                   })
-//                                   .create().show();
-//                           break;
-//                        case R.id.miDeleteUnconfirmedTransaction:
-//                           new AlertDialog.Builder(getActivity())
-//                                   .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
-//                                   .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
-//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-//                                      @Override
-//                                      public void onClick(DialogInterface dialog, int which) {
-//                                         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-//                                         if (selectedAccount instanceof WalletBtcAccount) {
-//                                            ((WalletBtcAccount) _mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
-//                                            dialog.dismiss();
-//                                            finishActionMode();
-//                                         } else if (selectedAccount instanceof AbstractEthERC20Account) {
-//                                            ((AbstractEthERC20Account) _mbwManager.getSelectedAccount()).deleteTransaction("0x" + HexUtils.toHex(record.getId()));
-//                                            dialog.dismiss();
-//                                            finishActionMode();
-//                                         }
-//                                      }
-//                                   })
-//                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-//                                      @Override
-//                                      public void onClick(DialogInterface dialog, int which) {
-//                                         dialog.dismiss();
-//                                      }
-//                                   })
-//                                   .create().show();
-//                           break;
-//                        case R.id.miRebroadcastTransaction:
-//                           new AlertDialog.Builder(getActivity())
-//                                   .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
-//                                   .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
-//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-//                                      @Override
-//                                      public void onClick(DialogInterface dialog, int which) {
-//                                         BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
-//                                         broadcastDialog.show(getFragmentManager(), "broadcast");
-//                                         dialog.dismiss();
-//                                      }
-//                                   })
-//                                   .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-//                                      @Override
-//                                      public void onClick(DialogInterface dialog, int which) {
-//                                         dialog.dismiss();
-//                                      }
-//                                   })
-//                                   .create().show();
-//                           break;
-//                        case R.id.miBumpFee:
-//                           AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-//                                   .setTitle(_context.getString(R.string.bump_fee_title))
-//                                   .setMessage(_context.getString(R.string.description_bump_fee_placeholder))
-//                                   .setPositiveButton(R.string.yes, null)
-//                                   .setNegativeButton(R.string.no, null).create();
-//                           final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(Sha256Hash.of(record.getId()), alertDialog, _context);
-//                           alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-//                              @Override
-//                              public void onDismiss(DialogInterface dialog) {
-//                                 updateParentTask.cancel(true);
-//                              }
-//                           });
-//                           alertDialog.show();
-//                           alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-//                           updateParentTask.execute();
-//                           break;
-//                        case R.id.miShare:
-//                           new AlertDialog.Builder(getActivity())
-//                                   .setTitle(R.string.share_transaction_manually_title)
-//                                   .setMessage(R.string.share_transaction_manually_description)
-//                                   .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-//                                      @Override
-//                                      public void onClick(DialogInterface dialog, int which) {
-//                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().
-//                                                 getTx(record.getId()).txBytes());
-//                                         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-//                                         shareIntent.setType("text/plain");
-//                                         shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
-//                                         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_transaction)));
-//                                         dialog.dismiss();
-//                                      }
-//                                   })
-//                                   .setNegativeButton(R.string.no, null)
-//                                   .create().show();
-//                           break;
-//                     }
-                     return false;
-                  }
-
-                  @Override
-                  public void onDestroyActionMode(ActionMode actionMode) {
-                     listView.setItemChecked(position, false);
-                     currentActionMode = null;
-                  }
-               });
-            }
-         });
-         return rowView;
-      }
-   }
 
    /**
     * Async task to perform fetching parent transactions of current transaction from server

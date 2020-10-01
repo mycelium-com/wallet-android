@@ -135,7 +135,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
-    fun getRequests() = backing.getRequestsSummaries()
+    fun getRequests() = backing.getRequestsContent()
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong())

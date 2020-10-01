@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/textView1"
+    android:layout_width="wrap_content"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_marginLeft="8dp"
+    android:drawableRight="@drawable/arrow_expanded_selector"
+    android:gravity="left"
+    android:paddingLeft="32dp"
+    android:paddingTop="8dp"
+    android:text="Test"
+    android:textSize="14sp"
+    android:textAlignment="textEnd"
+    android:textStyle="bold" />
