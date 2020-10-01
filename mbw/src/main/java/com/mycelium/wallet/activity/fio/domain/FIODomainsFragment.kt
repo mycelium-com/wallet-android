@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.FakeService
 import com.mycelium.wallet.activity.fio.domain.adapter.DomainListAdapter
 import com.mycelium.wallet.activity.fio.domain.adapter.FIODomainItem
 import com.mycelium.wallet.activity.fio.domain.adapter.FIONameItem
@@ -17,12 +18,16 @@ import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.Item
 import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
+import com.mycelium.wapi.wallet.fio.FIODomainService
 import kotlinx.android.synthetic.main.fragment_fio_domains.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class FIODomainsFragment : Fragment(R.layout.fragment_fio_domains) {
 
+    val service: FIODomainService = FakeService
     val adapter = DomainListAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -41,7 +46,7 @@ class FIODomainsFragment : Fragment(R.layout.fragment_fio_domains) {
             )
         }
         adapter.fioDomainClickListener = {
-            findNavController().navigate(R.id.actionNext)
+            findNavController().navigate(FIODomainsFragmentDirections.actionNext(it))
         }
         adapter.switchGroupVisibilityListener = { fioDomain ->
             preference.edit().putBoolean("isClosed${fioDomain}", !preference.getBoolean("isClosed${fioDomain}", true)).apply()
@@ -55,14 +60,17 @@ class FIODomainsFragment : Fragment(R.layout.fragment_fio_domains) {
     }
 
     private fun updateList(preference: SharedPreferences) {
-        adapter.submitList(mutableListOf<Item>().apply {
-            val domain = "my-own-domain"
-            val isClosed = preference.getBoolean("isClosed${domain}", true)
-            add(FIODomainItem(domain, 2, isClosed))
-            if (!isClosed) {
-                add(FIONameItem("name1@my-own-domain", Date()))
-                add(FIONameItem("name2@my-own-domain", Date()))
+        CoroutineScope(Dispatchers.IO).launch {
+            val items = mutableListOf<Item>()
+            service.getAllFIODomains().forEach {
+                val isClosed = preference.getBoolean("isClosed${it.domain}", true)
+                val names = service.getFIONames(it)
+                items.add(FIODomainItem(it, names.size, isClosed))
+                if (!isClosed) {
+                    items.addAll(names.map { fioName -> FIONameItem(fioName.name, fioName.expireDate) })
+                }
             }
-        })
+            adapter.submitList(items)
+        }
     }
 }

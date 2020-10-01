@@ -8,7 +8,7 @@ import java.util.*
 
 class FIODomainViewModel : ViewModel() {
     val fioDomain = MutableLiveData<String>("")
-    val fioDomainExpireDate = MutableLiveData<Date>()
+    val fioDomainExpireDate = MutableLiveData<Date>(Date())
 
     val DATE_FORMAT = SimpleDateFormat("MMMM dd, yyyy\nK:mm a")
 

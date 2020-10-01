@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.domain.adapter.viewholder.FIONameViewHolder
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 
 class DomainDetailsAdapter : ListAdapter<FIONameItem, FIONameViewHolder>(DiffCallback()) {
@@ -19,7 +21,8 @@ class DomainDetailsAdapter : ListAdapter<FIONameItem, FIONameViewHolder>(DiffCal
     override fun onBindViewHolder(holder: FIONameViewHolder, position: Int) {
         getItem(position).run {
             holder.fioName.text = title
-            holder.fioNameExpireDate.text = "Expiration date: $expireDate"
+            holder.fioNameExpireDate.text = holder.fioNameExpireDate.resources.getString(R.string.expiration_date) + " " +
+                    SimpleDateFormat.getDateInstance(DateFormat.LONG).format(expireDate)
             holder.itemView.setOnClickListener {
                 clickListener?.invoke(this)
             }

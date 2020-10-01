@@ -1,13 +1,14 @@
 package com.mycelium.wapi.wallet.fio
 
 import com.mycelium.wapi.wallet.WalletAccount
+import java.io.Serializable
 import java.util.*
 
 data class FIOName(val name: String,
                    val domain: FIODomain,
-                   val expireDate: Date)
+                   val expireDate: Date) : Serializable
 
-data class FIODomain(val domain: String, val expireDate: Date)
+data class FIODomain(val domain: String, val expireDate: Date) : Serializable
 
 interface FIONameService {
     fun getAllFIONames(): List<FIOName>

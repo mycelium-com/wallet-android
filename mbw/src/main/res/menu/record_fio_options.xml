@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/miMyDomain"
-        android:title="My FIO Domain/s" />
+        android:title="My FIO Domains" />
 
     <item
         android:id="@+id/miAboutFIOProtocol"
