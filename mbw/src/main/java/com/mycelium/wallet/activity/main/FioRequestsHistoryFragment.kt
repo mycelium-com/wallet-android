@@ -115,7 +115,7 @@ class FioRequestsHistoryFragment : Fragment() {
         if (adapter == null) {
             val fioGroupList: MutableList<FioGroup> = ArrayList()
             fioGroupList.addAll(history)
-            adapter = FioRequestArrayAdapter(activity, fioGroupList)
+            adapter = FioRequestArrayAdapter(requireActivity(), fioGroupList)
             //         updateWrapper(adapter);
             model!!.fioRequestHistory.observe(this, Observer {
                 history.clear()
