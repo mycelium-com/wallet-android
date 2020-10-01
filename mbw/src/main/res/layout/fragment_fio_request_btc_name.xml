@@ -168,7 +168,7 @@
 
             android:layout_alignParentBottom="true"
             android:layout_marginTop="32dp"
-            android:text="Next"
+            android:text="Send FIO request"
             app:layout_constraintStart_toStartOf="parent" />
     </RelativeLayout>
 </layout>
