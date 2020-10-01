@@ -24,7 +24,6 @@
     <string name="send">Invia</string>
     <string name="receive">Ricevi</string>
     <string name="private_key_deleted">Chiave privata eliminata.</string>
-    <string name="enter_recipient_title">Inserisci indirizzo destinatario</string>
     <string name="recipient_title">Indirizzo destinatario</string>
     <string name="amount_label">Importo:</string>
     <string name="amount_title">Importo</string>
@@ -133,8 +132,6 @@
     <string name="broadcasting_transaction">Trasmissione della transazione</string>
     <string name="transaction_rejected_message">La transazione è stata rifiutata dalla rete. Questo significa che il tuo portafogli non è sincronizzato</string>
     <string name="enter_bitcoin_address">Inserisci indirizzo Bitcoin</string>
-    <string name="bitcoin_address_invalid">Indirizzo bitcoin non valido</string>
-    <string name="bitcoin_address_valid">Indirizzo bitcoin valido</string>
     <string name="redirecting_to_block_explorer">Reindirizzamento verso un block explorer</string>
     <string name="enter_local_currency">Inserire la valuta locale</string>
     <string name="using_address_from_clipboard">Indirizzo copiato dagli appunti in uso</string>

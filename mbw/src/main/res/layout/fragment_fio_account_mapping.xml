@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
-                    android:text="FIO Account: FIO1"
+                    android:text="@string/fio_account_s"
                     app:layout_constraintLeft_toRightOf="@id/coinIcon"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fioName" />
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    android:text="Expiration date:"
+                    android:text="@string/expiration_date"
                     app:layout_constraintLeft_toRightOf="@id/coinIcon"
                     app:layout_constraintTop_toBottomOf="@id/fioAccount"
                     app:layout_goneMarginBottom="16dp" />
@@ -80,7 +80,8 @@
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    android:text="2021-09-20\n17:39:10"
+                    android:text="@{viewModel.dateToString(viewModel.fioNameExpireDate)}"
+                    tools:text="September 20, 2021 \n6:23pm"
                     app:layout_constraintBottom_toTopOf="@id/renewFIOName"
                     app:layout_constraintLeft_toRightOf="@id/expireDate"
                     app:layout_constraintRight_toRightOf="parent"
@@ -93,7 +94,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:text="Renew FIO Name"
+                    android:text="@string/renew_fio_name"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
 
@@ -126,7 +127,7 @@
                 android:layout_marginTop="36dp"
                 android:layout_marginEnd="16dp"
                 android:checked="@={viewModel.acknowledge}"
-                android:text="I acknowledge that, once connected, one address from each connected wallet will become public" />
+                android:text="@string/fio_acknowledge_mapping" />
 
             <Button
                 android:id="@+id/buttonContinue"
@@ -135,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:enabled="@{viewModel.acknowledge}"
-                android:text="Connect Accounts"
+                android:text="@string/connect_accounts"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
         </LinearLayout>

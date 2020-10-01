@@ -32,6 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        app:srcCompat="@drawable/ic_more_vert" />
+        android:rotation="180"
+        app:srcCompat="@drawable/ic_back_arrow" />
 
 </LinearLayout>

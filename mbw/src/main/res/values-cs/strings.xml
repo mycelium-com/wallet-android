@@ -24,7 +24,6 @@
     <string name="send">Odeslat</string>
     <string name="receive">Přijmout</string>
     <string name="private_key_deleted">Soukromý klíč odstraněn.</string>
-    <string name="enter_recipient_title">Zadejte adresu příjemce</string>
     <string name="recipient_title">Adresa příjemce</string>
     <string name="amount_label">Částka:</string>
     <string name="amount_title">Částka</string>
@@ -138,8 +137,6 @@
     <string name="broadcasting_transaction">Odesílání transakce</string>
     <string name="transaction_rejected_message">Transakce byla zamítnuta sítí. To naznačuje, že vaše peněženka není synchronizovaná</string>
     <string name="enter_bitcoin_address">Zadej Bitcoin adresu</string>
-    <string name="bitcoin_address_invalid">Neplatná Bitcoin adresa</string>
-    <string name="bitcoin_address_valid">Platná Bitcoin adresa</string>
     <string name="redirecting_to_block_explorer">Přesměrovávám na block explorer</string>
     <string name="enter_local_currency">Zadej lokální měnu</string>
     <string name="using_address_from_clipboard">Pomocí adresy ze schránky</string>

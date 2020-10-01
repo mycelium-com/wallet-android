@@ -24,7 +24,6 @@
     <string name="send">Dërgo</string>
     <string name="receive">Prano</string>
     <string name="private_key_deleted">Çelësi privat është fshirë.</string>
-    <string name="enter_recipient_title">Shkruaj adresën e marrësit</string>
     <string name="recipient_title">Adresa e marrësit</string>
     <string name="amount_label">Shuma:</string>
     <string name="amount_title">Shuma</string>
@@ -134,8 +133,6 @@
     <string name="broadcasting_transaction">Duke transmetuar transaksionin</string>
     <string name="transaction_rejected_message">Transaksioni është refuzuar nga rrjeti. Kjo tregon që kuleta juaj nuk është sinkronizuar</string>
     <string name="enter_bitcoin_address">Shëno Bitcoin adresën</string>
-    <string name="bitcoin_address_invalid">Bitcoin adres jovalide</string>
-    <string name="bitcoin_address_valid">Bitcoin adresa valide</string>
     <string name="redirecting_to_block_explorer">Duke ju ridrejtuar tek nje bllok eksplorues</string>
     <string name="enter_local_currency">Shënoni valutën tuaj lokale</string>
     <string name="using_address_from_clipboard">Duke përdorur adresën nga memorja</string>

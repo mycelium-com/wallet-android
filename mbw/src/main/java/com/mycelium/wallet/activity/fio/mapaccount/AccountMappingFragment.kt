@@ -47,7 +47,7 @@ class AccountMappingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
-            title = "FIO Name details"
+            title = getString(R.string.fio_name_details)
         }
         val mbwManager = MbwManager.getInstance(requireContext())
         val walletManager = mbwManager.getWalletManager(false)
