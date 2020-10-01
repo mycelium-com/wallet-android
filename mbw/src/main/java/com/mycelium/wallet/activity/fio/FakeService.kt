@@ -20,6 +20,14 @@ object FakeService : FIODomainService, FIONameService {
                     FIOName("name3@some-domain", FIODomain("some-domain", Date()), Date()))
     )
 
+    override fun getAllFIODomains(): List<FIODomain> =
+            domains.keys.toList()
+
+    override fun getFIONames(domain: FIODomain): List<FIOName> =
+            domains[domain] ?: listOf()
+
+
+
     override fun getAllFIONames(): List<FIOName> {
         TODO("Not yet implemented")
     }
@@ -36,9 +44,4 @@ object FakeService : FIODomainService, FIONameService {
         TODO("Not yet implemented")
     }
 
-    override fun getAllFIODomains(): List<FIODomain> =
-            domains.keys.toList()
-
-    override fun getFIONames(domain: FIODomain): List<FIOName> =
-            domains[domain] ?: listOf()
 }
