@@ -9,11 +9,11 @@
 
         <variable
             name="activity"
-            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+            type="com.mycelium.wallet.activity.fio.requests.FioSendRequestActivity" />
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel" />
     </data>
 
     <FrameLayout
@@ -46,9 +46,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+
                         tools:text="newAddress@domain" />
 
 <!--                    android:text="@{viewModel.sendTo}"-->
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -86,24 +88,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+
                         android:textColor="@color/fio_green"
                         tools:text="newAddress@domain" />
-
 <!--                    android:text="@{viewModel.payingFrom}"-->
+
                 </LinearLayout>
-                <!--                &lt;!&ndash;Heading, containing buttons, or currently selected address&ndash;&gt;-->
-                <!--                <include-->
-                <!--                    layout="@layout/send_coins_heading"-->
-                <!--                    app:viewModel="@{viewModel}"-->
-                <!--                    app:activity="@{activity}" />-->
-
-
-                <!--Warnings-->
-                <include
-                    layout="@layout/send_coins_activity_warnings_heap"
-                    app:activity="@{activity}"
-                    app:viewModel="@{viewModel}" />
-
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -119,12 +109,11 @@
                     <!--Contains amount selection-->
                     <include
                         layout="@layout/send_coins_amount"
-                        app:activity="@{activity}"
-                        app:viewModel="@{viewModel}" />
 
-
+                        />
+<!--                    app:activity="@{activity}"-->
+<!--                    app:viewModel="@{viewModel}"-->
                 </LinearLayout>
-
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -141,22 +130,26 @@
                 <!--Fee selector-->
                 <include
                     layout="@layout/send_coins_fee_block"
-                    app:viewModel="@{viewModel}" />
+                  />
+<!--                app:viewModel="@{viewModel}"-->
                 <!-- Amount Error -->
                 <include
                     layout="@layout/send_coins_insufficient"
-                    app:viewModel="@{viewModel}" />
+              />
+<!--                app:viewModel="@{viewModel}"-->
 
                 <!--Update progress bar-->
                 <include
                     layout="@layout/send_coins_progress"
-                    app:viewModel="@{viewModel}" />
+                   />
+<!--                app:viewModel="@{viewModel}"-->
 
                 <!-- Send -->
                 <include
                     layout="@layout/fio_send_section"
-                    app:activity="@{activity}"
-                    app:viewModel="@{viewModel}" />
+                     />
+<!--                app:activity="@{activity}"-->
+<!--                app:viewModel="@{viewModel}"-->
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
