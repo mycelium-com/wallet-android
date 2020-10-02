@@ -11,3 +11,11 @@ CREATE TABLE IF NOT EXISTS FioNameAccountMappings(
 selectAccountsUuidByFioName:
 SELECT accountUuid FROM FioNameAccountMappings
     WHERE name = (:name);
+
+deleteAllMappings:
+DELETE FROM FioNameAccountMappings
+WHERE name = (?);
+
+insertMapping:
+INSERT OR REPLACE INTO FioNameAccountMappings(name, pubAddress, chainCode, tokenCode, accountUuid)
+VALUES (?, ?, ?, ?, ?);

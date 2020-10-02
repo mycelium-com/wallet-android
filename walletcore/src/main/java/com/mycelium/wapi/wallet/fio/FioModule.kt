@@ -39,7 +39,9 @@ class FioModule(
         assetsList.add(coinType)
     }
 
-    fun getAllFIONames() = accounts.values.map { it.registeredFIONames.map { it.name } }.flatten()
+    fun getAllRegisteredFioNames() = accounts.values.map { it.registeredFIONames }.flatten()
+
+    fun getAllRegisteredFioDomains() = accounts.values.map { it.registeredFIODomains }.flatten()
 
     fun getFioAccountByFioName(fioName: String): UUID? = accounts.values.firstOrNull { fioAccount ->
         fioName in fioAccount.registeredFIONames.map { it.name }
@@ -62,6 +64,13 @@ class FioModule(
             }
         }
         return connected
+    }
+
+    fun mapFioNameToAccounts(fioName: String, accounts: List<WalletAccount<*>>) {
+        walletDB.fioNameAccountMappingsQueries.deleteAllMappings(fioName);
+        accounts.forEach {
+            walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(), it.basedOnCoinType.symbol, it.basedOnCoinType.symbol, it.id)
+        }
     }
 
     private fun getFioSdk(accountIndex: Int): FIOSDK {

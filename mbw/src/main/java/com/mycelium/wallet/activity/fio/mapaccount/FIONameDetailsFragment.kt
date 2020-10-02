@@ -55,11 +55,11 @@ class FIONameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
 
     private fun updateList(fioModule: FioModule, preference: SharedPreferences, walletManager: WalletManager) {
         adapter.submitList(mutableListOf<Item>().apply {
-            fioModule.getAllFIONames().forEach { fioName ->
+            fioModule.getAllRegisteredFioNames().forEach { fioName ->
                 val isClosed = preference.getBoolean("isClosed${fioName}", true)
-                add(FIONameItem(fioName, 1, isClosed))
+                add(FIONameItem(fioName.name, 1, isClosed))
                 if (isClosed) {
-                    fioModule.getFioAccountByFioName(fioName)?.let {
+                    fioModule.getFioAccountByFioName(fioName.name)?.let {
                         walletManager.getAccount(it)?.let { account ->
                             add(AccountItem(account, "asasas"))
                         }
