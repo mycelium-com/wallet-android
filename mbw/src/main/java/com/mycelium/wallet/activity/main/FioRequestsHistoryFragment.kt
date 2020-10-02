@@ -96,7 +96,7 @@ class FioRequestsHistoryFragment : Fragment() {
 
     @JvmField
     @BindView(R.id.btCreateFioRequest)
-    var btCreateFioRequest: Button?= null
+    var btCreateFioRequest: Button? = null
 
     private val history: MutableList<FioGroup> = mutableListOf()
 
@@ -128,10 +128,11 @@ class FioRequestsHistoryFragment : Fragment() {
                     val receiveAddress = walletManager.getActiveBTCSingleAddressAccounts().first().receiveAddress as BtcAddress
                     val payee = receiveAddress.toString()
                     val selectedAccount = walletManager.getActiveFioAccounts()[0] as FioAccount
-                    val fioAddress = Date().time.toString()+"@fiotestnet"
+                    val fioAddress = Date().time.toString() + "@fiotestnet"
                     selectedAccount.registerFIOAddress(fioAddress)
                     val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
-                    val feeForFunds = selectedAccount.getFeeForFunds(selectedAccount.registeredFIONames[0])
+                    selectedAccount.registerFIOAddress(fioAddress)
+                    val feeForFunds = selectedAccount.getFeeForFunds(fioAddress)
                     val requestFunds = selectedAccount.requestFunds(
                             "eosdac@fiotestnet",
                             fioAddress,
@@ -140,12 +141,12 @@ class FioRequestsHistoryFragment : Fragment() {
                             "BTC",
                             "BTC",
                             feeForFunds.fee)
-
                     println(requestFunds)
                 }
-
             }
+
         }
+
         return rootView
     }
 
