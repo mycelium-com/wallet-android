@@ -69,22 +69,24 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         }
         MbwManager.getEventBus().register(this)
         broadcastManager.registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
-        when (arguments?.getString("from")) {
-            "registration" -> {
-                ModalDialog(getString(R.string.bequant_turn_2fa),
-                        getString(R.string.bequant_recommend_enable_2fa),
-                        getString(R.string.secure_your_account)) {
-                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
+        Handler().postDelayed({
+            when (arguments?.getString("from")) {
+                "registration" -> {
+                    ModalDialog(getString(R.string.bequant_turn_2fa),
+                            getString(R.string.bequant_recommend_enable_2fa),
+                            getString(R.string.secure_your_account)) {
+                        startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+                    }.show(childFragmentManager, "modal_dialog")
+                }
+                "totp_registration" -> {
+                    ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                            getString(R.string.bequant_kyc_verify_message),
+                            getString(R.string.bequant_kyc_verify_button)) {
+                        startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+                    }.show(childFragmentManager, "modal_dialog")
+                }
             }
-            "totp_registration" -> {
-                ModalDialog(getString(R.string.bequant_kyc_verify_title),
-                        getString(R.string.bequant_kyc_verify_message),
-                        getString(R.string.bequant_kyc_verify_button)) {
-                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
-            }
-        }
+        }, 1000)
     }
 
     @Subscribe
