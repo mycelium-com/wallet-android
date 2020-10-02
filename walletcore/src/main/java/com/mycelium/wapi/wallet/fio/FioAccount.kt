@@ -96,7 +96,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     private fun getFioDomains(): List<FIODomain> = try {
         FioTransactionHistoryService.getFioNames(coinType as FIOToken,
                 receivingAddress.toString())?.fio_domains?.map {
-            FIODomain(it.fio_domain, convertToDate(it.expiration), it.is_public != 0)
+            FIODomain(it.fio_domain, convertToDate(it.expiration), it.isPublic != 0)
         } ?: emptyList()
     } catch (e: Exception) {
         emptyList()

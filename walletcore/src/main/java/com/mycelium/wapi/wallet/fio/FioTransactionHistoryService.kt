@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.utilities.Utils
 import okhttp3.MediaType
@@ -167,7 +168,8 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 .multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
     }
 
-    val url = "https://fiotestnet.greymass.com/v1/history/get_actions"
+    val url = if (coinType is FIOTest) "https://fiotestnet.greymass.com/v1/history/get_actions" else
+        "https://fio.greymass.com/v1/history/get_actions"
     val offset = BigInteger.valueOf(20)
 
     companion object {
@@ -287,7 +289,9 @@ class GetFIONamesResponse {
     class FioDomain {
         val fio_domain: String = ""
         val expiration: String = ""
-        val is_public: Int = 0
+
+        @JsonProperty("is_public")
+        val isPublic: Int = 0
     }
 
     class FioName {
