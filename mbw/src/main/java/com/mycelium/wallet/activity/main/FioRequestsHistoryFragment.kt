@@ -148,11 +148,13 @@ class FioRequestsHistoryFragment : Fragment() {
     }
 
     private fun refresh() {
-        val fioAccount = MbwManager.getInstance(requireContext()).getWalletManager(false).getActiveFioAccounts()[0] as FioAccount
         history.clear()
-        history.addAll(fioAccount.getRequestsGroups())
+        (MbwManager.getInstance(requireContext()).getWalletManager(false)
+                .getActiveFioAccounts().firstOrNull() as? FioAccount)?.let { fioAccount ->
+            history.addAll(fioAccount.getRequestsGroups())
+        }
         adapter.notifyDataSetChanged()
-        showHistory(!history.isEmpty())
+        showHistory(history.isNotEmpty())
         refreshList()
     }
 
