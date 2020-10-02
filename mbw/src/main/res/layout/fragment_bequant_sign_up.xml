@@ -36,6 +36,7 @@
                     android:fontFamily="@font/exo2medium"
                     android:hint="@string/email"
                     android:padding="8dp"
+                    android:singleLine="true"
                     android:text="@={viewModel.email}"
                     android:textSize="16sp" />
 
@@ -89,6 +90,7 @@
                     android:hint="@string/referral_code"
                     android:padding="8dp"
                     android:text="@={viewModel.referralCode}"
+                    android:singleLine="true"
                     android:textSize="16sp"
                     app:layout_constraintTop_toTopOf="parent" />
             </com.google.android.material.textfield.TextInputLayout>

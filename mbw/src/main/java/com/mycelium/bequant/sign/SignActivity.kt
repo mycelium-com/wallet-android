@@ -15,6 +15,7 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_bequant_sign.*
+import org.json.JSONObject
 
 
 class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
@@ -52,7 +53,15 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                                         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
                                     },
                                     error = { _, message ->
-                                        ErrorHandler(this).handle(message)
+                                        var obj = JSONObject(message)
+                                        var code = obj.getString("code")
+                                        var message = obj.getString("message")
+
+                                        if (code == "400" && message == "user already confirmed") {
+                                            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
+                                        } else {
+                                            ErrorHandler(this).handle(message)
+                                        }
                                     },
                                     finally = {
                                         loader(false)
