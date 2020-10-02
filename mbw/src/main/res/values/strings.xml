@@ -26,6 +26,7 @@
     <string name="confirmations">%d Confirmations</string>
     <string name="send">Send</string>
     <string name="receive">Receive</string>
+    <string name="receive_cointype">Receive %1$s</string>
     <string name="private_key_deleted">Private key deleted.</string>
     <string name="account_deleted">Account deleted.</string>
     <string name="amount_hint">0.00</string>
@@ -36,7 +37,8 @@
     <string name="recipient_title">Recipient Address</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_title">Amount</string>
-    <string name="enter_amount_title">Enter Amount</string>
+    <string name="enter_amount_title">Enter Amount:</string>
+    <string name="crypto_address">%1$s Address:</string>
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$s %2$s</string>
     <string name="qr_code">QR Code</string>
@@ -1390,7 +1392,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_registration_fee">Registration Fee</string>
     <string name="fio_remaining_balance">Remaining FIO Balance</string>
     <string name="fio_create_unique_address">Create a unique FIO Name</string>
-    <string name="fio_create_request">Create FIO Request</string>
+    <string name="fio_create_request">FIO Request</string>
     <string name="fio_address_is_invalid">Invalid FIO Name</string>
     <string name="fio_domain_is_invalid">Invalid FIO Domain</string>
     <string name="fio_address_occupied">This FIO Name is not available for registration. You can register on your own FIO domain</string>

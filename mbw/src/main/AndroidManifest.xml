@@ -179,8 +179,7 @@
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity
-            android:name=".activity.receive.ReceiveCoinsActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen" />
+            android:name=".activity.receive.ReceiveCoinsActivity" />
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity
             android:name=".external.changelly.ChangellyActivity"
