@@ -60,15 +60,18 @@ import com.mycelium.wallet.activity.send.BroadcastDialog.Companion.create
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.TransactionLabelChangedHandler
+import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
+import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -115,14 +118,24 @@ class FioRequestsHistoryFragment : Fragment() {
             }
             btCreateFioRequest?.setOnClickListener {
                 GlobalScope.launch(IO) {
-                    val selectedAccount = MbwManager.getInstance(requireContext()).getWalletManager(false).getActiveFioAccounts()[0] as FioAccount
-                    val fioAddress = "test@smart"
+
+                    //const feeResult = await fioSdk.getFeeForAddPublicAddress(fioAddress);
+                    //const btcAddress = 'mrr4GZ7rZwEqJsTQJitdQzsLb6KH3ovehd';
+                    //const response = await fioSdk.addPublicAddress(fioAddress, 'BTC', 'BTC', btcAddress, feeResult.fee);
+
+
+                    val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
+                    val receiveAddress = walletManager.getActiveBTCSingleAddressAccounts().first().receiveAddress as BtcAddress
+                    val payee = receiveAddress.toString()
+                    val selectedAccount = walletManager.getActiveFioAccounts()[0] as FioAccount
+                    val fioAddress = Date().time.toString()+"@fiotestnet"
+                    val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
                     selectedAccount.registerFIOAddress(fioAddress)
                     val feeForFunds = selectedAccount.getFeeForFunds(selectedAccount.registeredFIONames[0])
                     val requestFunds = selectedAccount.requestFunds(
                             "eosdac@fiotestnet",
                             fioAddress,
-                            "",
+                            payee,
                             2.0,
                             "BTC",
                             "BTC",
