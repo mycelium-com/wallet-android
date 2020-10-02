@@ -25,7 +25,7 @@ class FioRequestBtcActivity : AppCompatActivity() {
                 }.apply {
                     with(this) {
                         btNextButton.setOnClickListener {
-                            viewModel.sendRequest(this@FioRequestBtcActivity)
+                            viewModel?.sendRequest(this@FioRequestBtcActivity)
                         }
                     }
                 }
