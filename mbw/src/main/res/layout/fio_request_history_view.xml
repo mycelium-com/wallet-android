@@ -26,6 +26,8 @@
         android:divider="@color/darkgrey"
         android:dividerHeight="1dp" />
 
+<!--    android:groupIndicator="@drawable/arrow_expanded_selector"-->
+
     <LinearLayout
         android:id="@+id/llNoRecords"
         android:layout_width="wrap_content"

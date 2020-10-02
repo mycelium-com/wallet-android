@@ -6,7 +6,19 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent;
 
 public class FioGroup {
 
-    enum Type {sent, pending}
+    enum Type {sent("PAID FIO REQUESTS"), pending("PENDING FOR REQUESTS");
+
+        private String s;
+
+        Type(String s) {
+            this.s = s;
+        }
+
+        @Override
+        public String toString() {
+            return s;
+        }
+    }
 
     public Type status;
     public final List<FIORequestContent> children;
