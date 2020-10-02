@@ -1,0 +1,21 @@
+import java.util.UUID;
+
+CREATE TABLE IF NOT EXISTS FioNameAccountMappings(
+    name TEXT PRIMARY KEY,
+    pubAddress TEXT NOT NULL,
+    chainCode TEXT NOT NULL,
+    tokenCode TEXT NOT NULL,
+    accountUuid TEXT AS UUID NOT NULL
+);
+
+selectAccountsUuidByFioName:
+SELECT accountUuid FROM FioNameAccountMappings
+    WHERE name = (:name);
+
+deleteAllMappings:
+DELETE FROM FioNameAccountMappings
+WHERE name = (?);
+
+insertMapping:
+INSERT OR REPLACE INTO FioNameAccountMappings(name, pubAddress, chainCode, tokenCode, accountUuid)
+VALUES (?, ?, ?, ?, ?);

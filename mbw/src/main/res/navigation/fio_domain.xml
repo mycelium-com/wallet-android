@@ -12,12 +12,20 @@
         tools:layout="@layout/fragment_fio_domains">
         <action
             android:id="@+id/actionNext"
-            app:destination="@id/FIODomainDetailsFragment" />
+            app:destination="@id/FIODomainDetailsFragment">
+            <argument
+                android:name="domain"
+                app:argType="com.mycelium.wapi.wallet.fio.FIODomain" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/FIODomainDetailsFragment"
         android:name="com.mycelium.wallet.activity.fio.domain.FIODomainDetailsFragment"
         android:label="FIODomainDetailsFragment"
-        tools:layout="@layout/fragment_fio_domain_details" />
+        tools:layout="@layout/fragment_fio_domain_details">
+        <argument
+            android:name="domain"
+            app:argType="com.mycelium.wapi.wallet.fio.FIODomain" />
+    </fragment>
 
 </navigation>

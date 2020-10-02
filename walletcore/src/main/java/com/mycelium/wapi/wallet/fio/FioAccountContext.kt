@@ -13,11 +13,12 @@ class FioAccountContext(override val uuid: UUID,
                         balance: Balance,
                         listener: (FioAccountContext) -> Unit,
                         override val accountIndex: Int,
-                        registeredFIONames: List<String>? = null,
+                        registeredFIONames: List<RegisteredFIOName>? = null,
+                        registeredFIODomains: List<FIODomain>? = null,
                         archived: Boolean = false,
                         blockHeight: Int = 0,
                         actionSequenceNumber: BigInteger = BigInteger.ZERO) :
-        FioContext by FioContext.Impl(uuid, accountIndex, actionSequenceNumber, registeredFIONames),
+        FioContext by FioContext.Impl(uuid, accountIndex, actionSequenceNumber, registeredFIONames, registeredFIODomains),
         AccountContextImpl<FioAccountContext>(uuid, currency, accountName, balance, listener, archived, blockHeight) {
 
     override var actionSequenceNumber = actionSequenceNumber
@@ -27,6 +28,12 @@ class FioAccountContext(override val uuid: UUID,
         }
 
     override var registeredFIONames = registeredFIONames
+        set(value) {
+            field = value
+            listener.invoke(this)
+        }
+
+    override var registeredFIODomains = registeredFIODomains
         set(value) {
             field = value
             listener.invoke(this)

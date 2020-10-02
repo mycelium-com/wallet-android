@@ -1428,7 +1428,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="connect_accounts">Connect Accounts</string>
     <string name="domain_details">Domain details</string>
     <string name="renew_fio_domain">Renew FIO Domain</string>
-    <string name="fio_names_registered">FIO Name/s registered under selected domain:</string>
+    <string name="fio_names_registered">Your FIO Names in this domain:</string>
     <string name="create_new_fio_name">Create new FIO Name</string>
     <string name="expiration_date">Expiration date:</string>
 </resources>

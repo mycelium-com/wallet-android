@@ -17,11 +17,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
+import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel.Companion.DEFAULT_DOMAIN
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep1BindingImpl
+import com.mycelium.wapi.wallet.fio.FIODomain
+import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_register_fio_name_confirm.btNextButton
 import kotlinx.android.synthetic.main.fragment_register_fio_name_step1.*
 
@@ -33,19 +37,24 @@ class RegisterFioNameStep1Fragment : Fragment() {
             DataBindingUtil.inflate<FragmentRegisterFioNameStep1BindingImpl>(inflater, R.layout.fragment_register_fio_name_step1, container, false)
                     .apply {
                         viewModel = this@RegisterFioNameStep1Fragment.viewModel.apply {
-                            spinner?.adapter = DomainsAdapter(requireContext(), listOf("@mycelium", "@secondoption", "Register FIO Domain")).apply {
+                            val domains = getDomains()
+                            val spinnerItems: MutableList<CharSequence> = mutableListOf()
+                            spinnerItems.addAll(domains.map { "@${it.domain}" })
+                            spinnerItems.add("Register FIO Domain")
+                            spinner?.adapter = DomainsAdapter(requireContext(), spinnerItems).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }
                             spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                                 override fun onNothingSelected(p0: AdapterView<*>?) {}
                                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                                     if (spinner.selectedItem.toString() != "Register FIO Domain") {
-                                        viewModel!!.domain.value = spinner.selectedItem.toString()
+                                        viewModel!!.domain.value = domains[p2]
                                         Log.i("asdaf", "asdaf viewModel.domain.value: ${viewModel!!.domain.value}")
                                     } else {
                                         startActivity(Intent(requireActivity(), RegisterFIODomainActivity::class.java))
                                         // to prevent "Register FIO Domain" being set as spinner selected value
-                                        spinner.setSelection((spinner.adapter as ArrayAdapter<String>).getPosition(viewModel!!.domain.value))
+                                        spinner.setSelection((spinner.adapter as ArrayAdapter<String>).getPosition(
+                                                "@${viewModel!!.domain.value!!.domain}"))
                                     }
                                 }
                             }
@@ -53,9 +62,17 @@ class RegisterFioNameStep1Fragment : Fragment() {
                         lifecycleOwner = this@RegisterFioNameStep1Fragment
                     }.root
 
+    private fun getDomains(): List<FIODomain> {
+        val fioModule = (MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule)
+        val domains: MutableList<FIODomain> = mutableListOf()
+        domains.add(DEFAULT_DOMAIN)
+        domains.addAll(fioModule.getAllRegisteredFioDomains())
+        return domains
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        spinner.setSelection((spinner.adapter as ArrayAdapter<String>).getPosition(viewModel.domain.value))
+        spinner.setSelection((spinner.adapter as ArrayAdapter<String>).getPosition("@${viewModel.domain.value!!.domain}"))
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
             tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())
         })

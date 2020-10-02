@@ -27,7 +27,8 @@ class FioModule(
         private val networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val fioKeyManager: FioKeyManager,
-        private val accountListener: AccountListener?
+        private val accountListener: AccountListener?,
+        private val walletManager: WalletManager
 ) : WalletModule(metaDataStorage) {
 
     private val coinType = if (networkParameters.isProdnet) FIOMain else FIOTest
@@ -38,11 +39,21 @@ class FioModule(
         assetsList.add(coinType)
     }
 
-    fun getAllFIONames() = accounts.values.map { it.registeredFIONames }.flatten()
+    fun getAllRegisteredFioNames() = accounts.values.map { it.registeredFIONames }.flatten()
 
-    fun getFioAccountByFioName(fioName: String): UUID? = accounts.values.firstOrNull {
-        fioName in it.registeredFIONames
+    fun getAllRegisteredFioDomains() = accounts.values.map { it.registeredFIODomains }.flatten()
+
+    fun getFioAccountByFioName(fioName: String): UUID? = accounts.values.firstOrNull { fioAccount ->
+        fioName in fioAccount.registeredFIONames.map { it.name }
     }?.id
+
+    fun getFioAccountByFioDomain(fioDomain: String): UUID? = accounts.values.firstOrNull { fioAccount ->
+        fioDomain in fioAccount.registeredFIODomains.map { it.domain }
+    }?.id
+
+    fun getFIONames(domainName: String): List<RegisteredFIOName> {
+        return getAllRegisteredFioNames().filter { it.name.split("@")[1] == domainName }
+    }
 
     fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
             .executeAsList().sortedBy { "${it.name}@${it.domain}" }
@@ -50,6 +61,25 @@ class FioModule(
     fun addKnownName(fioName: FioName) = walletDB.fioKnownNamesQueries.insert(fioName)
 
     fun deleteKnownName(fioName: FioName) = walletDB.fioKnownNamesQueries.delete(fioName)
+
+    fun getConnectedAccounts(fioName: String): List<WalletAccount<*>> {
+        var connected = ArrayList<WalletAccount<*>>()
+        var accountsList = walletDB.fioNameAccountMappingsQueries.selectAccountsUuidByFioName(fioName).executeAsList()
+        accountsList.forEach {
+            var account = walletManager.getAccount(it)
+            if (account != null) {
+                connected.add(account)
+            }
+        }
+        return connected
+    }
+
+    fun mapFioNameToAccounts(fioName: String, accounts: List<WalletAccount<*>>) {
+        walletDB.fioNameAccountMappingsQueries.deleteAllMappings(fioName);
+        accounts.forEach {
+            walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(), it.basedOnCoinType.symbol, it.basedOnCoinType.symbol, it.id)
+        }
+    }
 
     private fun getFioSdk(accountIndex: Int): FIOSDK {
         val privkeyString = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)
@@ -195,6 +225,7 @@ class FioModule(
                     backing::updateAccountContext,
                     accountContextInDB.accountIndex,
                     accountContextInDB.registeredFIONames,
+                    accountContextInDB.registeredFIODomains,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
                     accountContextInDB.actionSequenceNumber)

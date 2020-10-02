@@ -9,8 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.fio.FakeService
 import com.mycelium.wallet.activity.fio.domain.adapter.DomainDetailsAdapter
 import com.mycelium.wallet.activity.fio.domain.adapter.FIONameItem
 import com.mycelium.wallet.activity.fio.domain.viewmodel.FIODomainViewModel
@@ -18,17 +20,22 @@ import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.databinding.FragmentFioDomainDetailsBinding
-import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
+import com.mycelium.wapi.wallet.fio.FIODomainService
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.list
 import kotlinx.android.synthetic.main.fragment_fio_domain_details.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class FIODomainDetailsFragment : Fragment() {
 
     private val viewModel: FIODomainViewModel by activityViewModels()
 
+    val service: FIODomainService = FakeService
     val adapter = DomainDetailsAdapter()
+
+    val args: FIODomainDetailsFragmentArgs by navArgs()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             DataBindingUtil.inflate<FragmentFioDomainDetailsBinding>(inflater, R.layout.fragment_fio_domain_details, container, false)
@@ -42,6 +49,8 @@ class FIODomainDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = getString(R.string.domain_details)
         }
+        viewModel.fioDomain.value = args.domain.domain
+        viewModel.fioDomainExpireDate.value = args.domain.expireDate
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         list.adapter = adapter
         list.itemAnimator = null
@@ -59,6 +68,10 @@ class FIODomainDetailsFragment : Fragment() {
     }
 
     fun updateList() {
-        adapter.submitList(mutableListOf(FIONameItem("name1@my-own-domain", Date()), FIONameItem("name2@my-own-domain", Date())))
+        CoroutineScope(Dispatchers.IO).launch {
+            adapter.submitList(service.getFIONames(args.domain).map {
+                FIONameItem(it.name, it.expireDate)
+            })
+        }
     }
 }
