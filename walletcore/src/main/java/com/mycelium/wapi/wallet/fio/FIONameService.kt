@@ -10,7 +10,7 @@ data class RegisteredFIOName(@JsonProperty("name") val name: String,
 
 data class FIODomain(@JsonProperty("domain") val domain: String,
                      @JsonProperty("expireDate") val expireDate: Date,
-                     @JsonProperty("isPublic") val isPublic: Boolean) : Serializable
+                     @JsonProperty("public") val isPublic: Boolean) : Serializable
 
 interface FIONameService {
     fun getAllFIONames(): List<RegisteredFIOName>
