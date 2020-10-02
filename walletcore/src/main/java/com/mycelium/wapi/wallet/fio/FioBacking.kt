@@ -21,9 +21,10 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
                        blockHeight: Int,
                        accountIndex: Int,
                        actionSequenceNumber: BigInteger,
-                       registeredFIONames: List<String>? ->
+                       registeredFIONames: List<RegisteredFIOName>?,
+                       registeredFIODomains: List<FIODomain>? ->
                 FioAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, registeredFIONames, archived, blockHeight, actionSequenceNumber)
+                        accountIndex, registeredFIONames, registeredFIODomains, archived, blockHeight, actionSequenceNumber)
             })
             .executeAsList()
 
@@ -36,15 +37,17 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
                        blockHeight: Int,
                        accountIndex: Int,
                        actionSequenceNumber: BigInteger,
-                       registeredFIONames: List<String>? ->
+                       registeredFIONames: List<RegisteredFIOName>?,
+                       registeredFIODomains: List<FIODomain>? ->
                 FioAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, registeredFIONames, archived, blockHeight, actionSequenceNumber)
+                        accountIndex, registeredFIONames, registeredFIODomains, archived, blockHeight, actionSequenceNumber)
             })
             .executeAsOneOrNull()
 
     override fun createAccountContext(context: FioAccountContext) {
         generalBacking.createAccountContext(context)
-        fioQueries.insert(context.uuid, context.accountIndex, context.actionSequenceNumber, context.registeredFIONames)
+        fioQueries.insert(context.uuid, context.accountIndex, context.actionSequenceNumber, context.registeredFIONames,
+                context.registeredFIODomains)
     }
 
     override fun deleteAccountContext(uuid: UUID) {
@@ -53,6 +56,6 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
 
     override fun updateAccountContext(context: FioAccountContext) {
         generalBacking.updateAccountContext(context)
-        fioQueries.update(context.actionSequenceNumber, context.registeredFIONames, context.uuid)
+        fioQueries.update(context.actionSequenceNumber, context.registeredFIONames, context.registeredFIODomains, context.uuid)
     }
 }

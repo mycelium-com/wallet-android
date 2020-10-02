@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.mycelium.generated.wallet.database.*
 import com.mycelium.generated.wallet.database.EthAccountBacking
 import com.mycelium.wapi.wallet.coins.*
+import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioName
+import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.squareup.sqldelight.ColumnAdapter
 import java.math.BigInteger
 import java.util.*
@@ -117,6 +119,26 @@ object Adapters {
             return ObjectMapper().writeValueAsString(value)
         }
     }
+
+    val registeredFioNameAdapter = object : ColumnAdapter<List<RegisteredFIOName>, String> {
+        override fun decode(databaseValue: String): List<RegisteredFIOName> {
+            val mapper = ObjectMapper()
+            val type = mapper.typeFactory.constructCollectionType(ArrayList::class.java, RegisteredFIOName::class.java)
+            return mapper.readValue(databaseValue, type)
+        }
+
+        override fun encode(value: List<RegisteredFIOName>): String = ObjectMapper().writeValueAsString(value)
+    }
+
+    val fioDomainAdapter = object : ColumnAdapter<List<FIODomain>, String> {
+        override fun decode(databaseValue: String): List<FIODomain> {
+            val mapper = ObjectMapper()
+            val type = mapper.typeFactory.constructCollectionType(ArrayList::class.java, FIODomain::class.java)
+            return mapper.readValue(databaseValue, type)
+        }
+
+        override fun encode(value: List<FIODomain>): String = ObjectMapper().writeValueAsString(value)
+    }
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
@@ -133,9 +155,12 @@ val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigInt
 
 val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
 
-val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)
+val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.registeredFioNameAdapter,
+        Adapters.fioDomainAdapter)
 
 val fioKnownNamesAdapter = FioKnownNames.Adapter(Adapters.fioNameAdapter)
+
+val fioNameAccountMappingsAdapter = FioNameAccountMappings.Adapter(Adapters.uuidAdapter)
 
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)

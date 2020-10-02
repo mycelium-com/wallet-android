@@ -89,7 +89,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="September 20, 2021 at 6:23pm"
-            android:text="September 20, 2021 at 6:23pm"
             android:textSize="14sp"
             android:fontFamily="sans-serif-medium"
             app:layout_constraintBaseline_toBaselineOf="@id/tvExpirationDateTitle"

@@ -246,6 +246,25 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 null
             }
         }
+
+        @JvmStatic
+        fun getFioNames(fioToken: FIOToken, publicKey: String): GetFIONamesResponse? {
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val client = OkHttpClient()
+            val requestBody = """{"fio_public_key":"$publicKey"}"""
+            val request = Request.Builder()
+                    .url(fioToken.url + "chain/get_fio_names")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            return try {
+                val response = client.newCall(request).execute()
+                val result = mapper.readValue(response.body()!!.string(), GetFIONamesResponse::class.java)
+                result
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
     }
 }
 
@@ -257,6 +276,23 @@ data class Tx(val txid: String, val fromAddress: String, val toAddress: String, 
         return """{'txid':$txid, 'fromAddress':$fromAddress,'toAddress':$toAddress,'memo':$memo,
             'blockNumber':$blockNumber,'timestamp':$timestamp,'value':$sum,'fee':$fee}
         """.trimMargin()
+    }
+}
+
+class GetFIONamesResponse {
+    val fio_domains: List<FioDomain>? = null
+    val fio_addresses: List<FioName>? = null
+    val message: String? = null
+
+    class FioDomain {
+        val fio_domain: String = ""
+        val expiration: String = ""
+        val is_public: Int = 0
+    }
+
+    class FioName {
+        val fio_address: String = ""
+        val expiration: String = ""
     }
 }
 

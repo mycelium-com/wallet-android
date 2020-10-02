@@ -33,7 +33,8 @@ class RegisterFioNameStep1Fragment : Fragment() {
             DataBindingUtil.inflate<FragmentRegisterFioNameStep1BindingImpl>(inflater, R.layout.fragment_register_fio_name_step1, container, false)
                     .apply {
                         viewModel = this@RegisterFioNameStep1Fragment.viewModel.apply {
-                            spinner?.adapter = DomainsAdapter(requireContext(), listOf("@mycelium", "@secondoption", "Register FIO Domain")).apply {
+//                            spinner?.adapter = DomainsAdapter(requireContext(), listOf("@mycelium", "@secondoption", "Register FIO Domain")).apply {
+                            spinner?.adapter = DomainsAdapter(requireContext(), listOf("@fiotestnet", "Register FIO Domain")).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }
                             spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

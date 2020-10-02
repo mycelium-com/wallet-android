@@ -11,6 +11,7 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
+import com.mycelium.wallet.activity.modern.helper.FioHelper.transformExpirationDate
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_completed.*
 
 class RegisterFioDomainCompletedFragment : Fragment() {
@@ -48,6 +49,7 @@ class RegisterFioDomainCompletedFragment : Fragment() {
         tvFioName.text = "@$fioDomain"
         tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$fioDomain"),
                 HtmlCompat.FROM_HTML_MODE_COMPACT)
+        tvExpirationDate.text = transformExpirationDate(expirationDate)
     }
 
     companion object {

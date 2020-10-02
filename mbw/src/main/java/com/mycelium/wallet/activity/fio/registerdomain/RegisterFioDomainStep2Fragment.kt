@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,8 +17,10 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep2BindingImpl
+import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_step2.*
 
@@ -47,6 +50,11 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                                 override fun onNothingSelected(p0: AdapterView<*>?) {}
                                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                                     viewModel!!.fioAccountToRegisterName.value = fioAccounts[p2]
+                                    // temporary account to register on and to pay fee from are the same
+                                    // until the ability of paying with other currencies is implemented
+                                    // TODO remove next line when it's ready
+                                    spinnerPayFromAccounts.setSelection((spinnerPayFromAccounts.adapter as ArrayAdapter<String>).getPosition(
+                                            "${fioAccounts[p2].label} ${fioAccounts[p2].accountBalance.spendable.toStringWithUnit()}"))
                                 }
                             }
                             spinnerPayFromAccounts?.adapter = ArrayAdapter(context,
@@ -58,6 +66,11 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                                 override fun onNothingSelected(p0: AdapterView<*>?) {}
                                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                                     viewModel!!.accountToPayFeeFrom.value = fioAccounts[p2]
+                                    // temporary account to register on and to pay fee from are the same
+                                    // until the ability of paying with other currencies is implemented
+                                    // TODO remove next line when it's ready
+                                    spinnerFioAccounts.setSelection((spinnerFioAccounts.adapter as ArrayAdapter<String>).getPosition(
+                                            fioAccounts[p2].label))
                                 }
                             }
                         }
@@ -67,11 +80,17 @@ class RegisterFioDomainStep2Fragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btNextButton.setOnClickListener {
-            requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.container,
-                            RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!, ""))
-                    .commit()
+            RegisterDomainTask(viewModel.fioAccountToRegisterName.value!!, viewModel.domain.value!!) { expiration ->
+                if (expiration != null) {
+                    requireActivity().supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.container,
+                                    RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!, expiration))
+                            .commit()
+                } else {
+                    Toaster(this).toast("Something went wrong", true)
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
         icEdit.setOnClickListener {
             findNavController().popBackStack()
@@ -88,5 +107,22 @@ class RegisterFioDomainStep2Fragment : Fragment() {
             (spinnerPayFromAccounts.getChildAt(0) as? TextView)?.setTextColor(
                     if (isNotEnoughFunds) resources.getColor(R.color.fio_red) else resources.getColor(R.color.white))
         })
+    }
+}
+
+class RegisterDomainTask(
+        val account: FioAccount,
+        private val fioDomain: String,
+        val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
+    override fun doInBackground(vararg args: Void): String? {
+        return try {
+            account.registerFIODomain(fioDomain)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override fun onPostExecute(result: String?) {
+        listener(result)
     }
 }
