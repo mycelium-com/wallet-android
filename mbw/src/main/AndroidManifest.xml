@@ -266,6 +266,10 @@
             android:theme="@style/MyceliumFIOMapping"/>
 
         <activity android:name=".activity.fio.requests.FioRequestBtcActivity" />
+
+        <activity android:name=".activity.fio.requests.FioSendRequestActivity" />
+
+        <activity android:name=".activity.fio.requests.FioSendStatusActivity" />
     </application>
 
 </manifest>

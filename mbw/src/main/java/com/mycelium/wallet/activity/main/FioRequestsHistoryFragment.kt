@@ -36,7 +36,9 @@ package com.mycelium.wallet.activity.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ExpandableListView
 import android.widget.TextView
@@ -48,7 +50,7 @@ import butterknife.ButterKnife
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.TransactionDetailsActivity
-import com.mycelium.wapi.wallet.fio.FioGroup
+import com.mycelium.wallet.activity.fio.requests.FioSendRequestActivity
 import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter
 import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryModel
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
@@ -57,6 +59,7 @@ import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
@@ -100,16 +103,16 @@ class FioRequestsHistoryFragment : Fragment() {
             ButterKnife.bind(this, rootView!!)
             btnReload!!.setOnClickListener {
 
-               _mbwManager!!.getWalletManager(false).getFioAccounts().forEach {account ->
-                   account.dropCachedData()
-                   _mbwManager!!.getWalletManager(false)
-                           .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
-               }
+                _mbwManager!!.getWalletManager(false).getFioAccounts().forEach { account ->
+                    account.dropCachedData()
+                    _mbwManager!!.getWalletManager(false)
+                            .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
+                }
 
             }
 
             //fpr demo only
-            btCreateFioRequest?.visibility= View.GONE
+            btCreateFioRequest?.visibility = View.GONE
             btCreateFioRequest?.setOnClickListener {
                 GlobalScope.launch(IO) {
 
@@ -143,6 +146,12 @@ class FioRequestsHistoryFragment : Fragment() {
         listView = rootView!!.findViewById(R.id.lvTransactionHistory)
 
         adapter = FioRequestArrayAdapter(requireActivity(), history)
+        listView.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
+            val item: FIORequestContent = adapter.getChild(groupPosition, childPosition) as FIORequestContent
+            FioSendRequestActivity.start(requireActivity(), item)
+            false
+        }
+
         updateWrapper(adapter);
         refresh()
     }

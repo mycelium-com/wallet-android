@@ -1,6 +1,8 @@
 package com.mycelium.wallet.activity.fio.requests.viewmodels
 
-open class FioSendRequestViewModel() {
+import androidx.lifecycle.ViewModel
+
+open class FioSendRequestViewModel : ViewModel(){
     fun pay() {
 
     }
@@ -8,6 +10,4 @@ open class FioSendRequestViewModel() {
     fun decline() {
 
     }
-
-
 }

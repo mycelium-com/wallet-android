@@ -3,8 +3,6 @@ package com.mycelium.wallet.activity.fio.requests
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
@@ -15,28 +13,27 @@ import com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewMo
 import com.mycelium.wallet.databinding.FioSendRequestActivityBinding
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 
-class FioSendRequestActivity : AppCompatActivity() {
+class FioSendStatusActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: FioSendRequestViewModel
+//    private lateinit var viewModel: FioSendRequestViewModel
     private lateinit var mbwManager: MbwManager
 
     companion object{
         val CONTENT = "CONTENT"
-        fun start(activity:Activity, item: FIORequestContent) {
-            with(Intent(activity,FioSendRequestActivity::class.java)) {
-                putExtra(CONTENT,item.toJson())
+        fun start(activity:Activity) {
+            with(Intent(activity,FioSendStatusActivity::class.java)) {
                 activity.startActivity(this)
             }
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel= ViewModelProviders.of(this).get(FioSendRequestViewModel::class.java)
+//        viewModel= ViewModelProviders.of(this).get(FioSendRequestViewModel::class.java)
         val fioRequestContent = Gson().fromJson(intent.getStringExtra(CONTENT), FIORequestContent::class.java)
 
-        setContentView(R.layout.fio_send_request_activity)
+        setContentView(R.layout.fio_send_request_status_activity)
 //        DataBindingUtil.setContentView<FioSendRequestActivityBinding>(this,
-//                R.layout.fio_send_request_activity)
+//                R.layout.fio_send_request_status_activity)
 //                .also {
 //                    it.viewModel = viewModel
 //                    it.activity = this
@@ -45,17 +42,5 @@ class FioSendRequestActivity : AppCompatActivity() {
 //
 //                    }
 //                }
-
-        findViewById<Button>(R.id.btSend).setOnClickListener {
-            onClickSend()
-        }
-    }
-
-    fun onClickDecline() {
-        viewModel.decline()
-    }
-    fun onClickSend(){
-        viewModel.pay()
-        FioSendStatusActivity.start(this)
     }
 }

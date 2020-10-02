@@ -85,6 +85,6 @@ class FioRequestArrayAdapter(var activity: Activity,
     }
 
     override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean {
-        return false
+        return true
     }
 }
