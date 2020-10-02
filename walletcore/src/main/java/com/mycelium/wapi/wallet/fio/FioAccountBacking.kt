@@ -30,8 +30,8 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     }
 
     fun getRequestsGroups(): List<FioGroup> {
-        val fioSentGroup = FioGroup("sent", mutableListOf())
-        val fioPendingGroup = FioGroup("pending", mutableListOf())
+        val fioSentGroup = FioGroup(FioGroup.Type.sent, mutableListOf())
+        val fioPendingGroup = FioGroup(FioGroup.Type.pending, mutableListOf())
         val fioContents = fioQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp, status ->
             val fioRequestContent = FIORequestContent()
             fioRequestContent.fioRequestId = fio_request_id.toBigInteger()

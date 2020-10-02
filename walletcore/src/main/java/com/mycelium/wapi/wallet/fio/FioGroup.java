@@ -6,10 +6,12 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent;
 
 public class FioGroup {
 
-    public String status;
+    enum Type {sent, pending}
+
+    public Type status;
     public final List<FIORequestContent> children;
 
-    public FioGroup(String string, List<FIORequestContent> requestContents) {
+    public FioGroup(Type string, List<FIORequestContent> requestContents) {
         this.status = string;
         children = requestContents;
     }
