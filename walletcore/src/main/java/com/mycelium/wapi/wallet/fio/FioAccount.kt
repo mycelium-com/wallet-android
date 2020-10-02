@@ -163,7 +163,10 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
-    fun getRequestsGroups() :List<FioGroup> = backing.getRequestsGroups()
+    fun getRequestsGroups(): List<FioGroup> {
+        return requests ?: emptyList()
+    }
+//        backing.getRequestsGroups()
 
 
     fun rejectFunds(fioRequestId: BigInteger, maxFee: BigInteger): PushTransactionResponse {
@@ -222,14 +225,16 @@ class FioAccount(private val accountContext: FioAccountContext,
         return true
     }
 
-    var requests: List<FIORequestContent> ? =null
+    private var requests: List<FioGroup>? = null
     private fun syncFioRequests() {
         try {
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-            requests = sentFioRequests + pendingFioRequests
-        }catch (ex:Throwable){
-            requests = emptyList<FIORequestContent>()
+            requests = listOf(
+                    FioGroup(FioGroup.Type.sent, sentFioRequests),
+                    FioGroup(FioGroup.Type.pending, pendingFioRequests))
+        } catch (ex: Throwable) {
+            requests = emptyList()
         }
 
 
