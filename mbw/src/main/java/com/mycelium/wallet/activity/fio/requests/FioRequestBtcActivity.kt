@@ -14,7 +14,6 @@ import com.mycelium.wallet.databinding.FragmentFioRequestBtcNameBindingImpl
 class FioRequestBtcActivity : AppCompatActivity() {
 
     private lateinit var viewModel: FioRequestBtcViewModel
-    private lateinit var mbwManager: MbwManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +24,9 @@ class FioRequestBtcActivity : AppCompatActivity() {
                     it.viewModel = viewModel
                 }.apply {
                     with(this) {
-
+                        btNextButton.setOnClickListener {
+                            viewModel.sendRequest(this@FioRequestBtcActivity)
+                        }
                     }
                 }
     }

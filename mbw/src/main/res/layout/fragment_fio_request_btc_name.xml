@@ -30,18 +30,18 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/imFioLogo"
             android:paddingStart="13dp"
             android:text="@string/fio_enter_fio_name_title"
             android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_toRightOf="@id/imFioLogo" />
+            android:textStyle="bold" />
 
         <LinearLayout
-            android:layout_marginTop="16dp"
-            android:layout_below="@id/imFioLogo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@id/imFioLogo"
+            android:layout_marginTop="16dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -57,9 +57,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="@{viewModel.payerTokenPublicAddress}"
                     tools:text="newAddress@domain" />
 
-                <!-- android:text="@{viewModel.sendTo}"-->
 
             </LinearLayout>
 
@@ -78,10 +78,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/arrow_bottom"
-                    android:textColor="@color/fio_green"
                     android:drawablePadding="8dp"
+                    android:text="@{viewModel.payeeTokenPublicAddress}"
+                    android:textColor="@color/fio_green"
                     tools:text="newAddress@domain" />
-                <!--                    android:text="@{viewModel.payingFrom}"-->
 
 
             </LinearLayout>
@@ -97,9 +97,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
-
                 android:layout_marginBottom="32dp"
-                tools:text="newAddress@domain" />
+                android:text="@{viewModel.payeeTokenPublicAddress}"
+                tools:text="newAddress@domain"
+
+
+                />
 
 
             <LinearLayout
@@ -137,10 +140,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
-                    android:textSize="16sp"
-                    android:text="Free" />
+                    android:text="Free"
+                    android:textSize="16sp" />
             </LinearLayout>
-
 
 
             <TextView
@@ -153,11 +155,10 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Leave a message for boss@domain">
+                android:hint="Leave a message for boss@domain"
+                android:text="@={viewModel.memo}">
 
             </EditText>
-
-
         </LinearLayout>
 
         <Button
@@ -165,7 +166,6 @@
             style="@style/FioNameRegistrationButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:layout_alignParentBottom="true"
             android:layout_marginTop="32dp"
             android:text="Send FIO request"
