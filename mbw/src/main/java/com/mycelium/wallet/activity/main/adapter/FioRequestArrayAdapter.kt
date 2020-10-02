@@ -192,7 +192,7 @@ class FioRequestArrayAdapter(var activity: Activity, //    private final Metadat
         //      rowView.setTag(record);
         //        return rowView;
         //    }
-                             private val groups: List<FioGroup>) : BaseExpandableListAdapter() {
+                             private val groups: MutableList<FioGroup>) : BaseExpandableListAdapter() {
 
     override fun getChild(groupPosition: Int, childPosition: Int): Any {
         return groups[groupPosition].children[childPosition]
@@ -203,29 +203,24 @@ class FioRequestArrayAdapter(var activity: Activity, //    private final Metadat
     }
 
     override fun getChildView(groupPosition: Int, childPosition: Int,
-                              isLastChild: Boolean, convertView: View, parent: ViewGroup): View {
+                              isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
         val children = getChild(groupPosition, childPosition) as FIORequestContent
-
-        val content = children.deserializedContent
-
-        val text: TextView? = null
         if (convertView == null) {
             val inflater = activity.layoutInflater
             convertView = inflater.inflate(R.layout.fio_request_row, null)
         }
-        val address = convertView.findViewById<TextView>(R.id.tvDate)
-        address.text = String.format("From: %s", children.payeeFioAddress)
-        val memo = convertView.findViewById<TextView>(R.id.tvTransactionLabel)
-        memo.text = content!!.memo
-        val amount = convertView.findViewById<TextView>(R.id.tvAmount)
-        amount.text = content.amount
-        val tvFiatAmount = convertView.findViewById<TextView>(R.id.tvFiatAmount)
-        tvFiatAmount.text = content.amount
-        //
-//      convertView.setOnClickListener(v -> Toast.makeText(activity, children,
-//              Toast.LENGTH_SHORT).show());
-        return convertView
+        val content = children.deserializedContent
+
+        val address = convertView?.findViewById<TextView>(R.id.tvDate)
+        address?.text = String.format("From: %s", children.payeeFioAddress)
+        val memo = convertView?.findViewById<TextView>(R.id.tvTransactionLabel)
+        memo?.text = content?.memo
+        val amount = convertView?.findViewById<TextView>(R.id.tvAmount)
+        amount?.text = content?.amount
+        val tvFiatAmount = convertView?.findViewById<TextView>(R.id.tvFiatAmount)
+        tvFiatAmount?.text = content?.amount
+        return convertView!!
     }
 
     override fun getChildrenCount(groupPosition: Int): Int {
@@ -253,7 +248,7 @@ class FioRequestArrayAdapter(var activity: Activity, //    private final Metadat
     }
 
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
-                              convertView: View, parent: ViewGroup): View {
+                              convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
         if (convertView == null) {
             val inflater = activity.layoutInflater

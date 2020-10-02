@@ -65,6 +65,7 @@ import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import java.util.*
@@ -77,31 +78,25 @@ class FioRequestsHistoryFragment : Fragment() {
     private val currentActionMode: ActionMode? = null
     private val accountsWithPartialHistory: MutableSet<UUID> = HashSet()
 
-    /**
-     * This field shows if [Preloader] may be started (initial - true).
-     * After [FioRequestsHistoryFragment.selectedAccountChanged] it's true
-     * Before [Preloader] started it's set to false to prevent multiple-loadings.
-     * When [Preloader]#doInBackground() finishes it's routine it's setting true if limit was reached, else false
-     */
     private val isLoadingPossible = AtomicBoolean(true)
 
     @JvmField
     @BindView(R.id.tvNoTransactions)
     var noTransactionMessage: TextView? = null
-    private val history: MutableSet<FioGroup> = HashSet()
+    private val history: MutableList<FioGroup> = mutableListOf()
 
     @JvmField
     @BindView(R.id.btRescan)
     var btnReload: View? = null
-    private var adapter: FioRequestArrayAdapter? = null
-    private var model: FioRequestsHistoryModel? = null
-    private var listView: ExpandableListView? = null
+    private lateinit var adapter: FioRequestArrayAdapter
+    private lateinit var model: FioRequestsHistoryModel
+    private lateinit var listView: ExpandableListView
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fio_request_history_view, container, false)
             ButterKnife.bind(this, rootView!!)
             btnReload!!.setOnClickListener {
-                val account = _mbwManager!!.selectedAccount
+                val account = _mbwManager!!.getWalletManager(false).getFioAccounts()[0]
                 account.dropCachedData()
                 _mbwManager!!.getWalletManager(false)
                         .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
@@ -112,26 +107,24 @@ class FioRequestsHistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         listView = rootView!!.findViewById(R.id.lvTransactionHistory)
-        if (adapter == null) {
-            val fioGroupList: MutableList<FioGroup> = ArrayList()
-            fioGroupList.addAll(history)
-            adapter = FioRequestArrayAdapter(requireActivity(), fioGroupList)
-            //         updateWrapper(adapter);
-            model!!.fioRequestHistory.observe(this, Observer {
-                history.clear()
-//                history.addAll(fioGroups!!)
-                //               adapter.sort(new Comparator<FIORequestContent>() {
+
+        adapter = FioRequestArrayAdapter(requireActivity(), history)
+        updateWrapper(adapter);
+        model!!.fioRequestHistory.observe(this, Observer {
+            history.clear()
+            history.addAll(it!!)
+            //               adapter.sort(new Comparator<FIORequestContent>() {
 //                  @Override
 //                  public int compare(FIORequestContent ts1, FIORequestContent ts2) {
 //                     //TODO migrate to real compare
 //                     return ts1.getTimeStamp().compareTo(ts2.getTimeStamp());
 //                  }
 //               });
-                adapter!!.notifyDataSetChanged()
-                showHistory(!history.isEmpty())
-                refreshList()
-            })
-        }
+            adapter.notifyDataSetChanged()
+            showHistory(!history.isEmpty())
+            refreshList()
+        })
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -139,7 +132,7 @@ class FioRequestsHistoryFragment : Fragment() {
         setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
         // cache the addressbook for faster lookup
-        model!!.cacheAddressBook()
+        model.cacheAddressBook()
     }
 
     override fun onAttach(context: Context) {
@@ -229,45 +222,46 @@ class FioRequestsHistoryFragment : Fragment() {
         }
     }
 
-    //   private void updateWrapper(FioRequestArrayAdapter adapter) {
-    //      this.adapter = adapter;
-    //      listView.setAdapter(adapter);
-    //      listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-    //         private static final int OFFSET = 20;
-    //         private final List<FIORequestContent> toAdd = new ArrayList<>();
-    //         @Override
-    //         public void onScrollStateChanged(AbsListView view, int scrollState) {
-    //            synchronized (toAdd) {
-    //               if (!toAdd.isEmpty() && view.getLastVisiblePosition() == history.size() - 1) {
-    //                  model.getFioRequestHistory().appendList(toAdd);
-    //                  toAdd.clear();
-    //               }
-    //            }
-    //         }
-    //
-    //         @Override
-    //         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-    //            // We should preload data to provide glitch free experience.
-    //            // If no items loaded we should do nothing, as it's LiveData duty.
-    //            if (firstVisibleItem + visibleItemCount >= totalItemCount - OFFSET && visibleItemCount != 0) {
-    //               boolean toAddEmpty;
-    //               synchronized (toAdd) {
-    //                  toAddEmpty = toAdd.isEmpty();
-    //               }
-    //               if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-    //                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
-    //                          OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    //               }
-    //               if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
-    //                  synchronized (toAdd) {
-    //                     model.getFioRequestHistory().appendList(toAdd);
-    //                     toAdd.clear();
-    //                  }
-    //               }
-    //            }
-    //         }
-    //      });
-    //   }
+    private fun updateWrapper(adapter: FioRequestArrayAdapter) {
+        this.adapter = adapter;
+        listView.setAdapter(adapter);
+//        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+//            private static final int OFFSET = 20;
+//            private final List<FIORequestContent> toAdd = new ArrayList<>();
+//            @Override
+//            public void onScrollStateChanged(AbsListView view, int scrollState) {
+//                synchronized (toAdd) {
+//                    if (!toAdd.isEmpty() && view.getLastVisiblePosition() == history.size() - 1) {
+//                        model.getFioRequestHistory().appendList(toAdd);
+//                        toAdd.clear();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+//                // We should preload data to provide glitch free experience.
+//                // If no items loaded we should do nothing, as it's LiveData duty.
+//                if (firstVisibleItem + visibleItemCount >= totalItemCount - OFFSET && visibleItemCount != 0) {
+//                    boolean toAddEmpty;
+//                    synchronized (toAdd) {
+//                        toAddEmpty = toAdd.isEmpty();
+//                    }
+//                    if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
+//                        new Preloader(toAdd, _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
+//                        OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//                    }
+//                    if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
+//                        synchronized (toAdd) {
+//                            model.getFioRequestHistory().appendList(toAdd);
+//                            toAdd.clear();
+//                        }
+//                    }
+//                }
+//            }
+//        });
+    }
+
     internal class Preloader(private val toAdd: MutableList<FioGroup>, private val account: WalletAccount<*>, private val _mbwManager: MbwManager
                              , private val offset: Int, private val limit: Int, private val success: AtomicBoolean) : AsyncTask<Void?, Void?, Void?>() {
         protected override fun doInBackground(vararg voids: Void?): Void? {
