@@ -116,6 +116,9 @@ class FioRequestsHistoryFragment : Fragment() {
                 _mbwManager!!.getWalletManager(false)
                         .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
             }
+
+            //fpr demo only
+            btCreateFioRequest?.visibility= View.GONE
             btCreateFioRequest?.setOnClickListener {
                 GlobalScope.launch(IO) {
 
