@@ -12,7 +12,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
-import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.isFioAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import kotlinx.android.synthetic.main.activity_fio_add_address.*
@@ -36,10 +35,10 @@ class RegisterFioNameActivity : AppCompatActivity() {
         // set default fee at first, it will be updated in async task
         viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
         viewModel.address.observe(this, Observer {
-            viewModel.addressWithDomain.value = "${viewModel.address.value}${viewModel.domain.value}"
+            viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
         })
         viewModel.domain.observe(this, Observer {
-            viewModel.addressWithDomain.value = "${viewModel.address.value}${viewModel.domain.value}"
+            viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
         })
         viewModel.addressWithDomain.observe(this, Observer { addressWithDomain ->
             if (viewModel.address.value!!.isNotEmpty()) {
