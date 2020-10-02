@@ -27,4 +27,11 @@ class FioSendRequestActivity : AppCompatActivity() {
                     }
                 }
     }
+
+    fun onClickDecline() {
+        viewModel.decline()
+    }
+    fun onClickSend(){
+        viewModel.pay()
+    }
 }
