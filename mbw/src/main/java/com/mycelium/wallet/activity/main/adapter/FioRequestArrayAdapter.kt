@@ -212,7 +212,7 @@ class FioRequestArrayAdapter(var activity: Activity, //    private final Metadat
         }
         val content = children.deserializedContent
 
-        val address = convertView?.findViewById<TextView>(R.id.tvDate)
+        val address = convertView?.findViewById<TextView>(R.id.tvAddress)
         address?.text = String.format("From: %s", children.payeeFioAddress)
         val memo = convertView?.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
