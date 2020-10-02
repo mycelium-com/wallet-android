@@ -109,7 +109,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType().asStringRes())
 
         address_dropdown_image_view.visibility = if (addressTypes.size > 1) {
-            val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
+            val addressTypesMenu = PopupMenu(this, address_dropdown_image_view)
             addressTypes.forEach {
                 addressTypesMenu.menu.add(Menu.NONE, it.ordinal, it.ordinal, it.asStringRes())
             }
