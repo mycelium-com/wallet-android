@@ -47,6 +47,10 @@ class FioModule(
         fioName in fioAccount.registeredFIONames.map { it.name }
     }?.id
 
+    fun getFioAccountByFioDomain(fioDomain: String): UUID? = accounts.values.firstOrNull { fioAccount ->
+        fioDomain in fioAccount.registeredFIODomains.map { it.domain }
+    }?.id
+
     fun getFIONames(domainName: String): List<RegisteredFIOName> {
         return getAllRegisteredFioNames().filter { it.name.split("@")[1] == domainName }
     }
