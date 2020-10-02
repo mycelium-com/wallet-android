@@ -16,10 +16,15 @@
         android:visibility="gone"/>
 
 
+    <Button
+        android:id="@+id/btCreateFioRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create request"></Button>
     <!-- Transaction History -->
     <ExpandableListView
         android:id="@+id/lvTransactionHistory"
-        android:layout_below="@+id/tvWarningNotFullHistory"
+        android:layout_below="@+id/btCreateFioRequest"
         android:choiceMode="singleChoice"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -299,6 +299,8 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     fun getTransferTokensFee() = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
 
+    fun getFeeForFunds(payeeFioAddress: String) = fiosdk!!.getFeeForNewFundsRequest(payeeFioAddress)
+
     fun getFeeByEndpoint(endpoint: FIOApiEndPoints.FeeEndPoint) = fiosdk!!.getFee(endpoint).fee
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =

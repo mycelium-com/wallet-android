@@ -39,6 +39,7 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.*
+import android.widget.Button
 import android.widget.ExpandableListView
 import android.widget.TextView
 import androidx.appcompat.view.ActionMode
@@ -65,9 +66,14 @@ import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -83,6 +89,12 @@ class FioRequestsHistoryFragment : Fragment() {
     @JvmField
     @BindView(R.id.tvNoTransactions)
     var noTransactionMessage: TextView? = null
+
+
+    @JvmField
+    @BindView(R.id.btCreateFioRequest)
+    var btCreateFioRequest: Button?= null
+
     private val history: MutableList<FioGroup> = mutableListOf()
 
     @JvmField
@@ -100,6 +112,25 @@ class FioRequestsHistoryFragment : Fragment() {
                 account.dropCachedData()
                 _mbwManager!!.getWalletManager(false)
                         .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
+            }
+            btCreateFioRequest?.setOnClickListener {
+                GlobalScope.launch(IO) {
+                    val selectedAccount = MbwManager.getInstance(requireContext()).getWalletManager(false).getActiveFioAccounts()[0] as FioAccount
+                    val fioAddress = "test@smart"
+                    selectedAccount.registerFIOAddress(fioAddress)
+                    val feeForFunds = selectedAccount.getFeeForFunds(selectedAccount.registeredFIONames[0])
+                    val requestFunds = selectedAccount.requestFunds(
+                            "eosdac@fiotestnet",
+                            fioAddress,
+                            "",
+                            2.0,
+                            "BTC",
+                            "BTC",
+                            feeForFunds.fee)
+
+                    println(requestFunds)
+                }
+
             }
         }
         return rootView
