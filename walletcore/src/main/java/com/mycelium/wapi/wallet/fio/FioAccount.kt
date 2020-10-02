@@ -16,6 +16,7 @@ import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.FIOAddress
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
 import java.util.*
@@ -137,6 +138,18 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     fun getRequestsGroups() = backing.getRequestsGroups()
 
+    fun rejectFunds(fioRequestId: BigInteger, maxFee: BigInteger): PushTransactionResponse {
+        return fiosdk!!.rejectFundsRequest(fioRequestId, maxFee)
+    }
+
+    fun requestFunds(
+            payerFioAddress: String, payeeFioAddress: String,
+            payeeTokenPublicAddress: String, amount: Double, chainCode: String, tokenCode: String,
+            maxFee: BigInteger, technologyPartnerId: String = ""
+    ): PushTransactionResponse {
+        return fiosdk!!.requestFunds(payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, maxFee, technologyPartnerId)
+    }
+
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong())
 
@@ -181,10 +194,10 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioRequests() {
-        val sentFioRequests = fiosdk?.getSentFioRequests()?: emptyList()
-        val pendingFioRequests = fiosdk?.getPendingFioRequests()?: emptyList()
-        backing.putRequests("sent",sentFioRequests)
-        backing.putRequests("pending",pendingFioRequests)
+        val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+        val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
+        backing.putRequests("sent", sentFioRequests)
+        backing.putRequests("pending", pendingFioRequests)
     }
 
     private fun syncFioAddresses() {
@@ -291,6 +304,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
             ExportableAccount.Data(Optional.fromNullable(fiosdk?.getPrivateKey()),
                     mutableMapOf<BipDerivationType, String>().apply {
-                        this[BipDerivationType.BIP44] = fiosdk?.publicKey ?: receivingAddress.toString()
+                        this[BipDerivationType.BIP44] = fiosdk?.publicKey
+                                ?: receivingAddress.toString()
                     })
 }
