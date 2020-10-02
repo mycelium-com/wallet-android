@@ -16,6 +16,7 @@ import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.FIOAddress
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
@@ -136,7 +137,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
-    fun getRequestsGroups() = backing.getRequestsGroups()
+    fun getRequestsGroups() :List<FioGroup> = backing.getRequestsGroups()
+
 
     fun rejectFunds(fioRequestId: BigInteger, maxFee: BigInteger): PushTransactionResponse {
         return fiosdk!!.rejectFundsRequest(fioRequestId, maxFee)
@@ -193,11 +195,19 @@ class FioAccount(private val accountContext: FioAccountContext,
         return true
     }
 
+    var requests: List<FIORequestContent> ? =null
     private fun syncFioRequests() {
-        val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
-        val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-        backing.putRequests("sent", sentFioRequests)
-        backing.putRequests("pending", pendingFioRequests)
+        try {
+            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
+            requests = sentFioRequests + pendingFioRequests
+        }catch (ex:Throwable){
+            requests = emptyList<FIORequestContent>()
+        }
+
+
+//        backing.putRequests("sent", sentFioRequests)
+//        backing.putRequests("pending", pendingFioRequests)
     }
 
     private fun syncFioAddresses() {

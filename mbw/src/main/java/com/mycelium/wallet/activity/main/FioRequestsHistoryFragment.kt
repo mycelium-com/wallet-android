@@ -129,8 +129,8 @@ class FioRequestsHistoryFragment : Fragment() {
                     val payee = receiveAddress.toString()
                     val selectedAccount = walletManager.getActiveFioAccounts()[0] as FioAccount
                     val fioAddress = Date().time.toString()+"@fiotestnet"
-                    val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
                     selectedAccount.registerFIOAddress(fioAddress)
+                    val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
                     val feeForFunds = selectedAccount.getFeeForFunds(selectedAccount.registeredFIONames[0])
                     val requestFunds = selectedAccount.requestFunds(
                             "eosdac@fiotestnet",
