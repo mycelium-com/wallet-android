@@ -10,6 +10,7 @@ import android.nfc.NfcAdapter
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
@@ -75,17 +76,29 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                 (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
             createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
         }
+        supportActionBar?.run {
+            title = getString(R.string.receive_cointype, viewModel.getCurrencyName())
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
     }
 
-    fun initWithBindings(binding: ViewDataBinding?) {
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
+    private fun initWithBindings(binding: ViewDataBinding?) {
         when(binding){
             is ReceiveCoinsActivityBinding -> {
                 btCreateFioRequest.setOnClickListener {
                     viewModel.createFioRequest()
                 }
-            }
-            is ReceiveCoinsActivityBtcBinding -> {
-
             }
         }
     }
@@ -101,8 +114,10 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                 addressTypesMenu.menu.add(Menu.NONE, it.ordinal, it.ordinal, it.asStringRes())
             }
 
-            addressDropdownLayout.setOnClickListener {
-                addressTypesMenu.show()
+            addressDropdownLayout.referencedIds.forEach {
+                findViewById<View>(it).setOnClickListener {
+                    addressTypesMenu.show()
+                }
             }
 
             addressTypesMenu.setOnMenuItemClickListener { item ->

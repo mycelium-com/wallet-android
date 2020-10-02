@@ -1,77 +1,79 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+        xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <import type="androidx.lifecycle.AndroidViewModel" />
 
         <variable
-            name="activity"
-            type="androidx.appcompat.app.AppCompatActivity" />
+                name="activity"
+                type="androidx.appcompat.app.AppCompatActivity" />
 
         <variable
-            name="viewModel"
-            type="com.mycelium.wallet.activity.receive.ReceiveBtcViewModel" />
+                name="viewModel"
+                type="com.mycelium.wallet.activity.receive.ReceiveBtcViewModel" />
     </data>
 
     <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:fadeScrollbars="false">
-
-
-        <LinearLayout
-            android:id="@+id/llRoot"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="0dp">
+            android:fadeScrollbars="false">
+
+        <LinearLayout
+                android:id="@+id/llRoot"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="0dp">
 
             <!-- Receiving currency name, receiving amount and warning if amount don't match-->
             <include
-                layout="@layout/receive_coins_activity_heap"
-                bind:viewModel="@{viewModel}" />
+                    layout="@layout/receive_coins_activity_heap"
+                    bind:viewModel="@{viewModel}" />
 
             <!-- QR code and comment-->
             <include layout="@layout/receive_coins_activity_qr" />
 
             <!-- Warning if account is RO -->
             <include
-                layout="@layout/receive_coins_activity_ro"
-                bind:viewModel="@{viewModel}" />
+                    layout="@layout/receive_coins_activity_ro"
+                    bind:viewModel="@{viewModel}" />
 
             <!-- Selecting address type to display -->
-            <include layout="@layout/receive_coins_activity_btc_addr_type"
-                bind:viewModel="@{viewModel}"
-                bind:activity="@{activity}"/>
+            <include
+                    layout="@layout/receive_coins_activity_btc_addr_type"
+                    bind:activity="@{activity}"
+                    bind:viewModel="@{viewModel}" />
 
             <!-- Bitcoin Address -->
             <FrameLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="20dp">
 
                 <include
-                    layout="@layout/receive_coins_activity_addr"
-                    bind:viewModel="@{viewModel}"/>
-
+                        layout="@layout/receive_coins_activity_addr"
+                        bind:viewModel="@{viewModel}" />
 
                 <include
-                    layout="@layout/receive_coins_activity_nfc"
-                    bind:viewModel="@{viewModel}"
-                    bind:activity="@{activity}" />
+                        layout="@layout/receive_coins_activity_nfc"
+                        bind:activity="@{activity}"
+                        bind:viewModel="@{viewModel}" />
             </FrameLayout>
 
             <!-- Amount -->
 
-            <include layout="@layout/receive_coins_activity_amount"
-                bind:viewModel="@{viewModel}"
-                bind:activity="@{activity}"/>
+            <include
+                    layout="@layout/receive_coins_activity_amount"
+                    bind:activity="@{activity}"
+                    bind:viewModel="@{viewModel}" />
 
             <include
-                layout="@layout/receive_coins_activity_share"
-                bind:viewModel="@{viewModel}" />
+                    layout="@layout/receive_coins_activity_share"
+                    bind:viewModel="@{viewModel}" />
         </LinearLayout>
     </ScrollView>
 </layout>
