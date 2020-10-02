@@ -4,7 +4,6 @@
     tools:showIn="@layout/receive_coins_activity">
 
     <data>
-
         <import type="android.view.View" />
 
         <import type="com.mycelium.wallet.Utils" />
@@ -25,7 +24,6 @@
         android:visibility="@{viewModel.isNfcAvailable() ? View.VISIBLE : View.GONE}"
         android:src="@drawable/nfc_logo"
         android:onClick="@{_ -> Utils.showSimpleMessageDialog(activity, @string/nfc_payment_request_hint) }"
-        android:paddingEnd="20dp"
         android:layout_gravity="center_vertical|end"
         android:contentDescription="@string/nfc_payment_request_hint" />
 </layout>

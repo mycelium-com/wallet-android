@@ -27,6 +27,8 @@ ext {
     jacksonAnnotationsVersion = '2.9.5'
     jacksonDatabindVersion = '2.9.9'
     nav_version = "2.3.0"
+    // latest version is 1.4.3 but that changes the api somehow
+    sqldelight_version = '1.2.1'
 
     projectRootDir = project.rootDir.getPath()
     commonDebugKeystore = project.file('debug.keystore')

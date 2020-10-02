@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.fio.requests.FioSendRequestActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:id="@+id/root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:text="Send to:" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        tools:text="newAddress@domain" />
+
+<!--                    android:text="@{viewModel.sendTo}"-->
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:text="Sent from:" />
+
+                    <androidx.appcompat.widget.AppCompatSpinner
+                        android:id="@+id/fromFioNameSpinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/send_coin_spinner_selector"
+                        android:textSize="14sp"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvNonceLabel" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:text="Paying from" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/fio_green"
+                        tools:text="newAddress@domain" />
+
+<!--                    android:text="@{viewModel.payingFrom}"-->
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Enter amount" />
+
+                    <!--Contains amount selection-->
+                    <include
+                        layout="@layout/send_coins_amount"
+
+                        />
+<!--                    app:activity="@{activity}"-->
+<!--                    app:viewModel="@{viewModel}"-->
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="Memo Received" />
+
+                <TextView
+                    android:id="@+id/tvMemo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    tools:text="Please give me money to party" />
+                <!--Fee selector-->
+                <include
+                    layout="@layout/send_coins_fee_block"
+                  />
+<!--                app:viewModel="@{viewModel}"-->
+                <!-- Amount Error -->
+                <include
+                    layout="@layout/send_coins_insufficient"
+              />
+<!--                app:viewModel="@{viewModel}"-->
+
+                <!--Update progress bar-->
+                <include
+                    layout="@layout/send_coins_progress"
+                   />
+<!--                app:viewModel="@{viewModel}"-->
+
+                <!-- Send -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:layout_margin="16dp"
+                    android:padding="0dp">
+
+                    <Button
+                        android:id="@+id/btSend"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:text="Confirm &amp; Pay"
+                        android:onClick="@{_ -> activity.onClickSend()}"
+                        android:textSize="20sp" />
+
+
+                    <Button
+                        android:id="@+id/btDecline"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="center"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:text="Decline &amp; Delete"
+                        android:onClick="@{_ -> activity.onClickDecline()}"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</layout>

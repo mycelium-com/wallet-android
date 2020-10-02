@@ -10,9 +10,11 @@ import android.nfc.NfcAdapter
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -34,6 +36,7 @@ import asStringRes
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import kotlinx.android.synthetic.main.receive_coins_activity_share.*
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
@@ -66,11 +69,37 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
         activateNfc()
 
-        initDatabinding(account)
+        val binding = initDatabinding(account)
+        initWithBindings(binding)
 
         if (viewModel is ReceiveBtcViewModel &&
                 (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
             createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
+        }
+        supportActionBar?.run {
+            title = getString(R.string.receive_cointype, viewModel.getCurrencyName())
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
+    private fun initWithBindings(binding: ViewDataBinding?) {
+        when(binding){
+            is ReceiveCoinsActivityBinding -> {
+                btCreateFioRequest.setOnClickListener {
+                    viewModel.createFioRequest()
+                }
+            }
         }
     }
 
@@ -80,13 +109,15 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType().asStringRes())
 
         address_dropdown_image_view.visibility = if (addressTypes.size > 1) {
-            val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
+            val addressTypesMenu = PopupMenu(this, address_dropdown_image_view)
             addressTypes.forEach {
                 addressTypesMenu.menu.add(Menu.NONE, it.ordinal, it.ordinal, it.asStringRes())
             }
 
-            addressDropdownLayout.setOnClickListener {
-                addressTypesMenu.show()
+            addressDropdownLayout.referencedIds.forEach {
+                findViewById<View>(it).setOnClickListener {
+                    addressTypesMenu.show()
+                }
             }
 
             addressTypesMenu.setOnMenuItemClickListener { item ->
@@ -108,7 +139,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         })
     }
 
-    private fun initDatabinding(account: WalletAccount<*>) {
+    private fun initDatabinding(account: WalletAccount<*>): ViewDataBinding? {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
@@ -127,6 +158,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                     else -> getDefaultBinding()
                 }
         receiveCoinsActivityNBinding.setLifecycleOwner(this)
+
+
+        return receiveCoinsActivityNBinding
     }
 
     private fun getDefaultBinding(): ReceiveCoinsActivityBinding =
