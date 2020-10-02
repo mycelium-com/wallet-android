@@ -60,8 +60,8 @@ class DomainListAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallbac
             is FIONameViewHolder -> {
                 (getItem(position) as FIONameItem).run {
                     holder.fioName.text = title
-                    holder.fioNameExpireDate.text =
-                            holder.fioNameExpireDate.resources.getString(R.string.expiration_date) + " " +
+                    holder.expireDate.text =
+                            holder.expireDate.resources.getString(R.string.expiration_date) + " " +
                                     SimpleDateFormat.getDateInstance(DateFormat.LONG).format(expireDate)
                     holder.itemView.setOnClickListener {
                         fioNameClickListener?.invoke(title)

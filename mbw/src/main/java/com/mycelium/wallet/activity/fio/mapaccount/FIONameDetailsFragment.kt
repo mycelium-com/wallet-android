@@ -32,7 +32,7 @@ class FIONameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
         list.adapter = adapter
         list.itemAnimator = null
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
-        registeredOn.text = getString(R.string.following_fio_names_registered_on_s, MbwManager.getInstance(requireContext()).selectedAccount.label)
+        registeredOn.text = getString(R.string.fio_manage_name_and_domain)
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         adapter.fioNameClickListener = {
             findNavController().navigate(R.id.actionNext)

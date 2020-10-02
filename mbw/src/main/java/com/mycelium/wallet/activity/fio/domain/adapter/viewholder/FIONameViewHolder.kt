@@ -7,5 +7,5 @@ import kotlinx.android.synthetic.main.item_fio_name.view.*
 
 class FIONameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val fioName = itemView.fioName
-    val fioNameExpireDate = itemView.expireDate
+    val expireDate = itemView.expireDate
 }

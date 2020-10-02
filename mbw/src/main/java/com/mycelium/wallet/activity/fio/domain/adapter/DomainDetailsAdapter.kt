@@ -21,7 +21,7 @@ class DomainDetailsAdapter : ListAdapter<FIONameItem, FIONameViewHolder>(DiffCal
     override fun onBindViewHolder(holder: FIONameViewHolder, position: Int) {
         getItem(position).run {
             holder.fioName.text = title
-            holder.fioNameExpireDate.text = holder.fioNameExpireDate.resources.getString(R.string.expiration_date) + " " +
+            holder.expireDate.text = holder.expireDate.resources.getString(R.string.expiration_date) + " " +
                     SimpleDateFormat.getDateInstance(DateFormat.LONG).format(expireDate)
             holder.itemView.setOnClickListener {
                 clickListener?.invoke(this)
