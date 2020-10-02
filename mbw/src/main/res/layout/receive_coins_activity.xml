@@ -33,8 +33,17 @@
                 layout="@layout/receive_coins_activity_heap"
                 bind:viewModel="@{viewModel}" />
 
-            <!-- QR code and comment-->
-            <include layout="@layout/receive_coins_activity_qr" />
+            <!-- QR code, NFC indicator and comment-->
+            <FrameLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginVertical="10dp">
+                <include layout="@layout/receive_coins_activity_qr" />
+                <include layout="@layout/receive_coins_activity_nfc"
+                        bind:viewModel="@{viewModel}"
+                        bind:activity="@{activity}" />
+            </FrameLayout>
 
             <!-- Warning if account is RO -->
             <include
@@ -52,17 +61,13 @@
                     layout="@layout/receive_coins_activity_addr"
                     bind:viewModel="@{viewModel}"/>
 
-                <include
-                    layout="@layout/receive_coins_activity_nfc"
-                    bind:viewModel="@{viewModel}"
-                    bind:activity="@{activity}" />
             </FrameLayout>
 
             <!-- Amount -->
 
             <include layout="@layout/receive_coins_activity_amount"
-                bind:viewModel="@{viewModel}"
-                bind:activity="@{activity}"/>
+                    bind:viewModel="@{viewModel}"
+                    bind:activity="@{activity}"/>
 
             <include
                 layout="@layout/receive_coins_activity_share"

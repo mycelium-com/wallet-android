@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/warning_amount_does_not_match"
-            android:textColor="@color/yellow"
+            android:textColor="@color/red"
             android:visibility="@{viewModel.isReceivingAmountWrong() ? View.VISIBLE : View.GONE}"
             tools:visibility="visible" />
     </merge>

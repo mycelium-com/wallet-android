@@ -147,7 +147,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                     is AbstractBtcAccount ->  {
                         // This is only actual if account contains multiple address types inside
                         if (account.availableAddressTypes.size > 1) {
-                            val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
+                            val contentView =
+                                    DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(
+                                            this, R.layout.receive_coins_activity_btc)
                             contentView.viewModel = viewModel as ReceiveBtcViewModel
                             contentView.activity = this
                             contentView
@@ -157,8 +159,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                     }
                     else -> getDefaultBinding()
                 }
-        receiveCoinsActivityNBinding.setLifecycleOwner(this)
-
+        receiveCoinsActivityNBinding.lifecycleOwner = this
 
         return receiveCoinsActivityNBinding
     }
