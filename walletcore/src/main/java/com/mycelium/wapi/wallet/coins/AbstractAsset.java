@@ -21,9 +21,4 @@ public abstract class AbstractAsset implements AssetInfo {
         AbstractAsset other = (AbstractAsset) o;
         return getId().equals(other.getId());
     }
-
-    @Override
-    public boolean isMineAddress(String address) {
-        return parseAddress(address) != null;
-    }
 }

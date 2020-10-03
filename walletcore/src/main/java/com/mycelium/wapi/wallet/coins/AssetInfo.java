@@ -23,7 +23,5 @@ public interface AssetInfo extends Serializable {
 
     @Nonnull Value value(@Nonnull String string);
 
-    boolean isMineAddress(@Nullable String address);
-
     Address parseAddress(@Nullable String address);
 }

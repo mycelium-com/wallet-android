@@ -194,12 +194,6 @@ constructor(val network: NetworkParameters,
 
     fun getAllActiveAccounts():  List<WalletAccount<*>> = accounts.values.filter { it.isActive }
 
-    fun getAcceptableAssetTypes(address: String): List<AssetInfo> = walletModules.values
-                .flatMap { it.getSupportedAssets() }
-                .distinctBy { it.id }
-                .filter { it.isMineAddress(address)}
-                .toList()
-
     fun getAssetTypes(): List<AssetInfo> = accounts.values.map { it.coinType }.distinct()
 
     fun getCryptocurrenciesSymbols(): List<String> = getAssetTypes()
