@@ -21,7 +21,7 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
             setDisplayShowTitleEnabled(true)
         }
         viewModel = ViewModelProviders.of(this).get(FIOMapPubAddressViewModel::class.java)
-        if(intent.extras.containsKey("accountId")) {
+        if(intent?.extras?.containsKey("accountId") == true) {
             val accountId = intent.getSerializableExtra("accountId") as UUID
             val fioAccount = MbwManager.getInstance(this.application).getWalletManager(false).getAccount(accountId) as FioAccount
             viewModel.account.value = fioAccount
