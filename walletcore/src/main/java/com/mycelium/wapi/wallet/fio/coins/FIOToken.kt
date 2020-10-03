@@ -11,7 +11,12 @@ import fiofoundation.io.fiosdk.isFioPublicKey
 fun String.isFioActor(): Boolean =
         isNotEmpty()
                 && length == 12
-                && Regex("[.a-z1-5]+\$").matchEntire(this) != null
+                && Regex("^[.a-z1-5]+$").matchEntire(this) != null
+
+fun String.isFioDomain(): Boolean =
+        isNotEmpty()
+                && length in 1..62
+                && Regex("^[a-zA-Z0-9](?:(?!-{2,}))[a-zA-Z0-9-]*(?:(?<!-))$").matchEntire(this) != null
 
 abstract class FIOToken : EOSBasedCryptoCurrency() {
     init {
