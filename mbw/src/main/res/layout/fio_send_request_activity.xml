@@ -5,7 +5,9 @@
 
     <data>
 
-        <import type="androidx.lifecycle.AndroidViewModel" />
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+        <import type="android.view.View" />
 
         <variable
             name="activity"
@@ -31,117 +33,194 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="18dp">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clReceivedRequestInfo"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/received_fio_request_info_bg"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:id="@+id/imFioLogo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvTitle"
+                        app:srcCompat="@drawable/ic_fiopresale_icon_small" />
 
                     <TextView
+                        android:id="@+id/tvTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:text="Send to:" />
+                        android:paddingStart="12dp"
+                        android:text="Request received"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@id/imFioLogo"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
+                        android:id="@+id/tvFromTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
-                        tools:text="newAddress@domain" />
-
-<!--                    android:text="@{viewModel.sendTo}"-->
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:text="Sent from:" />
-
-                    <androidx.appcompat.widget.AppCompatSpinner
-                        android:id="@+id/fromFioNameSpinner"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@drawable/send_coin_spinner_selector"
+                        android:layout_marginTop="14dp"
+                        android:text="From:"
+                        android:textColor="@color/fio_white_alpha_0_8"
                         android:textSize="14sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvNonceLabel" />
-                </LinearLayout>
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-                <LinearLayout
+                    <TextView
+                        android:id="@+id/tvFrom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:paddingStart="4dp"
+                        android:text="@{viewModel.from}"
+                        android:textSize="18sp"
+                        android:typeface="monospace"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvFromTitle"
+                        app:layout_constraintStart_toEndOf="@id/tvFromTitle"
+                        tools:text="newfriend@hisdomain" />
+
+                    <TextView
+                        android:id="@+id/tvMemoFrom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="@{viewModel.memoFrom}"
+                        android:textSize="14sp"
+                        android:typeface="monospace"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvFromTitle"
+                        tools:text="Please give me money to party - and come on!!!!" />
+
+                    <TextView
+                        android:id="@+id/tvAmountTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Amount:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvMemoFrom" />
+
+                    <TextView
+                        android:id="@+id/tvAmount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:paddingStart="4dp"
+                        android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.amount)}"
+                        android:typeface="monospace"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvAmountTitle"
+                        app:layout_constraintStart_toEndOf="@id/tvAmountTitle"
+                        tools:text="0.00123305 tBTC" />
+
+                    <TextView
+                        android:id="@+id/tvAmountFiat"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@{viewModel.alternativeAmountFormatted}"
+                        android:textSize="12sp"
+                        android:typeface="monospace"
+                        android:visibility="@{viewModel.alternativeAmountFormatted.isEmpty() ? View.GONE : View.VISIBLE}"
+                        app:layout_constraintEnd_toEndOf="@id/tvAmount"
+                        app:layout_constraintTop_toBottomOf="@id/tvAmount"
+                        tools:text="55.02 USD" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp">
 
                     <TextView
+                        android:id="@+id/tvSatisfyFromTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:text="Paying from" />
+                        android:text="From:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
+                        android:id="@+id/tvSatisfyFrom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:paddingStart="4dp"
+                        android:text="@{viewModel.satisfyRequestFrom}"
+                        android:textSize="18sp"
+                        android:typeface="monospace"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromTitle"
+                        app:layout_constraintStart_toEndOf="@id/tvSatisfyFromTitle"
+                        tools:text="myfiowallet@mycelium " />
+
+
+                    <TextView
+                        android:id="@+id/tvSatisfyFromAccountTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="9dp"
+                        android:text="Spending from:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromTitle" />
+
+                    <TextView
+                        android:id="@+id/tvSatisfyFromAccount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:paddingStart="4dp"
                         android:textColor="@color/fio_green"
-                        tools:text="newAddress@domain" />
-
-<!--                    android:text="@{viewModel.payingFrom}"-->
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="5dp">
+                        android:textSize="14sp"
+                        android:typeface="monospace"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"
+                        app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle"
+                        tools:text="Account 1 - 0.00000006BTC" />
 
                     <TextView
+                        android:id="@+id/tvMemoToTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Enter amount" />
+                        android:layout_marginTop="9dp"
+                        android:text="Memo:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromAccountTitle" />
 
-                    <!--Contains amount selection-->
-                    <include
-                        layout="@layout/send_coins_amount"
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Leave a message for newfriend@histdo.."
+                        android:textSize="14sp"
+                        android:typeface="monospace"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvMemoToTitle" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        />
-<!--                    app:activity="@{activity}"-->
-<!--                    app:viewModel="@{viewModel}"-->
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:text="Memo Received" />
-
-                <TextView
-                    android:id="@+id/tvMemo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    tools:text="Please give me money to party" />
                 <!--Fee selector-->
-                <include
-                    layout="@layout/send_coins_fee_block"
-                  />
-<!--                app:viewModel="@{viewModel}"-->
+                <include layout="@layout/send_coins_fee_block" />
+                <!--                app:viewModel="@{viewModel}"-->
                 <!-- Amount Error -->
-                <include
-                    layout="@layout/send_coins_insufficient"
-              />
-<!--                app:viewModel="@{viewModel}"-->
+                <include layout="@layout/send_coins_insufficient" />
+                <!--                app:viewModel="@{viewModel}"-->
 
                 <!--Update progress bar-->
-                <include
-                    layout="@layout/send_coins_progress"
-                   />
-<!--                app:viewModel="@{viewModel}"-->
+                <include layout="@layout/send_coins_progress" />
+                <!--                app:viewModel="@{viewModel}"-->
 
                 <!-- Send -->
 
@@ -149,32 +228,27 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:orientation="vertical"
-                    android:layout_margin="16dp"
-                    android:padding="0dp">
+                    android:orientation="vertical">
 
                     <Button
                         android:id="@+id/btSend"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_gravity="center"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:text="Confirm &amp; Pay"
+                        style="@style/FioNameRegistrationButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="34dp"
                         android:onClick="@{_ -> activity.onClickSend()}"
-                        android:textSize="20sp" />
-
+                        android:text="@string/fio_confirm_and_pay" />
 
                     <Button
                         android:id="@+id/btDecline"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_gravity="center"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:text="Decline &amp; Delete"
+                        style="@style/FioNameRegistrationButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_btn_fio"
                         android:onClick="@{_ -> activity.onClickDecline()}"
-                        android:textSize="20sp" />
+                        android:text="Decline &amp; Delete"
+                        android:textColor="@color/fio_white_alpha_0_8" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
