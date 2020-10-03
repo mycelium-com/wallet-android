@@ -8,4 +8,5 @@ import kotlinx.android.synthetic.main.item_fio_account_mapping_group.view.*
 class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val title = itemView.title
     val expandIcon = itemView.expandIcon
+    val balance = itemView.balance
 }

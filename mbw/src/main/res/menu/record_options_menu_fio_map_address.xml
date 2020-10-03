@@ -14,7 +14,7 @@
 
     <item
         android:id="@+id/miFioMapAccounts"
-        android:title="Map Accounts"
+        android:title="My FIO Names"
         app:showAsAction="ifRoom"/>
 
 </menu>

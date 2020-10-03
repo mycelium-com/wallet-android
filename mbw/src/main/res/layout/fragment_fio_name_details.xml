@@ -25,30 +25,5 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_fio_name_details_account" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/addFIOName"
-            style="@style/MyceliumButton.FIO"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/add_new_fio_name"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <Button
-            android:id="@+id/addFIODomain"
-            style="@style/MyceliumButton.FIO.Gray"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:text="@string/create_fio_domain"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/miMyDomain"
-        android:title="My FIO Domains" />
+        android:id="@+id/miMyFIONames"
+        android:title="My FIO Names" />
 
     <item
         android:id="@+id/miAboutFIOProtocol"

@@ -56,7 +56,7 @@ class FIODomainDetailsFragment : Fragment() {
         list.itemAnimator = null
         adapter.clickListener = {
             startActivity(Intent(context, AccountMappingActivity::class.java)
-//                .putExtra("fioAccount", fioModule.getFioAccountByFioName(names.first()))
+//                .putExtra("acc", fioModule.getFioAccountByFioName(names.first()))
 //                .putExtra("fioName", names.first())
             )
         }

@@ -695,7 +695,7 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miFioMapAccounts:
                     case R.id.miMapToFio:
-                        FioHelper.chooseAccountToMap(requireActivity(), walletManager);
+                        FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;
                 }
                 // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior

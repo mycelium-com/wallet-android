@@ -20,14 +20,6 @@ object FakeService : FIODomainService, FIONameService {
                     RegisteredFIOName("name3@some-domain", Date()))
     )
 
-    override fun getAllFIODomains(): List<FIODomain> =
-            domains.keys.toList()
-
-    override fun getFIONames(domain: FIODomain): List<FIOName> =
-            domains[domain] ?: listOf()
-
-
-
     override fun getAllFIONames(): List<RegisteredFIOName> {
         TODO("Not yet implemented")
     }
