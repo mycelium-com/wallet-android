@@ -3,10 +3,12 @@ package com.mycelium.wapi.wallet.fio
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
+import fiofoundation.io.fiosdk.utilities.HashUtils
 import fiofoundation.io.fiosdk.utilities.Utils
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
@@ -267,6 +269,39 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 null
             }
         }
+
+        @JvmStatic
+        fun getBundledTxsNum(fioToken: FIOToken, fioName: String): Int? {
+            val hash = getNameHash(fioName)
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val client = OkHttpClient()
+            val requestBody = "{\"code\": \"fio.address\",\n" +
+                    "  \"scope\": \"fio.address\",\n" +
+                    "  \"table\": \"fionames\",\n" +
+                    "  \"lower_bound\": \"$hash\",\n" +
+                    "  \"upper_bound\": \"$hash\",\n" +
+                    "  \"key_type\": \"i128\",\n" +
+                    "  \"index_position\": \"5\",\n" +
+                    "  \"json\": true}"
+            val request = Request.Builder()
+                    .url(fioToken.url + "chain/get_table_rows")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            return try {
+                val response = client.newCall(request).execute()
+                val result = mapper.readValue(response.body()!!.string(), GetFioNamesTableRowsResponse::class.java)
+                result.result?.firstOrNull { it.name == fioName }?.bundleeligiblecountdown
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+        // https://developers.fioprotocol.io/api/api-spec/reference/get-table-rows/get-table-rows#compute-index
+        private fun getNameHash(fioName: String): String {
+            val reverseBytes = HexUtils.toBytes(HashUtils.sha1(fioName).substring(0, 32))
+            reverseBytes.reverse()
+            return "0x" + HexUtils.toHex(reverseBytes)
+        }
     }
 }
 
@@ -314,6 +349,15 @@ class GetAccountResponse {
                 val key: String = ""
             }
         }
+    }
+}
+
+class GetFioNamesTableRowsResponse {
+    val result: List<Row>? = null
+
+    class Row {
+        val name: String? = null
+        val bundleeligiblecountdown: Int? = null
     }
 }
 
