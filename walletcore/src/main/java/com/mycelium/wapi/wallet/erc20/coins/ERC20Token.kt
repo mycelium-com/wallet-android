@@ -17,7 +17,7 @@ class ERC20Token(name: String = "", symbol: String = "", unitExponent: Int = 18,
         this.isUtxosBased = false
     }
 
-    override fun parseAddress(addressString: String): Address? =
+    override fun parseAddress(addressString: String?): Address? =
             if (WalletUtils.isValidAddress(addressString)) {
                 // additional wrap of addressString into Address is called upon
                 // to unify addresses with and without '0x' prefix

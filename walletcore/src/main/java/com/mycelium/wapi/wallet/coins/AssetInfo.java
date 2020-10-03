@@ -4,6 +4,8 @@ import com.mycelium.wapi.wallet.Address;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+
 public interface AssetInfo extends Serializable {
     String getId();
     String getName();
@@ -22,5 +24,5 @@ public interface AssetInfo extends Serializable {
 
     boolean isMineAddress(String address);
 
-    Address parseAddress(String address);
+    Address parseAddress(@Nullable String address);
 }

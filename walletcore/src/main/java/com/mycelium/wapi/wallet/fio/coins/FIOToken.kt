@@ -26,8 +26,9 @@ abstract class FIOToken : EOSBasedCryptoCurrency() {
 
     abstract val url: String
 
-    override fun parseAddress(addressString: String): Address? {
+    override fun parseAddress(addressString: String?): Address? {
         return when {
+            addressString == null -> null
             addressString.isFioPublicKey() -> FioAddress(this, FioAddressData(addressString))
             addressString.isFioAddress() -> FioAddress(this, FioAddressData(addressString),
                     FioAddressSubtype.ADDRESS)

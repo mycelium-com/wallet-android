@@ -23,7 +23,7 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
         return javaClass.hashCode()
     }
 
-    override fun parseAddress(addressString: String): Address? {
+    override fun parseAddress(addressString: String?): Address? {
         val address = BitcoinAddress.fromString(addressString) ?: return null
 
         try {

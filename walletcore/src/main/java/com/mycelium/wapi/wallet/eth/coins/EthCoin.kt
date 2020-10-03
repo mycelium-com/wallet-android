@@ -15,7 +15,7 @@ abstract class EthCoin : CryptoCurrency() {
         isUtxosBased = false
     }
 
-    override fun parseAddress(addressString: String): Address? {
+    override fun parseAddress(addressString: String?): Address? {
         return if (WalletUtils.isValidAddress(addressString)) {
             // additional wrap of addressString into Address is called upon
             // to unify addresses with and without '0x' prefix
