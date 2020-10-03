@@ -56,3 +56,28 @@ VALUES (?, ?, ?, ?, ?, ?);
 deleteTransaction:
 DELETE FROM FioAccountBacking
 WHERE uuid = (?) AND txid = (?);
+
+-- Creates table for requests
+
+CREATE TABLE IF NOT EXISTS FioRequestsBacking (
+    fio_request_id INTEGER NOT NULL,
+    payer_fio_address TEXT NOT NULL,
+    payee_fio_address TEXT NOT NULL,
+    payer_fio_public_key TEXT NOT NULL,
+    payee_fio_public_key TEXT NOT NULL,
+    content TEXT NOT NULL,
+    time_stamp TEXT NOT NULL,
+    status TEXT NOT NULL
+);
+
+insertRequest:
+INSERT OR REPLACE INTO FioRequestsBacking(fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp, status)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteRequest:
+DELETE FROM FioRequestsBacking
+WHERE fio_request_id = (?) ;
+
+selectFioRequests:
+SELECT fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp, status
+FROM FioRequestsBacking;

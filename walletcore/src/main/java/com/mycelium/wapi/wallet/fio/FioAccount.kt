@@ -12,9 +12,11 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
+import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
 import java.text.SimpleDateFormat
@@ -78,6 +80,14 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     @ExperimentalUnsignedTypes
+    fun setDomainVisibility(fioDomain: String, isPublic: Boolean): PushTransactionResponse.ActionTraceResponse? {
+        val fee = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.SetDomainVisibility).fee
+
+        return fiosdk.setFioDomainVisibility(fioDomain, if (isPublic) FioDomainVisiblity.PUBLIC else FioDomainVisiblity.PRIVATE,
+                fee).getActionTraceResponse()
+    }
+
+    @ExperimentalUnsignedTypes
     fun addPubAddress(fioAddress: String, publicAddresses: List<TokenPublicAddress>): Boolean {
         val actionTraceResponse = fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee)
                 .getActionTraceResponse()
@@ -96,7 +106,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     private fun getFioDomains(): List<FIODomain> = try {
         FioTransactionHistoryService.getFioNames(coinType as FIOToken,
                 receivingAddress.toString())?.fio_domains?.map {
-            FIODomain(it.fio_domain, convertToDate(it.expiration), it.is_public != 0)
+            FIODomain(it.fio_domain, convertToDate(it.expiration), it.isPublic != 0)
         } ?: emptyList()
     } catch (e: Exception) {
         emptyList()
@@ -161,6 +171,24 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
+    fun getRequestsGroups(): List<FioGroup> {
+        return requests ?: emptyList()
+    }
+//        backing.getRequestsGroups()
+
+
+    fun rejectFunds(fioRequestId: BigInteger, maxFee: BigInteger): PushTransactionResponse {
+        return fiosdk!!.rejectFundsRequest(fioRequestId, maxFee)
+    }
+
+    fun requestFunds(
+            payerFioAddress: String, payeeFioAddress: String,
+            payeeTokenPublicAddress: String, amount: Double, chainCode: String, tokenCode: String,
+            maxFee: BigInteger, technologyPartnerId: String = ""
+    ): PushTransactionResponse {
+        return fiosdk!!.requestFunds(payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, maxFee, technologyPartnerId)
+    }
+
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong())
 
@@ -184,6 +212,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
+        syncFioRequests()
         syncFioAddresses()
         syncFioDomains()
         updateBlockHeight()
@@ -198,10 +227,27 @@ class FioAccount(private val accountContext: FioAccountContext,
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.log(Level.INFO, "asdaf update balance exception: ${e.message}")
+            logger.log(Level.INFO, "update balance exception: ${e.message}")
         }
         syncing = false
         return true
+    }
+
+    private var requests: List<FioGroup>? = null
+    private fun syncFioRequests() {
+        try {
+            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
+            requests = listOf(
+                    FioGroup(FioGroup.Type.sent, sentFioRequests),
+                    FioGroup(FioGroup.Type.pending, pendingFioRequests))
+        } catch (ex: Throwable) {
+            requests = emptyList()
+        }
+
+
+//        backing.putRequests("sent", sentFioRequests)
+//        backing.putRequests("pending", pendingFioRequests)
     }
 
     private fun syncFioAddresses() {
@@ -312,11 +358,14 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     fun getTransferTokensFee() = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
 
+    fun getFeeForFunds(payeeFioAddress: String) = fiosdk!!.getFeeForNewFundsRequest(payeeFioAddress)
+
     fun getFeeByEndpoint(endpoint: FIOApiEndPoints.FeeEndPoint) = fiosdk!!.getFee(endpoint).fee
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
             ExportableAccount.Data(Optional.fromNullable(fiosdk?.getPrivateKey()),
                     mutableMapOf<BipDerivationType, String>().apply {
-                        this[BipDerivationType.BIP44] = fiosdk?.publicKey ?: receivingAddress.toString()
+                        this[BipDerivationType.BIP44] = fiosdk?.publicKey
+                                ?: receivingAddress.toString()
                     })
 }

@@ -1,23 +1,19 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
 import android.os.AsyncTask
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import androidx.databinding.InverseMethod
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
-import com.mycelium.wallet.activity.send.model.SendFioModel
-import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
-import fiofoundation.io.fiosdk.isFioDomain
+import com.mycelium.wapi.wallet.fio.coins.isFioDomain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
-import java.math.BigInteger
 
 class RegisterFIODomainActivity : AppCompatActivity() {
     private lateinit var viewModel: RegisterFioDomainViewModel

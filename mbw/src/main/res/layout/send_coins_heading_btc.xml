@@ -18,15 +18,15 @@
     </data>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:gravity="center"
-        android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginHorizontal="20dp"
+            android:gravity="start"
+            android:orientation="vertical">
 
         <include
-            layout="@layout/send_coins_heading_title"
-            bind:viewModel="@{viewModel}" />
+            layout="@layout/send_coins_heading_title" />
 
         <!-- Enter Recipient -->
         <include

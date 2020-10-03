@@ -71,6 +71,7 @@ import com.mycelium.wallet.activity.MessageVerifyActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
+import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
@@ -118,6 +119,7 @@ public class ModernMain extends AppCompatActivity {
     private static final String TAB_ACCOUNTS = "tab_accounts";
     private static final String TAB_BALANCE = "tab_balance";
     private static final String TAB_HISTORY = "tab_history";
+    private static final String TAB_FIO_REQUESTS = "tab_fio_requests";
     private static final String TAB_ADS = "tab_ads";
     private static final String TAB_RECOMMENDATIONS = "tab_recommendations";
     private static final String TAB_ADDRESS_BOOK = "tab_address_book";
@@ -170,6 +172,7 @@ public class ModernMain extends AppCompatActivity {
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
         mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null, TAB_BALANCE);
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null, TAB_HISTORY);
+        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_fio_requests)), FioRequestsHistoryFragment.class, null, TAB_FIO_REQUESTS);
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:showIn="@layout/receive_coins_activity">
 
     <data>
 
@@ -9,82 +11,75 @@
         <import type="android.view.View" />
 
         <variable
-            name="viewModel"
-            type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
+                name="viewModel"
+                type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
 
         <variable
-            name="activity"
-            type="androidx.appcompat.app.AppCompatActivity" />
+                name="activity"
+                type="androidx.appcompat.app.AppCompatActivity" />
     </data>
 
-    <merge>
+    <!-- TODO: Consolidate send_coins_amount and receive_coins_activity_amount.
+    Those layouts do the same and making sure they look the same is always extra
+    work. -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:onClick="@{_ -> viewModel.onEnterClick(activity)}">
 
         <TextView
-            android:id="@+id/tvAmountLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="5dp"
-            android:paddingTop="10dp"
-            android:text="@{Value.isNullOrZero(viewModel.requestedAmount) ? @string/optional_amount : @string/amount_title}"
-            android:textSize="22sp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            tools:showIn="@layout/receive_coins_activity_n">
-
-
-            <LinearLayout
+                android:id="@+id/tvAmountLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="vertical">
+                android:text="@string/enter_amount_title"
+                android:textColor="#BBB"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <!-- Amount -->
+        <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:hint="@{viewModel.hint}"
+                android:text="@{viewModel.requestedAmountFormatted}"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white"
+                android:textColorHint="@color/darkgrey"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:typeface="monospace"
+                app:layout_constraintStart_toEndOf="@id/tvAmountLabel"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="0.00123305 tBTC" />
 
-                <TextView
-                    android:id="@+id/tvAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textColor="@color/white"
-                    android:hint="@{viewModel.hint}"
-                    android:text="@{viewModel.requestedAmountFormatted}"
-                    android:textColorHint="@color/darkgrey"
-                    android:textSize="20sp" />
+        <TextView
+                android:id="@+id/tvAmountFiat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@{viewModel.requestedAmountAlternativeFormatted}"
+                android:textAlignment="textEnd"
+                android:textSize="12sp"
+                android:visibility="@{Value.isNullOrZero(viewModel.requestedAmountAlternative) ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="@id/tvAmount"
+                app:layout_constraintTop_toBottomOf="@id/tvAmount"
+                tools:text="55.02 USD" />
 
-                <!-- Fiat Amount -->
-
-                <TextView
-                    android:id="@+id/tvAmountFiat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="10dp"
-                    android:visibility="@{Value.isNullOrZero(viewModel.requestedAmountAlternative) ? View.GONE : View.VISIBLE}"
-                    android:text="@{viewModel.requestedAmountAlternativeFormatted}"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="1dp" />
-
-            <!-- Enter Amount button -->
-
-            <ImageButton
+        <ImageButton
                 android:id="@+id/btEnterAmount"
                 style="@style/MyceliumSlimButton"
                 android:layout_width="75dp"
                 android:layout_height="45dp"
-                android:onClick="@{_ -> viewModel.onEnterClick(activity)}"
-                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
                 android:contentDescription="@string/enter_amount_title"
                 android:scaleType="fitCenter"
-                android:src="@drawable/keyboard_icon" />
-        </LinearLayout>
-    </merge>
+                android:clickable="false"
+                android:src="@drawable/keyboard_icon"
+                app:layout_constraintStart_toEndOf="@id/tvAmount"
+                app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

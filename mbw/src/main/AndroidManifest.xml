@@ -174,13 +174,11 @@
         <activity android:name=".activity.send.SendInitializationActivity" />
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity
-            android:name=".activity.send.SendCoinsActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen" />
+            android:name=".activity.send.SendCoinsActivity" />
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity
-            android:name=".activity.receive.ReceiveCoinsActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen" />
+            android:name=".activity.receive.ReceiveCoinsActivity" />
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity
             android:name=".external.changelly.ChangellyActivity"
@@ -265,6 +263,12 @@
             android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".activity.fio.domain.FIODomainActivity"
             android:theme="@style/MyceliumFIOMapping"/>
+
+        <activity android:name=".activity.fio.requests.FioRequestBtcActivity" />
+
+        <activity android:name=".activity.fio.requests.FioSendRequestActivity" />
+
+        <activity android:name=".activity.fio.requests.FioSendStatusActivity" />
     </application>
 
 </manifest>
