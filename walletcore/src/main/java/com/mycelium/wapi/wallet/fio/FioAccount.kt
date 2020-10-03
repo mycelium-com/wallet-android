@@ -29,7 +29,7 @@ class FioAccount(private val accountContext: FioAccountContext,
                  private val accountListener: AccountListener?,
                  private val fiosdk: FIOSDK? = null,
                  address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
-    private val logger: Logger = Logger.getLogger("asdaf")
+    private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = fiosdk?.let { FioAddress(coinType, FioAddressData(it.publicKey)) }
             ?: address!!
     private val transactionService = FioTransactionHistoryService(accountContext.currency,
@@ -171,10 +171,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
-    fun getRequestsGroups(): List<FioGroup> {
-        return requests ?: emptyList()
-    }
-//        backing.getRequestsGroups()
+    fun getRequestsGroups() = backing.getRequestsGroups()
 
 
     fun rejectFunds(fioRequestId: BigInteger, maxFee: BigInteger): PushTransactionResponse {
@@ -233,21 +230,21 @@ class FioAccount(private val accountContext: FioAccountContext,
         return true
     }
 
-    private var requests: List<FioGroup>? = null
     private fun syncFioRequests() {
+        // This is an ugly hack for an ugly SDK which returns Exception when there are no requests
         try {
-            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-            requests = listOf(
-                    FioGroup(FioGroup.Type.sent, sentFioRequests),
-                    FioGroup(FioGroup.Type.pending, pendingFioRequests))
-        } catch (ex: Throwable) {
-            requests = emptyList()
+            backing.putRequests(FioRequestStatus.PENDING, pendingFioRequests)
+        } catch (ex: FIOError) {
+            logger.log(Level.SEVERE, "Update fio requests exception", ex)
         }
 
-
-//        backing.putRequests("sent", sentFioRequests)
-//        backing.putRequests("pending", pendingFioRequests)
+        try {
+            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            backing.putRequests(FioRequestStatus.SENT, sentFioRequests)
+        } catch (ex: FIOError) {
+            logger.log(Level.SEVERE, "Update fio requests exception", ex)
+        }
     }
 
     private fun syncFioAddresses() {
