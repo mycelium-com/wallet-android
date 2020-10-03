@@ -4,6 +4,8 @@ import com.google.common.base.Charsets;
 
 import java.math.BigInteger;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class CryptoCurrency extends AbstractAsset {
@@ -16,11 +18,13 @@ public abstract class CryptoCurrency extends AbstractAsset {
     protected FeePolicy feePolicy = FeePolicy.FEE_PER_KB;
     protected boolean isUtxosBased = true;
 
+    @Nonnull
     @Override
     public String getName() {
         return checkNotNull(name, "A coin failed to set a name");
     }
 
+    @Nonnull
     @Override
     public String getSymbol() {
         return checkNotNull(symbol, "A coin failed to set a symbol");
@@ -47,6 +51,7 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return checkNotNull(addressPrefix, "A coin failed to set the address prefix");
     }
 
+    @Nonnull
     @Override
     public Value oneCoin() {
         if (oneCoin == null) {
@@ -60,11 +65,13 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return feePolicy;
     }
 
+    @Nonnull
     @Override
-    public Value value(String string) {
+    public Value value(@Nonnull String string) {
         return Value.parse(this, string);
     }
 
+    @Nonnull
     @Override
     public Value value(long units) {
         return Value.valueOf(this, units);
@@ -78,6 +85,7 @@ public abstract class CryptoCurrency extends AbstractAsset {
                 '}';
     }
 
+    @Nonnull
     public String getId() {
         return id;
     }

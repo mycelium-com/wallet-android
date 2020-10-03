@@ -4,25 +4,26 @@ import com.mycelium.wapi.wallet.Address;
 
 import java.io.Serializable;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface AssetInfo extends Serializable {
-    String getId();
-    String getName();
-    String getSymbol();
+    @Nonnull String getId();
+    @Nonnull String getName();
+    @Nonnull String getSymbol();
     int getUnitExponent();
     int getFriendlyDigits();
 
     /**
      * Typical 1 coin value, like 1 Bitcoin, 1 Peercoin or 1 Dollar
      */
-    Value oneCoin();
+    @Nonnull Value oneCoin();
 
-    Value value(long units);
+    @Nonnull Value value(long units);
 
-    Value value(String string);
+    @Nonnull Value value(@Nonnull String string);
 
-    boolean isMineAddress(String address);
+    boolean isMineAddress(@Nullable String address);
 
     Address parseAddress(@Nullable String address);
 }
