@@ -7,6 +7,7 @@ import com.mycelium.generated.wallet.database.EthAccountBacking
 import com.mycelium.wapi.wallet.coins.*
 import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioName
+import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.squareup.sqldelight.ColumnAdapter
 import java.math.BigInteger
@@ -139,6 +140,12 @@ object Adapters {
 
         override fun encode(value: List<FIODomain>): String = ObjectMapper().writeValueAsString(value)
     }
+
+    val fioRequestStatusAdapter = object : ColumnAdapter<FioRequestStatus, String> {
+        override fun decode(databaseValue: String) =  FioRequestStatus.getStatus(databaseValue)
+
+        override fun encode(value: FioRequestStatus) = value.status
+    }
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
@@ -164,3 +171,5 @@ val fioNameAccountMappingsAdapter = FioNameAccountMappings.Adapter(Adapters.uuid
 
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)
+
+val fioRequestsAdapter = FioRequestsBacking.Adapter(Adapters.bigIntAdapter, Adapters.fioRequestStatusAdapter)

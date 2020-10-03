@@ -12,69 +12,56 @@ import org.web3j.tx.Transfer
 import java.util.*
 
 class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
-    private val fioQueries = walletDB.fioAccountBackingQueries
+    private val fioRequestQueries = walletDB.fioRequestsBackingQueries
+    private val fioAccountQueries = walletDB.fioAccountBackingQueries
     private val queries = walletDB.accountBackingQueries
 
-    fun putRequests( status:String, list: List<FIORequestContent>) {
-        list.forEach {
-            fioQueries.insertRequest(
-                    it.fioRequestId.longValueExact(),
-                    it.payerFioAddress,
-                    it.payeeFioAddress,
-                    it.payerFioAddress,
-                    it.payeeFioAddress,
-                    it.content,
-                    it.timeStamp,
-                    status)
+    fun putRequests(status: FioRequestStatus, list: List<FIORequestContent>) {
+        fioRequestQueries.transaction {
+            // TODO Transaction saves a lot of time, but binding would reduce even more
+            list.forEach {
+                fioRequestQueries.insertRequest(
+                        it.fioRequestId,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.content,
+                        it.timeStamp,
+                        status)
+            }
         }
     }
 
     fun getRequestsGroups(): List<FioGroup> {
-        val fioCOntent1 = FIORequestContent()
-        fioCOntent1.timeStamp="timestamp"
-        fioCOntent1.content="content"
-        fioCOntent1.payeeFioPublicKey="payeeFioPublicKey"
-        fioCOntent1.payerFioPublicKey="payerFioPublicKey"
-        fioCOntent1.payeeFioAddress="payeeFioAddress"
-        fioCOntent1.payerFioAddress="payerFioAddress"
+        val fioSentGroup = FioGroup(FioGroup.Type.sent, mutableListOf())
+        val fioPendingGroup = FioGroup(FioGroup.Type.pending, mutableListOf())
+        fioRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
+                                                                payer_fio_public_key, payee_fio_public_key, content,
+                                                                time_stamp, status ->
+            val fioRequestContent = FIORequestContent().apply {
+                fioRequestId = fio_request_id
+                payerFioAddress = payer_fio_address
+                payeeFioAddress = payee_fio_address
+                payerFioPublicKey = payer_fio_public_key
+                payeeFioPublicKey = payee_fio_public_key
+                this.content = content
+                timeStamp = time_stamp
+            }
 
-        val fioCOntent2 = fioCOntent1
+            if (status == FioRequestStatus.SENT) {
+                fioSentGroup.children.add(fioRequestContent)
+            }
+            if (status == FioRequestStatus.PENDING) {
+                fioPendingGroup.children.add(fioRequestContent)
+            }
+        }.executeAsList()
 
-        val fioSentGroup = FioGroup(FioGroup.Type.sent, mutableListOf(
-                fioCOntent1,fioCOntent2
-        ))
-        val fioPendingGroup = FioGroup(FioGroup.Type.pending, mutableListOf(
-                fioCOntent1,fioCOntent2
-        ))
-        return listOf(fioSentGroup,fioPendingGroup)
-
-
-//        val fioSentGroup = FioGroup(FioGroup.Type.sent, mutableListOf())
-//        val fioPendingGroup = FioGroup(FioGroup.Type.pending, mutableListOf())
-//        val fioContents = fioQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, time_stamp, status ->
-//            val fioRequestContent = FIORequestContent()
-//            fioRequestContent.fioRequestId = fio_request_id.toBigInteger()
-//            fioRequestContent.payerFioAddress = payer_fio_address
-//            fioRequestContent.payeeFioAddress = payee_fio_address
-//            fioRequestContent.payerFioPublicKey = payer_fio_public_key
-//            fioRequestContent.payeeFioPublicKey = payee_fio_public_key
-//            fioRequestContent.content = content
-//            fioRequestContent.timeStamp = time_stamp
-//
-//            if (status == "sent"){
-//                fioSentGroup.children.add(fioRequestContent)
-//            }
-//            if (status == "pending"){
-//                fioPendingGroup.children.add(fioRequestContent)
-//            }
-//            fioRequestContent
-//        }.executeAsList()
-//
-//        return listOf(fioSentGroup, fioPendingGroup)
+        return listOf(fioSentGroup, fioPendingGroup)
     }
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
-            fioQueries.selectFioTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
+            fioAccountQueries.selectFioTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
                                                                                      currency: CryptoCurrency,
                                                                                      blockNumber: Int,
                                                                                      timestamp: Long,
@@ -90,7 +77,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             }).executeAsList()
 
     fun getTransactionSummary(txidParameter: String, ownerAddress: String): TransactionSummary? =
-            fioQueries.selectFioTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
+            fioAccountQueries.selectFioTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
                                                                                        currency: CryptoCurrency,
                                                                                        blockNumber: Int,
                                                                                        timestamp: Long,
@@ -109,7 +96,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                        confirmations: Int, fee: Value, transferred: Value, memo: String = "") {
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber,
                 timestamp, raw, value, fee, confirmations)
-        fioQueries.insertTransaction(txid, uuid, from, to, transferred, memo)
+        fioAccountQueries.insertTransaction(txid, uuid, from, to, transferred, memo)
     }
 
     private fun createTransactionSummary(txid: String,
