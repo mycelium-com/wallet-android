@@ -21,12 +21,12 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
             setDisplayShowTitleEnabled(true)
         }
         viewModel = ViewModelProviders.of(this).get(FIOMapPubAddressViewModel::class.java)
-        if(intent?.extras?.containsKey("accountId") == true) {
+        val walletManager = MbwManager.getInstance(this.application).getWalletManager(false)
+        if (intent?.extras?.containsKey("accountId") == true) {
             val accountId = intent.getSerializableExtra("accountId") as UUID
-            val fioAccount = MbwManager.getInstance(this.application).getWalletManager(false).getAccount(accountId) as FioAccount
+            val fioAccount = walletManager.getAccount(accountId) as FioAccount
             viewModel.account.value = fioAccount
         }
-//        viewModel.fioAddress.value = intent.getSerializableExtra("fioName") as String
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =

@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.fio.domain.adapter.viewholder
+package com.mycelium.wallet.activity.fio.mapaccount.adapter
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

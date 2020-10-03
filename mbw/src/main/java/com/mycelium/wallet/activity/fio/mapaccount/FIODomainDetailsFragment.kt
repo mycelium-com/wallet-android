@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.fio.domain
+package com.mycelium.wallet.activity.fio.mapaccount
 
 import android.content.Intent
 import android.os.AsyncTask
@@ -7,22 +7,21 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.fio.FakeService
-import com.mycelium.wallet.activity.fio.domain.adapter.DomainDetailsAdapter
-import com.mycelium.wallet.activity.fio.domain.adapter.FIONameItem
-import com.mycelium.wallet.activity.fio.domain.viewmodel.FIODomainViewModel
-import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.AccountNamesAdapter
+import com.mycelium.wallet.activity.fio.mapaccount.adapter.FIONameItem
+import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIODomainViewModel
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.databinding.FragmentFioDomainDetailsBinding
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fio.FIODomainService
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
@@ -36,10 +35,8 @@ import kotlinx.coroutines.launch
 
 class FIODomainDetailsFragment : Fragment() {
 
-    private val viewModel: FIODomainViewModel by activityViewModels()
-
-    val service: FIODomainService = FakeService
-    val adapter = DomainDetailsAdapter()
+    private val viewModel: FIODomainViewModel by viewModels()
+    val adapter = AccountNamesAdapter()
 
     val args: FIODomainDetailsFragmentArgs by navArgs()
 
@@ -57,29 +54,29 @@ class FIODomainDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = getString(R.string.domain_details)
         }
-        viewModel.fioDomain.value = args.domain.domain
-        viewModel.fioDomainExpireDate.value = args.domain.expireDate
+        val mbwManager = MbwManager.getInstance(requireContext())
+        val walletManager = mbwManager.getWalletManager(false)
+        viewModel.fioDomain.value = args.domain
+        (walletManager.getModuleById(FioModule.ID) as FioModule).getFioAccountByFioDomain(args.domain.domain)?.run {
+            viewModel.fioAccount.value = walletManager.getAccount(this) as FioAccount
+        }
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         list.adapter = adapter
         list.itemAnimator = null
-        adapter.clickListener = {
-            startActivity(Intent(context, AccountMappingActivity::class.java)
-//                .putExtra("acc", fioModule.getFioAccountByFioName(names.first()))
-//                .putExtra("fioName", names.first())
-            )
+        adapter.fioNameClickListener = {
+            findNavController().navigate(FIODomainDetailsFragmentDirections.actionName(it))
         }
-        updateList()
+        updateList(walletManager)
         createFIOName.setOnClickListener {
             startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
                     .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
         }
     }
 
-    fun updateList() {
+    fun updateList(walletManager: WalletManager) {
         CoroutineScope(Dispatchers.IO).launch {
-            adapter.submitList(service.getFIONames(args.domain).map {
-                FIONameItem(it.name, it.expireDate)
-            })
+            adapter.submitList((walletManager.getModuleById(FioModule.ID) as FioModule)
+                    .getFIONames(args.domain.domain).map { FIONameItem(it) })
         }
     }
 

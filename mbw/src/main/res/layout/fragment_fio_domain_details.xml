@@ -5,7 +5,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.domain.viewmodel.FIODomainViewModel" />
+            type="com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIODomainViewModel" />
     </data>
 
     <androidx.core.widget.NestedScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -36,18 +36,31 @@
                     app:srcCompat="@drawable/ic_fiopresale_icon_small" />
 
                 <TextView
-                    android:id="@+id/fioName"
+                    android:id="@+id/fioDomain"
                     style="@style/myfiowallet"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text="@{viewModel.fioDomain}"
+                    android:text="@{viewModel.fioDomain.domain}"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@id/coinIcon"
                     app:layout_constraintLeft_toRightOf="@id/coinIcon"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="@id/coinIcon"
                     tools:text="myfiowallet@mycelium" />
+
+                <TextView
+                    android:id="@+id/fioAccount"
+                    style="@style/fio_account"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@{@string/fio_account_s(viewModel.fioAccount.label)}"
+                    app:layout_constraintLeft_toRightOf="@id/coinIcon"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fioDomain"
+                    tools:text="@string/fio_account_s" />
 
                 <TextView
                     android:id="@+id/expireDate"
@@ -58,7 +71,7 @@
                     android:layout_marginEnd="16dp"
                     android:text="@string/expiration_date"
                     app:layout_constraintLeft_toRightOf="@id/coinIcon"
-                    app:layout_constraintTop_toBottomOf="@id/fioName"
+                    app:layout_constraintTop_toBottomOf="@id/fioAccount"
                     app:layout_goneMarginBottom="16dp" />
 
                 <TextView
@@ -69,11 +82,11 @@
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    android:text="@{viewModel.dateToString(viewModel.fioDomainExpireDate)}"
+                    android:text="@{viewModel.dateToString(viewModel.fioDomain.expireDate)}"
                     app:layout_constraintBottom_toTopOf="@id/renewFIOName"
                     app:layout_constraintLeft_toRightOf="@id/expireDate"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/fioName"
+                    app:layout_constraintTop_toBottomOf="@id/fioAccount"
                     app:layout_goneMarginBottom="16dp"
                     tools:text="2021-09-20\n17:39:10" />
 

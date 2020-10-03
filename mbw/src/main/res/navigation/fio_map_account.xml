@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fioNameDetailsFragment"
-        android:name="com.mycelium.wallet.activity.fio.mapaccount.FIONameDetailsFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaccount.FIONameListFragment"
         android:label="FioNameDetailsFragment"
         tools:layout="@layout/fragment_fio_name_details">
         <action
@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/accountMappingFragment"
-        android:name="com.mycelium.wallet.activity.fio.mapaccount.AccountMappingFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaccount.FIONameDetailsFragment"
         android:label="AccountMappingFragment"
         tools:layout="@layout/fragment_fio_account_mapping">
         <argument
@@ -38,13 +38,20 @@
     </fragment>
     <fragment
         android:id="@+id/FIODomainDetailsFragment2"
-        android:name="com.mycelium.wallet.activity.fio.domain.FIODomainDetailsFragment"
+        android:name="com.mycelium.wallet.activity.fio.mapaccount.FIODomainDetailsFragment"
         android:label="FIODomainDetailsFragment"
         tools:layout="@layout/fragment_fio_domain_details">
 
         <argument
             android:name="domain"
             app:argType="com.mycelium.wapi.wallet.fio.FIODomain" />
+        <action
+            android:id="@+id/actionName"
+            app:destination="@id/accountMappingFragment">
+            <argument
+                android:name="fioName"
+                app:argType="com.mycelium.wapi.wallet.fio.RegisteredFIOName" />
+        </action>
     </fragment>
 
 </navigation>

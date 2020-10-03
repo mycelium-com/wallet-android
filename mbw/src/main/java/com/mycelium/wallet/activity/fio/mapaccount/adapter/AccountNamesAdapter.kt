@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.fio.domain.adapter.viewholder.FIONameViewHolder
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.FIODomainViewHolder
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.viewholder.GroupViewHolder
 import com.mycelium.wallet.activity.util.toStringWithUnit
