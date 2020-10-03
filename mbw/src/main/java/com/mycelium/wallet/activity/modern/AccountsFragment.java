@@ -837,7 +837,7 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return true;
         }
-        if (item.getItemId() == R.id.miAddRecord) {
+        if (item.getItemId() == R.id.miAddRecord || item.getItemId() == R.id.miAddRecordDuplicate) {
             AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
             return true;
         } else if (item.getItemId() == R.id.miLockKeys) {
