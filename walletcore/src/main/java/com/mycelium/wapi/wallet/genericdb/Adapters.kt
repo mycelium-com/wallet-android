@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.genericdb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.google.gson.GsonBuilder
 import com.mycelium.generated.wallet.database.*
 import com.mycelium.generated.wallet.database.EthAccountBacking
 import com.mycelium.wapi.wallet.coins.*
@@ -10,6 +11,7 @@ import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.squareup.sqldelight.ColumnAdapter
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent
 import java.math.BigInteger
 import java.util.*
 
@@ -142,9 +144,18 @@ object Adapters {
     }
 
     val fioRequestStatusAdapter = object : ColumnAdapter<FioRequestStatus, String> {
-        override fun decode(databaseValue: String) =  FioRequestStatus.getStatus(databaseValue)
+        override fun decode(databaseValue: String) = FioRequestStatus.getStatus(databaseValue)
 
         override fun encode(value: FioRequestStatus) = value.status
+    }
+
+    val fioRequestDeserializedContentAdapter = object : ColumnAdapter<FundsRequestContent, String> {
+        override fun decode(databaseValue: String): FundsRequestContent {
+            val gson = GsonBuilder().serializeNulls().create()
+            return gson.fromJson(databaseValue, FundsRequestContent::class.java)
+        }
+
+        override fun encode(value: FundsRequestContent): String = value.toJson()
     }
 }
 
@@ -172,4 +183,5 @@ val fioNameAccountMappingsAdapter = FioNameAccountMappings.Adapter(Adapters.uuid
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)
 
-val fioRequestsAdapter = FioRequestsBacking.Adapter(Adapters.bigIntAdapter, Adapters.fioRequestStatusAdapter)
+val fioRequestsAdapter = FioRequestsBacking.Adapter(Adapters.bigIntAdapter, Adapters.fioRequestDeserializedContentAdapter,
+        Adapters.fioRequestStatusAdapter)

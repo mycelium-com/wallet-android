@@ -27,6 +27,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         it.payerFioAddress,
                         it.payeeFioAddress,
                         it.content,
+                        it.deserializedContent,
                         it.timeStamp,
                         status)
             }
@@ -37,8 +38,8 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val fioSentGroup = FioGroup(FioGroup.Type.sent, mutableListOf())
         val fioPendingGroup = FioGroup(FioGroup.Type.pending, mutableListOf())
         fioRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
-                                                                payer_fio_public_key, payee_fio_public_key, content,
-                                                                time_stamp, status ->
+                                              payer_fio_public_key, payee_fio_public_key, content,
+                                              deserialized_content, time_stamp, status ->
             val fioRequestContent = FIORequestContent().apply {
                 fioRequestId = fio_request_id
                 payerFioAddress = payer_fio_address
@@ -46,6 +47,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                 payerFioPublicKey = payer_fio_public_key
                 payeeFioPublicKey = payee_fio_public_key
                 this.content = content
+                deserializedContent = deserialized_content
                 timeStamp = time_stamp
             }
 
@@ -62,32 +64,32 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
             fioAccountQueries.selectFioTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
-                                                                                     currency: CryptoCurrency,
-                                                                                     blockNumber: Int,
-                                                                                     timestamp: Long,
-                                                                                     value: Value,
-                                                                                     fee: Value,
-                                                                                     confirmations: Int,
-                                                                                     from: String,
-                                                                                     to: String,
-                                                                                     transferred: Value,
-                                                                                     memo: String? ->
+                                                                                            currency: CryptoCurrency,
+                                                                                            blockNumber: Int,
+                                                                                            timestamp: Long,
+                                                                                            value: Value,
+                                                                                            fee: Value,
+                                                                                            confirmations: Int,
+                                                                                            from: String,
+                                                                                            to: String,
+                                                                                            transferred: Value,
+                                                                                            memo: String? ->
                 createTransactionSummary(txid, currency, blockNumber, timestamp,
                         value, fee, confirmations, from, to, transferred, memo)
             }).executeAsList()
 
     fun getTransactionSummary(txidParameter: String, ownerAddress: String): TransactionSummary? =
             fioAccountQueries.selectFioTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
-                                                                                       currency: CryptoCurrency,
-                                                                                       blockNumber: Int,
-                                                                                       timestamp: Long,
-                                                                                       value: Value,
-                                                                                       fee: Value,
-                                                                                       confirmations: Int,
-                                                                                       from: String,
-                                                                                       to: String,
-                                                                                       transferred: Value,
-                                                                                       memo: String? ->
+                                                                                              currency: CryptoCurrency,
+                                                                                              blockNumber: Int,
+                                                                                              timestamp: Long,
+                                                                                              value: Value,
+                                                                                              fee: Value,
+                                                                                              confirmations: Int,
+                                                                                              from: String,
+                                                                                              to: String,
+                                                                                              transferred: Value,
+                                                                                              memo: String? ->
                 createTransactionSummary(txid, currency, blockNumber, timestamp,
                         value, fee, confirmations, from, to, transferred, memo)
             }).executeAsOneOrNull()
