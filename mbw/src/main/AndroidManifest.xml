@@ -174,8 +174,7 @@
         <activity android:name=".activity.send.SendInitializationActivity" />
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity
-            android:name=".activity.send.SendCoinsActivity"
-            android:theme="@style/MyceliumNoActionBarFullScreen" />
+            android:name=".activity.send.SendCoinsActivity" />
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity

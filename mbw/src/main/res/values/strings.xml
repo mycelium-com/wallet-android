@@ -25,6 +25,7 @@
     <string name="receiving">Receiving %1$s</string>
     <string name="confirmations">%d Confirmations</string>
     <string name="send">Send</string>
+    <string name="send_cointype">Send %1$s</string>
     <string name="receive">Receive</string>
     <string name="receive_cointype">Receive %1$s</string>
     <string name="private_key_deleted">Private key deleted.</string>
@@ -34,7 +35,7 @@
     <string name="enter_recipient_title">Enter Recipient</string>
     <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
     <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
-    <string name="recipient_title">Recipient Address</string>
+    <string name="recipient_title">Enter recipient address</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_title">Amount</string>
     <string name="enter_amount_title">Enter Amount:</string>

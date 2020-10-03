@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -113,7 +114,22 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
         initFeeView()
         initFeeLvlView()
+        supportActionBar?.run {
+            title = getString(R.string.send_cointype, viewModel.getAccount().coinType.symbol)
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 
     override fun onResume() {
         super.onResume()
