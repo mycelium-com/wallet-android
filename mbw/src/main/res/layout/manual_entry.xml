@@ -88,9 +88,7 @@
                 android:id="@+id/lvKnownFioNames"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:listitem="@layout/fio_address_item"
-                android:dividerHeight="6dp"
-                android:divider="@null"/>
+                tools:listitem="@layout/fio_address_item" />
 
     </LinearLayout>
 

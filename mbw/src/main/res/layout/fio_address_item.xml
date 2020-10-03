@@ -4,6 +4,7 @@
         tools:showIn="@layout/manual_entry"
         tools:text="somebody@somedomain"
         android:id="@android:id/text1"
+        android:paddingVertical="6dp"
         style="?android:attr/spinnerItemStyle"
         android:singleLine="true"
         android:textSize="14sp"
