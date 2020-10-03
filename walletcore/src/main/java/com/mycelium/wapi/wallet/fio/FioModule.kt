@@ -55,6 +55,8 @@ class FioModule(
         return getAllRegisteredFioNames().filter { it.name.split("@")[1] == domainName }
     }
 
+    fun getFIONames(account: WalletAccount<*>?): List<RegisteredFIOName> = listOf()
+
     fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
             .executeAsList().sortedBy { "${it.name}@${it.domain}" }
 

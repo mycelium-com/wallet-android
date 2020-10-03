@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class FIOMapPubAddressViewModel : ViewModel() {
-    val account = MutableLiveData<FioAccount>()
+    val accountList = MutableLiveData<List<FioAccount>>()
     val fioAddress = MutableLiveData<String>("")
     val fioNameExpireDate = MutableLiveData<Date>(Date())
 

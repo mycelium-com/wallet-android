@@ -8,6 +8,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioModule
 import java.util.*
 
 class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mapping) {
@@ -24,8 +25,15 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
         val walletManager = MbwManager.getInstance(this.application).getWalletManager(false)
         if (intent?.extras?.containsKey("accountId") == true) {
             val accountId = intent.getSerializableExtra("accountId") as UUID
-            val fioAccount = walletManager.getAccount(accountId) as FioAccount
-            viewModel.account.value = fioAccount
+            val account = walletManager.getAccount(accountId)
+            if (account is FioAccount) {
+                viewModel.accountList.value = listOf(account)
+            } else {
+                val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+                viewModel.accountList.value = fioModule.getFIONames(account).map {
+                    fioModule.getFioAccountByFioName(it.name) as FioAccount
+                }
+            }
         }
     }
 

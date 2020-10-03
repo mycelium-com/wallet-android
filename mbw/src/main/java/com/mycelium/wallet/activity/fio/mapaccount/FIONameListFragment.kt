@@ -64,7 +64,7 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
         CoroutineScope(Dispatchers.IO).launch {
             adapter.submitList(mutableListOf<Item>().apply {
                 val accounts =
-                        if (viewModel.account.value != null) listOf(viewModel.account.value!!) else walletManager.getFioAccounts()
+                        if (viewModel.accountList.value != null) viewModel.accountList.value!! else walletManager.getFioAccounts()
                 accounts.forEach {
                     val isClosed = preference.getBoolean("isClosed${it.label}", true)
                     add(AccountItem(it, isClosed))
