@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.MenuItem
+import android.view.View
 import android.view.View.*
 import android.view.Window
 import android.widget.AdapterView
@@ -47,6 +48,7 @@ class ManualAddressEntry : AppCompatActivity() {
     private var fioQueryCounter = 0
     private val checkedFioNames = mutableSetOf<String>()
     private var noConnection = false
+    private lateinit var statusViews: List<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -58,6 +60,8 @@ class ManualAddressEntry : AppCompatActivity() {
         }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.manual_entry)
+        statusViews = listOf(tvCheckingFioAddress, tvRecipientInvalid, tvRecipientValid,
+                tvNoConnection, tvEnterRecipientDescription)
         mbwManager = MbwManager.getInstance(this)
         coinType = mbwManager.selectedAccount.coinType
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
@@ -108,15 +112,14 @@ class ManualAddressEntry : AppCompatActivity() {
             }
         }
         val recipientValid = coinAddress != null
-        for (tv in listOf(tvCheckingFioAddress, tvRecipientInvalid, tvRecipientValid,
-                tvNoConnection)) { tv.visibility = GONE }
+        for (tv in statusViews) { tv.visibility = GONE }
         when {
-            entered?.isEmpty() ?: true -> tvRecipientValid.visibility = INVISIBLE
-            recipientValid -> tvRecipientValid.visibility = VISIBLE
-            fioQueryCounter > 0 -> tvCheckingFioAddress.visibility = VISIBLE
-            noConnection && isFio -> tvNoConnection.visibility = VISIBLE
-            else -> tvRecipientInvalid.visibility = VISIBLE
-        }
+            entered?.isEmpty() ?: true -> tvEnterRecipientDescription
+            recipientValid -> tvRecipientValid
+            fioQueryCounter > 0 -> tvCheckingFioAddress
+            noConnection && isFio -> tvNoConnection
+            else -> tvRecipientInvalid
+        }.visibility = VISIBLE
         btOk.isEnabled = recipientValid
         val filteredNames = fioNames.filter {
                     it.startsWith(entered.toString(), true)
