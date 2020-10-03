@@ -16,7 +16,7 @@
     <string name="clipboard_desc">Import Bitcoin address or private key from clipboard.</string>
     <string name="wordlist_des">Create Master Seed from Word List</string>
     <string name="scan">Scan</string>
-    <string name="advanced">Advanced</string>
+    <string name="advanced">Advanced &amp; More</string>
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
     <string name="hd_account">Add Bitcoin HD Account</string>

@@ -392,11 +392,11 @@ public class ModernMain extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.record_options_menu_global, menu);
         inflater.inflate(R.menu.transaction_history_options_global, menu);
         inflater.inflate(R.menu.main_activity_options_menu, menu);
         addEnglishSetting(menu.findItem(R.id.miSettings));
         inflater.inflate(R.menu.refresh, menu);
-        inflater.inflate(R.menu.record_options_menu_global, menu);
         inflater.inflate(R.menu.addressbook_options_global, menu);
         inflater.inflate(R.menu.verify_message, menu);
         inflater.inflate(R.menu.record_fio_options, menu);

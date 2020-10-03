@@ -69,10 +69,10 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
                     val isClosed = preference.getBoolean("isClosed${it.label}", true)
                     add(AccountItem(it, isClosed))
                     if (isClosed) {
-                        addAll(it.registeredFIONames.map { FIONameItem(it) })
-                        addAll(it.registeredFIODomains.map { FIODomainItem(it) })
                         add(RegisterFIONameItem(it))
                         add(RegisterFIODomainItem(it))
+                        addAll(it.registeredFIODomains.map { FIODomainItem(it) })
+                        addAll(it.registeredFIONames.map { FIONameItem(it) })
                     }
                 }
             })

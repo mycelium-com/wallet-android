@@ -52,6 +52,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
@@ -113,7 +114,12 @@ public class AddAccountActivity extends Activity {
         ButterKnife.bind(this);
         _mbwManager = MbwManager.getInstance(this);
         _toaster = new Toaster(this);
-
+        ((Toolbar)findViewById(R.id.toolbar)).setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
         findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
         findViewById(R.id.btFIOCreate).setOnClickListener(createFioAccount);
