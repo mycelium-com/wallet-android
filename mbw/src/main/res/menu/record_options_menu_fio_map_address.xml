@@ -5,16 +5,20 @@
     <item
         android:id="@+id/miMapFioAddress"
         android:title="Add FIO Name"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/miRegisterFioDomain"
         android:title="Register FIO Domain"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/miFioMapAccounts"
         android:title="My FIO Names"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/miAboutFIOProtocol"
+        android:title="About FIO Protocol" />
 
 </menu>

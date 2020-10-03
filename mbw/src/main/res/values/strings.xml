@@ -1352,7 +1352,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="payment_uri_wrong_account_erc20">Select %s account in order to read the payment uri</string>
     <string name="payment_uri_wrong_account_eth">Select Ethereum account in order to read the payment uri</string>
     <string name="payment_uri_unsupported_token">The token requested in the payment uri is not supported</string>
-    <string name="export_fio">Export FIO public key</string>
     <string name="export_fio_public_key_title">Export FIO public key</string>
     <string name="buy_ethereum">BUY / SELL ETH</string>
     <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>

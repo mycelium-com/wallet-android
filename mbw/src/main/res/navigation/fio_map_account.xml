@@ -11,11 +11,19 @@
         android:label="FioNameDetailsFragment"
         tools:layout="@layout/fragment_fio_name_details">
         <action
-            android:id="@+id/actionNext"
+            android:id="@+id/actionName"
             app:destination="@id/accountMappingFragment">
             <argument
                 android:name="fioName"
-                app:argType="string" />
+                app:argType="com.mycelium.wapi.wallet.fio.RegisteredFIOName" />
+        </action>
+        <action
+            android:id="@+id/actionDomain"
+            app:destination="@id/FIODomainDetailsFragment2">
+            <argument
+                android:name="domain"
+                app:argType="com.mycelium.wapi.wallet.fio.FIODomain" />
+
         </action>
     </fragment>
 
@@ -24,14 +32,19 @@
         android:name="com.mycelium.wallet.activity.fio.mapaccount.AccountMappingFragment"
         android:label="AccountMappingFragment"
         tools:layout="@layout/fragment_fio_account_mapping">
-        <action
-            android:id="@+id/actionNext"
-            app:destination="@id/accountMappingConfirmFragment" />
+        <argument
+            android:name="fioName"
+            app:argType="com.mycelium.wapi.wallet.fio.RegisteredFIOName" />
+    </fragment>
+    <fragment
+        android:id="@+id/FIODomainDetailsFragment2"
+        android:name="com.mycelium.wallet.activity.fio.domain.FIODomainDetailsFragment"
+        android:label="FIODomainDetailsFragment"
+        tools:layout="@layout/fragment_fio_domain_details">
+
+        <argument
+            android:name="domain"
+            app:argType="com.mycelium.wapi.wallet.fio.FIODomain" />
     </fragment>
 
-    <fragment
-        android:id="@+id/accountMappingConfirmFragment"
-        android:name="com.mycelium.wallet.activity.fio.mapaccount.AccountMappingConfirmFragment"
-        android:label="AccountMappingConfirmFragment"
-        tools:layout="@layout/fragment_fio_account_mapping_confirm" />
 </navigation>

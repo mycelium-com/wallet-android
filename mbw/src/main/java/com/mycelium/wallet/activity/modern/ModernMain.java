@@ -496,13 +496,6 @@ public class ModernMain extends AppCompatActivity {
 
                 showRefresh(); // without this call sometime user not see click feedback
                 return true;
-            case R.id.miHelp:
-                openMyceliumHelp();
-                break;
-            case R.id.miAbout:
-                intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
-                break;
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
                 startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
@@ -512,9 +505,6 @@ public class ModernMain extends AppCompatActivity {
                 break;
             case R.id.miMyFIONames:
                 startActivity(new Intent(this, AccountMappingActivity.class));
-                break;
-            case R.id.miAboutFIOProtocol:
-                new AboutFIOProtocolDialog().show(getSupportFragmentManager(), "modal");
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -542,12 +532,6 @@ public class ModernMain extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    private void openMyceliumHelp() {
-        Intent intent = new Intent(Intent.ACTION_SENDTO)
-                .setData(Uri.parse("mailto:support@mycelium.com"));
-        startActivity(Intent.createChooser(intent, getString(R.string.send_mail)));
     }
 
     public void setRefreshAnimation() {

@@ -41,7 +41,10 @@ class FIONameDetailsFragment : Fragment(R.layout.fragment_fio_name_details) {
         registeredOn.text = getString(R.string.fio_manage_name_and_domain)
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         adapter.fioNameClickListener = {
-            findNavController().navigate(R.id.actionNext)
+            findNavController().navigate(FIONameDetailsFragmentDirections.actionName(it))
+        }
+        adapter.domainClickListener = {
+            findNavController().navigate(FIONameDetailsFragmentDirections.actionDomain(it))
         }
         val preference = requireContext().getSharedPreferences("fio_name_details_preference", Context.MODE_PRIVATE)
         adapter.switchGroupVisibilityListener = {

@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -31,6 +32,7 @@ class AccountMappingFragment : Fragment() {
     val adapter = AccountMappingAdapter()
     val data = mutableListOf<Item>()
 
+    val args: AccountMappingFragmentArgs by navArgs()
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
 //        setHasOptionsMenu(true)
@@ -53,6 +55,7 @@ class AccountMappingFragment : Fragment() {
         val walletManager = mbwManager.getWalletManager(false)
         list.adapter = adapter
         list.itemAnimator = null
+        viewModel.fioAddress.value = args.fioName.name
         adapter.selectChangeListener = { accountItem ->
             if (accountItem.isEnabled) {
                 data.filterIsInstance<ItemAccount>().filter { it.coinType == accountItem.coinType }.forEach {

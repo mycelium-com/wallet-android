@@ -73,6 +73,7 @@ import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.ExportFioKeyActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
+import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
@@ -638,10 +639,6 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
-        if (account.isDerivedFromInternalMasterseed() && account instanceof HDAccount) {
-            menus.add(R.menu.record_fio_pub_key_export);
-        }
-
         if (account instanceof HDAccount || account instanceof SingleAddressAccount ||
                 account instanceof EthAccount) {
             menus.add(R.menu.record_map_to_fio);
@@ -697,6 +694,10 @@ public class AccountsFragment extends Fragment {
                     case R.id.miMapToFio:
                         FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;
+                    case R.id.miAboutFIOProtocol:
+                        new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
+                        break;
+
                 }
                 // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
                 if (requireFocusedAccount().isSyncing()) {
@@ -721,9 +722,6 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miExport:
                         exportSelectedPrivateKey();
-                        return true;
-                    case R.id.miExportFioPubKey:
-                        exportFioKey();
                         return true;
                     case R.id.miSignMessage:
                         signMessage();
@@ -888,10 +886,6 @@ public class AccountsFragment extends Fragment {
             return;
         }
         runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
-    }
-
-    private void exportFioKey() {
-        startActivity(new Intent(requireContext(), ExportFioKeyActivity.class));
     }
 
     private void detachFromLocalTrader() {
