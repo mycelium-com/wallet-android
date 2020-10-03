@@ -273,6 +273,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         } else if (requestCode == SendCoinsActivity.MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
                     data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
+            model.receivingFioName.value = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
                     (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction

@@ -100,15 +100,15 @@ class ManualAddressEntry : AppCompatActivity() {
         coinAddress = coinType.parseAddress(fioNameToNbpaMap[etRecipient.text.toString()])
         if (entered != etRecipient.text.toString()) {
             entered = etRecipient.text.toString()
-            if (isFio) {
+            fioAddress = if (isFio) {
                 if (coinAddress == null && !checkedFioNames.contains(entered!!)) {
                     // query fio for a native blockchain public address
                     CoroutineScope(Dispatchers.Main).launch { tryFio(entered!!) }
                 }
-                fioAddress = entered
+                entered
             } else {
                 coinAddress = coinType.parseAddress(entered!!.trim { it <= ' ' })
-                fioAddress = null
+                null
             }
         }
         val recipientValid = coinAddress != null
@@ -136,6 +136,7 @@ class ManualAddressEntry : AppCompatActivity() {
     private fun finishOk(address: Address) {
         val result = Intent().apply {
             putExtra(ADDRESS_RESULT_NAME, address)
+            putExtra(ADDRESS_RESULT_FIO, fioAddress)
         }
         setResult(RESULT_OK, result)
         finish()
@@ -194,5 +195,6 @@ class ManualAddressEntry : AppCompatActivity() {
 
     companion object {
         const val ADDRESS_RESULT_NAME = "address"
+        const val ADDRESS_RESULT_FIO = "fioName"
     }
 }

@@ -76,6 +76,16 @@ abstract class SendCoinsModel(
         }
     }
 
+    val receivingFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
+        override fun setValue(value: String?) {
+            if (value != this.value) {
+                super.setValue(value)
+                receiverChanged.onNext(Unit)
+                txRebuildPublisher.onNext(Unit)
+            }
+        }
+    }
+
     val transactionStatus: MutableLiveData<TransactionStatus> = object : MutableLiveData<TransactionStatus>() {
         override fun setValue(value: TransactionStatus) {
             if (value != this.value) {
@@ -441,9 +451,7 @@ abstract class SendCoinsModel(
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
                     TransactionStatus.OK
                 }
-                else -> {
-                    TransactionStatus.MISSING_ARGUMENTS
-                }
+                else -> TransactionStatus.MISSING_ARGUMENTS
             }
         } catch (ex: BuildTransactionException) {
             return TransactionStatus.MISSING_ARGUMENTS
@@ -470,7 +478,7 @@ abstract class SendCoinsModel(
     }
 
     private fun isInRange(feeItems: List<FeeItem>, fee: Value) =
-            (feeItems[0].feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems[feeItems.size - 1].feePerKb)
+            (feeItems.first().feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems.last().feePerKb)
 
     private fun getAddressLabel(address: Address): String {
         val accountId = mbwManager.getAccountId(address, account.coinType).orNull()
