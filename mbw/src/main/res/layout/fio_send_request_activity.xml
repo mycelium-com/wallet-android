@@ -14,8 +14,12 @@
             type="com.mycelium.wallet.activity.fio.requests.FioSendRequestActivity" />
 
         <variable
-            name="viewModel"
+            name="fioRequestViewModel"
             type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel" />
+
+        <variable
+            name="sendViewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
     </data>
 
     <FrameLayout
@@ -32,14 +36,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:padding="18dp">
+                android:orientation="vertical">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clReceivedRequestInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/received_fio_request_info_bg"
+                    android:layout_margin="18dp"
                     android:padding="14dp">
 
                     <ImageView
@@ -79,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:paddingStart="4dp"
-                        android:text="@{viewModel.from}"
+                        android:text="@{fioRequestViewModel.from}"
                         android:textSize="18sp"
                         android:typeface="monospace"
                         app:layout_constraintBaseline_toBaselineOf="@id/tvFromTitle"
@@ -91,7 +95,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
-                        android:text="@{viewModel.memoFrom}"
+                        android:text="@{fioRequestViewModel.memoFrom}"
                         android:textSize="14sp"
                         android:typeface="monospace"
                         app:layout_constraintStart_toStartOf="parent"
@@ -115,7 +119,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:paddingStart="4dp"
-                        android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.amount)}"
+                        android:text="@{ValueExtensionsKt.toStringWithUnit(fioRequestViewModel.amount)}"
                         android:typeface="monospace"
                         app:layout_constraintBaseline_toBaselineOf="@id/tvAmountTitle"
                         app:layout_constraintStart_toEndOf="@id/tvAmountTitle"
@@ -127,10 +131,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:fontFamily="sans-serif-medium"
-                        android:text="@{viewModel.alternativeAmountFormatted}"
+                        android:text="@{fioRequestViewModel.alternativeAmountFormatted}"
                         android:textSize="12sp"
                         android:typeface="monospace"
-                        android:visibility="@{viewModel.alternativeAmountFormatted.isEmpty() ? View.GONE : View.VISIBLE}"
+                        android:visibility="@{fioRequestViewModel.alternativeAmountFormatted.isEmpty() ? View.GONE : View.VISIBLE}"
                         app:layout_constraintEnd_toEndOf="@id/tvAmount"
                         app:layout_constraintTop_toBottomOf="@id/tvAmount"
                         tools:text="55.02 USD" />
@@ -139,6 +143,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
+                    android:layout_margin="18dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp">
 
@@ -158,7 +163,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:paddingStart="4dp"
-                        android:text="@{viewModel.satisfyRequestFrom}"
+                        android:text="@{fioRequestViewModel.satisfyRequestFrom}"
                         android:textSize="18sp"
                         android:typeface="monospace"
                         app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromTitle"
@@ -212,22 +217,28 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!--Fee selector-->
-                <include layout="@layout/send_coins_fee_block" />
-                <!--                app:viewModel="@{viewModel}"-->
+                <include
+                    layout="@layout/send_coins_fee_block"
+                    app:viewModel="@{sendViewModel}" />
+
                 <!-- Amount Error -->
-                <include layout="@layout/send_coins_insufficient" />
-                <!--                app:viewModel="@{viewModel}"-->
+                <include
+                    layout="@layout/send_coins_insufficient"
+                    app:viewModel="@{sendViewModel}" />
 
-                <!--Update progress bar-->
-                <include layout="@layout/send_coins_progress" />
-                <!--                app:viewModel="@{viewModel}"-->
-
+                <!--Update progress bar
+                <include
+                    layout="@layout/send_coins_progress"
+                    app:viewModel="@{sendViewModel}" />
+-->
                 <!-- Send -->
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_margin="18dp"
+                    android:layout_marginTop="21dp"
                     android:orientation="vertical">
 
                     <Button
@@ -235,7 +246,6 @@
                         style="@style/FioNameRegistrationButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="34dp"
                         android:onClick="@{_ -> activity.onClickSend()}"
                         android:text="@string/fio_confirm_and_pay" />
 
