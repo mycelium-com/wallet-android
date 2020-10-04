@@ -55,7 +55,14 @@ class FioModule(
         return getAllRegisteredFioNames().filter { it.name.split("@")[1] == domainName }
     }
 
-    fun getFIONames(account: WalletAccount<*>?): List<RegisteredFIOName> = listOf()
+    fun getFIONames(account: WalletAccount<*>): List<RegisteredFIOName> {
+        if (account is FioAccount) {
+            return account.registeredFIONames
+        }
+        
+        val fioNames = walletDB.fioNameAccountMappingsQueries.selectFioNamesByAccountUuid(account.id).executeAsList()
+        return getAllRegisteredFioNames().filter { fioNames.contains(it.name) }
+    }
 
     fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
             .executeAsList().sortedBy { "${it.name}@${it.domain}" }

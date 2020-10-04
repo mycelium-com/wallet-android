@@ -12,6 +12,10 @@ selectAccountsUuidByFioName:
 SELECT accountUuid FROM FioNameAccountMappings
     WHERE name = (:name);
 
+selectFioNamesByAccountUuid:
+SELECT name FROM FioNameAccountMappings
+    WHERE accountUuid = (:uuid);
+
 deleteAllMappings:
 DELETE FROM FioNameAccountMappings
 WHERE name = (?);
