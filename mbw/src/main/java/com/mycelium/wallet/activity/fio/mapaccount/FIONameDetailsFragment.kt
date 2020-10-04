@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -19,6 +18,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.*
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.AccountMappingViewModel
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wallet.databinding.FragmentFioAccountMappingBinding
 import com.mycelium.wapi.wallet.WalletManager
@@ -55,18 +55,18 @@ class FIONameDetailsFragment : Fragment() {
         list.adapter = adapter
         list.itemAnimator = null
         viewModel.fioName.value = args.fioName
-        (walletManager.getModuleById(FioModule.ID) as FioModule).getFioAccountByFioName(args.fioName.name)?.run {
+        val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        fioModule.getFioAccountByFioName(args.fioName.name)?.run {
             viewModel.fioAccount.value = walletManager.getAccount(this) as FioAccount
         }
         adapter.selectChangeListener = { accountItem ->
-            if (accountItem.isEnabled) {
-                data.filterIsInstance<ItemAccount>().filter { it.coinType == accountItem.coinType }.forEach {
-                    if (it.accountId != accountItem.accountId) {
+            data.filterIsInstance<ItemAccount>()
+                    .filter { it.coinType == accountItem.coinType }
+                    .forEach {
                         data[data.indexOf(it)] = ItemAccount(it.accountId, it.label, it.summary,
-                                it.icon, it.coinType, false)
+                                it.icon, it.coinType,
+                                if (it.accountId != accountItem.accountId) false else accountItem.isEnabled)
                     }
-                }
-            }
             adapter.submitList(data.toList())
         }
         val preference = requireContext().getSharedPreferences("fio_account_mapping_preference", Context.MODE_PRIVATE)
@@ -75,31 +75,34 @@ class FIONameDetailsFragment : Fragment() {
             updateList(walletManager, preference)
         }
         updateList(walletManager, preference)
-        buttonContinue.setOnClickListener {
-//            TODO("account mapping not implemented")
-            findNavController().popBackStack()
-//            findNavController().navigate(R.id.actionNext, Bundle().apply {
-//                putStringArray("accounts", data.filterIsInstance<ItemAccount>().filter { it.isEnabled }.map { it.accountId.toString() }.toTypedArray())
-//            })
-        }
         renewFIOName.setOnClickListener {
             startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
                     .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
+        }
+        buttonContinue.setOnClickListener {
+            fioModule.mapFioNameToAccounts(args.fioName.name,
+                    adapter.currentList
+                            .filterIsInstance<ItemAccount>()
+                            .filter { it.isEnabled }
+                            .mapNotNull { walletManager.getAccount(it.accountId) })
+            Toaster(this).toast("accounts connected", false)
         }
     }
 
     private fun updateList(walletManager: WalletManager, preference: SharedPreferences) {
         data.clear()
+        val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        val mappedAccounts = fioModule.getConnectedAccounts(args.fioName.name)
         data.apply {
             val btcHDAccounts = walletManager.getActiveHDAccounts().map {
                 ItemAccount(it.id, it.label, "",
                         Utils.getDrawableForAccount(it, false, resources),
-                        it.coinType)
+                        it.coinType, mappedAccounts.contains(it))
             }
             val btcSAAccounts = walletManager.getActiveBTCSingleAddressAccounts().map {
                 ItemAccount(it.id, it.label, "",
                         Utils.getDrawableForAccount(it, false, resources),
-                        it.coinType)
+                        it.coinType, mappedAccounts.contains(it))
             }
             if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
                 val title = getString(R.string.bitcoin_name)
@@ -120,7 +123,8 @@ class FIONameDetailsFragment : Fragment() {
             }
             walletManager.getActiveEthAccounts().map {
                 ItemAccount(it.id, it.label, "",
-                        Utils.getDrawableForAccount(it, false, resources), it.coinType)
+                        Utils.getDrawableForAccount(it, false, resources),
+                        it.coinType, mappedAccounts.contains(it))
             }.apply {
                 if (this.isNotEmpty()) {
                     val title = getString(R.string.ethereum_name)
