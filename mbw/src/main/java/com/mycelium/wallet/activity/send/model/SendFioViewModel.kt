@@ -15,7 +15,7 @@ class SendFioViewModel(application: Application) : SendCoinsViewModel(applicatio
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)
-        model = SendFioModel(context, account, intent)
+        model = SendFioModel(getApplication(), account, intent)
     }
 
     override fun sendTransaction(activity: Activity) {
@@ -29,8 +29,7 @@ class SendFioViewModel(application: Application) : SendCoinsViewModel(applicatio
 
     override fun getFeeFormatter() = EthFeeFormatter()
 
-    fun fee(value: Value?): String =
-            value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
+    fun fee(value: Value?): String = value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
 
     fun feeFiat(value: Value?): String =
             "~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(model.account.coinType)).toStringWithUnit()}"

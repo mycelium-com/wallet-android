@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
-import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.text.Html
 import android.widget.Toast.LENGTH_LONG
@@ -30,7 +30,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 
-class SendBtcModel(context: Application,
+class SendBtcModel(context: Context,
                    account: WalletAccount<*>,
                    intent: Intent)
     : SendCoinsModel(context, account, intent) {

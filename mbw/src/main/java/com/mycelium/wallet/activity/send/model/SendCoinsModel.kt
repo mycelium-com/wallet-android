@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
-import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
@@ -35,7 +35,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 abstract class SendCoinsModel(
-        val context: Application,
+        val context: Context,
         val account: WalletAccount<*>,
         intent: Intent
 ) {
