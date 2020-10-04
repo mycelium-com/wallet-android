@@ -42,6 +42,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -52,7 +53,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
@@ -88,7 +89,7 @@ import butterknife.OnClick;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
-public class AddAccountActivity extends Activity {
+public class AddAccountActivity extends AppCompatActivity {
     private ETHCreationAsyncTask ethCreationAsyncTask;
 
     public static void callMe(Fragment fragment, int requestCode) {
@@ -111,15 +112,14 @@ public class AddAccountActivity extends Activity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_account_activity);
+
+        setSupportActionBar(findViewById(R.id.toolbar));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         ButterKnife.bind(this);
         _mbwManager = MbwManager.getInstance(this);
         _toaster = new Toaster(this);
-        ((Toolbar)findViewById(R.id.toolbar)).setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+
         findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
         findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
         findViewById(R.id.btFIOCreate).setOnClickListener(createFioAccount);
@@ -489,5 +489,14 @@ public class AddAccountActivity extends Activity {
         MbwManager.getEventBus().unregister(this);
         _mbwManager.getVersionManager().closeDialog();
         super.onPause();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

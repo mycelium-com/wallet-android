@@ -142,7 +142,8 @@
             android:theme="@style/MyceliumActionBar" />
         <activity android:name=".activity.AboutActivity" />
         <activity android:name=".activity.modern.GetFromAddressBookActivity" />
-        <activity android:name=".activity.AddAccountActivity" />
+        <activity android:name=".activity.AddAccountActivity"
+            android:theme="@style/MyceliumFIO"/>
         <activity android:name=".activity.AddAdvancedAccountActivity" />
         <activity android:name=".activity.AddColuAccountActivity" />
         <activity android:name=".activity.ScanActivity" />
