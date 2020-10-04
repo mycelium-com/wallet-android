@@ -25,9 +25,6 @@
             android:gravity="start"
             android:orientation="vertical">
 
-        <include
-            layout="@layout/send_coins_heading_title" />
-
         <!-- Enter Recipient -->
         <include
             layout="@layout/send_coins_enter_recepient"

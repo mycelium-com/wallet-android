@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:showIn="@layout/send_coins_recipient">
+    tools:showIn="@layout/send_coins_heading">
 
     <data>
 
@@ -13,13 +13,15 @@
     </data>
 
     <TextView
-        android:id="@+id/tvReceiverLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/green"
-        android:layout_marginBottom="8dp"
-        android:textSize="20sp"
-        android:visibility="@{viewModel.receivingLabel.isEmpty() ? View.GONE : View.VISIBLE}"
-        android:text="@{viewModel.receivingLabel}" />
+            android:id="@+id/tvReceiverLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/green"
+            android:layout_marginBottom="8dp"
+            android:textSize="20sp"
+            android:visibility="@{viewModel.receivingLabel.isEmpty() ? View.GONE : View.VISIBLE}"
+            android:text="@{viewModel.receivingLabel}"
+            tools:text="some receiver label"
+            tools:visibility="visible" />
 
 </layout>

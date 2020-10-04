@@ -25,6 +25,9 @@
             android:paddingTop="6dp"
             android:visibility="@{(viewModel.receivingAddressText.isEmpty() &amp;&amp; !viewModel.hasPaymentRequestHandler) ? View.VISIBLE : View.GONE}">
 
+        <include
+                layout="@layout/send_coins_heading_title" />
+
         <!-- Scan button -->
         <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btScan"

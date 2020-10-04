@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:bind="http://schemas.android.com/apk/res-auto"
-    tools:showIn="@layout/send_coins_activity">
+    tools:showIn="@layout/send_coins_activity_btc">
 
     <data>
 
@@ -24,9 +24,6 @@
             android:layout_marginHorizontal="20dp"
             android:gravity="start"
             android:orientation="vertical">
-
-        <include
-            layout="@layout/send_coins_heading_title" />
 
         <!-- Enter Recipient -->
         <include
