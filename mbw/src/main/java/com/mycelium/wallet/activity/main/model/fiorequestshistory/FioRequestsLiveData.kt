@@ -1,24 +1,24 @@
 package com.mycelium.wallet.activity.main.model.fiorequestshistory
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
 import android.os.AsyncTask
+import androidx.lifecycle.LiveData
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wallet.event.*
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioGroup
+import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import java.lang.ref.WeakReference
+import java.text.SimpleDateFormat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 
 /**
- * This class is intended to manage transaction history for current selected account.
+ * This class is intended to manage requests history for all accounts.
  */
 class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<MutableList<FioGroup>>() {
-    private var account = mbwManager.selectedAccount!!
     private var historyList = mutableListOf<FioGroup>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
@@ -32,18 +32,9 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<MutableList<Fio
         startHistoryUpdate()
     }
 
-    fun appendList(list: Set<FioGroup>) {
-        historyList.addAll(list)
-        value = historyList
-    }
-
     override fun onActive() {
         super.onActive()
         MbwManager.getEventBus().register(this)
-        if (account !== mbwManager.selectedAccount) {
-            account = mbwManager.selectedAccount
-            updateValue(ArrayList())
-        }
         startHistoryUpdate()
     }
 
@@ -57,47 +48,39 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<MutableList<Fio
 
     /**
      * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
+     * // TODO replace with something like flowable, which would throw out
      */
     @SuppressLint("StaticFieldLeak")
     private inner class UpdateTxHistoryTask : AsyncTask<Void, List<FioGroup>, List<FioGroup>>() {
-        var account = mbwManager.selectedAccount!!
+        var accountsList = mbwManager.getWalletManager(false)
+                .getActiveFioAccounts()
         override fun onPreExecute() {
-            if (account.isArchived) {
+            if (accountsList.isEmpty()) {
                 cancel(true)
             }
         }
 
         override fun doInBackground(vararg voids: Void): List<FioGroup> {
-            if (account is FioAccount){
-                return  (account as FioAccount).getRequestsGroups()
-            }
-            return emptyList()
+            return accountsList.map(FioAccount::getRequestsGroups)
+                    .flatten()
+                    .groupBy(FioGroup::status, FioGroup::children)
+                    .map { (status, groupList) ->
+                        FioGroup(status, groupList.flatten()
+                            .distinctBy(FIORequestContent::fioRequestId)
+                            .sortedByDescending{ SimpleDateFormat("yyy-MM-dd'T'kk:mm:ss").parse(it.timeStamp)}
+                            .toMutableList()) }
 
         }
 
         override fun onPostExecute(transactions: List<FioGroup>) {
-            if (account === mbwManager.selectedAccount) {
-                updateValue(transactions)
-            }
+            updateValue(transactions)
         }
     }
 
     private fun updateValue(newValue: List<FioGroup>) {
         historyList.clear()
         historyList.addAll(newValue)
-        value = historyList
-    }
-
-    @Subscribe
-    fun selectedAccountChanged(event: SelectedAccountChanged) {
-        val oldExecutor = executorService
-        executorService = Executors.newCachedThreadPool()
-        oldExecutor.shutdownNow()
-        if (event.account != account.id) {
-            account = mbwManager.selectedAccount
-            updateValue(ArrayList())
-            startHistoryUpdate()
-        }
+        postValue(historyList)
     }
 
     @Subscribe
@@ -106,17 +89,8 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<MutableList<Fio
     }
 
     @Subscribe
-    fun accountChanged(event: AccountChanged) {
-        if (event.account == account.id) {
-            startHistoryUpdate()
-        }
-    }
-
-    @Subscribe
     fun balanceChanged(event: BalanceChanged) {
-        if (event.account == account.id) {
-            startHistoryUpdate()
-        }
+        startHistoryUpdate()
     }
 
     @Subscribe
@@ -136,7 +110,7 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<MutableList<Fio
     @Subscribe
     fun syncProgressUpdated(event: SyncProgressUpdated) {
         val syncProgressTask = syncProgressTaskWR?.get()
-        if (event.account == account.id && syncProgressTask?.status != AsyncTask.Status.RUNNING
+        if (syncProgressTask?.status != AsyncTask.Status.RUNNING
                 && syncProgressTask?.status != AsyncTask.Status.PENDING) {
             syncProgressTaskWR = WeakReference(startHistoryUpdate())
         }
