@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/textView1"
     android:layout_width="wrap_content"
-    android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layout_marginLeft="8dp"
-    android:gravity="center_vertical|left"
-    android:textAllCaps="true"
-    android:drawablePadding="8dp"
-    android:paddingLeft="16dp"
-    android:paddingTop="8dp"
-    tools:text="Test"
-    android:textSize="18sp"
-    android:textAlignment="textStart"
-    android:textStyle="bold" />
+    android:layout_height="wrap_content">
+
+    <CheckBox
+        android:id="@+id/cbArrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:button="@drawable/fio_request_list_expandable_selector"
+        >
+
+    </CheckBox>
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:gravity="center_vertical|left"
+        android:paddingLeft="8dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="13dp"
+        android:textAllCaps="true"
+        android:textSize="18sp"
+        tools:text="Test" />
+</LinearLayout>

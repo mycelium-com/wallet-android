@@ -3,10 +3,8 @@ package com.mycelium.wallet.activity.main.adapter
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseExpandableListAdapter
-import android.widget.CheckedTextView
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
+import androidx.core.content.ContextCompat
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -20,6 +18,7 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import java.math.BigDecimal
 import java.math.BigInteger
+
 
 class FioRequestArrayAdapter(var activity: Activity,
                              private val groups: List<FioGroup>,
@@ -45,11 +44,13 @@ class FioRequestArrayAdapter(var activity: Activity,
         }
         val content = children.deserializedContent
 
-        val directionToMe = true //content?.payeeTokenPublicAddress
+
+        val isIncoming = true //content?.payeeTokenPublicAddress
         val isError = false
 
+        val color = if (isIncoming) R.color.green else R.color.red
         val direction = convertView?.findViewById<TextView>(R.id.tvDirection)
-        direction?.text = if (directionToMe) "From:" else "To:"
+        direction?.text = if (isIncoming) "From:" else "To:"
         val address = convertView?.findViewById<TextView>(R.id.tvAddress)
         address?.text = children.payeeFioAddress
 
@@ -57,10 +58,10 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         when (group.status) {
             FioGroup.Type.SENT -> {
-                ivStatus?.setBackgroundResource(if (isError) R.drawable.ic_request_good_to_go else R.drawable.ic_request_error)
+//                ivStatus?.setBackgroundResource(if (isError) R.drawable.ic_request_good_to_go else R.drawable.ic_request_error)
             }
             FioGroup.Type.PENDING -> {
-                ivStatus?.setBackgroundResource(if (directionToMe) R.drawable.ic_request_arrow_down else R.drawable.ic_request_arrow_up)
+//                ivStatus?.setBackgroundResource(if (isIncoming) R.drawable.ic_request_arrow_down else R.drawable.ic_request_arrow_up)
             }
         }
 
@@ -70,6 +71,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         val requestedCurrency = COINS.values.first { it.symbol.toUpperCase() == content!!.chainCode }
         val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
         amount?.text = amountValue.toStringWithUnit()
+        amount?.setTextColor(ContextCompat.getColor(activity, color))
         val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
         val tvFiatAmount = convertView?.findViewById<TextView>(R.id.tvFiatAmount)
         tvFiatAmount?.text = convert?.toStringWithUnit()
@@ -104,14 +106,26 @@ class FioRequestArrayAdapter(var activity: Activity,
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
                               convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
+
+        val group = getGroup(groupPosition) as FioGroup
+
         if (convertView == null) {
             val inflater = activity.layoutInflater
             convertView = inflater.inflate(R.layout.fio_request_listrow_group, null)
+
+            convertView?.setOnClickListener{
+                val expandableListView = convertView?.getParent() as ExpandableListView
+                if (!expandableListView.isGroupExpanded(groupPosition)) {
+                    expandableListView.expandGroup(groupPosition)
+                } else {
+                    expandableListView.collapseGroup(groupPosition)
+                }
+            }
         }
-        val group = getGroup(groupPosition) as FioGroup
-        val checkedTextView = convertView as CheckedTextView
+        val arrow = convertView?.findViewById<CheckBox>(R.id.cbArrow)
+        val checkedTextView = convertView?.findViewById(R.id.textView1) as TextView
         checkedTextView.text = group.status.toString()
-        checkedTextView.isChecked = isExpanded
+        arrow?.isChecked = isExpanded
         return convertView
     }
 

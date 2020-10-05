@@ -36,18 +36,11 @@ package com.mycelium.wallet.activity.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ExpandableListView
-import android.widget.TextView
 import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.TransactionDetailsActivity
@@ -124,6 +117,11 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
         model.fioRequestHistory.observe(this.viewLifecycleOwner, Observer { it ->
             adapter.notifyDataSetChanged()
             showHistory(!model.fioRequestHistory.value.isNullOrEmpty())
+
+            //expand all lists
+            it.forEachIndexed { index, fioGroup ->
+                lvTransactionHistory.expandGroup(index)
+            }
             refreshList()
         })
 
