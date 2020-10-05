@@ -12,12 +12,13 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.lib.CurrencyCode
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.coins.COINS
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioGroup
-import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import java.math.BigDecimal
 import java.math.BigInteger
 
 class FioRequestArrayAdapter(var activity: Activity,
@@ -66,10 +67,10 @@ class FioRequestArrayAdapter(var activity: Activity,
         val memo = convertView?.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
         val amount = convertView?.findViewById<TextView>(R.id.tvAmount)
-        val btc = Value.valueOf(FIOMain, content?.amount?.toBigInteger()
-                ?: BigInteger.ZERO)
-        amount?.text = btc.toStringWithUnit()
-        val convert = convert(btc,  Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
+        val requestedCurrency = COINS.values.first { it.symbol.toUpperCase() == content!!.chainCode }
+        val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
+        amount?.text = amountValue.toStringWithUnit()
+        val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
         val tvFiatAmount = convertView?.findViewById<TextView>(R.id.tvFiatAmount)
         tvFiatAmount?.text = convert?.toStringWithUnit()
 
@@ -126,4 +127,7 @@ class FioRequestArrayAdapter(var activity: Activity,
     private fun convert(value: Value, assetInfo: AssetInfo): Value? {
         return mbwManager.exchangeRateManager.get(value, assetInfo)
     }
+
+    private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
+            BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
 }
