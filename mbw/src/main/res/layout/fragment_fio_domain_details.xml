@@ -3,6 +3,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIODomainViewModel" />
@@ -74,6 +76,17 @@
                     app:layout_constraintTop_toBottomOf="@id/fioAccount"
                     app:layout_goneMarginBottom="16dp" />
 
+                <ImageView
+                    android:id="@+id/expireDateIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:visibility="@{viewModel.isExpired(viewModel.fioDomain.expireDate) ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@id/expireDate"
+                    app:layout_constraintLeft_toRightOf="@id/expireDate"
+                    app:srcCompat="@drawable/ic_fio_error" />
+
                 <TextView
                     android:id="@+id/expireDateValue"
                     style="@style/fio_account"
@@ -83,8 +96,9 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
                     android:text="@{viewModel.dateToString(viewModel.fioDomain.expireDate)}"
+                    android:textColor="@{viewModel.isExpired(viewModel.fioDomain.expireDate) ? @color/fio_red : @color/white}"
                     app:layout_constraintBottom_toTopOf="@id/renewFIOName"
-                    app:layout_constraintLeft_toRightOf="@id/expireDate"
+                    app:layout_constraintLeft_toRightOf="@id/expireDateIcon"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fioAccount"
                     app:layout_goneMarginBottom="16dp"
@@ -97,6 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:text="@string/renew_fio_domain"
+                    android:visibility="@{viewModel.isExpired(viewModel.fioDomain.expireDate) ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
 
@@ -126,6 +141,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
+                android:enabled="@{!viewModel.isExpired(viewModel.fioDomain.expireDate)}"
                 android:text="@string/create_new_fio_name"
                 app:layout_constraintBottom_toBottomOf="parent" />
         </LinearLayout>
