@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.Application
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast.*
@@ -51,7 +52,8 @@ import java.math.BigInteger
 import java.util.*
 import java.util.regex.Pattern
 
-abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(context) {
+abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(application) {
+    val context: Context = application
     var activityResultDialog: DialogFragment? = null
     var activity: Activity? = null
     lateinit var amountHint: String
@@ -101,9 +103,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     }
 
 
-    open fun init(account: WalletAccount<*>,
-                  intent: Intent) {
-
+    open fun init(account: WalletAccount<*>, intent: Intent) {
         amountHint = context.getString(R.string.amount_hint_denomination,
                 mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
         if (::model.isInitialized) {

@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.widget.TextView
@@ -31,7 +32,7 @@ import java.util.*
 import java.util.regex.Pattern
 
 
-open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) {
+open class SendBtcViewModel(application: Application) : SendCoinsViewModel(application) {
     override val uriPattern =  Pattern.compile("[a-zA-Z0-9]+")!!
 
     override fun init(account: WalletAccount<*>, intent: Intent) {

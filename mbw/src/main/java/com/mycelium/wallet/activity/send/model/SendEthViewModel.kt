@@ -21,7 +21,7 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)
-        model = SendEthModel(context, account, intent)
+        model = SendEthModel(getApplication(), account, intent)
     }
 
     override fun processAssetUri(uri: AssetUri) {
