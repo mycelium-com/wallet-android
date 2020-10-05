@@ -91,8 +91,8 @@ class FioModule(
         // We begin with creating a list of addresses for FIO blockchain mapping transaction
         accounts.forEach {
             tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
-                    Util.trimTestnetSymbolDecoration(coinType.symbol),
-                    Util.trimTestnetSymbolDecoration(it.basedOnCoinType.symbol)))
+                    it.coinType.symbol.toUpperCase(Locale.US),
+                    it.basedOnCoinType.symbol.toUpperCase(Locale.US)))
         }
 
         if (!fioAccount.addPubAddress(fioName, tokenPublicAddresses)) {
