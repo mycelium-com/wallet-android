@@ -64,6 +64,7 @@ import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import kotlinx.android.synthetic.main.fio_request_history_view.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -230,12 +231,12 @@ class FioRequestsHistoryFragment : Fragment() {
     }
 
     private fun showHistory(hasHistory: Boolean) {
-        rootView!!.findViewById<View>(R.id.llNoRecords).visibility = if (hasHistory) View.GONE else View.VISIBLE
+       llNoRecords.visibility = if (hasHistory) View.GONE else View.VISIBLE
         listView.visibility = if (hasHistory) View.VISIBLE else View.GONE
         if (accountsWithPartialHistory.contains(_mbwManager!!.selectedAccount.id)) {
-            rootView!!.findViewById<View>(R.id.tvWarningNotFullHistory).visibility = View.VISIBLE
+           tvWarningNotFullHistory.visibility = View.VISIBLE
         } else {
-            rootView!!.findViewById<View>(R.id.tvWarningNotFullHistory).visibility = View.GONE
+           tvWarningNotFullHistory.visibility = View.GONE
         }
     }
 
