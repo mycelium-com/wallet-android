@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
+import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import java.lang.IllegalStateException
 import java.text.DateFormat
 import java.util.*
@@ -84,7 +85,20 @@ class FioModule(
     }
 
     fun mapFioNameToAccounts(fioName: String, accounts: List<WalletAccount<*>>) {
+        var fioAccount = walletManager.getAccount(getFioAccountByFioName(fioName)!!) as FioAccount
         walletDB.fioNameAccountMappingsQueries.deleteAllMappings(fioName);
+        var tokenPublicAddresses = ArrayList<TokenPublicAddress>()
+
+        // We begin with creating a list of addresses for FIO blockchain mapping transaction
+        accounts.forEach {
+            tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(), it.coinType.symbol, it.basedOnCoinType.symbol))
+        }
+
+        if (!fioAccount.addPubAddress(fioName, tokenPublicAddresses)) {
+            return
+        }
+
+        // Refresh mappings in the database
         accounts.forEach {
             walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(), it.basedOnCoinType.symbol, it.basedOnCoinType.symbol, it.id)
         }
