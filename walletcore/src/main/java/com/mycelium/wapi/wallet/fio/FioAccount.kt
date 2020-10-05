@@ -94,6 +94,24 @@ class FioAccount(private val accountContext: FioAccountContext,
         return actionTraceResponse != null && actionTraceResponse.status == "OK"
     }
 
+    @ExperimentalUnsignedTypes
+    fun recordObtData(fioRequestId: BigInteger, payerFioAddress: String, payeeFioAddress: String,
+                      payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
+                      chainCode: String, tokenCode: String, obtId: String, memo: String): Boolean {
+        val actionTraceResponse = fiosdk!!.recordObtData(fioRequestId = fioRequestId,
+                payerFioAddress = payerFioAddress,
+                payeeFioAddress = payeeFioAddress,
+                payerTokenPublicAddress = payerTokenPublicAddress,
+                payeeTokenPublicAddress = payeeTokenPublicAddress,
+                amount = amount,
+                chainCode = chainCode,
+                tokenCode = tokenCode,
+                obtId = obtId,
+                maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
+                memo = memo).getActionTraceResponse()
+        return actionTraceResponse != null && actionTraceResponse.status == "OK"
+    }
+
     private fun getFioNames(): List<RegisteredFIOName> = try {
         FioTransactionHistoryService.getFioNames(coinType as FIOToken,
                 receivingAddress.toString())?.fio_addresses?.map {
@@ -139,6 +157,7 @@ class FioAccount(private val accountContext: FioAccountContext,
             val response = fiosdk!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee)
             val actionTraceResponse = response.getActionTraceResponse()
             if (actionTraceResponse != null && actionTraceResponse.status == "OK") {
+                tx.txId = HexUtils.toBytes(response.transactionId)
                 BroadcastResult(BroadcastResultType.SUCCESS)
             } else {
                 BroadcastResult("Status: ${actionTraceResponse?.status}", BroadcastResultType.REJECT_INVALID_TX_PARAMS)

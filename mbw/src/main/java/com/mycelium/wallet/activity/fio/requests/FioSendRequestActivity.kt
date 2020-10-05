@@ -3,24 +3,36 @@ package com.mycelium.wallet.activity.fio.requests
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Point
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.gson.Gson
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel
+import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.send.BroadcastDialog
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
+import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.SendBtcViewModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
 import com.mycelium.wallet.activity.send.model.SendEthViewModel
 import com.mycelium.wallet.activity.send.model.SendFioViewModel
 import com.mycelium.wallet.databinding.FioSendRequestActivityBinding
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
@@ -31,18 +43,22 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
+import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
+import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import kotlinx.android.synthetic.main.fio_send_request_activity.*
 import kotlinx.android.synthetic.main.send_coins_activity.root
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
+import java.io.IOException
 import java.math.BigDecimal
 import java.math.BigInteger
 
-class FioSendRequestActivity : AppCompatActivity() {
+class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     private lateinit var fioRequestViewModel: FioSendRequestViewModel
     private lateinit var sendViewModel: SendCoinsViewModel
-    private lateinit var mbwManager: MbwManager
+    private lateinit var signedTransaction: Transaction
+    private var activityResultDialog: DialogFragment? = null
 
     companion object {
         const val CONTENT = "CONTENT"
@@ -60,25 +76,32 @@ class FioSendRequestActivity : AppCompatActivity() {
         fioRequestViewModel = viewModelProvider.get(FioSendRequestViewModel::class.java)
         val fioRequestContent = Gson().fromJson(intent.getStringExtra(CONTENT), FIORequestContent::class.java)
 
-        fioRequestViewModel.memoFrom.value = fioRequestContent.deserializedContent!!.memo ?: ""
-        fioRequestViewModel.from.value = fioRequestContent.payeeFioAddress
-        fioRequestViewModel.satisfyRequestFrom.value = fioRequestContent.payerFioAddress
-        val requestedCurrency = COINS.values.firstOrNull { it.symbol.toUpperCase() == fioRequestContent.deserializedContent!!.chainCode }
-                ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
+        supportActionBar?.run {
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setDisplayHomeAsUpEnabled(true)
+            title = "Send ${fioRequestContent.deserializedContent!!.chainCode}"
+        }
 
-        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
-                fioRequestContent.deserializedContent!!.amount))
+        // request data population
+        fioRequestViewModel.request.value = fioRequestContent
+        fioRequestViewModel.memoFrom.value = fioRequestContent.deserializedContent!!.memo ?: ""
+        fioRequestViewModel.payeeName.value = fioRequestContent.payeeFioAddress
+        fioRequestViewModel.payerName.value = fioRequestContent.payerFioAddress
+        Log.i("asdaf", "asdaf payeeFioAddress: ${fioRequestContent.payeeFioAddress} payerFioAddress: ${fioRequestContent.payerFioAddress}")
 
         val walletManager = MbwManager.getInstance(this).getWalletManager(false)
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
+        fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
 
-        // TODO uncomment and use getConnectedAccounts() when mapping saving is implemented, remove call to server
+
+        // TODO uncomment and use getConnectedAccounts() when mapping saving is implemented
 //        val mappedAccounts = fioModule.getConnectedAccounts(fioRequestViewModel.satisfyRequestFrom.value!!)
 //        val account = mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
 //                ?: throw IllegalStateException("No mapped address of type ${fioRequestContent.deserializedContent!!.chainCode}")
 
         // taking first btc account to check that the whole thing works
-        val account = walletManager.getBTCBip44Accounts()[0]
+        val account = walletManager.getBTCBip44Accounts().first()
 
         sendViewModel = when (account) {
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
@@ -103,28 +126,53 @@ class FioSendRequestActivity : AppCompatActivity() {
 
         initFeeView()
         initFeeLvlView()
-        findViewById<Button>(R.id.btSend).setOnClickListener {
-            onClickSend()
-        }
-        tvSatisfyFromAccount.text = "${account.label} - ${account.accountBalance.spendable}"
 
-        supportActionBar?.run {
-            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
-            setDisplayHomeAsUpEnabled(true)
-            title = "Send ${fioRequestContent.deserializedContent!!.chainCode}"
-        }
+        // tx data population
+        val requestedCurrency = COINS.values.firstOrNull { it.symbol.toUpperCase() == fioRequestContent.deserializedContent!!.chainCode }
+                ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
+        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
+                fioRequestContent.deserializedContent!!.amount))
+        sendViewModel.getAmount().value = fioRequestViewModel.amount.value
+
+        GetPublicAddressTask(fioRequestViewModel.payeeName.value!!,
+                fioRequestContent.deserializedContent!!.chainCode,
+                fioRequestContent.deserializedContent!!.tokenCode) { response ->
+            if (response.message != null) {
+                Toaster(this).toast(response.message, false)
+            } else {
+                fioRequestViewModel.payeeTokenPublicAddress.value = response.publicAddress!!
+                val parsedAddresses = walletManager.parseAddress(response.publicAddress!!)
+                sendViewModel.getReceivingAddress().value = parsedAddresses.first()
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+
+        GetPublicAddressTask(fioRequestViewModel.payerName.value!!,
+                fioRequestContent.deserializedContent!!.chainCode,
+                fioRequestContent.deserializedContent!!.tokenCode) { response ->
+            if (response.message != null) {
+                Toaster(this).toast(response.message, false)
+            } else {
+                fioRequestViewModel.payerTokenPublicAddress.value = response.publicAddress!!
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        tvSatisfyFromAccount.text = "${account.label} - ${account.accountBalance.spendable}"
     }
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
             BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
 
+    fun onClickSend() {
+        sendViewModel.sendTransaction(this)
+    }
+
     fun onClickDecline() {
         fioRequestViewModel.decline()
     }
 
-    fun onClickSend() {
-        fioRequestViewModel.pay()
-        FioSendStatusActivity.start(this)
+    override fun onResume() {
+        super.onResume()
+        activityResultDialog?.show(supportFragmentManager, "ActivityResultDialog")
+        activityResultDialog = null
     }
 
     private fun initFeeView() {
@@ -175,6 +223,14 @@ class FioSendRequestActivity : AppCompatActivity() {
         feeLvlList?.setSelectedItem(sendViewModel.getFeeLvl().value)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            signedTransaction = data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION) as Transaction
+            activityResultDialog = BroadcastDialog.create(sendViewModel.getAccount(), isColdStorage = false, transaction = signedTransaction)
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
             when (item?.itemId) {
                 android.R.id.home -> {
@@ -183,4 +239,65 @@ class FioSendRequestActivity : AppCompatActivity() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun broadcastResult(broadcastResult: BroadcastResult) {
+        if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+            val txid = HexUtils.toHex(signedTransaction.id)
+            Log.i("asdaf", "asdaf ihdi: $txid")
+
+            if (fioRequestViewModel.memoTo.value != null) {
+                RecordObtTask(txid, fioRequestViewModel) { success ->
+                    if (success) {
+                        FioSendStatusActivity.start(this)
+                    } else {
+                        Toaster(this).toast("No memo  for you today. Not sorry", false)
+                        finish()
+                    }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            }
+        }
+    }
+
+    class GetPublicAddressTask(
+            private val fioName: String,
+            private val chainCode: String,
+            private val tokenCode: String,
+            val listener: ((GetPubAddressResponse) -> Unit)) : AsyncTask<Void, Void, GetPubAddressResponse>() {
+        override fun doInBackground(vararg args: Void): GetPubAddressResponse {
+            return try {
+                FioTransactionHistoryService.getPubkeyByFioAddress(fioName, Utils.getFIOCoinType(), chainCode, tokenCode)
+            } catch (e: IOException) {
+                GetPubAddressResponse().also {
+                    it.message = e.localizedMessage
+                }
+            }
+        }
+
+        override fun onPostExecute(result: GetPubAddressResponse) {
+            listener(result)
+        }
+    }
+
+    class RecordObtTask(
+            private val txid: String,
+            private val fioRequestViewModel: FioSendRequestViewModel,
+            val listener: ((Boolean) -> Unit)) : AsyncTask<Void, Void, Boolean>() {
+        override fun doInBackground(vararg args: Void): Boolean {
+            return try {
+                val request = fioRequestViewModel.request.value!!
+                val amountInDouble = fioRequestViewModel.amount.value!!.toPlainString().toDouble()
+                Log.i("asdaf", "asdaf amountInDouble: $amountInDouble, amount ${fioRequestViewModel.amount.value!!}")
+                fioRequestViewModel.payerNameOwnerAccount.value!!.recordObtData(request.fioRequestId,
+                        request.payerFioAddress, request.payeeFioAddress, fioRequestViewModel.payerTokenPublicAddress.value!!,
+                        fioRequestViewModel.payerTokenPublicAddress.value!!, amountInDouble, request.deserializedContent!!.chainCode,
+                        request.deserializedContent!!.tokenCode, txid, fioRequestViewModel.memoTo.value!!)
+            } catch (e: IOException) {
+                false
+            }
+        }
+
+        override fun onPostExecute(result: Boolean) {
+            listener(result)
+        }
+    }
 }

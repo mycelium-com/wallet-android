@@ -15,7 +15,6 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
-import java.lang.IllegalStateException
 import java.text.DateFormat
 import java.util.*
 
@@ -155,12 +154,13 @@ class FioModule(
                 result = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdkByNode(hdKeyNode))
             }
             is FIOAddressConfig -> {
-                val pubkeyString = when (config.address.getSubType()) {
-                    FioAddressSubtype.ACTOR.toString() -> FioTransactionHistoryService.getPubkeyByActor(config.address.toString(), coinType)
-                    FioAddressSubtype.ADDRESS.toString() -> FioTransactionHistoryService.getPubkeyByFioAddress(config.address.toString(), coinType)
-                    else -> config.address.toString()
-                }
-                val fioAddress = FioAddress(coinType, FioAddressData(pubkeyString
+//                val pubkeyString = when (config.address.getSubType()) {
+//                    FioAddressSubtype.ACTOR.toString() -> FioTransactionHistoryService.getPubkeyByActor(config.address.toString(), coinType)
+//                    FioAddressSubtype.ADDRESS.toString() -> FioTransactionHistoryService.getPubkeyByFioAddress(config.address.toString(),
+//                            coinType, coinType.symbol, coinType.symbol)
+//                    else -> config.address.toString()
+//                }
+                val fioAddress = FioAddress(coinType, FioAddressData(config.address.toString()
                         ?: throw IllegalStateException("Cannot find public key for: ${config.address}")))
                 val uuid = UUID.nameUUIDFromBytes(fioAddress.getBytes())
                 secureStore.storePlaintextValue(uuid.toString().toByteArray(),

@@ -6,7 +6,8 @@ import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigInteger
 
 class FioTransaction(val type: CryptoCurrency, val toAddress: String, val value: Value, val fee: BigInteger) : Transaction(type) {
-    override fun getId(): ByteArray = ByteArray(0)
+    var txId: ByteArray? = null
+    override fun getId() = txId
 
     override fun txBytes(): ByteArray = ByteArray(0)
 
