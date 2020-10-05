@@ -41,7 +41,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
 
     override fun onCreateViewHolder(parent: ViewGroup, typeView: Int): RecyclerView.ViewHolder =
             when (typeView) {
-                TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_group, parent, false))
+                TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_group_wrap, parent, false))
                 TYPE_ACCOUNT -> AccountViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_account, parent, false))
                 TYPE_SUB_GROUP -> SubGroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_account_mapping_sub_group, parent, false))
                 TYPE_DIVIDER -> DividerViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_fio_list_divider, parent, false))

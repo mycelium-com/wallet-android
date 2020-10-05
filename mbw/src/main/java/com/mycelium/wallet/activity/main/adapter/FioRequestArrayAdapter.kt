@@ -5,13 +5,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import android.widget.CheckedTextView
+import android.widget.ImageView
 import android.widget.TextView
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.api.lib.CurrencyCode
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioGroup
+import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import java.math.BigInteger
 
 class FioRequestArrayAdapter(var activity: Activity,
-                             private val groups: List<FioGroup>) : BaseExpandableListAdapter() {
+                             private val groups: List<FioGroup>,
+                             val mbwManager: MbwManager) : BaseExpandableListAdapter() {
 
     override fun getChild(groupPosition: Int, childPosition: Int): Any {
         return groups[groupPosition].children[childPosition]
@@ -25,20 +36,43 @@ class FioRequestArrayAdapter(var activity: Activity,
                               isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
         val children = getChild(groupPosition, childPosition) as FIORequestContent
+        val group = getGroup(groupPosition)
+
         if (convertView == null) {
             val inflater = activity.layoutInflater
             convertView = inflater.inflate(R.layout.fio_request_row, null)
         }
         val content = children.deserializedContent
 
+        val directionToMe = true //content?.payeeTokenPublicAddress
+        val isError = false
+
+        val direction = convertView?.findViewById<TextView>(R.id.tvDirection)
+        direction?.text = if (directionToMe) "From:" else "To:"
         val address = convertView?.findViewById<TextView>(R.id.tvAddress)
-        address?.text = String.format("From: %s", children.payeeFioAddress)
+        address?.text = children.payeeFioAddress
+
+        val ivStatus = convertView?.findViewById<ImageView>(R.id.ivStatus)
+
+        when (group.status) {
+            FioGroup.Type.SENT -> {
+                ivStatus?.setBackgroundResource(if (isError) R.drawable.ic_request_good_to_go else R.drawable.ic_request_error)
+            }
+            FioGroup.Type.PENDING -> {
+                ivStatus?.setBackgroundResource(if (directionToMe) R.drawable.ic_request_arrow_down else R.drawable.ic_request_arrow_up)
+            }
+        }
+
         val memo = convertView?.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
         val amount = convertView?.findViewById<TextView>(R.id.tvAmount)
-        amount?.text = content?.amount
+        val btc = Value.valueOf(FIOMain, content?.amount?.toBigInteger()
+                ?: BigInteger.ZERO)
+        amount?.text = btc.toStringWithUnit()
+        val convert = convert(btc,  Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
         val tvFiatAmount = convertView?.findViewById<TextView>(R.id.tvFiatAmount)
-        tvFiatAmount?.text = content?.amount
+        tvFiatAmount?.text = convert?.toStringWithUnit()
+
         return convertView!!
     }
 
@@ -46,7 +80,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         return groups[groupPosition].children.size
     }
 
-    override fun getGroup(groupPosition: Int): Any {
+    override fun getGroup(groupPosition: Int): FioGroup {
         return groups[groupPosition]
     }
 
@@ -86,5 +120,10 @@ class FioRequestArrayAdapter(var activity: Activity,
 
     override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean {
         return true
+    }
+
+
+    private fun convert(value: Value, assetInfo: AssetInfo): Value? {
+        return mbwManager.exchangeRateManager.get(value, assetInfo)
     }
 }

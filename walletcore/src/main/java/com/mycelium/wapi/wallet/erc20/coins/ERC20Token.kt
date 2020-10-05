@@ -4,8 +4,8 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.families.Families
 import com.mycelium.wapi.wallet.eth.EthAddress
-import org.web3j.abi.datatypes.Address as W3jAddress
 import org.web3j.crypto.WalletUtils
+import org.web3j.abi.datatypes.Address as W3jAddress
 
 class ERC20Token(name: String = "", symbol: String = "", unitExponent: Int = 18, val contractAddress: String) : CryptoCurrency() {
     init {
@@ -17,12 +17,11 @@ class ERC20Token(name: String = "", symbol: String = "", unitExponent: Int = 18,
         this.isUtxosBased = false
     }
 
-    override fun parseAddress(addressString: String?): Address? =
-            if (WalletUtils.isValidAddress(addressString)) {
-                // additional wrap of addressString into Address is called upon
-                // to unify addresses with and without '0x' prefix
-                EthAddress(this, W3jAddress(addressString).toString())
-            } else {
-                null
-            }
+    override fun parseAddress(addressString: String?): Address? = when {
+        addressString == null -> null
+        // additional wrap of addressString into Address is called upon to unify addresses with and
+        // without '0x' prefix
+        WalletUtils.isValidAddress(addressString) -> EthAddress(this, W3jAddress(addressString).toString())
+        else -> null
+    }
 }

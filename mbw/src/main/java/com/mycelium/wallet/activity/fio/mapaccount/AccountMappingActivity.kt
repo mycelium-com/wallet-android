@@ -30,9 +30,9 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
                 viewModel.accountList.value = listOf(account)
             } else {
                 val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-                viewModel.accountList.value = fioModule.getFIONames(account!!).map {
-                    fioModule.getFioAccountByFioName(it.name) as FioAccount
-                }
+                viewModel.accountList.value = fioModule.getFIONames(account!!)
+                        .mapNotNull { fioModule.getFioAccountByFioName(it.name) }
+                        .map { walletManager.getAccount(it) as FioAccount }
             }
         }
     }

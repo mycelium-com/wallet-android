@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#0C1011"
-    android:baselineAligned="false"
     android:gravity="center_vertical"
     android:paddingStart="16dp"
     android:paddingTop="8dp"
@@ -35,7 +34,7 @@
             android:id="@+id/title"
             style="@style/fio_account"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:ellipsize="end"
             android:fadingEdge="horizontal"
@@ -54,8 +53,9 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <androidx.appcompat.widget.AppCompatRadioButton
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/checkbox"
+        style="@android:style/Widget.CompoundButton.RadioButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </LinearLayout>

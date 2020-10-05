@@ -71,7 +71,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
-import com.mycelium.wallet.activity.export.ExportFioKeyActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity;
@@ -125,6 +124,7 @@ import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.mycelium.wapi.wallet.fio.FioAccount;
+import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -639,8 +639,9 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
-        if (account instanceof HDAccount || account instanceof SingleAddressAccount ||
-                account instanceof EthAccount) {
+        if ((account instanceof HDAccount || account instanceof SingleAddressAccount ||
+                account instanceof EthAccount) &&
+                !((FioModule) walletManager.getModuleById(FioModule.ID)).getFIONames(account).isEmpty()) {
             menus.add(R.menu.record_map_to_fio);
         }
 
