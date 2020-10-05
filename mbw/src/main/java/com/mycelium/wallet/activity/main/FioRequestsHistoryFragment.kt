@@ -44,6 +44,7 @@ import android.widget.ExpandableListView
 import android.widget.TextView
 import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -58,8 +59,6 @@ import com.mycelium.wallet.event.*
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
@@ -89,8 +88,6 @@ class FioRequestsHistoryFragment : Fragment() {
     @BindView(R.id.btCreateFioRequest)
     var btCreateFioRequest: Button? = null
 
-    private val history: MutableList<FioGroup> = mutableListOf()
-
     @JvmField
     @BindView(R.id.btRescan)
     var btnReload: View? = null
@@ -119,7 +116,7 @@ class FioRequestsHistoryFragment : Fragment() {
                     val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
                     val receiveAddress = walletManager.getActiveBTCSingleAddressAccounts().first().receiveAddress as BtcAddress
                     val payee = receiveAddress.toString()
-                    val selectedAccount = walletManager.getActiveFioAccounts()[0] as FioAccount
+                    val selectedAccount = walletManager.getActiveFioAccounts()[0]
                     val fioAddress = Date().time.toString() + "@fiotestnet"
                     selectedAccount.registerFIOAddress(fioAddress)
                     val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
@@ -145,26 +142,19 @@ class FioRequestsHistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         listView = rootView!!.findViewById(R.id.lvTransactionHistory)
 
-        adapter = FioRequestArrayAdapter(requireActivity(), history)
+        adapter = FioRequestArrayAdapter(requireActivity(), model.fioRequestHistory.value ?: emptyList())
         listView.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
             val item: FIORequestContent = adapter.getChild(groupPosition, childPosition) as FIORequestContent
             FioSendRequestActivity.start(requireActivity(), item)
             false
         }
+        model.fioRequestHistory.observe(this.viewLifecycleOwner, Observer { it ->
+            adapter.notifyDataSetChanged()
+            showHistory(!model.fioRequestHistory.value.isNullOrEmpty())
+            refreshList()
+        })
 
         updateWrapper(adapter);
-        refresh()
-    }
-
-    private fun refresh() {
-        history.clear()
-        (MbwManager.getInstance(requireContext()).getWalletManager(false)
-                .getActiveFioAccounts().firstOrNull() as? FioAccount)?.let { fioAccount ->
-            history.addAll(fioAccount.getRequestsGroups())
-        }
-        adapter.notifyDataSetChanged()
-        showHistory(history.isNotEmpty())
-        refreshList()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -196,8 +186,8 @@ class FioRequestsHistoryFragment : Fragment() {
         refreshList()
     }
 
-    fun refreshList() {
-        listView!!.invalidateViews()
+    private fun refreshList() {
+        listView.invalidateViews()
     }
 
     @Subscribe
@@ -222,8 +212,6 @@ class FioRequestsHistoryFragment : Fragment() {
     fun syncStopped(event: SyncStopped?) {
         // It's possible that new transactions came. Adapter should allow to try to scroll
         isLoadingPossible.set(true)
-
-        refresh()
     }
 
     @Subscribe
@@ -243,7 +231,7 @@ class FioRequestsHistoryFragment : Fragment() {
 
     private fun showHistory(hasHistory: Boolean) {
         rootView!!.findViewById<View>(R.id.llNoRecords).visibility = if (hasHistory) View.GONE else View.VISIBLE
-        listView!!.visibility = if (hasHistory) View.VISIBLE else View.GONE
+        listView.visibility = if (hasHistory) View.VISIBLE else View.GONE
         if (accountsWithPartialHistory.contains(_mbwManager!!.selectedAccount.id)) {
             rootView!!.findViewById<View>(R.id.tvWarningNotFullHistory).visibility = View.VISIBLE
         } else {

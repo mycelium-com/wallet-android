@@ -11,7 +11,7 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 
 class FioRequestArrayAdapter(var activity: Activity,
-                             private val groups: MutableList<FioGroup>) : BaseExpandableListAdapter() {
+                             private val groups: List<FioGroup>) : BaseExpandableListAdapter() {
 
     override fun getChild(groupPosition: Int, childPosition: Int): Any {
         return groups[groupPosition].children[childPosition]
