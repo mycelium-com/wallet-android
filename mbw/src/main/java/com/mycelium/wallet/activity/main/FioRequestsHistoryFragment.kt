@@ -71,80 +71,52 @@ import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
-class FioRequestsHistoryFragment : Fragment() {
-    private var _mbwManager: MbwManager? = null
+class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
+    private lateinit var _mbwManager: MbwManager
     private var _storage: MetadataStorage? = null
-    private var rootView: View? = null
     private val currentActionMode: ActionMode? = null
     private val accountsWithPartialHistory: MutableSet<UUID> = HashSet()
-
     private val isLoadingPossible = AtomicBoolean(true)
-
-    @JvmField
-    @BindView(R.id.tvNoTransactions)
-    var noTransactionMessage: TextView? = null
-
-
-    @JvmField
-    @BindView(R.id.btCreateFioRequest)
-    var btCreateFioRequest: Button? = null
-
-    @JvmField
-    @BindView(R.id.btRescan)
-    var btnReload: View? = null
     private lateinit var adapter: FioRequestArrayAdapter
     private lateinit var model: FioRequestsHistoryModel
-    private lateinit var listView: ExpandableListView
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fio_request_history_view, container, false)
-            ButterKnife.bind(this, rootView!!)
-            btnReload!!.setOnClickListener {
-
-                _mbwManager!!.getWalletManager(false).getFioAccounts().forEach { account ->
-                    account.dropCachedData()
-                    _mbwManager!!.getWalletManager(false)
-                            .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
-                }
-
-            }
-
-            //fpr demo only
-            btCreateFioRequest?.visibility = View.GONE
-            btCreateFioRequest?.setOnClickListener {
-                GlobalScope.launch(IO) {
-
-                    val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
-                    val receiveAddress = walletManager.getActiveBTCSingleAddressAccounts().first().receiveAddress as BtcAddress
-                    val payee = receiveAddress.toString()
-                    val selectedAccount = walletManager.getActiveFioAccounts()[0]
-                    val fioAddress = Date().time.toString() + "@fiotestnet"
-                    selectedAccount.registerFIOAddress(fioAddress)
-                    val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
-                    selectedAccount.registerFIOAddress(fioAddress)
-                    val feeForFunds = selectedAccount.getFeeForFunds(fioAddress)
-                    val requestFunds = selectedAccount.requestFunds(
-                            "eosdac@fiotestnet",
-                            fioAddress,
-                            payee,
-                            2.0,
-                            "BTC",
-                            "BTC",
-                            feeForFunds.fee)
-                    println(requestFunds)
-                }
-            }
-
-        }
-
-        return rootView
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        listView = rootView!!.findViewById(R.id.lvTransactionHistory)
 
-        adapter = FioRequestArrayAdapter(requireActivity(), model.fioRequestHistory.value ?: emptyList())
-        listView.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
+        btRescan.setOnClickListener {
+            _mbwManager.getWalletManager(false)?.getFioAccounts()?.forEach { account ->
+                account.dropCachedData()
+                _mbwManager.getWalletManager(false)?.startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
+            }
+        }
+
+        //for demo only
+        btCreateFioRequest?.visibility = View.GONE
+        btCreateFioRequest?.setOnClickListener {
+            GlobalScope.launch(IO) {
+
+                val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
+                val receiveAddress = walletManager.getActiveBTCSingleAddressAccounts().first().receiveAddress as BtcAddress
+                val payee = receiveAddress.toString()
+                val selectedAccount = walletManager.getActiveFioAccounts()[0]
+                val fioAddress = Date().time.toString() + "@fiotestnet"
+                selectedAccount.registerFIOAddress(fioAddress)
+                val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
+                selectedAccount.registerFIOAddress(fioAddress)
+                val feeForFunds = selectedAccount.getFeeForFunds(fioAddress)
+                val requestFunds = selectedAccount.requestFunds(
+                        "eosdac@fiotestnet",
+                        fioAddress,
+                        payee,
+                        2.0,
+                        "BTC",
+                        "BTC",
+                        feeForFunds.fee)
+                println(requestFunds)
+            }
+        }
+        adapter = FioRequestArrayAdapter(requireActivity(), model.fioRequestHistory.value
+                ?: emptyList())
+        lvTransactionHistory.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
             val item: FIORequestContent = adapter.getChild(groupPosition, childPosition) as FIORequestContent
             FioSendRequestActivity.start(requireActivity(), item)
             false
@@ -169,7 +141,7 @@ class FioRequestsHistoryFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         _mbwManager = MbwManager.getInstance(context)
-        _storage = _mbwManager!!.metadataStorage
+        _storage = _mbwManager.metadataStorage
     }
 
     override fun onResume() {
@@ -188,7 +160,7 @@ class FioRequestsHistoryFragment : Fragment() {
     }
 
     private fun refreshList() {
-        listView.invalidateViews()
+        lvTransactionHistory.invalidateViews()
     }
 
     @Subscribe
@@ -198,14 +170,14 @@ class FioRequestsHistoryFragment : Fragment() {
 
     @Subscribe
     fun addressBookEntryChanged(event: AddressBookChanged?) {
-        model!!.cacheAddressBook()
+        model.cacheAddressBook()
         refreshList()
     }
 
     @Subscribe
     fun selectedAccountChanged(event: SelectedAccountChanged?) {
         isLoadingPossible.set(true)
-        listView!!.setSelection(0)
+        lvTransactionHistory.setSelection(0)
         //      updateWrapper(adapter);
     }
 
@@ -231,18 +203,18 @@ class FioRequestsHistoryFragment : Fragment() {
     }
 
     private fun showHistory(hasHistory: Boolean) {
-       llNoRecords.visibility = if (hasHistory) View.GONE else View.VISIBLE
-        listView.visibility = if (hasHistory) View.VISIBLE else View.GONE
-        if (accountsWithPartialHistory.contains(_mbwManager!!.selectedAccount.id)) {
-           tvWarningNotFullHistory.visibility = View.VISIBLE
+        llNoRecords.visibility = if (hasHistory) View.GONE else View.VISIBLE
+        lvTransactionHistory.visibility = if (hasHistory) View.VISIBLE else View.GONE
+        if (accountsWithPartialHistory.contains(_mbwManager.selectedAccount.id)) {
+            tvWarningNotFullHistory.visibility = View.VISIBLE
         } else {
-           tvWarningNotFullHistory.visibility = View.GONE
+            tvWarningNotFullHistory.visibility = View.GONE
         }
     }
 
     private fun updateWrapper(adapter: FioRequestArrayAdapter) {
         this.adapter = adapter;
-        listView.setAdapter(adapter);
+        lvTransactionHistory.setAdapter(adapter);
 
     }
 
