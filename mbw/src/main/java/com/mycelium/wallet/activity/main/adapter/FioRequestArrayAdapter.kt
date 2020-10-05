@@ -3,22 +3,20 @@ package com.mycelium.wallet.activity.main.adapter
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseExpandableListAdapter
-import android.widget.CheckedTextView
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
+import androidx.core.content.ContextCompat
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.lib.CurrencyCode
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import java.math.BigInteger
+
 
 class FioRequestArrayAdapter(var activity: Activity,
                              private val groups: List<FioGroup>,
@@ -44,11 +42,13 @@ class FioRequestArrayAdapter(var activity: Activity,
         }
         val content = children.deserializedContent
 
-        val directionToMe = true //content?.payeeTokenPublicAddress
+
+        val isIncoming = true //content?.payeeTokenPublicAddress
         val isError = false
 
+        val color = if (isIncoming) R.color.green else R.color.red
         val direction = convertView?.findViewById<TextView>(R.id.tvDirection)
-        direction?.text = if (directionToMe) "From:" else "To:"
+        direction?.text = if (isIncoming) "From:" else "To:"
         val address = convertView?.findViewById<TextView>(R.id.tvAddress)
         address?.text = children.payeeFioAddress
 
@@ -56,10 +56,10 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         when (group.status) {
             FioGroup.Type.SENT -> {
-                ivStatus?.setBackgroundResource(if (isError) R.drawable.ic_request_good_to_go else R.drawable.ic_request_error)
+//                ivStatus?.setBackgroundResource(if (isError) R.drawable.ic_request_good_to_go else R.drawable.ic_request_error)
             }
             FioGroup.Type.PENDING -> {
-                ivStatus?.setBackgroundResource(if (directionToMe) R.drawable.ic_request_arrow_down else R.drawable.ic_request_arrow_up)
+//                ivStatus?.setBackgroundResource(if (isIncoming) R.drawable.ic_request_arrow_down else R.drawable.ic_request_arrow_up)
             }
         }
 
@@ -69,7 +69,8 @@ class FioRequestArrayAdapter(var activity: Activity,
         val btc = Value.valueOf(FIOMain, content?.amount?.toBigInteger()
                 ?: BigInteger.ZERO)
         amount?.text = btc.toStringWithUnit()
-        val convert = convert(btc,  Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
+        amount?.setTextColor(ContextCompat.getColor(activity, color))
+        val convert = convert(btc, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
         val tvFiatAmount = convertView?.findViewById<TextView>(R.id.tvFiatAmount)
         tvFiatAmount?.text = convert?.toStringWithUnit()
 
@@ -111,6 +112,8 @@ class FioRequestArrayAdapter(var activity: Activity,
         val checkedTextView = convertView as CheckedTextView
         checkedTextView.text = group.status.toString()
         checkedTextView.isChecked = isExpanded
+        val listView = parent as ExpandableListView
+        listView.expandGroup(groupPosition);
         return convertView
     }
 
