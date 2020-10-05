@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/item_selector"
-    tools:context=".activity.main.adapter.TransactionArrayAdapter"
-    android:paddingEnd="4dp">
+    android:orientation="horizontal"
+    android:paddingEnd="4dp"
+    tools:context=".activity.main.adapter.TransactionArrayAdapter">
 
-    <!-- graphical confirmation indicator -->
     <ImageView
-        android:id="@+id/tcdConfirmations"
+        android:id="@+id/ivStatus"
         android:layout_width="20dp"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        app:srcCompat="@drawable/ic_request_error"
-        android:layout_margin="5dp" />
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="16dp"
+        app:srcCompat="@drawable/ic_request_error" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- row 1 -->
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -31,35 +31,34 @@
 
             <TextView
                 android:id="@+id/tvDirection"
-                tools:text="Direction"
                 android:layout_width="wrap_content"
-                android:ellipsize="end"
+                android:layout_height="match_parent"
                 android:layout_marginRight="16dp"
-                android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:ellipsize="end"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                tools:text="From" />
 
             <TextView
                 android:id="@+id/tvAddress"
-                tools:text="Address"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:textSize="14sp"
+                tools:text="Address" />
 
             <TextView
                 android:id="@+id/tvAmount"
-                tools:text="12.34 mBTC"
                 android:layout_width="wrap_content"
-                android:layout_gravity="end"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:layout_gravity="end"
+                android:textSize="18sp"
+                tools:text="12.34 mBTC" />
 
 
         </LinearLayout>
 
-
-        <!-- row 3 (optional) -->
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -67,25 +66,25 @@
 
             <TextView
                 android:id="@+id/tvMemo"
-                tools:text="address"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textSize="13sp"
+                android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:typeface="monospace"></TextView>
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                android:typeface="monospace"
+                tools:text="address" />
 
             <TextView
                 android:id="@+id/tvFiatAmount"
-                tools:text="12 USD"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:textSize="13sp"></TextView>
+                android:textSize="14sp"
+                tools:text="12 USD" />
         </LinearLayout>
 
-        <!-- row 4 (optional) -->
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -93,15 +92,15 @@
 
             <TextView
                 android:id="@+id/tvUnconfirmedWarning"
-                tools:text="Warning: wait at least for on confirmation"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textColor="@color/red"
-                android:textSize="13sp"
+                android:layout_weight="1"
                 android:ellipsize="end"
-                android:visibility="gone"></TextView>
+                android:textColor="@color/red"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Warning: wait at least for on confirmation" />
 
         </LinearLayout>
 

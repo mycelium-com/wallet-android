@@ -115,7 +115,7 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
             }
         }
         adapter = FioRequestArrayAdapter(requireActivity(), model.fioRequestHistory.value
-                ?: emptyList())
+                ?: emptyList(), _mbwManager)
         lvTransactionHistory.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
             val item: FIORequestContent = adapter.getChild(groupPosition, childPosition) as FIORequestContent
             FioSendRequestActivity.start(requireActivity(), item)
