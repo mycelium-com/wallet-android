@@ -27,6 +27,9 @@ import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class FIONameDetailsFragment : Fragment() {
@@ -80,11 +83,13 @@ class FIONameDetailsFragment : Fragment() {
                     .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
         }
         buttonContinue.setOnClickListener {
-            fioModule.mapFioNameToAccounts(args.fioName.name,
-                    adapter.currentList
-                            .filterIsInstance<ItemAccount>()
-                            .filter { it.isEnabled }
-                            .mapNotNull { walletManager.getAccount(it.accountId) })
+            GlobalScope.launch(Dispatchers.IO) {
+                fioModule.mapFioNameToAccounts(args.fioName.name,
+                        adapter.currentList
+                                .filterIsInstance<ItemAccount>()
+                                .filter { it.isEnabled }
+                                .mapNotNull { walletManager.getAccount(it.accountId) })
+            }
             Toaster(this).toast("accounts connected", false)
         }
     }
