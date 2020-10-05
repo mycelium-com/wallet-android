@@ -161,12 +161,18 @@ class ManualAddressEntry : AppCompatActivity() {
                         .build()
                 val response = client.newCall(request).execute()
                 noConnection = false
-                val result = mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
-                result.publicAddress?.let { npbaString ->
-                    fioModule.addKnownName(FioName(address))
-                    fioNameToNbpaMap[address] = npbaString
+                // TODO: 10/5/20 At least when using a debugger, replies can end up out of order
+                //       which might result in hard to debug bugs.
+                if (response.isSuccessful) {
+                    val reply = response.body()!!.string()
+                    val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
+                    result.publicAddress?.let { npbaString ->
+                        fioModule.addKnownName(FioName(address))
+                        fioNameToNbpaMap[address] = npbaString
+                    }
                 }
             } catch (e: IOException) {
+                // We have to check that name again once we have a connection
                 checkedFioNames.remove(address)
                 noConnection = true
             } catch (e: Exception) {

@@ -72,10 +72,10 @@ class FioModule(
     fun deleteKnownName(fioName: FioName) = walletDB.fioKnownNamesQueries.delete(fioName)
 
     fun getConnectedAccounts(fioName: String): List<WalletAccount<*>> {
-        var connected = ArrayList<WalletAccount<*>>()
-        var accountsList = walletDB.fioNameAccountMappingsQueries.selectAccountsUuidByFioName(fioName).executeAsList()
+        val connected = ArrayList<WalletAccount<*>>()
+        val accountsList = walletDB.fioNameAccountMappingsQueries.selectAccountsUuidByFioName(fioName).executeAsList()
         accountsList.forEach {
-            var account = walletManager.getAccount(it)
+            val account = walletManager.getAccount(it)
             if (account != null) {
                 connected.add(account)
             }
