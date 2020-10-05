@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:textSize="13sp"
+                android:textSize="18sp"
                 tools:text="12 USD" />
         </LinearLayout>
 

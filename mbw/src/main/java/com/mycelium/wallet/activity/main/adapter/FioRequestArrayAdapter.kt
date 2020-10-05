@@ -112,8 +112,6 @@ class FioRequestArrayAdapter(var activity: Activity,
         val checkedTextView = convertView as CheckedTextView
         checkedTextView.text = group.status.toString()
         checkedTextView.isChecked = isExpanded
-        val listView = parent as ExpandableListView
-        listView.expandGroup(groupPosition);
         return convertView
     }
 
