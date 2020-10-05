@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:layout_margin="5dp"
+        android:paddingRight="8dp"
         app:srcCompat="@drawable/ic_request_error" />
 
     <LinearLayout

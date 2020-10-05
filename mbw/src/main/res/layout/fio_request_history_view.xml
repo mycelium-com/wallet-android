@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/tvWarningNotFullHistory"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:background="@color/status_yellow"
         android:padding="8dp"
         android:text="@string/too_many_transaction_records"
         android:textSize="13sp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 
     <Button
@@ -24,44 +24,43 @@
     <!-- Transaction History -->
     <ExpandableListView
         android:id="@+id/lvTransactionHistory"
-        android:layout_below="@+id/btCreateFioRequest"
-        android:choiceMode="singleChoice"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/btCreateFioRequest"
+        android:choiceMode="singleChoice"
         android:divider="@color/darkgrey"
-        android:dividerHeight="1dp" />
+        android:dividerHeight="1dp"
+        android:groupIndicator="@null" />
 
-<!--    android:groupIndicator="@drawable/arrow_expanded_selector"-->
+    <!--    android:groupIndicator="@drawable/arrow_expanded_selector"-->
 
     <LinearLayout
         android:id="@+id/llNoRecords"
         android:layout_width="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_centerInParent="true"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:visibility="gone" >
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tvNoTransactions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:paddingTop="10dp"
             android:gravity="center"
+            android:paddingTop="10dp"
             android:text="@string/no_transaction_records"
-            android:textSize="20sp"
-            />
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/btRescan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_gravity="center"
-            android:text="@string/rescan_account_menu_item"
-            />
+            android:layout_marginTop="20dp"
+            android:text="@string/rescan_account_menu_item" />
     </LinearLayout>
 
 </RelativeLayout>

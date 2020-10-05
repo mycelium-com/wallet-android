@@ -104,14 +104,26 @@ class FioRequestArrayAdapter(var activity: Activity,
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
                               convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
+
+        val group = getGroup(groupPosition) as FioGroup
+
         if (convertView == null) {
             val inflater = activity.layoutInflater
             convertView = inflater.inflate(R.layout.fio_request_listrow_group, null)
+
+            convertView?.setOnClickListener{
+                val expandableListView = convertView?.getParent() as ExpandableListView
+                if (!expandableListView.isGroupExpanded(groupPosition)) {
+                    expandableListView.expandGroup(groupPosition)
+                } else {
+                    expandableListView.collapseGroup(groupPosition)
+                }
+            }
         }
-        val group = getGroup(groupPosition) as FioGroup
-        val checkedTextView = convertView as CheckedTextView
+        val arrow = convertView?.findViewById<CheckBox>(R.id.cbArrow)
+        val checkedTextView = convertView?.findViewById(R.id.textView1) as TextView
         checkedTextView.text = group.status.toString()
-        checkedTextView.isChecked = isExpanded
+        arrow?.isChecked = isExpanded
         return convertView
     }
 
