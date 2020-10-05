@@ -168,14 +168,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     private fun initDatabinding(account: WalletAccount<*>) {
         //Data binding, should be called after everything else
         val sendCoinsActivityBinding = when (account) {
-            is ColuAccount -> {
-                DataBindingUtil.setContentView<SendCoinsActivityColuBinding>(this,
-                        R.layout.send_coins_activity_colu)
-                        .also {
-                            it.viewModel = viewModel
-                            it.activity = this
-                        }
-            }
             is HDAccount, is SingleAddressAccount -> {
                 DataBindingUtil.setContentView<SendCoinsActivityBtcBinding>(this, R.layout.send_coins_activity_btc)
                         .also {
