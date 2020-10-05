@@ -32,9 +32,7 @@ import com.mycelium.wallet.databinding.FioSendRequestActivityBinding
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
-import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -93,15 +91,11 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
+        val requestedCurrency = COINS.values.firstOrNull { it.symbol.toUpperCase() == fioRequestContent.deserializedContent!!.chainCode }
+                ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
 
-
-        // TODO uncomment and use getConnectedAccounts() when mapping saving is implemented
-//        val mappedAccounts = fioModule.getConnectedAccounts(fioRequestViewModel.satisfyRequestFrom.value!!)
-//        val account = mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
-//                ?: throw IllegalStateException("No mapped address of type ${fioRequestContent.deserializedContent!!.chainCode}")
-
-        // taking first btc account to check that the whole thing works
-        val account = walletManager.getBTCBip44Accounts().first()
+        val mappedAccounts = fioModule.getConnectedAccounts(fioRequestViewModel.payerName.value!!)
+        val account = mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
 
         sendViewModel = when (account) {
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
@@ -128,8 +122,6 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
         initFeeLvlView()
 
         // tx data population
-        val requestedCurrency = COINS.values.firstOrNull { it.symbol.toUpperCase() == fioRequestContent.deserializedContent!!.chainCode }
-                ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
         fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
                 fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
@@ -286,10 +278,9 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
             return try {
                 val request = fioRequestViewModel.request.value!!
                 val amountInDouble = fioRequestViewModel.amount.value!!.toPlainString().toDouble()
-                Log.i("asdaf", "asdaf amountInDouble: $amountInDouble, amount ${fioRequestViewModel.amount.value!!}")
                 fioRequestViewModel.payerNameOwnerAccount.value!!.recordObtData(request.fioRequestId,
                         request.payerFioAddress, request.payeeFioAddress, fioRequestViewModel.payerTokenPublicAddress.value!!,
-                        fioRequestViewModel.payerTokenPublicAddress.value!!, amountInDouble, request.deserializedContent!!.chainCode,
+                        fioRequestViewModel.payeeTokenPublicAddress.value!!, amountInDouble, request.deserializedContent!!.chainCode,
                         request.deserializedContent!!.tokenCode, txid, fioRequestViewModel.memoTo.value!!)
             } catch (e: IOException) {
                 false
