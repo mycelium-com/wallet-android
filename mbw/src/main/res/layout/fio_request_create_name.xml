@@ -39,8 +39,8 @@
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/arrow_bottom"
                     android:drawablePadding="16dp"
-                    android:textSize="18sp"
                     android:text="@{viewModel.payeeFioAddress}"
+                    android:textSize="18sp"
                     tools:text="newAddress@domain" />
 
 
@@ -82,29 +82,27 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="32dp"
-                android:textSize="18sp"
                 android:drawableRight="@drawable/ic_edit_fio_name"
                 android:drawablePadding="16dp"
                 android:text="@{viewModel.payerFioAddress}"
+                android:textSize="18sp"
                 tools:text="newAddress@domain" />
 
             <LinearLayout
+                android:id="@+id/sendLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="5dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Enter amount" />
+                android:layout_marginBottom="5dp"
+               >
 
                 <!--Contains amount selection-->
-                <include layout="@layout/send_coins_amount"
+                <include
 
-                    />
-                <!--                    app:activity="@{activity}"-->
-                <!--                    app:viewModel="@{viewModel}"-->
+                    layout="@layout/send_coins_amount"
+                    app:viewModel="@{viewModel}" />
+
+                <!--                app:activity="@{activity}"-->
             </LinearLayout>
 
             <LinearLayout

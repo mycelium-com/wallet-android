@@ -6,15 +6,21 @@ import android.os.Bundle
 import android.view.Window
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.databinding.FioRequestCreateNameBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
+import kotlinx.android.synthetic.main.fio_request_create_name.*
 
 
 class FioRequestCreateActivity : AppCompatActivity() {
@@ -39,14 +45,17 @@ class FioRequestCreateActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(FioRequestCreateViewModel::class.java)
-
+        val account = MbwManager.getInstance(this).selectedAccount
+        if (!viewModel.isInitialized()) {
+            viewModel.init(account, intent)
+        }
         val amount = intent.getSerializableExtra(AMOUNT) as Value?
         val fioAddressTo = intent.getStringExtra(FIO_ADDRESS_TO)
         val tokenAddressTo = intent.getSerializableExtra(FIO_TOKEN_TO) as Address?
 
         viewModel.payerFioAddress.value = fioAddressTo
         viewModel.payerTokenPublicAddress.value = tokenAddressTo.toString()
-        viewModel.amount.value = amount
+//        viewModel.amount.value = amount
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         supportActionBar?.run {
@@ -74,13 +83,24 @@ class FioRequestCreateActivity : AppCompatActivity() {
                                     .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
                             this@FioRequestCreateActivity.startActivityForResult(intent, ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE)
                         }
+                        sendLayout.setOnClickListener {
+                            onClickAmount()
+                        }
                     }
                 }
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         viewModel.processReceivedResults(requestCode, resultCode, data, this)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun onClickAmount() {
+        val account = viewModel.getAccount()
+        GetAmountActivity.callMeToSend(this, SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.id,
+                viewModel.getAmount().value, viewModel.getSelectedFee().value,
+                viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
     }
 
     fun showPayeeSelector() {
