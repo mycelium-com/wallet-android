@@ -685,11 +685,13 @@ public class AccountsFragment extends Fragment {
                 int id = menuItem.getItemId();
                 switch (id) {
                     case R.id.miMapFioAddress:
-                        Intent intent = new Intent(requireActivity(), RegisterFioNameActivity.class);
+                        Intent intent = new Intent(requireActivity(), RegisterFioNameActivity.class)
+                                .putExtra("account", account.getId());
                         startActivity(intent);
                         return true;
                     case R.id.miRegisterFioDomain:
-                        startActivity(new Intent(requireActivity(), RegisterFIODomainActivity.class));
+                        startActivity(new Intent(requireActivity(), RegisterFIODomainActivity.class)
+                                .putExtra("account", account.getId()));
                         return true;
                     case R.id.miFioMapAccounts:
                     case R.id.miMapToFio:

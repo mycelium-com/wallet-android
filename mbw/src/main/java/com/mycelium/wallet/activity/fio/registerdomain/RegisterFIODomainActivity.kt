@@ -7,13 +7,16 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.coins.isFioDomain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import java.util.*
 
 class RegisterFIODomainActivity : AppCompatActivity() {
     private lateinit var viewModel: RegisterFioDomainViewModel
@@ -49,6 +52,10 @@ class RegisterFIODomainActivity : AppCompatActivity() {
                 }
             }
         })
+        (intent.getSerializableExtra("account") as? UUID)?.let {
+            val walletManager = MbwManager.getInstance(this).getWalletManager(false)
+            viewModel.fioAccountToRegisterName.value = walletManager.getAccount(it) as FioAccount
+        }
         RegisterFioNameActivity.UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)

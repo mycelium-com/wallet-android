@@ -73,6 +73,18 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                                             fioAccounts[p2].label))
                                 }
                             }
+
+                            // preselect account which context menu was used
+                            val fioAccount = this.fioAccountToRegisterName.value
+                            if (fioAccount != null) {
+                                spinnerFioAccounts.setSelection((spinnerFioAccounts.adapter as ArrayAdapter<String>).getPosition(
+                                        fioAccount.label))
+                                // temporary account to register on and to pay fee from are the same
+                                // until the ability of paying with other currencies is implemented
+                                // TODO remove next line when it's ready
+                                spinnerPayFromAccounts.setSelection((spinnerPayFromAccounts.adapter as ArrayAdapter<String>).getPosition(
+                                        "${fioAccount.label} ${fioAccount.accountBalance.spendable.toStringWithUnit()}"))
+                            }
                         }
                         lifecycleOwner = this@RegisterFioDomainStep2Fragment
                     }.root
