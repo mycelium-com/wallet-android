@@ -7,8 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
+import com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel
 import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.btc.bip44.getActiveHDAccounts
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
@@ -48,13 +51,19 @@ open class FioRequestBtcViewModel() : ViewModel() {
                 transferTokensFee)
     }
 
+    fun getPayeeFioAddreses() : List<RegisteredFIOName>? {
+        return payeeFioAddreses.value
+    }
     open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()) {
+            if (requestCode == ReceiveCoinsViewModel.GET_AMOUNT_RESULT_CODE) {
+                // Get result from address chooser (may be null)
+                amount.value = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
+            } else if (requestCode == ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()) {
                 val fioAddress = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
-                val addressResult = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!!
+                val addressResult = data?.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
                 payeeFioAddress.value = fioAddress
-                payeeTokenPublicAddress.value = addressResult
+//                payeeTokenPublicAddress.value = addressResult
             }
         }
     }

@@ -17,30 +17,9 @@
         android:padding="18dp">
 
 
-        <ImageView
-            android:id="@+id/imFioLogo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tvTitle"
-            app:srcCompat="@drawable/ic_back_arrow" />
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/imFioLogo"
-            android:paddingStart="13dp"
-            android:text="@string/fio_enter_fio_name_title"
-            android:textColor="@color/fio_white_alpha_0_9"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/imFioLogo"
             android:layout_marginTop="16dp"
             android:orientation="vertical">
 
@@ -57,6 +36,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawableRight="@drawable/arrow_bottom"
+                    android:drawablePadding="32dp"
+                    android:textSize="18sp"
                     android:text="@{viewModel.payerTokenPublicAddress}"
                     tools:text="newAddress@domain" />
 
@@ -75,9 +57,9 @@
                     android:text="Receiving account" />
 
                 <TextView
+                    android:id="@+id/tvReceivingAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:drawableRight="@drawable/arrow_bottom"
                     android:drawablePadding="8dp"
                     android:text="@{viewModel.payeeTokenPublicAddress}"
                     android:textColor="@color/fio_green"
@@ -94,16 +76,16 @@
                 android:text="Send request to: " />
 
             <TextView
+                android:id="@+id/tvPayerFioAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="32dp"
+                android:textSize="18sp"
+                android:drawableRight="@drawable/ic_edit_fio_name"
+                android:drawablePadding="32dp"
                 android:text="@{viewModel.payeeTokenPublicAddress}"
-                tools:text="newAddress@domain"
-
-
-                />
-
+                tools:text="newAddress@domain" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -140,7 +122,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
-                    android:text="Free"
+                    android:text="Free (bundle transaction)"
                     android:textSize="16sp" />
             </LinearLayout>
 

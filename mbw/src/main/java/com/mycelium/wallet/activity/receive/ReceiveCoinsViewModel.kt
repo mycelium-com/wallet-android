@@ -19,6 +19,7 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity.Companion.MANUA
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -156,7 +157,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                 }
             } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()){
                 val fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
-                val addressResult = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!!
+                val addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
                 val value = getRequestedAmount().value
                 FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult)
             }
