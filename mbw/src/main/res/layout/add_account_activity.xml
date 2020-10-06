@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -72,20 +73,51 @@
             android:text="@string/hd_account"
             android:textColor="#FFFFFF" />
 
-        <Button
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/btFIOCreate"
+            style="@style/MyceliumButton.FIO"
             android:layout_width="match_parent"
             android:layout_height="44dp"
             android:layout_marginStart="18dp"
             android:layout_marginTop="14dp"
             android:layout_marginEnd="23dp"
-            android:drawableStart="@drawable/ic_fiopresale_icon_small"
-            android:drawablePadding="13dp"
-            android:fontFamily="sans-serif"
-            android:gravity="start|center_vertical"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:text="@string/hd_fio_account" />
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/btFIOCreateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_fiopresale_icon_small"
+                android:textStyle="bold"
+                android:drawablePadding="13dp"
+                android:fontFamily="sans-serif"
+                android:gravity="start|center_vertical"
+                android:text="@string/hd_fio_account"
+                android:textColor="@color/button_text_color"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_fio_new_bubble"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="7dp"
+                android:paddingBottom="2dp"
+                android:text="NEW"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textSize="9sp"
+                app:layout_constraintLeft_toRightOf="@id/btFIOCreateText"
+                tools:ignore="SmallSp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <Button
@@ -171,6 +203,7 @@
             android:layout_marginStart="18dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="23dp"
+            android:layout_marginBottom="8dp"
             android:drawableStart="@drawable/ic_add_24px"
             android:drawablePadding="5dp"
             android:fontFamily="sans-serif"
