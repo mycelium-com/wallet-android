@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:visibility="@{(viewModel.receivingAddressText.isEmpty() &amp;&amp; !viewModel.hasPaymentRequestHandler) ? View.GONE : View.VISIBLE}"
         android:orientation="vertical">
 
         <!-- Receiver Label -->
@@ -42,6 +41,17 @@
                     layout="@layout/send_coins_recipient_address"
                     app:viewModel="@{viewModel}" />
         </LinearLayout>
+        <TextView
+                android:id="@+id/tvWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:text="@{viewModel.heapWarning}"
+                tools:text="Some rather long, long warning about sending to yourself."
+                android:textSize="16sp"
+                android:visibility="@{viewModel.heapWarning.toString().isEmpty() ? View.GONE :  View.VISIBLE }" />
 
         <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
             android:id="@+id/receiversAddressList"
