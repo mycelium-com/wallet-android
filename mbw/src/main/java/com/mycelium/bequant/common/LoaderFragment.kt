@@ -33,6 +33,9 @@ class LoaderFragment : DialogFragment() {
 }
 
 fun Fragment.loader(show: Boolean) {
+    if (!isAdded) {
+        return
+    }
     if (show) {
         val loader = LoaderFragment()
         loader.show(childFragmentManager, Constants.LOADER_TAG)
