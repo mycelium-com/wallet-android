@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.widget.TextView

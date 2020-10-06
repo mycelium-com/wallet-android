@@ -15,6 +15,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
@@ -47,15 +48,18 @@ import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
+import kotlinx.android.synthetic.main.send_coins_recipient_fio.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     private lateinit var viewModel: SendCoinsViewModel
     private lateinit var mbwManager: MbwManager
+    private lateinit var senderFioNamesMenu: PopupMenu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,6 +124,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
+        createSenderFioNamesMenu()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
@@ -293,6 +298,35 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 .putExtra(ACCOUNT, viewModel.getAccount().id)
                 .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage())
         startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE)
+    }
+
+    fun onClickSenderFioNames() {
+        senderFioNamesMenu.show()
+    }
+
+    private fun createSenderFioNamesMenu() {
+        val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+        val now = Date()
+        val fioNames = fioModule.getAllRegisteredFioNames().filter { it.expireDate.after(now) }
+        senderFioNamesMenu = PopupMenu(this, iv_from_fio_name).apply {
+            fioNames.forEach {
+                menu.add(it.name)
+            }
+            setOnMenuItemClickListener { item ->
+                // btcViewModel.setAddressType(AddressType.values()[item.itemId])
+                tv_from.text = item.title
+                getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+                        .edit()
+                        .putString(Constants.LAST_FIO_SENDER, "${item.title}")
+                        .apply()
+                false
+            }
+            val fioSender = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+                    .getString(Constants.LAST_FIO_SENDER, "")
+            if (menu.children.any { it.title == fioSender }) {
+                tv_from.text = fioSender
+            }
+        }
     }
 
     fun onClickSend() {
