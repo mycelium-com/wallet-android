@@ -52,8 +52,9 @@ class ManualAddressEntry : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val isForFio = intent.getBooleanExtra(FOR_FIO_REQUEST, false)
         supportActionBar?.run {
-            title = getString(R.string.enter_recipient_title)
+            title = getString(if(!isForFio)R.string.enter_recipient_title else R.string.fio_enter_fio_name_title)
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
@@ -75,7 +76,7 @@ class ManualAddressEntry : AppCompatActivity() {
         })
         btOk.setOnClickListener { finishOk(coinAddress!!) }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
-        etRecipient.hint = getString(R.string.enter_recipient_hint, coinType.name)
+        etRecipient.hint = if (!isForFio) getString(R.string.enter_recipient_hint, coinType.name) else getString(R.string.fio_name)
         tvEnterRecipientDescription.text = getString(R.string.enter_recipient_description, coinType.name)
         lvKnownFioNames.adapter = ArrayAdapter<String>(this, R.layout.fio_address_item, fioNames)
         lvKnownFioNames.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -202,5 +203,6 @@ class ManualAddressEntry : AppCompatActivity() {
     companion object {
         const val ADDRESS_RESULT_NAME = "address"
         const val ADDRESS_RESULT_FIO = "fioName"
+        const val FOR_FIO_REQUEST = "IS_FOR_FIO_REQUEST"
     }
 }
