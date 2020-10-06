@@ -1393,6 +1393,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_remaining_balance">Remaining FIO Balance</string>
     <string name="fio_create_unique_address">Create a unique FIO Name</string>
     <string name="fio_create_request">FIO Request</string>
+    <string name="fio_create_request_currency_title">Request %s</string>
     <string name="fio_address_is_invalid">Invalid FIO Name</string>
     <string name="fio_domain_is_invalid">Invalid FIO Domain</string>
     <string name="fio_address_occupied">This FIO Name is not available for registration. You can register on your own FIO domain</string>

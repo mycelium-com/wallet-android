@@ -156,8 +156,9 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                 }
             } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()){
                 val fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
+                val addressResult = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!!
                 val value = getRequestedAmount().value
-                FioRequestCreateActivity.start(activity, value, fioAddressForRequest)
+                FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult)
             }
         }
     }
