@@ -51,6 +51,7 @@ class RegisterFioNameCompletedFragment : Fragment() {
         btConnectAccounts.setOnClickListener {
             startActivity(Intent(context, AccountMappingActivity::class.java)
                     .putExtra("fioName", RegisteredFIOName(fioName, convertToDate(expirationDate))))
+            activity?.finish()
         }
         tvFioName.text = fioName
         tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_connect_accounts_desc, fioName),
