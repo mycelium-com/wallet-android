@@ -95,7 +95,11 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
 
         val mappedAccounts = fioModule.getConnectedAccounts(fioRequestViewModel.payerName.value!!)
-        val account = mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
+        val account = if (requestedCurrency.symbol == "FIO") {
+            fioRequestViewModel.payerNameOwnerAccount.value
+        } else {
+            mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
+        }
 
         sendViewModel = when (account) {
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)

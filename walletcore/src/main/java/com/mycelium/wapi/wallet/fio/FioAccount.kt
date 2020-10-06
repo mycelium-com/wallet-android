@@ -109,7 +109,7 @@ class FioAccount(private val accountContext: FioAccountContext,
                 obtId = obtId,
                 maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
                 memo = memo).getActionTraceResponse()
-        return actionTraceResponse != null && actionTraceResponse.status == "OK"
+        return actionTraceResponse != null && actionTraceResponse.status == "sent_to_blockchain"
     }
 
     private fun getFioNames(): List<RegisteredFIOName> = try {
