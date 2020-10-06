@@ -29,7 +29,10 @@ import com.mycelium.wallet.activity.send.model.SendBtcViewModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
 import com.mycelium.wallet.activity.send.model.SendEthViewModel
 import com.mycelium.wallet.activity.send.model.SendFioViewModel
-import com.mycelium.wallet.databinding.*
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.FioSendRequestActivityBinding
+import com.mycelium.wallet.databinding.FioSendRequestActivityEthBinding
+import com.mycelium.wallet.databinding.FioSendRequestActivityFioBinding
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -54,7 +57,7 @@ import java.io.IOException
 import java.math.BigDecimal
 import java.math.BigInteger
 
-class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
+class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     private lateinit var fioRequestViewModel: FioSendRequestViewModel
     private lateinit var sendViewModel: SendCoinsViewModel
@@ -64,7 +67,7 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
     companion object {
         const val CONTENT = "CONTENT"
         fun start(activity: Activity, item: FIORequestContent) {
-            with(Intent(activity, FioSendRequestActivity::class.java)) {
+            with(Intent(activity, ApproveFioRequestActivity::class.java)) {
                 putExtra(CONTENT, item.toJson())
                 activity.startActivity(this)
             }
@@ -90,7 +93,8 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.payerName.value = fioRequestContent.payerFioAddress
         Log.i("asdaf", "asdaf payeeFioAddress: ${fioRequestContent.payeeFioAddress} payerFioAddress: ${fioRequestContent.payerFioAddress}")
 
-        val walletManager = MbwManager.getInstance(this).getWalletManager(false)
+        val mbwManager = MbwManager.getInstance(this)
+        val walletManager = mbwManager.getWalletManager(false)
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
@@ -146,6 +150,14 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         tvSatisfyFromAccount.text = "${account.label} - ${account.accountBalance.spendable}"
+
+        // populate fiat spinner
+        val fiatCurrencies = MbwManager.getInstance(this).currencyList
+        val spinnerItems = fiatCurrencies.map {
+            mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it).toStringWithUnit()
+        }
+        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
+                spinnerItems)
     }
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
@@ -153,6 +165,7 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     fun onClickSend() {
         sendViewModel.sendTransaction(this)
+//        ApproveFioRequestSuccessActivity.start(this)
     }
 
     fun onClickDecline() {
@@ -274,7 +287,7 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
             if (fioRequestViewModel.memoTo.value != null) {
                 RecordObtTask(txid, fioRequestViewModel) { success ->
                     if (success) {
-                        FioSendStatusActivity.start(this)
+                        ApproveFioRequestSuccessActivity.start(this)
                     } else {
                         Toaster(this).toast("No memo  for you today. Not sorry", false)
                         finish()

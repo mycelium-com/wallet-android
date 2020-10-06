@@ -265,9 +265,9 @@
 
         <activity android:name=".activity.fio.requests.FioRequestBtcActivity" />
 
-        <activity android:name=".activity.fio.requests.FioSendRequestActivity" />
+        <activity android:name=".activity.fio.requests.ApproveFioRequestActivity" />
 
-        <activity android:name=".activity.fio.requests.FioSendStatusActivity" />
+        <activity android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity" />
     </application>
 
 </manifest>

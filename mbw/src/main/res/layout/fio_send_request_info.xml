@@ -108,19 +108,18 @@
                 app:layout_constraintStart_toEndOf="@id/tvAmountTitle"
                 tools:text="0.00123305 tBTC" />
 
-            <TextView
-                android:id="@+id/tvAmountFiat"
-                android:layout_width="0dp"
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinnerFiat"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="@{fioRequestViewModel.alternativeAmountFormatted}"
+                android:background="@null"
                 android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
                 android:typeface="monospace"
-                android:visibility="@{fioRequestViewModel.alternativeAmountFormatted.isEmpty() ? View.GONE : View.VISIBLE}"
+                android:dropDownWidth="wrap_content"
+                tools:text="55.02 USD"
                 app:layout_constraintEnd_toEndOf="@id/tvAmount"
-                app:layout_constraintTop_toBottomOf="@id/tvAmount"
-                tools:text="55.02 USD" />
+                app:layout_constraintTop_toBottomOf="@id/tvAmount" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

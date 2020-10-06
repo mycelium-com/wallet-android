@@ -44,7 +44,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.TransactionDetailsActivity
-import com.mycelium.wallet.activity.fio.requests.FioSendRequestActivity
+import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter
 import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryModel
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
@@ -111,7 +111,7 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
                 ?: emptyList(), _mbwManager)
         lvTransactionHistory.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
             val item: FIORequestContent = adapter.getChild(groupPosition, childPosition) as FIORequestContent
-            FioSendRequestActivity.start(requireActivity(), item)
+            ApproveFioRequestActivity.start(requireActivity(), item)
             false
         }
         model.fioRequestHistory.observe(this.viewLifecycleOwner, Observer { it ->

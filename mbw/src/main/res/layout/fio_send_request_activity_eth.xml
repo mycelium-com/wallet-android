@@ -11,7 +11,7 @@
 
         <variable
             name="activity"
-            type="com.mycelium.wallet.activity.fio.requests.FioSendRequestActivity" />
+            type="com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity" />
 
         <variable
             name="fioRequestViewModel"
