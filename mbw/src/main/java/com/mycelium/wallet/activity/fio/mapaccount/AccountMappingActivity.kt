@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.NavHostFragment
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import java.util.*
+
 
 class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mapping) {
     private lateinit var viewModel: FIOMapPubAddressViewModel
@@ -21,6 +23,8 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)
         }
+        (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)
+                ?.navController?.setGraph(R.navigation.fio_map_account, intent?.extras)
         viewModel = ViewModelProviders.of(this).get(FIOMapPubAddressViewModel::class.java)
         val walletManager = MbwManager.getInstance(this.application).getWalletManager(false)
         if (intent?.extras?.containsKey("accountId") == true) {
