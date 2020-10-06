@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.fio.requests
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.Window
@@ -10,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestBtcViewModel
+import com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.databinding.FioRequestCreateNameBinding
@@ -20,7 +19,7 @@ import com.mycelium.wapi.wallet.coins.Value
 
 class FioRequestCreateActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: FioRequestBtcViewModel
+    private lateinit var viewModel: FioRequestCreateViewModel
 
     companion object {
         const val FIO_ADDRESS_TO = "FIO_ADDRESS_TO"
@@ -39,7 +38,7 @@ class FioRequestCreateActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(FioRequestBtcViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(FioRequestCreateViewModel::class.java)
 
         val amount = intent.getSerializableExtra(AMOUNT) as Value?
         val fioAddressTo = intent.getStringExtra(FIO_ADDRESS_TO)
@@ -51,7 +50,7 @@ class FioRequestCreateActivity : AppCompatActivity() {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         supportActionBar?.run {
-            title = getString(R.string.fio_create_request_currency_title, amount?.currencySymbol?.toUpperCase())
+            title = getString(R.string.fio_create_request_currency_title, viewModel.payeeAccount.value?.coinType?.symbol)
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
@@ -62,11 +61,12 @@ class FioRequestCreateActivity : AppCompatActivity() {
                 .also {
                     it.viewModel = viewModel
                 }.apply {
+                    lifecycleOwner = this@FioRequestCreateActivity
                     with(this) {
                         btNextButton.setOnClickListener {
                             viewModel?.sendRequest(this@FioRequestCreateActivity)
                         }
-                        tvReceivingAccount.setOnClickListener {
+                        tvPayeeFio.setOnClickListener {
                             showPayeeSelector()
                         }
                         tvPayerFioAddress.setOnClickListener {

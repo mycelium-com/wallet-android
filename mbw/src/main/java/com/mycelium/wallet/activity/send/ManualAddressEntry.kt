@@ -64,7 +64,7 @@ class ManualAddressEntry : AppCompatActivity() {
         statusViews = listOf(tvCheckingFioAddress, tvRecipientInvalid, tvRecipientValid,
                 tvNoConnection, tvEnterRecipientDescription)
         mbwManager = MbwManager.getInstance(this)
-        coinType = mbwManager.selectedAccount.coinType
+        coinType = if (!isForFio) mbwManager.selectedAccount.coinType else Utils.getFIOCoinType()
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }.toTypedArray()
         etRecipient.addTextChangedListener(object : TextWatcher {

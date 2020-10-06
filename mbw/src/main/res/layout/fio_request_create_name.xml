@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestBtcViewModel" />
+            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel" />
 
     </data>
 
@@ -34,12 +34,13 @@
                     android:text="From:" />
 
                 <TextView
+                    android:id="@+id/tvPayeeFio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/arrow_bottom"
-                    android:drawablePadding="32dp"
+                    android:drawablePadding="16dp"
                     android:textSize="18sp"
-                    android:text="@{viewModel.payerTokenPublicAddress}"
+                    android:text="@{viewModel.payeeFioAddress}"
                     tools:text="newAddress@domain" />
 
 
@@ -54,14 +55,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
-                    android:text="Receiving account" />
+                    android:text="Receiving account:" />
 
                 <TextView
                     android:id="@+id/tvReceivingAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawablePadding="8dp"
-                    android:text="@{viewModel.payeeTokenPublicAddress}"
+                    android:text="@{viewModel.payeeAccount.label}"
                     android:textColor="@color/fio_green"
                     tools:text="newAddress@domain" />
 
@@ -83,8 +84,8 @@
                 android:layout_marginBottom="32dp"
                 android:textSize="18sp"
                 android:drawableRight="@drawable/ic_edit_fio_name"
-                android:drawablePadding="32dp"
-                android:text="@{viewModel.payeeTokenPublicAddress}"
+                android:drawablePadding="16dp"
+                android:text="@{viewModel.payerFioAddress}"
                 tools:text="newAddress@domain" />
 
             <LinearLayout

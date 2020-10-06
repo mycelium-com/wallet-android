@@ -100,12 +100,8 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             }
 
     private fun initWithBindings(binding: ViewDataBinding?) {
-        when(binding){
-            is ReceiveCoinsActivityBinding -> {
-                btCreateFioRequest.setOnClickListener {
-                    viewModel.createFioRequest(this@ReceiveCoinsActivity)
-                }
-            }
+        btCreateFioRequest.setOnClickListener {
+            viewModel.createFioRequest(this@ReceiveCoinsActivity)
         }
     }
 
