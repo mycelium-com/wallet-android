@@ -7,6 +7,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
@@ -28,10 +29,11 @@ import com.mycelium.wallet.activity.send.model.SendBtcViewModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
 import com.mycelium.wallet.activity.send.model.SendEthViewModel
 import com.mycelium.wallet.activity.send.model.SendFioViewModel
-import com.mycelium.wallet.databinding.FioSendRequestActivityBinding
+import com.mycelium.wallet.databinding.*
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.COINS
@@ -44,8 +46,9 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
-import kotlinx.android.synthetic.main.fio_send_request_activity.*
-import kotlinx.android.synthetic.main.send_coins_activity.root
+import kotlinx.android.synthetic.main.fio_send_request_info.*
+import kotlinx.android.synthetic.main.send_coins_activity.*
+import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.io.IOException
 import java.math.BigDecimal
@@ -95,6 +98,7 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
 
         val mappedAccounts = fioModule.getConnectedAccounts(fioRequestViewModel.payerName.value!!)
+        Log.i("asdaf", "asdaf mappedAccounts: $mappedAccounts, requestedCurrency: $requestedCurrency")
         val account = if (requestedCurrency.symbol == "FIO") {
             fioRequestViewModel.payerNameOwnerAccount.value
         } else {
@@ -110,18 +114,8 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
         if (!sendViewModel.isInitialized()) {
             sendViewModel.init(account, intent)
         }
-        DataBindingUtil.setContentView<FioSendRequestActivityBinding>(this, R.layout.fio_send_request_activity)
-                .also {
-                    it.fioRequestViewModel = fioRequestViewModel
-                    it.sendViewModel = sendViewModel
-                    it.activity = this
-                    it.lifecycleOwner = this
-                }.apply {
-                    with(this) {
 
-                    }
-                }
-
+        initDatabinding(account)
         initFeeView()
         initFeeLvlView()
 
@@ -170,6 +164,42 @@ class FioSendRequestActivity : AppCompatActivity(), BroadcastResultListener {
         activityResultDialog?.show(supportFragmentManager, "ActivityResultDialog")
         activityResultDialog = null
     }
+
+    private fun initDatabinding(account: WalletAccount<*>) {
+        val sendCoinsActivityBinding = when (account) {
+            is EthAccount, is ERC20Account -> {
+                DataBindingUtil.setContentView<FioSendRequestActivityEthBinding>(this, R.layout.fio_send_request_activity_eth)
+                        .also {
+                            it.fioRequestViewModel = fioRequestViewModel
+                            it.sendViewModel = (sendViewModel as SendEthViewModel).apply {
+                                spinner?.adapter = ArrayAdapter(context,
+                                        R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
+                                    this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
+                                }
+                            }
+                            it.activity = this
+                        }
+            }
+            is FioAccount -> {
+                DataBindingUtil.setContentView<FioSendRequestActivityFioBinding>(this, R.layout.fio_send_request_activity_fio)
+                        .also {
+                            it.fioRequestViewModel = fioRequestViewModel
+                            it.sendViewModel = sendViewModel as SendFioViewModel
+                            it.activity = this
+                        }
+            }
+            else -> getDefaultBinding()
+        }
+        sendCoinsActivityBinding.lifecycleOwner = this
+    }
+
+    private fun getDefaultBinding(): FioSendRequestActivityBinding =
+            DataBindingUtil.setContentView<FioSendRequestActivityBinding>(this, R.layout.fio_send_request_activity)
+                    .also {
+                        it.fioRequestViewModel = fioRequestViewModel
+                        it.sendViewModel = sendViewModel
+                        it.activity = this
+                    }
 
     private fun initFeeView() {
         feeValueList?.setHasFixedSize(true)
