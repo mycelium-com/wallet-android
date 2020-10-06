@@ -55,7 +55,7 @@ abstract class SendCoinsModel(
     val feeWarning: MutableLiveData<CharSequence> = MutableLiveData()
     val showStaleWarning: MutableLiveData<Boolean> = MutableLiveData()
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
-
+    val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
 
     val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
         override fun setValue(value: TransactionData?) {
@@ -255,14 +255,21 @@ abstract class SendCoinsModel(
                     updateAdditionalReceiverInfo(hasPaymentRequest)
 
                     val walletManager = mbwManager.getWalletManager(false)
-                    if (receivingAddress != null && walletManager.isMyAddress(receivingAddress)) {
+                    heapWarning.postValue(if (receivingAddress != null && walletManager.isMyAddress(receivingAddress)) {
                         val warning = context.getString(if (walletManager.hasPrivateKey(receivingAddress)) {
                             R.string.my_own_address_warning
                         } else {
                             R.string.read_only_warning
                         })
-                        heapWarning.postValue(Html.fromHtml(warning))
-                    }
+                        Html.fromHtml(warning)
+                    } else {
+                        ""
+                    })
+                    recipientRepresentation.postValue(when {
+                        receivingFioName.value != null -> SendCoinsViewModel.RecipientRepresentation.FIO
+                        receivingAddress != null || hasPaymentRequest -> SendCoinsViewModel.RecipientRepresentation.COIN
+                        else -> SendCoinsViewModel.RecipientRepresentation.ASK
+                    })
                     Completable.complete()
                 }
                 .subscribe())
@@ -351,7 +358,7 @@ abstract class SendCoinsModel(
             }
             receivingAddressText.postValue(addressText)
         } else {
-            if (this.receivingAddress.value != null) {
+            if (receivingAddress.value != null) {
                 receivingAddressText.postValue(AddressUtils.toMultiLineString(
                         this.receivingAddress.value.toString()))
             }

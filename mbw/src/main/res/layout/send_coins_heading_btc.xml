@@ -7,6 +7,7 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel.RecipientRepresentation" />
 
         <variable
             name="activity"
@@ -27,15 +28,24 @@
 
         <!-- Enter Recipient -->
         <include
-            layout="@layout/send_coins_enter_recepient"
-            bind:viewModel="@{viewModel}"
-            bind:activity="@{activity}" />
+                layout="@layout/send_coins_enter_recepient"
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}"
+                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.ASK) ? View.VISIBLE : View.GONE}" />
 
         <!-- Recipient Address Box -->
         <include
-            layout="@layout/send_coins_recipient_btc"
-            bind:viewModel="@{viewModel}"
-            bind:activity="@{activity}" />
+                layout="@layout/send_coins_recipient_btc"
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}"
+                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.COIN) ? View.VISIBLE : View.GONE}" />
+
+        <!-- Recipient Fio Config -->
+        <include
+                layout="@layout/send_coins_recipient_fio"
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}"
+                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}" />
     </LinearLayout>
 
 </layout>

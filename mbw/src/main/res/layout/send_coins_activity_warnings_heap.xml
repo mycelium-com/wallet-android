@@ -31,17 +31,6 @@
             android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/tvWarning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp"
-            android:gravity="center"
-            android:text="@{viewModel.heapWarning}"
-            android:textSize="18sp"
-            android:visibility="@{viewModel.heapWarning.toString().isEmpty() ? View.GONE :  View.VISIBLE }" />
-
-        <TextView
             android:id="@+id/tvUnconfirmedWarning"
             android:layout_width="wrap_content"
             android:gravity="center"

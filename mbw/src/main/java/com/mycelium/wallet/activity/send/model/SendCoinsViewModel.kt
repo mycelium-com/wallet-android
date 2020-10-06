@@ -145,6 +145,14 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getReceivingAddress() = model.receivingAddress
 
+    fun getReceivingFioName() = model.receivingFioName
+
+    fun getRecipientRepresentation() = model.recipientRepresentation
+
+    enum class RecipientRepresentation {
+        ASK, COIN, FIO
+    }
+
     fun getReceivingAddressText() = model.receivingAddressText
 
     fun getReceivingAddressAdditional() = model.receivingAddressAdditional

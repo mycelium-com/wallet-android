@@ -15,17 +15,17 @@ abstract class EthCoin : CryptoCurrency() {
         isUtxosBased = false
     }
 
-    override fun parseAddress(addressString: String?): Address? {
-        return if (WalletUtils.isValidAddress(addressString)) {
-            // additional wrap of addressString into Address is called upon
-            // to unify addresses with and without '0x' prefix
-            EthAddress(this, W3jAddress(addressString).toString())
-        } else {
-            null
-        }
-    }
+    override fun parseAddress(addressString: String?): Address? = parseAddress(this, addressString)
 
     companion object {
         @JvmStatic val BLOCK_TIME_IN_SECONDS = 15
+
+        fun parseAddress(cryptoCurrency: CryptoCurrency, addressString: String?): Address? = when {
+            addressString == null -> null
+            // additional wrap of addressString into Address is called upon to unify addresses with and
+            // without '0x' prefix
+            WalletUtils.isValidAddress(addressString) -> EthAddress(cryptoCurrency, W3jAddress(addressString).toString())
+            else -> null
+        }
     }
 }

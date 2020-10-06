@@ -5,6 +5,8 @@
     <data>
 
         <import type="androidx.lifecycle.AndroidViewModel" />
+        <import type="android.view.View" />
+        <import type="com.mycelium.wapi.wallet.colu.ColuAccount" />
 
         <variable
             name="activity"
@@ -41,6 +43,18 @@
                     layout="@layout/send_coins_activity_warnings_heap"
                     bind:activity="@{activity}"
                     bind:viewModel="@{viewModel}" />
+
+                <TextView
+                    android:id="@+id/colu_tips_check_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/colu_before_sending_make_sure"
+                    android:textColor="@color/white"
+                    android:onClick="@{_ -> activity.onColuTipClick()}"
+                    android:visibility="@{viewModel.account instanceof ColuAccount ? View.VISIBLE : View.GONE}"
+                    android:textSize="14sp" />
 
                 <LinearLayout
                     android:layout_width="fill_parent"
