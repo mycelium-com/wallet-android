@@ -31,7 +31,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
-                    android:text="Amount"
+                    android:text="Amount:"
                     android:textColor="@color/fio_white_alpha_0_8"
                     android:textSize="14sp" />
 
@@ -50,6 +50,7 @@
                         android:textSize="24sp" />
 
                     <TextView
+                        android:id="@+id/tvConvertedAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
@@ -72,6 +73,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/tvMinerFee"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
@@ -117,6 +119,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/tvFrom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
@@ -138,6 +141,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/tvTo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
@@ -159,6 +163,7 @@
                         android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/tvMemo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
@@ -167,12 +172,13 @@
                 </LinearLayout>
 
                 <TextView
-                    android:layout_gravity="start"
+                    android:id="@+id/tvTxDetailsLink"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:layout_gravity="start"
+                    android:text="Show transaction details >"
                     android:textColor="@color/fio_prm_btn_line"
-                    android:text="Show transaction details >"/>
+                    android:textSize="14sp" />
             </LinearLayout>
         </ScrollView>
     </FrameLayout>

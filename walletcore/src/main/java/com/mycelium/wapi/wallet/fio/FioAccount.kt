@@ -193,8 +193,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     fun getRequestsGroups() = backing.getRequestsGroups()
 
 
-    fun rejectFunds(fioRequestId: BigInteger, maxFee: BigInteger): PushTransactionResponse {
-        return fiosdk!!.rejectFundsRequest(fioRequestId, maxFee)
+    fun rejectFunds(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
+        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
     }
 
     fun requestFunds(

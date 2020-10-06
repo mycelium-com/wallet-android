@@ -7,6 +7,8 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -49,6 +51,7 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import kotlinx.android.synthetic.main.fio_send_request_info.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
@@ -56,6 +59,7 @@ import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.io.IOException
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.*
 
 class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
@@ -65,7 +69,16 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     private var activityResultDialog: DialogFragment? = null
 
     companion object {
-        const val CONTENT = "CONTENT"
+        const val CONTENT = "content"
+        const val CONVERTED_AMOUNT = "converted"
+        const val FEE = "fee"
+        const val DATE = "date"
+        const val FROM = "from"
+        const val MEMO = "memo"
+        const val TO = "to"
+        const val TXID = "txid"
+        const val AMOUNT = "amount"
+        const val ACCOUNT = "account"
         fun start(activity: Activity, item: FIORequestContent) {
             with(Intent(activity, ApproveFioRequestActivity::class.java)) {
                 putExtra(CONTENT, item.toJson())
@@ -108,7 +121,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         } else {
             mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
         }
-
+        fioRequestViewModel.payerAccount.value = account
         sendViewModel = when (account) {
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
             is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
@@ -158,6 +171,14 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         }
         spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
                 spinnerItems)
+        spinnerFiat?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                fioRequestViewModel.alternativeAmountFormatted.value = spinnerFiat.adapter.getItem(p2) as String
+            }
+        }
+        fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
+                fiatCurrencies.first()).toStringWithUnit()
     }
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
@@ -165,11 +186,14 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     fun onClickSend() {
         sendViewModel.sendTransaction(this)
-//        ApproveFioRequestSuccessActivity.start(this)
     }
 
     fun onClickDecline() {
-        fioRequestViewModel.decline()
+        RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!!, fioRequestViewModel.payerName.value!!,
+                fioRequestViewModel.request.value!!.fioRequestId) {
+            Log.i("asdaf", "asdaf rejection status: ${it?.status}")
+            finish()
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
     override fun onResume() {
@@ -284,15 +308,25 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             val txid = HexUtils.toHex(signedTransaction.id)
             Log.i("asdaf", "asdaf ihdi: $txid")
 
-            if (fioRequestViewModel.memoTo.value != null) {
+            if (fioRequestViewModel.memoTo.value != null && fioRequestViewModel.memoTo.value!!.isNotEmpty()) {
                 RecordObtTask(txid, fioRequestViewModel) { success ->
-                    if (success) {
-                        ApproveFioRequestSuccessActivity.start(this)
-                    } else {
-                        Toaster(this).toast("No memo  for you today. Not sorry", false)
-                        finish()
+                    if (!success) {
+                        Toaster(this).toast("Failed to write memo", false)
                     }
+                    ApproveFioRequestSuccessActivity.start(this, fioRequestViewModel.amount.value!!,
+                            fioRequestViewModel.alternativeAmountFormatted.value!!,
+                            sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
+                            fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
+                            signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
+                    finish()
                 }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            } else {
+                ApproveFioRequestSuccessActivity.start(this, fioRequestViewModel.amount.value!!,
+                        fioRequestViewModel.alternativeAmountFormatted.value!!,
+                        sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
+                        fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
+                        signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
+                finish()
             }
         }
     }
@@ -329,12 +363,32 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                         request.payerFioAddress, request.payeeFioAddress, fioRequestViewModel.payerTokenPublicAddress.value!!,
                         fioRequestViewModel.payeeTokenPublicAddress.value!!, amountInDouble, request.deserializedContent!!.chainCode,
                         request.deserializedContent!!.tokenCode, txid, fioRequestViewModel.memoTo.value!!)
-            } catch (e: IOException) {
+            } catch (e: Exception) {
+                Log.i("asdaf", "asdaf failed to write memo: ${e.localizedMessage}")
                 false
             }
         }
 
         override fun onPostExecute(result: Boolean) {
+            listener(result)
+        }
+    }
+
+    class RejectRequestTask(
+            private val fioAccount: FioAccount,
+            private val fioName: String,
+            private val requestId: BigInteger,
+            val listener: ((PushTransactionResponse.ActionTraceResponse?) -> Unit)) : AsyncTask<Void, Void, PushTransactionResponse.ActionTraceResponse?>() {
+        override fun doInBackground(vararg args: Void): PushTransactionResponse.ActionTraceResponse? {
+            return try {
+                fioAccount.rejectFunds(requestId, fioName)
+            } catch (e: Exception) {
+                Log.i("asdaf", "asdaf failed to reject: ${e.localizedMessage}")
+                null
+            }
+        }
+
+        override fun onPostExecute(result: PushTransactionResponse.ActionTraceResponse?) {
             listener(result)
         }
     }
