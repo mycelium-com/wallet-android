@@ -40,7 +40,7 @@
 
             <TextView
                     android:id="@+id/tv_to"
-                    android:text="@{viewModel.receivingFioName}"
+                    android:text="@{viewModel.payeeFioName}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="6dp"
@@ -87,6 +87,7 @@
 
             <TextView
                     android:id="@+id/tv_from"
+                    android:text="@{viewModel.payerFioName}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="6dp"

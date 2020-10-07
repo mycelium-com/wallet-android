@@ -84,9 +84,9 @@ class FioModule(
     }
 
     fun mapFioNameToAccounts(fioName: String, accounts: List<WalletAccount<*>>) {
-        var fioAccount = walletManager.getAccount(getFioAccountByFioName(fioName)!!) as FioAccount
+        val fioAccount = walletManager.getAccount(getFioAccountByFioName(fioName)!!) as FioAccount
         walletDB.fioNameAccountMappingsQueries.deleteAllMappings(fioName);
-        var tokenPublicAddresses = ArrayList<TokenPublicAddress>()
+        val tokenPublicAddresses = ArrayList<TokenPublicAddress>()
 
         // We begin with creating a list of addresses for FIO blockchain mapping transaction
         accounts.forEach {

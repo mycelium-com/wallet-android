@@ -6,6 +6,7 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast.*
 import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
@@ -14,6 +15,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.paymentrequest.PaymentRequestException
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -44,8 +46,10 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.math.BigInteger
@@ -115,6 +119,31 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     abstract fun sendTransaction(activity: Activity)
 
+    protected fun sendFioObtData() {
+        Log.d("TAG", "here we are")
+        val fioAccount = mbwManager
+                .getWalletManager(false)
+                .getActiveFioAccounts()
+                .firstOrNull { account ->
+                    account.registeredFIONames.any { it.name == payeeFioName.value!! }
+                }
+                // If there is no FioAccount, we are done here.
+                ?: return
+        val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
+        val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
+        fioAccount.recordObtData(
+                payeeFioName.value!!,
+                payerFioName.value!!,
+                getReceivingAddressText().value!!,
+                "",
+                getAmount().value!!.toString(Denomination.UNIT).toDouble(),
+                chainCode,
+                tokenCode,
+                getSignedTransaction()!!.id.toString(),
+                fioMemo.value!!
+        )
+    }
+
     abstract fun getFeeFormatter(): FeeFormatter
 
     fun getSelectedFee() = model.selectedFee
@@ -145,7 +174,11 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getReceivingAddress() = model.receivingAddress
 
-    fun getReceivingFioName() = model.receivingFioName
+    val payerFioName get() = model.payerFioName
+
+    val payeeFioName get() = model.payeeFioName
+
+    val fioMemo get() = model.fioMemo
 
     fun getRecipientRepresentation() = model.recipientRepresentation
 
@@ -282,7 +315,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
                     data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
-            model.receivingFioName.value = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)
+            model.payeeFioName.value = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
                     (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction

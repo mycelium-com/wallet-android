@@ -152,6 +152,8 @@ class ManualAddressEntry : AppCompatActivity() {
         updateUI()
         withContext(Dispatchers.IO) {
             val fioSymbol = coinType.symbol.toUpperCase(Locale.US)
+            // TODO: 10/6/20 Use: val result = FioTransactionHistoryService.getPubkeyByFioAddress(address, Utils.getFIOCoinType(), fioSymbol, fioSymbol)
+            //       It probably needs changes to preserve the error handling.
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
             try {

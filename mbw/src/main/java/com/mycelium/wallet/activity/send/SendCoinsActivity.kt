@@ -49,6 +49,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
+import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
@@ -325,13 +326,14 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 val fioSender = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
                         .getString(Constants.LAST_FIO_SENDER, fioNames.first().name)
                 if (menu.children.any { it.title == fioSender }) {
-                    tv_from.text = fioSender
+                    viewModel.payerFioName.postValue(fioSender)
                 }
             }
         }
     }
 
     fun onClickSend() {
+        viewModel.fioMemo.value = et_fio_memo.text.toString()
         if (isPossibleDuplicateSending()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.possible_duplicate_warning_title)
