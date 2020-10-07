@@ -16,7 +16,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.gson.Gson
-import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -28,10 +27,7 @@ import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
-import com.mycelium.wallet.activity.send.model.SendBtcViewModel
-import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
-import com.mycelium.wallet.activity.send.model.SendEthViewModel
-import com.mycelium.wallet.activity.send.model.SendFioViewModel
+import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FioSendRequestActivityBinding
 import com.mycelium.wallet.databinding.FioSendRequestActivityEthBinding
@@ -39,11 +35,11 @@ import com.mycelium.wallet.databinding.FioSendRequestActivityFioBinding
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.Util.getCoinsByChain
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
@@ -54,6 +50,7 @@ import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
+import kotlinx.android.synthetic.main.fio_send_request_buttons.*
 import kotlinx.android.synthetic.main.fio_send_request_info.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
@@ -115,8 +112,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
         val requestedCurrency = getCoinsByChain(mbwManager.network)
                 .firstOrNull {
-                    it.symbol == fioRequestContent.deserializedContent!!.chainCode ||
-                            it.symbol.toUpperCase(Locale.US) == fioRequestContent.deserializedContent!!.chainCode
+                    it.symbol.toUpperCase(Locale.US) == fioRequestContent.deserializedContent!!.chainCode.toUpperCase(Locale.US)
                 }
                 ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
 
@@ -125,7 +121,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val account = if (requestedCurrency.symbol == "FIO") {
             fioRequestViewModel.payerNameOwnerAccount.value
         } else {
-            mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id } ?: walletManager.getBTCBip44Accounts().first()
+            mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
+                    ?: walletManager.getBTCBip44Accounts().first()
         }
         fioRequestViewModel.payerAccount.value = account
         sendViewModel = when (account) {
@@ -197,13 +194,19 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
         fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
                 fiatCurrencies.first()).toStringWithUnit()
-    }
-
-    private fun getCoinsByChain(networkParameters: NetworkParameters): List<CryptoCurrency> {
-        return COINS.values.filter {
-            if (networkParameters.isProdnet) it.id.contains("main")
-            else it.id.contains("test")
-        }
+        sendViewModel.getErrorText().observe(this, Observer {
+            Log.i("asdaf", "asdaf error text: $it")
+        })
+        sendViewModel.getTransactionStatus().observe(this, Observer {
+            Log.i("asdaf", "asdaf TransactionStatus: $it")
+            btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
+        })
+        fioRequestViewModel.payeeTokenPublicAddress.observe(this, Observer {
+            btSend.isEnabled = it.isNotEmpty()
+        })
+        fioRequestViewModel.payerTokenPublicAddress.observe(this, Observer {
+            btSend.isEnabled = it.isNotEmpty()
+        })
     }
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =

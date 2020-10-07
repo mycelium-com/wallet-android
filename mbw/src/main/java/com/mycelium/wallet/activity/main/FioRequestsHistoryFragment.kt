@@ -43,6 +43,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.TransactionDetailsActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter
@@ -93,7 +94,8 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
                 val selectedAccount = walletManager.getActiveFioAccounts()[0]
                 val fioAddress = Date().time.toString() + "@fiotestnet"
                 selectedAccount.registerFIOAddress(fioAddress)
-                val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee, "BTC", "BTC")))
+                val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee,
+                        Utils.getBtcCoinType().symbol.toUpperCase(Locale.US), Utils.getBtcCoinType().symbol.toUpperCase(Locale.US))))
                 selectedAccount.registerFIOAddress(fioAddress)
                 val feeForFunds = selectedAccount.getFeeForFunds(fioAddress)
                 val requestFunds = selectedAccount.requestFunds(
@@ -101,8 +103,8 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
                         fioAddress,
                         payee,
                         2.0,
-                        "BTC",
-                        "BTC",
+                        Utils.getBtcCoinType().symbol.toUpperCase(Locale.US),
+                        Utils.getBtcCoinType().symbol.toUpperCase(Locale.US),
                         feeForFunds.fee)
                 println(requestFunds)
             }

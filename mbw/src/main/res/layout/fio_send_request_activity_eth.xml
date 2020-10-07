@@ -59,11 +59,11 @@
                     layout="@layout/send_coins_insufficient"
                     app:viewModel="@{sendViewModel}" />
 
-                <!--Update progress bar
+                <!--Update progress bar-->
                 <include
                     layout="@layout/send_coins_progress"
                     app:viewModel="@{sendViewModel}" />
--->
+
                 <!-- Buttons -->
                 <include
                     layout="@layout/fio_send_request_buttons"

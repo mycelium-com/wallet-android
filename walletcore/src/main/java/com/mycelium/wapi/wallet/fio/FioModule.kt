@@ -91,8 +91,8 @@ class FioModule(
         // We begin with creating a list of addresses for FIO blockchain mapping transaction
         accounts.forEach {
             tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
-                    it.coinType.symbol.toUpperCase(Locale.US),
-                    it.basedOnCoinType.symbol.toUpperCase(Locale.US)))
+                    it.basedOnCoinType.symbol.toUpperCase(Locale.US),
+                    it.coinType.symbol.toUpperCase(Locale.US)))
         }
 
         if (!fioAccount.addPubAddress(fioName, tokenPublicAddresses)) {
@@ -101,7 +101,9 @@ class FioModule(
 
         // Refresh mappings in the database
         accounts.forEach {
-            walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(), it.basedOnCoinType.symbol, it.basedOnCoinType.symbol, it.id)
+            walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(),
+                    it.basedOnCoinType.symbol.toUpperCase(Locale.US),
+                    it.coinType.symbol.toUpperCase(Locale.US), it.id)
         }
     }
 
@@ -170,13 +172,13 @@ class FioModule(
                 result = FioAccount(accountContext, fioAccountBacking, accountListener, getFioSdkByNode(hdKeyNode))
             }
             is FIOAddressConfig -> {
-//                val pubkeyString = when (config.address.getSubType()) {
-//                    FioAddressSubtype.ACTOR.toString() -> FioTransactionHistoryService.getPubkeyByActor(config.address.toString(), coinType)
-//                    FioAddressSubtype.ADDRESS.toString() -> FioTransactionHistoryService.getPubkeyByFioAddress(config.address.toString(),
-//                            coinType, coinType.symbol, coinType.symbol)
-//                    else -> config.address.toString()
-//                }
-                val fioAddress = FioAddress(coinType, FioAddressData(config.address.toString()
+                val pubkeyString = when (config.address.getSubType()) {
+                    FioAddressSubtype.ACTOR.toString() -> FioTransactionHistoryService.getPubkeyByActor(config.address.toString(), coinType)
+                    FioAddressSubtype.ADDRESS.toString() -> FioTransactionHistoryService.getPubkeyByFioAddress(config.address.toString(),
+                            coinType, coinType.symbol, coinType.symbol).publicAddress
+                    else -> config.address.toString()
+                }
+                val fioAddress = FioAddress(coinType, FioAddressData(pubkeyString
                         ?: throw IllegalStateException("Cannot find public key for: ${config.address}")))
                 val uuid = UUID.nameUUIDFromBytes(fioAddress.getBytes())
                 secureStore.storePlaintextValue(uuid.toString().toByteArray(),
