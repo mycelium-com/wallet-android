@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.gson.Gson
+import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -40,6 +41,7 @@ import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -111,7 +113,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
-        val requestedCurrency = COINS.values.firstOrNull { it.symbol.toUpperCase() == fioRequestContent.deserializedContent!!.chainCode }
+        val requestedCurrency = getCoinsByChain(mbwManager.network)
+                .firstOrNull {
+                    it.symbol == fioRequestContent.deserializedContent!!.chainCode ||
+                            it.symbol.toUpperCase(Locale.US) == fioRequestContent.deserializedContent!!.chainCode
+                }
                 ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
 
         val mappedAccounts = fioModule.getConnectedAccounts(fioRequestViewModel.payerName.value!!)
@@ -119,7 +125,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val account = if (requestedCurrency.symbol == "FIO") {
             fioRequestViewModel.payerNameOwnerAccount.value
         } else {
-            mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
+            mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id } ?: walletManager.getBTCBip44Accounts().first()
         }
         fioRequestViewModel.payerAccount.value = account
         sendViewModel = when (account) {
@@ -162,7 +168,6 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestViewModel.payerTokenPublicAddress.value = response.publicAddress!!
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-        tvSatisfyFromAccount.text = "${account.label} - ${account.accountBalance.spendable}"
 
         // populate fiat spinner
         val fiatCurrencies = MbwManager.getInstance(this).currencyList
@@ -177,8 +182,28 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestViewModel.alternativeAmountFormatted.value = spinnerFiat.adapter.getItem(p2) as String
             }
         }
+
+        // TODO implement ability to select other accounts to spend from
+//        val spendingAccounts = walletManager.getAllActiveAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
+//        spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
+//                spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" })
+//        spinnerSpendingFromAccount?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onNothingSelected(p0: AdapterView<*>?) {}
+//            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+//                fioRequestViewModel.payerAccount.value = spendingAccounts[p2]
+//            }
+//        }
+        tvSatisfyFromAccount.text = "${account.label} - ${account.accountBalance.spendable}"
+
         fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
                 fiatCurrencies.first()).toStringWithUnit()
+    }
+
+    private fun getCoinsByChain(networkParameters: NetworkParameters): List<CryptoCurrency> {
+        return COINS.values.filter {
+            if (networkParameters.isProdnet) it.id.contains("main")
+            else it.id.contains("test")
+        }
     }
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =

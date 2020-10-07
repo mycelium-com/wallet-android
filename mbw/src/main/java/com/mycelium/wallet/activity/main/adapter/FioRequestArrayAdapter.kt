@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.main.adapter
 
 import android.app.Activity
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -18,6 +19,7 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.*
 
 
 class FioRequestArrayAdapter(var activity: Activity,
@@ -68,7 +70,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         val memo = convertView?.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
         val amount = convertView?.findViewById<TextView>(R.id.tvAmount)
-        val requestedCurrency = COINS.values.first { it.symbol == content!!.chainCode }
+        val requestedCurrency = COINS.values.first { it.symbol.toUpperCase() == content!!.chainCode || it.symbol == content.chainCode}
         val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
         amount?.text = amountValue.toStringWithUnit()
         amount?.setTextColor(ContextCompat.getColor(activity, color))

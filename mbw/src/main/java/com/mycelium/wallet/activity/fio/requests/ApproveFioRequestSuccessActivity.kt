@@ -1,9 +1,11 @@
 package com.mycelium.wallet.activity.fio.requests
 
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.TransactionDetailsActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.ACCOUNT
@@ -16,6 +18,7 @@ import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Compa
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.TO
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.TXID
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fio_send_request_info.tvAmount
 import kotlinx.android.synthetic.main.fio_send_request_status_activity.*
@@ -24,6 +27,8 @@ import java.util.*
 
 
 class ApproveFioRequestSuccessActivity : AppCompatActivity() {
+    private lateinit var walletManager: WalletManager
+
     companion object {
         fun start(activity: Activity, amount: Value,
                   convertedAmount: String,
@@ -55,23 +60,30 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         supportActionBar?.run {
             title = "Success"
         }
+        walletManager = MbwManager.getInstance(this.application).getWalletManager(false)
         tvAmount.text = (intent.getSerializableExtra(AMOUNT) as Value).toStringWithUnit()
         tvConvertedAmount.text = " ~ ${intent.getStringExtra(CONVERTED_AMOUNT)}"
         tvMinerFee.text = (intent.getSerializableExtra(FEE) as Value).toStringWithUnit()
-        tvDate.text = getDateString(intent.getLongExtra(DATE, 0))
         tvFrom.text = intent.getStringExtra(FROM)
         tvTo.text = intent.getStringExtra(TO)
         tvMemo.text = intent.getStringExtra(MEMO)
+        val accountId = intent.getSerializableExtra(ACCOUNT) as UUID
+        val account = walletManager.getAccount(accountId)
+        val txid = intent.getByteArrayExtra(TXID)
+        val txTimestamp = account!!.getTxSummary(txid).timestamp
+        tvDate.text = getDateString(txTimestamp)
+
         tvTxDetailsLink.setOnClickListener {
             val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
-                    .putExtra(TransactionDetailsActivity.EXTRA_TXID, intent.getByteArrayExtra(TXID))
-                    .putExtra(TransactionDetailsActivity.ACCOUNT_ID, intent.getSerializableExtra(ACCOUNT))
+                    .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)
+                    .putExtra(TransactionDetailsActivity.ACCOUNT_ID, accountId)
             startActivity(intent)
+            finish()
         }
     }
 
     private fun getDateString(timestamp: Long): String {
-        val date = Date(timestamp)
+        val date = Date(timestamp * 1000L)
         val locale = resources.configuration.locale
 
         val dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale)
@@ -80,6 +92,6 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         val hourFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale)
         val timeString = hourFormat.format(date)
 
-        return dateString + timeString
+        return "$dateString $timeString"
     }
 }

@@ -78,7 +78,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
 
         byte[] txid = getTransactionIdFromIntent();
         WalletManager walletManager = MbwManager.getInstance(this.getApplication()).getWalletManager(false);
-        WalletAccount account = walletManager.getAccount((UUID) getIntent().getSerializableExtra(ACCOUNT_ID));
+        UUID accountId = (UUID) getIntent().getSerializableExtra(ACCOUNT_ID);
+        WalletAccount account = walletManager.getAccount(accountId);
         tx = account.getTxSummary(txid);
         coluMode = account instanceof ColuAccount;
         DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
@@ -89,7 +90,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             } else if (account instanceof FioAccount) {
                 transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx));
             } else {
-                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode));
+                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode, accountId));
             }
             transaction.commit();
         }

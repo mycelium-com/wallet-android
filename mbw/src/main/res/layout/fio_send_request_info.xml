@@ -177,6 +177,20 @@
                 app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle"
                 tools:text="Account 1 - 0.00000006BTC" />
 
+<!--            <androidx.appcompat.widget.AppCompatSpinner-->
+<!--                android:id="@+id/spinnerSpendingFromAccount"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@null"-->
+<!--                android:textSize="14sp"-->
+<!--                android:paddingStart="4dp"-->
+<!--                android:textColor="@color/fio_green"-->
+<!--                android:fontFamily="sans-serif-medium"-->
+<!--                android:typeface="monospace"-->
+<!--                tools:text="Account 1 - 0.00000006BTC"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"-->
+<!--                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle" />-->
+
             <TextView
                 android:id="@+id/tvMemoToTitle"
                 android:layout_width="wrap_content"
