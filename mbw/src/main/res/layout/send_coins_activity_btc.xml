@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+        xmlns:bind="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -46,12 +47,12 @@
 
 
                 <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="5dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:orientation="vertical">
 
                     <!--Transaction label (might be part of bip21)-->
                     <include
@@ -63,6 +64,22 @@
                         layout="@layout/send_coins_amount"
                         bind:activity="@{activity}"
                         bind:viewModel="@{viewModel}" />
+
+                    <!--FIO Memo-->
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Memo:"
+                            android:textSize="14sp"
+                            android:textColor="#DDD" />
+                    <EditText
+                            android:id="@+id/et_fio_memo"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@{`Leave a message for ` + viewModel.receivingFioName ?? `the recipient` + `…`}"
+                            tools:hint="Leave a message for tom@fiotestnet…"
+                            tools:text="Leave a message for tom@fiotestnet…"
+                            android:singleLine="false" />
 
                     <!--Fee selector-->
                     <include

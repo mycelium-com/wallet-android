@@ -17,6 +17,7 @@ import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import kotlinx.android.synthetic.main.fragment_fio_name_details.*
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +28,13 @@ import kotlinx.coroutines.launch
 class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
     val adapter = AccountNamesAdapter()
     private val viewModel: FIOMapPubAddressViewModel by activityViewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if(arguments?.containsKey("fioName") == true) {
+            findNavController().navigate(FIONameListFragmentDirections.actionName(requireArguments().getSerializable("fioName") as RegisteredFIOName))
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

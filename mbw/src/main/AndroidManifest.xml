@@ -263,7 +263,7 @@
             android:name=".activity.fio.mapaccount.AccountMappingActivity"
             android:theme="@style/MyceliumFIOMapping" />
 
-        <activity android:name=".activity.fio.requests.FioRequestBtcActivity" />
+        <activity android:name=".activity.fio.requests.FioRequestCreateActivity" />
 
         <activity android:name=".activity.fio.requests.ApproveFioRequestActivity" />
 
