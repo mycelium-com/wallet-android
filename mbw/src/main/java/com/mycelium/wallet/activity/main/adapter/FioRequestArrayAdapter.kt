@@ -36,27 +36,23 @@ class FioRequestArrayAdapter(var activity: Activity,
 
     override fun getChildView(groupPosition: Int, childPosition: Int,
                               isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
-        var convertView = convertView
         val children = getChild(groupPosition, childPosition) as FIORequestContent
         val group = getGroup(groupPosition)
 
-        if (convertView == null) {
-            val inflater = activity.layoutInflater
-            convertView = inflater.inflate(R.layout.fio_request_row, null)
-        }
+        val fioRequestView = convertView
+                ?: activity.layoutInflater.inflate(R.layout.fio_request_row, null)!!
         val content = children.deserializedContent
 
 
         val isIncoming = true //content?.payeeTokenPublicAddress
-        val isError = false
 
         val color = if (isIncoming) R.color.green else R.color.red
-        val direction = convertView?.findViewById<TextView>(R.id.tvDirection)
+        val direction = fioRequestView.findViewById<TextView>(R.id.tvDirection)
         direction?.text = if (isIncoming) "From:" else "To:"
-        val address = convertView?.findViewById<TextView>(R.id.tvAddress)
+        val address = fioRequestView.findViewById<TextView>(R.id.tvAddress)
         address?.text = children.payeeFioAddress
 
-        val ivStatus = convertView?.findViewById<ImageView>(R.id.ivStatus)
+        val ivStatus = fioRequestView.findViewById<ImageView>(R.id.ivStatus)
 
         when (group.status) {
             FioGroup.Type.SENT -> {
@@ -67,18 +63,19 @@ class FioRequestArrayAdapter(var activity: Activity,
             }
         }
 
-        val memo = convertView?.findViewById<TextView>(R.id.tvTransactionLabel)
+        val memo = fioRequestView.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
-        val amount = convertView?.findViewById<TextView>(R.id.tvAmount)
-        val requestedCurrency = COINS.values.first { it.symbol == content!!.chainCode || it.symbol.toUpperCase(Locale.US) == content.chainCode }
+        val amount = fioRequestView.findViewById<TextView>(R.id.tvAmount)
+        val requestedCurrency = COINS.values.firstOrNull { it.symbol.equals(content?.chainCode ?: "", true) }
+                ?: return fioRequestView
         val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
         amount?.text = amountValue.toStringWithUnit()
         amount?.setTextColor(ContextCompat.getColor(activity, color))
         val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
-        val tvFiatAmount = convertView?.findViewById<TextView>(R.id.tvFiatAmount)
+        val tvFiatAmount = fioRequestView.findViewById<TextView>(R.id.tvFiatAmount)
         tvFiatAmount?.text = convert?.toStringWithUnit()
 
-        return convertView!!
+        return fioRequestView
     }
 
     override fun getChildrenCount(groupPosition: Int): Int {
