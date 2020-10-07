@@ -10,6 +10,7 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.model.SendBtcModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
+import com.mycelium.wallet.activity.send.model.SendFioModel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.FeeFormatter
 import com.mycelium.wapi.wallet.Address
@@ -22,7 +23,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 
-class FioRequestCreateViewModel(application: Application) : SendCoinsViewModel(application) {
+class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) {
     override val uriPattern = Pattern.compile("[a-zA-Z0-9]+")!!
     override fun sendTransaction(activity: Activity) {
         TODO("Not yet implemented")
@@ -34,7 +35,11 @@ class FioRequestCreateViewModel(application: Application) : SendCoinsViewModel(a
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)
-        model = SendBtcModel(context, account, intent)
+        val fioAccounts = mbwManager.getWalletManager(false).getFioAccounts()
+        if (fioAccounts.isNotEmpty()) {
+            val fioAccount = fioAccounts[0]
+            model = SendFioModel(app, fioAccount, intent)
+        }
     }
 
     val payerFioAddress = MutableLiveData<String>()
@@ -67,13 +72,14 @@ class FioRequestCreateViewModel(application: Application) : SendCoinsViewModel(a
             if (!fioAccounts.isEmpty()) {
                 val fioAccount = fioAccounts[0]
                 val transferTokensFee = fioAccount.getTransferTokensFee()
+                val selectedAccount = mbwManager.selectedAccount
                 val requestFunds = fioAccount.requestFunds(
                         payerFioAddress.value!!,
                         payeeFioAddress.value!!,
                         payeeTokenPublicAddress.value!!,
                         getAmount().value?.value?.toDouble()!!,
-                        "FIO",
-                        "FIO",
+                        selectedAccount.basedOnCoinType.symbol,
+                        selectedAccount.coinType.symbol,
                         transferTokensFee)
             }
         }

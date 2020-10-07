@@ -30,7 +30,9 @@ class FioRequestCreateActivity : AppCompatActivity() {
     companion object {
         const val FIO_ADDRESS_TO = "FIO_ADDRESS_TO"
         const val FIO_TOKEN_TO = "FIO_TOKEN_TO"
-        const val AMOUNT = "AMOUNT"
+
+        //same as in SendCoinsActivity
+        const val AMOUNT = "amount"
 
         @JvmStatic
         fun start(context: Context, amount: Value?, fioAdrressTo: String, fioTokenTo: Address?) {
@@ -46,16 +48,18 @@ class FioRequestCreateActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(FioRequestCreateViewModel::class.java)
         val account = MbwManager.getInstance(this).selectedAccount
-        if (!viewModel.isInitialized()) {
-            viewModel.init(account, intent)
-        }
-        val amount = intent.getSerializableExtra(AMOUNT) as Value?
+
         val fioAddressTo = intent.getStringExtra(FIO_ADDRESS_TO)
         val tokenAddressTo = intent.getSerializableExtra(FIO_TOKEN_TO) as Address?
+        val amount = intent.getSerializableExtra(AMOUNT) as Value?
+        if (!viewModel.isInitialized()) {
+            viewModel.init(account, intent)
+//            viewModel.setAmount(amount)
+        }
 
         viewModel.payerFioAddress.value = fioAddressTo
         viewModel.payerTokenPublicAddress.value = tokenAddressTo.toString()
-        viewModel.setAmount(amount)
+
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         supportActionBar?.run {
