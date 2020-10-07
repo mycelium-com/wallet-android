@@ -55,7 +55,7 @@ class FioRequestCreateActivity : AppCompatActivity() {
 
         viewModel.payerFioAddress.value = fioAddressTo
         viewModel.payerTokenPublicAddress.value = tokenAddressTo.toString()
-//        viewModel.amount.value = amount
+        viewModel.setAmount(amount)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         supportActionBar?.run {

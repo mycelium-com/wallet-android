@@ -14,6 +14,7 @@ import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.FeeFormatter
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.mycelium.wapi.wallet.fio.getFioAccounts
@@ -22,7 +23,7 @@ import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 
 class FioRequestCreateViewModel(application: Application) : SendCoinsViewModel(application) {
-    override val uriPattern =  Pattern.compile("[a-zA-Z0-9]+")!!
+    override val uriPattern = Pattern.compile("[a-zA-Z0-9]+")!!
     override fun sendTransaction(activity: Activity) {
         TODO("Not yet implemented")
     }
@@ -56,21 +57,21 @@ class FioRequestCreateViewModel(application: Application) : SendCoinsViewModel(a
         payeeFioAddreses.value = fioNames
         payeeFioAddress.value = fioNames[0].name
         payeeTokenPublicAddress.value = account.receiveAddress.toString()
+
     }
 
 
     fun sendRequest(context: Context) {
         viewModelScope.launch(IO) {
             val fioAccounts = mbwManager.getWalletManager(false).getFioAccounts()
-            if (!fioAccounts.isEmpty()){
+            if (!fioAccounts.isEmpty()) {
                 val fioAccount = fioAccounts[0]
                 val transferTokensFee = fioAccount.getTransferTokensFee()
                 val requestFunds = fioAccount.requestFunds(
                         payerFioAddress.value!!,
                         payeeFioAddress.value!!,
                         payeeTokenPublicAddress.value!!,
-                        1.0,
-//                        getAmount().value?.value?.toDouble()!!,
+                        getAmount().value?.value?.toDouble()!!,
                         "FIO",
                         "FIO",
                         transferTokensFee)
@@ -92,5 +93,9 @@ class FioRequestCreateViewModel(application: Application) : SendCoinsViewModel(a
                 payerTokenPublicAddress.value = addressResult.toString()
             }
         }
+    }
+
+    fun setAmount(amount: Value?) {
+        getAmount().value = amount
     }
 }
