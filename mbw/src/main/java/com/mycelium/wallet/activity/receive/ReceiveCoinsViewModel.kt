@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.receive
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
@@ -13,7 +14,12 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity
+import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity.Companion.MANUAL_ENTRY_RESULT_CODE
+import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -116,7 +122,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     }
 
     fun setAmount(amount: Value) {
-        if(amount.type == account.coinType) {
+        if (amount.type == account.coinType) {
             model.setAmount(amount)
             val value = mbwManager.exchangeRateManager.get(amount,
                     mbwManager.getFiatCurrency(account.coinType))
@@ -141,8 +147,27 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
     }
 
-    fun createFioRequest() {
+    open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GET_AMOUNT_RESULT_CODE) {
+                // Get result from address chooser (may be null)
+                val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
+                amount?.let {
+                    setAmount(amount)
+                }
+            } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()){
+                val fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
+                val addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
+                val value = getRequestedAmount().value
+                FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult)
+            }
+        }
+    }
 
+    fun createFioRequest(activity: Activity) {
+        val intent = Intent(activity, ManualAddressEntry::class.java)
+                .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
+        activity.startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE)
     }
 
     companion object {

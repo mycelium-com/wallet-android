@@ -84,6 +84,12 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
     }
 
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        viewModel.processReceivedResults(requestCode, resultCode, data, this)
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
             when (item?.itemId) {
                 android.R.id.home -> {
@@ -94,12 +100,8 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             }
 
     private fun initWithBindings(binding: ViewDataBinding?) {
-        when(binding){
-            is ReceiveCoinsActivityBinding -> {
-                btCreateFioRequest.setOnClickListener {
-                    viewModel.createFioRequest()
-                }
-            }
+        btCreateFioRequest.setOnClickListener {
+            viewModel.createFioRequest(this@ReceiveCoinsActivity)
         }
     }
 
@@ -187,21 +189,12 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-            // Get result from address chooser (may be null)
-            val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value
-            viewModel.setAmount(amount)
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
-
     companion object {
         private const val UUID = "accountUuid"
         private const val PRIVATE_KEY = "havePrivateKey"
         private const val SHOW_UTXO = "showIncomingUtxo"
         private const val IS_COLD_STORAGE = "isColdStorage"
+        const val MANUAL_ENTRY_RESULT_CODE = 4
 
         @JvmStatic
         @JvmOverloads

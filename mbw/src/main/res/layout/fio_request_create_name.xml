@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestBtcViewModel" />
+            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel" />
 
     </data>
 
@@ -17,30 +17,9 @@
         android:padding="18dp">
 
 
-        <ImageView
-            android:id="@+id/imFioLogo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tvTitle"
-            app:srcCompat="@drawable/ic_back_arrow" />
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/imFioLogo"
-            android:paddingStart="13dp"
-            android:text="@string/fio_enter_fio_name_title"
-            android:textColor="@color/fio_white_alpha_0_9"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/imFioLogo"
             android:layout_marginTop="16dp"
             android:orientation="vertical">
 
@@ -55,9 +34,13 @@
                     android:text="From:" />
 
                 <TextView
+                    android:id="@+id/tvPayeeFio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{viewModel.payerTokenPublicAddress}"
+                    android:drawableRight="@drawable/arrow_bottom"
+                    android:drawablePadding="16dp"
+                    android:text="@{viewModel.payeeFioAddress}"
+                    android:textSize="18sp"
                     tools:text="newAddress@domain" />
 
 
@@ -72,14 +55,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
-                    android:text="Receiving account" />
+                    android:text="Receiving account:" />
 
                 <TextView
+                    android:id="@+id/tvReceivingAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:drawableRight="@drawable/arrow_bottom"
                     android:drawablePadding="8dp"
-                    android:text="@{viewModel.payeeTokenPublicAddress}"
+                    android:text="@{viewModel.payeeAccount.label}"
                     android:textColor="@color/fio_green"
                     tools:text="newAddress@domain" />
 
@@ -94,34 +77,32 @@
                 android:text="Send request to: " />
 
             <TextView
+                android:id="@+id/tvPayerFioAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="32dp"
-                android:text="@{viewModel.payeeTokenPublicAddress}"
-                tools:text="newAddress@domain"
-
-
-                />
-
+                android:drawableRight="@drawable/ic_edit_fio_name"
+                android:drawablePadding="16dp"
+                android:text="@{viewModel.payerFioAddress}"
+                android:textSize="18sp"
+                tools:text="newAddress@domain" />
 
             <LinearLayout
+                android:id="@+id/sendLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="5dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Enter amount" />
+                android:layout_marginBottom="5dp"
+               >
 
                 <!--Contains amount selection-->
-                <include layout="@layout/send_coins_amount"
+                <include
 
-                    />
-                <!--                    app:activity="@{activity}"-->
-                <!--                    app:viewModel="@{viewModel}"-->
+                    layout="@layout/send_coins_amount"
+                    app:viewModel="@{viewModel}" />
+
+                <!--                app:activity="@{activity}"-->
             </LinearLayout>
 
             <LinearLayout
@@ -140,7 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
-                    android:text="Free"
+                    android:text="Free (bundle transaction)"
                     android:textSize="16sp" />
             </LinearLayout>
 

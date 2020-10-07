@@ -278,7 +278,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
             handleScanResults(resultCode, data, activity)
         } else if (requestCode == SendCoinsActivity.ADDRESS_BOOK_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             handleAddressBookResults(data)
-        } else if (requestCode == SendCoinsActivity.MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+        } else if (requestCode == SendCoinsActivity.
+                MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
                     data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
             model.receivingFioName.value = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)
