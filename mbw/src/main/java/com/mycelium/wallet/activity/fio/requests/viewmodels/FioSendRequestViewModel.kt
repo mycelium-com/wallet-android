@@ -3,20 +3,23 @@ package com.mycelium.wallet.activity.fio.requests.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mycelium.wallet.Utils
-import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.FioAccount
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 
-open class FioSendRequestViewModel : ViewModel() {
-    val from = MutableLiveData<String>("newfriend@hisdomain")
+class FioSendRequestViewModel : ViewModel() {
+    val request = MutableLiveData<FIORequestContent>()
+    val payeeName = MutableLiveData<String>("newfriend@hisdomain")
     val memoFrom = MutableLiveData<String>("Please give me money to party - and come on!!!!")
-    val amount = MutableLiveData<Value>(Value.valueOf(Utils.getBtcCoinType(), 12000))
     val alternativeAmountFormatted = MutableLiveData<String>("55.02 USD")
-    val satisfyRequestFrom = MutableLiveData<String>("myfiowallet@mycelium")
-    val satisfyRequestFromAccount = MutableLiveData<WalletAccount<*>>()
+    val payerName = MutableLiveData<String>("myfiowallet@mycelium")
+    val payerNameOwnerAccount = MutableLiveData<FioAccount>()
+    val payerAccount = MutableLiveData<WalletAccount<*>>()
     val memoTo = MutableLiveData<String>("")
-    val selectedFee = MutableLiveData<Value>()
-    val tx = MutableLiveData<Transaction>()
+    val amount = MutableLiveData<Value>(Value.valueOf(Utils.getBtcCoinType(), 12000))
+    val payeeTokenPublicAddress = MutableLiveData<String>("")
+    val payerTokenPublicAddress = MutableLiveData<String>("")
 
     fun pay() {
 

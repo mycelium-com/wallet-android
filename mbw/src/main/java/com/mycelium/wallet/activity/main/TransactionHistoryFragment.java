@@ -298,7 +298,8 @@ public class TransactionHistoryFragment extends Fragment {
       }
       // Open transaction details
       Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class)
-              .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.getId());
+              .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.getId())
+              .putExtra(TransactionDetailsActivity.ACCOUNT_ID, _mbwManager.getSelectedAccount().getId());
       startActivity(intent);
    }
 

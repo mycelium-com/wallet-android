@@ -15,9 +15,12 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.OutputViewModel
 import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import kotlinx.android.synthetic.main.transaction_details_btc.*
+import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -27,6 +30,10 @@ class BtcDetailsFragment : DetailsFragment() {
 
     private val coluMode: Boolean by lazy {
         arguments!!.getBoolean("coluMode")
+    }
+    private val account: AbstractBtcAccount by lazy {
+        mbwManager!!.getWalletManager(false)
+                .getAccount(arguments!!.getSerializable("accountId") as UUID) as AbstractBtcAccount
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -79,7 +86,7 @@ class BtcDetailsFragment : DetailsFragment() {
         if (txFeeTotal > 0 && tx!!.inputs.size != 0) {
             tvFeeLabel.visibility = View.VISIBLE
             tvInputsLabel.visibility = View.VISIBLE
-            var fee = tx!!.fee!!.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)) + "\n"
+            var fee = tx!!.fee!!.toStringWithUnit(mbwManager!!.getDenomination(account.coinType)) + "\n"
             if (tx!!.rawSize > 0) {
                 fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx!!.rawSize)
             }
@@ -114,7 +121,7 @@ class BtcDetailsFragment : DetailsFragment() {
 
     private fun loadAndUpdate(isAfterRemoteUpdate: Boolean) {
         // update tx
-        tx = mbwManager!!.selectedAccount.getTxSummary(tx!!.id)
+        tx = account.getTxSummary(tx!!.id)
         updateUi(isAfterRemoteUpdate, false)
     }
 
@@ -152,14 +159,11 @@ class BtcDetailsFragment : DetailsFragment() {
     inner class UpdateParentTask : AsyncTask<Void?, Void?, Boolean>() {
         private val logger = Logger.getLogger(UpdateParentTask::class.java.getSimpleName())
         override fun doInBackground(vararg params: Void?): Boolean {
-            if (mbwManager!!.selectedAccount is AbstractBtcAccount) {
-                val selectedAccount = mbwManager!!.selectedAccount as AbstractBtcAccount
-                try {
-                    selectedAccount.updateParentOutputs(tx!!.id)
-                } catch (e: WapiException) {
-                    logger.log(Level.SEVERE, "Can't load parent", e)
-                    return false
-                }
+            try {
+                account.updateParentOutputs(tx!!.id)
+            } catch (e: WapiException) {
+                logger.log(Level.SEVERE, "Can't load parent", e)
+                return false
             }
             return true
         }
@@ -176,12 +180,13 @@ class BtcDetailsFragment : DetailsFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(tx: TransactionSummary, coluMode: Boolean): BtcDetailsFragment {
+        fun newInstance(tx: TransactionSummary, coluMode: Boolean, accountId: UUID): BtcDetailsFragment {
             val f = BtcDetailsFragment()
             val args = Bundle()
 
             args.putSerializable("tx", tx)
             args.putBoolean("coluMode", coluMode)
+            args.putSerializable("accountId", accountId)
             f.arguments = args
             return f
         }

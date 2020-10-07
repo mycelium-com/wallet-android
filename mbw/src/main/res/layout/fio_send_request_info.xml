@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/fio_send_request_activity">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="fioRequestViewModel"
+            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clReceivedRequestInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:background="@drawable/received_fio_request_info_bg"
+            android:padding="14dp">
+
+            <ImageView
+                android:id="@+id/imFioLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvTitle"
+                app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:text="Request received"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/imFioLogo"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvFromTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="From:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <TextView
+                android:id="@+id/tvFrom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="4dp"
+                android:text="@{fioRequestViewModel.payeeName}"
+                android:textSize="18sp"
+                android:typeface="monospace"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvFromTitle"
+                app:layout_constraintStart_toEndOf="@id/tvFromTitle"
+                tools:text="newfriend@hisdomain" />
+
+            <TextView
+                android:id="@+id/tvMemoFrom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@{fioRequestViewModel.memoFrom}"
+                android:textSize="14sp"
+                android:typeface="monospace"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvFromTitle"
+                tools:text="Please give me money to party - and come on!!!!" />
+
+            <TextView
+                android:id="@+id/tvAmountTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Amount:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvMemoFrom" />
+
+            <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="4dp"
+                android:text="@{ValueExtensionsKt.toStringWithUnit(fioRequestViewModel.amount)}"
+                android:typeface="monospace"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvAmountTitle"
+                app:layout_constraintStart_toEndOf="@id/tvAmountTitle"
+                tools:text="0.00123305 tBTC" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinnerFiat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:typeface="monospace"
+                android:dropDownWidth="wrap_content"
+                tools:text="55.02 USD"
+                app:layout_constraintEnd_toEndOf="@id/tvAmount"
+                app:layout_constraintTop_toBottomOf="@id/tvAmount" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:id="@+id/tvSatisfyFromTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvSatisfyFrom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="4dp"
+                android:text="@{fioRequestViewModel.payerName}"
+                android:textSize="18sp"
+                android:typeface="monospace"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromTitle"
+                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromTitle"
+                tools:text="myfiowallet@mycelium " />
+
+
+            <TextView
+                android:id="@+id/tvSatisfyFromAccountTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:text="Spending from:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromTitle" />
+
+            <TextView
+                android:id="@+id/tvSatisfyFromAccount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="4dp"
+                android:textColor="@color/fio_green"
+                android:textSize="14sp"
+                android:typeface="monospace"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"
+                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle"
+                tools:text="Account 1 - 0.00000006BTC" />
+
+<!--            <androidx.appcompat.widget.AppCompatSpinner-->
+<!--                android:id="@+id/spinnerSpendingFromAccount"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@null"-->
+<!--                android:textSize="14sp"-->
+<!--                android:paddingStart="4dp"-->
+<!--                android:textColor="@color/fio_green"-->
+<!--                android:fontFamily="sans-serif-medium"-->
+<!--                android:typeface="monospace"-->
+<!--                tools:text="Account 1 - 0.00000006BTC"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"-->
+<!--                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle" />-->
+
+            <TextView
+                android:id="@+id/tvMemoToTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:text="Memo:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromAccountTitle" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Leave a message for newfriend@histdo.."
+                android:text="@={fioRequestViewModel.memoTo}"
+                android:textSize="14sp"
+                android:typeface="monospace"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvMemoToTitle" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</layout>
