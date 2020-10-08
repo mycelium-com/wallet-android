@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS FioNameAccountMappings(
     chainCode TEXT NOT NULL,
     tokenCode TEXT NOT NULL,
     accountUuid TEXT AS UUID NOT NULL,
-    PRIMARY KEY (name, pubAddress)
+    PRIMARY KEY (name, chainCode, tokenCode)
 );
 
 selectAccountsUuidByFioName:
@@ -16,6 +16,10 @@ SELECT accountUuid FROM FioNameAccountMappings
 selectFioNamesByAccountUuid:
 SELECT name FROM FioNameAccountMappings
     WHERE accountUuid = (:uuid);
+
+selectPublicAddressByFioNameAndCurrency:
+SELECT pubAddress FROM FioNameAccountMappings
+    WHERE name = (:fioName) AND chainCode = (:chainCode) AND tokenCode = (:tokenCode);
 
 deleteAllMappings:
 DELETE FROM FioNameAccountMappings

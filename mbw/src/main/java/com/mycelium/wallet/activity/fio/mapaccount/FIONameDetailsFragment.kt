@@ -83,14 +83,21 @@ class FIONameDetailsFragment : Fragment() {
                     .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
         }
         buttonContinue.setOnClickListener {
-            GlobalScope.launch(Dispatchers.IO) {
-                fioModule.mapFioNameToAccounts(args.fioName.name,
-                        adapter.currentList
-                                .filterIsInstance<ItemAccount>()
-                                .filter { it.isEnabled }
-                                .mapNotNull { walletManager.getAccount(it.accountId) })
+            val accounts = adapter.currentList
+                    .filterIsInstance<ItemAccount>()
+                    .filter { it.isEnabled }
+                    .mapNotNull { walletManager.getAccount(it.accountId) }
+            if (accounts.isNotEmpty()) {
+                GlobalScope.launch(Dispatchers.IO) {
+                    fioModule.mapFioNameToAccounts(args.fioName.name,
+                            accounts)
+                }
+                // TODO this toast would be shown even in case of an error
+                Toaster(this).toast("accounts connected", false)
+            } else {
+                // Todo this is a hack, button must be disabled in this case
+                Toaster(this).toast("Impossible to disconnect from all accounts", false)
             }
-            Toaster(this).toast("accounts connected", false)
         }
     }
 
