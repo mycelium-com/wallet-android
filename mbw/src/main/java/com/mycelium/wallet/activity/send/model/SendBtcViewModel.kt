@@ -43,8 +43,12 @@ open class SendBtcViewModel(application: Application) : SendCoinsViewModel(appli
         if (isColdStorage() || model.account is HDAccountExternalSignature) {
             // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
             model.signTransaction(activity)
+            sendFioObtData()
         } else {
-            mbwManager.runPinProtectedFunction(activity) { model.signTransaction(activity) }
+            mbwManager.runPinProtectedFunction(activity) {
+                model.signTransaction(activity)
+                sendFioObtData()
+            }
         }
     }
 

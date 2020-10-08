@@ -76,7 +76,11 @@ abstract class SendCoinsModel(
         }
     }
 
-    val receivingFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
+    val fioMemo: MutableLiveData<String?> = MutableLiveData()
+
+    val payerFioName: MutableLiveData<String?> = MutableLiveData()
+
+    val payeeFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
         override fun setValue(value: String?) {
             if (value != this.value) {
                 super.setValue(value)
@@ -266,7 +270,7 @@ abstract class SendCoinsModel(
                         ""
                     })
                     recipientRepresentation.postValue(when {
-                        receivingFioName.value != null -> SendCoinsViewModel.RecipientRepresentation.FIO
+                        payeeFioName.value != null -> SendCoinsViewModel.RecipientRepresentation.FIO
                         receivingAddress != null || hasPaymentRequest -> SendCoinsViewModel.RecipientRepresentation.COIN
                         else -> SendCoinsViewModel.RecipientRepresentation.ASK
                     })

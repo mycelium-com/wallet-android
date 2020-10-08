@@ -14,10 +14,12 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
+import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
+import com.squareup.otto.Bus
 import java.util.*
 
 
@@ -53,6 +55,7 @@ class BroadcastDialog : DialogFragment() {
     lateinit var transaction: Transaction
     var isCold: Boolean = false
     private var task: BroadcastTask? = null
+    private val bus: Bus = MbwManager.getEventBus()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +95,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun returnResult(it: BroadcastResult) {
+        bus.post(TransactionBroadcasted(HexUtils.toHex(transaction.id)))
         if (targetFragment is BroadcastResultListener) {
             (targetFragment as BroadcastResultListener).broadcastResult(it)
         } else if (activity is BroadcastResultListener) {

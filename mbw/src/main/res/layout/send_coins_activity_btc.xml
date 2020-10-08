@@ -6,6 +6,7 @@
     <data>
 
         <import type="androidx.lifecycle.AndroidViewModel" />
+        <import type="android.view.View" />
 
         <variable
             name="activity"
@@ -66,20 +67,10 @@
                         bind:viewModel="@{viewModel}" />
 
                     <!--FIO Memo-->
-                    <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Memo:"
-                            android:textSize="14sp"
-                            android:textColor="#DDD" />
-                    <EditText
-                            android:id="@+id/et_fio_memo"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@{`Leave a message for ` + viewModel.receivingFioName ?? `the recipient` + `…`}"
-                            tools:hint="Leave a message for tom@fiotestnet…"
-                            tools:text="Leave a message for tom@fiotestnet…"
-                            android:singleLine="false" />
+                    <include
+                            layout="@layout/fio_memo_input"
+                            bind:payeeFioName="@{viewModel.payeeFioName}"
+                            bind:fioMemo="@{viewModel.fioMemo}" />
 
                     <!--Fee selector-->
                     <include

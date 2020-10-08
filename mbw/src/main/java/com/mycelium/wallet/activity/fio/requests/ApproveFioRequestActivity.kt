@@ -336,7 +336,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             val txid = HexUtils.toHex(signedTransaction.id)
             Log.i("asdaf", "asdaf ihdi: $txid")
 
-            if (fioRequestViewModel.memoTo.value != null && fioRequestViewModel.memoTo.value!!.isNotEmpty()) {
+            if (fioRequestViewModel.memoTo.value?.isNotEmpty() == true) {
                 RecordObtTask(txid, fioRequestViewModel) { success ->
                     if (!success) {
                         Toaster(this).toast("Failed to write memo", false)

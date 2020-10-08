@@ -22,6 +22,7 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -35,7 +36,10 @@ import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.AnimationUtils
 import com.mycelium.wallet.content.HandleConfigFactory
-import com.mycelium.wallet.databinding.*
+import com.mycelium.wallet.databinding.SendCoinsActivityBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityFioBinding
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
@@ -49,6 +53,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
+import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
@@ -67,7 +72,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         mbwManager = MbwManager.getInstance(application)
         val accountId = checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
         val rawPaymentRequest = intent.getByteArrayExtra(RAW_PAYMENT_REQUEST)
-        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was " + accountId + ")"
+        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was $accountId)"
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
                 ?: throw IllegalStateException(crashHint)
@@ -125,6 +130,20 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             setDisplayHomeAsUpEnabled(true)
         }
         createSenderFioNamesMenu()
+        viewModel.payerFioName.observe(this) {
+            updateMemoVisibility()
+        }
+        viewModel.payeeFioName.observe(this) {
+            updateMemoVisibility()
+        }
+    }
+
+    private fun updateMemoVisibility() {
+        ll_fio_memo.visibility = if (viewModel.payeeFioName.value?.isNotEmpty() == true
+                && viewModel.payerFioName.value?.isNotEmpty() == true)
+            View.VISIBLE
+        else
+            View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
@@ -308,7 +327,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         val now = Date()
         val fioNames = fioModule.getAllRegisteredFioNames().filter { it.expireDate.after(now) }
-        if (fioNames.isNotEmpty()) {
+        if (fioNames.isEmpty()) {
+            sender.visibility = View.GONE
+        } else {
             senderFioNamesMenu = PopupMenu(this, iv_from_fio_name).apply {
                 fioNames.forEach {
                     menu.add(it.name)
@@ -325,13 +346,14 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 val fioSender = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
                         .getString(Constants.LAST_FIO_SENDER, fioNames.first().name)
                 if (menu.children.any { it.title == fioSender }) {
-                    tv_from.text = fioSender
+                    viewModel.payerFioName.postValue(fioSender)
                 }
             }
         }
     }
 
     fun onClickSend() {
+        viewModel.fioMemo.value = et_fio_memo.text.toString()
         if (isPossibleDuplicateSending()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.possible_duplicate_warning_title)

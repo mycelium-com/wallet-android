@@ -101,6 +101,14 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     @ExperimentalUnsignedTypes
+    fun recordObtData(payerFioAddress: String, payeeFioAddress: String,
+                      payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
+                      chainCode: String, tokenCode: String, obtId: String, memo: String) =
+            recordObtData(accountContext.actionSequenceNumber, payerFioAddress, payeeFioAddress,
+                    payerTokenPublicAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode,
+                    obtId, memo)
+
+    @ExperimentalUnsignedTypes
     fun recordObtData(fioRequestId: BigInteger, payerFioAddress: String, payeeFioAddress: String,
                       payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
                       chainCode: String, tokenCode: String, obtId: String, memo: String): Boolean {
@@ -410,3 +418,14 @@ class FioAccount(private val accountContext: FioAccountContext,
                                 ?: receivingAddress.toString()
                     })
 }
+
+data class RecordObtData(
+        var payerFioAddress: String?,
+        var payeeFioAddress: String?,
+        var payerTokenPublicAddress: String?,
+        var payeeTokenPublicAddress: String?,
+        var amount: Double?,
+        var chainCode: String?,
+        var tokenCode: String?,
+        var obtId: String?,
+        var memo: String?)
