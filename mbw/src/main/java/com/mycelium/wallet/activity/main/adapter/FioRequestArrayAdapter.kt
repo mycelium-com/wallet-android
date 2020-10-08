@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.main.adapter
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -19,7 +19,7 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.*
+import java.text.SimpleDateFormat
 
 
 class FioRequestArrayAdapter(var activity: Activity,
@@ -36,12 +36,12 @@ class FioRequestArrayAdapter(var activity: Activity,
 
     override fun getChildView(groupPosition: Int, childPosition: Int,
                               isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
-        val children = getChild(groupPosition, childPosition) as FIORequestContent
+        val fioRequestContent = getChild(groupPosition, childPosition) as FIORequestContent
         val group = getGroup(groupPosition)
 
         val fioRequestView = convertView
                 ?: activity.layoutInflater.inflate(R.layout.fio_request_row, null)!!
-        val content = children.deserializedContent
+        val content = fioRequestContent.deserializedContent
 
 
         val isIncoming = true //content?.payeeTokenPublicAddress
@@ -50,10 +50,15 @@ class FioRequestArrayAdapter(var activity: Activity,
         val direction = fioRequestView.findViewById<TextView>(R.id.tvDirection)
         direction?.text = if (isIncoming) "From:" else "To:"
         val address = fioRequestView.findViewById<TextView>(R.id.tvAddress)
-        address?.text = children.payeeFioAddress
+        address?.text = fioRequestContent.payeeFioAddress
+
+        val tvDate = fioRequestView.findViewById<TextView>(R.id.tvDate)
+        val inDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        val outDate = SimpleDateFormat("dd/MM/yyyy")
+        val date = inDate.parse(fioRequestContent.timeStamp)
+        tvDate.text = outDate.format(date)
 
         val ivStatus = fioRequestView.findViewById<ImageView>(R.id.ivStatus)
-
         when (group.status) {
             FioGroup.Type.SENT -> {
 //                ivStatus?.setBackgroundResource(if (isError) R.drawable.ic_request_good_to_go else R.drawable.ic_request_error)
@@ -102,6 +107,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         return 0
     }
 
+    @SuppressLint("SetTextI18n")
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
                               convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
@@ -123,7 +129,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         }
         val arrow = convertView?.findViewById<CheckBox>(R.id.cbArrow)
         val checkedTextView = convertView?.findViewById(R.id.textView1) as TextView
-        checkedTextView.text = group.status.toString()
+        checkedTextView.text = """${group.status} (${group.children.size})"""
         arrow?.isChecked = isExpanded
         return convertView
     }

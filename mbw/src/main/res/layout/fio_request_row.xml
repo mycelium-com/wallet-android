@@ -30,24 +30,26 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvDirection"
+                android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="3dp"
                 android:ellipsize="end"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="18sp"
-                tools:text="From" />
+                tools:text="12/12/12, " />
 
             <TextView
-                android:id="@+id/tvAddress"
+                android:id="@+id/tvStatus"
                 android:layout_width="0dp"
                 android:singleLine="true"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:textSize="18sp"
-                tools:text="Address" />
+                android:textSize="14sp"
+                tools:textColor="@color/fio_request_pending"
+                tools:text="Pending" />
+
 
             <TextView
                 android:id="@+id/tvAmount"
@@ -64,18 +66,27 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tvDirection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="3dp"
+                android:ellipsize="end"
+                android:drawableLeft="@drawable/ic_fio_logo_gray"
+                 android:drawablePadding="5dp"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="18sp"
+                tools:text="From" />
 
             <TextView
-                android:id="@+id/tvMemo"
+                android:id="@+id/tvAddress"
                 android:layout_width="0dp"
+                android:singleLine="true"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textColor="@color/fio_white_alpha_0_8"
-                android:textSize="14sp"
-                tools:text="address" />
+                android:textSize="18sp"
+                tools:text="Address" />
 
             <TextView
                 android:id="@+id/tvFiatAmount"
@@ -85,6 +96,7 @@
                 android:textSize="18sp"
                 tools:text="12 USD" />
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -105,6 +117,19 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvMemo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            tools:text="address" />
+
     </LinearLayout>
+
 
 </LinearLayout>
