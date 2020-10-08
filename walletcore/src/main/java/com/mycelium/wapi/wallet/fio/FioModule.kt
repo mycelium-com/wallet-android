@@ -294,3 +294,9 @@ fun WalletManager.getFioAccounts() = getAccounts().filter { it is FioAccount && 
 fun WalletManager.getActiveFioAccounts() = getAccounts()
         .filter { it is FioAccount && it.isVisible && it.isActive }
         .map { it as FioAccount }
+
+fun WalletManager.getActiveFioAccount(fioName: String) = getActiveFioAccounts().firstOrNull { fioAccount ->
+    fioAccount.registeredFIONames.any {
+        it.name == fioName
+    }
+}

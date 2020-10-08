@@ -420,12 +420,12 @@ class FioAccount(private val accountContext: FioAccountContext,
 }
 
 data class RecordObtData(
-        var payerFioAddress: String?,
-        var payeeFioAddress: String?,
-        var payerTokenPublicAddress: String?,
-        var payeeTokenPublicAddress: String?,
-        var amount: Double?,
-        var chainCode: String?,
-        var tokenCode: String?,
-        var obtId: String?,
-        var memo: String?)
+        var payerFioAddress: String,
+        var payeeFioAddress: String,
+        var payerTokenPublicAddress: String,
+        var payeeTokenPublicAddress: String,
+        var amount: Double,
+        var chainCode: String,
+        var tokenCode: String,
+        var obtId: String,
+        var memo: String)
