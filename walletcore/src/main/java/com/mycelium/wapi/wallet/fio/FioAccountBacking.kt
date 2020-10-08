@@ -19,7 +19,6 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     private val queries = walletDB.accountBackingQueries
 
     fun putRequests(list: List<FIORequestContent>) {
-
         fioRequestQueries.transaction {
             list.forEach {
                 if (it is SentFIORequestContent) {
