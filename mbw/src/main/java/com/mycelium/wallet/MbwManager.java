@@ -1622,19 +1622,26 @@ public class MbwManager {
 
     @Subscribe
     public void onTransactionBroadcast(TransactionBroadcasted tbe) {
-        if(tbe.getTxid() != null
-                && obtDataRecordCache != null) {
+        if(tbe.getTxid() != null && obtDataRecordCache != null) {
             FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
-            new Thread(() -> fioAccount.recordObtData(BigInteger.ZERO, // let the sdk figure it out
-                    obtDataRecordCache.getPayerFioAddress(),
-                    obtDataRecordCache.getPayeeFioAddress(),
-                    obtDataRecordCache.getPayerTokenPublicAddress(),
-                    obtDataRecordCache.getPayeeTokenPublicAddress(),
-                    obtDataRecordCache.getAmount(),
-                    obtDataRecordCache.getChainCode(),
-                    obtDataRecordCache.getTokenCode(),
-                    tbe.getTxid(),
-                    obtDataRecordCache.getMemo())).start();
+            new Thread(() -> {
+                try {
+                    fioAccount.recordObtData(
+                            BigInteger.ZERO, // let the sdk figure it out
+                            obtDataRecordCache.getPayerFioAddress(),
+                            obtDataRecordCache.getPayeeFioAddress(),
+                            obtDataRecordCache.getPayerTokenPublicAddress(),
+                            obtDataRecordCache.getPayeeTokenPublicAddress(),
+                            obtDataRecordCache.getAmount(),
+                            obtDataRecordCache.getChainCode(),
+                            obtDataRecordCache.getTokenCode(),
+                            tbe.getTxid(),
+                            obtDataRecordCache.getMemo());
+                } catch(Exception e) {
+                    // TODO: 10/8/20 Actually handle the failure to send the obt record.
+                    logger.log(Level.WARNING, "Sending fio obt record failed!", e);
+                }
+            }).start();
         }
     }
 
