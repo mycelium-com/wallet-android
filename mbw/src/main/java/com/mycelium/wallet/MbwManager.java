@@ -126,7 +126,6 @@ import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -167,9 +166,9 @@ import com.mycelium.wapi.wallet.fio.FIOPrivateKeyConfig;
 import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.FioAccountContext;
 import com.mycelium.wapi.wallet.fio.FioAddress;
-import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.fio.FioBacking;
 import com.mycelium.wapi.wallet.fio.FioKeyManager;
+import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.fio.RecordObtData;
 import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
@@ -1643,6 +1642,7 @@ public class MbwManager {
                     tbe.getTxid(),
                     obtDataRecordCache.getMemo());
         }
+        obtDataRecordCache = null;
     }
 
     public boolean getPinRequiredOnStartup() {
