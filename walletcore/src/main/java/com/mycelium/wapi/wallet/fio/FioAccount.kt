@@ -101,14 +101,6 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     @ExperimentalUnsignedTypes
-    fun recordObtData(payerFioAddress: String, payeeFioAddress: String,
-                      payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
-                      chainCode: String, tokenCode: String, obtId: String, memo: String) =
-            recordObtData(accountContext.actionSequenceNumber, payerFioAddress, payeeFioAddress,
-                    payerTokenPublicAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode,
-                    obtId, memo)
-
-    @ExperimentalUnsignedTypes
     fun recordObtData(fioRequestId: BigInteger, payerFioAddress: String, payeeFioAddress: String,
                       payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
                       chainCode: String, tokenCode: String, obtId: String, memo: String): Boolean {

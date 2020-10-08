@@ -138,8 +138,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         mbwManager.obtDataRecordCache = RecordObtData(
                 payeeFioName.value!!,
                 payerFioName.value!!,
-                "TODO",
-                getReceivingAddressText().value ?: "no address provided",
+                getReceivingAddress().value?.toString() ?: "no address provided", // TODO: fix
+                getReceivingAddress().value?.toString() ?: "no address provided",
                 getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
                 chainCode,
                 tokenCode,

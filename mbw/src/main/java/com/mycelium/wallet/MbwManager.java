@@ -47,7 +47,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -186,6 +185,7 @@ import com.squareup.sqldelight.db.SqlDriver;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1626,7 +1626,8 @@ public class MbwManager {
                 && obtDataRecordCache != null) {
             FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
             new Thread(() -> {
-                boolean result = fioAccount.recordObtData(obtDataRecordCache.getPayerFioAddress(),
+                fioAccount.recordObtData(BigInteger.ZERO, // let the sdk figure it out
+                        obtDataRecordCache.getPayerFioAddress(),
                         obtDataRecordCache.getPayeeFioAddress(),
                         obtDataRecordCache.getPayerTokenPublicAddress(),
                         obtDataRecordCache.getPayeeTokenPublicAddress(),
@@ -1635,7 +1636,6 @@ public class MbwManager {
                         obtDataRecordCache.getTokenCode(),
                         tbe.getTxid(),
                         obtDataRecordCache.getMemo());
-                Log.d("Fio", "RecordObtData result was " + result);
             }).start();
         }
     }
