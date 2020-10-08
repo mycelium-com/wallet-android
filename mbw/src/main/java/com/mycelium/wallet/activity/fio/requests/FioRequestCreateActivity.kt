@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.Window
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
@@ -19,8 +18,6 @@ import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.databinding.FioRequestCreateNameBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
-import kotlinx.android.synthetic.main.fio_request_create_name.*
 
 
 class FioRequestCreateActivity : AppCompatActivity() {
@@ -87,11 +84,13 @@ class FioRequestCreateActivity : AppCompatActivity() {
                                     .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
                             this@FioRequestCreateActivity.startActivityForResult(intent, ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE)
                         }
-                        sendLayout.setOnClickListener {
+                        btEnterAmount.setOnClickListener {
                             onClickAmount()
                         }
                     }
                 }
+
+
     }
 
 
