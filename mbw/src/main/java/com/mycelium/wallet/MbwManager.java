@@ -47,6 +47,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -213,6 +214,7 @@ import fiofoundation.io.androidfioserializationprovider.AbiFIOSerializationProvi
 import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
 import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccounts;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -1620,29 +1622,22 @@ public class MbwManager {
 
     @Subscribe
     public void onTransactionBroadcast(TransactionBroadcasted tbe) {
-        if(obtDataRecordCache != null && tbe.getTxid() != null) {
-            List<FioAccount> fioAccounts = getActiveFioAccounts(getWalletManager(false));
-            FioAccount fioAccount = null;
-            for(FioAccount a: fioAccounts) {
-                if (a.getRegisteredFIONames().contains(obtDataRecordCache.getPayerFioAddress())) {
-                    fioAccount = a;
-                    break;
-                }
-            }
-            if (fioAccount == null) {
-                return;
-            }
-            fioAccount.recordObtData(obtDataRecordCache.getPayerFioAddress(),
-                    obtDataRecordCache.getPayeeFioAddress(),
-                    obtDataRecordCache.getPayerTokenPublicAddress(),
-                    obtDataRecordCache.getPayeeTokenPublicAddress(),
-                    obtDataRecordCache.getAmount(),
-                    obtDataRecordCache.getChainCode(),
-                    obtDataRecordCache.getTokenCode(),
-                    tbe.getTxid(),
-                    obtDataRecordCache.getMemo());
+        if(tbe.getTxid() != null
+                && obtDataRecordCache != null) {
+            FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
+            new Thread(() -> {
+                boolean result = fioAccount.recordObtData(obtDataRecordCache.getPayerFioAddress(),
+                        obtDataRecordCache.getPayeeFioAddress(),
+                        obtDataRecordCache.getPayerTokenPublicAddress(),
+                        obtDataRecordCache.getPayeeTokenPublicAddress(),
+                        obtDataRecordCache.getAmount(),
+                        obtDataRecordCache.getChainCode(),
+                        obtDataRecordCache.getTokenCode(),
+                        tbe.getTxid(),
+                        obtDataRecordCache.getMemo());
+                Log.d("Fio", "RecordObtData result was " + result);
+            }).start();
         }
-        obtDataRecordCache = null;
     }
 
     public boolean getPinRequiredOnStartup() {
