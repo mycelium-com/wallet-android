@@ -94,7 +94,7 @@ class FioAccount(private val accountContext: FioAccountContext,
             val actionTraceResponse = fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee)
                     .getActionTraceResponse()
             actionTraceResponse != null && actionTraceResponse.status == "OK"
-        } catch (e : FIOError) {
+        } catch (e: FIOError) {
             logger.log(Level.SEVERE, "Add pub address exception", e)
             false
         }
@@ -276,17 +276,16 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioRequests() {
-        // This is an ugly hack for an ugly SDK which returns Exception when there are no requests
         try {
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-            backing.putRequests(FioRequestStatus.PENDING, pendingFioRequests)
+            backing.putRequests(pendingFioRequests)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
         }
 
         try {
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
-            backing.putRequests(FioRequestStatus.SENT, sentFioRequests)
+            backing.putRequests(sentFioRequests)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
         }
