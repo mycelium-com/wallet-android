@@ -49,7 +49,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.fio.RecordObtData
-import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
+import com.mycelium.wapi.wallet.fio.getActiveFioAccount
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.math.BigInteger
@@ -106,6 +106,9 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         }
     }
 
+    init {
+        mbwManager.obtDataRecordCache = null
+    }
 
     open fun init(account: WalletAccount<*>, intent: Intent) {
         amountHint = context.getString(R.string.amount_hint_denomination,
@@ -127,24 +130,21 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         // that fio obt record after broadcasting the transaction.
         mbwManager
                 .getWalletManager(false)
-                .getActiveFioAccounts()
-                .firstOrNull { account ->
-                    account.registeredFIONames.any { it.name == payeeFioName.value ?: return }
-                }
+                .getActiveFioAccount(payeeFioName.value ?: return)
                 // If there is no FioAccount, we are done here.
                 ?: return
         val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
         val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
         mbwManager.obtDataRecordCache = RecordObtData(
-                payeeFioName.value,
-                payerFioName.value,
-                null,
-                getReceivingAddressText().value,
+                payeeFioName.value!!,
+                payerFioName.value!!,
+                "TODO",
+                getReceivingAddressText().value ?: "no address provided",
                 getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
                 chainCode,
                 tokenCode,
-                null,
-                fioMemo.value
+                "will be filled in after signing",
+                fioMemo.value ?: ""
         )
     }
 
