@@ -100,6 +100,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
+import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
@@ -125,6 +126,7 @@ import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -162,11 +164,13 @@ import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
 import com.mycelium.wapi.wallet.fio.FIOPrivateKeyConfig;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.FioAccountContext;
 import com.mycelium.wapi.wallet.fio.FioAddress;
 import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.fio.FioBacking;
 import com.mycelium.wapi.wallet.fio.FioKeyManager;
+import com.mycelium.wapi.wallet.fio.RecordObtData;
 import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
@@ -210,6 +214,7 @@ import fiofoundation.io.androidfioserializationprovider.AbiFIOSerializationProvi
 import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccounts;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -1608,6 +1613,35 @@ public class MbwManager {
                 Gson gson = new GsonBuilder().create();
                 getEditor().putString(Constants.MINER_FEE_SETTING, gson.toJson(_minerFee)).apply();
             }
+        }
+    }
+
+    @Nullable
+    public RecordObtData obtDataRecordCache = null;
+
+    @Subscribe
+    public void onTransactionBroadcast(TransactionBroadcasted tbe) {
+        if(obtDataRecordCache != null && tbe.getTxid() != null) {
+            List<FioAccount> fioAccounts = getActiveFioAccounts(getWalletManager(false));
+            FioAccount fioAccount = null;
+            for(FioAccount a: fioAccounts) {
+                if (a.getRegisteredFIONames().contains(obtDataRecordCache.getPayerFioAddress())) {
+                    fioAccount = a;
+                    break;
+                }
+            }
+            if (fioAccount == null) {
+                return;
+            }
+            fioAccount.recordObtData(obtDataRecordCache.getPayerFioAddress(),
+                    obtDataRecordCache.getPayeeFioAddress(),
+                    obtDataRecordCache.getPayerTokenPublicAddress(),
+                    obtDataRecordCache.getPayeeTokenPublicAddress(),
+                    obtDataRecordCache.getAmount(),
+                    obtDataRecordCache.getChainCode(),
+                    obtDataRecordCache.getTokenCode(),
+                    tbe.getTxid(),
+                    obtDataRecordCache.getMemo());
         }
     }
 

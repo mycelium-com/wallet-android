@@ -68,7 +68,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         mbwManager = MbwManager.getInstance(application)
         val accountId = checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
         val rawPaymentRequest = intent.getByteArrayExtra(RAW_PAYMENT_REQUEST)
-        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was " + accountId + ")"
+        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was $accountId)"
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
                 ?: throw IllegalStateException(crashHint)

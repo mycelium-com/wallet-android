@@ -6,7 +6,6 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast.*
 import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
@@ -49,6 +48,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.fio.RecordObtData
 import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
@@ -120,27 +120,31 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     abstract fun sendTransaction(activity: Activity)
 
     protected fun sendFioObtData() {
-        Log.d("TAG", "here we are")
-        val fioAccount = mbwManager
+        // TODO: 10/7/20 redesign the whole process to have the viewModel around until after the
+        //       transaction was sent.
+        // We can't send it yet as the transaction is not finalized yet and as that will happen
+        // after this ViewModel is disposed, we need to put that data somewhere so we can broadcast
+        // that fio obt record after broadcasting the transaction.
+        mbwManager
                 .getWalletManager(false)
                 .getActiveFioAccounts()
                 .firstOrNull { account ->
-                    account.registeredFIONames.any { it.name == payeeFioName.value!! }
+                    account.registeredFIONames.any { it.name == payeeFioName.value ?: return }
                 }
                 // If there is no FioAccount, we are done here.
                 ?: return
         val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
         val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
-        fioAccount.recordObtData(
-                payeeFioName.value!!,
-                payerFioName.value!!,
-                getReceivingAddressText().value!!,
-                "",
-                getAmount().value!!.toString(Denomination.UNIT).toDouble(),
+        mbwManager.obtDataRecordCache = RecordObtData(
+                payeeFioName.value,
+                payerFioName.value,
+                null,
+                getReceivingAddressText().value,
+                getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
                 chainCode,
                 tokenCode,
-                getSignedTransaction()!!.id.toString(),
-                fioMemo.value!!
+                null,
+                fioMemo.value
         )
     }
 
@@ -226,6 +230,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun showStaleWarning() = model.showStaleWarning
 
+    fun getTransaction() = model.transaction
     fun getSignedTransaction() = model.signedTransaction
 
     fun getGenericUri() = model.genericUri
