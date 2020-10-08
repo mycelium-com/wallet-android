@@ -22,6 +22,7 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -35,7 +36,10 @@ import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.AnimationUtils
 import com.mycelium.wallet.content.HandleConfigFactory
-import com.mycelium.wallet.databinding.*
+import com.mycelium.wallet.databinding.SendCoinsActivityBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityFioBinding
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
@@ -126,6 +130,20 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             setDisplayHomeAsUpEnabled(true)
         }
         createSenderFioNamesMenu()
+        viewModel.payerFioName.observe(this) {
+            updateMemoVisibility()
+        }
+        viewModel.payeeFioName.observe(this) {
+            updateMemoVisibility()
+        }
+    }
+
+    private fun updateMemoVisibility() {
+        ll_fio_memo.visibility = if (viewModel.payeeFioName.value?.isNotEmpty() == true
+                && viewModel.payerFioName.value?.isNotEmpty() == true)
+            View.VISIBLE
+        else
+            View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
@@ -309,7 +327,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         val now = Date()
         val fioNames = fioModule.getAllRegisteredFioNames().filter { it.expireDate.after(now) }
-        if (fioNames.isNotEmpty()) {
+        if (fioNames.isEmpty()) {
+            sender.visibility = View.GONE
+        } else {
             senderFioNamesMenu = PopupMenu(this, iv_from_fio_name).apply {
                 fioNames.forEach {
                     menu.add(it.name)
