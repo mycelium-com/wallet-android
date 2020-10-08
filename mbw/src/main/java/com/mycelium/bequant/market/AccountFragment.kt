@@ -111,14 +111,18 @@ class AccountFragment : Fragment() {
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         list.adapter = adapter
         adapter.addCoinListener = {
-            when (it) {
-                "EURB", "USDB", "GBPB" -> {
-                    AlertDialog.Builder(requireContext())
-                            .setMessage(getString(R.string.bequant_fiat_tx_not_supported))
-                            .setPositiveButton(R.string.button_ok) { _, _ ->
-                            }.show()
+            if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
+            } else {
+                when (it) {
+                    "EURB", "USDB", "GBPB" -> {
+                        AlertDialog.Builder(requireContext())
+                                .setMessage(getString(R.string.bequant_fiat_tx_not_supported))
+                                .setPositiveButton(R.string.button_ok) { _, _ ->
+                                }.show()
+                    }
+                    else -> findNavController().navigate(MarketFragmentDirections.actionDeposit(it))
                 }
-                else -> findNavController().navigate(MarketFragmentDirections.actionDeposit(it))
             }
         }
         viewModel.privateMode.observe(viewLifecycleOwner, Observer {

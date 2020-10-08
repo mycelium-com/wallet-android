@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.mycelium.bequant.common.getBequantUISymbol
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.exchange.SelectCoinFragment.Companion.SEND
 import com.mycelium.wallet.R
@@ -49,7 +50,7 @@ class CoinAdapter(private val role: String, private val listener: ClickListener,
                 }
             }
             TYPE_ITEM -> {
-                holder.itemView.coinId.text = item.coin?.symbol
+                holder.itemView.coinId.text = item.coin?.getBequantUISymbol()
                 holder.itemView.coinFullName.text = item.coin?.name
                 when (item.coin?.symbol) {
                     youSendYouGetPair.value!!.first.symbol -> {

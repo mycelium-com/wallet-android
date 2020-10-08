@@ -51,10 +51,9 @@ class KYCRepository {
         doRequest(scope, {
             service.checkMobileVerification(BequantPreference.getKYCToken(), code)
         }, {
-            if (it?.message == "CODE_VALID") {
-                success()
-            } else {
-                error()
+            when (it?.message) {
+                "CODE_VALID", "VERIFIED" -> success()
+                else -> error()
             }
         }, { _, _ ->
             error()
