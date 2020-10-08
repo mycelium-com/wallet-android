@@ -54,7 +54,7 @@ class RegisterFIODomainActivity : AppCompatActivity() {
         })
         (intent.getSerializableExtra("account") as? UUID)?.let {
             val walletManager = MbwManager.getInstance(this).getWalletManager(false)
-            viewModel.fioAccountToRegisterName.value = walletManager.getAccount(it) as FioAccount
+            viewModel.fioAccountToRegisterName.value = walletManager.getAccount(it) as? FioAccount
         }
         RegisterFioNameActivity.UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
