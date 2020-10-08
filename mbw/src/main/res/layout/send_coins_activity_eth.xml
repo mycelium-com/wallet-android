@@ -45,12 +45,12 @@
 
 
                 <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="5dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:orientation="vertical">
 
                     <!--Transaction label (might be part of bip21)-->
                     <include
@@ -62,6 +62,12 @@
                         layout="@layout/send_coins_amount"
                         bind:activity="@{activity}"
                         bind:viewModel="@{viewModel}" />
+
+                    <!--FIO Memo-->
+                    <include
+                            layout="@layout/fio_memo_input"
+                            bind:payeeFioName="@{viewModel.payeeFioName}"
+                            bind:fioMemo="@{viewModel.fioMemo}" />
 
                     <!-- Advanced block -->
                     <include

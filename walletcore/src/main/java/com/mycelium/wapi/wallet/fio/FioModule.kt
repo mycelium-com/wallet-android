@@ -93,7 +93,7 @@ class FioModule(
             val tokenCode = it.coinType.symbol
             if (walletDB.fioNameAccountMappingsQueries.selectPublicAddressByFioNameAndCurrency(fioName,
                             chainCode, tokenCode).executeAsOneOrNull() != it.receiveAddress.toString()) {
-                tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
+            tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
                         chainCode.toUpperCase(Locale.US),
                         tokenCode.toUpperCase(Locale.US)))
             }
