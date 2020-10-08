@@ -29,4 +29,11 @@ object FioHelper {
         val requiredSdf = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a", Locale.US)
         return requiredSdf.format(date)
     }
+
+    @JvmStatic
+    fun convertToDate(fioDateStr: String): Date {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("GMT")
+        return sdf.parse(fioDateStr)
+    }
 }

@@ -48,6 +48,7 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
@@ -56,9 +57,11 @@ import com.mycelium.wapi.wallet.fio.FioAccount;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 public class TransactionDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_TXID = "transactionID";
+    public static final String ACCOUNT_ID = "accountId";
     protected static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
     protected static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
     private boolean coluMode = false;
@@ -74,7 +77,9 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.transaction_details_activity);
 
         byte[] txid = getTransactionIdFromIntent();
-        WalletAccount account = MbwManager.getInstance(this.getApplication()).getSelectedAccount();
+        WalletManager walletManager = MbwManager.getInstance(this.getApplication()).getWalletManager(false);
+        UUID accountId = (UUID) getIntent().getSerializableExtra(ACCOUNT_ID);
+        WalletAccount account = walletManager.getAccount(accountId);
         tx = account.getTxSummary(txid);
         coluMode = account instanceof ColuAccount;
         DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
@@ -85,7 +90,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
             } else if (account instanceof FioAccount) {
                 transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx));
             } else {
-                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode));
+                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode, accountId));
             }
             transaction.commit();
         }

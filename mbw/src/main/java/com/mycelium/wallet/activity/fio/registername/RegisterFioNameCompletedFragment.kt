@@ -11,7 +11,9 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
+import com.mycelium.wallet.activity.modern.helper.FioHelper.convertToDate
 import com.mycelium.wallet.activity.modern.helper.FioHelper.transformExpirationDate
+import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
 
 class RegisterFioNameCompletedFragment : Fragment() {
@@ -47,7 +49,9 @@ class RegisterFioNameCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         btConnectAccounts.setOnClickListener {
-            startActivity(Intent(context, AccountMappingActivity::class.java))
+            startActivity(Intent(context, AccountMappingActivity::class.java)
+                    .putExtra("fioName", RegisteredFIOName(fioName, convertToDate(expirationDate))))
+            activity?.finish()
         }
         tvFioName.text = fioName
         tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_connect_accounts_desc, fioName),

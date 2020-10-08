@@ -14,6 +14,7 @@ import java.util.*
 class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
     private val fioRequestQueries = walletDB.fioRequestsBackingQueries
     private val fioAccountQueries = walletDB.fioAccountBackingQueries
+    private val fioMappings = walletDB.fioNameAccountMappingsQueries
     private val queries = walletDB.accountBackingQueries
 
     fun putRequests(status: FioRequestStatus, list: List<FIORequestContent>) {
@@ -32,6 +33,11 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         status)
             }
         }
+    }
+
+    fun insertOrUpdateMapping(fioName: String, publicAddress: String, chainCode: String, tokenCode: String,
+                              accountUUID: UUID) {
+        fioMappings.insertMapping(fioName, publicAddress, chainCode, tokenCode, accountUUID)
     }
 
     fun getRequestsGroups(): List<FioGroup> {

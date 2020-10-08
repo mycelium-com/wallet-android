@@ -19,7 +19,7 @@
 
         <variable
             name="sendViewModel"
-            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
     </data>
 
     <FrameLayout
@@ -42,6 +42,12 @@
                 <include
                     layout="@layout/fio_send_request_info"
                     bind:fioRequestViewModel="@{fioRequestViewModel}" />
+
+                <!-- Advanced block -->
+<!--                <include-->
+<!--                    layout="@layout/send_coins_advanced_block"-->
+<!--                    bind:activity="@{activity}"-->
+<!--                    bind:viewModel="@{sendViewModel}" />-->
 
                 <!--Fee selector-->
                 <include

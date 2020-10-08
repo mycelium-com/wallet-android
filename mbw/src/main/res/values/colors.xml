@@ -63,6 +63,7 @@
 
     <color name="fio_green">#51F129</color>
     <color name="fio_red">#D21614</color>
+    <color name="fio_prm_btn_line">#2E6699</color>
     <color name="fio_white_alpha_0_6">#99FFFFFF</color>
     <color name="fio_white_alpha_0_8">#CCFFFFFF</color>
     <color name="fio_white_alpha_0_9">#E5FFFFFF</color>

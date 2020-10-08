@@ -308,23 +308,25 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         val now = Date()
         val fioNames = fioModule.getAllRegisteredFioNames().filter { it.expireDate.after(now) }
-        senderFioNamesMenu = PopupMenu(this, iv_from_fio_name).apply {
-            fioNames.forEach {
-                menu.add(it.name)
-            }
-            setOnMenuItemClickListener { item ->
-                // btcViewModel.setAddressType(AddressType.values()[item.itemId])
-                tv_from.text = item.title
-                getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
-                        .edit()
-                        .putString(Constants.LAST_FIO_SENDER, "${item.title}")
-                        .apply()
-                false
-            }
-            val fioSender = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
-                    .getString(Constants.LAST_FIO_SENDER, "")
-            if (menu.children.any { it.title == fioSender }) {
-                tv_from.text = fioSender
+        if (fioNames.isNotEmpty()) {
+            senderFioNamesMenu = PopupMenu(this, iv_from_fio_name).apply {
+                fioNames.forEach {
+                    menu.add(it.name)
+                }
+                setOnMenuItemClickListener { item ->
+                    // btcViewModel.setAddressType(AddressType.values()[item.itemId])
+                    tv_from.text = item.title
+                    getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+                            .edit()
+                            .putString(Constants.LAST_FIO_SENDER, "${item.title}")
+                            .apply()
+                    false
+                }
+                val fioSender = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+                        .getString(Constants.LAST_FIO_SENDER, fioNames.first().name)
+                if (menu.children.any { it.title == fioSender }) {
+                    tv_from.text = fioSender
+                }
             }
         }
     }

@@ -195,22 +195,16 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         }
 
         @JvmStatic
-        fun getPubkeyByFioAddress(fioAddress: String, coinType: CryptoCurrency): String? {
+        fun getPubkeyByFioAddress(fioAddress: String, fioToken: FIOToken, chainCode: String, tokenCode: String): GetPubAddressResponse {
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             val client = OkHttpClient()
-            val requestBody = """{"fio_address":"$fioAddress","chain_code":"FIO","token_code":"FIO"}"""
+            val requestBody = """{"fio_address":"$fioAddress","chain_code":"$chainCode","token_code":"$tokenCode"}"""
             val request = Request.Builder()
-                    .url((coinType as FIOToken).url + "chain/get_pub_address")
+                    .url(fioToken.url + "chain/get_pub_address")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
-            return try {
-                val response = client.newCall(request).execute()
-                val result = mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
-                result.publicAddress
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
+            val response = client.newCall(request).execute()
+            return mapper.readValue(response.body()!!.string(), GetPubAddressResponse::class.java)
         }
 
         @JvmStatic
@@ -364,6 +358,7 @@ class GetFioNamesTableRowsResponse {
 class GetPubAddressResponse {
     @JsonProperty("public_address")
     val publicAddress: String? = null
+    var message: String? = null
 }
 
 class GetFeeResponse {

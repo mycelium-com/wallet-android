@@ -5,12 +5,6 @@
 
     <data>
 
-        <import type="androidx.lifecycle.AndroidViewModel" />
-
-        <variable
-            name="activity"
-            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
-
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
@@ -33,21 +27,13 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:layout_marginBottom="24dp"
-                    android:text="Success"
-                    android:textSize="24sp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
-                    android:text="Amount" />
+                    android:text="Amount:"
+                    android:textColor="@color/fio_white_alpha_0_8"
+                    android:textSize="14sp" />
 
 
                 <LinearLayout
@@ -59,14 +45,108 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
+                        android:fontFamily="sans-serif-medium"
                         android:text="0.232 BTC"
                         android:textSize="24sp" />
 
                     <TextView
+                        android:id="@+id/tvConvertedAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp"
                         tools:text=" ~ 50 USD" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="28dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:text="Miner fee: "
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvMinerFee"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp"
+                        tools:text="0.0000004 BTC ~ 0.5 USD" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:text="Date:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp"
+                        tools:text="September 23, 2020 at 6:23:15 pm GMT+3" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:text="From:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvFrom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp"
+                        tools:text="myfiowallet@mycelium " />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:text="To:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvTo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp"
+                        tools:text="newfriend@hisdomain" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -77,107 +157,28 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-                        android:text="Miner fee: " />
+                        android:layout_marginEnd="6dp"
+                        android:text="Memo:"
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp" />
 
                     <TextView
+                        android:id="@+id/tvMemo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        tools:text="1 sat/byte" />
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:text="Send to:" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-
-                        tools:text="newAddress@domain" />
-                    <!--                        android:text="@{viewModel.sendTo}"-->
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:text="Send to:" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="newAddress@domain" />
-
-<!--                    android:text="@{viewModel.sendTo}"-->
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:text="Sent from:" />
-
-                    <androidx.appcompat.widget.AppCompatSpinner
-                        android:id="@+id/fromFioNameSpinner"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@drawable/send_coin_spinner_selector"
+                        android:fontFamily="sans-serif-medium"
                         android:textSize="14sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvNonceLabel" />
+                        tools:text="This is last time i gave u crypto, so please MAN UP!!!" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:text="Paying from" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/fio_green"
-                        tools:text="newAddress@domain" />
-
-<!--                    android:text="@{viewModel.payingFrom}"-->
-                </LinearLayout>
-
-
                 <TextView
+                    android:id="@+id/tvTxDetailsLink"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:text="Memo Received" />
-
-                <TextView
-                    android:id="@+id/tvMemo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    tools:text="Please give me money to party" />
+                    android:layout_gravity="start"
+                    android:text="Show transaction details >"
+                    android:textColor="@color/fio_prm_btn_line"
+                    android:textSize="14sp" />
             </LinearLayout>
         </ScrollView>
     </FrameLayout>

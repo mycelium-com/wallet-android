@@ -16,7 +16,6 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
             android:orientation="vertical">
         <!-- Fee Title -->
         <include layout="@layout/send_coins_fee_title" />

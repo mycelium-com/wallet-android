@@ -11,19 +11,3 @@ data class RegisteredFIOName(@JsonProperty("name") val name: String,
 data class FIODomain(@JsonProperty("domain") val domain: String,
                      @JsonProperty("expireDate") val expireDate: Date,
                      @JsonProperty("public") val isPublic: Boolean) : Serializable
-
-interface FIONameService {
-    fun getAllFIONames(): List<RegisteredFIOName>
-
-    fun getConnectedAccounts(registeredFioName: RegisteredFIOName): List<WalletAccount<*>>
-
-    fun connectAccounts(registeredFioName: RegisteredFIOName, accounts: List<WalletAccount<*>>)
-
-    fun disconnectAccounts(registeredFioName: RegisteredFIOName, accounts: List<WalletAccount<*>>)
-}
-
-interface FIODomainService {
-    fun getAllFIODomains(): List<FIODomain>
-
-    fun getFIONames(domain: FIODomain): List<RegisteredFIOName>
-}

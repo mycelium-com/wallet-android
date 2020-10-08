@@ -19,7 +19,7 @@
 
         <variable
             name="sendViewModel"
-            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+            type="com.mycelium.wallet.activity.send.model.SendFioViewModel" />
     </data>
 
     <FrameLayout
@@ -45,7 +45,7 @@
 
                 <!--Fee selector-->
                 <include
-                    layout="@layout/send_coins_fee_block"
+                    layout="@layout/send_coins_fee_block_fio"
                     app:viewModel="@{sendViewModel}" />
 
                 <!-- Amount Error -->

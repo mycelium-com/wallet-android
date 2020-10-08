@@ -9,7 +9,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
@@ -28,6 +28,7 @@ class FioAccount(private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
                  private val fiosdk: FIOSDK? = null,
+                 val walletManager: WalletManager,
                  address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = fiosdk?.let { FioAddress(coinType, FioAddressData(it.publicKey)) }
@@ -89,9 +90,32 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     @ExperimentalUnsignedTypes
     fun addPubAddress(fioAddress: String, publicAddresses: List<TokenPublicAddress>): Boolean {
-        val actionTraceResponse = fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee)
-                .getActionTraceResponse()
-        return actionTraceResponse != null && actionTraceResponse.status == "OK"
+        return try {
+            val actionTraceResponse = fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee)
+                    .getActionTraceResponse()
+            actionTraceResponse != null && actionTraceResponse.status == "OK"
+        } catch (e : FIOError) {
+            logger.log(Level.SEVERE, "Add pub address exception", e)
+            false
+        }
+    }
+
+    @ExperimentalUnsignedTypes
+    fun recordObtData(fioRequestId: BigInteger, payerFioAddress: String, payeeFioAddress: String,
+                      payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
+                      chainCode: String, tokenCode: String, obtId: String, memo: String): Boolean {
+        val actionTraceResponse = fiosdk!!.recordObtData(fioRequestId = fioRequestId,
+                payerFioAddress = payerFioAddress,
+                payeeFioAddress = payeeFioAddress,
+                payerTokenPublicAddress = payerTokenPublicAddress,
+                payeeTokenPublicAddress = payeeTokenPublicAddress,
+                amount = amount,
+                chainCode = chainCode,
+                tokenCode = tokenCode,
+                obtId = obtId,
+                maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
+                memo = memo).getActionTraceResponse()
+        return actionTraceResponse != null && actionTraceResponse.status == "sent_to_blockchain"
     }
 
     private fun getFioNames(): List<RegisteredFIOName> = try {
@@ -124,10 +148,10 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         if (amount > calculateMaxSpendableAmount((fee as FeePerKbFee).feePerKb, address as FioAddress)) {
-            throw BuildTransactionException(Throwable("Invalid amount"))
+            throw InsufficientFundsException(Throwable("Invalid amount"))
         }
 
-        return FioTransaction(coinType, address.toString(), amount, fee.feePerKb.value)
+        return FioTransaction(coinType, address.toString(), amount, fee)
     }
 
     override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
@@ -136,9 +160,14 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun broadcastTx(tx: Transaction?): BroadcastResult {
         val fioTx = tx as FioTransaction
         return try {
-            val response = fiosdk!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee)
+            val response = fiosdk!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.feePerKb.value)
             val actionTraceResponse = response.getActionTraceResponse()
             if (actionTraceResponse != null && actionTraceResponse.status == "OK") {
+                tx.txId = HexUtils.toBytes(response.transactionId)
+                backing.putTransaction(-1, System.currentTimeMillis() / 1000, response.transactionId, "",
+                        receivingAddress.toString(), fioTx.toAddress, fioTx.value, 0,
+                        fioTx.fee.feePerKb, if (fioTx.toAddress == receivingAddress.toString()) -fioTx.fee.feePerKb else
+                    -(fioTx.value + fioTx.fee.feePerKb))
                 BroadcastResult(BroadcastResultType.SUCCESS)
             } else {
                 BroadcastResult("Status: ${actionTraceResponse?.status}", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
@@ -174,8 +203,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     fun getRequestsGroups() = backing.getRequestsGroups()
 
 
-    fun rejectFunds(fioRequestId: BigInteger, maxFee: BigInteger): PushTransactionResponse {
-        return fiosdk!!.rejectFundsRequest(fioRequestId, maxFee)
+    fun rejectFunds(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
+        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
     }
 
     fun requestFunds(
@@ -214,6 +243,7 @@ class FioAccount(private val accountContext: FioAccountContext,
         syncFioDomains()
         updateBlockHeight()
         syncTransactions()
+        updateMappings()
         try {
             val fioBalance = fiosdk?.getFioBalance()?.balance ?: balanceService.getBalance()
             val newBalance = Balance(Value.valueOf(coinType, fioBalance),
@@ -224,10 +254,25 @@ class FioAccount(private val accountContext: FioAccountContext,
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.log(Level.INFO, "update balance exception: ${e.message}")
+            logger.log(Level.SEVERE, "update balance exception: ${e.message}")
         }
         syncing = false
         return true
+    }
+
+    private fun updateMappings() {
+        walletManager.getAllActiveAccounts().forEach { account ->
+            val chainCode = account.basedOnCoinType.symbol
+            val tokenCode = account.coinType.symbol
+            accountContext.registeredFIONames?.forEach { fioName ->
+                val publicAddress = account.coinType.parseAddress(FioTransactionHistoryService.getPubkeyByFioAddress(
+                        fioName.name, coinType as FIOToken, chainCode, tokenCode).publicAddress)
+                if (account.isMineAddress(publicAddress)) {
+                    backing.insertOrUpdateMapping(fioName.name, publicAddress.toString(), chainCode,
+                            tokenCode, account.id)
+                }
+            }
+        }
     }
 
     private fun syncFioRequests() {
