@@ -1625,18 +1625,16 @@ public class MbwManager {
         if(tbe.getTxid() != null
                 && obtDataRecordCache != null) {
             FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
-            new Thread(() -> {
-                fioAccount.recordObtData(BigInteger.ZERO, // let the sdk figure it out
-                        obtDataRecordCache.getPayerFioAddress(),
-                        obtDataRecordCache.getPayeeFioAddress(),
-                        obtDataRecordCache.getPayerTokenPublicAddress(),
-                        obtDataRecordCache.getPayeeTokenPublicAddress(),
-                        obtDataRecordCache.getAmount(),
-                        obtDataRecordCache.getChainCode(),
-                        obtDataRecordCache.getTokenCode(),
-                        tbe.getTxid(),
-                        obtDataRecordCache.getMemo());
-            }).start();
+            new Thread(() -> fioAccount.recordObtData(BigInteger.ZERO, // let the sdk figure it out
+                    obtDataRecordCache.getPayerFioAddress(),
+                    obtDataRecordCache.getPayeeFioAddress(),
+                    obtDataRecordCache.getPayerTokenPublicAddress(),
+                    obtDataRecordCache.getPayeeTokenPublicAddress(),
+                    obtDataRecordCache.getAmount(),
+                    obtDataRecordCache.getChainCode(),
+                    obtDataRecordCache.getTokenCode(),
+                    tbe.getTxid(),
+                    obtDataRecordCache.getMemo())).start();
         }
     }
 
