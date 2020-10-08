@@ -5,6 +5,10 @@
 
     <data>
 
+        <import type="com.mycelium.wapi.wallet.coins.Value" />
+
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel" />
@@ -88,22 +92,66 @@
                 android:textSize="18sp"
                 tools:text="newAddress@domain" />
 
-            <LinearLayout
-                android:id="@+id/sendLayout"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="5dp"
-               >
-
                 <!--Contains amount selection-->
-                <include
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="20dp">
 
-                    layout="@layout/send_coins_amount"
-                    app:viewModel="@{viewModel}" />
+                <TextView
+                    android:id="@+id/tvAmountLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enter_amount_title"
+                    android:textColor="#BBB"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <!--                app:activity="@{activity}"-->
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/tvAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:hint="@{viewModel.amountHint}"
+                    android:text="@{viewModel.requestedAmountFormatted}"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/darkgrey"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:typeface="monospace"
+                    app:layout_constraintStart_toEndOf="@id/tvAmountLabel"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="0.00123305 tBTC" />
+
+                <TextView
+                    android:id="@+id/tvAmountFiat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@{viewModel.requestedAmountAlternativeFormatted}"
+                    android:textAlignment="textEnd"
+                    android:textSize="12sp"
+                    android:visibility="@{viewModel.requestedAmountAlternativeFormatted.isEmpty() ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@id/tvAmount"
+                    app:layout_constraintTop_toBottomOf="@id/tvAmount"
+                    tools:text="55.02 USD" />
+
+                <ImageButton
+                    android:id="@+id/btEnterAmount"
+                    style="@style/MyceliumSlimButton"
+                    android:layout_width="75dp"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="10dp"
+                    android:contentDescription="@string/enter_amount_title"
+                    android:scaleType="fitCenter"
+                    android:clickable="false"
+                    android:src="@drawable/keyboard_icon"
+                    app:layout_constraintStart_toEndOf="@id/tvAmount"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
