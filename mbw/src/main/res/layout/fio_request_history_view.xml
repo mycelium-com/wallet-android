@@ -15,12 +15,6 @@
         android:textSize="13sp"
         android:visibility="gone" />
 
-
-    <Button
-        android:id="@+id/btCreateFioRequest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create request"></Button>
     <!-- Transaction History -->
     <ExpandableListView
         android:id="@+id/lvTransactionHistory"

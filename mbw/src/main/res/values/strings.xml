@@ -213,6 +213,7 @@
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="checking_fio_address">Checking FIO Name…</string>
     <string name="recipient_invalid">Recipient Invalid</string>
+    <string name="recipient_has_no_such_address">%1$s has no %2$s address connected</string>
     <string name="recipient_valid">Recipient Valid</string>
     <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
     <string name="enter_local_currency">Enter your local currency</string>

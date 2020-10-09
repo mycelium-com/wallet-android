@@ -2,13 +2,12 @@ package com.mycelium.wallet.activity.fio.requests.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestSuccessActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
-import com.mycelium.wallet.activity.send.model.SendBtcModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
 import com.mycelium.wallet.activity.send.model.SendFioModel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
@@ -20,7 +19,10 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
 import java.util.regex.Pattern
 
 class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) {
@@ -66,24 +68,46 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
     }
 
 
-    fun sendRequest(context: Context) {
+    fun sendRequest(activity: Activity, doOnSuccess: (Unit) -> Unit, doOnError: (Exception) -> Unit) {
         viewModelScope.launch(IO) {
             val fioAccounts = mbwManager.getWalletManager(false).getFioAccounts()
             if (!fioAccounts.isEmpty()) {
                 val fioAccount = fioAccounts[0]
                 val transferTokensFee = fioAccount.getTransferTokensFee()
                 val selectedAccount = mbwManager.selectedAccount
-                val requestFunds = fioAccount.requestFunds(
-                        payerFioAddress.value!!,
-                        payeeFioAddress.value!!,
-                        payeeTokenPublicAddress.value!!,
-                        getAmount().value?.value?.toDouble()!!,
-                        selectedAccount.basedOnCoinType.symbol,
-                        selectedAccount.coinType.symbol,
-                        transferTokensFee)
+                try {
+                    val requestFunds = fioAccount.requestFunds(
+                            payerFioAddress.value!!,
+                            payeeFioAddress.value!!,
+                            payeeTokenPublicAddress.value!!,
+                            getAmount().value?.value?.toDouble()!!,
+                            selectedAccount.basedOnCoinType.symbol,
+                            selectedAccount.coinType.symbol,
+                            transferTokensFee)
+
+                    withContext(Main) {
+                        ApproveFioRequestSuccessActivity.start(
+                                activity,
+                                getAmount().value ?: Value.zeroValue(selectedAccount.coinType),
+                                getFiatValue() ?: "",
+                                getSelectedFee().value ?: Value.zeroValue(selectedAccount.coinType),
+                                Date().time,
+                                payerFioAddress.value!!,
+                                payeeFioAddress.value!!,
+                                fioMemo.value ?: "",
+                                byteArrayOf(),
+                                accountId = selectedAccount.id)
+                    }
+                } catch (ex: Exception) {
+                    withContext(Main) {
+                        doOnError.invoke(ex)
+                    }
+                }
+
             }
         }
     }
+
 
     fun getPayeeFioAddreses(): List<RegisteredFIOName>? {
         return payeeFioAddreses.value

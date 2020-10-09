@@ -83,32 +83,6 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
             }
         }
 
-        //for demo only
-        btCreateFioRequest?.visibility = View.GONE
-        btCreateFioRequest?.setOnClickListener {
-            GlobalScope.launch(IO) {
-
-                val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
-                val receiveAddress = walletManager.getActiveBTCSingleAddressAccounts().first().receiveAddress as BtcAddress
-                val payee = receiveAddress.toString()
-                val selectedAccount = walletManager.getActiveFioAccounts()[0]
-                val fioAddress = Date().time.toString() + "@fiotestnet"
-                selectedAccount.registerFIOAddress(fioAddress)
-                val addPubAddress = selectedAccount.addPubAddress(fioAddress, listOf(TokenPublicAddress(payee,
-                        Utils.getBtcCoinType().symbol.toUpperCase(Locale.US), Utils.getBtcCoinType().symbol.toUpperCase(Locale.US))))
-                selectedAccount.registerFIOAddress(fioAddress)
-                val feeForFunds = selectedAccount.getFeeForFunds(fioAddress)
-                val requestFunds = selectedAccount.requestFunds(
-                        "eosdac@fiotestnet",
-                        fioAddress,
-                        payee,
-                        2.0,
-                        Utils.getBtcCoinType().symbol.toUpperCase(Locale.US),
-                        Utils.getBtcCoinType().symbol.toUpperCase(Locale.US),
-                        feeForFunds.fee)
-                println(requestFunds)
-            }
-        }
         adapter = FioRequestArrayAdapter(requireActivity(), model.fioRequestHistory.value
                 ?: emptyList(), _mbwManager)
         lvTransactionHistory.setOnChildClickListener { _, view, groupPosition, childPosition, l ->

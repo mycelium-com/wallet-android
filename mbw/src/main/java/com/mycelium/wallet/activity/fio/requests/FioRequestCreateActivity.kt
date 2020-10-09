@@ -48,10 +48,8 @@ class FioRequestCreateActivity : AppCompatActivity() {
 
         val fioAddressTo = intent.getStringExtra(FIO_ADDRESS_TO)
         val tokenAddressTo = intent.getSerializableExtra(FIO_TOKEN_TO) as Address?
-        val amount = intent.getSerializableExtra(AMOUNT) as Value?
         if (!viewModel.isInitialized()) {
             viewModel.init(account, intent)
-//            viewModel.setAmount(amount)
         }
 
         viewModel.payerFioAddress.value = fioAddressTo
@@ -74,7 +72,12 @@ class FioRequestCreateActivity : AppCompatActivity() {
                     lifecycleOwner = this@FioRequestCreateActivity
                     with(this) {
                         btNextButton.setOnClickListener {
-                            viewModel?.sendRequest(this@FioRequestCreateActivity)
+                            //show loader
+                            viewModel?.sendRequest(this@FioRequestCreateActivity,{
+                                //hide loader
+                            },{
+                                //error
+                            })
                         }
                         tvPayeeFio.setOnClickListener {
                             showPayeeSelector()
