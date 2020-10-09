@@ -195,6 +195,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         private const val SHOW_UTXO = "showIncomingUtxo"
         private const val IS_COLD_STORAGE = "isColdStorage"
         const val MANUAL_ENTRY_RESULT_CODE = 4
+        const val REQUEST_CODE_FIO_NAME_MAPPING = 5
 
         @JvmStatic
         @JvmOverloads

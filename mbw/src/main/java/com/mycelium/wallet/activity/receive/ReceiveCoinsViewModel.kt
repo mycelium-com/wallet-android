@@ -3,25 +3,26 @@ package com.mycelium.wallet.activity.receive
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.Transformations
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.Transformations
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity.Companion.MANUAL_ENTRY_RESULT_CODE
 import com.mycelium.wallet.activity.send.ManualAddressEntry
-import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.FioModule
 
 abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewModel(application) {
     protected val mbwManager = MbwManager.getInstance(application)
@@ -147,6 +148,9 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
     }
 
+    var fioAddressForRequest = ""
+    var addressResult: Address? = null
+
     open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GET_AMOUNT_RESULT_CODE) {
@@ -155,11 +159,19 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                 amount?.let {
                     setAmount(amount)
                 }
-            } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()){
-                val fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
-                val addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
+            } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()) {
+                fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
+                addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
                 val value = getRequestedAmount().value
-                FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult)
+                if ((mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule).getFIONames(account).isNotEmpty()) {
+                    FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult)
+                } else {
+                    AccountMappingActivity.startForMapping(activity, account, ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING)
+                }
+            } else if (requestCode == ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING) {
+                if ((mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule).getFIONames(account).isNotEmpty()) {
+                    FioRequestCreateActivity.start(activity, getRequestedAmount().value, fioAddressForRequest, addressResult)
+                }
             }
         }
     }
