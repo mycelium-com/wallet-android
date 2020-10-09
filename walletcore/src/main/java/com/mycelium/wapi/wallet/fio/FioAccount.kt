@@ -239,6 +239,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         syncFioRequests()
+        syncFioOBT()
         syncFioAddresses()
         syncFioDomains()
         updateBlockHeight()
@@ -287,6 +288,15 @@ class FioAccount(private val accountContext: FioAccountContext,
         try {
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
             backing.putRequests(sentFioRequests)
+        } catch (ex: FIOError) {
+            logger.log(Level.SEVERE, "Update fio requests exception", ex)
+        }
+    }
+
+    private fun syncFioOBT() {
+        try {
+            val obtList = fiosdk?.getObtData() ?: emptyList()
+            backing.putOBT(obtList)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
         }
