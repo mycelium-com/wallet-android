@@ -3,6 +3,9 @@ package com.mycelium.wallet.activity.fio.registername
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.InputFilter.AllCaps
+import android.text.Spanned
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -28,6 +31,7 @@ import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_register_fio_name_confirm.btNextButton
 import kotlinx.android.synthetic.main.fragment_register_fio_name_step1.*
+import java.util.*
 
 
 class RegisterFioNameStep1Fragment : Fragment() {
@@ -91,6 +95,13 @@ class RegisterFioNameStep1Fragment : Fragment() {
         inputEditText.doOnTextChanged { text: CharSequence?, _, _, _ ->
             doAddressCheck(text.toString())
         }
+        inputEditText.filters = arrayOf<InputFilter>(
+                object : AllCaps() {
+                    override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence {
+                        return source.toString().toLowerCase(Locale.US)
+                    }
+                }
+        )
     }
 
     private fun doAddressCheck(fioAddress: String) {
