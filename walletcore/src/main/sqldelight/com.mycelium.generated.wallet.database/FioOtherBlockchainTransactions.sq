@@ -1,0 +1,33 @@
+import java.math.BigInteger;
+import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent;
+
+CREATE TABLE IF NOT EXISTS FioOtherBlockchainTransactions(
+  obtId TEXT NOT NULL PRIMARY KEY,
+  fioRequestId TEXT AS BigInteger NOT NULL,
+  payerFioAddress TEXT NOT NULL,
+  payeeFioAddress TEXT NOT NULL,
+  payerFioPublicKey TEXT NOT NULL,
+  payeeFioPublicKey TEXT NOT NULL,
+  content TEXT NOT NULL,
+  status TEXT NOT NULL,
+  time_stamp TEXT NOT NULL,
+  deserializedContent TEXT AS RecordObtDataContent
+);
+
+insertTx:
+INSERT OR REPLACE INTO FioOtherBlockchainTransactions(obtId, fioRequestId, payerFioAddress, payeeFioAddress,
+    payerFioPublicKey, payeeFioPublicKey, content, status, time_stamp, deserializedContent)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteTx:
+DELETE FROM FioOtherBlockchainTransactions
+WHERE fioRequestId = (?);
+
+selectTx:
+SELECT fioRequestId, payerFioAddress, payeeFioAddress, payerFioPublicKey, payeeFioPublicKey, content, status, time_stamp
+FROM FioOtherBlockchainTransactions;
+
+selectTxById:
+SELECT obtId, fioRequestId, payerFioAddress, payeeFioAddress, payerFioPublicKey, payeeFioPublicKey, content, status, time_stamp, deserializedContent
+FROM FioOtherBlockchainTransactions
+WHERE obtId = (?);

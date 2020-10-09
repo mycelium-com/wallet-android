@@ -111,6 +111,11 @@ class FioModule(
         }
     }
 
+    fun getFioTxMetadata(txSummary: TransactionSummary) =
+            walletDB.fioOtherBlockchainTransactionsQueries.selectTxById(txSummary.idHex).executeAsOneOrNull()?.run {
+                FIOOBTransaction(this.obtId, this.payeeFioAddress)
+            }
+
     private fun getFioSdk(accountIndex: Int): FIOSDK {
         val privkeyString = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)
         return FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString), serializationProvider, coinType.url)

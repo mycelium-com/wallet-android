@@ -215,7 +215,6 @@ import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
-import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccounts;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -369,7 +368,8 @@ public class MbwManager {
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(), AdaptersKt.getFioRequestsAdapter());
+                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
+                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(), AdaptersKt.getFioRequestsAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup

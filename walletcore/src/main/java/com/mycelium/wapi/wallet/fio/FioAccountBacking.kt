@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import fiofoundation.io.fiosdk.models.fionetworkprovider.ObtDataRecord
 import org.web3j.tx.Transfer
 import java.util.*
 
@@ -16,6 +17,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     private val fioAccountQueries = walletDB.fioAccountBackingQueries
     private val fioMappings = walletDB.fioNameAccountMappingsQueries
     private val queries = walletDB.accountBackingQueries
+    private val fioOBTQueries = walletDB.fioOtherBlockchainTransactionsQueries
 
     fun putRequests(status: FioRequestStatus, list: List<FIORequestContent>) {
         fioRequestQueries.transaction {
@@ -128,5 +130,23 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                 timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
                 confirmations, false, inputs, outputs,
                 destAddresses, null, Transfer.GAS_LIMIT.toInt(), fee)
+    }
+
+    fun putOBT(list: List<ObtDataRecord>) {
+        fioOBTQueries.transaction {
+            list.forEach {
+                fioOBTQueries.insertTx(
+                        it.deserializedContent?.obtId ?: "",
+                        it.fioRequestId,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.content,
+                        it.status,
+                        it.timeStamp,
+                        it.deserializedContent)
+            }
+        }
     }
 }
