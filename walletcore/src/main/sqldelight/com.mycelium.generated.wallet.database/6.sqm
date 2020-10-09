@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS FioRequestsBacking (
     content TEXT NOT NULL,
     deserialized_content TEXT,
     time_stamp TEXT NOT NULL,
-    status TEXT NOT NULL
+    status TEXT
 );
 
 CREATE TABLE IF NOT EXISTS FioOtherBlockchainTransactions(
