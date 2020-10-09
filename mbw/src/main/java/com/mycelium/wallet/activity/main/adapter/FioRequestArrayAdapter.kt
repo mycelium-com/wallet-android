@@ -62,6 +62,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         address?.text = fioRequestContent.payeeFioAddress
 
         var hasStatus = false;
+        val ivStatus = fioRequestView.findViewById<ImageView>(R.id.ivStatus)
         val tvStatus = fioRequestView.findViewById<TextView>(R.id.tvStatus)
         if (getGroup(groupPosition).status == FioGroup.Type.SENT) {
             val status = FioRequestStatus.getStatus((fioRequestContent as SentFIORequestContent).status)
@@ -80,17 +81,23 @@ class FioRequestArrayAdapter(var activity: Activity,
                             FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.green
                             FioRequestStatus.NONE -> R.color.green
                         }))
+                ivStatus.setImageResource(
+                        when (status) {
+                            FioRequestStatus.REQUESTED -> R.drawable.ic_request_pending
+                            FioRequestStatus.REJECTED -> R.drawable.ic_request_error
+                            FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.drawable.ic_request_good_to_go
+                            FioRequestStatus.NONE -> R.drawable.ic_request_item_circle_gray
+                        })
             }
         } else {
             tvStatus.text = ""
+            ivStatus.setImageResource(R.drawable.ic_request_item_circle_gray)
         }
 
         val tvDate = fioRequestView.findViewById<TextView>(R.id.tvDate)
 
         val date = inDate.parse(fioRequestContent.timeStamp)
         tvDate.text = """${outDate.format(date)}${if (hasStatus) ", " else ""}"""
-
-        val ivStatus = fioRequestView.findViewById<ImageView>(R.id.ivStatus)
 
 
         val memo = fioRequestView.findViewById<TextView>(R.id.tvTransactionLabel)
