@@ -104,24 +104,14 @@
             app:layout_constraintTop_toBottomOf="@id/inputEditTextLayout"
             tools:text="@string/fio_annual_fee_domain" />
 
-        <TextView
-            android:id="@+id/tvFeeInfo2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="22dp"
-            android:text="This payment is required by the FIO Protocol and not by Mycelium."
-            android:textColor="@color/fio_white_alpha_0_8"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvFeeInfo" />
-
         <Button
             android:id="@+id/btNextButton"
+            android:layout_marginTop="32dp"
             style="@style/FioNameRegistrationButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Next"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvFeeInfo2" />
+            app:layout_constraintTop_toBottomOf="@id/tvFeeInfo" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
