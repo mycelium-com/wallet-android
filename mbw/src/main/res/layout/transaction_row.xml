@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/item_selector"
-        tools:context=".activity.main.adapter.TransactionArrayAdapter"
-        android:paddingEnd="4dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_selector"
+    tools:context=".activity.main.adapter.TransactionArrayAdapter"
+    android:paddingEnd="4dp">
 
     <!-- graphical confirmation indicator -->
     <com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay
@@ -56,17 +56,48 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-            <TextView
-                    android:id="@+id/tvTransactionLabel"
-                    tools:text="placeholderLabel"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|top"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/fioIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="14dp"
+                    app:layout_constraintBottom_toBottomOf="@id/toFioName"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/toFioName"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+
+                <TextView
+                    android:id="@+id/toFioName"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
+                    android:layout_marginStart="6dp"
                     android:ellipsize="end"
-                    android:layout_gravity="center_vertical|top"
-                    android:typeface="monospace">
-            </TextView>
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:layout_constraintLeft_toRightOf="@id/fioIcon"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="To: newfriend@domain" />
+
+                <TextView
+                    android:id="@+id/tvTransactionLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:textSize="13sp"
+                    android:typeface="monospace"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/toFioName"
+                    tools:text="placeholderLabel" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"

@@ -36,8 +36,6 @@ package com.mycelium.wallet.activity.main;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -48,13 +46,6 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.core.app.ShareCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -64,6 +55,16 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientBtcException;
@@ -97,9 +98,9 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.OutputViewModel;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.TransactionSummary;
-import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -110,6 +111,8 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
+import com.mycelium.wapi.wallet.fio.FIOOBTransaction;
+import com.mycelium.wapi.wallet.fio.FioModule;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -117,8 +120,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -181,7 +186,7 @@ public class TransactionHistoryFragment extends Fragment {
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
       listView = _root.findViewById(R.id.lvTransactionHistory);
       if (adapter == null) {
-         adapter = new TransactionHistoryAdapter(getActivity(), history);
+         adapter = new TransactionHistoryAdapter(getActivity(), history, model.getTransactionHistory().getFioMetadataMap());
          updateWrapper(adapter);
          model.getTransactionHistory().observe(this, new Observer<Set<? extends TransactionSummary>>() {
             @Override
@@ -339,7 +344,7 @@ public class TransactionHistoryFragment extends Fragment {
                   toAddEmpty = toAdd.isEmpty();
                }
                if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
+                  new Preloader(toAdd, model.getTransactionHistory().getFioMetadataMap(), _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
                           OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                }
                if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
@@ -360,10 +365,13 @@ public class TransactionHistoryFragment extends Fragment {
       private final int limit;
       private final AtomicBoolean success;
       private final MbwManager _mbwManager;
+      Map<String, FIOOBTransaction> fioMetadataMap;
 
-      Preloader(List<TransactionSummary> toAdd, WalletAccount account, MbwManager _mbwManager
+      Preloader(List<TransactionSummary> toAdd, Map<String, FIOOBTransaction> fioMetadataMap,
+                WalletAccount account, MbwManager _mbwManager
               , int offset, int limit, AtomicBoolean success) {
          this.toAdd = toAdd;
+         this.fioMetadataMap = fioMetadataMap;
          this.account = account;
          this.offset = offset;
          this.limit = limit;
@@ -374,6 +382,13 @@ public class TransactionHistoryFragment extends Fragment {
       @Override
       protected Void doInBackground(Void... voids) {
          List<TransactionSummary> preloadedData = account.getTransactionSummaries(offset, limit);
+         FioModule fioModule = (FioModule) _mbwManager.getWalletManager(false).getModuleById(FioModule.ID);
+         for (TransactionSummary txSummary : preloadedData) {
+            FIOOBTransaction data = fioModule.getFioTxMetadata(txSummary);
+            if (data != null) {
+               fioMetadataMap.put(txSummary.getIdHex(), data);
+            }
+         }
          if(account.equals(_mbwManager.getSelectedAccount())) {
             synchronized (toAdd) {
                toAdd.addAll(preloadedData);
@@ -418,8 +433,12 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
+
+      private Map<String, FIOOBTransaction> fioMetadataMap;
+
+      TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions, Map<String, FIOOBTransaction> fioMetadataMap) {
          super(context, transactions, TransactionHistoryFragment.this, model.getAddressBook(), false);
+         this.fioMetadataMap = fioMetadataMap;
       }
 
       @NonNull
@@ -437,6 +456,16 @@ public class TransactionHistoryFragment extends Fragment {
          final TransactionSummary record = checkNotNull(getItem(position));
          final AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
 
+         TextView toFioName = rowView.findViewById(R.id.toFioName);
+         View fioIcon = rowView.findViewById(R.id.fioIcon);
+         if (fioMetadataMap.containsKey(record.getIdHex())) {
+            toFioName.setText(getString(R.string.transaction_to_address_prefix, fioMetadataMap.get(record.getIdHex()).getToFIOName()));
+            toFioName.setVisibility(View.VISIBLE);
+            fioIcon.setVisibility(View.VISIBLE);
+         } else {
+            toFioName.setVisibility(View.GONE);
+            fioIcon.setVisibility(View.GONE);
+         }
          rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {

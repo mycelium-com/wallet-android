@@ -12,6 +12,7 @@ import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.squareup.sqldelight.ColumnAdapter
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent
+import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
 import java.math.BigInteger
 import java.util.*
 
@@ -157,6 +158,15 @@ object Adapters {
 
         override fun encode(value: FundsRequestContent): String = value.toJson()
     }
+
+    val fioRecordObtDataContentAdapter = object : ColumnAdapter<RecordObtDataContent, String> {
+        override fun decode(databaseValue: String): RecordObtDataContent {
+            val gson = GsonBuilder().serializeNulls().create()
+            return gson.fromJson(databaseValue, RecordObtDataContent::class.java)
+        }
+
+        override fun encode(value: RecordObtDataContent): String = value.toJson()
+    }
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
@@ -185,3 +195,6 @@ val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
 
 val fioRequestsAdapter = FioRequestsBacking.Adapter(Adapters.bigIntAdapter, Adapters.fioRequestDeserializedContentAdapter,
         Adapters.fioRequestStatusAdapter)
+
+val fioOtherBlockchainTransactionsAdapter = FioOtherBlockchainTransactions.Adapter(Adapters.bigIntAdapter,
+        Adapters.fioRecordObtDataContentAdapter)
