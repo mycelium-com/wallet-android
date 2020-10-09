@@ -198,6 +198,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginTop="32dp"
             android:text="Send FIO request"
+            android:enabled="@{viewModel.amount.moreThanZero()}"
             app:layout_constraintStart_toStartOf="parent" />
     </RelativeLayout>
 </layout>

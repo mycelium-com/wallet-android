@@ -92,8 +92,6 @@ class FioRequestCreateActivity : AppCompatActivity() {
                         }
                     }
                 }
-
-
     }
 
 
