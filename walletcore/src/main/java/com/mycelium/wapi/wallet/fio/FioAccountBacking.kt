@@ -91,7 +91,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             }
         }.executeAsList()
 
-        return listOf(fioSentGroup, fioPendingGroup)
+        return listOf(fioPendingGroup, fioSentGroup)
     }
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
