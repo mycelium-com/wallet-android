@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.fio.requests
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -89,12 +88,10 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             }
-        } catch (ex : Exception){
+        } catch (ex: Exception) {
             //error read transaction
         }
-
-
-
+        btNextButton.setOnClickListener { finish() }
     }
 
     private fun getDateString(timestamp: Long): String {

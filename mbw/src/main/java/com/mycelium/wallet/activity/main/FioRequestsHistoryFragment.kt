@@ -43,25 +43,19 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.TransactionDetailsActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
+import com.mycelium.wallet.activity.fio.requests.SentFioRequestStatusActivity
 import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter
 import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryModel
-import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.SyncMode
-import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
+import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
-import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import kotlinx.android.synthetic.main.fio_request_history_view.*
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -87,7 +81,11 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
                 ?: emptyList(), _mbwManager)
         lvTransactionHistory.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
             val item: FIORequestContent = adapter.getChild(groupPosition, childPosition) as FIORequestContent
-            ApproveFioRequestActivity.start(requireActivity(), item)
+            if (adapter.getGroup(groupPosition).status == FioGroup.Type.SENT) {
+                SentFioRequestStatusActivity.start(requireActivity(), item)
+            } else {
+                ApproveFioRequestActivity.start(requireActivity(), item)
+            }
             false
         }
         model.fioRequestHistory.observe(this.viewLifecycleOwner, Observer { it ->

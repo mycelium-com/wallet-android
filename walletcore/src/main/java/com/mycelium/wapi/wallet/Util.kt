@@ -5,6 +5,8 @@ import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.text.SimpleDateFormat
+import java.util.*
 
 object Util {
     /**
@@ -43,4 +45,23 @@ object Util {
     @JvmStatic
     fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
             BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
+
+    @JvmStatic
+    fun transformExpirationDate(dateStr: String): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("GMT")
+        val date = sdf.parse(dateStr)
+
+        // val requiredSdf = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.US) - old format
+        // new format - September 20, 2021 at 6:23pm
+        val requiredSdf = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a", Locale.US)
+        return requiredSdf.format(date)
+    }
+
+    @JvmStatic
+    fun convertToDate(fioDateStr: String): Date {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("GMT")
+        return sdf.parse(fioDateStr)
+    }
 }

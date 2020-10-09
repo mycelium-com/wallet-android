@@ -11,6 +11,31 @@
         android:gravity="center"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="Status:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="4dp"
+                android:textColor="@color/fio_request_pending"
+                android:textSize="14sp"
+                tools:text="Pending" />
+        </LinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,7 +47,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp">
 
             <TextView
                 android:id="@+id/tvAmount"
@@ -42,30 +68,6 @@
                 android:textSize="14sp"
                 tools:text=" ~ 50 USD" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="28dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:text="Miner fee: "
-                android:textColor="@color/fio_white_alpha_0_8"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tvMinerFee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:textColor="@color/fio_white_alpha_0_8"
-                android:textSize="14sp"
-                tools:text="0.0000004 BTC ~ 0.5 USD" />
-        </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -154,15 +156,6 @@
                 android:textSize="14sp"
                 tools:text="This is last time i gave u crypto, so please MAN UP!!!" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvTxDetailsLink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="Show transaction details >"
-            android:textColor="@color/fio_prm_btn_line"
-            android:textSize="14sp" />
     </LinearLayout>
 
     <Button
