@@ -1436,4 +1436,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="expiration_date">Expiration date:</string>
     <string name="fio_register_name">Register FIO Name</string>
     <string name="fio_register_domain">Register FIO Domain</string>
+    <string name="fio_manage_name_need_mapping_s"><b>%s</b> is not connect to a FIO Name.  Select FIO Name to connect to:</string>
 </resources>

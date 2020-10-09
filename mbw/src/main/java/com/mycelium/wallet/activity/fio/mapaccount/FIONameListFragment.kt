@@ -31,7 +31,7 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(arguments?.containsKey("fioName") == true) {
+        if (arguments?.containsKey("fioName") == true) {
             findNavController().navigate(FIONameListFragmentDirections.actionName(requireArguments().getSerializable("fioName") as RegisteredFIOName))
         }
     }
@@ -45,7 +45,14 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
         list.itemAnimator = null
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
-        registeredOn.text = getString(R.string.fio_manage_name_and_domain)
+        when (viewModel.mode.value) {
+            Mode.NEED_FIO_NAME_MAPPING -> {
+                registeredOn.text = getString(R.string.fio_manage_name_need_mapping_s, viewModel.extraAccount.value?.label)
+            }
+            else -> {
+                registeredOn.text = getString(R.string.fio_manage_name_and_domain)
+            }
+        }
         adapter.fioNameClickListener = {
             findNavController().navigate(FIONameListFragmentDirections.actionName(it))
         }
@@ -77,9 +84,11 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
                     val isClosed = preference.getBoolean("isClosed${it.label}", true)
                     add(AccountItem(it, isClosed))
                     if (isClosed) {
-                        add(RegisterFIONameItem(it))
-                        add(RegisterFIODomainItem(it))
-                        addAll(it.registeredFIODomains.map { FIODomainItem(it) })
+                        if(viewModel.mode.value != Mode.NEED_FIO_NAME_MAPPING) {
+                            add(RegisterFIONameItem(it))
+                            add(RegisterFIODomainItem(it))
+                            addAll(it.registeredFIODomains.map { FIODomainItem(it) })
+                        }
                         addAll(it.registeredFIONames.map { FIONameItem(it) })
                     }
                 }
