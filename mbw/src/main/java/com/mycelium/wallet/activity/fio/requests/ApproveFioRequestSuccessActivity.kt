@@ -70,16 +70,25 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         val accountId = intent.getSerializableExtra(ACCOUNT) as UUID
         val account = walletManager.getAccount(accountId)
         val txid = intent.getByteArrayExtra(TXID)
-        val txTimestamp = account!!.getTxSummary(txid).timestamp
-        tvDate.text = getDateString(txTimestamp)
-
-        tvTxDetailsLink.setOnClickListener {
-            val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
-                    .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)
-                    .putExtra(TransactionDetailsActivity.ACCOUNT_ID, accountId)
-            startActivity(intent)
-            finish()
+        try {
+            if (txid.isEmpty()){
+                return
+            }
+            val txTimestamp = account!!.getTxSummary(txid).timestamp
+            tvDate.text = getDateString(txTimestamp)
+            tvTxDetailsLink.setOnClickListener {
+                val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
+                        .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)
+                        .putExtra(TransactionDetailsActivity.ACCOUNT_ID, accountId)
+                startActivity(intent)
+                finish()
+            }
+        } catch (ex : Exception){
+            //error read transaction
         }
+
+
+
     }
 
     private fun getDateString(timestamp: Long): String {
