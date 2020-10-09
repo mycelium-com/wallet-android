@@ -210,7 +210,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
-            BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
+            BigDecimal(amountStr).toBigIntegerExact()
 
     fun onClickSend() {
         sendViewModel.sendTransaction(this)
