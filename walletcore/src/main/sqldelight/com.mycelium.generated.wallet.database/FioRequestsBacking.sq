@@ -21,6 +21,9 @@ INSERT OR REPLACE INTO FioRequestsBacking(fio_request_id, payer_fio_address, pay
     payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
+deleteAllRequests:
+DELETE FROM FioRequestsBacking;
+
 deleteRequest:
 DELETE FROM FioRequestsBacking
 WHERE fio_request_id = (?) ;

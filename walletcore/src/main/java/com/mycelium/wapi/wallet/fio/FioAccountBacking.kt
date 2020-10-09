@@ -48,6 +48,10 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         }
     }
 
+    fun deleteRequestsAll() {
+        fioRequestQueries.deleteAllRequests()
+    }
+
     fun insertOrUpdateMapping(fioName: String, publicAddress: String, chainCode: String, tokenCode: String,
                               accountUUID: UUID) {
         fioMappings.insertMapping(fioName, publicAddress, chainCode, tokenCode, accountUUID)
