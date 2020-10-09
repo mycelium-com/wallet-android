@@ -66,10 +66,20 @@ class FioRequestArrayAdapter(var activity: Activity,
         if (getGroup(groupPosition).status == FioGroup.Type.SENT) {
             val status = FioRequestStatus.getStatus((fioRequestContent as SentFIORequestContent).status)
             if (status != FioRequestStatus.NONE) {
-                val color = if (status == FioRequestStatus.RECEIVED) R.color.green else R.color.fio_request_pending
-                tvStatus.text = status.status.capitalize()
-                tvStatus.setTextColor(ContextCompat.getColor(activity, color))
                 hasStatus = true
+                tvStatus.text = when (status) {
+                    FioRequestStatus.REQUESTED -> "Requested"
+                    FioRequestStatus.REJECTED -> "Rejected"
+                    FioRequestStatus.SENT_TO_BLOCKCHAIN -> "Received"
+                    FioRequestStatus.NONE -> ""
+                }
+                tvStatus.setTextColor(ContextCompat.getColor(activity,
+                        when (status) {
+                            FioRequestStatus.REQUESTED -> R.color.fio_request_pending
+                            FioRequestStatus.REJECTED -> R.color.red
+                            FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.green
+                            FioRequestStatus.NONE -> R.color.green
+                        }))
             }
         } else {
             tvStatus.text = ""
