@@ -67,7 +67,7 @@ class FioRequestArrayAdapter(var activity: Activity,
             val status = FioRequestStatus.getStatus((fioRequestContent as SentFIORequestContent).status)
             if (status != FioRequestStatus.NONE) {
                 val color = if (content?.hash != null) R.color.green else R.color.fio_request_pending
-                tvStatus.text = status.status.capitalize()
+                tvStatus.text = if (content?.hash != null) "Received" else "Pending"
                 tvStatus.setTextColor(ContextCompat.getColor(activity, color))
                 hasStatus = true
             }
