@@ -215,7 +215,6 @@ import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
-import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccounts;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
