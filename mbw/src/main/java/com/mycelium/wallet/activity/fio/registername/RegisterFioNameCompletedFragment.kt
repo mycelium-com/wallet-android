@@ -11,8 +11,8 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
-import com.mycelium.wallet.activity.modern.helper.FioHelper.convertToDate
-import com.mycelium.wallet.activity.modern.helper.FioHelper.transformExpirationDate
+import com.mycelium.wapi.wallet.Util.convertToDate
+import com.mycelium.wapi.wallet.Util.transformExpirationDate
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
 

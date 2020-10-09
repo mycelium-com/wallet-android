@@ -101,14 +101,6 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     @ExperimentalUnsignedTypes
-    fun recordObtData(payerFioAddress: String, payeeFioAddress: String,
-                      payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
-                      chainCode: String, tokenCode: String, obtId: String, memo: String) =
-            recordObtData(accountContext.actionSequenceNumber, payerFioAddress, payeeFioAddress,
-                    payerTokenPublicAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode,
-                    obtId, memo)
-
-    @ExperimentalUnsignedTypes
     fun recordObtData(fioRequestId: BigInteger, payerFioAddress: String, payeeFioAddress: String,
                       payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
                       chainCode: String, tokenCode: String, obtId: String, memo: String): Boolean {
@@ -247,6 +239,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         syncFioRequests()
+        syncFioOBT()
         syncFioAddresses()
         syncFioDomains()
         updateBlockHeight()
@@ -295,6 +288,15 @@ class FioAccount(private val accountContext: FioAccountContext,
         try {
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
             backing.putRequests(sentFioRequests)
+        } catch (ex: FIOError) {
+            logger.log(Level.SEVERE, "Update fio requests exception", ex)
+        }
+    }
+
+    private fun syncFioOBT() {
+        try {
+            val obtList = fiosdk?.getObtData() ?: emptyList()
+            backing.putOBT(obtList)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
         }

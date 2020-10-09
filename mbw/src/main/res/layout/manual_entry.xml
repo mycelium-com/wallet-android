@@ -56,6 +56,15 @@
             android:textSize="12sp" />
 
     <TextView
+            android:id="@+id/tvRecipientHasNoSuchAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="@string/recipient_has_no_such_address"
+            android:textColor="@color/red"
+            android:textSize="12sp" />
+
+    <TextView
             android:id="@+id/tvNoConnection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -11,7 +11,6 @@ import android.view.View.*
 import android.view.Window
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -20,6 +19,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
@@ -28,11 +28,7 @@ import kotlinx.android.synthetic.main.manual_entry.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.*
 import java.io.IOException
 import java.util.*
 
@@ -47,8 +43,11 @@ class ManualAddressEntry : AppCompatActivity() {
     private val fioNameToNbpaMap = mutableMapOf<String, String>()
     private var fioQueryCounter = 0
     private val checkedFioNames = mutableSetOf<String>()
+    private val fioNameRegistered = mutableMapOf<String, Boolean>()
     private var noConnection = false
     private lateinit var statusViews: List<View>
+    private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -62,7 +61,7 @@ class ManualAddressEntry : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.manual_entry)
         statusViews = listOf(tvCheckingFioAddress, tvRecipientInvalid, tvRecipientValid,
-                tvNoConnection, tvEnterRecipientDescription)
+                tvNoConnection, tvEnterRecipientDescription, tvRecipientHasNoSuchAddress)
         mbwManager = MbwManager.getInstance(this)
         coinType = if (!isForFio) mbwManager.selectedAccount.coinType else Utils.getFIOCoinType()
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
@@ -97,15 +96,13 @@ class ManualAddressEntry : AppCompatActivity() {
             }
 
     private fun updateUI() {
+        tvRecipientHasNoSuchAddress.text = getString(R.string.recipient_has_no_such_address, etRecipient.text, coinType.symbol)
         val isFio: Boolean = etRecipient.text.toString().isFioAddress()
         coinAddress = coinType.parseAddress(fioNameToNbpaMap[etRecipient.text.toString()])
         if (entered != etRecipient.text.toString()) {
             entered = etRecipient.text.toString()
             fioAddress = if (isFio) {
-                if (coinAddress == null && !checkedFioNames.contains(entered!!)) {
-                    // query fio for a native blockchain public address
-                    CoroutineScope(Dispatchers.Main).launch { tryFio(entered!!) }
-                }
+                tryFio(entered!!)
                 entered
             } else {
                 coinAddress = coinType.parseAddress(entered!!.trim { it <= ' ' })
@@ -119,6 +116,7 @@ class ManualAddressEntry : AppCompatActivity() {
             recipientValid -> tvRecipientValid
             fioQueryCounter > 0 -> tvCheckingFioAddress
             noConnection && isFio -> tvNoConnection
+            fioNameRegistered[entered!!] == true -> tvRecipientHasNoSuchAddress
             else -> tvRecipientInvalid
         }.visibility = VISIBLE
         btOk.isEnabled = recipientValid
@@ -146,50 +144,73 @@ class ManualAddressEntry : AppCompatActivity() {
     /**
      * Query FIO for the given fio address
      */
-    private suspend fun tryFio(address: String) {
+    private fun tryFio(address: String) {
+        if (fioNameToNbpaMap.contains(address) || checkedFioNames.contains(address)) {
+            // we have the result cached already
+            return
+        }
+        fioQueryCounter+=2 // we query the server twice
         checkedFioNames.add(address)
-        fioQueryCounter++
         updateUI()
-        withContext(Dispatchers.IO) {
-            val fioSymbol = coinType.symbol.toUpperCase(Locale.US)
-            // TODO: 10/6/20 Use: val result = FioTransactionHistoryService.getPubkeyByFioAddress(address, Utils.getFIOCoinType(), fioSymbol, fioSymbol)
-            //       It probably needs changes to preserve the error handling.
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val client = OkHttpClient()
-            try {
-                val requestBody = """{"fio_address":"$address","chain_code":"$fioSymbol","token_code":"$fioSymbol"}"""
-                val request = Request.Builder()
-                        .url("${Utils.getFIOCoinType().url}chain/get_pub_address")
-                        .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
-                        .build()
-                val response = client.newCall(request).execute()
+        // TODO: 10/6/20 Use: val result = FioTransactionHistoryService.getPubkeyByFioAddress()
+        //       It probably needs changes to preserve the error handling.
+        val tokenCode = coinType.symbol.toUpperCase(Locale.US)
+        val chainCode = if (coinType is ERC20Token) "ETH" else tokenCode
+        queryAddress(address, chainCode, tokenCode)
+        queryAddressAvailability(address)
+    }
+
+    private fun queryAddress(address: String, chainCode: String, tokenCode: String) {
+        val requestBody = """{"fio_address":"$address","chain_code":"$chainCode","token_code":"$tokenCode"}"""
+        val request = Request.Builder()
+                .url("${Utils.getFIOCoinType().url}chain/get_pub_address")
+                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .build()
+        client.newCall(request).enqueue(object: Callback {
+            override fun onResponse(call: Call, response: Response) {
                 noConnection = false
                 // TODO: 10/5/20 At least when using a debugger, replies can end up out of order
                 //       which might result in hard to debug bugs.
-                if (response.isSuccessful) {
-                    val reply = response.body()!!.string()
-                    val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
-                    result.publicAddress?.let { npbaString ->
-                        fioModule.addKnownName(FioName(address))
-                        fioNameToNbpaMap[address] = npbaString
-                    }
+                val reply = response.body()!!.string()
+                val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
+                result.publicAddress?.let { npbaString ->
+                    fioModule.addKnownName(FioName(address))
+                    fioNameToNbpaMap[address] = npbaString
                 }
-            } catch (e: IOException) {
-                // We have to check that name again once we have a connection
+                fioQueryCounter--
+                runOnUiThread { updateUI() }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
                 checkedFioNames.remove(address)
                 noConnection = true
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    e.printStackTrace()
-                    Toast.makeText(this@ManualAddressEntry, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            } finally {
                 fioQueryCounter--
-                withContext(Dispatchers.Main) {
-                    updateUI()
-                }
+                runOnUiThread { updateUI() }
             }
-        }
+        })
+    }
+
+    private fun queryAddressAvailability(address: String) {
+        val requestBody = """{"fio_name":"$address"}"""
+        val request = Request.Builder()
+                .url("${Utils.getFIOCoinType().url}chain/avail_check")
+                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .build()
+        client.newCall(request).enqueue(object: Callback {
+            override fun onResponse(call: Call, response: Response) {
+                fioQueryCounter--
+                noConnection = false
+                val reply = response.body()!!.string()
+                fioNameRegistered[address] = reply.contains("1") //.contains(""""is_registered":1""")
+                runOnUiThread { updateUI() }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                fioQueryCounter--
+                noConnection = true
+                runOnUiThread { updateUI() }
+            }
+        })
     }
 
     override fun onResume() {

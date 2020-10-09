@@ -11,7 +11,7 @@ import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
-import com.mycelium.wallet.activity.modern.helper.FioHelper.transformExpirationDate
+import com.mycelium.wapi.wallet.Util.transformExpirationDate
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_completed.*
 
 class RegisterFioDomainCompletedFragment : Fragment() {

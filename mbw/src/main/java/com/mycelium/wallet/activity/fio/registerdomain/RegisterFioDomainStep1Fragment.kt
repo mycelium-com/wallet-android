@@ -1,6 +1,8 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.Spanned
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +18,7 @@ import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDoma
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep1BindingImpl
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_step1.*
+import java.util.*
 
 class RegisterFioDomainStep1Fragment : Fragment() {
     private val viewModel: RegisterFioDomainViewModel by activityViewModels()
@@ -47,6 +50,13 @@ class RegisterFioDomainStep1Fragment : Fragment() {
         inputEditText.doOnTextChanged { text: CharSequence?, _, _, _ ->
             doAddressCheck(text.toString())
         }
+        inputEditText.filters = arrayOf<InputFilter>(
+                object : InputFilter.AllCaps() {
+                    override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence {
+                        return source.toString().toLowerCase(Locale.US)
+                    }
+                }
+        )
     }
 
     private fun doAddressCheck(fioAddress: String) {

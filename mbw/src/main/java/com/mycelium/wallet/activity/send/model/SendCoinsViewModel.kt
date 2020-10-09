@@ -136,10 +136,10 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
         val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
         mbwManager.obtDataRecordCache = RecordObtData(
-                payeeFioName.value!!,
                 payerFioName.value!!,
-                "TODO",
-                getReceivingAddressText().value ?: "no address provided",
+                payeeFioName.value!!,
+                "", // TODO: fix
+                getReceivingAddress().value?.toString() ?: "no address provided",
                 getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
                 chainCode,
                 tokenCode,

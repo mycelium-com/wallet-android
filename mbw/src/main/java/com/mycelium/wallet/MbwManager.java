@@ -47,7 +47,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -186,6 +185,7 @@ import com.squareup.sqldelight.db.SqlDriver;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -215,7 +215,6 @@ import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
-import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccounts;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -369,7 +368,8 @@ public class MbwManager {
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(), AdaptersKt.getFioRequestsAdapter());
+                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
+                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(), AdaptersKt.getFioRequestsAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -1622,20 +1622,25 @@ public class MbwManager {
 
     @Subscribe
     public void onTransactionBroadcast(TransactionBroadcasted tbe) {
-        if(tbe.getTxid() != null
-                && obtDataRecordCache != null) {
+        if(tbe.getTxid() != null && obtDataRecordCache != null) {
             FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
             new Thread(() -> {
-                boolean result = fioAccount.recordObtData(obtDataRecordCache.getPayerFioAddress(),
-                        obtDataRecordCache.getPayeeFioAddress(),
-                        obtDataRecordCache.getPayerTokenPublicAddress(),
-                        obtDataRecordCache.getPayeeTokenPublicAddress(),
-                        obtDataRecordCache.getAmount(),
-                        obtDataRecordCache.getChainCode(),
-                        obtDataRecordCache.getTokenCode(),
-                        tbe.getTxid(),
-                        obtDataRecordCache.getMemo());
-                Log.d("Fio", "RecordObtData result was " + result);
+                try {
+                    fioAccount.recordObtData(
+                            BigInteger.ZERO, // let the sdk figure it out
+                            obtDataRecordCache.getPayerFioAddress(),
+                            obtDataRecordCache.getPayeeFioAddress(),
+                            obtDataRecordCache.getPayerTokenPublicAddress(),
+                            obtDataRecordCache.getPayeeTokenPublicAddress(),
+                            obtDataRecordCache.getAmount(),
+                            obtDataRecordCache.getChainCode(),
+                            obtDataRecordCache.getTokenCode(),
+                            tbe.getTxid(),
+                            obtDataRecordCache.getMemo());
+                } catch(Exception e) {
+                    // TODO: 10/8/20 Actually handle the failure to send the obt record.
+                    logger.log(Level.WARNING, "Sending fio obt record failed!", e);
+                }
             }).start();
         }
     }
