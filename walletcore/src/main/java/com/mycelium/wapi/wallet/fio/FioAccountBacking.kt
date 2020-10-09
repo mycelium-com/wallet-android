@@ -42,7 +42,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                             it.content,
                             it.deserializedContent,
                             it.timeStamp,
-                            null)
+                            FioRequestStatus.NONE)
                 }
             }
         }
@@ -63,7 +63,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         fioRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
                                               payer_fio_public_key, payee_fio_public_key, content,
                                               deserialized_content, time_stamp, status ->
-            if (status != null) {
+            if (status != null && status != FioRequestStatus.NONE) {
                 fioSentGroup.children.add(
                         SentFIORequestContent().apply {
                             fioRequestId = fio_request_id
@@ -74,7 +74,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                             this.content = content
                             deserializedContent = deserialized_content
                             timeStamp = time_stamp
-                            this.status = status.name
+                            this.status = status?.status!!
                         })
             } else {
                 fioPendingGroup.children.add(

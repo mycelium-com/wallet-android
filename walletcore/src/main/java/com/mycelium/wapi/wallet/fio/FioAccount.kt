@@ -284,6 +284,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioRequests() {
+        backing.deleteRequestsAll()
         try {
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
             backing.putRequests(pendingFioRequests)
