@@ -5,6 +5,7 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.TransactionDetailsActivity
@@ -65,21 +66,35 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         tvConvertedAmount.text = " ~ ${intent.getStringExtra(CONVERTED_AMOUNT)}"
         tvMinerFee.text = (intent.getSerializableExtra(FEE) as Value).toStringWithUnit()
         tvFrom.text = intent.getStringExtra(FROM)
+        val date = intent.getLongExtra(DATE, -1)
         tvTo.text = intent.getStringExtra(TO)
         tvMemo.text = intent.getStringExtra(MEMO)
         val accountId = intent.getSerializableExtra(ACCOUNT) as UUID
         val account = walletManager.getAccount(accountId)
         val txid = intent.getByteArrayExtra(TXID)
-        val txTimestamp = account!!.getTxSummary(txid).timestamp
-        tvDate.text = getDateString(txTimestamp)
-
-        tvTxDetailsLink.setOnClickListener {
-            val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
-                    .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)
-                    .putExtra(TransactionDetailsActivity.ACCOUNT_ID, accountId)
-            startActivity(intent)
-            finish()
+        try {
+            if (txid.isEmpty()) {
+                if (date != -1L) {
+                    tvDate.text = getDateString(date)
+                }
+                tvTxDetailsLink.isVisible = false
+                return
+            }
+            val txTimestamp = account!!.getTxSummary(txid).timestamp
+            tvDate.text = getDateString(txTimestamp)
+            tvTxDetailsLink.setOnClickListener {
+                val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
+                        .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)
+                        .putExtra(TransactionDetailsActivity.ACCOUNT_ID, accountId)
+                startActivity(intent)
+                finish()
+            }
+        } catch (ex : Exception){
+            //error read transaction
         }
+
+
+
     }
 
     private fun getDateString(timestamp: Long): String {

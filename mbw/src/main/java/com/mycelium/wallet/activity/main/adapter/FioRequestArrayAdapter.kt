@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.main.adapter
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -16,10 +16,13 @@ import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioGroup
+import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
+import org.w3c.dom.Text
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.*
+import java.text.SimpleDateFormat
 
 
 class FioRequestArrayAdapter(var activity: Activity,
@@ -34,39 +37,58 @@ class FioRequestArrayAdapter(var activity: Activity,
         return 0
     }
 
+    val inDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    val outDate = SimpleDateFormat("dd/MM/yyyy")
+
     override fun getChildView(groupPosition: Int, childPosition: Int,
                               isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
-        val children = getChild(groupPosition, childPosition) as FIORequestContent
+        val fioRequestContent = getChild(groupPosition, childPosition) as FIORequestContent
         val group = getGroup(groupPosition)
 
         val fioRequestView = convertView
                 ?: activity.layoutInflater.inflate(R.layout.fio_request_row, null)!!
-        val content = children.deserializedContent
 
+        val content = fioRequestContent.deserializedContent
 
-        val isIncoming = true //content?.payeeTokenPublicAddress
+        val isIncoming = when (group.status) {
+            FioGroup.Type.SENT -> true
+            FioGroup.Type.PENDING -> false
+        }
 
         val color = if (isIncoming) R.color.green else R.color.red
         val direction = fioRequestView.findViewById<TextView>(R.id.tvDirection)
         direction?.text = if (isIncoming) "From:" else "To:"
         val address = fioRequestView.findViewById<TextView>(R.id.tvAddress)
-        address?.text = children.payeeFioAddress
+        address?.text = fioRequestContent.payeeFioAddress
+
+        var hasStatus = false;
+        val tvStatus = fioRequestView.findViewById<TextView>(R.id.tvStatus)
+        if (getGroup(groupPosition).status == FioGroup.Type.SENT) {
+            val status = FioRequestStatus.getStatus((fioRequestContent as SentFIORequestContent).status)
+            if (status != FioRequestStatus.NONE) {
+                val color = if (status == FioRequestStatus.RECEIVED) R.color.green else R.color.fio_request_pending
+                tvStatus.text = status.status.capitalize()
+                tvStatus.setTextColor(ContextCompat.getColor(activity, color))
+                hasStatus = true
+            }
+        } else {
+            tvStatus.text = ""
+        }
+
+        val tvDate = fioRequestView.findViewById<TextView>(R.id.tvDate)
+
+        val date = inDate.parse(fioRequestContent.timeStamp)
+        tvDate.text = """${outDate.format(date)}${if (hasStatus) ", " else ""}"""
 
         val ivStatus = fioRequestView.findViewById<ImageView>(R.id.ivStatus)
 
-        when (group.status) {
-            FioGroup.Type.SENT -> {
-//                ivStatus?.setBackgroundResource(if (isError) R.drawable.ic_request_good_to_go else R.drawable.ic_request_error)
-            }
-            FioGroup.Type.PENDING -> {
-//                ivStatus?.setBackgroundResource(if (isIncoming) R.drawable.ic_request_arrow_down else R.drawable.ic_request_arrow_up)
-            }
-        }
 
         val memo = fioRequestView.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
         val amount = fioRequestView.findViewById<TextView>(R.id.tvAmount)
-        val requestedCurrency = COINS.values.firstOrNull { it.symbol.equals(content?.chainCode ?: "", true) }
+        val requestedCurrency = COINS.values.firstOrNull {
+            it.symbol.equals(content?.chainCode ?: "", true)
+        }
                 ?: return fioRequestView
         val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
         amount?.text = amountValue.toStringWithUnit()
@@ -102,6 +124,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         return 0
     }
 
+    @SuppressLint("SetTextI18n")
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
                               convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
@@ -112,7 +135,7 @@ class FioRequestArrayAdapter(var activity: Activity,
             val inflater = activity.layoutInflater
             convertView = inflater.inflate(R.layout.fio_request_listrow_group, null)
 
-            convertView?.setOnClickListener{
+            convertView?.setOnClickListener {
                 val expandableListView = convertView?.getParent() as ExpandableListView
                 if (!expandableListView.isGroupExpanded(groupPosition)) {
                     expandableListView.expandGroup(groupPosition)
@@ -123,7 +146,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         }
         val arrow = convertView?.findViewById<CheckBox>(R.id.cbArrow)
         val checkedTextView = convertView?.findViewById(R.id.textView1) as TextView
-        checkedTextView.text = group.status.toString()
+        checkedTextView.text = """${group.status} (${group.children.size})"""
         arrow?.isChecked = isExpanded
         return convertView
     }

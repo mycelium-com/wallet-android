@@ -13,13 +13,16 @@ CREATE TABLE IF NOT EXISTS FioRequestsBacking (
     content TEXT NOT NULL,
     deserialized_content TEXT AS FundsRequestContent,
     time_stamp TEXT NOT NULL,
-    status TEXT as FioRequestStatus NOT NULL
+    status TEXT as FioRequestStatus
 );
 
 insertRequest:
 INSERT OR REPLACE INTO FioRequestsBacking(fio_request_id, payer_fio_address, payee_fio_address,
     payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteAllRequests:
+DELETE FROM FioRequestsBacking;
 
 deleteRequest:
 DELETE FROM FioRequestsBacking
