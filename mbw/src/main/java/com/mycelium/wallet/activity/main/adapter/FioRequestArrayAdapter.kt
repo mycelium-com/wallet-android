@@ -175,5 +175,5 @@ class FioRequestArrayAdapter(var activity: Activity,
     }
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
-            BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
+            BigDecimal(amountStr).toBigIntegerExact()
 }
