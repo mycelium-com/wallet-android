@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.fio
 
 enum class FioRequestStatus(val status: String) {
     REQUESTED("requested"),
+    RECEIVED("received"),
     PAID("paid"),
     NONE("none");
 
