@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/arrow_bottom"
                     android:drawablePadding="16dp"
-                    android:text="@{viewModel.payeeFioAddress}"
+                    android:text="@{viewModel.payeeFioName}"
                     android:textSize="18sp"
                     tools:text="newAddress@domain" />
 
@@ -88,7 +88,7 @@
                 android:layout_marginBottom="32dp"
                 android:drawableRight="@drawable/ic_edit_fio_name"
                 android:drawablePadding="16dp"
-                android:text="@{viewModel.payerFioAddress}"
+                android:text="@{viewModel.payerFioName}"
                 android:textSize="18sp"
                 tools:text="newAddress@domain" />
 
@@ -185,7 +185,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Leave a message for boss@domain"
-                android:text="@={viewModel.memo}">
+                android:text="@={viewModel.fioMemo}">
 
             </EditText>
         </LinearLayout>
@@ -198,6 +198,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginTop="32dp"
             android:text="Send FIO request"
+            android:enabled="@{viewModel.amount.moreThanZero()}"
             app:layout_constraintStart_toStartOf="parent" />
     </RelativeLayout>
 </layout>

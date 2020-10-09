@@ -42,29 +42,26 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
             val fioAccount = fioAccounts[0]
             model = SendFioModel(app, fioAccount, intent)
         }
-    }
-
-    val payerFioAddress = MutableLiveData<String>()
-    val payeeFioAddress = MutableLiveData<String>()
-    val payerTokenPublicAddress = MutableLiveData<String>()
-    val payeeTokenPublicAddress = MutableLiveData<String>()
-    val payeeFioAddreses = MutableLiveData<List<RegisteredFIOName>>()
-    val payeeAccount = MutableLiveData<WalletAccount<*>>()
-    val memo = MutableLiveData<String>()
-
-    init {
-        val walletManager = mbwManager.getWalletManager(false)
-        fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val account = mbwManager.selectedAccount
         val fioNames = fioModule.getFIONames(account)
         if (fioNames.isEmpty()) {
             TODO("Handle case when account to registered")
         }
+
         payeeAccount.value = account
         payeeFioAddreses.value = fioNames
-        payeeFioAddress.value = fioNames[0].name
+        payeeFioName.value = fioNames[0].name
         payeeTokenPublicAddress.value = account.receiveAddress.toString()
+    }
 
+    val payerTokenPublicAddress = MutableLiveData<String>()
+    val payeeTokenPublicAddress = MutableLiveData<String>()
+    val payeeFioAddreses = MutableLiveData<List<RegisteredFIOName>>()
+    val payeeAccount = MutableLiveData<WalletAccount<*>>()
+
+    init {
+        val walletManager = mbwManager.getWalletManager(false)
+        fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
     }
 
 
@@ -77,8 +74,8 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                 val selectedAccount = mbwManager.selectedAccount
                 try {
                     val requestFunds = fioAccount.requestFunds(
-                            payerFioAddress.value!!,
-                            payeeFioAddress.value!!,
+                            payerFioName.value!!,
+                            payeeFioName.value!!,
                             payeeTokenPublicAddress.value!!,
                             getAmount().value?.value?.toDouble()!!,
                             selectedAccount.basedOnCoinType.symbol,
@@ -92,8 +89,8 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                                 getFiatValue() ?: "",
                                 getSelectedFee().value ?: Value.zeroValue(selectedAccount.coinType),
                                 Date().time,
-                                payerFioAddress.value!!,
-                                payeeFioAddress.value!!,
+                                payerFioName.value!!,
+                                payeeFioName.value!!,
                                 fioMemo.value ?: "",
                                 byteArrayOf(),
                                 accountId = selectedAccount.id)
@@ -119,13 +116,9 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
             if (requestCode == ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()) {
                 val fioAddress = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
                 val addressResult = data?.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
-                payerFioAddress.value = fioAddress
+                payerFioName.value = fioAddress
                 payerTokenPublicAddress.value = addressResult.toString()
             }
         }
-    }
-
-    fun setAmount(amount: Value?) {
-        getAmount().value = amount
     }
 }

@@ -52,7 +52,7 @@ class FioRequestCreateActivity : AppCompatActivity() {
             viewModel.init(account, intent)
         }
 
-        viewModel.payerFioAddress.value = fioAddressTo
+        viewModel.payerFioName.value = fioAddressTo
         viewModel.payerTokenPublicAddress.value = tokenAddressTo.toString()
 
 
@@ -92,8 +92,6 @@ class FioRequestCreateActivity : AppCompatActivity() {
                         }
                     }
                 }
-
-
     }
 
 
@@ -118,7 +116,7 @@ class FioRequestCreateActivity : AppCompatActivity() {
                     dialog.dismiss()
                     val selectedPosition: Int = (dialog as AlertDialog).getListView().getCheckedItemPosition()
                     val payeeAddress = payeeFioAddreses?.get(selectedPosition)
-                    viewModel.payeeFioAddress.value = payeeAddress?.name
+                    viewModel.payeeFioName.value = payeeAddress?.name
                 }
                 .show()
     }
