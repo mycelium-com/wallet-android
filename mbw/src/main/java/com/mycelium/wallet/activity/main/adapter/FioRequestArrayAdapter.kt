@@ -47,8 +47,8 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         val fioRequestView = convertView
                 ?: activity.layoutInflater.inflate(R.layout.fio_request_row, null)!!
-        val content = fioRequestContent.deserializedContent
 
+        val content = fioRequestContent.deserializedContent
 
         val isIncoming = when (group.status) {
             FioGroup.Type.SENT -> true
@@ -63,12 +63,16 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         var hasStatus = false;
         val tvStatus = fioRequestView.findViewById<TextView>(R.id.tvStatus)
-        if (fioRequestContent is SentFIORequestContent) {
-            val status = FioRequestStatus.getStatus(fioRequestContent.status)
-            val color = if (status == FioRequestStatus.RECEIVED) R.color.green else R.color.fio_request_pending
-            tvStatus.text = status.status.capitalize()
-            tvStatus.setTextColor(ContextCompat.getColor(activity, color))
-            hasStatus = true
+        if (getGroup(groupPosition).status == FioGroup.Type.SENT) {
+            val status = FioRequestStatus.getStatus((fioRequestContent as SentFIORequestContent).status)
+            if (status != FioRequestStatus.NONE) {
+                val color = if (status == FioRequestStatus.RECEIVED) R.color.green else R.color.fio_request_pending
+                tvStatus.text = status.status.capitalize()
+                tvStatus.setTextColor(ContextCompat.getColor(activity, color))
+                hasStatus = true
+            }
+        } else {
+            tvStatus.text = ""
         }
 
         val tvDate = fioRequestView.findViewById<TextView>(R.id.tvDate)
