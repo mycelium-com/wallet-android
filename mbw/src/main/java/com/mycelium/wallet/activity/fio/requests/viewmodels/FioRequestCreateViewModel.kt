@@ -2,14 +2,12 @@ package com.mycelium.wallet.activity.fio.requests.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestSuccessActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
-import com.mycelium.wallet.activity.send.model.SendBtcModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
 import com.mycelium.wallet.activity.send.model.SendFioModel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
@@ -20,10 +18,10 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.mycelium.wapi.wallet.fio.getFioAccounts
-import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import java.io.Serializable
+import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.regex.Pattern
 
@@ -70,7 +68,7 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
     }
 
 
-    fun sendRequest(activity: Activity, doOnError: (Exception) -> Unit) {
+    fun sendRequest(activity: Activity, doOnSuccess: (Unit) -> Unit, doOnError: (Exception) -> Unit) {
         viewModelScope.launch(IO) {
             val fioAccounts = mbwManager.getWalletManager(false).getFioAccounts()
             if (!fioAccounts.isEmpty()) {
@@ -87,20 +85,23 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                             selectedAccount.coinType.symbol,
                             transferTokensFee)
 
-                    ApproveFioRequestSuccessActivity.start(
-                            activity,
-                            getAmount().value ?: Value.zeroValue(selectedAccount.coinType),
-                            getFiatValue() ?: "",
-                            getSelectedFee().value ?: Value.zeroValue(selectedAccount.coinType),
-                            Date().time,
-                            payerFioAddress.value!!,
-                            payeeFioAddress.value!!,
-                            fioMemo.value ?: "",
-                            byteArrayOf(),
-                            accountId = selectedAccount.id
-                    )
+                    withContext(Main) {
+                        ApproveFioRequestSuccessActivity.start(
+                                activity,
+                                getAmount().value ?: Value.zeroValue(selectedAccount.coinType),
+                                getFiatValue() ?: "",
+                                getSelectedFee().value ?: Value.zeroValue(selectedAccount.coinType),
+                                Date().time,
+                                payerFioAddress.value!!,
+                                payeeFioAddress.value!!,
+                                fioMemo.value ?: "",
+                                byteArrayOf(),
+                                accountId = selectedAccount.id)
+                    }
                 } catch (ex: Exception) {
-                    doOnError.invoke(ex)
+                    withContext(Main) {
+                        doOnError.invoke(ex)
+                    }
                 }
 
             }

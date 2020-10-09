@@ -5,6 +5,7 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.TransactionDetailsActivity
@@ -65,13 +66,18 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         tvConvertedAmount.text = " ~ ${intent.getStringExtra(CONVERTED_AMOUNT)}"
         tvMinerFee.text = (intent.getSerializableExtra(FEE) as Value).toStringWithUnit()
         tvFrom.text = intent.getStringExtra(FROM)
+        val date = intent.getLongExtra(DATE, -1)
         tvTo.text = intent.getStringExtra(TO)
         tvMemo.text = intent.getStringExtra(MEMO)
         val accountId = intent.getSerializableExtra(ACCOUNT) as UUID
         val account = walletManager.getAccount(accountId)
         val txid = intent.getByteArrayExtra(TXID)
         try {
-            if (txid.isEmpty()){
+            if (txid.isEmpty()) {
+                if (date != -1L) {
+                    tvDate.text = getDateString(date)
+                }
+                tvTxDetailsLink.isVisible = false
                 return
             }
             val txTimestamp = account!!.getTxSummary(txid).timestamp

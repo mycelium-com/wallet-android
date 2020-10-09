@@ -72,8 +72,11 @@ class FioRequestCreateActivity : AppCompatActivity() {
                     lifecycleOwner = this@FioRequestCreateActivity
                     with(this) {
                         btNextButton.setOnClickListener {
+                            //show loader
                             viewModel?.sendRequest(this@FioRequestCreateActivity,{
-
+                                //hide loader
+                            },{
+                                //error
                             })
                         }
                         tvPayeeFio.setOnClickListener {
