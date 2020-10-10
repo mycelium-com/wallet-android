@@ -55,7 +55,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="From:"
-                android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />
@@ -79,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="@{fioRequestViewModel.memoFrom}"
+                android:visibility="@{fioRequestViewModel.memoFrom.empty ? View.GONE : View.VISIBLE}"
                 android:textSize="14sp"
                 android:typeface="monospace"
                 app:layout_constraintStart_toStartOf="parent"
@@ -91,7 +91,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Amount:"
-                android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvMemoFrom" />
@@ -118,7 +117,7 @@
                 android:typeface="monospace"
                 android:dropDownWidth="wrap_content"
                 tools:text="55.02 USD"
-                app:layout_constraintEnd_toEndOf="@id/tvAmount"
+                app:layout_constraintLeft_toLeftOf="@id/tvAmount"
                 app:layout_constraintTop_toBottomOf="@id/tvAmount" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -134,7 +133,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="From:"
-                android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -159,7 +157,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="9dp"
                 android:text="Spending from:"
-                android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromTitle" />
@@ -197,7 +194,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="9dp"
                 android:text="Memo:"
-                android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromAccountTitle" />
