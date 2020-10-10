@@ -42,7 +42,7 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)
-            title = "Sent FIO Request"
+            title = "My FIO Request"
         }
         val mbwManager = MbwManager.getInstance(this)
         val fioRequestContent: SentFIORequestContent = Gson().fromJson(intent.getStringExtra(CONTENT), SentFIORequestContent::class.java)
