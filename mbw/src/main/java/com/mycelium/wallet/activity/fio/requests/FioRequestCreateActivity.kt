@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.fio.requests
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.Window
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -73,9 +74,9 @@ class FioRequestCreateActivity : AppCompatActivity() {
                     with(this) {
                         btNextButton.setOnClickListener {
                             //show loader
-                            viewModel?.sendRequest(this@FioRequestCreateActivity,{
+                            viewModel?.sendRequest(this@FioRequestCreateActivity, {
                                 //hide loader
-                            },{
+                            }, {
                                 //error
                             })
                         }
@@ -106,6 +107,15 @@ class FioRequestCreateActivity : AppCompatActivity() {
                 viewModel.getAmount().value, viewModel.getSelectedFee().value,
                 viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
     }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 
     fun showPayeeSelector() {
         val payeeFioAddreses = viewModel.getPayeeFioAddreses()
