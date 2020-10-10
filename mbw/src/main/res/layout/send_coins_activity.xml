@@ -81,11 +81,12 @@
                             bind:payeeFioName="@{viewModel.payeeFioName}"
                             bind:fioMemo="@{viewModel.fioMemo}" />
 
-                    <!--Fee selector-->
-                    <include
-                        layout="@layout/send_coins_fee_block"
-                        bind:viewModel="@{viewModel}" />
                 </LinearLayout>
+
+                <!--Fee selector-->
+                <include
+                    layout="@layout/send_coins_fee_block"
+                    bind:viewModel="@{viewModel}" />
 
                 <!-- Amount Error -->
                 <include
