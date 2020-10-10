@@ -16,6 +16,7 @@ import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
@@ -280,14 +281,14 @@ class FioAccount(private val accountContext: FioAccountContext,
         backing.deleteRequestsAll()
         try {
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-            backing.putRequests(pendingFioRequests)
+            backing.putReceivedRequests(pendingFioRequests)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
         }
 
         try {
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
-            backing.putRequests(sentFioRequests)
+            backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
         }

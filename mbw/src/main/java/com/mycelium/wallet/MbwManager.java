@@ -369,7 +369,8 @@ public class MbwManager {
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
                 AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
-                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(), AdaptersKt.getFioRequestsAdapter());
+                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
+                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup

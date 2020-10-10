@@ -116,7 +116,7 @@ class WalletConsole {
         WalletDB db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(), AdaptersKt.getFioRequestsAdapter());
+                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
 
         WalletManager walletManager = new WalletManager(
                 network,

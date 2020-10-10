@@ -193,8 +193,10 @@ val fioNameAccountMappingsAdapter = FioNameAccountMappings.Adapter(Adapters.uuid
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)
 
-val fioRequestsAdapter = FioRequestsBacking.Adapter(Adapters.bigIntAdapter, Adapters.fioRequestDeserializedContentAdapter,
+val fioSentRequestsAdapter = FioRequestsSentBacking.Adapter(Adapters.bigIntAdapter, Adapters.fioRequestDeserializedContentAdapter,
         Adapters.fioRequestStatusAdapter)
+
+val fioReceivedRequestsAdapter = FioRequestsReceivedBacking.Adapter(Adapters.bigIntAdapter, Adapters.fioRequestDeserializedContentAdapter)
 
 val fioOtherBlockchainTransactionsAdapter = FioOtherBlockchainTransactions.Adapter(Adapters.bigIntAdapter,
         Adapters.fioRecordObtDataContentAdapter)

@@ -2,9 +2,9 @@ import com.mycelium.wapi.wallet.fio.FioRequestStatus;
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent;
 import java.math.BigInteger;
 
--- Creates table for requests
+-- Creates table for sent requests
 
-CREATE TABLE IF NOT EXISTS FioRequestsBacking (
+CREATE TABLE IF NOT EXISTS FioRequestsSentBacking (
     fio_request_id TEXT AS BigInteger NOT NULL PRIMARY KEY,
     payer_fio_address TEXT NOT NULL,
     payee_fio_address TEXT NOT NULL,
@@ -17,17 +17,17 @@ CREATE TABLE IF NOT EXISTS FioRequestsBacking (
 );
 
 insertRequest:
-INSERT OR REPLACE INTO FioRequestsBacking(fio_request_id, payer_fio_address, payee_fio_address,
+INSERT OR REPLACE INTO FioRequestsSentBacking(fio_request_id, payer_fio_address, payee_fio_address,
     payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteAllRequests:
-DELETE FROM FioRequestsBacking;
+DELETE FROM FioRequestsSentBacking;
 
 deleteRequest:
-DELETE FROM FioRequestsBacking
+DELETE FROM FioRequestsSentBacking
 WHERE fio_request_id = (?) ;
 
 selectFioRequests:
 SELECT fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status
-FROM FioRequestsBacking;
+FROM FioRequestsSentBacking;
