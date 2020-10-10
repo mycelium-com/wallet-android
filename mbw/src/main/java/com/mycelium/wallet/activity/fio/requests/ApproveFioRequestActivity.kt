@@ -171,7 +171,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val spinnerItems = fiatCurrencies.map {
             mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it).toStringWithUnit()
         }
-        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
+        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_small_font_dropdown, R.id.text,
                 spinnerItems)
         spinnerFiat?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
