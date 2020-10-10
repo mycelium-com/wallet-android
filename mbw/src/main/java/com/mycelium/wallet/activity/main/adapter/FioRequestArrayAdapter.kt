@@ -29,16 +29,13 @@ class FioRequestArrayAdapter(var activity: Activity,
                              private val groups: List<FioGroup>,
                              val mbwManager: MbwManager) : BaseExpandableListAdapter() {
 
-    override fun getChild(groupPosition: Int, childPosition: Int): Any {
-        return groups[groupPosition].children[childPosition]
-    }
+    override fun getChild(groupPosition: Int, childPosition: Int): Any =
+            groups[groupPosition].children[childPosition]
 
-    override fun getChildId(groupPosition: Int, childPosition: Int): Long {
-        return 0
-    }
+    override fun getChildId(groupPosition: Int, childPosition: Int): Long = 0
 
-    val inDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-    val outDate = SimpleDateFormat("dd/MM/yyyy")
+    private val inDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    private val outDate = SimpleDateFormat("dd/MM/yyyy")
 
     override fun getChildView(groupPosition: Int, childPosition: Int,
                               isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
@@ -117,29 +114,13 @@ class FioRequestArrayAdapter(var activity: Activity,
         return fioRequestView
     }
 
-    override fun getChildrenCount(groupPosition: Int): Int {
-        return groups[groupPosition].children.size
-    }
+    override fun getChildrenCount(groupPosition: Int): Int = groups[groupPosition].children.size
 
-    override fun getGroup(groupPosition: Int): FioGroup {
-        return groups[groupPosition]
-    }
+    override fun getGroup(groupPosition: Int): FioGroup = groups[groupPosition]
 
-    override fun getGroupCount(): Int {
-        return groups.size
-    }
+    override fun getGroupCount(): Int = groups.size
 
-    override fun onGroupCollapsed(groupPosition: Int) {
-        super.onGroupCollapsed(groupPosition)
-    }
-
-    override fun onGroupExpanded(groupPosition: Int) {
-        super.onGroupExpanded(groupPosition)
-    }
-
-    override fun getGroupId(groupPosition: Int): Long {
-        return 0
-    }
+    override fun getGroupId(groupPosition: Int): Long = 0
 
     @SuppressLint("SetTextI18n")
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
@@ -153,7 +134,7 @@ class FioRequestArrayAdapter(var activity: Activity,
             convertView = inflater.inflate(R.layout.fio_request_listrow_group, null)
 
             convertView?.setOnClickListener {
-                val expandableListView = convertView?.getParent() as ExpandableListView
+                val expandableListView = convertView.getParent() as ExpandableListView
                 if (!expandableListView.isGroupExpanded(groupPosition)) {
                     expandableListView.expandGroup(groupPosition)
                 } else {
@@ -168,18 +149,13 @@ class FioRequestArrayAdapter(var activity: Activity,
         return convertView
     }
 
-    override fun hasStableIds(): Boolean {
-        return false
-    }
+    override fun hasStableIds(): Boolean = false
 
-    override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean {
-        return true
-    }
+    override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = true
 
 
-    private fun convert(value: Value, assetInfo: AssetInfo): Value? {
-        return mbwManager.exchangeRateManager.get(value, assetInfo)
-    }
+    private fun convert(value: Value, assetInfo: AssetInfo): Value? =
+            mbwManager.exchangeRateManager.get(value, assetInfo)
 
     private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
             BigDecimal(amountStr).toBigIntegerExact()
