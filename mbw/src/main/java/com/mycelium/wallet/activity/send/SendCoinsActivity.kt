@@ -486,43 +486,38 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         const val TRANSACTION_FIAT_VALUE = "transaction_fiat_value"
 
         @JvmStatic
-        fun getIntent(currentActivity: Activity, account: UUID, isColdStorage: Boolean): Intent {
-            return Intent(currentActivity, SendCoinsActivity::class.java)
-                    .putExtra(ACCOUNT, account)
-                    .putExtra(IS_COLD_STORAGE, isColdStorage)
-        }
+        fun getIntent(currentActivity: Activity, account: UUID, isColdStorage: Boolean): Intent =
+                Intent(currentActivity, SendCoinsActivity::class.java)
+                        .putExtra(ACCOUNT, account)
+                        .putExtra(IS_COLD_STORAGE, isColdStorage)
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID,
-                      amountToSend: Long, receivingAddress: Address, isColdStorage: Boolean): Intent {
-            return getIntent(currentActivity, account, isColdStorage)
-                    .putExtra(AMOUNT, Value.valueOf(
-                            Utils.getBtcCoinType(),
-                            amountToSend))
-                    .putExtra(RECEIVING_ADDRESS, receivingAddress)
-        }
+                      amountToSend: Long, receivingAddress: Address, isColdStorage: Boolean): Intent =
+                getIntent(currentActivity, account, isColdStorage)
+                        .putExtra(AMOUNT, Value.valueOf(
+                                Utils.getBtcCoinType(),
+                                amountToSend))
+                        .putExtra(RECEIVING_ADDRESS, receivingAddress)
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID, rawPaymentRequest: ByteArray,
-                      isColdStorage: Boolean): Intent {
-            return getIntent(currentActivity, account, isColdStorage)
-                    .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest)
-        }
+                      isColdStorage: Boolean): Intent =
+                getIntent(currentActivity, account, isColdStorage)
+                        .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest)
 
         @JvmStatic
-        fun getIntent(currentActivity: Activity, account: UUID, uri: AssetUri, isColdStorage: Boolean): Intent {
-            return getIntent(currentActivity, account, isColdStorage)
-                    .putExtra(AMOUNT, uri.value)
-                    .putExtra(RECEIVING_ADDRESS, uri.address)
-                    .putExtra(TRANSACTION_LABEL, uri.label)
-                    .putExtra(ASSET_URI, uri)
-        }
+        fun getIntent(currentActivity: Activity, account: UUID, uri: AssetUri, isColdStorage: Boolean): Intent =
+                getIntent(currentActivity, account, isColdStorage)
+                        .putExtra(AMOUNT, uri.value)
+                        .putExtra(RECEIVING_ADDRESS, uri.address)
+                        .putExtra(TRANSACTION_LABEL, uri.label)
+                        .putExtra(ASSET_URI, uri)
 
         @JvmStatic
-        fun getIntent(currentActivity: Activity, account: UUID, hdKey: HdKeyNode): Intent {
-            return getIntent(currentActivity, account, false)
-                    .putExtra(HD_KEY, hdKey)
-        }
+        fun getIntent(currentActivity: Activity, account: UUID, hdKey: HdKeyNode): Intent =
+                getIntent(currentActivity, account, false)
+                        .putExtra(HD_KEY, hdKey)
     }
 }
 

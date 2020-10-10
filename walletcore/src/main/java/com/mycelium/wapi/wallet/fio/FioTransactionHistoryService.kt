@@ -10,22 +10,18 @@ import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.utilities.HashUtils
 import fiofoundation.io.fiosdk.utilities.Utils
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.*
+import java.io.IOException
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.SimpleDateFormat
 import java.util.*
 
 class FioTransactionHistoryService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
-    private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     var lastActionSequenceNumber: BigInteger = BigInteger.ZERO
 
     fun getTransactions(latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
-        val client = OkHttpClient()
         var requestBody = "{\"account_name\":\"$accountName\", \"pos\":-1, \"offset\":-1}"
         var request = Request.Builder()
                 .url(url)
@@ -71,7 +67,6 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
     }
 
     fun getLatestBlock(): BigInteger? {
-        val client = OkHttpClient()
         val request = Request.Builder()
                 .url((coinType as FIOToken).url + "chain/get_info")
                 .post(RequestBody.create(null, ""))
@@ -175,10 +170,11 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
     val offset = BigInteger.valueOf(20)
 
     companion object {
+        private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        private val client = OkHttpClient()
+
         @JvmStatic
         fun getPubkeyByActor(actor: String, coinType: CryptoCurrency): String? {
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val client = OkHttpClient()
             val requestBody = """{"account_name":"$actor"}"""
             val request = Request.Builder()
                     .url((coinType as FIOToken).url + "chain/get_account")
@@ -196,8 +192,6 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
 
         @JvmStatic
         fun getPubkeyByFioAddress(fioAddress: String, fioToken: FIOToken, chainCode: String, tokenCode: String): GetPubAddressResponse {
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val client = OkHttpClient()
             val requestBody = """{"fio_address":"$fioAddress","chain_code":"$chainCode","token_code":"$tokenCode"}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/get_pub_address")
@@ -208,9 +202,32 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         }
 
         @JvmStatic
+        fun getPubkeyByFioAddressAsync(fioAddress: String, fioToken: FIOToken, chainCode: String,
+                                       tokenCode: String, success: (String) -> Unit,
+                                       failure: (String) -> Unit) {
+            val requestBody = """{"fio_address":"$fioAddress","chain_code":"$chainCode","token_code":"$tokenCode"}"""
+            val request = Request.Builder()
+                    .url(fioToken.url + "chain/get_pub_address")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            client.newCall(request).enqueue(object: Callback {
+                override fun onResponse(call: Call, response: Response) {
+                    val reply = response.body()!!.string()
+                    val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
+                    if(result.publicAddress != null)
+                        success(result.publicAddress)
+                    else
+                        failure("no address found")
+                }
+
+                override fun onFailure(call: Call, e: IOException) {
+                    failure(e.toString())
+                }
+            })
+        }
+
+        @JvmStatic
         fun getFeeByEndpoint(fioToken: FIOToken, endpoint: String, fioAddress: String = ""): String? {
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val client = OkHttpClient()
             val requestBody = """{"end_point":"$endpoint","fio_address":"$fioAddress"}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/get_fee")
@@ -228,8 +245,6 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
 
         @JvmStatic
         fun isFioNameOrDomainAvailable(fioToken: FIOToken, fioNameOrDomain: String): Boolean? {
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val client = OkHttpClient()
             val requestBody = """{"fio_name":"$fioNameOrDomain"}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/avail_check")
@@ -247,8 +262,6 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
 
         @JvmStatic
         fun getFioNames(fioToken: FIOToken, publicKey: String): GetFIONamesResponse? {
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val client = OkHttpClient()
             val requestBody = """{"fio_public_key":"$publicKey"}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/get_fio_names")
@@ -267,16 +280,14 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         @JvmStatic
         fun getBundledTxsNum(fioToken: FIOToken, fioName: String): Int? {
             val hash = getNameHash(fioName)
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val client = OkHttpClient()
-            val requestBody = "{\"code\": \"fio.address\",\n" +
-                    "  \"scope\": \"fio.address\",\n" +
-                    "  \"table\": \"fionames\",\n" +
-                    "  \"lower_bound\": \"$hash\",\n" +
-                    "  \"upper_bound\": \"$hash\",\n" +
-                    "  \"key_type\": \"i128\",\n" +
-                    "  \"index_position\": \"5\",\n" +
-                    "  \"json\": true}"
+            val requestBody = """{"code": "fio.address",
+  "scope": "fio.address",
+  "table": "fionames",
+  "lower_bound": "$hash",
+  "upper_bound": "$hash",
+  "key_type": "i128",
+  "index_position": "5",
+  "json": true}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/get_table_rows")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))

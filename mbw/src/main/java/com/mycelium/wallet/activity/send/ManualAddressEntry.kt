@@ -169,8 +169,6 @@ class ManualAddressEntry : AppCompatActivity() {
         client.newCall(request).enqueue(object: Callback {
             override fun onResponse(call: Call, response: Response) {
                 noConnection = false
-                // TODO: 10/5/20 At least when using a debugger, replies can end up out of order
-                //       which might result in hard to debug bugs.
                 val reply = response.body()!!.string()
                 val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
                 result.publicAddress?.let { npbaString ->

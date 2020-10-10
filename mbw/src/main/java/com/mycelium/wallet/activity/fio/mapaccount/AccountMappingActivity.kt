@@ -1,5 +1,8 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -8,12 +11,21 @@ import androidx.navigation.fragment.NavHostFragment
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import java.util.*
 
 
 class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mapping) {
+    companion object {
+        fun startForMapping(activity: Activity, account: WalletAccount<*>, requestCode:Int) {
+            activity.startActivityForResult(Intent(activity, AccountMappingActivity::class.java)
+                    .putExtra("mode", Mode.NEED_FIO_NAME_MAPPING)
+                    .putExtra("extraAccountId", account.id), requestCode)
+        }
+    }
+
     private lateinit var viewModel: FIOMapPubAddressViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +50,10 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
                         .mapNotNull { fioModule.getFioAccountByFioName(it.name) }
                         .map { walletManager.getAccount(it) as FioAccount }
             }
+        }
+        if (intent?.extras?.containsKey("mode") == true) {
+            viewModel.mode.value = intent?.extras?.getSerializable("mode") as Mode
+            viewModel.extraAccount.value = walletManager.getAccount(intent?.extras?.getSerializable("extraAccountId") as UUID)
         }
     }
 

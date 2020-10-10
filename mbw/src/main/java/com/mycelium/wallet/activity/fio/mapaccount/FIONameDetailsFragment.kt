@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.MbwManager
@@ -19,6 +21,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.*
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.AccountMappingViewModel
+import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIOMapPubAddressViewModel
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
@@ -32,9 +35,11 @@ import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class FIONameDetailsFragment : Fragment() {
+    private val globalViewModel: FIOMapPubAddressViewModel by activityViewModels()
     private val viewModel: AccountMappingViewModel by viewModels()
 
     val adapter = AccountMappingAdapter()
@@ -94,6 +99,15 @@ class FIONameDetailsFragment : Fragment() {
                     .mapNotNull { walletManager.getAccount(it.accountId) }
             GlobalScope.launch(Dispatchers.IO) {
                 fioModule.mapFioNameToAccounts(args.fioName.name, accounts)
+                if (globalViewModel.mode.value == Mode.NEED_FIO_NAME_MAPPING &&
+                        accounts.contains(globalViewModel.extraAccount.value)) {
+                    withContext(Dispatchers.Main) {
+                        activity?.run {
+                            setResult(RESULT_OK)
+                            finish()
+                        }
+                    }
+                }
             }
             if (accounts.isNotEmpty()) {
                 // TODO this toast would be shown even in case of an error

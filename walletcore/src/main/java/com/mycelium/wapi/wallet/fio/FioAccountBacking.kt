@@ -14,44 +14,49 @@ import org.web3j.tx.Transfer
 import java.util.*
 
 class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
-    private val fioRequestQueries = walletDB.fioRequestsBackingQueries
+    private val fioSentRequestQueries = walletDB.fioRequestsSentBackingQueries
+    private val fioReceivedRequestQueries = walletDB.fioRequestsReceivedBackingQueries
     private val fioAccountQueries = walletDB.fioAccountBackingQueries
     private val fioMappings = walletDB.fioNameAccountMappingsQueries
     private val queries = walletDB.accountBackingQueries
     private val fioOBTQueries = walletDB.fioOtherBlockchainTransactionsQueries
 
-    fun putRequests(list: List<FIORequestContent>) {
-        fioRequestQueries.transaction {
+    fun putSentRequests(list: List<SentFIORequestContent>) {
+        fioSentRequestQueries.transaction {
             list.forEach {
-                if (it is SentFIORequestContent) {
-                    fioRequestQueries.insertRequest(
-                            it.fioRequestId,
-                            it.payerFioAddress,
-                            it.payeeFioAddress,
-                            it.payerFioAddress,
-                            it.payeeFioAddress,
-                            it.content,
-                            it.deserializedContent,
-                            it.timeStamp,
-                            FioRequestStatus.getStatus(it.status))
-                } else {
-                    fioRequestQueries.insertRequest(
-                            it.fioRequestId,
-                            it.payerFioAddress,
-                            it.payeeFioAddress,
-                            it.payerFioAddress,
-                            it.payeeFioAddress,
-                            it.content,
-                            it.deserializedContent,
-                            it.timeStamp,
-                            FioRequestStatus.NONE)
-                }
+                fioSentRequestQueries.insertRequest(
+                        it.fioRequestId,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.content,
+                        it.deserializedContent,
+                        it.timeStamp,
+                        FioRequestStatus.getStatus(it.status))
+            }
+        }
+    }
+
+    fun putReceivedRequests(list: List<FIORequestContent>) {
+        fioReceivedRequestQueries.transaction {
+            list.forEach {
+                fioReceivedRequestQueries.insertRequest(
+                        it.fioRequestId,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.payerFioAddress,
+                        it.payeeFioAddress,
+                        it.content,
+                        it.deserializedContent,
+                        it.timeStamp)
             }
         }
     }
 
     fun deleteRequestsAll() {
-        fioRequestQueries.deleteAllRequests()
+        fioSentRequestQueries.deleteAllRequests()
+        fioReceivedRequestQueries.deleteAllRequests()
     }
 
     fun insertOrUpdateMapping(fioName: String, publicAddress: String, chainCode: String, tokenCode: String,
@@ -62,38 +67,38 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     fun getRequestsGroups(): List<FioGroup> {
         val fioSentGroup = FioGroup(FioGroup.Type.SENT, mutableListOf())
         val fioPendingGroup = FioGroup(FioGroup.Type.PENDING, mutableListOf())
-        fioRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
+        fioSentRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
                                               payer_fio_public_key, payee_fio_public_key, content,
                                               deserialized_content, time_stamp, status ->
-            if (status != null && status != FioRequestStatus.NONE) {
-                fioSentGroup.children.add(
-                        SentFIORequestContent().apply {
-                            fioRequestId = fio_request_id
-                            payerFioAddress = payer_fio_address
-                            payeeFioAddress = payee_fio_address
-                            payerFioPublicKey = payer_fio_public_key
-                            payeeFioPublicKey = payee_fio_public_key
-                            this.content = content
-                            deserializedContent = deserialized_content
-                            timeStamp = time_stamp
-                            this.status = status?.status!!
-                        })
-            } else {
-                fioPendingGroup.children.add(
-                        FIORequestContent().apply {
-                            fioRequestId = fio_request_id
-                            payerFioAddress = payer_fio_address
-                            payeeFioAddress = payee_fio_address
-                            payerFioPublicKey = payer_fio_public_key
-                            payeeFioPublicKey = payee_fio_public_key
-                            this.content = content
-                            deserializedContent = deserialized_content
-                            timeStamp = time_stamp
-                        })
-            }
+            fioSentGroup.children.add(
+                    SentFIORequestContent().apply {
+                        fioRequestId = fio_request_id
+                        payerFioAddress = payer_fio_address
+                        payeeFioAddress = payee_fio_address
+                        payerFioPublicKey = payer_fio_public_key
+                        payeeFioPublicKey = payee_fio_public_key
+                        this.content = content
+                        deserializedContent = deserialized_content
+                        timeStamp = time_stamp
+                        this.status = status?.status!!
+                    })
         }.executeAsList()
-
-        return listOf(fioSentGroup, fioPendingGroup)
+        fioReceivedRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
+                                                  payer_fio_public_key, payee_fio_public_key, content,
+                                                  deserialized_content, time_stamp ->
+            fioPendingGroup.children.add(
+                    FIORequestContent().apply {
+                        fioRequestId = fio_request_id
+                        payerFioAddress = payer_fio_address
+                        payeeFioAddress = payee_fio_address
+                        payerFioPublicKey = payer_fio_public_key
+                        payeeFioPublicKey = payee_fio_public_key
+                        this.content = content
+                        deserializedContent = deserialized_content
+                        timeStamp = time_stamp
+                    })
+        }.executeAsList()
+        return listOf(fioPendingGroup, fioSentGroup)
     }
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =

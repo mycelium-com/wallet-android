@@ -35,12 +35,11 @@ object Util {
     }
 
     @JvmStatic
-    fun getCoinsByChain(networkParameters: NetworkParameters): List<CryptoCurrency> {
-        return COINS.values.filter {
-            if (networkParameters.isProdnet) it.id.contains("main")
-            else it.id.contains("test")
-        }
-    }
+    fun getCoinsByChain(networkParameters: NetworkParameters): List<CryptoCurrency> =
+            COINS.values.filter {
+                if (networkParameters.isProdnet) it.id.contains("main")
+                else it.id.contains("test")
+            }
 
     @JvmStatic
     fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
