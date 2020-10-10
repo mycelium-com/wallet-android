@@ -141,7 +141,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
         // tx data population
         fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(
-                fioRequestContent.deserializedContent!!.amount))
+                requestedCurrency, fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
 
         GetPublicAddressTask(fioRequestViewModel.payeeName.value!!,
@@ -417,8 +417,4 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             listener(result)
         }
     }
-
-
-    private fun strToBigInteger(amountStr: String): BigInteger =
-            BigDecimal(amountStr).toBigIntegerExact()
 }

@@ -19,8 +19,6 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
-import java.math.BigDecimal
-import java.math.BigInteger
 import java.text.SimpleDateFormat
 
 
@@ -104,7 +102,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         }
                 ?: return fioRequestView
 
-        val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(content!!.amount))
+        val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
         amount?.text = amountValue.toStringWithUnit()
         amount?.setTextColor(ContextCompat.getColor(activity, color))
         val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
@@ -155,7 +153,4 @@ class FioRequestArrayAdapter(var activity: Activity,
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
             mbwManager.exchangeRateManager.get(value, assetInfo)
-
-    private fun strToBigInteger(amountStr: String): BigInteger =
-            BigDecimal(amountStr).toBigIntegerExact()
 }
