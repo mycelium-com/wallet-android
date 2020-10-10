@@ -14,15 +14,11 @@ import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.Util.strToBigInteger
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.COINS
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
-import org.w3c.dom.Text
-import java.math.BigDecimal
-import java.math.BigInteger
 import java.text.SimpleDateFormat
 
 
@@ -154,7 +150,6 @@ class FioRequestArrayAdapter(var activity: Activity,
     override fun hasStableIds(): Boolean = false
 
     override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = true
-
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
             mbwManager.exchangeRateManager.get(value, assetInfo)
