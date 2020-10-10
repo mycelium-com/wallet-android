@@ -1384,7 +1384,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="none">none</string>
     <string name="receive_title_fio">FIO Public key</string>
     <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
-    <string name="select_name_to_associate">Connect accounts (map) with you FIO Name. Only 1 account per each cryptocurrency can be mapped with 1 FIO Name.</string>
+    <string name="select_name_to_associate">Connect accounts to your FIO Name. Only <b>one</b> account per each cryptocurrency can be mapped with <b>one</b> FIO Name.</string>
     <string name="fio_register_address">Register FIO Name</string>
     <string name="fio_create_name_title">Create FIO Name</string>
     <string name="fio_create_domain_title">Create FIO Domain</string>
@@ -1428,7 +1428,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="renew_fio_name">Renew FIO Name</string>
     <string name="fio_account_s">FIO Account: %s</string>
     <string name="fio_acknowledge_mapping">I acknowledge that, once connected, one address from each connected wallet will become public</string>
-    <string name="connect_accounts">Connect Accounts</string>
+    <string name="connect_accounts">Save</string>
     <string name="domain_details">Domain details</string>
     <string name="renew_fio_domain">Renew FIO Domain</string>
     <string name="fio_names_registered">Your FIO Names in this domain:</string>

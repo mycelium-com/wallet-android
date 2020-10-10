@@ -7,6 +7,8 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -75,6 +77,9 @@ class FIONameDetailsFragment : Fragment() {
                                 it.icon, it.coinType,
                                 if (it.accountId != accountItem.accountId) false else accountItem.isEnabled)
                     }
+            val enabledList = data.filterIsInstance<ItemAccount>().filter { it.isEnabled }
+            acknowledge?.visibility = if (enabledList.isEmpty()) INVISIBLE else VISIBLE
+            viewModel.acknowledge.value = enabledList.isEmpty()
             adapter.submitList(data.toList())
         }
         val preference = requireContext().getSharedPreferences("fio_account_mapping_preference", Context.MODE_PRIVATE)
@@ -92,24 +97,23 @@ class FIONameDetailsFragment : Fragment() {
                     .filterIsInstance<ItemAccount>()
                     .filter { it.isEnabled }
                     .mapNotNull { walletManager.getAccount(it.accountId) }
-            if (accounts.isNotEmpty()) {
-                GlobalScope.launch(Dispatchers.IO) {
-                    fioModule.mapFioNameToAccounts(args.fioName.name, accounts)
+            GlobalScope.launch(Dispatchers.IO) {
+                fioModule.mapFioNameToAccounts(args.fioName.name, accounts)
+                if (globalViewModel.mode.value == Mode.NEED_FIO_NAME_MAPPING &&
+                        accounts.contains(globalViewModel.extraAccount.value)) {
                     withContext(Dispatchers.Main) {
-                        if (globalViewModel.mode.value == Mode.NEED_FIO_NAME_MAPPING &&
-                                accounts.contains(globalViewModel.extraAccount.value)) {
-                            activity?.run {
-                                setResult(RESULT_OK)
-                                finish()
-                            }
+                        activity?.run {
+                            setResult(RESULT_OK)
+                            finish()
                         }
                     }
                 }
+            }
+            if (accounts.isNotEmpty()) {
                 // TODO this toast would be shown even in case of an error
                 Toaster(this).toast("accounts connected", false)
             } else {
-                // Todo this is a hack, button must be disabled in this case
-                Toaster(this).toast("Impossible to disconnect from all accounts", false)
+                Toaster(this).toast("accounts disconnected", false)
             }
         }
     }
