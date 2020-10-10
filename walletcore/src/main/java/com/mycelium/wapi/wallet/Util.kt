@@ -43,7 +43,11 @@ object Util {
 
     @JvmStatic
     fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
-            BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
+            if (amountStr.contains("E")) {
+                BigDecimal(amountStr).toBigIntegerExact()
+            } else {
+                BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
+            }
 
     @JvmStatic
     fun transformExpirationDate(dateStr: String): String {

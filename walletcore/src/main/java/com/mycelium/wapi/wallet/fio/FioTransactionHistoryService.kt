@@ -281,13 +281,13 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
         fun getBundledTxsNum(fioToken: FIOToken, fioName: String): Int? {
             val hash = getNameHash(fioName)
             val requestBody = """{"code": "fio.address",
-  "scope": "fio.address",
-  "table": "fionames",
-  "lower_bound": "$hash",
-  "upper_bound": "$hash",
-  "key_type": "i128",
-  "index_position": "5",
-  "json": true}"""
+                                  "scope": "fio.address",
+                                  "table": "fionames",
+                                  "lower_bound": "$hash",
+                                  "upper_bound": "$hash",
+                                  "key_type": "i128",
+                                  "index_position": "5",
+                                  "json": true}"""
             val request = Request.Builder()
                     .url(fioToken.url + "chain/get_table_rows")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
@@ -295,7 +295,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
             return try {
                 val response = client.newCall(request).execute()
                 val result = mapper.readValue(response.body()!!.string(), GetFioNamesTableRowsResponse::class.java)
-                result.result?.firstOrNull { it.name == fioName }?.bundleeligiblecountdown
+                result.rows?.firstOrNull { it.name == fioName }?.bundleeligiblecountdown
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -358,7 +358,7 @@ class GetAccountResponse {
 }
 
 class GetFioNamesTableRowsResponse {
-    val result: List<Row>? = null
+    val rows: List<Row>? = null
 
     class Row {
         val name: String? = null

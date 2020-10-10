@@ -200,5 +200,4 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
     private fun finishActionMode() {
         currentActionMode?.finish()
     }
-
 }

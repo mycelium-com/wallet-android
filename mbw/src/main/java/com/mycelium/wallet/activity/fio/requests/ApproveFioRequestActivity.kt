@@ -36,11 +36,11 @@ import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util.getCoinsByChain
+import com.mycelium.wapi.wallet.Util.strToBigInteger
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
@@ -56,7 +56,6 @@ import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.io.IOException
-import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
 
@@ -208,9 +207,6 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             btSend.isEnabled = it.isNotEmpty()
         })
     }
-
-    private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
-            BigDecimal(amountStr).toBigIntegerExact()
 
     fun onClickSend() {
         sendViewModel.sendTransaction(this)
