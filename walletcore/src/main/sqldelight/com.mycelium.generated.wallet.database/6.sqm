@@ -35,7 +35,18 @@ CREATE TABLE IF NOT EXISTS FioContext(
         ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS FioRequestsBacking (
+CREATE TABLE IF NOT EXISTS FioRequestsReceivedBacking (
+    fio_request_id TEXT NOT NULL PRIMARY KEY,
+    payer_fio_address TEXT NOT NULL,
+    payee_fio_address TEXT NOT NULL,
+    payer_fio_public_key TEXT NOT NULL,
+    payee_fio_public_key TEXT NOT NULL,
+    content TEXT NOT NULL,
+    deserialized_content TEXT,
+    time_stamp TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS FioRequestsSentBacking (
     fio_request_id TEXT NOT NULL PRIMARY KEY,
     payer_fio_address TEXT NOT NULL,
     payee_fio_address TEXT NOT NULL,
@@ -44,7 +55,7 @@ CREATE TABLE IF NOT EXISTS FioRequestsBacking (
     content TEXT NOT NULL,
     deserialized_content TEXT,
     time_stamp TEXT NOT NULL,
-    status TEXT
+    status TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS FioOtherBlockchainTransactions(
