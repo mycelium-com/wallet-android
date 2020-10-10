@@ -136,6 +136,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         viewModel.payeeFioName.observe(this) {
             updateMemoVisibility()
         }
+        updateMemoVisibility()
     }
 
     private fun updateMemoVisibility() {
