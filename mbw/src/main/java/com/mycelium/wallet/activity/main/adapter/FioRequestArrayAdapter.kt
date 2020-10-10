@@ -11,6 +11,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.lib.CurrencyCode
+import com.mycelium.wapi.wallet.Util.strToBigInteger
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -104,7 +105,8 @@ class FioRequestArrayAdapter(var activity: Activity,
             it.symbol.equals(content?.chainCode ?: "", true)
         }
                 ?: return fioRequestView
-        val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
+
+        val amountValue = Value.valueOf(requestedCurrency, content!!.amount.toBigDecimal().longValueExact())
         amount?.text = amountValue.toStringWithUnit()
         amount?.setTextColor(ContextCompat.getColor(activity, color))
         val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
@@ -156,7 +158,4 @@ class FioRequestArrayAdapter(var activity: Activity,
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
             mbwManager.exchangeRateManager.get(value, assetInfo)
-
-    private fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
-            BigDecimal(amountStr).toBigIntegerExact()
 }

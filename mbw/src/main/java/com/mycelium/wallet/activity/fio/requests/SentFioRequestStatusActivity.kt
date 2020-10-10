@@ -13,7 +13,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.Util.convertToDate
-import com.mycelium.wapi.wallet.Util.strToBigInteger
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -21,6 +20,8 @@ import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import kotlinx.android.synthetic.main.fio_sent_request_status_activity.*
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.text.DateFormat
 import java.util.*
 
@@ -69,8 +70,7 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         }
 
         if (requestedCurrency != null) {
-            val amount = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
-                    fioRequestContent.deserializedContent!!.amount))
+            val amount = Value.valueOf(requestedCurrency, fioRequestContent.deserializedContent!!.amount.toBigDecimal().longValueExact())
             tvAmount.text = amount.toStringWithUnit()
             val convertedAmount = mbwManager.exchangeRateManager.get(amount, Utils.getTypeByName(CurrencyCode.USD.shortString)!!).toStringWithUnit()
             tvConvertedAmount.text = " ~ $convertedAmount"
