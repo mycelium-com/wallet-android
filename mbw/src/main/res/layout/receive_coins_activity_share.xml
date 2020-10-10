@@ -5,6 +5,7 @@
     <data>
 
         <import type="com.mycelium.wapi.wallet.coins.Value" />
+        <import type="android.view.View" />
         <variable name="viewModel" type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel"/>
     </data>
 
@@ -51,6 +52,7 @@
                 app:drawableStartCompat="@drawable/ic_fio_logo_gray"
                 android:drawablePadding="10dp"
                 android:text="@string/fio_create_request"
+                android:visibility="@{viewModel.hasFioAccounts ? View.VISIBLE : View.GONE}"
                 app:layout_constraintTop_toBottomOf="@+id/button2"
                 app:layout_constraintStart_toStartOf="@+id/button2" />
     </androidx.constraintlayout.widget.ConstraintLayout>

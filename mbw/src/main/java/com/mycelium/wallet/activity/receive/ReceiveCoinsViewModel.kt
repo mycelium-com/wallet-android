@@ -151,6 +151,10 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     var fioAddressForRequest = ""
     var addressResult: Address? = null
 
+    private val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+
+    val hasFioAccounts = fioModule.getAccounts().isNotEmpty()
+
     open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GET_AMOUNT_RESULT_CODE) {
@@ -163,13 +167,13 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                 fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
                 addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
                 val value = getRequestedAmount().value
-                if ((mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule).getFIONames(account).isNotEmpty()) {
+                if (fioModule.getFIONames(account).isNotEmpty()) {
                     FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
                 } else {
                     AccountMappingActivity.startForMapping(activity, account, ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING)
                 }
             } else if (requestCode == ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING) {
-                if ((mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule).getFIONames(account).isNotEmpty()) {
+                if (fioModule.getFIONames(account).isNotEmpty()) {
                     FioRequestCreateActivity.start(activity, getRequestedAmount().value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
                 }
             }
