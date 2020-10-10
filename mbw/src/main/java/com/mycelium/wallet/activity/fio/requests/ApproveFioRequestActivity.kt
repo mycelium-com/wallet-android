@@ -140,7 +140,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         initFeeLvlView()
 
         // tx data population
-        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
+        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(
                 fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
 
@@ -420,4 +420,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             listener(result)
         }
     }
+
+
+    private fun strToBigInteger(amountStr: String): BigInteger =
+            BigDecimal(amountStr).toBigIntegerExact()
 }

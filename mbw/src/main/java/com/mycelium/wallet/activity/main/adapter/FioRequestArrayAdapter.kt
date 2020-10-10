@@ -106,7 +106,7 @@ class FioRequestArrayAdapter(var activity: Activity,
         }
                 ?: return fioRequestView
 
-        val amountValue = Value.valueOf(requestedCurrency, content!!.amount.toBigDecimal().longValueExact())
+        val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(content!!.amount))
         amount?.text = amountValue.toStringWithUnit()
         amount?.setTextColor(ContextCompat.getColor(activity, color))
         val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
@@ -158,4 +158,7 @@ class FioRequestArrayAdapter(var activity: Activity,
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
             mbwManager.exchangeRateManager.get(value, assetInfo)
+
+    private fun strToBigInteger(amountStr: String): BigInteger =
+            BigDecimal(amountStr).toBigIntegerExact()
 }
