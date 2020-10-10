@@ -264,8 +264,8 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     private fun updateMappings() {
         walletManager.getAllActiveAccounts().forEach { account ->
-            val chainCode = account.basedOnCoinType.symbol
-            val tokenCode = account.coinType.symbol
+            val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
+            val tokenCode = account.coinType.symbol.toUpperCase(Locale.US)
             accountContext.registeredFIONames?.forEach { fioName ->
                 val publicAddress = account.coinType.parseAddress(FioTransactionHistoryService.getPubkeyByFioAddress(
                         fioName.name, coinType as FIOToken, chainCode, tokenCode).publicAddress)

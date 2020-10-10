@@ -107,7 +107,7 @@ class FioModule(
         // Refresh mappings in the database
         accounts.forEach {
             walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(),
-                    it.basedOnCoinType.symbol, it.coinType.symbol, it.id)
+                    it.basedOnCoinType.symbol.toUpperCase(Locale.US), it.coinType.symbol.toUpperCase(Locale.US), it.id)
         }
     }
 
