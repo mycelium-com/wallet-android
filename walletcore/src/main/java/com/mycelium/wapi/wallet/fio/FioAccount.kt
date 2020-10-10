@@ -278,16 +278,11 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioRequests() {
-        backing.deleteRequestsAll()
         try {
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-            backing.putReceivedRequests(pendingFioRequests)
-        } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update fio requests exception", ex)
-        }
-
-        try {
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            backing.deleteRequestsAll()
+            backing.putReceivedRequests(pendingFioRequests)
             backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
