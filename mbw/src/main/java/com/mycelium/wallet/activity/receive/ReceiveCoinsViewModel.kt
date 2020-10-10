@@ -164,13 +164,13 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                 addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
                 val value = getRequestedAmount().value
                 if ((mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule).getFIONames(account).isNotEmpty()) {
-                    FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult)
+                    FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
                 } else {
                     AccountMappingActivity.startForMapping(activity, account, ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING)
                 }
             } else if (requestCode == ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING) {
                 if ((mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule).getFIONames(account).isNotEmpty()) {
-                    FioRequestCreateActivity.start(activity, getRequestedAmount().value, fioAddressForRequest, addressResult)
+                    FioRequestCreateActivity.start(activity, getRequestedAmount().value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
                 }
             }
         }
