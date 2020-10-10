@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.gson.Gson
 import com.mrd.bitlib.util.HexUtils
@@ -29,9 +30,7 @@ import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.databinding.FioSendRequestActivityBinding
-import com.mycelium.wallet.databinding.FioSendRequestActivityEthBinding
-import com.mycelium.wallet.databinding.FioSendRequestActivityFioBinding
+import com.mycelium.wallet.databinding.*
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -41,6 +40,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
@@ -56,7 +56,6 @@ import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.io.IOException
-import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
 
@@ -64,7 +63,9 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     private lateinit var fioRequestViewModel: FioSendRequestViewModel
     private lateinit var sendViewModel: SendCoinsViewModel
+    private lateinit var binding: Any
     private lateinit var signedTransaction: Transaction
+    private lateinit var mbwManager: MbwManager
     private var activityResultDialog: DialogFragment? = null
 
     companion object {
@@ -105,7 +106,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.payerName.value = fioRequestContent.payerFioAddress
         Log.i("asdaf", "asdaf payeeFioAddress: ${fioRequestContent.payeeFioAddress} payerFioAddress: ${fioRequestContent.payerFioAddress}")
 
-        val mbwManager = MbwManager.getInstance(this)
+        mbwManager = MbwManager.getInstance(this)
         val walletManager = mbwManager.getWalletManager(false)
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
@@ -124,26 +125,38 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
                     ?: walletManager.getBTCBip44Accounts().first()
         }
-        fioRequestViewModel.payerAccount.value = account
-        sendViewModel = when (account) {
-            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
-            is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
-            is FioAccount -> viewModelProvider.get(SendFioViewModel::class.java)
-            else -> throw NotImplementedError()
-        }
-        if (!sendViewModel.isInitialized()) {
-            sendViewModel.init(account, intent)
-        }
 
-        initDatabinding(account)
-        initFeeView()
-        initFeeLvlView()
+        fioRequestViewModel.payerAccount.observe(this, Observer {
+            sendViewModel = provideSendViewModel(it, viewModelProvider)
+            sendViewModel.init(it, intent)
+            when (binding) {
+                is FioSendRequestActivityBindingImpl ->
+                    (binding as FioSendRequestActivityBindingImpl).sendViewModel = sendViewModel
+                is FioSendRequestActivityEthBindingImpl ->
+                    (binding as FioSendRequestActivityEthBindingImpl).sendViewModel = sendViewModel as SendEthViewModel
+                is FioSendRequestActivityFioBindingImpl ->
+                    (binding as FioSendRequestActivityFioBindingImpl).sendViewModel = sendViewModel as SendFioViewModel
+            }
+            initFeeView()
+            initFeeLvlView()
+            sendViewModel.getAmount().value = fioRequestViewModel.amount.value
+            if (!fioRequestViewModel.payeeTokenPublicAddress.value.isNullOrEmpty()) {
+                initReceivingAddress()
+            }
+            sendViewModel.getErrorText().observe(this, Observer {
+                Log.i("asdaf", "asdaf error text: $it")
+            })
+            sendViewModel.getTransactionStatus().observe(this, Observer {
+                Log.i("asdaf", "asdaf TransactionStatus: $it")
+                btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
+            })
+        })
+        fioRequestViewModel.payerAccount.value = account!!
+        setUpSendViewModel(account, viewModelProvider)
+        initSpinners(requestedCurrency)
 
-        // tx data population
-        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(
-                requestedCurrency, fioRequestContent.deserializedContent!!.amount))
-        sendViewModel.getAmount().value = fioRequestViewModel.amount.value
-
+        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
+                fioRequestContent.deserializedContent!!.amount))
         GetPublicAddressTask(fioRequestViewModel.payeeName.value!!,
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode) { response ->
@@ -166,12 +179,46 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
-        // populate fiat spinner
-        val fiatCurrencies = MbwManager.getInstance(this).currencyList
+        fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
+                mbwManager.currencyList.first()).toStringWithUnit()
+
+        sendViewModel.getErrorText().observe(this, Observer {
+            Log.i("asdaf", "asdaf error text: $it")
+        })
+        sendViewModel.getTransactionStatus().observe(this, Observer {
+            Log.i("asdaf", "asdaf TransactionStatus: $it")
+            btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
+        })
+    }
+
+    private fun initReceivingAddress() {
+        val parsedAddresses = mbwManager.getWalletManager(false).parseAddress(fioRequestViewModel.payeeTokenPublicAddress.value!!)
+        sendViewModel.getReceivingAddress().value = parsedAddresses.first()
+    }
+
+    private fun setUpSendViewModel(account: WalletAccount<*>, viewModelProvider: ViewModelProvider) {
+        sendViewModel = provideSendViewModel(account, viewModelProvider)
+        sendViewModel.init(account, intent)
+        initDatabinding(account)
+        initFeeView()
+        initFeeLvlView()
+    }
+
+    private fun provideSendViewModel(account: WalletAccount<*>, viewModelProvider: ViewModelProvider): SendCoinsViewModel {
+        return when (account) {
+            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
+            is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
+            is FioAccount -> viewModelProvider.get(SendFioViewModel::class.java)
+            else -> throw NotImplementedError()
+        }
+    }
+
+    private fun initSpinners(requestedCurrency: CryptoCurrency) {
+        val fiatCurrencies = mbwManager.currencyList
         val spinnerItems = fiatCurrencies.map {
             mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it).toStringWithUnit()
         }
-        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_small_font_dropdown, R.id.text,
+        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
                 spinnerItems)
         spinnerFiat?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
@@ -180,33 +227,16 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         }
 
-        // TODO implement ability to select other accounts to spend from
-//        val spendingAccounts = walletManager.getAllActiveAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
-//        spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
-//                spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" })
-//        spinnerSpendingFromAccount?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onNothingSelected(p0: AdapterView<*>?) {}
-//            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-//                fioRequestViewModel.payerAccount.value = spendingAccounts[p2]
-//            }
-//        }
-        tvSatisfyFromAccount.text = "${account.label} - ${account.accountBalance.spendable}"
-
-        fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
-                fiatCurrencies.first()).toStringWithUnit()
-        sendViewModel.getErrorText().observe(this, Observer {
-            Log.i("asdaf", "asdaf error text: $it")
-        })
-        sendViewModel.getTransactionStatus().observe(this, Observer {
-            Log.i("asdaf", "asdaf TransactionStatus: $it")
-            btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
-        })
-        fioRequestViewModel.payeeTokenPublicAddress.observe(this, Observer {
-            btSend.isEnabled = it.isNotEmpty()
-        })
-        fioRequestViewModel.payerTokenPublicAddress.observe(this, Observer {
-            btSend.isEnabled = it.isNotEmpty()
-        })
+        val spendingAccounts = mbwManager.getWalletManager(false)
+                .getAllActiveAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
+        spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
+                spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" })
+        spinnerSpendingFromAccount?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                fioRequestViewModel.payerAccount.value = spendingAccounts[p2]
+            }
+        }
     }
 
     fun onClickSend() {
@@ -214,7 +244,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     fun onClickDecline() {
-        RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!!, fioRequestViewModel.payerName.value!!,
+        RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
                 fioRequestViewModel.request.value!!.fioRequestId) {
             Log.i("asdaf", "asdaf rejection status: ${it?.status}")
             finish()
@@ -253,6 +283,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
+        binding = sendCoinsActivityBinding
     }
 
     private fun getDefaultBinding(): FioSendRequestActivityBinding =
@@ -384,7 +415,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             return try {
                 val request = fioRequestViewModel.request.value!!
                 val amountInDouble = fioRequestViewModel.amount.value!!.toPlainString().toDouble()
-                fioRequestViewModel.payerNameOwnerAccount.value!!.recordObtData(request.fioRequestId,
+                (fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount).recordObtData(request.fioRequestId,
                         request.payerFioAddress, request.payeeFioAddress, fioRequestViewModel.payerTokenPublicAddress.value!!,
                         fioRequestViewModel.payeeTokenPublicAddress.value!!, amountInDouble, request.deserializedContent!!.chainCode,
                         request.deserializedContent!!.tokenCode, txid, fioRequestViewModel.memoTo.value!!)

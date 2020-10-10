@@ -165,32 +165,33 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromTitle" />
 
-            <TextView
-                android:id="@+id/tvSatisfyFromAccount"
+<!--            <TextView-->
+<!--                android:id="@+id/tvSatisfyFromAccount"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:fontFamily="sans-serif-medium"-->
+<!--                android:paddingStart="4dp"-->
+<!--                android:textColor="@color/fio_green"-->
+<!--                android:textSize="14sp"-->
+<!--                android:typeface="monospace"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"-->
+<!--                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle"-->
+<!--                tools:text="Account 1 - 0.00000006BTC" />-->
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinnerSpendingFromAccount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
+                android:background="@null"
+                android:textSize="14sp"
                 android:paddingStart="4dp"
                 android:textColor="@color/fio_green"
-                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
                 android:typeface="monospace"
+                tools:text="Account 1 - 0.00000006BTC"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"
-                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle"
-                tools:text="Account 1 - 0.00000006BTC" />
+                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle" />
 
-            <!--            <androidx.appcompat.widget.AppCompatSpinner-->
-            <!--                android:id="@+id/spinnerSpendingFromAccount"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:background="@null"-->
-            <!--                android:textSize="14sp"-->
-            <!--                android:paddingStart="4dp"-->
-            <!--                android:textColor="@color/fio_green"-->
-            <!--                android:fontFamily="sans-serif-medium"-->
-            <!--                android:typeface="monospace"-->
-            <!--                tools:text="Account 1 - 0.00000006BTC"-->
-            <!--                app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"-->
-            <!--                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle" />-->
 
             <TextView
                 android:id="@+id/tvMemoToTitle"
