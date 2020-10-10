@@ -56,6 +56,7 @@ import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.io.IOException
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
 
