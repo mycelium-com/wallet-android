@@ -18,5 +18,7 @@ class AccountMappingViewModel : ViewModel() {
 
     fun dateToString(date: Date) = DATE_FORMAT.format(date)
 
+    fun intToString(int: Int) = int.toString()
+
     fun isExpired(date: Date): Boolean = TimeUnit.MILLISECONDS.toDays(date.time - Date().time) < 30
 }

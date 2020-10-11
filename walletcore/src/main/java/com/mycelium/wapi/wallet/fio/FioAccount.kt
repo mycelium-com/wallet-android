@@ -10,6 +10,7 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.fio.FioModule.Companion.DEFAULT_BUNDLED_TXS_NUM
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
@@ -70,7 +71,8 @@ class FioAccount(private val accountContext: FioAccountContext,
     fun registerFIOAddress(fioAddress: String): String? =
             fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
                     getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration?.also {
-                addRegisteredAddress(RegisteredFIOName(fioAddress, convertToDate(it)))
+                val bundledTxsNum = FioTransactionHistoryService.getBundledTxsNum(coinType as FIOToken, it) ?: DEFAULT_BUNDLED_TXS_NUM
+                addRegisteredAddress(RegisteredFIOName(fioAddress, convertToDate(it), bundledTxsNum))
             }
 
     /**
@@ -120,9 +122,11 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun getFioNames(): List<RegisteredFIOName> = try {
-        FioTransactionHistoryService.getFioNames(coinType as FIOToken,
+        val fioToken = coinType as FIOToken
+        FioTransactionHistoryService.getFioNames(fioToken,
                 receivingAddress.toString())?.fio_addresses?.map {
-            RegisteredFIOName(it.fio_address, convertToDate(it.expiration))
+            val bundledTxsNum = FioTransactionHistoryService.getBundledTxsNum(fioToken, it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
+            RegisteredFIOName(it.fio_address, convertToDate(it.expiration), bundledTxsNum)
         } ?: emptyList()
     } catch (e: Exception) {
         emptyList()

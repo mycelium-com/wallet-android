@@ -22,6 +22,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
@@ -37,10 +38,12 @@ class AddressFragmentModel(
     private val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
     var isCompressedKey: Boolean = true
     val accountAddressType: MutableLiveData<String> = MutableLiveData()
+    val registeredFIONames: MutableLiveData<List<RegisteredFIOName>> = MutableLiveData()
 
     init {
         updateLabel()
         onAddressChange()
+        updateRegisteredFIONames()
 
         MbwManager.getEventBus().register(this)
     }
@@ -67,18 +70,22 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount<*>) {
-        if (account is WalletBtcAccount) {
-            account.receivingAddress.orNull()?.let { address ->
-                bip32Path.value = address.bip32Path
-                type.value = address.type
-                accountAddressType.value = context.getString(address.type.asStringRes())
+        when (account) {
+            is WalletBtcAccount -> {
+                account.receivingAddress.orNull()?.let { address ->
+                    bip32Path.value = address.bip32Path
+                    type.value = address.type
+                    accountAddressType.value = context.getString(address.type.asStringRes())
+                }
             }
-        } else if (account is EthAccount) {
-            val module = mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID) as EthereumModule
-            bip32Path.value = module.getBip44Path(account.accountIndex)
-        } else if (account is FioAccount) {
-            val module = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-            bip32Path.value = module.getBip44Path(account)
+            is EthAccount -> {
+                val module = mbwManager.getWalletManager(false).getModuleById(EthereumModule.ID) as EthereumModule
+                bip32Path.value = module.getBip44Path(account.accountIndex)
+            }
+            is FioAccount -> {
+                val module = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+                bip32Path.value = module.getBip44Path(account)
+            }
         }
         accountAddress.value = account.receiveAddress
     }
@@ -99,6 +106,7 @@ class AddressFragmentModel(
         account = mbwManager.selectedAccount
         updateLabel()
         onAddressChange()
+        updateRegisteredFIONames()
         mbwManager.getWalletManager(false).run {
             if (hasAccount(event.account)) {
                 startSynchronization(
@@ -110,5 +118,11 @@ class AddressFragmentModel(
     fun onAddressChange() {
         updateAddress(account)
         updateAddressPath(showBip44Path)
+    }
+
+    private fun updateRegisteredFIONames() {
+        if (account is FioAccount) {
+            registeredFIONames.value = (account as FioAccount).registeredFIONames
+        }
     }
 }
