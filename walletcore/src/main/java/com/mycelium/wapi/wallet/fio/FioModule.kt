@@ -83,28 +83,48 @@ class FioModule(
         return connected
     }
 
+    /**
+     * This function takes a full list of mapped accounts. Any additional accounts that were
+     * previously mapped are un-mapped using a mapping of "0" as address as per
+     * <a href="https://developers.fioprotocol.io/wallet-integration-guide/mapping-pub-addresses#changing-or-removing-nbpas">the FIO doc's recommendation</a>.
+     */
     fun mapFioNameToAccounts(fioName: String, accounts: List<WalletAccount<*>>) {
         val fioAccount = walletManager.getAccount(getFioAccountByFioName(fioName)!!) as FioAccount
         val tokenPublicAddresses = ArrayList<TokenPublicAddress>()
-
+        val oldMappings = walletDB
+                .fioNameAccountMappingsQueries
+                .selectPublicAddressesByFioName(fioName).executeAsList().map {
+                    it.tokenChainCode to it.pubAddress
+                }.toMap().toMutableMap()
         // We begin with creating a list of addresses for FIO blockchain mapping transaction
         accounts.forEach {
-            val chainCode = it.basedOnCoinType.symbol
-            val tokenCode = it.coinType.symbol
-            if (walletDB.fioNameAccountMappingsQueries.selectPublicAddressByFioNameAndCurrency(fioName,
-                            chainCode, tokenCode).executeAsOneOrNull() != it.receiveAddress.toString()) {
-            tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
-                        chainCode.toUpperCase(Locale.US),
-                        tokenCode.toUpperCase(Locale.US)))
+            val chainCode = it.basedOnCoinType.symbol.toUpperCase(Locale.US)
+            val tokenCode = it.coinType.symbol.toUpperCase(Locale.US)
+            val currentTokenAddress = oldMappings.remove("$tokenCode-$chainCode")
+            if (currentTokenAddress != it.receiveAddress.toString()) {
+                tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
+                        chainCode, tokenCode))
+            }
+        }
+        // remaining "current" tokens were not requested to be mapped so we unmap those
+        oldMappings.forEach {
+            val tokenChain = it.key.split("-")
+                tokenPublicAddresses.add(TokenPublicAddress("0",
+                        tokenChain[1], tokenChain[0]))
+        }
+        if (tokenPublicAddresses.isEmpty()) {
+            // nothing changed
+            return
+        }
+        tokenPublicAddresses.chunked(5).forEach {
+            if (!fioAccount.addPubAddress(fioName, it)) {
+                // TODO reconsider, probably should throw an error
+                return
             }
         }
 
-        if (!fioAccount.addPubAddress(fioName, tokenPublicAddresses)) {
-            // TODO reconsider, probably should throw an error
-            return
-        }
-
         // Refresh mappings in the database
+        walletDB.fioNameAccountMappingsQueries.deleteAllMappings(fioName)
         accounts.forEach {
             walletDB.fioNameAccountMappingsQueries.insertMapping(fioName, it.receiveAddress.toString(),
                     it.basedOnCoinType.symbol.toUpperCase(Locale.US), it.coinType.symbol.toUpperCase(Locale.US), it.id)
