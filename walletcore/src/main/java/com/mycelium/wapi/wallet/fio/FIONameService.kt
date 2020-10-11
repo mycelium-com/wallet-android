@@ -13,4 +13,5 @@ data class FIODomain(@JsonProperty("domain") val domain: String,
                      @JsonProperty("public") val isPublic: Boolean) : Serializable
 
 data class FIOOBTransaction(val txId: String,
+                            val fromFIOName: String,
                             val toFIOName: String) : Serializable

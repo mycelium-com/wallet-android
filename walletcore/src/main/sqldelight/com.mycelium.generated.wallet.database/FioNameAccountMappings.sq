@@ -22,8 +22,7 @@ SELECT pubAddress FROM FioNameAccountMappings
     WHERE name = (:fioName) AND chainCode = (:chainCode) AND tokenCode = (:tokenCode);
 
 selectPublicAddressesByFioName:
--- TODO: return some other object here
-SELECT (tokenCode || "-" || chainCode ) AS tokenChainCode, pubAddress FROM FioNameAccountMappings
+SELECT tokenCode, chainCode, pubAddress FROM FioNameAccountMappings
     WHERE name = (:fioName);
 
 deleteAllMappings:
