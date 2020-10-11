@@ -75,17 +75,25 @@ class FioRequestArrayAdapter(var activity: Activity,
                             FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.green
                             FioRequestStatus.NONE -> R.color.green
                         }))
-                ivStatus.setImageResource(
+                ivStatus.setBackgroundResource(
                         when (status) {
                             FioRequestStatus.REQUESTED -> R.drawable.ic_request_pending
                             FioRequestStatus.REJECTED -> R.drawable.ic_request_error
                             FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.drawable.ic_request_good_to_go
                             FioRequestStatus.NONE -> R.drawable.ic_request_item_circle_gray
                         })
+                ivStatus.setImageResource(
+                        when (status) {
+                            FioRequestStatus.REQUESTED -> R.drawable.ic_history
+                            FioRequestStatus.REJECTED -> R.drawable.ic_close
+                            FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.drawable.ic_fio_paid
+                            FioRequestStatus.NONE -> R.drawable.ic_history
+                        })
             }
         } else {
             tvStatus.text = ""
-            ivStatus.setImageResource(R.drawable.ic_request_item_circle_gray)
+            ivStatus.setBackgroundResource(R.drawable.ic_request_item_circle_gray)
+            ivStatus.setImageResource(R.drawable.ic_history)
         }
 
         val tvDate = fioRequestView.findViewById<TextView>(R.id.tvDate)
