@@ -1,103 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginHorizontal="20dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical" >
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
 
     <EditText
-            android:id="@+id/etRecipient"
-            android:hint="@string/enter_recipient_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:inputType="textAutoComplete"
-            android:typeface="monospace" />
+        android:id="@+id/etRecipient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:hint="@string/enter_recipient_hint"
+        android:inputType="textAutoComplete"
+        android:textSize="18sp"
+        android:typeface="monospace" />
 
     <TextView
-            android:id="@+id/tvEnterRecipientDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#aaa"
-            android:textSize="12sp"
-            android:text="@string/enter_recipient_description" />
+        android:id="@+id/tvEnterRecipientDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/enter_recipient_description"
+        android:textColor="#aaa"
+        android:textSize="12sp" />
 
     <TextView
-            android:id="@+id/tvRecipientValid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="@string/recipient_valid"
-            android:textColor="@color/green"
-            android:textSize="12sp"
-            tools:visibility="visible"
-            android:visibility="gone" />
+        android:id="@+id/tvRecipientValid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/recipient_valid"
+        android:textColor="@color/green"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <TextView
-            android:id="@+id/tvCheckingFioAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#aaa"
-            android:layout_gravity="start"
-            android:text="@string/checking_fio_address"
-            android:textSize="12sp"
-            tools:visibility="visible"
-            android:visibility="gone" />
+        android:id="@+id/tvCheckingFioAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/checking_fio_address"
+
+        android:textColor="#aaa"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <TextView
-            android:id="@+id/tvRecipientInvalid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="@string/recipient_invalid"
-            android:textColor="@color/red"
-            android:textSize="12sp" />
+        android:id="@+id/tvRecipientInvalid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/recipient_invalid"
+        android:textColor="@color/red"
+        android:textSize="12sp" />
 
     <TextView
-            android:id="@+id/tvRecipientHasNoSuchAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="@string/recipient_has_no_such_address"
-            android:textColor="@color/red"
-            android:textSize="12sp" />
+        android:id="@+id/tvRecipientHasNoSuchAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+
+        android:text="@string/recipient_has_no_such_address"
+        android:textColor="@color/red"
+        android:textSize="12sp" />
 
     <TextView
-            android:id="@+id/tvNoConnection"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="@string/bitid_noconnection"
-            android:textColor="@color/red"
-            android:textSize="12sp" />
+        android:id="@+id/tvNoConnection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/bitid_noconnection"
+        android:textColor="@color/red"
+        android:textSize="12sp" />
 
     <Button
-            android:id="@+id/btOk"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="20dp"
-            android:text="@string/ok"
-            android:textSize="14sp" />
+        android:id="@+id/btOk"
+        style="@style/MyceliumButton.FIO"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="20dp"
+        android:layout_marginStart="20dp"
+
+        android:layout_marginEnd="20dp"
+        android:text="@string/ok"
+        android:textSize="14sp" />
+
     <LinearLayout
-            android:id="@+id/llKnownFioNames"
+        android:id="@+id/llKnownFioNames"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="6dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="@string/fio_names"
+            android:textAllCaps="true"
+            android:textSize="12sp" />
+
+        <ListView
+            android:id="@+id/lvKnownFioNames"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="6dp"
-            android:orientation="vertical">
-        <TextView
-                android:text="@string/fio_names"
-                android:textAllCaps="true"
-                android:textSize="12sp"
-                android:layout_marginBottom="6dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        <ListView
-                android:id="@+id/lvKnownFioNames"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/fio_address_item" />
+            tools:listitem="@layout/fio_address_item" />
 
     </LinearLayout>
 
