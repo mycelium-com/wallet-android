@@ -218,8 +218,10 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val spinnerItems = fiatCurrencies.map {
             mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it).toStringWithUnit()
         }
-        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
-                spinnerItems)
+        spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_fiat_spinner, R.id.text,
+                spinnerItems).apply {
+            setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
+        }
         spinnerFiat?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
@@ -229,8 +231,10 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
         val spendingAccounts = mbwManager.getWalletManager(false)
                 .getAllActiveAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
-        spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_fio_dropdown_medium_font, R.id.text,
-                spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" })
+        spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_spending_from_account, R.id.text,
+                spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" }).apply {
+            setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
+        }
         spinnerSpendingFromAccount?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {}
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {

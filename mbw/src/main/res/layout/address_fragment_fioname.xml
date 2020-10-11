@@ -42,9 +42,7 @@
                 android:id="@+id/fioNamesSpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:textSize="14sp"
-                tools:listitem="@layout/layout_fio_dropdown" />
+                android:background="@null" />
 
             <TextView
                 android:id="@+id/tvBundledTxsNum"

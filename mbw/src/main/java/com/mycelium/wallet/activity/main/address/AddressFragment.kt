@@ -81,7 +81,8 @@ class AddressFragment : Fragment() {
 
         viewModel.getRegisteredFIONames().observe(this, Observer { names ->
             fioNamesSpinner?.adapter = ArrayAdapter(context,
-                    R.layout.layout_fio_dropdown_medium_font, R.id.text, names.map { it.name }).apply {
+                    R.layout.layout_address_fragment_fio_names, R.id.text, names.map { it.name }).apply {
+                setDropDownViewResource(R.layout.layout_address_fragment_fio_names_dropdown)
             }
             fioNamesSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(p0: AdapterView<*>?) {}
