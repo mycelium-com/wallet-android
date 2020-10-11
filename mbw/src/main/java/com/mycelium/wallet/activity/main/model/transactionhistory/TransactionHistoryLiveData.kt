@@ -26,6 +26,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>>>? = null
     @Volatile
     private var executorService: ExecutorService
+    val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
 
     init {
         value = historyList
@@ -43,7 +44,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         MbwManager.getEventBus().register(this)
         if (account !== mbwManager.selectedAccount) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList())
+            updateValue(listOf())
         }
         startHistoryUpdate()
     }
@@ -70,9 +71,8 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
 
         override fun doInBackground(vararg voids: Void): List<TransactionSummary>  =
                 (account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>).apply {
-                    val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
                     forEach { txSummary ->
-                        fioModule.getFioTxMetadata(txSummary)?.let {
+                        fioModule.getFioTxMetadata(txSummary.idHex)?.let {
                             fioMetadataMap[txSummary.idHex] = it
                         }
                     }
@@ -97,7 +97,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         oldExecutor.shutdownNow()
         if (event.account != account.id) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList())
+            updateValue(listOf())
             startHistoryUpdate()
         }
     }

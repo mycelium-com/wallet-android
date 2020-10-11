@@ -120,7 +120,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -188,7 +187,7 @@ public class TransactionHistoryFragment extends Fragment {
       if (adapter == null) {
          adapter = new TransactionHistoryAdapter(getActivity(), history, model.getTransactionHistory().getFioMetadataMap());
          updateWrapper(adapter);
-         model.getTransactionHistory().observe(this, new Observer<Set<? extends TransactionSummary>>() {
+         model.getTransactionHistory().observe(getViewLifecycleOwner(), new Observer<Set<? extends TransactionSummary>>() {
             @Override
             public void onChanged(@Nullable Set<? extends TransactionSummary> transaction) {
                history.clear();
@@ -384,7 +383,7 @@ public class TransactionHistoryFragment extends Fragment {
          List<TransactionSummary> preloadedData = account.getTransactionSummaries(offset, limit);
          FioModule fioModule = (FioModule) _mbwManager.getWalletManager(false).getModuleById(FioModule.ID);
          for (TransactionSummary txSummary : preloadedData) {
-            FIOOBTransaction data = fioModule.getFioTxMetadata(txSummary);
+            FIOOBTransaction data = fioModule.getFioTxMetadata(txSummary.getIdHex());
             if (data != null) {
                fioMetadataMap.put(txSummary.getIdHex(), data);
             }
@@ -456,14 +455,19 @@ public class TransactionHistoryFragment extends Fragment {
          final TransactionSummary record = checkNotNull(getItem(position));
          final AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
 
-         TextView toFioName = rowView.findViewById(R.id.toFioName);
+         TextView otherFioName = rowView.findViewById(R.id.otherFioName);
          View fioIcon = rowView.findViewById(R.id.fioIcon);
-         if (fioMetadataMap.containsKey(record.getIdHex())) {
-            toFioName.setText(getString(R.string.transaction_to_address_prefix, fioMetadataMap.get(record.getIdHex()).getToFIOName()));
-            toFioName.setVisibility(View.VISIBLE);
+         FIOOBTransaction fioobTransaction = fioMetadataMap.get(record.getIdHex());
+         if (fioobTransaction != null) {
+            if (record.isIncoming()) {
+               otherFioName.setText(getString(R.string.transaction_from_address_prefix, fioobTransaction.getFromFIOName()));
+            } else {
+               otherFioName.setText(getString(R.string.transaction_to_address_prefix, fioobTransaction.getToFIOName()));
+            }
+            otherFioName.setVisibility(View.VISIBLE);
             fioIcon.setVisibility(View.VISIBLE);
          } else {
-            toFioName.setVisibility(View.GONE);
+            otherFioName.setVisibility(View.GONE);
             fioIcon.setVisibility(View.GONE);
          }
          rowView.setOnClickListener(new View.OnClickListener() {

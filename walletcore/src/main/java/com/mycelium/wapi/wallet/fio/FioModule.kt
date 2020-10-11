@@ -130,9 +130,9 @@ class FioModule(
         }
     }
 
-    fun getFioTxMetadata(txSummary: TransactionSummary) =
-            walletDB.fioOtherBlockchainTransactionsQueries.selectTxById(txSummary.idHex).executeAsOneOrNull()?.run {
-                FIOOBTransaction(this.obtId, this.payeeFioAddress)
+    fun getFioTxMetadata(txid: String) =
+            walletDB.fioOtherBlockchainTransactionsQueries.selectTxById(txid).executeAsOneOrNull()?.run {
+                FIOOBTransaction(obtId, payerFioAddress, payeeFioAddress)
             }
 
     private fun getFioSdk(accountIndex: Int): FIOSDK {
