@@ -3,18 +3,24 @@ package com.mycelium.wallet.activity.fio.requests.viewmodels
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestSuccessActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.send.SendCoinsActivity
+import com.mycelium.wallet.activity.send.model.SendBtcModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
 import com.mycelium.wallet.activity.send.model.SendFioModel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.FeeFormatter
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.mycelium.wapi.wallet.fio.getFioAccounts
@@ -33,16 +39,22 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
 
     override fun getFeeFormatter(): FeeFormatter = BtcFeeFormatter()
 
-    private var fioModule: FioModule
+    private lateinit var fioModule: FioModule
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)
-        val fioAccounts = mbwManager.getWalletManager(false).getFioAccounts()
-        if (fioAccounts.isNotEmpty()) {
-            val fioAccount = fioAccounts[0]
-            model = SendFioModel(app, fioAccount, intent)
+        val walletManager = mbwManager.getWalletManager(false)
+        fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        val accountId = checkNotNull(intent.getSerializableExtra(SendCoinsActivity.ACCOUNT) as UUID)
+        val account = mbwManager.getWalletManager(false).getAccount(accountId)
+                ?: throw IllegalStateException("Wrong account")
+
+        model = when (account) {
+            is FioAccount -> SendFioModel(app, account, intent)
+            is AbstractBtcAccount -> SendBtcModel(app, account, intent)
+            else -> TODO("Not implemented for this type")
         }
-        val account = mbwManager.selectedAccount
+
         val fioNames = fioModule.getFIONames(account)
         if (fioNames.isEmpty()) {
             TODO("Handle case when account to registered")
@@ -58,12 +70,6 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
     val payeeTokenPublicAddress = MutableLiveData<String>()
     val payeeFioAddreses = MutableLiveData<List<RegisteredFIOName>>()
     val payeeAccount = MutableLiveData<WalletAccount<*>>()
-
-    init {
-        val walletManager = mbwManager.getWalletManager(false)
-        fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-    }
-
 
     fun sendRequest(activity: Activity, doOnSuccess: (Unit) -> Unit, doOnError: (Exception) -> Unit) {
         viewModelScope.launch(IO) {

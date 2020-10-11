@@ -10,6 +10,7 @@ import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -26,8 +27,10 @@ import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.getActiveBTCSingleAddressAccounts
 import com.mycelium.wallet.databinding.FragmentFioAccountMappingBinding
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.bip44.getActiveHDAccounts
+import com.mycelium.wapi.wallet.erc20.getActiveERC20Accounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
@@ -119,54 +122,103 @@ class FIONameDetailsFragment : Fragment() {
     }
 
     private fun updateList(walletManager: WalletManager, preference: SharedPreferences) {
-        data.clear()
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val mappedAccounts = fioModule.getConnectedAccounts(args.fioName.name)
         data.apply {
-            val btcHDAccounts = walletManager.getActiveHDAccounts().map {
-                ItemAccount(it.id, it.label, "",
-                        Utils.getDrawableForAccount(it, false, resources),
-                        it.coinType, mappedAccounts.contains(it))
+            clear()
+            addBitcoinAccounts(walletManager, mappedAccounts, preference)
+            addEthAccounts(walletManager, mappedAccounts, preference)
+            addErc20Accounts(walletManager, mappedAccounts, preference)
+        }
+        adapter.submitList(data.toList())
+    }
+
+    private fun MutableList<Item>.addBitcoinAccounts(
+            walletManager: WalletManager,
+            mappedAccounts: List<WalletAccount<*>>,
+            preference: SharedPreferences) {
+        val btcHDAccounts = walletManager.getActiveHDAccounts().map {
+            ItemAccount(it.id, it.label, "",
+                    Utils.getDrawableForAccount(it, false, resources),
+                    it.coinType, mappedAccounts.contains(it))
+        }
+        val btcSAAccounts = walletManager.getActiveBTCSingleAddressAccounts().map {
+            ItemAccount(it.id, it.label, "",
+                    Utils.getDrawableForAccount(it, false, resources),
+                    it.coinType, mappedAccounts.contains(it))
+        }
+        if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
+            val title = getString(R.string.bitcoin_name)
+            val isClosed = preference.getBoolean("isClosed$title", false)
+            add(ItemGroup(title, btcHDAccounts.size + btcSAAccounts.size, isClosed))
+            if (btcHDAccounts.isNotEmpty() && !isClosed) {
+                add(ItemSubGroup(getString(R.string.active_hd_accounts_name)))
+                add(ItemDivider())
+                addAll(btcHDAccounts)
+                add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
             }
-            val btcSAAccounts = walletManager.getActiveBTCSingleAddressAccounts().map {
-                ItemAccount(it.id, it.label, "",
-                        Utils.getDrawableForAccount(it, false, resources),
-                        it.coinType, mappedAccounts.contains(it))
+            if (btcSAAccounts.isNotEmpty() && !isClosed) {
+                add(ItemSubGroup(getString(R.string.active_bitcoin_sa_group_name)))
+                add(ItemDivider())
+                addAll(btcSAAccounts)
+                add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
             }
-            if (btcHDAccounts.isNotEmpty() || btcSAAccounts.isNotEmpty()) {
-                val title = getString(R.string.bitcoin_name)
+        }
+    }
+
+    private fun MutableList<Item>.addEthAccounts(
+            walletManager: WalletManager,
+            mappedAccounts: List<WalletAccount<*>>,
+            preference: SharedPreferences) {
+        walletManager.getActiveEthAccounts().map {
+            ItemAccount(it.id, it.label, "",
+                    Utils.getDrawableForAccount(it, false, resources),
+                    it.coinType, mappedAccounts.contains(it))
+        }.apply {
+            if (this.isNotEmpty()) {
+                val title = getString(R.string.ethereum_name)
                 val isClosed = preference.getBoolean("isClosed$title", false)
-                add(ItemGroup(title, btcHDAccounts.size + btcSAAccounts.size, isClosed))
-                if (btcHDAccounts.isNotEmpty() && !isClosed) {
-                    add(ItemSubGroup(getString(R.string.active_hd_accounts_name)))
+                add(ItemGroup(title, this.size, isClosed))
+                if (!isClosed) {
                     add(ItemDivider())
-                    addAll(btcHDAccounts)
+                    addAll(this)
                     add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
-                }
-                if (btcSAAccounts.isNotEmpty() && !isClosed) {
-                    add(ItemSubGroup(getString(R.string.active_bitcoin_sa_group_name)))
-                    add(ItemDivider())
-                    addAll(btcSAAccounts)
-                    add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
-                }
-            }
-            walletManager.getActiveEthAccounts().map {
-                ItemAccount(it.id, it.label, "",
-                        Utils.getDrawableForAccount(it, false, resources),
-                        it.coinType, mappedAccounts.contains(it))
-            }.apply {
-                if (this.isNotEmpty()) {
-                    val title = getString(R.string.ethereum_name)
-                    val isClosed = preference.getBoolean("isClosed$title", false)
-                    add(ItemGroup(title, this.size, isClosed))
-                    if (!isClosed) {
-                        add(ItemDivider())
-                        addAll(this)
-                        add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
-                    }
                 }
             }
         }
-        adapter.submitList(data.toList())
+    }
+
+    private fun MutableList<Item>.addErc20Accounts(
+            walletManager: WalletManager,
+            mappedAccounts: List<WalletAccount<*>>,
+            preference: SharedPreferences) {
+        walletManager.getActiveERC20Accounts().map {
+            it.coinType.symbol
+        }.toSet().forEach { symbol ->
+            addErc20Accounts(symbol, walletManager, mappedAccounts, preference)
+        }
+    }
+
+    private fun MutableList<Item>.addErc20Accounts(
+            symbol: String,
+            walletManager: WalletManager,
+            mappedAccounts: List<WalletAccount<*>>,
+            preference: SharedPreferences) {
+        walletManager.getActiveERC20Accounts().filter { it.coinType.symbol == symbol }.map {
+            ItemAccount(it.id, it.label, "",
+                    Utils.getDrawableForAccount(it, false, resources),
+                    it.coinType, mappedAccounts.contains(it))
+        }.apply {
+            if (isNotEmpty()) {
+                val title = symbol
+                val isClosed = preference.getBoolean("isClosed$title", false)
+                add(ItemGroup(title, this.size, isClosed))
+                if (!isClosed) {
+                    add(ItemDivider())
+                    addAll(this)
+                    add(ItemDivider(resources.getDimensionPixelOffset(R.dimen.fio_mapping_group_margin)))
+                }
+            }
+        }
     }
 }

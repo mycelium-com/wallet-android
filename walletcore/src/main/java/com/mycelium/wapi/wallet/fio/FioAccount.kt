@@ -264,8 +264,8 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     private fun updateMappings() {
         walletManager.getAllActiveAccounts().forEach { account ->
-            val chainCode = account.basedOnCoinType.symbol
-            val tokenCode = account.coinType.symbol
+            val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
+            val tokenCode = account.coinType.symbol.toUpperCase(Locale.US)
             accountContext.registeredFIONames?.forEach { fioName ->
                 val publicAddress = account.coinType.parseAddress(FioTransactionHistoryService.getPubkeyByFioAddress(
                         fioName.name, coinType as FIOToken, chainCode, tokenCode).publicAddress)
@@ -278,16 +278,11 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioRequests() {
-        backing.deleteRequestsAll()
         try {
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-            backing.putReceivedRequests(pendingFioRequests)
-        } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update fio requests exception", ex)
-        }
-
-        try {
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            backing.deleteRequestsAll()
+            backing.putReceivedRequests(pendingFioRequests)
             backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)
