@@ -127,5 +127,5 @@ class ERC20Module(
     }
 }
 
-fun WalletManager.getERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible }
-fun WalletManager.getActiveERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible && it.isActive }
+fun WalletManager.getERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible }.map { it as ERC20Account }
+fun WalletManager.getActiveERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible && it.isActive }.map { it as ERC20Account }
