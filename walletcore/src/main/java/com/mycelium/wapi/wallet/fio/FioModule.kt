@@ -94,28 +94,27 @@ class FioModule(
         val oldMappings = walletDB
                 .fioNameAccountMappingsQueries
                 .selectPublicAddressesByFioName(fioName).executeAsList().map {
-                    it.tokenChainCode to it.pubAddress
+                    "${it.tokenCode}-${it.chainCode}" to TokenPublicAddress(it.pubAddress, it.chainCode, it.tokenCode)
                 }.toMap().toMutableMap()
         // We begin with creating a list of addresses for FIO blockchain mapping transaction
         accounts.forEach {
             val chainCode = it.basedOnCoinType.symbol.toUpperCase(Locale.US)
             val tokenCode = it.coinType.symbol.toUpperCase(Locale.US)
             val currentTokenAddress = oldMappings.remove("$tokenCode-$chainCode")
-            if (currentTokenAddress != it.receiveAddress.toString()) {
+            if (currentTokenAddress?.publicAddress != it.receiveAddress.toString()) {
                 tokenPublicAddresses.add(TokenPublicAddress(it.receiveAddress.toString(),
                         chainCode, tokenCode))
             }
         }
-        // remaining "current" tokens were not requested to be mapped so we unmap those
-        oldMappings.forEach {
-            val tokenChain = it.key.split("-")
-                tokenPublicAddresses.add(TokenPublicAddress("0",
-                        tokenChain[1], tokenChain[0]))
-        }
+        // remaining "current" tokens in oldMappings were not requested to be mapped so we unmap those.
+        // TODO: 10/11/20 once FIP4 is available through the sdk, replace `= "0"` with the adequate call.
+        tokenPublicAddresses.addAll(oldMappings.map { it.value.apply { publicAddress = "0" } })
         if (tokenPublicAddresses.isEmpty()) {
             // nothing changed
             return
         }
+        // 5 is the maximum for tokens to be set in one call. Apparently the sdk doesn't know, so we
+        // have to chunk here.
         tokenPublicAddresses.chunked(5).forEach {
             if (!fioAccount.addPubAddress(fioName, it)) {
                 // TODO reconsider, probably should throw an error
