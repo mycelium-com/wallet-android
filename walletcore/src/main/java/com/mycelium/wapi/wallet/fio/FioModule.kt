@@ -309,7 +309,7 @@ class FioModule(
 
     companion object {
         const val ID: String = "FIO"
-        const val DEFAULT_BUNDLED_TXS_NUM = 105
+        const val DEFAULT_BUNDLED_TXS_NUM = 100
     }
 }
 
