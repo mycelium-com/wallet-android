@@ -132,7 +132,7 @@ class FioModule(
 
     fun getFioTxMetadata(txid: String) =
             walletDB.fioOtherBlockchainTransactionsQueries.selectTxById(txid).executeAsOneOrNull()?.run {
-                FIOOBTransaction(obtId, payerFioAddress, payeeFioAddress)
+                FIOOBTransaction(obtId, payerFioAddress, payeeFioAddress, deserializedContent?.memo?:"")
             }
 
     private fun getFioSdk(accountIndex: Int): FIOSDK {

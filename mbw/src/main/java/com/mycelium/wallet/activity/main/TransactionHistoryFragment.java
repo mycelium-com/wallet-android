@@ -457,16 +457,24 @@ public class TransactionHistoryFragment extends Fragment {
 
          TextView otherFioName = rowView.findViewById(R.id.otherFioName);
          View fioIcon = rowView.findViewById(R.id.fioIcon);
+         TextView tvFioMemo = rowView.findViewById(R.id.tvFioMemo);
          FIOOBTransaction fioobTransaction = fioMetadataMap.get(record.getIdHex());
          if (fioobTransaction != null) {
             if (record.isIncoming()) {
-               otherFioName.setText(getString(R.string.transaction_from_address_prefix, fioobTransaction.getFromFIOName()));
+               otherFioName.setText(getString(R.string.transaction_from_address_prefix, fioobTransaction.getFromFioName()));
             } else {
-               otherFioName.setText(getString(R.string.transaction_to_address_prefix, fioobTransaction.getToFIOName()));
+               otherFioName.setText(getString(R.string.transaction_to_address_prefix, fioobTransaction.getToFioName()));
+            }
+            if(fioobTransaction.getMemo().isEmpty()) {
+               tvFioMemo.setVisibility(View.GONE);
+            } else {
+               tvFioMemo.setVisibility(View.VISIBLE);
+               tvFioMemo.setText(fioobTransaction.getMemo());
             }
             otherFioName.setVisibility(View.VISIBLE);
             fioIcon.setVisibility(View.VISIBLE);
          } else {
+            tvFioMemo.setVisibility(View.GONE);
             otherFioName.setVisibility(View.GONE);
             fioIcon.setVisibility(View.GONE);
          }

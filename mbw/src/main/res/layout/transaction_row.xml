@@ -90,6 +90,17 @@
                     tools:text="To: newfriend@domain" />
 
                 <TextView
+                        android:id="@+id/tvFioMemo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        app:layout_constraintTop_toBottomOf="@id/otherFioName"
+                        tools:text="Gracias Andres por una experiencia muy divertida. Aquí te mando mi parte de la cena." />
+
+                <TextView
                     android:id="@+id/tvTransactionLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -97,7 +108,7 @@
                     android:textSize="13sp"
                     android:typeface="monospace"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/otherFioName"
+                    app:layout_constraintTop_toBottomOf="@id/tvFioMemo"
                     tools:text="placeholderLabel" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
