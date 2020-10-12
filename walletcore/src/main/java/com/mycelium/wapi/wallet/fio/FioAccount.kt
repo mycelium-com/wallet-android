@@ -62,7 +62,9 @@ class FioAccount(private val accountContext: FioAccountContext,
      */
     fun registerFIOAddress(fioAddress: String): String? =
             fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
-                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration
+                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration.apply {
+                syncFioAddresses()
+            }
 
     /**
      * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
