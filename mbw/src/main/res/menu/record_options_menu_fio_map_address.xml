@@ -21,4 +21,8 @@
         android:id="@+id/miAboutFIOProtocol"
         android:title="About FIO Protocol" />
 
+    <item
+        android:id="@+id/miFIORequests"
+        android:title="FIO Requests" />
+
 </menu>

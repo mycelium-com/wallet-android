@@ -3,4 +3,8 @@
     <item
         android:id="@+id/miMapToFio"
         android:title="My FIO Names"/>
+
+    <item
+        android:id="@+id/miFIORequests"
+        android:title="FIO Requests" />
 </menu>

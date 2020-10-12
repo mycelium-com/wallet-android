@@ -37,7 +37,6 @@ package com.mycelium.wallet.activity.modern;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableString;
@@ -66,9 +65,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
-import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
-import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
@@ -137,6 +134,7 @@ public class ModernMain extends AppCompatActivity {
     TabLayout.Tab mNewsTab;
     TabLayout.Tab mAccountsTab;
     TabLayout.Tab mRecommendationsTab;
+    private TabLayout.Tab mFioRequestsTab;
     private MenuItem refreshItem;
     private Toaster _toaster;
     private volatile long _lastSync = 0;
@@ -172,10 +170,11 @@ public class ModernMain extends AppCompatActivity {
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
         mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null, TAB_BALANCE);
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null, TAB_HISTORY);
-        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_fio_requests)), FioRequestsHistoryFragment.class, null, TAB_FIO_REQUESTS);
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);
+        mFioRequestsTab = tabLayout.newTab().setText(getString(R.string.tab_fio_requests));
+        mTabsAdapter.addTab(mFioRequestsTab, FioRequestsHistoryFragment.class, null, TAB_FIO_REQUESTS);
         final Bundle addressBookConfig = new Bundle();
         addressBookConfig.putBoolean(AddressBookFragment.OWN, false);
         addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
@@ -445,6 +444,11 @@ public class ModernMain extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+    public void selectRequestTab(){
+        int item = mTabsAdapter.indexOf(TAB_FIO_REQUESTS);
+        mViewPager.setCurrentItem(item);
+    }
+
     @SuppressWarnings("unused")
     private boolean canObtainLocation() {
         final boolean hasFeature = getPackageManager().hasSystemFeature("android.hardware.location.network");
@@ -505,6 +509,9 @@ public class ModernMain extends AppCompatActivity {
                 break;
             case R.id.miMyFIONames:
                 startActivity(new Intent(this, AccountMappingActivity.class));
+                break;
+            case R.id.miFIORequests:
+                selectRequestTab();
                 break;
         }
         return super.onOptionsItemSelected(item);

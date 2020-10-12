@@ -697,6 +697,9 @@ public class AccountsFragment extends Fragment {
                     case R.id.miMapToFio:
                         FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;
+                    case R.id.miFIORequests:
+                        ((ModernMain)getActivity()).selectRequestTab();
+                        return true;
                     case R.id.miAboutFIOProtocol:
                         new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
                         break;

@@ -4,4 +4,8 @@
     <item
         android:id="@+id/miMyFIONames"
         android:title="My FIO Names" />
+
+    <item
+        android:id="@+id/miFIORequests"
+        android:title="FIO Requests" />
 </menu>
