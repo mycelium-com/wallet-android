@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -36,6 +38,7 @@ import asStringRes
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import kotlinx.android.synthetic.main.receive_coins_activity_fio_name.*
 import kotlinx.android.synthetic.main.receive_coins_activity_share.*
 import java.util.*
 
@@ -75,6 +78,19 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         if (viewModel is ReceiveBtcViewModel &&
                 (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
             createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
+        }
+        fioNameSpinner.adapter = ArrayAdapter<String>(this,
+                R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value).apply {
+            setDropDownViewResource(R.layout.layout_receive_fio_names_dropdown)
+        }
+        fioNameSpinner.onItemSelectedListener = object:AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                viewModel.onFioNameSelected(fioNameSpinner.getItemAtPosition(position))
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                viewModel.onFioNameSelected(null)
+            }
         }
         supportActionBar?.run {
             title = getString(R.string.receive_cointype, viewModel.getCurrencyName())
