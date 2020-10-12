@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.main.address
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -79,15 +80,22 @@ class AddressFragment : Fragment() {
             }
         })
 
+        val preference = requireContext().getSharedPreferences("fio_balance_screen_preference", Context.MODE_PRIVATE)
         viewModel.getRegisteredFIONames().observe(this, Observer { names ->
-            fioNamesSpinner?.adapter = ArrayAdapter(context,
+            val spinnerAdapter: ArrayAdapter<String> = ArrayAdapter(context,
                     R.layout.layout_address_fragment_fio_names, R.id.text, names.map { it.name }).apply {
                 setDropDownViewResource(R.layout.layout_address_fragment_fio_names_dropdown)
+            }
+            fioNamesSpinner?.adapter = spinnerAdapter
+            if (names.isNotEmpty()) {
+                val selectedName = preference.getString("selectedFioNameFor${mbwManager.selectedAccount.label}", names.first().name)
+                fioNamesSpinner?.setSelection(spinnerAdapter.getPosition(selectedName))
             }
             fioNamesSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(p0: AdapterView<*>?) {}
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                     tvBundledTxsNum.text = "Bundled transactions: ${names[p2].bundledTxsNum}"
+                    preference.edit().putString("selectedFioNameFor${mbwManager.selectedAccount.label}", names[p2].name).apply()
                 }
             }
         })

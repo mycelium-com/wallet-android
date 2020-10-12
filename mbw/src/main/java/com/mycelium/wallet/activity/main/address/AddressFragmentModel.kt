@@ -11,6 +11,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
+import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
@@ -106,13 +107,17 @@ class AddressFragmentModel(
         account = mbwManager.selectedAccount
         updateLabel()
         onAddressChange()
-        updateRegisteredFIONames()
         mbwManager.getWalletManager(false).run {
             if (hasAccount(event.account)) {
                 startSynchronization(
                         SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(getAccount(event.account) ?: return@run))
             }
         }
+    }
+
+    @Subscribe
+    fun syncStopped(event: SyncStopped) {
+        updateRegisteredFIONames()
     }
 
     fun onAddressChange() {
