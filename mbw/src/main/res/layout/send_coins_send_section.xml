@@ -19,15 +19,18 @@
     <merge>
 
         <Button
-                android:id="@+id/btSend"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_gravity="center"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="10dp"
-                android:enabled="@{viewModel.getTransactionStatus == TransactionStatus.OK}"
-                android:text="@string/send"
-                android:onClick="@{_ -> activity.onClickSend()}"
-                android:textSize="20sp" />
+            android:id="@+id/btSend"
+            style="@style/MyceliumButton.FIO"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="14sp"
+            android:enabled="@{viewModel.getTransactionStatus == TransactionStatus.OK}"
+            android:onClick="@{_ -> activity.onClickSend()}"
+            android:text="@string/send"
+             />
     </merge>
 </layout>

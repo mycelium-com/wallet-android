@@ -23,7 +23,7 @@ class AccountMappingViewModel : ViewModel() {
     fun update() {
         val fewTransactions = bundledTransactions.value ?: 0 < 10
         fewTransactionsLeft.postValue(fewTransactions)
-        shouldRenew.postValue( fewTransactions || soonExpiring())
+        shouldRenew.postValue(fewTransactions || soonExpiring())
     }
 
     companion object {

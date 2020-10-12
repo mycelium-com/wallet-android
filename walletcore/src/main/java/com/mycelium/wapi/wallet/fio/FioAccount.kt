@@ -10,6 +10,7 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.fio.FioModule.Companion.DEFAULT_BUNDLED_TXS_NUM
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
@@ -40,21 +41,13 @@ class FioAccount(private val accountContext: FioAccountContext,
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
     }
 
-    var registeredFIONames: MutableList<RegisteredFIOName> = accountContext.registeredFIONames?.toMutableList()
-            ?: mutableListOf()
+    val registeredFIONames: MutableList<RegisteredFIOName>
+        get() = accountContext.registeredFIONames?.toMutableList()
+                ?: mutableListOf()
 
-    var registeredFIODomains: MutableList<FIODomain> = accountContext.registeredFIODomains?.toMutableList()
-            ?: mutableListOf()
-
-    private fun addRegisteredAddress(address: RegisteredFIOName) {
-        registeredFIONames.add(address)
-        accountContext.registeredFIONames = registeredFIONames
-    }
-
-    private fun addRegisteredDomain(domain: FIODomain) {
-        registeredFIODomains.add(domain)
-        accountContext.registeredFIODomains = registeredFIODomains
-    }
+    val registeredFIODomains: MutableList<FIODomain>
+        get() = accountContext.registeredFIODomains?.toMutableList()
+                ?: mutableListOf()
 
     @Volatile
     private var syncing = false
@@ -69,17 +62,14 @@ class FioAccount(private val accountContext: FioAccountContext,
      */
     fun registerFIOAddress(fioAddress: String): String? =
             fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
-                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration?.also {
-                addRegisteredAddress(RegisteredFIOName(fioAddress, convertToDate(it)))
-            }
+                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration
 
     /**
      * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
      */
-    fun registerFIODomain(fioDomain: String): String? {
-        return fiosdk!!.registerFioDomain(fioDomain, receivingAddress.toString(),
-                getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration
-    }
+    fun registerFIODomain(fioDomain: String): String? =
+            fiosdk!!.registerFioDomain(fioDomain, receivingAddress.toString(),
+                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration
 
     @ExperimentalUnsignedTypes
     fun setDomainVisibility(fioDomain: String, isPublic: Boolean): PushTransactionResponse.ActionTraceResponse? {
@@ -120,9 +110,11 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun getFioNames(): List<RegisteredFIOName> = try {
-        FioTransactionHistoryService.getFioNames(coinType as FIOToken,
+        val fioToken = coinType as FIOToken
+        FioTransactionHistoryService.getFioNames(fioToken,
                 receivingAddress.toString())?.fio_addresses?.map {
-            RegisteredFIOName(it.fio_address, convertToDate(it.expiration))
+            val bundledTxsNum = FioTransactionHistoryService.getBundledTxsNum(fioToken, it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
+            RegisteredFIOName(it.fio_address, convertToDate(it.expiration), bundledTxsNum)
         } ?: emptyList()
     } catch (e: Exception) {
         emptyList()
@@ -299,21 +291,11 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioAddresses() {
-        val fioNames = getFioNames()
-        fioNames.forEach {
-            if (it !in registeredFIONames) {
-                addRegisteredAddress(it)
-            }
-        }
+        accountContext.registeredFIONames = getFioNames()
     }
 
     private fun syncFioDomains() {
-        val fioDomains = getFioDomains()
-        fioDomains.forEach {
-            if (it !in registeredFIODomains) {
-                addRegisteredDomain(it)
-            }
-        }
+        accountContext.registeredFIODomains = getFioDomains()
     }
 
     private fun updateBlockHeight() {
