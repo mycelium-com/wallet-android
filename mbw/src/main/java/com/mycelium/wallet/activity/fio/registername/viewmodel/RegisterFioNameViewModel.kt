@@ -13,13 +13,15 @@ class RegisterFioNameViewModel : ViewModel() {
     val accountToPayFeeFrom = MutableLiveData<WalletAccount<*>>()
     val registrationFee = MutableLiveData<Value>()
     val address = MutableLiveData<String>("")
-    val domain = MutableLiveData<FIODomain>(DEFAULT_DOMAIN)
+    val domain = MutableLiveData<FIODomain>(DEFAULT_DOMAIN1)
     val addressWithDomain = MutableLiveData<String>()
     val isFioAddressAvailable = MutableLiveData<Boolean>(true)
     val isFioAddressValid = MutableLiveData<Boolean>(true)
     val isFioServiceAvailable = MutableLiveData<Boolean>(true)
+    val isRenew = MutableLiveData(false)
 
     companion object {
-        val DEFAULT_DOMAIN = FIODomain("fiotestnet", Date(), true)
+        val DEFAULT_DOMAIN1 = FIODomain("mycelium", Date(), true)
+        val DEFAULT_DOMAIN2 = FIODomain("fiotestnet", Date(), true)
     }
 }

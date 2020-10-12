@@ -11,8 +11,8 @@ class RegisterFioDomainViewModel : ViewModel() {
     val accountToPayFeeFrom = MutableLiveData<WalletAccount<*>>()
     val registrationFee = MutableLiveData<Value>()
     val domain = MutableLiveData<String>("")
-    val expirationDate = MutableLiveData<String>("")
     val isFioDomainAvailable = MutableLiveData<Boolean>(true)
     val isFioDomainValid = MutableLiveData<Boolean>(true)
     val isFioServiceAvailable = MutableLiveData<Boolean>(true)
+    val isRenew = MutableLiveData(false)
 }

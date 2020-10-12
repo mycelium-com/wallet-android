@@ -16,6 +16,4 @@ class RegisterFioNameFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         desc.text = resources.getText(R.string.fio_create_name_description)
     }
-
-
 }

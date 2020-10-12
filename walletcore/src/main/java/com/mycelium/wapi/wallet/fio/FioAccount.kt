@@ -71,6 +71,14 @@ class FioAccount(private val accountContext: FioAccountContext,
             fiosdk!!.registerFioDomain(fioDomain, receivingAddress.toString(),
                     getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration
 
+    fun renewFIOAddress(fioAddress: String): String? =
+            fiosdk!!.renewFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioAddress))
+                    .getActionTraceResponse()?.expiration
+
+    fun renewFIODomain(fioDomain: String): String? =
+            fiosdk!!.renewFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioDomain))
+                    .getActionTraceResponse()?.expiration
+
     @ExperimentalUnsignedTypes
     fun setDomainVisibility(fioDomain: String, isPublic: Boolean): PushTransactionResponse.ActionTraceResponse? {
         val fee = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.SetDomainVisibility).fee

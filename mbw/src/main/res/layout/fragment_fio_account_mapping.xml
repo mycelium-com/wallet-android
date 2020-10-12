@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -11,7 +12,7 @@
             type="com.mycelium.wallet.activity.fio.mapaccount.viewmodel.AccountMappingViewModel" />
     </data>
 
-    <androidx.core.widget.NestedScrollView xmlns:tools="http://schemas.android.com/tools"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -64,41 +65,39 @@
                     app:layout_constraintTop_toBottomOf="@id/fioName"
                     tools:text="@string/fio_account_s" />
 
-                <TextView
-                    android:id="@+id/bundledTxsNum"
-                    style="@style/fio_account"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/llBundled"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
-                    android:text="@string/bundled_transactions"
+                    android:orientation="horizontal"
                     app:layout_constraintLeft_toRightOf="@id/coinIcon"
-                    app:layout_constraintTop_toBottomOf="@id/fioAccount"
-                    app:layout_goneMarginBottom="16dp" />
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fioAccount">
 
-                <TextView
-                    android:id="@+id/bundledTxsNumValue"
-                    style="@style/fio_account"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="3dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@{viewModel.intToString(viewModel.fioName.bundledTxsNum)}"
-                    app:layout_constraintBottom_toBottomOf="@id/bundledTxsNum"
-                    app:layout_constraintLeft_toRightOf="@id/bundledTxsNum"
-                    app:layout_goneMarginBottom="16dp"
-                    tools:text="90" />
+                    <TextView
+                        style="@style/fio_account"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bundled transactions: " />
 
-                <ImageView
-                    android:id="@+id/bundledTxsNumInfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    app:layout_constraintBottom_toBottomOf="@id/bundledTxsNumValue"
-                    app:layout_constraintLeft_toRightOf="@id/bundledTxsNumValue"
-                    app:layout_constraintTop_toTopOf="@id/bundledTxsNumValue"
-                    app:srcCompat="@drawable/ic_info_icon" />
+                    <TextView
+                        style="@style/fio_account"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.bundledTransactions.toString()}"
+                        android:textColor="@{viewModel.fewTransactionsLeft ? @color/fio_red : @color/white}"
+                        tools:text="46" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="2dp"
+                        app:srcCompat="@drawable/ic_info_icon" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/expireDate"
@@ -109,7 +108,7 @@
                     android:layout_marginEnd="16dp"
                     android:text="@string/expiration_date"
                     app:layout_constraintLeft_toRightOf="@id/coinIcon"
-                    app:layout_constraintTop_toBottomOf="@id/bundledTxsNum"
+                    app:layout_constraintTop_toBottomOf="@id/llBundled"
                     app:layout_goneMarginBottom="16dp" />
 
                 <ImageView
@@ -118,7 +117,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="2dp"
                     android:layout_marginBottom="2dp"
-                    android:visibility="@{viewModel.isExpired(viewModel.fioName.expireDate) ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{viewModel.soonExpiring() ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="@id/expireDate"
                     app:layout_constraintLeft_toRightOf="@id/expireDate"
                     app:srcCompat="@drawable/ic_fio_error" />
@@ -132,11 +131,11 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
                     android:text="@{viewModel.dateToString(viewModel.fioName.expireDate)}"
-                    android:textColor="@{viewModel.isExpired(viewModel.fioName.expireDate) ? @color/fio_red : @color/white}"
+                    android:textColor="@{viewModel.soonExpiring() ? @color/fio_red : @color/white}"
                     app:layout_constraintBottom_toTopOf="@id/renewFIOName"
                     app:layout_constraintLeft_toRightOf="@id/expireDateIcon"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/bundledTxsNum"
+                    app:layout_constraintTop_toBottomOf="@id/llBundled"
                     app:layout_goneMarginBottom="16dp"
                     tools:text="September 20, 2021 \n6:23pm" />
 
@@ -147,7 +146,6 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:text="@string/renew_fio_name"
-                    android:visibility="@{viewModel.isExpired(viewModel.fioName.expireDate) ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
 

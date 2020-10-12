@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_margin="18dp"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/create_fio_name_bg"
+            android:padding="18dp">
+
+            <ImageView
+                android:id="@+id/imFioLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+
+            <TextView
+                android:id="@+id/tvFioName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@id/imFioLogo"
+                app:layout_constraintTop_toTopOf="@id/imFioLogo"
+                app:layout_constraintBottom_toBottomOf="@id/imFioLogo"
+                tools:text="myfiowallet@mycelium" />
+
+            <TextView
+                android:id="@+id/tvRenewInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:text="Renew your FIO Domain to continue benefit from FIO protocol."
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/imFioLogo" />
+
+            <TextView
+                android:id="@+id/tvAnnualFeeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Annual fee:"
+                android:textColor="#99FFFFFF"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRenewInfo" />
+
+            <TextView
+                android:id="@+id/tvAnnualFee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="7dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.registrationFee)}"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvAnnualFeeTitle"
+                app:layout_constraintStart_toEndOf="@id/tvAnnualFeeTitle"
+                tools:text="9.066079 FIO" />
+
+            <TextView
+                android:id="@+id/tvPayFrom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Pay from:"
+                android:textColor="#99FFFFFF"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvAnnualFeeTitle" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinnerPayFromAccounts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:paddingStart="4dp"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@id/tvPayFrom"
+                app:layout_constraintStart_toEndOf="@id/tvPayFrom"
+                app:layout_constraintTop_toTopOf="@id/tvPayFrom" />
+
+            <TextView
+                android:id="@+id/tvRenewTillTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Renew till:"
+                android:textColor="#99FFFFFF"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPayFrom" />
+
+            <TextView
+                android:id="@+id/tvRenewTill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvRenewTillTitle"
+                app:layout_constraintStart_toEndOf="@id/tvRenewTillTitle"
+                tools:text="September 20, 2022 at 6:23pm" />
+
+            <TextView
+                android:id="@+id/tvNotEnoughFundsError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="70dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/fio_not_sufficient_funds_on_selected_account"
+                android:textColor="@color/fio_red"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toTopOf="@id/btNextButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRenewTillTitle" />
+
+            <Button
+                android:id="@+id/btNextButton"
+                style="@style/FioNameRegistrationButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:text="@string/fio_confirm_and_pay"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvRenewTillTitle" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

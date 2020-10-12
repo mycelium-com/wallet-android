@@ -301,6 +301,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 null
             }
         }
+
         // https://developers.fioprotocol.io/api/api-spec/reference/get-table-rows/get-table-rows#compute-index
         private fun getNameHash(fioName: String): String {
             val reverseBytes = HexUtils.toBytes(HashUtils.sha1(fioName).substring(0, 32))

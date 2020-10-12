@@ -24,7 +24,8 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
-import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel.Companion.DEFAULT_DOMAIN
+import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel.Companion.DEFAULT_DOMAIN1
+import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel.Companion.DEFAULT_DOMAIN2
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep1BindingImpl
 import com.mycelium.wapi.wallet.fio.FIODomain
@@ -69,7 +70,8 @@ class RegisterFioNameStep1Fragment : Fragment() {
     private fun getDomains(): List<FIODomain> {
         val fioModule = (MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule)
         val domains: MutableList<FIODomain> = mutableListOf()
-        domains.add(DEFAULT_DOMAIN)
+        domains.add(DEFAULT_DOMAIN1)
+        domains.add(DEFAULT_DOMAIN2)
         domains.addAll(fioModule.getAllRegisteredFioDomains())
         return domains
     }

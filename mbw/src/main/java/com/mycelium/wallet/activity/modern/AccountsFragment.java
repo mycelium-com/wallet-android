@@ -685,9 +685,7 @@ public class AccountsFragment extends Fragment {
                 int id = menuItem.getItemId();
                 switch (id) {
                     case R.id.miMapFioAddress:
-                        Intent intent = new Intent(requireActivity(), RegisterFioNameActivity.class)
-                                .putExtra("account", account.getId());
-                        startActivity(intent);
+                        RegisterFioNameActivity.start(requireContext(), account.getId());
                         return true;
                     case R.id.miRegisterFioDomain:
                         startActivity(new Intent(requireActivity(), RegisterFIODomainActivity.class)

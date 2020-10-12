@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.fio.mapaccount
 
 import android.app.Activity.RESULT_OK
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,6 +15,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -34,11 +34,13 @@ import com.mycelium.wapi.wallet.erc20.getActiveERC20Accounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
+import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.concurrent.thread
 
 
 class FIONameDetailsFragment : Fragment() {
@@ -47,6 +49,7 @@ class FIONameDetailsFragment : Fragment() {
 
     val adapter = AccountMappingAdapter()
     val data = mutableListOf<Item>()
+    private lateinit var fioAccount: FioAccount
 
     val args: FIONameDetailsFragmentArgs by navArgs()
 
@@ -69,8 +72,13 @@ class FIONameDetailsFragment : Fragment() {
         list.itemAnimator = null
         viewModel.fioName.value = args.fioName
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-        fioModule.getFioAccountByFioName(args.fioName.name)?.run {
-            viewModel.fioAccount.value = walletManager.getAccount(this) as FioAccount
+        fioAccount = fioModule.getFioAccountByFioName(args.fioName.name)!!.let { accountId ->
+            walletManager.getAccount(accountId) as FioAccount
+        }
+        viewModel.fioAccount.value = fioAccount
+        thread {
+            viewModel.bundledTransactions.postValue(
+                    FioTransactionHistoryService.getBundledTxsNum(Utils.getFIOCoinType(), args.fioName.name))
         }
         adapter.selectChangeListener = { accountItem ->
             data.filterIsInstance<ItemAccount>()
@@ -78,7 +86,7 @@ class FIONameDetailsFragment : Fragment() {
                     .forEach {
                         data[data.indexOf(it)] = ItemAccount(it.accountId, it.label, it.summary,
                                 it.icon, it.coinType,
-                                if (it.accountId != accountItem.accountId) false else accountItem.isEnabled)
+                                it.accountId == accountItem.accountId && accountItem.isEnabled)
                     }
             val enabledList = data.filterIsInstance<ItemAccount>().filter { it.isEnabled }
             acknowledge?.visibility = if (enabledList.isEmpty()) INVISIBLE else VISIBLE
@@ -91,9 +99,14 @@ class FIONameDetailsFragment : Fragment() {
             updateList(walletManager, preference)
         }
         updateList(walletManager, preference)
+        llBundled.setOnClickListener {
+            Toast.makeText(requireContext(),
+                    "TODO: add an explanation of how FIO bundled transactions work.",
+                    Toast.LENGTH_SHORT).show()
+        }
         renewFIOName.setOnClickListener {
-            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
-                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
+            val fioName = viewModel.fioName.value!!.name
+            RegisterFioNameActivity.startRenew(requireContext(), fioAccount.id, fioName)
         }
         buttonContinue.setOnClickListener {
             val accounts = adapter.currentList
@@ -118,6 +131,9 @@ class FIONameDetailsFragment : Fragment() {
             } else {
                 Toaster(this).toast("accounts disconnected", false)
             }
+        }
+        viewModel.bundledTransactions.observe(viewLifecycleOwner) {
+            viewModel.update()
         }
     }
 

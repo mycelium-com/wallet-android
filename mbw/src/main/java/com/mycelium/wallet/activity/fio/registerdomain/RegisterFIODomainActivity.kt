@@ -1,5 +1,7 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
+import android.content.Context
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -30,12 +32,11 @@ class RegisterFIODomainActivity : AppCompatActivity() {
             setDisplayShowTitleEnabled(true)
             title = "Register FIO Domain"
         }
-        supportFragmentManager.beginTransaction().add(R.id.container, RegisterFioDomainFragment()).commit()
 
         viewModel = ViewModelProviders.of(this).get(RegisterFioDomainViewModel::class.java)
 
         // set default fee at first, it will be updated in async task
-        viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), RegisterFioNameActivity.DEFAULT_FEE)
+        viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
         viewModel.domain.observe(this, Observer { domain ->
             if (viewModel.domain.value!!.isNotEmpty()) {
                 viewModel.isFioDomainValid.value = domain.isFioDomain().also { domainValid ->
@@ -52,9 +53,15 @@ class RegisterFIODomainActivity : AppCompatActivity() {
                 }
             }
         })
-        (intent.getSerializableExtra("account") as? UUID)?.let {
+        (intent.getSerializableExtra(EXT_ACCOUNT) as? UUID)?.let {
             val walletManager = MbwManager.getInstance(this).getWalletManager(false)
             viewModel.fioAccountToRegisterName.value = walletManager.getAccount(it) as? FioAccount
+        }
+        (intent.getSerializableExtra(EXT_RENEW) as? Boolean)?.let {
+            viewModel.isRenew.value = true
+            (intent.getSerializableExtra(EXT_FIO_DOMAIN) as? String)?.let {
+                viewModel.domain.value = it
+            }
         }
         RegisterFioNameActivity.UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
@@ -62,6 +69,12 @@ class RegisterFIODomainActivity : AppCompatActivity() {
                 Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+
+        if (viewModel.isRenew.value!!) {
+            supportFragmentManager.beginTransaction().add(R.id.container, RenewFioDomainFragment()).commit()
+        } else {
+            supportFragmentManager.beginTransaction().add(R.id.container, RegisterFioDomainFragment()).commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
@@ -72,4 +85,28 @@ class RegisterFIODomainActivity : AppCompatActivity() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    companion object {
+        private const val EXT_ACCOUNT = "account"
+        private const val EXT_FIO_DOMAIN = "fioDomain"
+        private const val EXT_RENEW = "renew"
+        const val DEFAULT_FEE = "200000000000" // 200 FIO
+
+        fun start(context: Context) {
+            context.startActivity(Intent(context, RegisterFIODomainActivity::class.java))
+        }
+
+        @JvmStatic
+        fun start(context: Context, account: UUID) {
+            context.startActivity(Intent(context, RegisterFIODomainActivity::class.java)
+                    .putExtra(EXT_ACCOUNT, account))
+        }
+
+        fun startRenew(context: Context, account: UUID, fioDomain: String) {
+            context.startActivity(Intent(context, RegisterFIODomainActivity::class.java)
+                    .putExtra(EXT_ACCOUNT, account)
+                    .putExtra(EXT_FIO_DOMAIN, fioDomain)
+                    .putExtra(EXT_RENEW, true))
+        }
+    }
 }

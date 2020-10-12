@@ -1,5 +1,7 @@
 package com.mycelium.wallet.activity.fio.registername
 
+import android.content.Context
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -31,18 +33,11 @@ class RegisterFioNameActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
             title = resources.getString(R.string.fio_register_address)
         }
-        supportFragmentManager.beginTransaction().add(R.id.container, RegisterFioNameFragment()).commit()
 
         viewModel = ViewModelProviders.of(this).get(RegisterFioNameViewModel::class.java)
 
         // set default fee at first, it will be updated in async task
         viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
-        viewModel.address.observe(this, Observer {
-            viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
-        })
-        viewModel.domain.observe(this, Observer {
-            viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
-        })
         viewModel.addressWithDomain.observe(this, Observer { addressWithDomain ->
             if (viewModel.address.value!!.isNotEmpty()) {
                 viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
@@ -59,9 +54,16 @@ class RegisterFioNameActivity : AppCompatActivity() {
                 }
             }
         })
-        (intent.getSerializableExtra("account") as? UUID)?.let {
+        (intent.getSerializableExtra(EXT_ACCOUNT) as? UUID)?.let {
             val walletManager = MbwManager.getInstance(this).getWalletManager(false)
             viewModel.fioAccountToRegisterName.value = walletManager.getAccount(it) as? FioAccount
+        }
+        (intent.getSerializableExtra(EXT_RENEW) as? Boolean)?.let {
+            viewModel.isRenew.value = true
+            (intent.getSerializableExtra(EXT_FIO_NAME) as? String)?.let {
+                viewModel.addressWithDomain.value = it
+                viewModel.address.value = it.split("@")[0]
+            }
         }
         UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
@@ -69,6 +71,18 @@ class RegisterFioNameActivity : AppCompatActivity() {
                 Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+
+        if (viewModel.isRenew.value!!) {
+            supportFragmentManager.beginTransaction().add(R.id.container, RenewFioNameFragment()).commit()
+        } else {
+            viewModel.address.observe(this, Observer {
+                viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
+            })
+            viewModel.domain.observe(this, Observer {
+                viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
+            })
+            supportFragmentManager.beginTransaction().add(R.id.container, RegisterFioNameFragment()).commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
@@ -81,7 +95,7 @@ class RegisterFioNameActivity : AppCompatActivity() {
             }
 
     class UpdateFeeTask(
-            val endpoint: String,
+            private val endpoint: String,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
@@ -115,6 +129,26 @@ class RegisterFioNameActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val EXT_ACCOUNT = "account"
+        private const val EXT_FIO_NAME = "fioName"
+        private const val EXT_RENEW = "renew"
         const val DEFAULT_FEE = "10000000000" // 10 FIO
+
+        fun start(context: Context) {
+            context.startActivity(Intent(context, RegisterFioNameActivity::class.java))
+        }
+
+        @JvmStatic
+        fun start(context: Context, account: UUID) {
+            context.startActivity(Intent(context, RegisterFioNameActivity::class.java)
+                    .putExtra(EXT_ACCOUNT, account))
+        }
+
+        fun startRenew(context: Context, account: UUID, fioName: String) {
+            context.startActivity(Intent(context, RegisterFioNameActivity::class.java)
+                    .putExtra(EXT_ACCOUNT, account)
+                    .putExtra(EXT_FIO_NAME, fioName)
+                    .putExtra(EXT_RENEW, true))
+        }
     }
 }
