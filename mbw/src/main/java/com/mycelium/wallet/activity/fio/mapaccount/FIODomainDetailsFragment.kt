@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
-import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.*
@@ -16,6 +15,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.AccountNamesAdapter
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.FIONameItem
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIODomainViewModel
+import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
@@ -70,6 +70,10 @@ class FIODomainDetailsFragment : Fragment() {
         createFIOName.setOnClickListener {
             RegisterFioNameActivity.start(requireContext(),
                     MbwManager.getInstance(requireContext()).selectedAccount.id)
+        }
+        renewFIOName.setOnClickListener {
+            val fioName = viewModel.fioDomain.value!!.domain
+            RegisterFIODomainActivity.startRenew(requireContext(), viewModel.fioAccount.value!!.id, fioName)
         }
     }
 

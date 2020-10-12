@@ -69,7 +69,7 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
                     MbwManager.getInstance(requireContext()).selectedAccount.id)
         }
         adapter.registerFIODomainListener = {
-            RegisterFioNameActivity.start(requireContext(),
+            RegisterFIODomainActivity.start(requireContext(),
                     MbwManager.getInstance(requireContext()).selectedAccount.id)
         }
         updateList(preference, walletManager)

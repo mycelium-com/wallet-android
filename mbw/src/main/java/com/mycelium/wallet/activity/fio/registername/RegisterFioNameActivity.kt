@@ -33,18 +33,11 @@ class RegisterFioNameActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
             title = resources.getString(R.string.fio_register_address)
         }
-        supportFragmentManager.beginTransaction().add(R.id.container, RegisterFioNameFragment()).commit()
 
         viewModel = ViewModelProviders.of(this).get(RegisterFioNameViewModel::class.java)
 
         // set default fee at first, it will be updated in async task
         viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
-        viewModel.address.observe(this, Observer {
-            viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
-        })
-        viewModel.domain.observe(this, Observer {
-            viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
-        })
         viewModel.addressWithDomain.observe(this, Observer { addressWithDomain ->
             if (viewModel.address.value!!.isNotEmpty()) {
                 viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
@@ -78,6 +71,18 @@ class RegisterFioNameActivity : AppCompatActivity() {
                 Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+
+        if (viewModel.isRenew.value!!) {
+            supportFragmentManager.beginTransaction().add(R.id.container, RenewFioNameFragment()).commit()
+        } else {
+            viewModel.address.observe(this, Observer {
+                viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
+            })
+            viewModel.domain.observe(this, Observer {
+                viewModel.addressWithDomain.value = "${viewModel.address.value}@${viewModel.domain.value!!.domain}"
+            })
+            supportFragmentManager.beginTransaction().add(R.id.container, RegisterFioNameFragment()).commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
