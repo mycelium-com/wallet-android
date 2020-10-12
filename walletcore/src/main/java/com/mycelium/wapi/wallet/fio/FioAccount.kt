@@ -204,17 +204,16 @@ class FioAccount(private val accountContext: FioAccountContext,
     fun getRequestsGroups() = backing.getRequestsGroups()
 
 
-    fun rejectFunds(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
+    fun rejectFundsRequest(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
         return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
     }
 
-    fun requestFunds(
-            payerFioAddress: String, payeeFioAddress: String,
-            payeeTokenPublicAddress: String, amount: Double, chainCode: String, tokenCode: String,
-            maxFee: BigInteger, technologyPartnerId: String = ""
-    ): PushTransactionResponse {
-        return fiosdk!!.requestFunds(payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, maxFee, technologyPartnerId)
-    }
+    fun requestFunds(payerFioAddress: String, payeeFioAddress: String,
+                     payeeTokenPublicAddress: String, amount: Double, memo: String,
+                     chainCode: String, tokenCode: String, maxFee: BigInteger,
+                     technologyPartnerId: String = "") =
+            fiosdk!!.requestFunds(payerFioAddress, payeeFioAddress,
+                    payeeTokenPublicAddress, amount, chainCode, tokenCode, memo, maxFee, technologyPartnerId)
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong())

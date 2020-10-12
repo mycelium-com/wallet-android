@@ -85,6 +85,7 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                             payeeFioName.value!!,
                             payeeTokenPublicAddress.value!!,
                             getAmount().value?.value?.toDouble()!!,
+                            fioMemo.value ?: "",
                             selectedAccount.basedOnCoinType.symbol,
                             selectedAccount.coinType.symbol,
                             transferTokensFee)

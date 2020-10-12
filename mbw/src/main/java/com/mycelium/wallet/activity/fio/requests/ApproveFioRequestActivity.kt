@@ -441,7 +441,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             val listener: ((PushTransactionResponse.ActionTraceResponse?) -> Unit)) : AsyncTask<Void, Void, PushTransactionResponse.ActionTraceResponse?>() {
         override fun doInBackground(vararg args: Void): PushTransactionResponse.ActionTraceResponse? {
             return try {
-                fioAccount.rejectFunds(requestId, fioName)
+                fioAccount.rejectFundsRequest(requestId, fioName)
             } catch (e: Exception) {
                 Log.i("asdaf", "asdaf failed to reject: ${e.localizedMessage}")
                 null
