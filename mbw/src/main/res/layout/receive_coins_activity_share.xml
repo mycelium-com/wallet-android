@@ -9,51 +9,16 @@
         <variable name="viewModel" type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel"/>
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/merge2"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp" >
-        <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/button2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:onClick="@{() -> viewModel.copyToClipboard()}"
-                android:textAlignment="textStart"
-                app:drawableStartCompat="@drawable/ic_clipboard"
-                android:drawablePadding="10dp"
-                android:text="@string/copy"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btShare"
-                app:layout_constraintHorizontal_chainStyle="spread" />
-        <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btShare"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:onClick="@{() -> viewModel.shareRequest()}"
-                android:textAlignment="textStart"
-                app:drawableStartCompat="@drawable/ic_clipboard"
-                android:drawablePadding="10dp"
-                android:text="@string/share"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toEndOf="@id/button2" />
-        <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btCreateFioRequest"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:textAlignment="textStart"
-                app:drawableStartCompat="@drawable/ic_fio_logo_gray"
-                android:drawablePadding="10dp"
-                android:text="@string/fio_create_request"
-                android:visibility="@{viewModel.hasFioAccounts ? View.VISIBLE : View.GONE}"
-                app:layout_constraintTop_toBottomOf="@+id/button2"
-                app:layout_constraintStart_toStartOf="@+id/button2" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btCreateFioRequest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:drawablePadding="10dp"
+        android:text="@string/fio_create_request"
+        android:textAlignment="textStart"
+        android:visibility="@{viewModel.hasFioAccounts ? View.VISIBLE : View.GONE}"
+        app:drawableStartCompat="@drawable/ic_fio_logo_gray" />
 </layout>

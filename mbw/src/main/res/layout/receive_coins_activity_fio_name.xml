@@ -9,6 +9,8 @@
             name="viewModel"
             type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
 
+        <import type="android.view.View" />
+
         <import type="com.mycelium.wapi.wallet.AddressUtils" />
     </data>
 
@@ -17,40 +19,35 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="10dp"
+        android:visibility="@{viewModel.fioNameList.isEmpty() ? View.GONE : View.VISIBLE}"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/addressLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{@string/crypto_address(viewModel.currencyName)}"
+            android:text="@string/fio_name_label"
             android:textColor="#bbb"
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Bitcoin Address" />
+            tools:text="FIO Name:" />
 
-        <TextView
-            android:id="@+id/address"
+        <Spinner
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="0dp"
-            android:gravity="start"
-            android:text="@{AddressUtils.toDoubleLineString(viewModel.receivingAddress.toString())}"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:typeface="monospace"
+            android:layout_marginEnd="8dp"
+            android:entries="@{viewModel.fioNameList}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/copy"
-            app:layout_constraintTop_toBottomOf="@id/addressLabel"
-            tools:text="2NANEDcJ4pUZ2fvyRC\nz1pNagWkaeVi8gKVq" />
+            app:layout_constraintTop_toBottomOf="@id/addressLabel" />
 
         <ImageView
             android:id="@+id/copy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:onClick="@{() -> viewModel.copyToClipboard()}"
+            android:onClick="@{() -> viewModel.copyFioNameToClipboard()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/share"
             app:layout_constraintTop_toTopOf="parent"
@@ -60,8 +57,8 @@
             android:id="@+id/share"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> viewModel.shareFioNameRequest()}"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:onClick="@{() -> viewModel.shareRequest()}"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_share_24px" />

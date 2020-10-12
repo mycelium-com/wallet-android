@@ -34,7 +34,17 @@
                     bind:viewModel="@{viewModel}" />
 
             <!-- QR code and comment-->
-            <include layout="@layout/receive_coins_activity_qr" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="10dp">
+                <include layout="@layout/receive_coins_activity_qr" />
+                <include
+                    layout="@layout/receive_coins_activity_nfc"
+                    bind:activity="@{activity}"
+                    bind:viewModel="@{viewModel}" />
+            </FrameLayout>
 
             <!-- Warning if account is RO -->
             <include
@@ -48,21 +58,14 @@
                     bind:viewModel="@{viewModel}" />
 
             <!-- Bitcoin Address -->
-            <FrameLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="20dp">
 
-                <include
-                        layout="@layout/receive_coins_activity_addr"
-                        bind:viewModel="@{viewModel}" />
+            <include
+                    layout="@layout/receive_coins_activity_addr"
+                    bind:viewModel="@{viewModel}" />
 
-                <include
-                        layout="@layout/receive_coins_activity_nfc"
-                        bind:activity="@{activity}"
-                        bind:viewModel="@{viewModel}" />
-            </FrameLayout>
+            <include
+                    layout="@layout/receive_coins_activity_fio_name"
+                    bind:viewModel="@{viewModel}" />
 
             <!-- Amount -->
 

@@ -35,7 +35,7 @@
 
             <!-- QR code, NFC indicator and comment-->
             <FrameLayout
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginVertical="10dp">
@@ -51,17 +51,16 @@
                 bind:viewModel="@{viewModel}" />
 
             <!-- Bitcoin Address -->
-            <FrameLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginVertical="10dp">
 
-                <include
-                    layout="@layout/receive_coins_activity_addr"
-                    bind:viewModel="@{viewModel}"/>
+            <include
+                layout="@layout/receive_coins_activity_addr"
+                bind:viewModel="@{viewModel}"/>
 
-            </FrameLayout>
+            <!-- Fio Name -->
+
+            <include
+                layout="@layout/receive_coins_activity_fio_name"
+                bind:viewModel="@{viewModel}"/>
 
             <!-- Amount -->
 

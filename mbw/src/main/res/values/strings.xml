@@ -283,6 +283,7 @@
     <string name="out_of_memory_error">ERROR: Your device does not have enough memory to complete this task</string>
     <string name="share_payment_request">Share Payment Request</string>
     <string name="share_bitcoin_address">Share Bitcoin Address</string>
+    <string name="share_fio_name">Share FIO Name</string>
     <string name="optional_amount">Optional Amount</string>
     <string name="show_qr_code_menu">Show QR Code</string>
     <string name="tab_accounts">Accounts</string>
@@ -1439,4 +1440,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_register_name">Register FIO Name</string>
     <string name="fio_register_domain">Register FIO Domain</string>
     <string name="fio_manage_name_need_mapping_s"><b>%s</b> is not connect to a FIO Name.  Select FIO Name to connect to:</string>
+    <string name="fio_name_label">FIO Name:</string>
 </resources>
