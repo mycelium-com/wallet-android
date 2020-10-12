@@ -65,12 +65,12 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
             updateList(preference, walletManager)
         }
         adapter.registerFIONameListener = {
-            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
-                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
+            RegisterFioNameActivity.start(requireContext(),
+                    MbwManager.getInstance(requireContext()).selectedAccount.id)
         }
         adapter.registerFIODomainListener = {
-            startActivity(Intent(requireActivity(), RegisterFIODomainActivity::class.java)
-                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
+            RegisterFioNameActivity.start(requireContext(),
+                    MbwManager.getInstance(requireContext()).selectedAccount.id)
         }
         updateList(preference, walletManager)
     }

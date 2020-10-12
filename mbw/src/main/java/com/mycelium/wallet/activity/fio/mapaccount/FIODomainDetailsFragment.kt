@@ -68,8 +68,8 @@ class FIODomainDetailsFragment : Fragment() {
         }
         updateList(walletManager)
         createFIOName.setOnClickListener {
-            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java)
-                    .putExtra("account", MbwManager.getInstance(requireContext()).selectedAccount.id))
+            RegisterFioNameActivity.start(requireContext(),
+                    MbwManager.getInstance(requireContext()).selectedAccount.id)
         }
     }
 
@@ -87,7 +87,7 @@ class FIODomainDetailsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.miAddFIOName) {
-            startActivity(Intent(requireActivity(), RegisterFioNameActivity::class.java))
+            RegisterFioNameActivity.start(requireContext())
             return true
         } else if (item.itemId == R.id.miMakeDomainPublic) {
             if (args.domain.isPublic) {

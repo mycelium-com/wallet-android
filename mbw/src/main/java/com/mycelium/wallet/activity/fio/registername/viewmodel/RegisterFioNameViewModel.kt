@@ -18,6 +18,7 @@ class RegisterFioNameViewModel : ViewModel() {
     val isFioAddressAvailable = MutableLiveData<Boolean>(true)
     val isFioAddressValid = MutableLiveData<Boolean>(true)
     val isFioServiceAvailable = MutableLiveData<Boolean>(true)
+    val isRenew = MutableLiveData(false)
 
     companion object {
         val DEFAULT_DOMAIN = FIODomain("fiotestnet", Date(), true)

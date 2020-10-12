@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -44,7 +43,7 @@ class RegisterFioDomainCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         btConnectAccounts.setOnClickListener {
-            startActivity(Intent(context, RegisterFioNameActivity::class.java))
+            RegisterFioNameActivity.start(requireContext())
         }
         tvFioName.text = "@$fioDomain"
         tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$fioDomain"),
