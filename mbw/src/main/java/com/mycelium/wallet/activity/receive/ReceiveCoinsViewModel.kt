@@ -72,6 +72,8 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
 
     fun getReceivingAddress() = model.receivingAddress
 
+    fun getFioNameList() = model.fioNameList
+
     fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
         if (!Value.isNullOrZero(it)) {
             it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
@@ -112,6 +114,16 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
     }
 
+    fun shareFioNameRequest() {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+
+        intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.fio_name))
+        intent.putExtra(Intent.EXTRA_TEXT, model.receivingFioName.value.toString())
+        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_fio_name))
+                .addFlags(FLAG_ACTIVITY_NEW_TASK))
+    }
+
     fun copyToClipboard() {
         val text = if (Value.isNullOrZero(model.amount.value)) {
             model.receivingAddress.value.toString()
@@ -120,6 +132,16 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
         Utils.setClipboardString(text, context)
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+    }
+
+    fun copyFioNameToClipboard() {
+        val text = model.receivingFioName.value.toString()
+        Utils.setClipboardString(text, context)
+        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+    }
+
+    fun onFioNameSelected(value: Any?) {
+        model.receivingFioName.value = value?.toString()
     }
 
     fun setAmount(amount: Value) {
