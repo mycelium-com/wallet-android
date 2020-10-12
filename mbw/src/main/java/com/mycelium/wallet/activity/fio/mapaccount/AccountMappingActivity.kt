@@ -47,6 +47,7 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
                 val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
                 viewModel.accountList.value = fioModule.getFIONames(account!!)
                         .mapNotNull { fioModule.getFioAccountByFioName(it.name) }
+                        .toSet()
                         .map { walletManager.getAccount(it) as FioAccount }
             }
         }
