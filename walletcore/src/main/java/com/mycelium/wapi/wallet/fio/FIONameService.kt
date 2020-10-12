@@ -5,7 +5,8 @@ import java.io.Serializable
 import java.util.*
 
 data class RegisteredFIOName(@JsonProperty("name") val name: String,
-                             @JsonProperty("expireDate") val expireDate: Date) : Serializable
+                             @JsonProperty("expireDate") var expireDate: Date,
+                             @JsonProperty("bundledTxsNum") var bundledTxsNum: Int) : Serializable
 
 data class FIODomain(@JsonProperty("domain") val domain: String,
                      @JsonProperty("expireDate") val expireDate: Date,

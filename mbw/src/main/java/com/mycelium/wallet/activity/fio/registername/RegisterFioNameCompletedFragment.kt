@@ -1,7 +1,9 @@
 package com.mycelium.wallet.activity.fio.registername
 
 import android.content.Intent
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,9 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.Util.transformExpirationDate
+import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
 
@@ -49,9 +53,11 @@ class RegisterFioNameCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         btConnectAccounts.setOnClickListener {
-            startActivity(Intent(context, AccountMappingActivity::class.java)
-                    .putExtra("fioName", RegisteredFIOName(fioName, convertToDate(expirationDate))))
-            activity?.finish()
+            GetBundledTxsNumberTask(fioName) { bundledTxsNum ->
+                startActivity(Intent(context, AccountMappingActivity::class.java)
+                        .putExtra("fioName", RegisteredFIOName(fioName, convertToDate(expirationDate), bundledTxsNum)))
+                activity?.finish()
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
         tvFioName.text = fioName
         tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_connect_accounts_desc, fioName),
@@ -61,6 +67,8 @@ class RegisterFioNameCompletedFragment : Fragment() {
     }
 
     companion object {
+        const val DEFAULT_BUNDLED_TXS_NUM = 105
+
         @JvmStatic
         fun newInstance(fioName: String, fioAccountLabel: String, expirationDate: String): RegisterFioNameCompletedFragment {
             val f = RegisterFioNameCompletedFragment()
@@ -72,6 +80,23 @@ class RegisterFioNameCompletedFragment : Fragment() {
 
             f.arguments = args
             return f
+        }
+    }
+
+    class GetBundledTxsNumberTask(
+            val fioName: String,
+            val listener: ((Int) -> Unit)) : AsyncTask<Void, Void, Int>() {
+        override fun doInBackground(vararg args: Void): Int {
+            return try {
+                FioTransactionHistoryService.getBundledTxsNum(Utils.getFIOCoinType(), fioName) ?: DEFAULT_BUNDLED_TXS_NUM
+            } catch (e: Exception) {
+                Log.i("asdaf", "asdaf failed to get bundled txs num: ${e.localizedMessage}")
+                DEFAULT_BUNDLED_TXS_NUM
+            }
+        }
+
+        override fun onPostExecute(result: Int) {
+            listener(result)
         }
     }
 }

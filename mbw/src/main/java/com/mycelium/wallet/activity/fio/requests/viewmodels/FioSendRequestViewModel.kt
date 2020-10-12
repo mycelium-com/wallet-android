@@ -14,7 +14,7 @@ class FioSendRequestViewModel : ViewModel() {
     val memoFrom = MutableLiveData<String>("Please give me money to party - and come on!!!!")
     val alternativeAmountFormatted = MutableLiveData<String>("55.02 USD")
     val payerName = MutableLiveData<String>("myfiowallet@mycelium")
-    val payerNameOwnerAccount = MutableLiveData<FioAccount>()
+    val payerNameOwnerAccount = MutableLiveData<WalletAccount<*>>()
     val payerAccount = MutableLiveData<WalletAccount<*>>()
     val memoTo = MutableLiveData<String>("")
     val amount = MutableLiveData<Value>(Value.valueOf(Utils.getBtcCoinType(), 12000))
