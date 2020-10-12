@@ -34,6 +34,7 @@
             tools:text="FIO Name:" />
 
         <Spinner
+            android:id="@+id/fioNameSpinner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
