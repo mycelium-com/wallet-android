@@ -3,6 +3,8 @@ package com.mycelium.wallet.activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
@@ -12,7 +14,7 @@ import kotlinx.android.synthetic.main.transaction_details_fio.*
 
 class FioDetailsFragment : DetailsFragment() {
     private val tx: FioTransactionSummary by lazy {
-        arguments!!.getSerializable("tx") as FioTransactionSummary
+        requireArguments().getSerializable("tx") as FioTransactionSummary
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -40,8 +42,9 @@ class FioDetailsFragment : DetailsFragment() {
         llFee.addView(getValue(tx.fee!!, null))
         if (tx.memo != null && tx.memo!!.isNotEmpty()) {
             tvMemo.text = tx.memo
+            memoRow.visibility = VISIBLE
         } else {
-            tvMemo.text = resources.getText(R.string.rmc_no)
+            memoRow.visibility = GONE
         }
     }
 

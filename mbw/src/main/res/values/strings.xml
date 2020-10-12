@@ -1404,13 +1404,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_address_available">This FIO Name is available for registration.</string>
     <string name="fio_domain_available">This FIO Domain is available for registration.</string>
     <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name/Domain availability check and FIO Name/Domain registering due to service unavailability. Please check your internet connection and try again</string>
-    <string name="fio_create_name_description"><b>Create FIO Name</b> - new simple way to Send, Receive and Request <b>ANY CRYPTO</b> without knowing public address!\n\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized\n\n<b>Create your FIO Name</b> (i.e. nakamoto@mycelium) and get your daily crypto experience to the next level</string>
+    <string name="fio_create_name_description"><b>FIO Protocol</b> is a new simple way to Send, Receive, and Request <b>ANY CRYPTO</b> with one public alias for all crypto accounts!\n\n- Crypto transactions with memos\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized\n\n<b>Create your FIO Name</b> (i.e. nakamoto@mycelium) and get your daily crypto experience to the next level!</string>
     <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
     <string name="fio_annual_fee_domain">Register FIO Domain for %s/year and create any FIO names you’d like with your personal domain.</string>
     <string name="fio_manage_name_and_domain">Here you can manage your FIO Names and Domains:</string>
     <string name="add_new_fio_name">Add new FIO Name</string>
     <string name="create_fio_domain">Create FIO Domain</string>
-    <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> with other cryptocurrency accounts and easily send and request funds for connected crypto without having any public key.]]></string>
+    <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> to your accounts and benefit from FIO Protocol.]]></string>
     <string name="fio_create_name_desc"><![CDATA[Create and Register new FIO Names to your FIO Domain <b>%s</b> and easily send and request funds for any cryptocurrency.]]></string>
     <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
     <string name="fio_create_name_hint_text">Enter FIO Name (only letters, numbers -,_.)</string>

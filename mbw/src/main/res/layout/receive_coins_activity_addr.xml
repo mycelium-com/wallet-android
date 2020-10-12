@@ -21,8 +21,8 @@
 
         <TextView
             android:id="@+id/addressLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="101dp"
+            android:layout_height="21dp"
             android:text="@{@string/crypto_address(viewModel.currencyName)}"
             android:textColor="#bbb"
             android:textSize="14sp"
