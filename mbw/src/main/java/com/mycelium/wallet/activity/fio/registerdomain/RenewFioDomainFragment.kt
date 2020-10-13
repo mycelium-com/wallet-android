@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.fio.registerdomain
 
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,20 +14,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRenewFioDomainBinding
 import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioModule
-import kotlinx.android.synthetic.main.fragment_register_fio_domain_step2.*
 import kotlinx.android.synthetic.main.fragment_renew_fio_name.*
-import kotlinx.android.synthetic.main.fragment_renew_fio_name.btNextButton
-import kotlinx.android.synthetic.main.fragment_renew_fio_name.spinnerPayFromAccounts
-import kotlinx.android.synthetic.main.fragment_renew_fio_name.tvFioName
-import kotlinx.android.synthetic.main.fragment_renew_fio_name.tvNotEnoughFundsError
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,7 +31,7 @@ class RenewFioDomainFragment : Fragment() {
             DataBindingUtil.inflate<FragmentRenewFioDomainBinding>(inflater, R.layout.fragment_renew_fio_domain, container, false)
                     .apply {
                         viewModel = this@RenewFioDomainFragment.viewModel.apply {
-                            val fioAccounts = getFioAccounts(this.domain.value!!)
+                            val fioAccounts = listOf(this.fioAccountToRegisterName.value!!)
                             spinnerPayFromAccounts.adapter = ArrayAdapter(context,
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text,
                                     fioAccounts.map { "${it.label} ${it.accountBalance.spendable.toStringWithUnit()}" }).apply {
@@ -52,13 +46,6 @@ class RenewFioDomainFragment : Fragment() {
                         }
                         lifecycleOwner = this@RenewFioDomainFragment
                     }.root
-
-    private fun getFioAccounts(domain: String): List<FioAccount> {
-        val walletManager = MbwManager.getInstance(context).getWalletManager(false)
-        val uuid = (walletManager.getModuleById(FioModule.ID) as FioModule).getFioAccountByFioDomain(domain)
-                ?: throw IllegalStateException("Illegal domain $domain (Not owned by any of user's accounts)")
-        return listOf(walletManager.getAccount(uuid) as FioAccount)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -98,6 +85,7 @@ class RenewFioDomainFragment : Fragment() {
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
+                Log.i("asdaf", "asdaf ${account.receiveAddress} - $fioDomain")
                 account.renewFIODomain(fioDomain)
             } catch (e: Exception) {
                 null

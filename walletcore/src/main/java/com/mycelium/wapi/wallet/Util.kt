@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.SimpleDateFormat
@@ -44,10 +45,13 @@ object Util {
     @JvmStatic
     fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
             if (amountStr.contains("E")) {
-                BigDecimal(amountStr).toBigIntegerExact()
+                BigDecimal(amountStr).toBigIntegerExact().toBigDecimal().movePointRight(coinType.unitExponent).toBigIntegerExact()
             } else {
                 BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
             }
+
+    @JvmStatic
+    fun valueToDouble(value: Value): Double = value.toPlainString().toDouble()
 
     @JvmStatic
     fun transformExpirationDate(dateStr: String): String {
