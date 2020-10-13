@@ -16,6 +16,7 @@ import com.mycelium.wallet.activity.send.model.SendFioModel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.FeeFormatter
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -84,7 +85,7 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                             payerFioName.value!!,
                             payeeFioName.value!!,
                             payeeTokenPublicAddress.value!!,
-                            getAmount().value?.toPlainString()?.toDouble()!!,
+                            Util.valueToDouble(getAmount().value!!),
                             fioMemo.value ?: "",
                             selectedAccount.basedOnCoinType.symbol,
                             selectedAccount.coinType.symbol,
