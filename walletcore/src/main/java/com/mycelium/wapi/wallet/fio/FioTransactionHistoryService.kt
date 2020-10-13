@@ -139,7 +139,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 if (data.payeePublicKey == ownerPublicKey) {
                     // Check if sending to myself
                     if (data.actor == accountName) {
-                        return Value.zeroValue(coinType)
+                        return fee.unaryMinus()
                     }
                     return Value.valueOf(coinType, data.amount!!)
                 } else {
