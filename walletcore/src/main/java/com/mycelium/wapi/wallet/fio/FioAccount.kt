@@ -287,7 +287,9 @@ class FioAccount(private val accountContext: FioAccountContext,
     private fun syncFioRequests() {
         try {
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
+            logger.log(Level.INFO, "Received ${pendingFioRequests.size} pending requests")
             val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
             backing.deleteRequestsAll()
             backing.putReceivedRequests(pendingFioRequests)
             backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
@@ -299,6 +301,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     private fun syncFioOBT() {
         try {
             val obtList = fiosdk?.getObtData() ?: emptyList()
+            logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update fio requests exception", ex)

@@ -44,11 +44,7 @@ object Util {
 
     @JvmStatic
     fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
-            if (amountStr.contains("E")) {
-                BigDecimal(amountStr).toBigIntegerExact().toBigDecimal().movePointRight(coinType.unitExponent).toBigIntegerExact()
-            } else {
                 BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
-            }
 
     @JvmStatic
     fun valueToDouble(value: Value): Double = value.toPlainString().toDouble()
