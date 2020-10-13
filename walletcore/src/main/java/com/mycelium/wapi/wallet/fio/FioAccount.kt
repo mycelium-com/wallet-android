@@ -294,7 +294,7 @@ class FioAccount(private val accountContext: FioAccountContext,
             backing.putReceivedRequests(pendingFioRequests)
             backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
         } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update fio requests exception", ex)
+            logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
         }
     }
 
@@ -304,7 +304,7 @@ class FioAccount(private val accountContext: FioAccountContext,
             logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update fio requests exception", ex)
+            logger.log(Level.SEVERE, "Update OBT transactions exception: ${ex.message}", ex)
         }
     }
 
