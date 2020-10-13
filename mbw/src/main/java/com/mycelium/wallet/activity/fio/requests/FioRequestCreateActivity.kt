@@ -127,9 +127,8 @@ class FioRequestCreateActivity : AppCompatActivity() {
 
     fun onClickAmount() {
         val account = viewModel.getAccount()
-        GetAmountActivity.callMeToSend(this, SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.id,
-                viewModel.getAmount().value, viewModel.getSelectedFee().value,
-                viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
+        GetAmountActivity.callMeToReceive(this, viewModel.getAmount().value,
+                SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.coinType)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =

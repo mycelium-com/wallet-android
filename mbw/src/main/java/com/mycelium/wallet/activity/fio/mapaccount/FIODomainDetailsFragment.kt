@@ -71,9 +71,9 @@ class FIODomainDetailsFragment : Fragment() {
             RegisterFioNameActivity.start(requireContext(),
                     MbwManager.getInstance(requireContext()).selectedAccount.id)
         }
-        renewFIOName.setOnClickListener {
-            val fioName = viewModel.fioDomain.value!!.domain
-            RegisterFIODomainActivity.startRenew(requireContext(), viewModel.fioAccount.value!!.id, fioName)
+        renewFIODomain.setOnClickListener {
+            val fioDomain = viewModel.fioDomain.value!!.domain
+            RegisterFIODomainActivity.startRenew(requireContext(), viewModel.fioAccount.value!!.id, fioDomain)
         }
     }
 
