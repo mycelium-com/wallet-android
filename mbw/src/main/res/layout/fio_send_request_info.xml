@@ -50,6 +50,18 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/requestDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{fioRequestViewModel.requestDate}"
+                android:textSize="14sp"
+                android:layout_marginTop="12dp"
+                android:typeface="monospace"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                tools:text="newfriend@hisdomain" />
+
+            <TextView
                 android:id="@+id/tvFromTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -57,27 +69,27 @@
                 android:text="From:"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+                app:layout_constraintBaseline_toBaselineOf="@id/tvFrom"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/tvFrom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:paddingStart="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
                 android:text="@{fioRequestViewModel.payeeName}"
                 android:textSize="18sp"
                 android:typeface="monospace"
-                app:layout_constraintBaseline_toBaselineOf="@id/tvFromTitle"
                 app:layout_constraintStart_toEndOf="@id/tvFromTitle"
+                app:layout_constraintTop_toBottomOf="@id/requestDate"
                 tools:text="newfriend@hisdomain" />
 
             <TextView
                 android:id="@+id/tvMemoFrom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="4dp"
                 android:text="@{fioRequestViewModel.memoFrom}"
                 android:textSize="14sp"
                 android:typeface="monospace"
@@ -101,8 +113,8 @@
                 android:id="@+id/tvAmount"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:paddingStart="4dp"
+                android:layout_marginStart="4dp"
+                android:textSize="18sp"
                 android:text="@{ValueExtensionsKt.toStringWithUnit(fioRequestViewModel.amount)}"
                 android:typeface="monospace"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvAmountTitle"
@@ -129,7 +141,7 @@
                 android:id="@+id/tvSatisfyFromTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="From:"
+                android:text="Sender:"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -139,8 +151,8 @@
                 android:id="@+id/tvSatisfyFrom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:paddingStart="4dp"
                 android:text="@{fioRequestViewModel.payerName}"
                 android:textSize="18sp"
                 android:typeface="monospace"

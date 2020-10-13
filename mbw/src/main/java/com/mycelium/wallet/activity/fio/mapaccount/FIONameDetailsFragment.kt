@@ -221,7 +221,7 @@ class FIONameDetailsFragment : Fragment() {
             mappedAccounts: List<WalletAccount<*>>,
             preference: SharedPreferences) {
         walletManager.getActiveERC20Accounts().filter { it.coinType.symbol == symbol }.map {
-            ItemAccount(it.id, it.label, "",
+            ItemAccount(it.id, "${it.label} <font color=\"#9E9FA0\">(${it.ethAcc.label})</font>", "",
                     Utils.getDrawableForAccount(it, false, resources),
                     it.coinType, mappedAccounts.contains(it))
         }.apply {

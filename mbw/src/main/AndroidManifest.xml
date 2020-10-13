@@ -176,7 +176,9 @@
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity
             android:name=".activity.send.SendCoinsActivity" />
-        <activity android:name=".activity.send.ManualAddressEntry" />
+        <activity
+            android:name=".activity.send.ManualAddressEntry"
+            android:theme="@style/MyceliumFIO" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity
             android:name=".activity.receive.ReceiveCoinsActivity" />

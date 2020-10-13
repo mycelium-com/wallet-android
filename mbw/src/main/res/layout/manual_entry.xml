@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#131418"
     android:gravity="center_horizontal"
     android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/etRecipient"
@@ -15,8 +22,7 @@
         android:layout_marginEnd="20dp"
         android:hint="@string/enter_recipient_hint"
         android:inputType="textAutoComplete"
-        android:textSize="18sp"
-        android:typeface="monospace" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/tvEnterRecipientDescription"
@@ -49,7 +55,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:text="@string/checking_fio_address"
-
         android:textColor="#aaa"
         android:textSize="12sp"
         android:visibility="gone"
@@ -73,7 +78,6 @@
         android:layout_gravity="start"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-
         android:text="@string/recipient_has_no_such_address"
         android:textColor="@color/red"
         android:textSize="12sp" />
@@ -83,7 +87,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:text="@string/bitid_noconnection"
@@ -95,36 +98,19 @@
         style="@style/MyceliumButton.FIO"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="20dp"
         android:layout_marginStart="20dp"
-
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="@string/ok"
+        android:text="@string/button_ok"
         android:textSize="14sp" />
 
-    <LinearLayout
-        android:id="@+id/llKnownFioNames"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lvKnownFioNames"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="6dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:text="@string/fio_names"
-            android:textAllCaps="true"
-            android:textSize="12sp" />
-
-        <ListView
-            android:id="@+id/lvKnownFioNames"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:listitem="@layout/fio_address_item" />
-
-    </LinearLayout>
+        android:layout_marginTop="12dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/fio_address_item" />
 
 </LinearLayout>

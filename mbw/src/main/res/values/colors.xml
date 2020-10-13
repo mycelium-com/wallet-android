@@ -69,6 +69,7 @@
     <color name="fio_white_alpha_0_6">#99FFFFFF</color>
     <color name="fio_white_alpha_0_8">#CCFFFFFF</color>
     <color name="fio_white_alpha_0_9">#E5FFFFFF</color>
+    <color name="fio_record">#0C1011</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>

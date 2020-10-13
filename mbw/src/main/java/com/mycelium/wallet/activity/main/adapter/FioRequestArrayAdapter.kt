@@ -3,6 +3,8 @@ package com.mycelium.wallet.activity.main.adapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -19,6 +21,7 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
+import kotlinx.android.synthetic.main.fio_request_row.view.*
 import java.text.SimpleDateFormat
 
 
@@ -49,7 +52,8 @@ class FioRequestArrayAdapter(var activity: Activity,
             FioGroup.Type.PENDING -> false
         }
 
-        val color = if (isIncoming) R.color.green else R.color.red
+        val color = if(getGroup(groupPosition).status == FioGroup.Type.PENDING) R.color.fio_request_pending
+            else if (isIncoming) R.color.green else R.color.red
         val direction = fioRequestView.findViewById<TextView>(R.id.tvDirection)
         direction?.text = if (isIncoming) "From:" else "To:"
         val address = fioRequestView.findViewById<TextView>(R.id.tvAddress)
@@ -116,6 +120,13 @@ class FioRequestArrayAdapter(var activity: Activity,
         val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
         val tvFiatAmount = fioRequestView.findViewById<TextView>(R.id.tvFiatAmount)
         tvFiatAmount?.text = convert?.toStringWithUnit()
+
+        if(content.memo?.isNotEmpty() == true) {
+            fioRequestView.tvMemo.text = content.memo
+            fioRequestView.tvMemo.visibility = VISIBLE
+        }else {
+            fioRequestView.tvMemo.visibility = GONE
+        }
 
         return fioRequestView
     }

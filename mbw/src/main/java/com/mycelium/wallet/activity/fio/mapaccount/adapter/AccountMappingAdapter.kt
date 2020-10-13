@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.fio.mapaccount.adapter
 
 import android.graphics.drawable.Drawable
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -68,7 +69,7 @@ class AccountMappingAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCal
             }
             TYPE_ACCOUNT -> {
                 val item = getItem(position) as ItemAccount
-                holder.itemView.title.text = item.label
+                holder.itemView.title.text = Html.fromHtml(item.label)
                 holder.itemView.summary.text = item.summary
                 holder.itemView.checkbox.setOnCheckedChangeListener(null)
                 holder.itemView.checkbox.isChecked = item.isEnabled
