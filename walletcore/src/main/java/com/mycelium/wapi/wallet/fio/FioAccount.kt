@@ -17,6 +17,7 @@ import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import fiofoundation.io.fiosdk.utilities.Utils
@@ -285,16 +286,30 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioRequests() {
+        var pendingFioRequests: List<FIORequestContent> = emptyList()
+        var sentFioRequests: List<FIORequestContent> = emptyList()
         try {
-            val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
+            pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
             logger.log(Level.INFO, "Received ${pendingFioRequests.size} pending requests")
-            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
-            logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
-            backing.deleteRequestsAll()
-            backing.putReceivedRequests(pendingFioRequests)
-            backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
         } catch (ex: FIOError) {
             logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+        }
+
+        try {
+            sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
+
+        } catch (ex: FIOError) {
+            logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+        }
+
+        if (pendingFioRequests.size > 0) {
+            backing.deletePendingRequests()
+            backing.putReceivedRequests(pendingFioRequests)
+        }
+        if (sentFioRequests.size > 0) {
+            backing.deleteSentRequests()
+            backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
         }
     }
 

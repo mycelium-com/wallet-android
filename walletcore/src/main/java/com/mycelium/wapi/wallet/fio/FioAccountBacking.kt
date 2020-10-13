@@ -54,8 +54,11 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         }
     }
 
-    fun deleteRequestsAll() {
+    fun deleteSentRequests() {
         fioSentRequestQueries.deleteAllRequests()
+    }
+
+    fun deletePendingRequests() {
         fioReceivedRequestQueries.deleteAllRequests()
     }
 
