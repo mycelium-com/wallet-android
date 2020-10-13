@@ -191,6 +191,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                 val value = getRequestedAmount().value
                 if (fioModule.getFIONames(account).isNotEmpty()) {
                     FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
+                    activity.finish()
                 } else {
                     AccountMappingActivity.startForMapping(activity, account, ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING)
                 }

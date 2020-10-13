@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
@@ -12,6 +13,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.lib.CurrencyCode
+import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -20,69 +22,110 @@ import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import kotlinx.android.synthetic.main.fio_sent_request_status_activity.*
-import java.math.BigDecimal
-import java.math.BigInteger
+import kotlinx.android.synthetic.main.fio_sent_request_status_activity.btNextButton
+import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvAmount
+import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvConvertedAmount
+import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvDate
+import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvFrom
+import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvMemo
+import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvTo
 import java.text.DateFormat
 import java.util.*
 
 class SentFioRequestStatusActivity : AppCompatActivity() {
-    companion object {
-        const val CONTENT = "content"
-        fun start(activity: Activity, item: FIORequestContent) {
-            with(Intent(activity, SentFioRequestStatusActivity::class.java)) {
-                putExtra(CONTENT, item.toJson())
-                activity.startActivity(this)
-            }
-        }
-    }
+    private var fioRequestContent: SentFIORequestContent? = null
+    private lateinit var mbwManager: MbwManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fio_sent_request_status_activity)
         supportActionBar?.run {
-            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
-            setDisplayHomeAsUpEnabled(true)
-            title = "My FIO Request"
-        }
-        val mbwManager = MbwManager.getInstance(this)
-        val fioRequestContent: SentFIORequestContent = Gson().fromJson(intent.getStringExtra(CONTENT), SentFIORequestContent::class.java)
-
-        // hack for requests requesting bitcoins
-        val requestedCurrency: CryptoCurrency? = if (fioRequestContent.deserializedContent!!.chainCode == "BTC") {
-            Utils.getBtcCoinType()
-        } else {
-            COINS.values.firstOrNull {
-                it.symbol.equals(fioRequestContent.deserializedContent?.chainCode ?: "", true)
+            title = if (intent.getStringExtra(CONTENT) != null) {
+                setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+                setDisplayHomeAsUpEnabled(true)
+                "My FIO Request"
+            } else {
+                "FIO Request Sent"
             }
         }
-
-        val status = FioRequestStatus.getStatus(fioRequestContent.status)
-        tvStatus.text = if (status != FioRequestStatus.NONE) {
-            val color = when (status) {
-                FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.fio_green
-                FioRequestStatus.REJECTED -> R.color.fio_red
-                else -> R.color.fio_request_pending
-            }
-            tvStatus.setTextColor(ContextCompat.getColor(this, color))
-            status.status.capitalize()
-        } else {
-            ""
+        mbwManager = MbwManager.getInstance(this)
+        if (intent.getStringExtra(CONTENT) != null) {
+            fioRequestContent = Gson().fromJson(intent.getStringExtra(CONTENT), SentFIORequestContent::class.java)
         }
 
-        if (requestedCurrency != null) {
-            val amount = Value.valueOf(requestedCurrency, fioRequestContent.deserializedContent!!.amount.toBigDecimal().longValueExact())
+        setTitles()
+        setStatus()
+        setAmount()
+
+        tvFrom.text = fioRequestContent?.payeeFioAddress ?: intent.getStringExtra(ApproveFioRequestActivity.FROM)
+        tvTo.text = fioRequestContent?.payerFioAddress ?: intent.getStringExtra(ApproveFioRequestActivity.TO)
+        val memo = if (fioRequestContent != null) {
+            fioRequestContent!!.deserializedContent!!.memo ?: ""
+        } else {
+            intent.getStringExtra(ApproveFioRequestActivity.MEMO)
+        }
+        tvMemo.text = memo
+        llMemo.visibility = if (memo.isNullOrEmpty()) View.GONE else View.VISIBLE
+
+        tvDate.text = getDateString(if (fioRequestContent != null) {
+            convertToDate(fioRequestContent!!.timeStamp)
+        } else {
+            Date()
+        })
+        btNextButton.setOnClickListener { finish() }
+    }
+
+    private fun setTitles() {
+        if (intent.getStringExtra(CONTENT) != null) {
+            tvFromTitle.text = "From:"
+            tvToTitle.text = "To:"
+        } else {
+            tvFromTitle.text = "Request from:"
+            tvToTitle.text = "Request sent to:"
+        }
+    }
+
+    private fun setAmount() {
+        if (fioRequestContent != null) {
+            // hack for requests requesting bitcoins
+            val requestedCurrency: CryptoCurrency? = if (fioRequestContent!!.deserializedContent!!.chainCode == "BTC") {
+                Utils.getBtcCoinType()
+            } else {
+                COINS.values.firstOrNull {
+                    it.symbol.equals(fioRequestContent!!.deserializedContent?.chainCode ?: "", true)
+                }
+            }
+
+            if (requestedCurrency != null) {
+                val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
+                        fioRequestContent!!.deserializedContent!!.amount))
+                tvAmount.text = amount.toStringWithUnit()
+                val convertedAmount = mbwManager.exchangeRateManager.get(amount, Utils.getTypeByName(CurrencyCode.USD.shortString)!!).toStringWithUnit()
+                tvConvertedAmount.text = " ~ $convertedAmount"
+            } else {
+                tvAmount.text = "${fioRequestContent!!.deserializedContent!!.amount} ${fioRequestContent!!.deserializedContent!!.tokenCode}"
+            }
+        } else {
+            val amount = (intent.getSerializableExtra(ApproveFioRequestActivity.AMOUNT) as Value)
             tvAmount.text = amount.toStringWithUnit()
             val convertedAmount = mbwManager.exchangeRateManager.get(amount, Utils.getTypeByName(CurrencyCode.USD.shortString)!!).toStringWithUnit()
             tvConvertedAmount.text = " ~ $convertedAmount"
-        } else {
-            tvAmount.text = "${fioRequestContent.deserializedContent!!.amount} ${fioRequestContent.deserializedContent!!.tokenCode}"
         }
+    }
 
-        tvFrom.text = fioRequestContent.payeeFioAddress
-        tvTo.text = fioRequestContent.payerFioAddress
-        tvMemo.text = fioRequestContent.deserializedContent!!.memo ?: ""
-        tvDate.text = getDateString(convertToDate(fioRequestContent.timeStamp))
-        btNextButton.setOnClickListener { finish() }
+    private fun setStatus() {
+        val status = if (fioRequestContent != null) {
+            FioRequestStatus.getStatus(fioRequestContent!!.status)
+        } else {
+            FioRequestStatus.REQUESTED
+        }
+        val color = when (status) {
+            FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.fio_green
+            FioRequestStatus.REJECTED -> R.color.fio_red
+            else -> R.color.fio_request_pending
+        }
+        tvStatus.setTextColor(ContextCompat.getColor(this, color))
+        tvStatus.text = status.status
     }
 
     private fun getDateString(date: Date): String {
@@ -105,4 +148,26 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    companion object {
+        const val CONTENT = "content"
+        fun start(activity: Activity, item: FIORequestContent) {
+            with(Intent(activity, SentFioRequestStatusActivity::class.java)) {
+                putExtra(CONTENT, item.toJson())
+                activity.startActivity(this)
+            }
+        }
+
+        fun start(activity: Activity, amount: Value,
+                  from: String,
+                  to: String, memo: String) {
+            with(Intent(activity, SentFioRequestStatusActivity::class.java)) {
+                putExtra(ApproveFioRequestActivity.AMOUNT, amount)
+                putExtra(ApproveFioRequestActivity.FROM, from)
+                putExtra(ApproveFioRequestActivity.TO, to)
+                putExtra(ApproveFioRequestActivity.MEMO, memo)
+                activity.startActivity(this)
+            }
+        }
+    }
 }
