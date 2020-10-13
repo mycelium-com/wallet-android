@@ -59,7 +59,7 @@
                 android:typeface="monospace"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
-                tools:text="newfriend@hisdomain" />
+                tools:text="September 23, 2020 at 6:23pm" />
 
             <TextView
                 android:id="@+id/tvFromTitle"

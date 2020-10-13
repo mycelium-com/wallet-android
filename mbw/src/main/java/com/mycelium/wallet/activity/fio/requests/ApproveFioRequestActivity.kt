@@ -57,6 +57,7 @@ import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.io.IOException
 import java.math.BigInteger
+import java.text.DateFormat
 import java.util.*
 
 class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
@@ -101,9 +102,10 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
         // request data population
         fioRequestViewModel.request.value = fioRequestContent
-        fioRequestViewModel.memoFrom.value = fioRequestContent.deserializedContent!!.memo ?: ""
+        fioRequestViewModel.memoFrom.value = fioRequestContent.deserializedContent?.memo ?: ""
         fioRequestViewModel.payeeName.value = fioRequestContent.payeeFioAddress
         fioRequestViewModel.payerName.value = fioRequestContent.payerFioAddress
+        fioRequestViewModel.requestDate.value = fioRequestContent.timeStamp
         Log.i("asdaf", "asdaf payeeFioAddress: ${fioRequestContent.payeeFioAddress} payerFioAddress: ${fioRequestContent.payerFioAddress}")
 
         mbwManager = MbwManager.getInstance(this)
@@ -390,6 +392,19 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         }
     }
+
+//    private fun getDateString(timestamp: Long): String {
+//        val date = Date(timestamp * 1000L)
+//        val locale = resources.configuration.locale
+//
+//        val dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale)
+//        val dateString = dayFormat.format(date)
+//
+//        val hourFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale)
+//        val timeString = hourFormat.format(date)
+//
+//        return "$dateString at $timeString"
+//    }
 
     class GetPublicAddressTask(
             private val fioName: String,
