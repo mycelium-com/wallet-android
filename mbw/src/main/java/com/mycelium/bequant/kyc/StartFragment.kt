@@ -36,16 +36,16 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
                         }
                     KYCStatus.INCOMPLETE ->
                         when {
-                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "personal_information" }?.value == false -> {
+                            !BequantPreference.getKYCSectionStatus("personal_information") -> {
                                 findNavController().navigate(StartFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
                             }
-                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "residential_address" }?.value == false -> {
+                            !BequantPreference.getKYCSectionStatus("residential_address") -> {
                                 findNavController().navigate(StartFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
                             }
-                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == false -> {
+                            !BequantPreference.getKYCSectionStatus("phone") -> {
                                 findNavController().navigate(StartFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
                             }
-                            statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "documents" }?.value == false -> {
+                            !BequantPreference.getKYCSectionStatus("documents") -> {
                                 findNavController().navigate(StartFragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
                             }
                             else -> {

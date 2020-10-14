@@ -109,4 +109,14 @@ object BequantPreference {
     }
 
     fun getKYCSubmitDate(): Date = Date(preference.getLong("kyc_submit_date", 0))
+
+    fun setKYCSectionStatus(sections: List<Pair<String, Boolean>>?) {
+        preference.edit().apply {
+            sections?.forEach {
+                putBoolean("section_${it.first}", it.second)
+            }
+        }.apply()
+    }
+
+    fun getKYCSectionStatus(section: String) = preference.getBoolean("section_$section", false)
 }

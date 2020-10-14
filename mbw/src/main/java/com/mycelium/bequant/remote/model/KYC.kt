@@ -42,9 +42,8 @@ data class KYCRequest(
 
 data class KYCCreateRequest(var applicant: KYCApplicant)
 
-data class KYCApplicant(@JsonProperty("phone-full") val phone: String,
-                        @JsonInclude(JsonInclude.Include.NON_NULL)
-                        var email: String,
+data class KYCApplicant(@JsonInclude(JsonInclude.Include.NON_NULL) var email: String,
+                        @JsonProperty("phone-full") var phone: String? = null,
                         @JsonInclude(JsonInclude.Include.NON_NULL)
                         @JsonProperty("first_name") var firstName: String? = null,
                         @JsonInclude(JsonInclude.Include.NON_NULL)

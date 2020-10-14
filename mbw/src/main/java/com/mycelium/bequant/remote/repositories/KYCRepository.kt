@@ -102,6 +102,7 @@ class KYCRepository {
         }, { response ->
             BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
             BequantPreference.setKYCStatusMessage(response?.message?.message ?: "")
+            BequantPreference.setKYCSectionStatus(response?.message?.sections?.flatMap { it.map { it.key to it.value } })
             success(response?.message!!)
         }, { code, msg ->
             error?.invoke(code, msg)

@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.kyc.steps.adapter.*
 import com.mycelium.bequant.kyc.steps.viewmodel.DocumentViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
@@ -137,6 +138,7 @@ class Step4Fragment : Fragment() {
         addSelfie.setOnClickListener(selfieClick)
 
         btFinish.setOnClickListener {
+            BequantPreference.setKYCRequest(kycRequest)
             findNavController().navigate(Step4FragmentDirections.actionNext(kycRequest))
         }
     }

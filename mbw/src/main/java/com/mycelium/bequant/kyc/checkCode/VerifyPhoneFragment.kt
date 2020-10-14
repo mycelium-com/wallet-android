@@ -13,8 +13,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.kyc.steps.Step1FragmentDirections
 import com.mycelium.bequant.kyc.steps.Step3FragmentDirections
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
@@ -28,6 +30,7 @@ import com.poovam.pinedittextfield.PinField
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_verify_phone.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone) {
@@ -144,7 +147,8 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
         loader(true)
         Api.kycRepository.checkMobileVerification(viewModel.viewModelScope, code, {
             loader(false)
-            findNavController().navigate(VerifyPhoneFragmentDirections.actionNext(kycRequest))
+            BequantPreference.setKYCSubmitDate(Date())
+            nextPage()
         }, {
             loader(false)
             showError()
@@ -153,5 +157,16 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     private fun showError() {
         otp_view.error = "Error code"
+    }
+
+    private fun nextPage() {
+        when {
+            !BequantPreference.getKYCSectionStatus("documents") -> {
+                findNavController().navigate(Step1FragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
+            }
+            else -> {
+                findNavController().navigate(Step1FragmentDirections.actionPending())
+            }
+        }
     }
 }
