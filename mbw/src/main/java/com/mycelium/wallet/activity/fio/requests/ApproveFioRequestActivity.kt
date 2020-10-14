@@ -31,12 +31,9 @@ import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.*
-import com.mycelium.wapi.wallet.BroadcastResult
-import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.Util.getCoinsByChain
 import com.mycelium.wapi.wallet.Util.strToBigInteger
-import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -384,6 +381,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                     if (!success) {
                         Toaster(this).toast("Failed to write memo", false)
                     }
+                    val walletManager = mbwManager.getWalletManager(false)
+                    val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+
+                    walletManager.startSynchronization(SyncMode.NORMAL, fioModule.getAccounts())
+
                     ApproveFioRequestSuccessActivity.start(this, fioRequestViewModel.amount.value!!,
                             fioRequestViewModel.alternativeAmountFormatted.value!!,
                             sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,

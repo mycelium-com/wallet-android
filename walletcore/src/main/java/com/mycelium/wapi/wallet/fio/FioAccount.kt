@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
+import fiofoundation.io.fiosdk.errors.fionetworkprovider.GetPendingFIORequestsError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
@@ -285,32 +286,47 @@ class FioAccount(private val accountContext: FioAccountContext,
         }
     }
 
+    private fun renewPendingFioRequests(pendingFioRequests: List<FIORequestContent>) {
+        backing.deletePendingRequests()
+        backing.putReceivedRequests(pendingFioRequests)
+    }
+
+    private fun renewSentFioRequests(sentFioRequests: List<FIORequestContent>) {
+        backing.deleteSentRequests()
+        backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
+    }
+
     private fun syncFioRequests() {
-        var pendingFioRequests: List<FIORequestContent> = emptyList()
-        var sentFioRequests: List<FIORequestContent> = emptyList()
         try {
-            pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
+            val pendingFioRequests = fiosdk!!.getPendingFioRequests()
             logger.log(Level.INFO, "Received ${pendingFioRequests.size} pending requests")
+            renewPendingFioRequests(pendingFioRequests)
         } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+            if (ex.cause is GetPendingFIORequestsError) {
+                val cause = ex.cause as GetPendingFIORequestsError
+                if (cause.responseError?.code == 404) {
+                    logger.log(Level.INFO, "Received 0 pending requests")
+                    renewPendingFioRequests(emptyList())
+                }
+            } else {
+                logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+            }
         }
 
         try {
-            sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            val sentFioRequests = fiosdk!!.getSentFioRequests()
+            renewSentFioRequests(sentFioRequests)
             logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
-
         } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+            val cause = ex.cause as GetPendingFIORequestsError
+            if (cause.responseError?.code == 404) {
+                logger.log(Level.INFO, "Received 0 sent requests")
+                renewSentFioRequests(emptyList())
+            } else {
+                logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+            }
         }
 
-        if (pendingFioRequests.size > 0) {
-            backing.deletePendingRequests()
-            backing.putReceivedRequests(pendingFioRequests)
-        }
-        if (sentFioRequests.size > 0) {
-            backing.deleteSentRequests()
-            backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
-        }
     }
 
     private fun syncFioOBT() {
