@@ -22,13 +22,6 @@ import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import kotlinx.android.synthetic.main.fio_sent_request_status_activity.*
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.btNextButton
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvAmount
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvConvertedAmount
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvDate
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvFrom
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvMemo
-import kotlinx.android.synthetic.main.fio_sent_request_status_activity.tvTo
 import java.text.DateFormat
 import java.util.*
 
@@ -125,7 +118,12 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
             else -> R.color.fio_request_pending
         }
         tvStatus.setTextColor(ContextCompat.getColor(this, color))
-        tvStatus.text = status.status
+        tvStatus.text = when (status) {
+            FioRequestStatus.REJECTED -> "Rejected"
+            FioRequestStatus.REQUESTED -> "Not Paid"
+            FioRequestStatus.SENT_TO_BLOCKCHAIN -> "Paid"
+            FioRequestStatus.NONE -> "Not Paid"
+        }
     }
 
     private fun getDateString(date: Date): String {
