@@ -150,6 +150,7 @@ class Step1Fragment : Fragment() {
     }
 
     private fun sendData() {
+        loader(true)
         Api.signRepository.accountOnceToken(viewModel.viewModelScope, {
             it?.token?.let { onceToken ->
                 val applicant = KYCApplicant(BequantPreference.getEmail())
