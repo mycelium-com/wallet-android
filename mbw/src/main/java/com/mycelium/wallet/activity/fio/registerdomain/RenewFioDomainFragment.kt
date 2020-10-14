@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.fio.registerdomain
 
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,15 +13,18 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRenewFioDomainBinding
+import com.mycelium.wapi.wallet.Util.getRenewTill
+import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_renew_fio_name.*
 import java.text.SimpleDateFormat
-import java.util.*
 
 class RenewFioDomainFragment : Fragment() {
     private val viewModel: RegisterFioDomainViewModel by activityViewModels()
@@ -61,7 +63,9 @@ class RenewFioDomainFragment : Fragment() {
             (spinnerPayFromAccounts.getChildAt(0) as? TextView)?.setTextColor(
                     if (isNotEnoughFunds) resources.getColor(R.color.fio_red) else resources.getColor(R.color.white))
         })
-        tvRenewTill.text = getRenewTill()
+        val fioModule = MbwManager.getInstance(requireContext()).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+        val fioDomain: FIODomain = fioModule.getAllRegisteredFioDomains().first { it.domain == viewModel.domain.value }
+        tvRenewTill.text = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a").format(getRenewTill(fioDomain.expireDate))
         btNextButton.setOnClickListener {
             RenewDomainTask(viewModel.accountToPayFeeFrom.value!! as FioAccount, viewModel.domain.value!!) { expiration ->
                 if (expiration != null) {
@@ -74,18 +78,12 @@ class RenewFioDomainFragment : Fragment() {
         }
     }
 
-    private fun getRenewTill(): CharSequence? {
-        val date = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 365) }.time
-        return SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a").format(date)
-    }
-
     class RenewDomainTask(
             val account: FioAccount,
             private val fioDomain: String,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
-                Log.i("asdaf", "asdaf ${account.receiveAddress} - $fioDomain")
                 account.renewFIODomain(fioDomain)
             } catch (e: Exception) {
                 null

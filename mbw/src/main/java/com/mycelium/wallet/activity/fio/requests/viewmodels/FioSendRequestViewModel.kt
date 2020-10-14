@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fio.FioAccount
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 
 class FioSendRequestViewModel : ViewModel() {
@@ -21,12 +20,4 @@ class FioSendRequestViewModel : ViewModel() {
     val amount = MutableLiveData<Value>(Value.valueOf(Utils.getBtcCoinType(), 12000))
     val payeeTokenPublicAddress = MutableLiveData<String>("")
     val payerTokenPublicAddress = MutableLiveData<String>("")
-
-    fun pay() {
-
-    }
-
-    fun decline() {
-
-    }
 }
