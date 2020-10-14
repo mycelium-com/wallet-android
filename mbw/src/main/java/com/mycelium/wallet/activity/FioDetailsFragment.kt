@@ -40,7 +40,7 @@ class FioDetailsFragment : DetailsFragment() {
 
         llValue.addView(getValue(tx.sum, null))
         llFee.addView(getValue(tx.fee!!, null))
-        if (tx.memo != null && tx.memo!!.isNotEmpty()) {
+        if (tx.memo?.isNotEmpty() == true) {
             tvMemo.text = tx.memo
             memoRow.visibility = VISIBLE
         } else {

@@ -59,11 +59,14 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 public class TransactionDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_TXID = "transactionID";
     public static final String ACCOUNT_ID = "accountId";
-    protected static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
-    protected static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
+    protected static final LayoutParams FPWC = new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1);
+    protected static final LayoutParams WCWC = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
     private boolean coluMode = false;
     private TransactionSummary tx;
 
