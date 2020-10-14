@@ -327,7 +327,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     private fun createSenderFioNamesMenu() {
         val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         val now = Date()
-        val fioNames = fioModule.getAllRegisteredFioNames().filter { it.expireDate.after(now) }
+        val fioNames = fioModule.getFIONames(viewModel.getAccount()).filter { it.expireDate.after(now) }
         if (fioNames.isEmpty()) {
             sender.visibility = View.GONE
         } else {
