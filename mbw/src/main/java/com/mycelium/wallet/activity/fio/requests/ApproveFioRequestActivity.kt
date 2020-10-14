@@ -38,9 +38,7 @@ import com.mycelium.wapi.wallet.Util.getCoinsByChain
 import com.mycelium.wapi.wallet.Util.strToBigInteger
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
@@ -57,7 +55,6 @@ import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.io.IOException
 import java.math.BigInteger
-import java.text.DateFormat
 import java.util.*
 
 class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
@@ -119,15 +116,22 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 .firstOrNull {
                     it.symbol.toUpperCase(Locale.US) == fioRequestContent.deserializedContent!!.chainCode.toUpperCase(Locale.US)
                 }
-                ?: throw IllegalStateException("Unexpected currency ${fioRequestContent.deserializedContent!!.chainCode}")
+        if (requestedCurrency == null) {
+            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.chainCode} currency", true)
+            finish()
+        }
 
-        val mappedAccounts = fioModule.getConnectedAccounts(fioRequestViewModel.payerName.value!!)
-        Log.i("asdaf", "asdaf mappedAccounts: $mappedAccounts, requestedCurrency: $requestedCurrency")
-        val account = if (requestedCurrency.symbol == "FIO") {
-            fioRequestViewModel.payerNameOwnerAccount.value
+        val spendingAccounts = mbwManager.getWalletManager(false)
+                .getAllActiveAccounts().filter { it.coinType.id == requestedCurrency!!.id }.sortedBy { it.label }
+
+        if (spendingAccounts.isNotEmpty()) {
+            val account = spendingAccounts.first()
+            fioRequestViewModel.payerAccount.value = account
+            setUpSendViewModel(account, viewModelProvider)
+            initSpinners(spendingAccounts)
         } else {
-            mappedAccounts.firstOrNull { it.coinType.id == requestedCurrency.id }
-                    ?: walletManager.getBTCBip44Accounts().first()
+            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.chainCode} currency", true)
+            finish()
         }
 
         fioRequestViewModel.payerAccount.observe(this, Observer {
@@ -153,12 +157,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 })
             }
         })
-        fioRequestViewModel.payerAccount.value = account!!
-        setUpSendViewModel(account, viewModelProvider)
-        initSpinners(requestedCurrency)
-        Log.i("asdaf", "asdaf spinners inited")
 
-        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
+        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency!!, strToBigInteger(requestedCurrency,
                 fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
         GetPublicAddressTask(fioRequestViewModel.payeeName.value!!,
@@ -222,7 +222,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         }
     }
 
-    private fun initSpinners(requestedCurrency: CryptoCurrency) {
+    private fun initSpinners(spendingAccounts: List<WalletAccount<*>>) {
         val fiatCurrencies = mbwManager.currencyList
         val spinnerItems = fiatCurrencies.map {
             mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it).toStringWithUnit()
@@ -238,8 +238,6 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         }
 
-        val spendingAccounts = mbwManager.getWalletManager(false)
-                .getAllActiveAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
         spinnerSpendingFromAccount?.adapter = ArrayAdapter(this, R.layout.layout_spending_from_account, R.id.text,
                 spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" }).apply {
             setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
