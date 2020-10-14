@@ -10,9 +10,11 @@ class UtilTest {
 
     @Test
     fun strToBigInteger() {
-        val valueBelowOne = "0.006"
+        val valueBelowOne1 = "0.006"
+        val valueBelowOne2 = "1.0E-7"
         val valueAboveOne = "5.0E8"
-        assert(Util.strToBigInteger(coinType, valueBelowOne) == BigInteger.valueOf(600000))
+        assert(Util.strToBigInteger(coinType, valueBelowOne1) == BigInteger.valueOf(600000))
+        assert(Util.strToBigInteger(coinType, valueBelowOne2) == BigInteger.valueOf(10))
         assert(Util.strToBigInteger(coinType, valueAboveOne) == BigInteger.valueOf(50000000000000000))
     }
 
