@@ -67,4 +67,13 @@ object Util {
         sdf.timeZone = TimeZone.getTimeZone("GMT")
         return sdf.parse(fioDateStr)
     }
+
+    /**
+     * adds 365 to the given Date
+     */
+    @JvmStatic
+    fun getRenewTill(expirationDate: Date): Date = Calendar.getInstance().apply {
+        time = expirationDate
+        add(Calendar.DAY_OF_MONTH, 365)
+    }.time
 }
