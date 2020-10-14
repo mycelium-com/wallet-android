@@ -70,8 +70,8 @@ class FIONameDetailsFragment : Fragment() {
         val walletManager = mbwManager.getWalletManager(false)
         list.adapter = adapter
         list.itemAnimator = null
-        viewModel.fioName.value = args.fioName
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        viewModel.fioName.value = fioModule.getFIONameInfo(args.fioName.name)
         fioAccount = fioModule.getFioAccountByFioName(args.fioName.name)!!.let { accountId ->
             walletManager.getAccount(accountId) as FioAccount
         }
@@ -131,6 +131,7 @@ class FIONameDetailsFragment : Fragment() {
             } else {
                 Toaster(this).toast("accounts disconnected", false)
             }
+            viewModel.acknowledge.value = false
         }
         viewModel.bundledTransactions.observe(viewLifecycleOwner) {
             viewModel.update()

@@ -12,9 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import androidx.lifecycle.Observer
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
@@ -22,8 +22,6 @@ import com.mycelium.wallet.databinding.FragmentRenewFioNameBinding
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_renew_fio_name.*
-import kotlinx.android.synthetic.main.fragment_renew_fio_name.btNextButton
-import kotlinx.android.synthetic.main.fragment_renew_fio_name.tvNotEnoughFundsError
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -84,7 +82,13 @@ class RenewFioNameFragment : Fragment() {
     }
 
     private fun getRenewTill(): CharSequence? {
-        val date = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 365) }.time
+        val walletManager = MbwManager.getInstance(context).getWalletManager(false)
+        val fioName = (walletManager.getModuleById(FioModule.ID) as FioModule)
+                .getFIONameInfo(viewModel.addressWithDomain.value ?: "")
+        val date = Calendar.getInstance().apply {
+            time = fioName.expireDate
+            add(Calendar.DAY_OF_MONTH, 365)
+        }.time
         return SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a").format(date)
     }
 
