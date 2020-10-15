@@ -15,8 +15,10 @@ import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
+import fiofoundation.io.fiosdk.errors.fionetworkprovider.GetPendingFIORequestsError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
+import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import fiofoundation.io.fiosdk.utilities.Utils
@@ -71,15 +73,21 @@ class FioAccount(private val accountContext: FioAccountContext,
      */
     fun registerFIODomain(fioDomain: String): String? =
             fiosdk!!.registerFioDomain(fioDomain, receivingAddress.toString(),
-                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration
+                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration.apply {
+                syncFioDomains()
+            }
 
     fun renewFIOAddress(fioAddress: String): String? =
             fiosdk!!.renewFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioAddress))
-                    .getActionTraceResponse()?.expiration
+                    .getActionTraceResponse()?.expiration.apply {
+                        syncFioAddresses()
+                    }
 
     fun renewFIODomain(fioDomain: String): String? =
             fiosdk!!.renewFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioDomain))
-                    .getActionTraceResponse()?.expiration
+                    .getActionTraceResponse()?.expiration.apply {
+                        syncFioDomains()
+                    }
 
     @ExperimentalUnsignedTypes
     fun setDomainVisibility(fioDomain: String, isPublic: Boolean): PushTransactionResponse.ActionTraceResponse? {
@@ -206,17 +214,16 @@ class FioAccount(private val accountContext: FioAccountContext,
     fun getRequestsGroups() = backing.getRequestsGroups()
 
 
-    fun rejectFunds(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
+    fun rejectFundsRequest(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
         return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
     }
 
-    fun requestFunds(
-            payerFioAddress: String, payeeFioAddress: String,
-            payeeTokenPublicAddress: String, amount: Double, chainCode: String, tokenCode: String,
-            maxFee: BigInteger, technologyPartnerId: String = ""
-    ): PushTransactionResponse {
-        return fiosdk!!.requestFunds(payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, maxFee, technologyPartnerId)
-    }
+    fun requestFunds(payerFioAddress: String, payeeFioAddress: String,
+                     payeeTokenPublicAddress: String, amount: Double, memo: String,
+                     chainCode: String, tokenCode: String, maxFee: BigInteger,
+                     technologyPartnerId: String = "") =
+            fiosdk!!.requestFunds(payerFioAddress, payeeFioAddress,
+                    payeeTokenPublicAddress, amount, chainCode, tokenCode, memo, maxFee, technologyPartnerId)
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong())
@@ -279,24 +286,56 @@ class FioAccount(private val accountContext: FioAccountContext,
         }
     }
 
+    private fun renewPendingFioRequests(pendingFioRequests: List<FIORequestContent>) {
+        backing.deletePendingRequests()
+        backing.putReceivedRequests(pendingFioRequests)
+    }
+
+    private fun renewSentFioRequests(sentFioRequests: List<FIORequestContent>) {
+        backing.deleteSentRequests()
+        backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
+    }
+
     private fun syncFioRequests() {
         try {
-            val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
-            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
-            backing.deleteRequestsAll()
-            backing.putReceivedRequests(pendingFioRequests)
-            backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
+            val pendingFioRequests = fiosdk!!.getPendingFioRequests()
+            logger.log(Level.INFO, "Received ${pendingFioRequests.size} pending requests")
+            renewPendingFioRequests(pendingFioRequests)
         } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update fio requests exception", ex)
+            if (ex.cause is GetPendingFIORequestsError) {
+                val cause = ex.cause as GetPendingFIORequestsError
+                if (cause.responseError?.code == 404) {
+                    logger.log(Level.INFO, "Received 0 pending requests")
+                    renewPendingFioRequests(emptyList())
+                }
+            } else {
+                logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+            }
         }
+
+        try {
+            val sentFioRequests = fiosdk!!.getSentFioRequests()
+            renewSentFioRequests(sentFioRequests)
+            logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
+        } catch (ex: FIOError) {
+            val cause = ex.cause as GetPendingFIORequestsError
+            if (cause.responseError?.code == 404) {
+                logger.log(Level.INFO, "Received 0 sent requests")
+                renewSentFioRequests(emptyList())
+            } else {
+                logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
+            }
+        }
+
     }
 
     private fun syncFioOBT() {
         try {
             val obtList = fiosdk?.getObtData() ?: emptyList()
+            logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: FIOError) {
-            logger.log(Level.SEVERE, "Update fio requests exception", ex)
+            logger.log(Level.SEVERE, "Update OBT transactions exception: ${ex.message}", ex)
         }
     }
 

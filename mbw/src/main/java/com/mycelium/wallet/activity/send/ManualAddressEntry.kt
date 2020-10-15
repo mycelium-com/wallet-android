@@ -7,16 +7,18 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
-import android.view.View.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.Window
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.send.adapter.FIONameAdapter
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
@@ -25,9 +27,6 @@ import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.isFioAddress
 import kotlinx.android.synthetic.main.manual_entry.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import okhttp3.*
 import java.io.IOException
 import java.util.*
@@ -38,7 +37,7 @@ class ManualAddressEntry : AppCompatActivity() {
     private var entered: String? = null
     private lateinit var mbwManager: MbwManager
     private lateinit var fioModule: FioModule
-    private lateinit var fioNames: Array<String>
+    private lateinit var fioNames: List<String>
     private lateinit var coinType: CryptoCurrency
     private val fioNameToNbpaMap = mutableMapOf<String, String>()
     private var fioQueryCounter = 0
@@ -48,24 +47,25 @@ class ManualAddressEntry : AppCompatActivity() {
     private lateinit var statusViews: List<View>
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val client = OkHttpClient()
+    private val adapter = FIONameAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.manual_entry)
         val isForFio = intent.getBooleanExtra(FOR_FIO_REQUEST, false)
+        setSupportActionBar(toolbar)
         supportActionBar?.run {
-            title = getString(if(!isForFio)R.string.enter_recipient_title else R.string.fio_enter_fio_name_title)
+            title = getString(if (!isForFio) R.string.enter_recipient_title else R.string.fio_enter_fio_name_title)
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.manual_entry)
         statusViews = listOf(tvCheckingFioAddress, tvRecipientInvalid, tvRecipientValid,
                 tvNoConnection, tvEnterRecipientDescription, tvRecipientHasNoSuchAddress)
         mbwManager = MbwManager.getInstance(this)
         coinType = if (!isForFio) mbwManager.selectedAccount.coinType else Utils.getFIOCoinType()
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-        fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }.toTypedArray()
+        fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }
         etRecipient.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
@@ -77,10 +77,12 @@ class ManualAddressEntry : AppCompatActivity() {
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
         etRecipient.hint = if (!isForFio) getString(R.string.enter_recipient_hint, coinType.name) else getString(R.string.fio_name)
         tvEnterRecipientDescription.text = getString(R.string.enter_recipient_description, coinType.name)
-        lvKnownFioNames.adapter = ArrayAdapter<String>(this, R.layout.fio_address_item, fioNames)
-        lvKnownFioNames.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
-            etRecipient.setText(parent.adapter.getItem(position) as String)
+        lvKnownFioNames.adapter = adapter
+        lvKnownFioNames.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
+        adapter.clickListener = { fioName ->
+            etRecipient.setText(fioName)
         }
+        adapter.submitList(listOf(FIONameAdapter.HEADER_ITEM) + fioNames)
 
         // Load saved state
         entered = savedInstanceState?.getString("entered") ?: ""
@@ -110,7 +112,9 @@ class ManualAddressEntry : AppCompatActivity() {
             }
         }
         val recipientValid = coinAddress != null
-        for (tv in statusViews) { tv.visibility = GONE }
+        for (tv in statusViews) {
+            tv.visibility = GONE
+        }
         when {
             entered?.isEmpty() ?: true -> tvEnterRecipientDescription
             recipientValid -> tvRecipientValid
@@ -121,14 +125,13 @@ class ManualAddressEntry : AppCompatActivity() {
         }.visibility = VISIBLE
         btOk.isEnabled = recipientValid
         val filteredNames = fioNames.filter {
-                    it.startsWith(entered.toString(), true)
-                }.toTypedArray()
+            it.startsWith(entered.toString(), true)
+        }
         if (filteredNames.isEmpty()) {
-            llKnownFioNames.visibility = GONE
+            lvKnownFioNames.visibility = GONE
         } else {
-            lvKnownFioNames.adapter = ArrayAdapter<String>(this@ManualAddressEntry,
-                    R.layout.fio_address_item, filteredNames)
-            llKnownFioNames.visibility = VISIBLE
+            adapter.submitList(listOf(FIONameAdapter.HEADER_ITEM) + filteredNames)
+            lvKnownFioNames.visibility = VISIBLE
         }
     }
 
@@ -149,7 +152,7 @@ class ManualAddressEntry : AppCompatActivity() {
             // we have the result cached already
             return
         }
-        fioQueryCounter+=2 // we query the server twice
+        fioQueryCounter += 2 // we query the server twice
         checkedFioNames.add(address)
         updateUI()
         // TODO: 10/6/20 Use: val result = FioTransactionHistoryService.getPubkeyByFioAddress()
@@ -166,7 +169,7 @@ class ManualAddressEntry : AppCompatActivity() {
                 .url("${Utils.getFIOCoinType().url}chain/get_pub_address")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
-        client.newCall(request).enqueue(object: Callback {
+        client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 noConnection = false
                 val reply = response.body()!!.string()
@@ -194,7 +197,7 @@ class ManualAddressEntry : AppCompatActivity() {
                 .url("${Utils.getFIOCoinType().url}chain/avail_check")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
-        client.newCall(request).enqueue(object: Callback {
+        client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 fioQueryCounter--
                 noConnection = false

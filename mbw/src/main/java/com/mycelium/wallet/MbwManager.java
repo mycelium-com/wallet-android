@@ -66,10 +66,8 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -1696,37 +1694,6 @@ public class MbwManager {
                 lastPinAgeOkay.set(false);
             }
         }, 1, SECONDS);
-    }
-
-    // Derivation constants for mycelium messages' signing key
-    private static final int DERIVATION_NUMBER_LEVEL_ONE = 1234;
-    private static final int DERIVATION_NUMBER_LEVEL_TWO = 7865;
-
-    // Returns the public part of mycelium messages' signing key called 'myceliumId'
-    public String getMyceliumId() {
-        try {
-            PrivateKey privateKey = getMessagesSigningKey();
-            return privateKey.getPublicKey().toString();
-        } catch (Exception ex) {
-            return "";
-        }
-    }
-
-    // Derives a key for signing messages (messages signing key) from the master seed
-    private PrivateKey getMessagesSigningKey() throws KeyCipher.InvalidKeyCipher {
-        Bip39.MasterSeed seed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
-        return HdKeyNode.fromSeed(seed.getBip32Seed(), null).createChildNode(DERIVATION_NUMBER_LEVEL_ONE).createChildNode(DERIVATION_NUMBER_LEVEL_TWO).getPrivateKey();
-    }
-
-    // Signs a message using the mycelium messages' signing key
-    public String signMessage(String unsignedMessage) {
-        try {
-            PrivateKey privateKey = getMessagesSigningKey();
-            SignedMessage signedMessage = privateKey.signMessage(unsignedMessage);
-            return signedMessage.getBase64Signature();
-        } catch (Exception ex) {
-            return "";
-        }
     }
 
     public boolean isShowQueuedTransactionsRemovalAlert() {

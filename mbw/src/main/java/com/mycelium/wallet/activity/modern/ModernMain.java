@@ -128,12 +128,12 @@ public class ModernMain extends AppCompatActivity {
     private static final String APP_START = "APP_START";
     private MbwManager _mbwManager;
 
-    ViewPager mViewPager;
-    TabsAdapter mTabsAdapter;
-    TabLayout.Tab mBalanceTab;
-    TabLayout.Tab mNewsTab;
-    TabLayout.Tab mAccountsTab;
-    TabLayout.Tab mRecommendationsTab;
+    private ViewPager mViewPager;
+    private TabsAdapter mTabsAdapter;
+    private TabLayout.Tab mBalanceTab;
+    private TabLayout.Tab mNewsTab;
+    private TabLayout.Tab mAccountsTab;
+    private TabLayout.Tab mRecommendationsTab;
     private TabLayout.Tab mFioRequestsTab;
     private MenuItem refreshItem;
     private Toaster _toaster;

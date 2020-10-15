@@ -70,8 +70,8 @@ class FIONameDetailsFragment : Fragment() {
         val walletManager = mbwManager.getWalletManager(false)
         list.adapter = adapter
         list.itemAnimator = null
-        viewModel.fioName.value = args.fioName
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        viewModel.fioName.value = fioModule.getFIONameInfo(args.fioName.name)
         fioAccount = fioModule.getFioAccountByFioName(args.fioName.name)!!.let { accountId ->
             walletManager.getAccount(accountId) as FioAccount
         }
@@ -131,6 +131,7 @@ class FIONameDetailsFragment : Fragment() {
             } else {
                 Toaster(this).toast("accounts disconnected", false)
             }
+            viewModel.acknowledge.value = false
         }
         viewModel.bundledTransactions.observe(viewLifecycleOwner) {
             viewModel.update()
@@ -221,7 +222,7 @@ class FIONameDetailsFragment : Fragment() {
             mappedAccounts: List<WalletAccount<*>>,
             preference: SharedPreferences) {
         walletManager.getActiveERC20Accounts().filter { it.coinType.symbol == symbol }.map {
-            ItemAccount(it.id, it.label, "",
+            ItemAccount(it.id, "${it.label} <font color=\"#9E9FA0\">(${it.ethAcc.label})</font>", "",
                     Utils.getDrawableForAccount(it, false, resources),
                     it.coinType, mappedAccounts.contains(it))
         }.apply {

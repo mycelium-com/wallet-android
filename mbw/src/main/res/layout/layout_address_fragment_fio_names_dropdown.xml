@@ -10,7 +10,7 @@
     android:paddingEnd="8dp"
     android:paddingBottom="8dp"
     android:singleLine="true"
-    android:textColor="@color/fio_blue"
+    android:textColor="@color/white"
     android:textSize="14sp"
     android:typeface="monospace"
     tools:text="none" />

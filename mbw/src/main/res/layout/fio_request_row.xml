@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/item_selector"
+    android:background="@drawable/item_fio_selector"
     android:orientation="horizontal"
     tools:context=".activity.main.adapter.TransactionArrayAdapter">
 
@@ -137,12 +137,8 @@
             android:id="@+id/tvMemo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:singleLine="true"
             android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="12sp"
-            android:visibility="gone"
             tools:text="address" />
 
     </LinearLayout>

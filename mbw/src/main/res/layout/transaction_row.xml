@@ -54,6 +54,7 @@
         <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
                 android:orientation="horizontal">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -62,6 +63,18 @@
                 android:layout_gravity="center_vertical|top"
                 android:layout_weight="1"
                 android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTransactionLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:textSize="12sp"
+                    android:textColor="@color/white"
+                    android:fontFamily="monospace"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Confirmed / placeholderLabel" />
 
                 <ImageView
                     android:id="@+id/fioIcon"
@@ -81,35 +94,30 @@
                     android:layout_marginStart="6dp"
                     android:ellipsize="end"
                     android:textSize="14sp"
+                    android:layout_marginTop="4dp"
                     android:textStyle="bold"
                     android:visibility="gone"
                     tools:visibility="visible"
                     app:layout_constraintLeft_toRightOf="@id/fioIcon"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvTransactionLabel"
                     tools:text="To: newfriend@domain" />
 
                 <TextView
                         android:id="@+id/tvFioMemo"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:singleLine="true"
+                        app:layout_constraintLeft_toLeftOf="@+id/otherFioName"
+                        app:layout_constraintRight_toRightOf="parent"
                         android:visibility="gone"
+                        android:textColor="@color/fio_white_alpha_0_8"
                         tools:visibility="visible"
                         app:layout_constraintTop_toBottomOf="@id/otherFioName"
                         tools:text="Gracias Andres por una experiencia muy divertida. Aquí te mando mi parte de la cena." />
 
-                <TextView
-                    android:id="@+id/tvTransactionLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:textSize="13sp"
-                    android:typeface="monospace"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvFioMemo"
-                    tools:text="placeholderLabel" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout

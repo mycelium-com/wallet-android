@@ -47,7 +47,7 @@ import com.mycelium.wallet.activity.TransactionDetailsActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.fio.requests.SentFioRequestStatusActivity
 import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter
-import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryModel
+import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryViewModel
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.SyncMode
@@ -66,7 +66,7 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
     private val accountsWithPartialHistory: MutableSet<UUID> = HashSet()
     private val isLoadingPossible = AtomicBoolean(true)
     private lateinit var adapter: FioRequestArrayAdapter
-    private lateinit var model: FioRequestsHistoryModel
+    private lateinit var viewModel: FioRequestsHistoryViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -77,7 +77,7 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
             }
         }
 
-        adapter = FioRequestArrayAdapter(requireActivity(), model.fioRequestHistory.value
+        adapter = FioRequestArrayAdapter(requireActivity(), viewModel.fioRequestHistory.value
                 ?: emptyList(), _mbwManager)
         lvTransactionHistory.setOnChildClickListener { _, view, groupPosition, childPosition, l ->
             val item: FIORequestContent = adapter.getChild(groupPosition, childPosition) as FIORequestContent
@@ -88,9 +88,9 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
             }
             false
         }
-        model.fioRequestHistory.observe(this.viewLifecycleOwner, Observer { it ->
+        viewModel.fioRequestHistory.observe(this.viewLifecycleOwner, Observer { it ->
             adapter.notifyDataSetChanged()
-            showHistory(!model.fioRequestHistory.value.isNullOrEmpty())
+            showHistory(!viewModel.fioRequestHistory.value.isNullOrEmpty())
 
             //expand all lists
             it.forEachIndexed { index, fioGroup ->
@@ -103,11 +103,11 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        model = ViewModelProviders.of(this).get(FioRequestsHistoryModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(FioRequestsHistoryViewModel::class.java)
         setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
         // cache the addressbook for faster lookup
-        model.cacheAddressBook()
+        viewModel.cacheAddressBook()
     }
 
     override fun onAttach(context: Context) {
@@ -142,7 +142,7 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
 
     @Subscribe
     fun addressBookEntryChanged(event: AddressBookChanged?) {
-        model.cacheAddressBook()
+        viewModel.cacheAddressBook()
         refreshList()
     }
 

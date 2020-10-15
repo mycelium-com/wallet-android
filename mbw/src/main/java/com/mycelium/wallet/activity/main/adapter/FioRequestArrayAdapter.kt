@@ -3,6 +3,8 @@ package com.mycelium.wallet.activity.main.adapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -19,6 +21,7 @@ import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
+import kotlinx.android.synthetic.main.fio_request_row.view.*
 import java.text.SimpleDateFormat
 
 
@@ -44,37 +47,40 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         val content = fioRequestContent.deserializedContent
 
-        val isIncoming = when (group.status) {
-            FioGroup.Type.SENT -> true
-            FioGroup.Type.PENDING -> false
-        }
-
-        val color = if (isIncoming) R.color.green else R.color.red
         val direction = fioRequestView.findViewById<TextView>(R.id.tvDirection)
-        direction?.text = if (isIncoming) "From:" else "To:"
         val address = fioRequestView.findViewById<TextView>(R.id.tvAddress)
-        address?.text = fioRequestContent.payeeFioAddress
+        direction?.text = when (group.status) {
+            FioGroup.Type.SENT -> "To:"
+            FioGroup.Type.PENDING -> "From:"
+        }
+        address?.text = when (group.status) {
+            FioGroup.Type.SENT -> fioRequestContent.payerFioAddress
+            FioGroup.Type.PENDING -> fioRequestContent.payeeFioAddress
+        }
 
         var hasStatus = false;
         val ivStatus = fioRequestView.findViewById<ImageView>(R.id.ivStatus)
         val tvStatus = fioRequestView.findViewById<TextView>(R.id.tvStatus)
+        val amount = fioRequestView.findViewById<TextView>(R.id.tvAmount)
         if (getGroup(groupPosition).status == FioGroup.Type.SENT) {
             val status = FioRequestStatus.getStatus((fioRequestContent as SentFIORequestContent).status)
             if (status != FioRequestStatus.NONE) {
                 hasStatus = true
+                val color = ContextCompat.getColor(activity,
+                        when (status) {
+                            FioRequestStatus.REQUESTED -> R.color.fio_request_pending
+                            FioRequestStatus.REJECTED -> R.color.red
+                            FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.green
+                            FioRequestStatus.NONE -> R.color.green
+                        })
                 tvStatus.text = when (status) {
                     FioRequestStatus.REQUESTED -> "Requested"
                     FioRequestStatus.REJECTED -> "Rejected"
                     FioRequestStatus.SENT_TO_BLOCKCHAIN -> "Received"
                     FioRequestStatus.NONE -> ""
                 }
-                tvStatus.setTextColor(ContextCompat.getColor(activity,
-                        when (status) {
-                            FioRequestStatus.REQUESTED -> R.color.fio_request_pending
-                            FioRequestStatus.REJECTED -> R.color.red
-                            FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.green
-                            FioRequestStatus.NONE -> R.color.green
-                        }))
+                tvStatus.setTextColor(color)
+                amount?.setTextColor(color)
                 ivStatus.setBackgroundResource(
                         when (status) {
                             FioRequestStatus.REQUESTED -> R.drawable.ic_request_pending
@@ -104,7 +110,6 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         val memo = fioRequestView.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
-        val amount = fioRequestView.findViewById<TextView>(R.id.tvAmount)
         val requestedCurrency = COINS.values.firstOrNull {
             it.symbol.equals(content?.chainCode ?: "", true)
         }
@@ -112,10 +117,16 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         val amountValue = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency, content!!.amount))
         amount?.text = amountValue.toStringWithUnit()
-        amount?.setTextColor(ContextCompat.getColor(activity, color))
         val convert = convert(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
         val tvFiatAmount = fioRequestView.findViewById<TextView>(R.id.tvFiatAmount)
         tvFiatAmount?.text = convert?.toStringWithUnit()
+
+        if (content.memo?.isNotEmpty() == true) {
+            fioRequestView.tvMemo.text = content.memo
+            fioRequestView.tvMemo.visibility = VISIBLE
+        } else {
+            fioRequestView.tvMemo.visibility = GONE
+        }
 
         return fioRequestView
     }

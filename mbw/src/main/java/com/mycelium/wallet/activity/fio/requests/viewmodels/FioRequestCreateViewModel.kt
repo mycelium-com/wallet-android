@@ -5,7 +5,7 @@ import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestSuccessActivity
+import com.mycelium.wallet.activity.fio.requests.SentFioRequestStatusActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
@@ -16,6 +16,7 @@ import com.mycelium.wallet.activity.send.model.SendFioModel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.FeeFormatter
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -23,7 +24,6 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
-import com.mycelium.wapi.wallet.fio.getFioAccounts
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -74,9 +74,10 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
 
     fun sendRequest(activity: Activity, doOnSuccess: (Unit) -> Unit, doOnError: (Exception) -> Unit) {
         viewModelScope.launch(IO) {
-            val fioAccounts = mbwManager.getWalletManager(false).getFioAccounts()
-            if (!fioAccounts.isEmpty()) {
-                val fioAccount = fioAccounts[0]
+            val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+            val uuid = fioModule.getFioAccountByFioName(payeeFioName.value!!)!!
+            val fioAccount = mbwManager.getWalletManager(false).getAccount(uuid) as? FioAccount
+            if (fioAccount != null) {
                 val transferTokensFee = fioAccount.getTransferTokensFee()
                 val selectedAccount = mbwManager.selectedAccount
                 try {
@@ -84,30 +85,26 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                             payerFioName.value!!,
                             payeeFioName.value!!,
                             payeeTokenPublicAddress.value!!,
-                            getAmount().value?.value?.toDouble()!!,
+                            Util.valueToDouble(getAmount().value!!),
+                            fioMemo.value ?: "",
                             selectedAccount.basedOnCoinType.symbol,
                             selectedAccount.coinType.symbol,
                             transferTokensFee)
 
                     withContext(Main) {
-                        ApproveFioRequestSuccessActivity.start(
+                        SentFioRequestStatusActivity.start(
                                 activity,
                                 getAmount().value ?: Value.zeroValue(selectedAccount.coinType),
-                                getFiatValue() ?: "",
-                                getSelectedFee().value ?: Value.zeroValue(selectedAccount.coinType),
-                                Date().time,
-                                payerFioName.value!!,
                                 payeeFioName.value!!,
-                                fioMemo.value ?: "",
-                                byteArrayOf(),
-                                accountId = selectedAccount.id)
+                                payerFioName.value!!,
+                                fioMemo.value ?: "")
+                        activity.finish()
                     }
                 } catch (ex: Exception) {
                     withContext(Main) {
                         doOnError.invoke(ex)
                     }
                 }
-
             }
         }
     }

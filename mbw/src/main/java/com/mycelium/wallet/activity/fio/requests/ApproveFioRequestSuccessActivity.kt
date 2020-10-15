@@ -58,7 +58,7 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         setContentView(R.layout.fio_send_request_status_activity)
 
         supportActionBar?.run {
-            title = "Success"
+            title = "Success!"
         }
         walletManager = MbwManager.getInstance(this.application).getWalletManager(false)
         tvAmount.text = (intent.getSerializableExtra(AMOUNT) as Value).toStringWithUnit()

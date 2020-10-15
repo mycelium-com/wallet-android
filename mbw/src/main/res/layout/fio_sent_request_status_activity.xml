@@ -97,6 +97,7 @@
             android:layout_marginBottom="8dp">
 
             <TextView
+                android:id="@+id/tvFromTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
@@ -119,6 +120,7 @@
             android:layout_marginBottom="8dp">
 
             <TextView
+                android:id="@+id/tvToTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
@@ -136,6 +138,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/llMemo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp">

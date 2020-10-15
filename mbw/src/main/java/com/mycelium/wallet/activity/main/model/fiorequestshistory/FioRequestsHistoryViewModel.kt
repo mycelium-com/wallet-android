@@ -7,7 +7,7 @@ import com.mycelium.wallet.MbwManager
 /**
  * Model for [com.mycelium.wallet.activity.main.TransactionHistoryFragment]
  */
-class FioRequestsHistoryModel(application: Application) : AndroidViewModel(application) {
+class FioRequestsHistoryViewModel(application: Application) : AndroidViewModel(application) {
     val mbwManager = MbwManager.getInstance(application)
     val fioRequestHistory = FioRequestsLiveData(mbwManager)
     val addressBook = mbwManager.metadataStorage.allAddressLabels

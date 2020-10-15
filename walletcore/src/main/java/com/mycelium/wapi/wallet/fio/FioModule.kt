@@ -64,6 +64,8 @@ class FioModule(
         return getAllRegisteredFioNames().filter { fioNames.contains(it.name) }
     }
 
+    fun getFIONameInfo(name: String): RegisteredFIOName = getAllRegisteredFioNames().first { it.name == name }
+
     fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
             .executeAsList().sortedBy { "${it.name}@${it.domain}" }
 

@@ -49,10 +49,11 @@
                     android:typeface="monospace"
                     tools:text="newfriend@hisdomain" />
 
-            <ImageButton
+            <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:clickable="false"
+                    android:scaleType="center"
                     android:contentDescription="change recipient"
                     app:srcCompat="@drawable/ic_edit_fio_name" />
         </LinearLayout>
@@ -96,7 +97,7 @@
                     android:typeface="monospace"
                     tools:text="myfiowallet@mycelium" />
 
-            <ImageButton
+            <ImageView
                     android:id="@+id/iv_from_fio_name"
                     android:layout_width="20dp"
                     android:layout_height="20dp"

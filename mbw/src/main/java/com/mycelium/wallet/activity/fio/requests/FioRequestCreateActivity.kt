@@ -17,19 +17,9 @@ import com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateView
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
-import com.mycelium.wallet.activity.send.model.SendBtcViewModel
-import com.mycelium.wallet.activity.send.model.SendColuViewModel
-import com.mycelium.wallet.activity.send.model.SendEthViewModel
-import com.mycelium.wallet.activity.send.model.SendFioViewModel
 import com.mycelium.wallet.databinding.FioRequestCreateNameBinding
 import com.mycelium.wapi.wallet.Address
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.colu.ColuAccount
-import com.mycelium.wapi.wallet.erc20.ERC20Account
-import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
 import java.util.*
 
 
@@ -127,9 +117,8 @@ class FioRequestCreateActivity : AppCompatActivity() {
 
     fun onClickAmount() {
         val account = viewModel.getAccount()
-        GetAmountActivity.callMeToSend(this, SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.id,
-                viewModel.getAmount().value, viewModel.getSelectedFee().value,
-                viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
+        GetAmountActivity.callMeToReceive(this, viewModel.getAmount().value,
+                SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.coinType)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =

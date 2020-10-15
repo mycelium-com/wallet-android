@@ -2,13 +2,14 @@ package com.mycelium.wallet.activity.main.adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -19,8 +20,8 @@ import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.Address;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -181,22 +182,18 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       // Show label or confirmations
       TextView tvLabel = rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.getIdHex());
-      if (label.length() == 0) {
-         // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
-         String confirmationsText;
-         if (record.isQueuedOutgoing()) {
-            confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
-         } else {
-            if (confirmations > 6) {
-               confirmationsText = _context.getResources().getString(R.string.confirmed);
-            } else {
-               confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);
-            }
-         }
-         tvLabel.setText(confirmationsText);
+      // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
+      String confirmationsText;
+      if (record.isQueuedOutgoing()) {
+         confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
       } else {
-         tvLabel.setText(label);
+         if (confirmations > 6) {
+            confirmationsText = _context.getResources().getString(R.string.confirmed);
+         } else {
+            confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);
+         }
       }
+      tvLabel.setText(confirmationsText + (label.isEmpty() ? "" : " / " + label));
 
       // Show risky unconfirmed warning if necessary
       TextView tvWarnings = rowView.findViewById(R.id.tvUnconfirmedWarning);

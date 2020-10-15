@@ -55,7 +55,7 @@
 
                 <!--Update progress bar-->
                 <include
-                    layout="@layout/send_coins_progress"
+                    layout="@layout/send_coins_progress_fio_request"
                     app:viewModel="@{sendViewModel}" />
 
                 <!-- Buttons -->

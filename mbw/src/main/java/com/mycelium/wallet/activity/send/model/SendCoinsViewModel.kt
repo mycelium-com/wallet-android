@@ -127,7 +127,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         // that fio obt record after broadcasting the transaction.
         mbwManager
                 .getWalletManager(false)
-                .getActiveFioAccount(payeeFioName.value ?: return)
+                .getActiveFioAccount(payerFioName.value ?: return)
                 // If there is no FioAccount, we are done here.
                 ?: return
         val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
