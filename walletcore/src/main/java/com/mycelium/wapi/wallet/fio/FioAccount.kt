@@ -272,12 +272,19 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun updateMappings() {
+         val fioNameMappings = accountContext.registeredFIONames?.map { fioName ->
+             fioName.name to FioTransactionHistoryService
+                     .getPubkeysByFioName(fioName.name, coinType as FIOToken).map {
+                         "${it.chainCode}-${it.tokenCode}" to it.publicAddress
+                     }.toMap()
+         }?.toMap()
+                 ?: return
+
         walletManager.getAllActiveAccounts().forEach { account ->
             val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
             val tokenCode = account.coinType.symbol.toUpperCase(Locale.US)
             accountContext.registeredFIONames?.forEach { fioName ->
-                val publicAddress = account.coinType.parseAddress(FioTransactionHistoryService.getPubkeyByFioAddress(
-                        fioName.name, coinType as FIOToken, chainCode, tokenCode).publicAddress)
+                val publicAddress = account.coinType.parseAddress(fioNameMappings[fioName.name]!!["$chainCode-$tokenCode"])
                 if (account.isMineAddress(publicAddress)) {
                     backing.insertOrUpdateMapping(fioName.name, publicAddress.toString(), chainCode,
                             tokenCode, account.id)
@@ -411,13 +418,9 @@ class FioAccount(private val accountContext: FioAccountContext,
         return if (spendableWithFee.isNegative()) Value.zeroValue(coinType) else spendableWithFee
     }
 
-    override fun getSyncTotalRetrievedTransactions(): Int {
-        return 0
-    }
+    override fun getSyncTotalRetrievedTransactions(): Int = 0
 
-    override fun getTypicalEstimatedTransactionSize(): Int {
-        return 0
-    }
+    override fun getTypicalEstimatedTransactionSize(): Int = 0
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("Not yet implemented")

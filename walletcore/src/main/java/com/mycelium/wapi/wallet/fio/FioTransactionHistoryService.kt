@@ -14,6 +14,7 @@ import okhttp3.*
 import java.io.IOException
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -188,6 +189,30 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 e.printStackTrace()
                 null
             }
+        }
+
+        @JvmStatic
+        fun getPubkeysByFioName(fioAddress: String, fioToken: FIOToken): List<PublicAddressEntry> {
+            val md = MessageDigest.getInstance("SHA-1")
+            val nameHash = HexUtils.toHex(md.digest(fioAddress.toByteArray()).slice(IntRange(0, 15)).reversed().toByteArray())
+            val requestBody = """|{
+                    |  "code": "fio.address",
+                    |  "scope": "fio.address",
+                    |  "table": "fionames",
+                    |  "lower_bound": "0x$nameHash",
+                    |  "upper_bound": "0x$nameHash",
+                    |  "key_type": "i128",
+                    |  "index_position": "5",
+                    |  "json": true
+                    |}""".trimMargin()
+            val request = Request.Builder()
+                    .url(fioToken.url + "chain/get_table_rows")
+                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                    .build()
+            val response = client.newCall(request).execute()
+            val body = response.body()!!.string()
+            return mapper.readValue(body, GetPubAddressesResponse::class.java).rows.firstOrNull()?.addresses
+                    ?: listOf()
         }
 
         @JvmStatic
@@ -366,6 +391,22 @@ class GetFioNamesTableRowsResponse {
         val bundleeligiblecountdown: Int? = null
     }
 }
+
+class GetPubAddressesResponse {
+    val rows: List<GetPubAddressesResponseRow> = listOf()
+}
+class GetPubAddressesResponseRow {
+    val addresses: List<PublicAddressEntry> = listOf()
+}
+class PublicAddressEntry {
+        @JsonProperty("token_code")
+        val tokenCode: String = ""
+        @JsonProperty("chain_code")
+        val chainCode: String = ""
+        @JsonProperty("public_address")
+        val publicAddress: String = ""
+}
+
 
 class GetPubAddressResponse {
     @JsonProperty("public_address")
