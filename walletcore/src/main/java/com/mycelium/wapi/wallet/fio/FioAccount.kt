@@ -16,6 +16,7 @@ import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.errors.fionetworkprovider.GetPendingFIORequestsError
+import fiofoundation.io.fiosdk.errors.fionetworkprovider.GetSentFIORequestsError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
@@ -325,10 +326,12 @@ class FioAccount(private val accountContext: FioAccountContext,
             renewSentFioRequests(sentFioRequests)
             logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
         } catch (ex: FIOError) {
-            val cause = ex.cause as GetPendingFIORequestsError
-            if (cause.responseError?.code == 404) {
-                logger.log(Level.INFO, "Received 0 sent requests")
-                renewSentFioRequests(emptyList())
+            if (ex.cause is GetSentFIORequestsError) {
+                val cause = ex.cause as GetSentFIORequestsError
+                if (cause.responseError?.code == 404) {
+                    logger.log(Level.INFO, "Received 0 sent requests")
+                    renewSentFioRequests(emptyList())
+                }
             } else {
                 logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
             }

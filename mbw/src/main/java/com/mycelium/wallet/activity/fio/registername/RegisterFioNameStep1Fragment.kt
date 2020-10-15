@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -112,29 +113,33 @@ class RegisterFioNameStep1Fragment : Fragment() {
         setDefaults()
         if (fioAddress.isNotEmpty()) {
             if (!viewModel.isFioAddressValid.value!!) {
-                showErrorOrSuccess(R.string.fio_address_is_invalid, isError = true)
+                showErrorOrSuccess(resources.getString(R.string.fio_address_is_invalid), isError = true)
             } else if (!viewModel.isFioServiceAvailable.value!!) {
-                showErrorOrSuccess(R.string.fio_address_check_service_unavailable, isError = true)
+                showErrorOrSuccess(resources.getString(R.string.fio_address_check_service_unavailable), isError = true)
             } else if (!viewModel.isFioAddressAvailable.value!!) {
-                showErrorOrSuccess(R.string.fio_address_occupied, isError = true)
+                showErrorOrSuccess(resources.getString(R.string.fio_address_occupied, viewModel.domain.value!!.domain), isError = true)
+                tvHint.setOnClickListener {
+                    RegisterFIODomainActivity.start(requireContext())
+                }
             } else {
-                showErrorOrSuccess(R.string.fio_address_available, isError = false)
+                showErrorOrSuccess(resources.getString(R.string.fio_address_available), isError = false)
             }
         }
     }
 
     private fun setDefaults() {
+        tvHint.setOnClickListener(null)
         tvHint.text = resources.getString(R.string.fio_create_name_hint_text)
         tvHint.setTextColor(resources.getColor(R.color.fio_white_alpha_0_6))
         tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
         tvHint.setCompoundDrawables(null, null, null, null)
     }
 
-    private fun showErrorOrSuccess(messageRes: Int, isError: Boolean) {
+    private fun showErrorOrSuccess(message: String, isError: Boolean) {
         val drawableRes = if (isError) R.drawable.ic_fio_name_error else R.drawable.ic_fio_name_ok
         val colorRes = if (isError) R.color.fio_red else R.color.fio_green
 
-        tvHint.text = resources.getString(messageRes)
+        tvHint.text = HtmlCompat.fromHtml(message, HtmlCompat.FROM_HTML_MODE_COMPACT)
         tvHint.setCompoundDrawablesWithIntrinsicBounds(resources.getDrawable(drawableRes), null, null, null)
         tvHint.compoundDrawablePadding = 3
         tvHint.setTextColor(resources.getColor(colorRes))
