@@ -31,7 +31,7 @@ import java.util.logging.Logger
 class FioAccount(private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
-                 private val fiosdk: FIOSDK? = null,
+                 private val fiosdk: FIOSDK? = null, // TODO: 10/14/20 why nullable??
                  val walletManager: WalletManager,
                  address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
