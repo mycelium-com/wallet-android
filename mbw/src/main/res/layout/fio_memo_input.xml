@@ -29,7 +29,12 @@
                 tools:hint="Leave a message for tom@fiotestnet…"
                 tools:text="Leave a message for tom@fiotestnet…"
                 android:text="@{fioMemo}"
-                android:singleLine="false" />
+                android:singleLine="false"
+                android:maxLength="64"/>
+<!--
+TODO: make the length dynamic depending on limiting factors according to
+      https://developers.fioprotocol.io/wallet-integration-guide/encrypting-fio-data#size-limitations-on-encrypted-data
+-->
     </LinearLayout>
 
 </layout>
