@@ -132,17 +132,20 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 ?: return
         val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
         val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
-        mbwManager.obtDataRecordCache = RecordObtData(
-                payerFioName.value!!,
-                payeeFioName.value!!,
-                "", // TODO: fix
-                getReceivingAddress().value?.toString() ?: "no address provided",
-                getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
-                chainCode,
-                tokenCode,
-                "will be filled in after signing",
-                fioMemo.value ?: ""
-        )
+
+        if (payeeFioName.value != null) {
+            mbwManager.obtDataRecordCache = RecordObtData(
+                    payerFioName.value!!,
+                    payeeFioName.value!!,
+                    "", // TODO: fix
+                    getReceivingAddress().value?.toString() ?: "no address provided",
+                    getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
+                    chainCode,
+                    tokenCode,
+                    "will be filled in after signing",
+                    fioMemo.value ?: ""
+            )
+        }
     }
 
     abstract fun getFeeFormatter(): FeeFormatter
