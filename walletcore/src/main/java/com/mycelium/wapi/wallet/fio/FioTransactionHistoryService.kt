@@ -168,7 +168,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
 
     val url = if (coinType is FIOTest) "https://fiotestnet.greymass.com/v1/history/get_actions" else
         "https://fio.greymass.com/v1/history/get_actions"
-    val offset = BigInteger.valueOf(20)
+    val offset = BigInteger.valueOf(1000)
 
     companion object {
         private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
