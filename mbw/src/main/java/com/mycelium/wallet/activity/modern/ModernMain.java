@@ -67,6 +67,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
+import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
@@ -182,19 +183,8 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig, TAB_ADDRESS_BOOK);
         addAdsTabs(tabLayout);
-        if (SettingsPreference.getMediaFlowEnabled() &&
-                Objects.equals(getIntent().getAction(), "media_flow")) {
-            mNewsTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
-            if (getIntent().hasExtra(NewsConstants.NEWS)) {
-                Intent intent = new Intent(this, NewsActivity.class);
-                intent.putExtras(getIntent().getExtras());
-                startActivity(intent);
-            }
-        } else {
-            mBalanceTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
-        }
+        mBalanceTab.select();
+        mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
         _toaster = new Toaster(this);
 
         ChangeLog cl = new DarkThemeChangeLog(this);
@@ -216,6 +206,30 @@ public class ModernMain extends AppCompatActivity {
         }
 
         ModularisationVersionHelper.notifyWrongModuleVersion(this);
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (SettingsPreference.getMediaFlowEnabled() &&
+                Objects.equals(getIntent().getAction(), "media_flow")) {
+            mNewsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
+            if (getIntent().hasExtra(NewsConstants.NEWS)) {
+                startActivity(new Intent(this, NewsActivity.class)
+                        .putExtras(getIntent().getExtras()));
+            }
+        } else if (Objects.equals(intent.getAction(), "fio_request_action")) {
+            mFioRequestsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
+            startActivity(new Intent(this, ApproveFioRequestActivity.class)
+                    .putExtras(getIntent().getExtras()));
+        }
     }
 
     private void addAdsTabs(TabLayout tabLayout) {

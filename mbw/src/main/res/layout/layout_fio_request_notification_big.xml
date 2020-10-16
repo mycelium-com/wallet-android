@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:textSize="14sp"
         android:textStyle="bold"
         tools:text="From: nas@mycelium" />
@@ -34,12 +35,21 @@
         android:layout_below="@id/amount"
         android:layout_marginStart="8dp"
         android:layout_marginTop="2dp"
-        android:ellipsize="end"
-        android:singleLine="true"
         android:textSize="12sp"
         tools:text="Pleassseeee give me money - and we will..." />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/memo"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:text="CONFIRM REQUEST"
+        android:textColor="#FC1F20"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+
     <include layout="@layout/item_fio_request_notification_img" />
-
-
 </RelativeLayout>

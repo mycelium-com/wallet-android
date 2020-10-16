@@ -5,26 +5,34 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.content.SharedPreferences
 import android.os.Build
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StartupActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
+import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.SyncStopped
+import com.mycelium.wapi.wallet.Util
+import com.mycelium.wapi.wallet.Util.getCoinsByChain
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
+import java.util.*
 
 
 object FioRequestNotificator {
     const val FIO_REQUEST_ACTION = "fio_request_action"
     private const val chanelId = "FIORequest"
-    private const val fioRequestNotificationGroup = "FIO Requests"
+    private const val fioRequestNotificationGroup = "com.mycelium.wallet.FIO_REQUESTS"
     private const val fioRequestNotificationId = 24563487
 
     lateinit var context: Context
@@ -53,31 +61,37 @@ object FioRequestNotificator {
                 .filter { it.status == FioGroup.Type.PENDING }
                 .map { it.children }
                 .flatten()
-                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
+//                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
                 .toList())
 
     }
 
     private fun notifyRequest(requests: List<FIORequestContent>) {
         requests.forEach {
+            val requestedCurrency = getCoinsByChain(MbwManager.getInstance(context).network)
+                    .firstOrNull { currency ->
+                        currency.symbol.toUpperCase(Locale.US) == it.deserializedContent!!.chainCode.toUpperCase(Locale.US)
+                    }
+            val amount = Value.valueOf(requestedCurrency!!, Util.strToBigInteger(requestedCurrency, it.deserializedContent!!.amount))
             NotificationManagerCompat.from(context).notify(fioRequestNotificationId + it.fioRequestId.toInt(),
                     createNotification(context)
-                            .setContentTitle(context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
-                            .setContentText(it.deserializedContent?.memo)
-                            .setTicker("asdfasdfsdf")
-//                            .setContent(RemoteViews(context.packageName, R.layout.layout_fio_request_notification).apply {
-//                                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
-//                                setTextViewText(R.id.amount, "Amount: ${it.deserializedContent?.amount}")
-//                                setTextViewText(R.id.memo, it.deserializedContent?.memo)
-//                            })
+                            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                            .setCustomHeadsUpContentView(RemoteViews(context.packageName, R.layout.layout_fio_request_notification_head))
+                            .setCustomContentView(RemoteViews(context.packageName, R.layout.layout_fio_request_notification).apply {
+                                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
+                                setTextViewText(R.id.amount, "Amount: ${amount.toStringWithUnit()}")
+                                setTextViewText(R.id.memo, it.deserializedContent?.memo)
+                            })
+                            .setCustomBigContentView(RemoteViews(context.packageName, R.layout.layout_fio_request_notification_big).apply {
+                                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
+                                setTextViewText(R.id.amount, "Amount: ${amount.toStringWithUnit()}")
+                                setTextViewText(R.id.memo, it.deserializedContent?.memo)
+                            })
                             .setContentIntent(PendingIntent.getActivity(context, 0,
-                                    createSingleFIORequestIntent(context, it), PendingIntent.FLAG_CANCEL_CURRENT))
-                            .addAction(NotificationCompat.Action.Builder(null, "CONFIRM REQUEST",
-                                    PendingIntent.getActivity(context, 0,
-                                            createSingleFIORequestIntent(context, it), PendingIntent.FLAG_CANCEL_CURRENT))
-                                    .build())
+                                    createSingleFIORequestIntent(context, it),  PendingIntent.FLAG_UPDATE_CURRENT))
                             .setGroup(fioRequestNotificationGroup)
                             .build())
+            preferences.edit().putBoolean(it.fioRequestId.toString(), true).apply()
         }
     }
 
@@ -86,6 +100,7 @@ object FioRequestNotificator {
         return Intent(context, clazz)
                 .setAction(FIO_REQUEST_ACTION)
                 .putExtra(ApproveFioRequestActivity.CONTENT, request.toJson())
+                .addFlags(FLAG_ACTIVITY_SINGLE_TOP)
     }
 
     private fun createNotificationChannel(context: Context) {
