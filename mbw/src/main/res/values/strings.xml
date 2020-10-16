@@ -1400,7 +1400,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_address_is_invalid">Invalid FIO Name</string>
     <string name="fio_domain_is_invalid">Invalid FIO Domain</string>
     <string name="fio_address_occupied"><![CDATA[This name is already taken on @%s domain. Please try another one or register own <font color="#30B7E4"><u>FIO domain</u></font>.]]></string>
-    <string name="fio_domain_occupied">This FIO Domain is not available for registration</string>
+    <string name="fio_domain_occupied">This Domain is already taken, please try something else</string>
     <string name="fio_address_available">This FIO Name is available for registration.</string>
     <string name="fio_domain_available">This FIO Domain is available for registration.</string>
     <string name="fio_address_check_service_unavailable">Looks like FIO protocol experiences some problems. Please check your internet connection or try again later.</string>
