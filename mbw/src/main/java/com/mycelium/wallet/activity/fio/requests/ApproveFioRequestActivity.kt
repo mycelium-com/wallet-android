@@ -179,7 +179,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
         fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
-                mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type)).toStringWithUnit()
+                mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type))?.toStringWithUnit()
 
         sendViewModel.getTransactionStatus().observe(this, Observer {
             Log.i("asdaf", "asdaf TransactionStatus: $it")

@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.content.SharedPreferences
 import android.os.Build
@@ -61,7 +62,7 @@ object FioRequestNotificator {
                 .filter { it.status == FioGroup.Type.PENDING }
                 .map { it.children }
                 .flatten()
-//                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
+                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
                 .toList())
 
     }
@@ -73,22 +74,23 @@ object FioRequestNotificator {
                         currency.symbol.toUpperCase(Locale.US) == it.deserializedContent!!.chainCode.toUpperCase(Locale.US)
                     }
             val amount = Value.valueOf(requestedCurrency!!, Util.strToBigInteger(requestedCurrency, it.deserializedContent!!.amount))
+            val bigView = RemoteViews(context.packageName, R.layout.layout_fio_request_notification_big).apply {
+                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
+                setTextViewText(R.id.amount, context.getString(R.string.amount_label_s, amount.toStringWithUnit()))
+                setTextViewText(R.id.memo, it.deserializedContent?.memo)
+            }
+            val smallView = RemoteViews(context.packageName, R.layout.layout_fio_request_notification).apply {
+                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
+                setTextViewText(R.id.amount, context.getString(R.string.amount_label_s, amount.toStringWithUnit()))
+                setTextViewText(R.id.memo, it.deserializedContent?.memo)
+            }
             NotificationManagerCompat.from(context).notify(fioRequestNotificationId + it.fioRequestId.toInt(),
                     createNotification(context)
                             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                            .setCustomHeadsUpContentView(RemoteViews(context.packageName, R.layout.layout_fio_request_notification_head))
-                            .setCustomContentView(RemoteViews(context.packageName, R.layout.layout_fio_request_notification).apply {
-                                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
-                                setTextViewText(R.id.amount, "Amount: ${amount.toStringWithUnit()}")
-                                setTextViewText(R.id.memo, it.deserializedContent?.memo)
-                            })
-                            .setCustomBigContentView(RemoteViews(context.packageName, R.layout.layout_fio_request_notification_big).apply {
-                                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
-                                setTextViewText(R.id.amount, "Amount: ${amount.toStringWithUnit()}")
-                                setTextViewText(R.id.memo, it.deserializedContent?.memo)
-                            })
+                            .setCustomContentView(smallView)
+                            .setCustomBigContentView(bigView)
                             .setContentIntent(PendingIntent.getActivity(context, 0,
-                                    createSingleFIORequestIntent(context, it),  PendingIntent.FLAG_UPDATE_CURRENT))
+                                    createSingleFIORequestIntent(context, it), PendingIntent.FLAG_UPDATE_CURRENT))
                             .setGroup(fioRequestNotificationGroup)
                             .build())
             preferences.edit().putBoolean(it.fioRequestId.toString(), true).apply()
@@ -96,11 +98,11 @@ object FioRequestNotificator {
     }
 
     private fun createSingleFIORequestIntent(context: Context, request: FIORequestContent): Intent {
-        val clazz = if (MbwManager.getInstance(context).isAppInForeground) ApproveFioRequestActivity::class.java else StartupActivity::class.java
+        val clazz = if (MbwManager.getInstance(context).isAppInForeground) ModernMain::class.java else StartupActivity::class.java
         return Intent(context, clazz)
                 .setAction(FIO_REQUEST_ACTION)
                 .putExtra(ApproveFioRequestActivity.CONTENT, request.toJson())
-                .addFlags(FLAG_ACTIVITY_SINGLE_TOP)
+                .addFlags(FLAG_ACTIVITY_SINGLE_TOP or FLAG_ACTIVITY_CLEAR_TOP)
     }
 
     private fun createNotificationChannel(context: Context) {
@@ -119,5 +121,6 @@ object FioRequestNotificator {
             NotificationCompat.Builder(context, chanelId)
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setAutoCancel(true)
+                    .setSubText("FIO Request")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 }

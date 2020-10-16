@@ -13,7 +13,7 @@
         android:layout_width="22dp"
         android:layout_height="22dp"
         android:layout_margin="8dp"
-        android:src="@drawable/mycelium_logo_transp" />
+        android:src="@drawable/ic_launcher" />
 
     <ImageView
         style="@style/TextAppearance.Compat.Notification.Media"
