@@ -20,12 +20,11 @@ import com.mycelium.wapi.wallet.fio.coins.isFioDomain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import java.util.*
 
-class RegisterFIODomainActivity : AppCompatActivity() {
+class RegisterFIODomainActivity : AppCompatActivity(R.layout.activity_register_fio_domain) {
     private lateinit var viewModel: RegisterFioDomainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register_fio_domain)
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)

@@ -36,7 +36,7 @@ class RegisterFioDomainCompletedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar!!.apply {
-            title = "Registration complete"
+            title = getString(R.string.fio_registration_complete)
             setDisplayHomeAsUpEnabled(false)
         }
         btFinish.setOnClickListener {
