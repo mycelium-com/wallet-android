@@ -410,7 +410,6 @@ public class MbwManager {
         _blockExplorerManager = getBlockExplorerManager(preferences);
 
         startLogger();
-
     }
 
     private void startLogger() {

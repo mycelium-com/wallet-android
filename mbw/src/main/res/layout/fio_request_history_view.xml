@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
         android:id="@+id/tvWarningNotFullHistory"
@@ -13,6 +14,7 @@
         android:padding="8dp"
         android:text="@string/too_many_transaction_records"
         android:textSize="13sp"
+        tools:visibility="visible"
         android:visibility="gone" />
 
     <!-- Transaction History -->
@@ -20,7 +22,7 @@
         android:id="@+id/lvTransactionHistory"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/btCreateFioRequest"
+        android:layout_below="@+id/tvWarningNotFullHistory"
         android:choiceMode="singleChoice"
         android:divider="@color/darkgrey"
         android:dividerHeight="1dp"

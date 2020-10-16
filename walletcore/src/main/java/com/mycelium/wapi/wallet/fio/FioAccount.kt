@@ -16,6 +16,7 @@ import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.errors.fionetworkprovider.GetPendingFIORequestsError
+import fiofoundation.io.fiosdk.errors.fionetworkprovider.GetSentFIORequestsError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
@@ -31,7 +32,7 @@ import java.util.logging.Logger
 class FioAccount(private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
-                 private val fiosdk: FIOSDK? = null,
+                 private val fiosdk: FIOSDK? = null, // TODO: 10/14/20 why nullable??
                  val walletManager: WalletManager,
                  address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
@@ -272,12 +273,19 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun updateMappings() {
+         val fioNameMappings = accountContext.registeredFIONames?.map { fioName ->
+             fioName.name to FioTransactionHistoryService
+                     .getPubkeysByFioName(fioName.name, coinType as FIOToken).map {
+                         "${it.chainCode}-${it.tokenCode}" to it.publicAddress
+                     }.toMap()
+         }?.toMap()
+                 ?: return
+
         walletManager.getAllActiveAccounts().forEach { account ->
             val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
             val tokenCode = account.coinType.symbol.toUpperCase(Locale.US)
             accountContext.registeredFIONames?.forEach { fioName ->
-                val publicAddress = account.coinType.parseAddress(FioTransactionHistoryService.getPubkeyByFioAddress(
-                        fioName.name, coinType as FIOToken, chainCode, tokenCode).publicAddress)
+                val publicAddress = account.coinType.parseAddress(fioNameMappings[fioName.name]!!["$chainCode-$tokenCode"])
                 if (account.isMineAddress(publicAddress)) {
                     backing.insertOrUpdateMapping(fioName.name, publicAddress.toString(), chainCode,
                             tokenCode, account.id)
@@ -318,10 +326,12 @@ class FioAccount(private val accountContext: FioAccountContext,
             renewSentFioRequests(sentFioRequests)
             logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
         } catch (ex: FIOError) {
-            val cause = ex.cause as GetPendingFIORequestsError
-            if (cause.responseError?.code == 404) {
-                logger.log(Level.INFO, "Received 0 sent requests")
-                renewSentFioRequests(emptyList())
+            if (ex.cause is GetSentFIORequestsError) {
+                val cause = ex.cause as GetSentFIORequestsError
+                if (cause.responseError?.code == 404) {
+                    logger.log(Level.INFO, "Received 0 sent requests")
+                    renewSentFioRequests(emptyList())
+                }
             } else {
                 logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
             }
@@ -411,13 +421,9 @@ class FioAccount(private val accountContext: FioAccountContext,
         return if (spendableWithFee.isNegative()) Value.zeroValue(coinType) else spendableWithFee
     }
 
-    override fun getSyncTotalRetrievedTransactions(): Int {
-        return 0
-    }
+    override fun getSyncTotalRetrievedTransactions(): Int = 0
 
-    override fun getTypicalEstimatedTransactionSize(): Int {
-        return 0
-    }
+    override fun getTypicalEstimatedTransactionSize(): Int = 0
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("Not yet implemented")
