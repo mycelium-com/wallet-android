@@ -31,9 +31,3 @@ fun Currency.assetInfoById(): GenericAssetInfo {
         FiatType(id.substring(0, 3))
     }
 }
-
-fun GenericAssetInfo.getBequantUISymbol() =
-        when (name.toLowerCase(Locale.ROOT)) {
-            "tether" -> "${symbol}T"
-            else -> symbol
-        }

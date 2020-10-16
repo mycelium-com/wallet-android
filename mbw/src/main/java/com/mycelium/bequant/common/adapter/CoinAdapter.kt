@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.Constants.TYPE_ITEM
 import com.mycelium.bequant.Constants.TYPE_SEARCH
 import com.mycelium.bequant.common.equalsValuesBy
-import com.mycelium.bequant.common.getBequantUISymbol
 import com.mycelium.bequant.common.holder.ItemViewHolder
 import com.mycelium.bequant.common.holder.SearchHolder
 import com.mycelium.bequant.common.holder.SpaceHolder
@@ -48,7 +47,7 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                 }
             }
             TYPE_ITEM -> {
-                holder.itemView.coinId.text = item.coin?.getBequantUISymbol()
+                holder.itemView.coinId.text = item.coin?.symbol
                 holder.itemView.coinFullName.text = item.coin?.name
                 holder.itemView.setOnClickListener {
                     coinClickListener?.invoke(getItem(holder.adapterPosition).coin!!)
@@ -64,6 +63,6 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                 equalsValuesBy(oldItem, newItem, { it.type }, { it.coin })
 
         override fun areContentsTheSame(oldItem: CoinListItem, newItem: CoinListItem): Boolean =
-                equalsValuesBy(oldItem, newItem, { it.coin?.getBequantUISymbol() })
+                equalsValuesBy(oldItem, newItem, { it.coin?.symbol })
     }
 }

@@ -1,5 +1,7 @@
 package com.mycelium.bequant.remote.repositories
 
+import com.mycelium.bequant.Constants.EXCLUDE_COIN_LIST
+import com.mycelium.bequant.Constants.changeCoinToServer
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.TradingApi
 import com.mycelium.bequant.remote.trading.model.Balance
@@ -13,7 +15,12 @@ class TradingApiRepository {
                           success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.tradingBalanceGet()
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                responseModifier = { result ->
+                    result?.filterNot { EXCLUDE_COIN_LIST.contains(it.currency) }?.apply {
+                        firstOrNull { it.currency == "USD" }?.currency = "USDT"
+                    }?.toTypedArray()
+                })
     }
 
     fun orderPost(scope: CoroutineScope, symbol: String, side: String, quantity: String, clientOrderId: String,
@@ -21,7 +28,7 @@ class TradingApiRepository {
                           expireTime: java.util.Date?, strictValidate: Boolean, postOnly: Boolean,
                           success: (Order?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            api.orderPost(symbol, side, quantity, clientOrderId, type, timeInForce, price, stopPrice,
+            api.orderPost(changeCoinToServer(symbol), side, quantity, clientOrderId, type, timeInForce, price, stopPrice,
                     expireTime, strictValidate, postOnly)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }

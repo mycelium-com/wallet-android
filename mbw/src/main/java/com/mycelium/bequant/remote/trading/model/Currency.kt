@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class Currency(
         /* Currency code */
         @JsonProperty("id")
-        val id: kotlin.String,
+        var id: kotlin.String,
         @JsonProperty("fullName")
         val fullName: kotlin.String,
         /* True for cryptocurrencies, false for fiat, ICO and others. */

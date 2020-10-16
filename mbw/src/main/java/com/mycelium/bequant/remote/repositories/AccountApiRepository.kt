@@ -1,5 +1,7 @@
 package com.mycelium.bequant.remote.repositories
 
+import com.mycelium.bequant.Constants.EXCLUDE_COIN_LIST
+import com.mycelium.bequant.Constants.changeCoinToServer
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.AccountApi
 import com.mycelium.bequant.remote.trading.model.*
@@ -20,14 +22,19 @@ class AccountApiRepository {
                           success: (Array<Balance>?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.accountBalanceGet()
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                responseModifier = { result ->
+                    result?.filterNot { EXCLUDE_COIN_LIST.contains(it.currency) }?.apply {
+                        firstOrNull { it.currency == "USD" }?.currency = "USDT"
+                    }?.toTypedArray()
+                })
     }
 
     fun cryptoAddressCurrencyGet(scope: CoroutineScope,
                                  currency: String,
                                  success: (Address?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            api.accountCryptoAddressCurrencyGet(currency)
+            api.accountCryptoAddressCurrencyGet(changeCoinToServer(currency))
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -35,7 +42,7 @@ class AccountApiRepository {
                                   currency: String,
                                   success: (Address?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            api.accountCryptoAddressCurrencyPost(currency)
+            api.accountCryptoAddressCurrencyPost(changeCoinToServer(currency))
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -99,7 +106,7 @@ class AccountApiRepository {
                             currency: String, amount: String, type: String,
                             success: (InlineResponse200?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            api.accountTransferPost(currency, amount, type)
+            api.accountTransferPost(changeCoinToServer(currency), amount, type)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 }

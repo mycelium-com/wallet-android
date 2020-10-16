@@ -3,7 +3,9 @@ package com.mycelium.bequant.remote.repositories
 import android.app.Activity
 import com.google.gson.Gson
 import com.mycelium.bequant.Constants
+import com.mycelium.bequant.Constants.EXCLUDE_COIN_LIST
 import com.mycelium.bequant.Constants.LAST_SYMBOLS_UPDATE
+import com.mycelium.bequant.Constants.changeCoinToServer
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.PublicApi
 import com.mycelium.bequant.remote.trading.model.*
@@ -36,8 +38,14 @@ class PublicApiRepository {
     fun publicCurrencyCurrencyGet(scope: CoroutineScope, currency: String,
                                   success: (Currency?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            api.publicCurrencyCurrencyGet(currency)
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+            api.publicCurrencyCurrencyGet(changeCoinToServer(currency))
+        }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                responseModifier = { result ->
+                    if (result?.id == "USD") {
+                        result.id = "USDT"
+                    }
+                    result
+                })
     }
 
     // maybe need put it to sharedpreference
@@ -57,7 +65,12 @@ class PublicApiRepository {
                         publicCurrencies = body() ?: arrayOf()
                     }
                 }
-            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+            }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                    responseModifier = { result ->
+                        result?.filterNot { EXCLUDE_COIN_LIST.contains(it.id) }?.apply {
+                            firstOrNull { it.id == "USD" }?.id = "USDT"
+                        }?.toTypedArray()
+                    })
         }
     }
 
@@ -98,12 +111,20 @@ class PublicApiRepository {
             finally?.invoke()
         } else {
             doRequest(scope, {
-                api.publicSymbolGet(symbols).apply {
-                    if (symbols == null) {
-                        publicSymbols = body() ?: arrayOf()
-                    }
-                }
-            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+                api.publicSymbolGet(symbols)
+            }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                    responseModifier = { result ->
+                        result?.filterNot {
+                            EXCLUDE_COIN_LIST.contains(it.baseCurrency) || EXCLUDE_COIN_LIST.contains(it.quoteCurrency)
+                        }?.apply {
+                            filter { it.baseCurrency == "USD" }.forEach { it.baseCurrency = "USDT" }
+                            filter { it.quoteCurrency == "USD" }.forEach { it.quoteCurrency = "USDT" }
+                        }?.toTypedArray()?.apply {
+                            if (symbols == null) {
+                                publicSymbols = this
+                            }
+                        }
+                    })
         }
     }
 

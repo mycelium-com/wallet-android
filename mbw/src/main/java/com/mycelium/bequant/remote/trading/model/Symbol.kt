@@ -30,9 +30,9 @@ data class Symbol(
         @JsonProperty("id")
         val id: kotlin.String,
         @JsonProperty("baseCurrency")
-        val baseCurrency: kotlin.String,
+        var baseCurrency: kotlin.String,
         @JsonProperty("quoteCurrency")
-        val quoteCurrency: kotlin.String,
+        var quoteCurrency: kotlin.String,
         @JsonProperty("quantityIncrement")
         val quantityIncrement: kotlin.String,
         /* A tick size is the minimum price movement of a trading instrument. */

@@ -47,4 +47,6 @@ object Constants {
     const val TYPE_SPACE = 1
 
     const val PUBLIC_REPOSITORY = "bequant_public_repository"
+    val EXCLUDE_COIN_LIST = listOf("USDB", "EURB", "GBPB")
+    fun changeCoinToServer(symbol: String) = if (symbol == "USDT") "USD" else symbol
 }

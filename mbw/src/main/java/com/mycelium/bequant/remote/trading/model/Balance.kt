@@ -25,7 +25,7 @@ import java.math.BigInteger
 
 data class Balance(
         @JsonProperty("currency")
-        val currency: kotlin.String? = null,
+        var currency: kotlin.String? = null,
         /* Amount available to spend */
         @JsonProperty("available")
         val available: String? = null,

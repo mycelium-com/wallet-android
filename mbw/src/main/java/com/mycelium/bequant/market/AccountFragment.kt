@@ -234,7 +234,7 @@ class AccountFragment : Fragment() {
         adapter.submitList(balancesData
                 .filter { !BequantPreference.hideZeroBalance() || it.available != "0" }
                 .map {
-                    AccountItem(TYPE_ITEM, it.currency!!, it.currency,
+                    AccountItem(TYPE_ITEM, it.currency!!, it.currency!!,
                             if (viewModel.privateMode.value == true) HIDE_VALUE else it.available!!)
                 }
                 .filter { it.name.contains(filter, true) || it.symbol.contains(filter, true) })
