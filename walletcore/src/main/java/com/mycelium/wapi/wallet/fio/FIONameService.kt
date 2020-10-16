@@ -9,8 +9,8 @@ data class RegisteredFIOName(@JsonProperty("name") val name: String,
                              @JsonProperty("bundledTxsNum") var bundledTxsNum: Int) : Serializable
 
 data class FIODomain(@JsonProperty("domain") val domain: String,
-                     @JsonProperty("expireDate") val expireDate: Date,
-                     @JsonProperty("public") val isPublic: Boolean) : Serializable
+                     @JsonProperty("expireDate") var expireDate: Date,
+                     @JsonProperty("public") var isPublic: Boolean) : Serializable
 
 data class FIOOBTransaction(val txId: String,
                             val fromFioName: String,
