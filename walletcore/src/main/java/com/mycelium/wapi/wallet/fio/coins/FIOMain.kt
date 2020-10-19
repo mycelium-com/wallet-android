@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet.fio.coins
 
 object FIOMain : FIOToken() {
-    override val url = "http://fioprotocol.io/v1/"
+    override val url = "https://fio.greymass.com/v1/"
 
     init {
         id = "fio.main"

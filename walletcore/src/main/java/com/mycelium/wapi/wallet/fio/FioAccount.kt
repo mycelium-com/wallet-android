@@ -270,7 +270,7 @@ class FioAccount(private val accountContext: FioAccountContext,
         syncTransactions()
         updateMappings()
         try {
-            val fioBalance = fiosdk?.getFioBalance()?.balance ?: balanceService.getBalance()
+            val fioBalance = balanceService.getBalance()
             val newBalance = Balance(Value.valueOf(coinType, fioBalance),
                     Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
             if (newBalance != accountContext.balance) {
