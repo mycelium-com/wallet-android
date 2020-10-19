@@ -58,7 +58,7 @@ object FioRequestNotificator {
                 .filter { it.status == FioGroup.Type.PENDING }
                 .map { it.children }
                 .flatten()
-//                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
+                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
                 .toList())
 
     }

@@ -15,13 +15,11 @@ class FioRequestService : Service() {
     override fun onBind(p0: Intent?): IBinder? = null
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 // TODO may be we need update fio request before move forward
-        Log.e("!!!", "FioRequestService start Act")
         startActivity(Intent(this,
                 if (MbwManager.getInstance(context).isAppInForeground) ApproveFioRequestActivity::class.java else StartupActivity::class.java)
                 .setAction(FIO_REQUEST_ACTION)
                 .putExtras(intent)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        Log.e("!!!", "FioRequestService start Act2")
         return START_STICKY
     }
 }
