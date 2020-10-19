@@ -32,13 +32,13 @@ import java.util.logging.Logger
 class FioAccount(private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
-                 private val fiosdk: FIOSDK? = null, // TODO: 10/14/20 why nullable??
+                 private val fiosdk: FIOSDK? = null, // null if it's read-only account
                  val walletManager: WalletManager,
                  address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = fiosdk?.let { FioAddress(coinType, FioAddressData(it.publicKey)) }
             ?: address!!
-    private val transactionService = FioTransactionHistoryService(accountContext.currency,
+    private val transactionService = FioBlockchainService(accountContext.currency,
             receiveAddress.toString(), Utils.generateActor(receiveAddress.toString()))
     private val balanceService by lazy {
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
@@ -143,9 +143,9 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     private fun getFioNames(): List<RegisteredFIOName> = try {
         val fioToken = coinType as FIOToken
-        FioTransactionHistoryService.getFioNames(fioToken,
+        FioBlockchainService.getFioNames(fioToken,
                 receivingAddress.toString())?.fio_addresses?.map {
-            val bundledTxsNum = FioTransactionHistoryService.getBundledTxsNum(fioToken, it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
+            val bundledTxsNum = FioBlockchainService.getBundledTxsNum(fioToken, it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
             RegisteredFIOName(it.fio_address, convertToDate(it.expiration), bundledTxsNum)
         } ?: emptyList()
     } catch (e: Exception) {
@@ -153,7 +153,7 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun getFioDomains(): List<FIODomain> = try {
-        FioTransactionHistoryService.getFioNames(coinType as FIOToken,
+        FioBlockchainService.getFioNames(coinType as FIOToken,
                 receivingAddress.toString())?.fio_domains?.map {
             FIODomain(it.fio_domain, convertToDate(it.expiration), it.isPublic != 0)
         } ?: emptyList()
@@ -287,7 +287,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     private fun updateMappings() {
          val fioNameMappings = accountContext.registeredFIONames?.map { fioName ->
-             fioName.name to FioTransactionHistoryService
+             fioName.name to FioBlockchainService
                      .getPubkeysByFioName(fioName.name, coinType as FIOToken).map {
                          "${it.chainCode}-${it.tokenCode}" to it.publicAddress
                      }.toMap()
@@ -319,7 +319,7 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     private fun syncFioRequests() {
         try {
-            val pendingFioRequests = fiosdk!!.getPendingFioRequests()
+            val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
             logger.log(Level.INFO, "Received ${pendingFioRequests.size} pending requests")
             renewPendingFioRequests(pendingFioRequests)
         } catch (ex: FIOError) {
@@ -335,7 +335,7 @@ class FioAccount(private val accountContext: FioAccountContext,
         }
 
         try {
-            val sentFioRequests = fiosdk!!.getSentFioRequests()
+            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
             renewSentFioRequests(sentFioRequests)
             logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
         } catch (ex: FIOError) {

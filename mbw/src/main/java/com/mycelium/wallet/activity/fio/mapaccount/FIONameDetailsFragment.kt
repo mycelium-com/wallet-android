@@ -34,7 +34,7 @@ import com.mycelium.wapi.wallet.erc20.getActiveERC20Accounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
+import com.mycelium.wapi.wallet.fio.FioBlockchainService
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -78,7 +78,7 @@ class FIONameDetailsFragment : Fragment() {
         viewModel.fioAccount.value = fioAccount
         thread {
             viewModel.bundledTransactions.postValue(
-                    FioTransactionHistoryService.getBundledTxsNum(Utils.getFIOCoinType(), args.fioName.name))
+                    FioBlockchainService.getBundledTxsNum(Utils.getFIOCoinType(), args.fioName.name))
         }
         adapter.selectChangeListener = { accountItem ->
             data.filterIsInstance<ItemAccount>()

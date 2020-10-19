@@ -41,7 +41,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
+import com.mycelium.wapi.wallet.fio.FioBlockchainService
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
@@ -424,7 +424,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             val listener: ((GetPubAddressResponse) -> Unit)) : AsyncTask<Void, Void, GetPubAddressResponse>() {
         override fun doInBackground(vararg args: Void): GetPubAddressResponse {
             return try {
-                FioTransactionHistoryService.getPubkeyByFioAddress(fioName, Utils.getFIOCoinType(), chainCode, tokenCode)
+                FioBlockchainService.getPubkeyByFioAddress(fioName, Utils.getFIOCoinType(), chainCode, tokenCode)
             } catch (e: IOException) {
                 GetPubAddressResponse().also {
                     it.message = e.localizedMessage

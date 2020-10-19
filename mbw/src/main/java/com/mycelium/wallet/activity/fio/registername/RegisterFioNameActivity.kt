@@ -15,10 +15,9 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioTransactionHistoryService
+import com.mycelium.wapi.wallet.fio.FioBlockchainService
 import fiofoundation.io.fiosdk.isFioAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
-import kotlinx.android.synthetic.main.activity_fio_add_address.*
 import java.util.*
 
 class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_address) {
@@ -98,7 +97,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
-                FioTransactionHistoryService.getFeeByEndpoint(Utils.getFIOCoinType(),
+                FioBlockchainService.getFeeByEndpoint(Utils.getFIOCoinType(),
                         endpoint).toString()
             } catch (e: Exception) {
                 null
@@ -115,7 +114,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                FioTransactionHistoryService.isFioNameOrDomainAvailable(Utils.getFIOCoinType(),
+                FioBlockchainService.isFioNameOrDomainAvailable(Utils.getFIOCoinType(),
                         addressWithDomain)
             } catch (e: Exception) {
                 null

@@ -18,14 +18,14 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FioTransactionHistoryService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
+class FioBlockchainService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
     var lastActionSequenceNumber: BigInteger = BigInteger.ZERO
 
     fun getTransactions(latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
         var requestBody = "{\"account_name\":\"$accountName\", \"pos\":-1, \"offset\":-1}"
         var request = Request.Builder()
-                .url(url)
+                .url(historyNodeUrl)
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         try {
@@ -43,7 +43,7 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
 
                     requestBody = "{\"account_name\":\"$accountName\", \"pos\":$pos, \"offset\":${-offset + BigInteger.ONE}}"
                     request = Request.Builder()
-                            .url(url)
+                            .url(historyNodeUrl)
                             .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                             .build()
                     try {
@@ -166,9 +166,9 @@ class FioTransactionHistoryService(private val coinType: CryptoCurrency, private
                 .multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
     }
 
-    val url = if (coinType is FIOTest) "https://fiotestnet.greymass.com/v1/history/get_actions" else
+    private val historyNodeUrl = if (coinType is FIOTest) "https://fiotestnet.greymass.com/v1/history/get_actions" else
         "https://fio.greymass.com/v1/history/get_actions"
-    val offset = BigInteger.valueOf(1000)
+    val offset: BigInteger = BigInteger.valueOf(1000)
 
     companion object {
         private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -399,14 +399,15 @@ class GetPubAddressesResponseRow {
     val addresses: List<PublicAddressEntry> = listOf()
 }
 class PublicAddressEntry {
-        @JsonProperty("token_code")
-        val tokenCode: String = ""
-        @JsonProperty("chain_code")
-        val chainCode: String = ""
-        @JsonProperty("public_address")
-        val publicAddress: String = ""
-}
+    @JsonProperty("token_code")
+    val tokenCode: String = ""
 
+    @JsonProperty("chain_code")
+    val chainCode: String = ""
+
+    @JsonProperty("public_address")
+    val publicAddress: String = ""
+}
 
 class GetPubAddressResponse {
     @JsonProperty("public_address")
