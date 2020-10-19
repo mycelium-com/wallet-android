@@ -1401,10 +1401,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_address_is_invalid">Invalid FIO Name</string>
     <string name="fio_domain_is_invalid">Invalid FIO Domain</string>
     <string name="fio_address_occupied"><![CDATA[This name is already taken on @%s domain. Please try another one or register own <font color="#30B7E4"><u>FIO domain</u></font>.]]></string>
-    <string name="fio_domain_occupied">This FIO Domain is not available for registration</string>
+    <string name="fio_domain_occupied">This Domain is already taken, please try something else</string>
     <string name="fio_address_available">This FIO Name is available for registration.</string>
     <string name="fio_domain_available">This FIO Domain is available for registration.</string>
-    <string name="fio_address_check_service_unavailable">Can\'t perform FIO Name/Domain availability check and FIO Name/Domain registering due to service unavailability. Please check your internet connection and try again</string>
+    <string name="fio_address_check_service_unavailable">Looks like FIO protocol experiences some problems. Please check your internet connection or try again later.</string>
     <string name="fio_create_name_description"><b>FIO Protocol</b> is a new simple way to Send, Receive, and Request <b>ANY CRYPTO</b> with one public alias for all crypto accounts!\n\n- Crypto transactions with memos\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized\n\n<b>Create your FIO Name</b> (i.e. nakamoto@mycelium) and get your daily crypto experience to the next level!</string>
     <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
     <string name="fio_annual_fee_domain">Register FIO Domain for %s/year and create any FIO names you’d like with your personal domain.</string>
@@ -1442,4 +1442,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_register_domain">Register FIO Domain</string>
     <string name="fio_manage_name_need_mapping_s"><b>%s</b> is not connect to a FIO Name.  Select FIO Name to connect to:</string>
     <string name="fio_name_label">FIO Name:</string>
+    <string name="fio_registration_complete">Registration complete!</string>
 </resources>

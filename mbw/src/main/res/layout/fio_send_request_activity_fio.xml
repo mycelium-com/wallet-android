@@ -50,7 +50,7 @@
 
                 <!-- Amount Error -->
                 <include
-                    layout="@layout/send_coins_insufficient"
+                    layout="@layout/send_coins_insufficient_fio"
                     app:viewModel="@{sendViewModel}" />
 
                 <!--Update progress bar-->

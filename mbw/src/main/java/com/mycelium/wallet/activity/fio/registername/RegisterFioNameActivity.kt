@@ -21,16 +21,15 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import kotlinx.android.synthetic.main.activity_fio_add_address.*
 import java.util.*
 
-class RegisterFioNameActivity : AppCompatActivity() {
+class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_address) {
     private lateinit var viewModel: RegisterFioNameViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_fio_add_address)
-        setSupportActionBar(toolbar)
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)
+            setDisplayShowTitleEnabled(true)
             title = resources.getString(R.string.fio_register_address)
         }
 

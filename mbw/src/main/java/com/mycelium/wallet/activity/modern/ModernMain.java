@@ -94,6 +94,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 
@@ -412,7 +413,9 @@ public class ModernMain extends AppCompatActivity {
         inflater.inflate(R.menu.refresh, menu);
         inflater.inflate(R.menu.addressbook_options_global, menu);
         inflater.inflate(R.menu.verify_message, menu);
-        inflater.inflate(R.menu.record_fio_options, menu);
+        if (!((FioModule) _mbwManager.getWalletManager(false).getModuleById(FioModule.ID)).getAllRegisteredFioNames().isEmpty()) {
+            inflater.inflate(R.menu.record_fio_options, menu);
+        }
         return true;
     }
 

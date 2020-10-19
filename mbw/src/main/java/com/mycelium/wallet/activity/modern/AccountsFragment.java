@@ -73,7 +73,6 @@ import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
-import com.mycelium.wallet.activity.fio.registerdomain.RegisterFIODomainActivity;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
@@ -125,6 +124,8 @@ import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.FioModule;
+import com.mycelium.wapi.wallet.fio.FioModuleKt;
+import com.mycelium.wapi.wallet.fio.RegisteredFIOName;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -593,8 +594,17 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu);
         }
 
+        final List<RegisteredFIOName> fioNames = ((FioModule) walletManager.getModuleById(FioModule.ID)).getAllRegisteredFioNames();
         if (account instanceof FioAccount) {
-            menus.add(R.menu.record_options_menu_fio_map_address);
+            if (fioNames.isEmpty()) {
+                menus.add(R.menu.record_options_menu_add_fio_name);
+                menus.add(R.menu.record_options_menu_about_fio_protocol);
+            } else {
+                menus.add(R.menu.record_options_menu_add_fio_name);
+                menus.add(R.menu.record_options_menu_my_fio_names);
+                menus.add(R.menu.record_options_menu_about_fio_protocol);
+                menus.add(R.menu.record_options_menu_fio_requests);
+            }
         }
 
         if (account instanceof SingleAddressAccount ||
@@ -639,10 +649,14 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
-        if ((account instanceof HDAccount || account instanceof SingleAddressAccount ||
-                account instanceof EthAccount) &&
-                !((FioModule) walletManager.getModuleById(FioModule.ID)).getFIONames(account).isEmpty()) {
-            menus.add(R.menu.record_map_to_fio);
+        final List<FioAccount> fioAccounts = FioModuleKt.getActiveFioAccounts(walletManager);
+        if (!(account instanceof FioAccount) && !fioAccounts.isEmpty() && fioNames.isEmpty()) {
+            menus.add(R.menu.record_options_menu_add_fio_name);
+        }
+
+        if (!(account instanceof FioAccount) && !fioNames.isEmpty()) {
+            menus.add(R.menu.record_options_menu_my_fio_names);
+            menus.add(R.menu.record_options_menu_fio_requests);
         }
 
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
@@ -687,11 +701,6 @@ public class AccountsFragment extends Fragment {
                     case R.id.miMapFioAddress:
                         RegisterFioNameActivity.start(requireContext(), account.getId());
                         return true;
-                    case R.id.miRegisterFioDomain:
-                        startActivity(new Intent(requireActivity(), RegisterFIODomainActivity.class)
-                                .putExtra("account", account.getId()));
-                        return true;
-                    case R.id.miFioMapAccounts:
                     case R.id.miMapToFio:
                         FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;

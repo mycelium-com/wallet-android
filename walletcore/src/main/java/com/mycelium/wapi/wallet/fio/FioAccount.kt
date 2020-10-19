@@ -44,13 +44,21 @@ class FioAccount(private val accountContext: FioAccountContext,
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
     }
 
-    val registeredFIONames: MutableList<RegisteredFIOName>
-        get() = accountContext.registeredFIONames?.toMutableList()
-                ?: mutableListOf()
+    var registeredFIONames: MutableList<RegisteredFIOName> = accountContext.registeredFIONames?.toMutableList()
+            ?: mutableListOf()
 
-    val registeredFIODomains: MutableList<FIODomain>
-        get() = accountContext.registeredFIODomains?.toMutableList()
-                ?: mutableListOf()
+    var registeredFIODomains: MutableList<FIODomain> = accountContext.registeredFIODomains?.toMutableList()
+            ?: mutableListOf()
+
+    private fun addRegisteredName(nameToAdd: RegisteredFIOName) {
+        registeredFIONames.add(nameToAdd)
+        accountContext.registeredFIONames = registeredFIONames
+    }
+
+    private fun addRegisteredDomain(domain: FIODomain) {
+        registeredFIODomains.add(domain)
+        accountContext.registeredFIODomains = registeredFIODomains
+    }
 
     @Volatile
     private var syncing = false
@@ -65,8 +73,8 @@ class FioAccount(private val accountContext: FioAccountContext,
      */
     fun registerFIOAddress(fioAddress: String): String? =
             fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
-                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration.apply {
-                syncFioAddresses()
+                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration?.also {
+                addRegisteredName(RegisteredFIOName(fioAddress, convertToDate(it), DEFAULT_BUNDLED_TXS_NUM))
             }
 
     /**
@@ -74,20 +82,25 @@ class FioAccount(private val accountContext: FioAccountContext,
      */
     fun registerFIODomain(fioDomain: String): String? =
             fiosdk!!.registerFioDomain(fioDomain, receivingAddress.toString(),
-                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration.apply {
-                syncFioDomains()
+                    getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration?.also {
+                addRegisteredDomain(FIODomain(fioDomain, convertToDate(it), false))
             }
 
     fun renewFIOAddress(fioAddress: String): String? =
             fiosdk!!.renewFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioAddress))
-                    .getActionTraceResponse()?.expiration.apply {
-                        syncFioAddresses()
+                    .getActionTraceResponse()?.expiration?.also { expirationDate ->
+                        val oldName = registeredFIONames.first { it.name == fioAddress }
+                        oldName.expireDate = convertToDate(expirationDate)
+                        oldName.bundledTxsNum += DEFAULT_BUNDLED_TXS_NUM
+                        accountContext.registeredFIONames = registeredFIONames
                     }
 
     fun renewFIODomain(fioDomain: String): String? =
             fiosdk!!.renewFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioDomain))
-                    .getActionTraceResponse()?.expiration.apply {
-                        syncFioDomains()
+                    .getActionTraceResponse()?.expiration?.also { expirationDate ->
+                        val oldDomain = registeredFIODomains.first { it.domain == fioDomain }
+                        oldDomain.expireDate = convertToDate(expirationDate)
+                        accountContext.registeredFIODomains = registeredFIODomains
                     }
 
     @ExperimentalUnsignedTypes
@@ -350,11 +363,47 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioAddresses() {
-        accountContext.registeredFIONames = getFioNames()
+        val fioNames = getFioNames()
+        fioNames.forEach {
+            addOrUpdateRegisteredName(it)
+        }
+    }
+
+    private fun addOrUpdateRegisteredName(nameToAdd: RegisteredFIOName) {
+        if (nameToAdd.name in registeredFIONames.map { it.name }) {
+            updateRegisteredName(nameToAdd)
+        } else {
+            addRegisteredName(nameToAdd)
+        }
+    }
+
+    private fun updateRegisteredName(newName: RegisteredFIOName) {
+        val oldName = registeredFIONames.first { it.name == newName.name }
+        oldName.expireDate = newName.expireDate
+        oldName.bundledTxsNum = newName.bundledTxsNum
+        accountContext.registeredFIONames = registeredFIONames
     }
 
     private fun syncFioDomains() {
-        accountContext.registeredFIODomains = getFioDomains()
+        val fioDomains = getFioDomains()
+        fioDomains.forEach {
+            addOrUpdateRegisteredDomain(it)
+        }
+    }
+
+    private fun addOrUpdateRegisteredDomain(domainToAdd: FIODomain) {
+        if (domainToAdd.domain in registeredFIODomains.map { it.domain }) {
+            updateRegisteredDomain(domainToAdd)
+        } else {
+            addRegisteredDomain(domainToAdd)
+        }
+    }
+
+    private fun updateRegisteredDomain(newDomain: FIODomain) {
+        val oldDomain = registeredFIODomains.first { it.domain == newDomain.domain }
+        oldDomain.expireDate = newDomain.expireDate
+        oldDomain.isPublic = newDomain.isPublic
+        accountContext.registeredFIODomains = registeredFIODomains
     }
 
     private fun updateBlockHeight() {
