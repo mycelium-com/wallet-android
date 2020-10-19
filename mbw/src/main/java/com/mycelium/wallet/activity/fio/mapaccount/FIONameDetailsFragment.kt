@@ -108,6 +108,11 @@ class FIONameDetailsFragment : Fragment() {
             val fioName = viewModel.fioName.value!!.name
             RegisterFioNameActivity.startRenew(requireContext(), fioAccount.id, fioName)
         }
+        copy.setOnClickListener {
+            val text = viewModel.fioName.value!!.name
+            Utils.setClipboardString(text, context)
+            Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+        }
         buttonContinue.setOnClickListener {
             val accounts = adapter.currentList
                     .filterIsInstance<ItemAccount>()
