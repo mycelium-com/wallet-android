@@ -5,8 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
-import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.content.SharedPreferences
 import android.os.Build
 import android.widget.RemoteViews
@@ -14,9 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.StartupActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
-import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.Util
@@ -62,7 +58,7 @@ object FioRequestNotificator {
                 .filter { it.status == FioGroup.Type.PENDING }
                 .map { it.children }
                 .flatten()
-                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
+//                .filter { !preferences.getBoolean(it.fioRequestId.toString(), false) }
                 .toList())
 
     }
@@ -89,7 +85,7 @@ object FioRequestNotificator {
                             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                             .setCustomContentView(smallView)
                             .setCustomBigContentView(bigView)
-                            .setContentIntent(PendingIntent.getActivity(context, 0,
+                            .setContentIntent(PendingIntent.getService(context, 0,
                                     createSingleFIORequestIntent(context, it), PendingIntent.FLAG_UPDATE_CURRENT))
                             .setGroup(fioRequestNotificationGroup)
                             .build())
@@ -97,13 +93,10 @@ object FioRequestNotificator {
         }
     }
 
-    private fun createSingleFIORequestIntent(context: Context, request: FIORequestContent): Intent {
-        val clazz = if (MbwManager.getInstance(context).isAppInForeground) ModernMain::class.java else StartupActivity::class.java
-        return Intent(context, clazz)
-                .setAction(FIO_REQUEST_ACTION)
-                .putExtra(ApproveFioRequestActivity.CONTENT, request.toJson())
-                .addFlags(FLAG_ACTIVITY_SINGLE_TOP or FLAG_ACTIVITY_CLEAR_TOP)
-    }
+    private fun createSingleFIORequestIntent(context: Context, request: FIORequestContent): Intent =
+            Intent(context, FioRequestService::class.java)
+                    .setAction(FIO_REQUEST_ACTION)
+                    .putExtra(ApproveFioRequestActivity.CONTENT, request.toJson())
 
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -118,7 +111,7 @@ object FioRequestNotificator {
     }
 
     private fun createNotification(context: Context): NotificationCompat.Builder =
-            NotificationCompat.Builder(context, chanelId)
+            NotificationCompat.Builder(context.applicationContext, chanelId)
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setAutoCancel(true)
                     .setSubText("FIO Request")
