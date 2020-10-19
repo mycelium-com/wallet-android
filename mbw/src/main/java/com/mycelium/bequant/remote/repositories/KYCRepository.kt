@@ -24,7 +24,7 @@ class KYCRepository {
     fun create(scope: CoroutineScope, applicant: KYCApplicant, success: (() -> Unit),
                error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
-            if (BequantPreference.getKYCStatus() == KYCStatus.INCOMPLETE) {
+            if (BequantPreference.getKYCToken().isNotEmpty()) {
                 service.update(applicant)
             } else {
                 service.create(KYCCreateRequest(applicant))
