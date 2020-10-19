@@ -259,10 +259,12 @@
         <activity android:name=".activity.export.ExportFioKeyActivity" />
         <activity
             android:name=".activity.fio.registername.RegisterFioNameActivity"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/MyceliumFIOMapping" />
 
         <activity
             android:name=".activity.fio.registerdomain.RegisterFIODomainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/MyceliumFIOMapping" />
 
         <activity
