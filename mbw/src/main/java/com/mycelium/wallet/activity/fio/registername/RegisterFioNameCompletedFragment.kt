@@ -67,7 +67,7 @@ class RegisterFioNameCompletedFragment : Fragment() {
     }
 
     companion object {
-        const val DEFAULT_BUNDLED_TXS_NUM = 105
+        const val DEFAULT_BUNDLED_TXS_NUM = 100
 
         @JvmStatic
         fun newInstance(fioName: String, fioAccountLabel: String, expirationDate: String): RegisterFioNameCompletedFragment {
