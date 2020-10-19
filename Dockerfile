@@ -22,3 +22,15 @@ RUN mkdir -p /opt/android-sdk && cd /opt/android-sdk && \
     unzip *tools*linux*.zip && \
     rm *tools*linux*.zip && \
     yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+
+# download and install Android NDK
+ENV ANDROID_NDK_HOME /opt/android-ndk
+ENV ANDROID_NDK_VERSION r21d
+RUN mkdir /opt/android-ndk-tmp && \
+    cd /opt/android-ndk-tmp && \
+    wget -q https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip && \
+    unzip -q android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip && \
+    mv ./android-ndk-${ANDROID_NDK_VERSION} ${ANDROID_NDK_HOME} && \
+    cd ${ANDROID_NDK_HOME} && \
+    rm -rf /opt/android-ndk-tmp
+ENV PATH ${PATH}:${ANDROID_NDK_HOME}
