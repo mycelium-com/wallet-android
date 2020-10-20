@@ -97,7 +97,8 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                                 getAmount().value ?: Value.zeroValue(selectedAccount.coinType),
                                 payeeFioName.value!!,
                                 payerFioName.value!!,
-                                fioMemo.value ?: "")
+                                fioMemo.value ?: "",
+                                requestFunds.transactionId)
                         activity.finish()
                     }
                 } catch (ex: Exception) {
@@ -119,7 +120,7 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()) {
                 val fioAddress = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
-                val addressResult = data?.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
+                val addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
                 payerFioName.value = fioAddress
                 payerTokenPublicAddress.value = addressResult.toString()
             }

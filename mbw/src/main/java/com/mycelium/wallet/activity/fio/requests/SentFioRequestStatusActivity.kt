@@ -2,12 +2,15 @@ package com.mycelium.wallet.activity.fio.requests
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
+import com.mycelium.net.ServerEndpointType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -66,6 +69,17 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
             Date()
         })
         btNextButton.setOnClickListener { finish() }
+        tvRequestDetailsLink.visibility = if (fioRequestContent != null) View.GONE else View.VISIBLE
+        tvRequestDetailsLink.setOnClickListener {
+            val txHash = this.intent.getStringExtra(ApproveFioRequestActivity.TXID)
+            val blockExplorer = mbwManager._blockExplorerManager.getBEMByCurrency(Utils.getFIOCoinType().name)!!.blockExplorer
+            val url = blockExplorer.getUrl(txHash, mbwManager.torMode == ServerEndpointType.Types.ONLY_TOR)
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(url)
+            startActivity(intent)
+            Toast.makeText(this, R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setTitles() {
@@ -156,14 +170,13 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
             }
         }
 
-        fun start(activity: Activity, amount: Value,
-                  from: String,
-                  to: String, memo: String) {
+        fun start(activity: Activity, amount: Value, from: String, to: String, memo: String, txid: String) {
             with(Intent(activity, SentFioRequestStatusActivity::class.java)) {
                 putExtra(ApproveFioRequestActivity.AMOUNT, amount)
                 putExtra(ApproveFioRequestActivity.FROM, from)
                 putExtra(ApproveFioRequestActivity.TO, to)
                 putExtra(ApproveFioRequestActivity.MEMO, memo)
+                putExtra(ApproveFioRequestActivity.TXID, txid)
                 activity.startActivity(this)
             }
         }
