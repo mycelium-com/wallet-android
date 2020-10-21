@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
+import android.annotation.SuppressLint
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,7 +22,7 @@ import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.getFioAccounts
+import com.mycelium.wapi.wallet.fio.getSpendableFioAccounts
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_step2.*
 
 class RegisterFioDomainStep2Fragment : Fragment() {
@@ -41,7 +42,7 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                     .apply {
                         viewModel = this@RegisterFioDomainStep2Fragment.viewModel.apply {
                             val walletManager = MbwManager.getInstance(context).getWalletManager(false)
-                            val fioAccounts = walletManager.getFioAccounts()
+                            val fioAccounts = walletManager.getSpendableFioAccounts()
                             spinnerFioAccounts?.adapter = ArrayAdapter(context,
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text, fioAccounts.map { it.label }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
@@ -89,6 +90,7 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                         lifecycleOwner = this@RegisterFioDomainStep2Fragment
                     }.root
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btNextButton.setOnClickListener {
@@ -97,7 +99,8 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                     requireActivity().supportFragmentManager
                             .beginTransaction()
                             .replace(R.id.container,
-                                    RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!, expiration))
+                                    RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!,
+                                            viewModel.fioAccountToRegisterName.value!!.label, expiration))
                             .commit()
                 } else {
                     Toaster(this).toast("Something went wrong", true)
@@ -107,8 +110,11 @@ class RegisterFioDomainStep2Fragment : Fragment() {
         icEdit.setOnClickListener {
             findNavController().popBackStack()
         }
+        val mbwManager = MbwManager.getInstance(context)
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
             tvFeeInfo.text = resources.getString(R.string.fio_annual_fee_domain, it.toStringWithUnit())
+            tvAnnualFeeFiat.text = "~ ${mbwManager.exchangeRateManager.get(viewModel.registrationFee.value!!,
+                    mbwManager.getFiatCurrency(viewModel.registrationFee.value!!.type)).toStringWithUnit()}"
         })
         tvFioName.text = "@${viewModel.domain.value}"
         tvNotEnoughFundsError.visibility = View.GONE

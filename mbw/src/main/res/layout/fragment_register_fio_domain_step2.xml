@@ -24,6 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/tvTitle"
             app:srcCompat="@drawable/ic_fiopresale_icon_small" />
 
@@ -65,7 +66,7 @@
             android:id="@+id/tvFioName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="34dp"
             android:fontFamily="sans-serif-medium"
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,8 +87,8 @@
             android:id="@+id/tvConnectedFioAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Connected FIO account: "
+            android:layout_marginTop="18dp"
+            android:text="Connect to:"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -109,7 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Annual fee: "
+            android:text="Annual fee:"
             android:textColor="#99FFFFFF"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -119,6 +120,7 @@
             android:id="@+id/tvAnnualFee"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:fontFamily="sans-serif-medium"
             android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.registrationFee)}"
             android:textSize="16sp"
@@ -127,11 +129,23 @@
             tools:text="9.066079 FIO" />
 
         <TextView
+            android:id="@+id/tvAnnualFeeFiat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginStart="5dp"
+            android:textSize="14sp"
+            android:textColor="@color/fio_white_alpha_0_8"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvAnnualFee"
+            app:layout_constraintStart_toEndOf="@id/tvAnnualFee"
+            tools:text="~ 5 USD" />
+
+        <TextView
             android:id="@+id/tvPayFrom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Pay from: "
+            android:text="Spending from:"
             android:textColor="#99FFFFFF"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"

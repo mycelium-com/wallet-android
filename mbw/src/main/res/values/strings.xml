@@ -1406,18 +1406,18 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_address_check_service_unavailable">Looks like FIO protocol experiences some problems. Please check your internet connection or try again later.</string>
     <string name="fio_create_name_description"><b>FIO Protocol</b> is a new simple way to Send, Receive, and Request <b>ANY CRYPTO</b> with one public alias for all crypto accounts!\n\n- Crypto transactions with memos\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized\n\n<b>Create your FIO Name</b> (i.e. nakamoto@mycelium) and get your daily crypto experience to the next level!</string>
     <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
-    <string name="fio_annual_fee_domain">Register FIO Domain for %s/year and create any FIO names you’d like with your personal domain.</string>
+    <string name="fio_annual_fee_domain">Register for an annual fee %s. Fee is charged by the FIO Network.</string>
     <string name="fio_manage_name_and_domain">Here you can manage your FIO Names and Domains:</string>
     <string name="add_new_fio_name">Add new FIO Name</string>
     <string name="create_fio_domain">Create FIO Domain</string>
     <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> to your accounts and benefit from FIO Protocol.]]></string>
-    <string name="fio_create_name_desc"><![CDATA[Create and Register new FIO Names to your FIO Domain <b>%s</b> and easily send and request funds for any cryptocurrency.]]></string>
+    <string name="fio_create_name_desc"><![CDATA[Create and Register new FIO Names to your FIO Domain <b>%s</b> and benefit from FIO protocol.]]></string>
     <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
     <string name="fio_create_name_hint_text">Enter FIO Name (only letters, numbers -,_.)</string>
     <string name="tab_fio_requests">FIO Requests</string>
     <string name="fio_create_domain_hint">Enter FIO Domain</string>
     <string name="fio_confirm_and_pay">Confirm &amp; Pay</string>
-    <string name="fio_register_domain_desc">Register your own custom FIO Domain, where you can create and register any FIO names you want.</string>
+    <string name="fio_register_domain_desc">You can create your own FIO Domain to register any FIO name you want. Charges in FIO tokens may apply. \nDon\'t have FIO tokens yet? You can buy it <font color="#31A7CE">here</font>.</string>
     <string name="fio_protocol_decentralized">The <font color="#2AA5DB"><u><b>FIO Protocol</b></u></font> is a decentralized service layer that bridges the gap between crypto endpoints such as wallets, exchanges, crypto payment processors, and any other application in which crypto assets are held and/or transferred.</string>
     <string name="fio_name_readable_wallet_identifier"><b>FIO Name</b> - a human-readable wallet identifier (such as john@edge or alice@gold) which eliminates the need to see, or even know of, blockchain public addresses. FIO Addresses automatically support any token in a wallet/exchange, and requires no manual mapping.</string>
     <string name="fio_requests_ability_to_request_funds"><b>FIO Requests</b> - the ability to request funds from any other wallet, utilizing in-wallet/app notifications and simple approvals. FIO Requests are fully encrypted between counter-parties, and do not interfere with the actual underlying blockchain transactions.</string>
@@ -1441,5 +1441,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_register_domain">Register FIO Domain</string>
     <string name="fio_manage_name_need_mapping_s"><b>%s</b> is not connect to a FIO Name.  Select FIO Name to connect to:</string>
     <string name="fio_name_label">FIO Name:</string>
+    <string name="fio_domain_label">FIO Domain:</string>
+    <string name="fio_register_new_name">Register new FIO Name</string>
     <string name="fio_registration_complete">Registration complete!</string>
 </resources>

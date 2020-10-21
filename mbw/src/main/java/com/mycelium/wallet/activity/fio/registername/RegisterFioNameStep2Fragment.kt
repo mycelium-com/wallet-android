@@ -20,11 +20,7 @@ import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameVi
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
-import com.mycelium.wapi.wallet.fio.FIODomain
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.getFioAccounts
-import kotlinx.android.synthetic.main.fragment_register_fio_name_confirm.btNextButton
+import com.mycelium.wapi.wallet.fio.*
 import kotlinx.android.synthetic.main.fragment_register_fio_name_step2.*
 
 
@@ -128,7 +124,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
     private fun getFioAccountsToRegisterTo(fioDomain: FIODomain): List<FioAccount> {
         val walletManager = MbwManager.getInstance(context).getWalletManager(false)
         return if (fioDomain.isPublic) {
-            walletManager.getFioAccounts()
+            walletManager.getSpendableFioAccounts()
         } else {
             val uuid = (walletManager.getModuleById(FioModule.ID) as FioModule).getFioAccountByFioDomain(fioDomain.domain)
                     ?: throw IllegalStateException("Illegal domain ${fioDomain.domain} (Not owned by any of user's accounts)")

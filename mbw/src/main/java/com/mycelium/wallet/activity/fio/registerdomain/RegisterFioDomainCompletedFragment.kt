@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +27,9 @@ class RegisterFioDomainCompletedFragment : Fragment() {
     private val fioDomain: String by lazy {
         requireArguments().getSerializable("fioDomain") as String
     }
+    private val fioAccountLabel: String by lazy {
+        requireArguments().getSerializable("fioAccountLabel") as String
+    }
     private val expirationDate: String by lazy {
         requireArguments().getSerializable("expirationDate") as String
     }
@@ -33,6 +37,7 @@ class RegisterFioDomainCompletedFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.fragment_register_fio_domain_completed, container, false)
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity).supportActionBar!!.apply {
@@ -42,22 +47,25 @@ class RegisterFioDomainCompletedFragment : Fragment() {
         btFinish.setOnClickListener {
             requireActivity().finish()
         }
-        btConnectAccounts.setOnClickListener {
+        btRegisterFioName.setOnClickListener {
             RegisterFioNameActivity.start(requireContext())
+            requireActivity().finish()
         }
-        tvFioName.text = "@$fioDomain"
-        tvConnectAccountsDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$fioDomain"),
+        tvFioDomain.text = "@$fioDomain"
+        tvRegisterFioNameDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$fioDomain"),
                 HtmlCompat.FROM_HTML_MODE_COMPACT)
+        tvConnectedFioAccount.text = fioAccountLabel
         tvExpirationDate.text = transformExpirationDate(expirationDate)
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(fioDomain: String, expirationDate: String): RegisterFioDomainCompletedFragment {
+        fun newInstance(fioDomain: String, fioAccountLabel: String, expirationDate: String): RegisterFioDomainCompletedFragment {
             val f = RegisterFioDomainCompletedFragment()
             val args = Bundle()
 
             args.putString("fioDomain", fioDomain)
+            args.putString("fioAccountLabel", fioAccountLabel)
             args.putString("expirationDate", expirationDate)
 
             f.arguments = args
