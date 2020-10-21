@@ -74,6 +74,7 @@ import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.news.NewsActivity;
+import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
@@ -88,6 +89,7 @@ import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.external.mediaflow.NewsConstants;
 import com.mycelium.wallet.external.partner.model.MainMenuContent;
 import com.mycelium.wallet.external.partner.model.MainMenuPage;
+import com.mycelium.wallet.fio.FioRequestNotificator;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -218,14 +220,14 @@ public class ModernMain extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         if (SettingsPreference.getMediaFlowEnabled() &&
-                Objects.equals(getIntent().getAction(), "media_flow")) {
+                Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
             mNewsTab.select();
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
             if (getIntent().hasExtra(NewsConstants.NEWS)) {
                 startActivity(new Intent(this, NewsActivity.class)
                         .putExtras(getIntent().getExtras()));
             }
-        } else if (Objects.equals(intent.getAction(), "fio_request_action")) {
+        } else if (Objects.equals(intent.getAction(), FioRequestNotificator.FIO_REQUEST_ACTION)) {
             mFioRequestsTab.select();
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
             startActivity(new Intent(this, ApproveFioRequestActivity.class)

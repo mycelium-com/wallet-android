@@ -3,7 +3,6 @@ package com.mycelium.wallet.fio
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.activity.StartupActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity

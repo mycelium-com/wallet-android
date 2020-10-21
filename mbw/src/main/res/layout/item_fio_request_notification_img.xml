@@ -6,7 +6,7 @@
     android:layout_alignParentEnd="true"
     android:layout_centerVertical="true"
     android:layout_marginEnd="16dp"
-    android:background="@drawable/bg_black_cycle">
+    android:background="@drawable/bg_black_circle">
 
     <ImageView
         style="@style/TextAppearance.Compat.Notification.Media"
