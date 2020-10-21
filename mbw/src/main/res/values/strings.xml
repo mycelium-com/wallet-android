@@ -37,6 +37,7 @@
     <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
     <string name="recipient_title">Enter recipient address</string>
     <string name="amount_label">Amount:</string>
+    <string name="amount_label_s">Amount: %s</string>
     <string name="amount_title">Amount</string>
     <string name="enter_amount_title">Enter Amount:</string>
     <string name="crypto_address">%1$s Address:</string>

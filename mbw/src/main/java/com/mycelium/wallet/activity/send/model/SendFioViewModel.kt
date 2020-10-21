@@ -36,5 +36,5 @@ class SendFioViewModel(application: Application) : SendCoinsViewModel(applicatio
     fun fee(value: Value?): String = value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
 
     fun feeFiat(value: Value?): String =
-            "~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(model.account.coinType)).toStringWithUnit()}"
+            "~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(model.account.coinType))?.toStringWithUnit()}"
 }

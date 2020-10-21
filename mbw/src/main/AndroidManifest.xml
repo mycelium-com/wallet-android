@@ -278,6 +278,8 @@
         <activity android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity" />
 
         <activity android:name=".activity.fio.requests.SentFioRequestStatusActivity" />
+        
+        <service android:name=".fio.FioRequestService"/>
     </application>
 
 </manifest>

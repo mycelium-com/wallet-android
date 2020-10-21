@@ -179,7 +179,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
         fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
-                mbwManager.currencyList.first()).toStringWithUnit()
+                mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type))?.toStringWithUnit()
 
         sendViewModel.getTransactionStatus().observe(this, Observer {
             Log.i("asdaf", "asdaf TransactionStatus: $it")
@@ -221,8 +221,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     private fun initSpinners(spendingAccounts: List<WalletAccount<*>>) {
         val fiatCurrencies = mbwManager.currencyList
-        val spinnerItems = fiatCurrencies.map {
-            mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it).toStringWithUnit()
+        val spinnerItems = fiatCurrencies.mapNotNull {
+            mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value, it)?.toStringWithUnit()
         }
         spinnerFiat?.adapter = ArrayAdapter(this, R.layout.layout_fio_fiat_spinner, R.id.text,
                 spinnerItems).apply {
