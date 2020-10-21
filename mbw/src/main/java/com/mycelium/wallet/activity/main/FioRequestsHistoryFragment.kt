@@ -34,7 +34,6 @@
 package com.mycelium.wallet.activity.main
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.view.ActionMode
@@ -43,38 +42,31 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.TransactionDetailsActivity
+import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.fio.requests.SentFioRequestStatusActivity
 import com.mycelium.wallet.activity.main.adapter.FioRequestArrayAdapter
 import com.mycelium.wallet.activity.main.model.fiorequestshistory.FioRequestsHistoryViewModel
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.persistence.MetadataStorage
-import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.fio.FioGroup
-import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import kotlinx.android.synthetic.main.fio_request_history_view.*
-import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
     private lateinit var _mbwManager: MbwManager
     private var _storage: MetadataStorage? = null
     private val currentActionMode: ActionMode? = null
-    private val accountsWithPartialHistory: MutableSet<UUID> = HashSet()
     private val isLoadingPossible = AtomicBoolean(true)
     private lateinit var adapter: FioRequestArrayAdapter
     private lateinit var viewModel: FioRequestsHistoryViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        btRescan.setOnClickListener {
-            _mbwManager.getWalletManager(false)?.getFioAccounts()?.forEach { account ->
-                account.dropCachedData()
-                _mbwManager.getWalletManager(false)?.startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
-            }
+        btAboutFioProtocol.setOnClickListener {
+            AboutFIOProtocolDialog().show(parentFragmentManager, "modal")
         }
 
         adapter = FioRequestArrayAdapter(requireActivity(), viewModel.fioRequestHistory.value
@@ -88,18 +80,18 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
             }
             false
         }
-        viewModel.fioRequestHistory.observe(this.viewLifecycleOwner, Observer { it ->
+        viewModel.fioRequestHistory.observe(this.viewLifecycleOwner, Observer {
             adapter.notifyDataSetChanged()
             showHistory(!viewModel.fioRequestHistory.value.isNullOrEmpty())
 
             //expand all lists
-            it.forEachIndexed { index, fioGroup ->
+            it.forEachIndexed { index, _ ->
                 lvTransactionHistory.expandGroup(index)
             }
             refreshList()
         })
 
-        updateWrapper(adapter);
+        updateWrapper(adapter)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -159,35 +151,14 @@ class FioRequestsHistoryFragment : Fragment(R.layout.fio_request_history_view) {
         isLoadingPossible.set(true)
     }
 
-    @Subscribe
-    fun tooManyTx(event: TooManyTransactions) {
-        accountsWithPartialHistory.add(event.accountId)
-    }
-
-    private fun doShowDetails(selected: FIORequestContent?) {
-        if (selected == null) {
-            return
-        }
-        // Open transaction details
-        val intent = Intent(activity, TransactionDetailsActivity::class.java)
-                .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.fioRequestId)
-        startActivity(intent)
-    }
-
     private fun showHistory(hasHistory: Boolean) {
         llNoRecords.visibility = if (hasHistory) View.GONE else View.VISIBLE
         lvTransactionHistory.visibility = if (hasHistory) View.VISIBLE else View.GONE
-        if (accountsWithPartialHistory.contains(_mbwManager.selectedAccount.id)) {
-            tvWarningNotFullHistory.visibility = View.VISIBLE
-        } else {
-            tvWarningNotFullHistory.visibility = View.GONE
-        }
     }
 
     private fun updateWrapper(adapter: FioRequestArrayAdapter) {
-        this.adapter = adapter;
-        lvTransactionHistory.setAdapter(adapter);
-
+        this.adapter = adapter
+        lvTransactionHistory.setAdapter(adapter)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {

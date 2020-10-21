@@ -1444,4 +1444,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_domain_label">FIO Domain:</string>
     <string name="fio_register_new_name">Register new FIO Name</string>
     <string name="fio_registration_complete">Registration complete!</string>
+    <string name="fio_requests_tab_fio_protocol_desc_part1"><b>FIO Protocol</b> is a new simple way to Send, Receive, and Request <b>ANY CRYPTO</b> with one public alias for all crypto accounts!</string>
+    <string name="fio_requests_tab_fio_protocol_desc_part2">- Crypto transactions with memos\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized</string>
+    <string name="about_fio_protocol_title">About FIO Protocol</string>
 </resources>
