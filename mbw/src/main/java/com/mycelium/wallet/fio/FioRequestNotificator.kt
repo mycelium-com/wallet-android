@@ -71,7 +71,7 @@ object FioRequestNotificator {
                     }
             val amount = Value.valueOf(requestedCurrency!!, Util.strToBigInteger(requestedCurrency, it.deserializedContent!!.amount))
             val bigView = RemoteViews(context.packageName, R.layout.layout_fio_request_notification_big).apply {
-                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payerFioAddress))
+                setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payeeFioAddress))
                 setTextViewText(R.id.amount, context.getString(R.string.amount_label_s, amount.toStringWithUnit()))
                 setTextViewText(R.id.memo, it.deserializedContent?.memo)
             }
