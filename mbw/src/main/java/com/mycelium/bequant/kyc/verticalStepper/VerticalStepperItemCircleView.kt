@@ -66,6 +66,10 @@ class VerticalStepperItemCircleView : FrameLayout {
         setIconResource(R.drawable.ic_vertical_stepper_edit)
     }
 
+    fun setIconError() {
+        setIconResource(R.drawable.ic_close)
+    }
+
     fun setIconResource(id: Int) {
         number!!.visibility = View.GONE
         icon!!.visibility = View.VISIBLE

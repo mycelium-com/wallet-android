@@ -67,7 +67,11 @@ class VerticalStepperItemView : ConstraintLayout {
             }
             StepState.ERROR -> {
                 vertical_stepper_view_item_circle?.setError()
+                vertical_stepper_view_item_circle?.setIconError()
                 setTitleColor(R.color.white)
+                if (showConnectorLine) {
+                    setLineColor(R.color.bequant_red)
+                }
             }
         }
     }

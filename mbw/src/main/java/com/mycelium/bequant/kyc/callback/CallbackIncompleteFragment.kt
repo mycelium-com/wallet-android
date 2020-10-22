@@ -53,7 +53,9 @@ class CallbackIncompleteFragment : Fragment(R.layout.fragment_bequant_kyc_incomp
                 4 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
             }
         }
-        message.text = BequantPreference.getKYCStatusMessage()
+        val kycStatusMsg = BequantPreference.getKYCStatusMessage()
+        message.text = kycStatusMsg
+        seeMore.visibility = if (kycStatusMsg?.isNotEmpty() == true) View.VISIBLE else View.GONE
         seeMore.setOnClickListener {
             seeMore.visibility = View.GONE
             message.visibility = View.VISIBLE
