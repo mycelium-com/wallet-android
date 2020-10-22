@@ -52,7 +52,7 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
                                 findNavController().navigate(StartFragmentDirections.actionPending())
                             }
                         }
-                    KYCStatus.VERIFIED ->
+                    KYCStatus.VERIFIED, KYCStatus.APPROVED ->
                         findNavController().navigate(StartFragmentDirections.actionApproved())
                     KYCStatus.REJECTED ->
                         findNavController().navigate(StartFragmentDirections.actionRejected())

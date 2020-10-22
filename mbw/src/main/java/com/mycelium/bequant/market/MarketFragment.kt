@@ -143,7 +143,8 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         menu.findItem(R.id.logIn).isVisible = !BequantPreference.isLogged()
         menu.findItem(R.id.logOut).isVisible = BequantPreference.isLogged()
         val isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
-        menu.findItem(R.id.kyc).isVisible = BequantPreference.getKYCStatus() != KYCStatus.VERIFIED && !isDemo
+        menu.findItem(R.id.kyc).isVisible = BequantPreference.getKYCStatus() != KYCStatus.VERIFIED &&
+                BequantPreference.getKYCStatus() != KYCStatus.APPROVED && !isDemo
         super.onCreateOptionsMenu(menu, inflater)
     }
 
