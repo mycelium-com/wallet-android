@@ -84,9 +84,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_deposit)
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED &&
-                    BequantPreference.getKYCStatus() != KYCStatus.APPROVED &&
-                    BequantPreference.getKYCStatus() != KYCStatus.SIGNED_OFF) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
@@ -97,9 +95,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_withdraw)
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED &&
-                    BequantPreference.getKYCStatus() != KYCStatus.APPROVED &&
-                    BequantPreference.getKYCStatus() != KYCStatus.SIGNED_OFF) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
@@ -115,9 +111,7 @@ class AccountFragment : Fragment() {
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         list.adapter = adapter
         adapter.addCoinListener = {
-            if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED &&
-                    BequantPreference.getKYCStatus() != KYCStatus.APPROVED &&
-                    BequantPreference.getKYCStatus() != KYCStatus.SIGNED_OFF) {
+            if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
             } else {
                 when (it) {

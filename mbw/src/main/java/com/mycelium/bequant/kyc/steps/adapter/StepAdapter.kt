@@ -26,10 +26,11 @@ class StepAdapter : ListAdapter<ItemStep, RecyclerView.ViewHolder>(ItemListDiffC
         viewHolder.itemView.stepView.number = item.step
         viewHolder.itemView.stepView.state = item.stepState
         viewHolder.itemView.stepView.update()
-        if (item.stepState == StepState.COMPLETE_EDITABLE) {
-            viewHolder.itemView.setOnClickListener {
-                clickListener?.invoke(getItem(viewHolder.adapterPosition).step)
-            }
+        when (item.stepState) {
+            StepState.COMPLETE_EDITABLE, StepState.ERROR ->
+                viewHolder.itemView.setOnClickListener {
+                    clickListener?.invoke(getItem(viewHolder.adapterPosition).step)
+                }
         }
     }
 

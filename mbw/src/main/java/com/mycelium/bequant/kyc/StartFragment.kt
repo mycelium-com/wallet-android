@@ -28,31 +28,15 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
             loader(true)
             Api.kycRepository.status(lifecycleScope, { statusMsg ->
                 when (statusMsg.global) {
-                    KYCStatus.PENDING ->
+                    KYCStatus.PENDING, KYCStatus.APPROVED, KYCStatus.SIGNED_OFF ->
                         if (statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == false) {
                             findNavController().navigate(StartFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
                         } else {
                             findNavController().navigate(StartFragmentDirections.actionPending())
                         }
                     KYCStatus.INCOMPLETE ->
-                        when {
-                            !BequantPreference.getKYCSectionStatus("personal_information") -> {
-                                findNavController().navigate(StartFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
-                            }
-                            !BequantPreference.getKYCSectionStatus("residential_address") -> {
-                                findNavController().navigate(StartFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
-                            }
-                            !BequantPreference.getKYCSectionStatus("phone") -> {
-                                findNavController().navigate(StartFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
-                            }
-                            !BequantPreference.getKYCSectionStatus("documents") -> {
-                                findNavController().navigate(StartFragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
-                            }
-                            else -> {
-                                findNavController().navigate(StartFragmentDirections.actionPending())
-                            }
-                        }
-                    KYCStatus.VERIFIED, KYCStatus.APPROVED, KYCStatus.SIGNED_OFF ->
+                        findNavController().navigate(StartFragmentDirections.actionIncomplete())
+                    KYCStatus.VERIFIED ->
                         findNavController().navigate(StartFragmentDirections.actionApproved())
                     KYCStatus.REJECTED ->
                         findNavController().navigate(StartFragmentDirections.actionRejected())

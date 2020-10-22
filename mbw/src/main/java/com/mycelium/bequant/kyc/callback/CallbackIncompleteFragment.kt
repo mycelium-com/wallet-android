@@ -14,10 +14,10 @@ import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_approved_callback.stepper
-import kotlinx.android.synthetic.main.fragment_kyc_reject_callback.*
+import kotlinx.android.synthetic.main.fragment_bequant_kyc_incomplete_callback.*
 
 
-class CallbackRejectFragment : Fragment(R.layout.fragment_kyc_reject_callback) {
+class CallbackIncompleteFragment : Fragment(R.layout.fragment_bequant_kyc_incomplete_callback) {
 
     private val stepAdapter = StepAdapter()
 
@@ -47,7 +47,10 @@ class CallbackRejectFragment : Fragment(R.layout.fragment_kyc_reject_callback) {
         })
         stepAdapter.clickListener = {
             when (it) {
-                4 -> findNavController().navigate(CallbackRejectFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
+                1 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
+                2 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
+                3 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
+                4 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
             }
         }
         message.text = BequantPreference.getKYCStatusMessage()
@@ -56,7 +59,20 @@ class CallbackRejectFragment : Fragment(R.layout.fragment_kyc_reject_callback) {
             message.visibility = View.VISIBLE
         }
         updateInfo.setOnClickListener {
-            findNavController().navigate(CallbackRejectFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
+            when {
+                !BequantPreference.getKYCSectionStatus("personal_information") -> {
+                    findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
+                }
+                !BequantPreference.getKYCSectionStatus("residential_address") -> {
+                    findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
+                }
+                !BequantPreference.getKYCSectionStatus("phone") -> {
+                    findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
+                }
+                !BequantPreference.getKYCSectionStatus("documents") -> {
+                    findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
+                }
+            }
         }
     }
 

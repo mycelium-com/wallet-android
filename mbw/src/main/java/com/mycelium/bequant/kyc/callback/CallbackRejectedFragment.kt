@@ -1,15 +1,17 @@
-package com.mycelium.bequant.kyc
+package com.mycelium.bequant.kyc.callback
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.Constants
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fragment_bequant_kyc_callback_failed.*
+import kotlinx.android.synthetic.main.fragment_bequant_kyc_rejected_callback.*
 
-class CallbackFailedFragment : Fragment(R.layout.fragment_bequant_kyc_callback_failed) {
+class CallbackRejectedFragment : Fragment(R.layout.fragment_bequant_kyc_rejected_callback) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -21,11 +23,11 @@ class CallbackFailedFragment : Fragment(R.layout.fragment_bequant_kyc_callback_f
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        backButton.setOnClickListener {
-            findNavController().popBackStack()
+        supportCenter.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
         closeButton.setOnClickListener {
-            findNavController().navigate(CallbackFailedFragmentDirections.actionClose())
+            requireActivity().finish()
         }
     }
 

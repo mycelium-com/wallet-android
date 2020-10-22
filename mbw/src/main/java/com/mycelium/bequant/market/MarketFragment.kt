@@ -120,7 +120,16 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
 
     private fun checkStatus() {
         Api.kycRepository.status(GlobalScope, {
-            activity?.invalidateOptionsMenu()
+            activity?.run {
+                invalidateOptionsMenu()
+                val preference = getSharedPreferences("bequant_market_fragment", Context.MODE_PRIVATE)
+                val prevKYCStatus = KYCStatus.valueOf(preference.getString("prev_kyc_status", "NONE")
+                        ?: "NONE")
+                if (prevKYCStatus != it.global && it.global == KYCStatus.VERIFIED) {
+                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+                }
+                preference.edit().putString("bequant_market_fragment", it.global.toString()).apply()
+            }
         })
     }
 
@@ -143,9 +152,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         menu.findItem(R.id.logIn).isVisible = !BequantPreference.isLogged()
         menu.findItem(R.id.logOut).isVisible = BequantPreference.isLogged()
         val isDemo = activity?.intent?.getBooleanExtra(BequantMarketActivity.IS_DEMO_KEY, false)!!
-        menu.findItem(R.id.kyc).isVisible = BequantPreference.getKYCStatus() != KYCStatus.VERIFIED &&
-                BequantPreference.getKYCStatus() != KYCStatus.APPROVED &&
-                BequantPreference.getKYCStatus() != KYCStatus.SIGNED_OFF && !isDemo
+        menu.findItem(R.id.kyc).isVisible = BequantPreference.getKYCStatus() != KYCStatus.VERIFIED && !isDemo
         super.onCreateOptionsMenu(menu, inflater)
     }
 

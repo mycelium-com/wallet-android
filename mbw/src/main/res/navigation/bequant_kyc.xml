@@ -13,8 +13,8 @@
             android:id="@+id/actionNext"
             app:destination="@id/kycStep1" />
         <action
-            android:id="@+id/actionCallback"
-            app:destination="@id/callbackFailed" />
+            android:id="@+id/actionRejected"
+            app:destination="@id/callbackRejected" />
         <action
             android:id="@+id/actionPending"
             app:destination="@id/pendingFragment" />
@@ -22,8 +22,8 @@
             android:id="@+id/actionApproved"
             app:destination="@id/callbackApprovedFragment" />
         <action
-            android:id="@+id/actionRejected"
-            app:destination="@id/callbackRejectFragment" />
+            android:id="@+id/actionIncomplete"
+            app:destination="@id/callbackIncompleteFragment" />
         <action
             android:id="@+id/actionEditStep1"
             app:destination="@id/kycStep1">
@@ -268,12 +268,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/callbackFailed"
-        android:name="com.mycelium.bequant.kyc.CallbackFailedFragment"
+        android:id="@+id/callbackRejected"
+        android:name="com.mycelium.bequant.kyc.callback.CallbackRejectedFragment"
         android:label="CallbackFailedFragment"
-        tools:layout="@layout/fragment_bequant_kyc_callback_failed">
-        <action android:id="@+id/actionClose" />
-    </fragment>
+        tools:layout="@layout/fragment_bequant_kyc_rejected_callback" />
 
     <fragment
         android:id="@+id/finalPresubmit"
@@ -306,14 +304,35 @@
         android:label="CallbackApprovedFragment"
         tools:layout="@layout/fragment_bequant_kyc_approved_callback" />
     <fragment
-        android:id="@+id/callbackRejectFragment"
-        android:name="com.mycelium.bequant.kyc.callback.CallbackRejectFragment"
+        android:id="@+id/callbackIncompleteFragment"
+        android:name="com.mycelium.bequant.kyc.callback.CallbackIncompleteFragment"
         android:label="CallbackRejectFragment"
-        tools:layout="@layout/fragment_kyc_reject_callback">
+        tools:layout="@layout/fragment_bequant_kyc_incomplete_callback">
         <action
             android:id="@+id/actionEditDocs"
             app:destination="@id/kycStep4"
             app:popUpTo="@id/phoneVerify">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep2"
+            app:destination="@id/kycStep2">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep3"
+            app:destination="@id/kycStep3">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep1"
+            app:destination="@id/kycStep1">
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
