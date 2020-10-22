@@ -188,7 +188,9 @@ class ExchangeFragment : Fragment() {
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED && BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED &&
+                    BequantPreference.getKYCStatus() != KYCStatus.APPROVED &&
+                    BequantPreference.getKYCStatus() != KYCStatus.SIGNED_OFF) {
                 askDoKyc()
             } else {
                 makeExchange()
@@ -206,7 +208,9 @@ class ExchangeFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa()
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED && BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED &&
+                    BequantPreference.getKYCStatus() != KYCStatus.APPROVED &&
+                    BequantPreference.getKYCStatus() != KYCStatus.SIGNED_OFF) {
                 askDoKyc()
             } else {
                 findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
