@@ -25,7 +25,7 @@ class KYCRepository {
                error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             if (BequantPreference.getKYCToken().isNotEmpty()) {
-                service.update(KYCCreateRequest(applicant))
+                service.update(applicant)
             } else {
                 service.create(KYCCreateRequest(applicant))
             }

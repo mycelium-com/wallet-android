@@ -37,13 +37,13 @@ class CallbackIncompleteFragment : Fragment(R.layout.fragment_bequant_kyc_incomp
         Api.kycRepository.status(lifecycleScope, { success ->
             stepAdapter.submitList(listOf(
                     ItemStep(1, getString(R.string.personal_info),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "personal_information" }?.value == false) StepState.ERROR else StepState.COMPLETE),
+                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "personal_information" }?.value == true) StepState.ERROR else StepState.COMPLETE),
                     ItemStep(2, getString(R.string.residential_address),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "residential_address" }?.value == false) StepState.ERROR else StepState.COMPLETE),
+                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "residential_address" }?.value == true) StepState.ERROR else StepState.COMPLETE),
                     ItemStep(3, getString(R.string.phone_number),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == false) StepState.ERROR else StepState.COMPLETE),
+                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == true) StepState.ERROR else StepState.COMPLETE),
                     ItemStep(4, getString(R.string.doc_selfie),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "documents" }?.value == false) StepState.ERROR else StepState.COMPLETE)))
+                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "documents" }?.value == true) StepState.ERROR else StepState.COMPLETE)))
         })
         stepAdapter.clickListener = {
             when (it) {
