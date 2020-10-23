@@ -128,8 +128,7 @@ class Step3Fragment : Fragment() {
             loader(true)
             Api.signRepository.accountOnceToken(viewModel.viewModelScope, {
                 it?.token?.let { onceToken ->
-                    val applicant = KYCApplicant(BequantPreference.getEmail())
-                    applicant.phone = BequantPreference.getPhone()
+                    val applicant = KYCApplicant(BequantPreference.getEmail(), BequantPreference.getPhone())
                     applicant.userId = onceToken
                     BequantPreference.setKYCRequest(kycRequest)
                     Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {

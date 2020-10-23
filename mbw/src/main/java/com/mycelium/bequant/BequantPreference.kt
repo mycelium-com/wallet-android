@@ -18,7 +18,7 @@ object BequantPreference {
         preference.edit().putString(Constants.PHONE_KEY, phone).apply()
     }
 
-    fun getPhone() = preference.getString(Constants.PHONE_KEY, null) ?: ""
+    fun getPhone() = preference.getString(Constants.PHONE_KEY, null)
 
     fun setEmail(email: String) {
         preference.edit().putString(Constants.EMAIL_KEY, email).apply()
