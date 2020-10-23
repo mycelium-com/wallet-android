@@ -33,29 +33,8 @@
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
         <action
-            android:id="@+id/actionEditStep1"
-            app:destination="@id/kycStep1">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        </action>
-        <action
-            android:id="@+id/actionEditStep2"
-            app:destination="@id/kycStep2">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        </action>
-        <action
             android:id="@+id/actionEditStep3"
             app:destination="@id/kycStep3">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        </action>
-        <action
-            android:id="@+id/actionEditStep4"
-            app:destination="@id/kycStep4">
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
