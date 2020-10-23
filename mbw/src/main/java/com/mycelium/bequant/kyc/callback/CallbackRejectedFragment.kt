@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_rejected_callback.*
@@ -23,6 +24,8 @@ class CallbackRejectedFragment : Fragment(R.layout.fragment_bequant_kyc_rejected
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
+        val kycRequest = BequantPreference.getKYCRequest()
+        dear_user.text = getString(R.string.dear_user_s_s, kycRequest.first_name, kycRequest.last_name)
         supportCenter.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
