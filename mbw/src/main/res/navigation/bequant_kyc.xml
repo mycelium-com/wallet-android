@@ -14,16 +14,24 @@
             app:destination="@id/kycStep1" />
         <action
             android:id="@+id/actionRejected"
-            app:destination="@id/callbackRejected" />
+            app:destination="@id/callbackRejected"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/actionPending"
-            app:destination="@id/pendingFragment" />
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/actionApproved"
-            app:destination="@id/callbackApprovedFragment" />
+            app:destination="@id/callbackApprovedFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/actionIncomplete"
-            app:destination="@id/callbackIncompleteFragment" />
+            app:destination="@id/callbackIncompleteFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/actionEditStep1"
             app:destination="@id/kycStep1">
