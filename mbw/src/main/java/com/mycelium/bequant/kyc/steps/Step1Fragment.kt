@@ -172,13 +172,13 @@ class Step1Fragment : Fragment() {
 
     private fun nextPage() {
         when {
-            !BequantPreference.getKYCSectionStatus("residential_address") -> {
+            BequantPreference.getKYCSectionStatus("residential_address") -> {
                 findNavController().navigate(Step1FragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
             }
-            !BequantPreference.getKYCSectionStatus("phone") -> {
+            BequantPreference.getKYCSectionStatus("phone") -> {
                 findNavController().navigate(Step1FragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
             }
-            !BequantPreference.getKYCSectionStatus("documents") -> {
+            BequantPreference.getKYCSectionStatus("documents") -> {
                 findNavController().navigate(Step1FragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
             }
             else -> {

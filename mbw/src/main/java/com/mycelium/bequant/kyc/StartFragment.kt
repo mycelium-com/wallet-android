@@ -29,11 +29,7 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
             Api.kycRepository.status(lifecycleScope, { statusMsg ->
                 when (statusMsg.global) {
                     KYCStatus.PENDING, KYCStatus.APPROVED, KYCStatus.SIGNED_OFF ->
-                        if (statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == false) {
-                            findNavController().navigate(StartFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
-                        } else {
-                            findNavController().navigate(StartFragmentDirections.actionPending())
-                        }
+                        findNavController().navigate(StartFragmentDirections.actionPending())
                     KYCStatus.INCOMPLETE ->
                         findNavController().navigate(StartFragmentDirections.actionIncomplete())
                     KYCStatus.VERIFIED ->

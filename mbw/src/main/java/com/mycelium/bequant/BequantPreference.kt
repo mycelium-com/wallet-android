@@ -118,5 +118,5 @@ object BequantPreference {
         }.apply()
     }
 
-    fun getKYCSectionStatus(section: String) = preference.getBoolean("section_$section", false)
+    fun getKYCSectionStatus(section: String) = preference.getBoolean("section_$section", true)
 }

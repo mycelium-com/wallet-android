@@ -161,7 +161,7 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     private fun nextPage() {
         when {
-            !BequantPreference.getKYCSectionStatus("documents") -> {
+            BequantPreference.getKYCSectionStatus("documents") -> {
                 findNavController().navigate(Step1FragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
             }
             else -> {

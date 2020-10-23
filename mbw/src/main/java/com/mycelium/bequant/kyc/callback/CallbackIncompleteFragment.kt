@@ -37,13 +37,13 @@ class CallbackIncompleteFragment : Fragment(R.layout.fragment_bequant_kyc_incomp
         Api.kycRepository.status(lifecycleScope, { success ->
             stepAdapter.submitList(listOf(
                     ItemStep(1, getString(R.string.personal_info),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "personal_information" }?.value == true) StepState.ERROR else StepState.COMPLETE),
+                            if (BequantPreference.getKYCSectionStatus("personal_information")) StepState.ERROR else StepState.COMPLETE),
                     ItemStep(2, getString(R.string.residential_address),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "residential_address" }?.value == true) StepState.ERROR else StepState.COMPLETE),
+                            if (BequantPreference.getKYCSectionStatus("residential_address")) StepState.ERROR else StepState.COMPLETE),
                     ItemStep(3, getString(R.string.phone_number),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == true) StepState.ERROR else StepState.COMPLETE),
+                            if (BequantPreference.getKYCSectionStatus("phone")) StepState.ERROR else StepState.COMPLETE),
                     ItemStep(4, getString(R.string.doc_selfie),
-                            if (success.sections.map { it.entries.first() }.firstOrNull { it.key == "documents" }?.value == true) StepState.ERROR else StepState.COMPLETE)))
+                            if (BequantPreference.getKYCSectionStatus("documents")) StepState.ERROR else StepState.COMPLETE)))
         })
         stepAdapter.clickListener = {
             when (it) {
@@ -62,16 +62,16 @@ class CallbackIncompleteFragment : Fragment(R.layout.fragment_bequant_kyc_incomp
         }
         updateInfo.setOnClickListener {
             when {
-                !BequantPreference.getKYCSectionStatus("personal_information") -> {
+                BequantPreference.getKYCSectionStatus("personal_information") -> {
                     findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
                 }
-                !BequantPreference.getKYCSectionStatus("residential_address") -> {
+                BequantPreference.getKYCSectionStatus("residential_address") -> {
                     findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
                 }
-                !BequantPreference.getKYCSectionStatus("phone") -> {
+                BequantPreference.getKYCSectionStatus("phone") -> {
                     findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
                 }
-                !BequantPreference.getKYCSectionStatus("documents") -> {
+                BequantPreference.getKYCSectionStatus("documents") -> {
                     findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
                 }
             }

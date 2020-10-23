@@ -154,10 +154,10 @@ class Step2Fragment : Fragment() {
 
     private fun nextPage() {
         when {
-            !BequantPreference.getKYCSectionStatus("phone") -> {
+            BequantPreference.getKYCSectionStatus("phone") -> {
                 findNavController().navigate(Step2FragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
             }
-            !BequantPreference.getKYCSectionStatus("documents") -> {
+            BequantPreference.getKYCSectionStatus("documents") -> {
                 findNavController().navigate(Step2FragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
             }
             else -> {
