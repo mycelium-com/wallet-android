@@ -1,64 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/phFragmentFioBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <FrameLayout
                 android:id="@+id/phFragmentNotice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="5dp"
-                tools:layout="@layout/backup_verification_warning_dialog"/>
+                tools:layout="@layout/backup_verification_warning_dialog" />
 
             <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/phFragmentAddress"
-                    android:paddingBottom="5dp"
-                    tools:layout="@layout/address_fragment"/>
+                android:id="@+id/phFragmentAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
+                tools:layout="@layout/address_fragment" />
 
             <FrameLayout
-                    android:id="@+id/phFragmentBalance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="5dp"
-                    tools:layout="@layout/main_balance_view"/>
+                android:id="@+id/phFragmentBalance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
+                tools:layout="@layout/main_balance_view" />
 
             <FrameLayout
-                    android:id="@+id/phFragmentBuySell"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/margin_medium"
-                    android:layout_marginTop="@dimen/margin_medium"
-                    tools:layout="@layout/main_buy_sell_fragment"/>
+                android:id="@+id/phFragmentBuySell"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:paddingBottom="@dimen/margin_medium"
+                tools:layout="@layout/main_buy_sell_fragment" />
         </LinearLayout>
     </ScrollView>
 
     <TextView
-            android:id="@+id/tvBuildText"
-            style="@style/MyceliumText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:textColor="@color/transparentgrey"
-            android:textSize="12sp"/>
+        android:id="@+id/tvBuildText"
+        style="@style/MyceliumText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:textColor="@color/transparentgrey"
+        android:textSize="12sp" />
 
     <TextView
-            android:id="@+id/tvTorState"
-            style="@style/MyceliumText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
-            android:textColor="@color/transparentgrey"
-            android:textSize="12sp"
-            android:visibility="gone"/>
+        android:id="@+id/tvTorState"
+        style="@style/MyceliumText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:textColor="@color/transparentgrey"
+        android:textSize="12sp"
+        android:visibility="gone" />
 </FrameLayout>
