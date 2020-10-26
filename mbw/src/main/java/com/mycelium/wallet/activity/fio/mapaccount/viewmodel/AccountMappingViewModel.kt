@@ -11,17 +11,18 @@ import java.util.*
 class AccountMappingViewModel : ViewModel() {
     val fioAccount = MutableLiveData<FioAccount>()
     val fioName = MutableLiveData<RegisteredFIOName>()
-    val bundledTransactions = MutableLiveData<Int>()
     val acknowledge = MutableLiveData<Boolean>(false)
     val fewTransactionsLeft = MutableLiveData<Boolean>()
-    val shouldRenew = MutableLiveData<Boolean>()
+    private val shouldRenew = MutableLiveData<Boolean>()
 
-    fun dateToString(date: Date) = DATE_FORMAT.format(date)
+    fun dateToString(date: Date) = DATE_FORMAT.format(date)!!
+
+    fun intToString(int: Int) = int.toString()
 
     fun soonExpiring() = EXPIRATION_WARN_DATE.after(fioName.value?.expireDate)
 
     fun update() {
-        val fewTransactions = bundledTransactions.value ?: 0 < 10
+        val fewTransactions = fioName.value?.bundledTxsNum ?: 0 < 10
         fewTransactionsLeft.postValue(fewTransactions)
         shouldRenew.postValue(fewTransactions || soonExpiring())
     }

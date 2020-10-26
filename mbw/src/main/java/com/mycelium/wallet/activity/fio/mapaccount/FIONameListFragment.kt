@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.fio.mapaccount
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
@@ -28,12 +27,21 @@ import kotlinx.coroutines.launch
 class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
     val adapter = AccountNamesAdapter()
     private val viewModel: FIOMapPubAddressViewModel by activityViewModels()
+    private lateinit var preference: SharedPreferences
+    private lateinit var walletManager: WalletManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        preference = requireContext().getSharedPreferences("fio_name_details_preference", Context.MODE_PRIVATE)
+        walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         if (arguments?.containsKey("fioName") == true) {
             findNavController().navigate(FIONameListFragmentDirections.actionName(requireArguments().getSerializable("fioName") as RegisteredFIOName))
         }
+    }
+
+    override fun onResume() {
+        updateList(preference, walletManager)
+        super.onResume()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,7 +52,6 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
         list.adapter = adapter
         list.itemAnimator = null
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
-        val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         when (viewModel.mode.value) {
             Mode.NEED_FIO_NAME_MAPPING -> {
                 registeredOn.text = getString(R.string.fio_manage_name_need_mapping_s, viewModel.extraAccount.value?.label)
@@ -59,7 +66,6 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
         adapter.domainClickListener = {
             findNavController().navigate(FIONameListFragmentDirections.actionDomain(it))
         }
-        val preference = requireContext().getSharedPreferences("fio_name_details_preference", Context.MODE_PRIVATE)
         adapter.switchGroupVisibilityListener = {
             preference.edit().putBoolean("isClosed${it}", !preference.getBoolean("isClosed${it}", true)).apply()
             updateList(preference, walletManager)
@@ -80,16 +86,16 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
             adapter.submitList(mutableListOf<Item>().apply {
                 val accounts =
                         if (viewModel.accountList.value != null) viewModel.accountList.value!! else walletManager.getFioAccounts()
-                accounts.forEach {
-                    val isClosed = preference.getBoolean("isClosed${it.label}", true)
-                    add(AccountItem(it, isClosed))
+                accounts.forEach { account ->
+                    val isClosed = preference.getBoolean("isClosed${account.label}", true)
+                    add(AccountItem(account, isClosed))
                     if (isClosed) {
-                        if(viewModel.mode.value != Mode.NEED_FIO_NAME_MAPPING) {
-                            add(RegisterFIONameItem(it))
-                            add(RegisterFIODomainItem(it))
-                            addAll(it.registeredFIODomains.map { FIODomainItem(it) })
+                        if (viewModel.mode.value != Mode.NEED_FIO_NAME_MAPPING) {
+                            add(RegisterFIONameItem(account))
+                            add(RegisterFIODomainItem(account))
+                            addAll(account.registeredFIODomains.map { FIODomainItem(it) })
                         }
-                        addAll(it.registeredFIONames.map { FIONameItem(it) })
+                        addAll(account.registeredFIONames.map { FIONameItem(it) })
                     }
                 }
             })

@@ -66,6 +66,8 @@ class FioModule(
 
     fun getFIONameInfo(name: String): RegisteredFIOName = getAllRegisteredFioNames().first { it.name == name }
 
+    fun getFIODomainInfo(domain: String): FIODomain = getAllRegisteredFioDomains().first { it.domain == domain }
+
     fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
             .executeAsList().sortedBy { "${it.name}@${it.domain}" }
 
