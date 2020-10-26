@@ -451,8 +451,9 @@ public class ModernMain extends AppCompatActivity {
         // Refresh menu
         final boolean isBalanceTab = TAB_BALANCE.equals(tabTag);
         final boolean isHistoryTab = TAB_HISTORY.equals(tabTag);
+        final boolean isRequestsTab = TAB_FIO_REQUESTS.equals(tabTag);
         refreshItem = checkNotNull(menu.findItem(R.id.miRefresh));
-        refreshItem.setVisible(isBalanceTab || isHistoryTab || isAccountTab);
+        refreshItem.setVisible(isBalanceTab || isHistoryTab || isRequestsTab || isAccountTab);
         setRefreshAnimation();
 
         checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
