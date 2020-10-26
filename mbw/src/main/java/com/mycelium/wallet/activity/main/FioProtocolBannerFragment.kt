@@ -99,6 +99,8 @@ class FioProtocolBannerFragment : Fragment() {
 
         val account = mbwManager.selectedAccount
         return if (account is FioAccount) {
+            if (!account.canSpend()) return Banner.NONE
+
             val names = account.registeredFIONames
             if (names.isNotEmpty()) {
                 Banner.BALANCE_NAMES
