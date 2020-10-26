@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_recipient_fio">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+    <merge>
+        <LinearLayout
+            android:id="@+id/sender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:onClick="@{_->activity.onClickSenderFioNames()}"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvWarning">
+
+            <TextView
+                android:id="@+id/tv_from_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From:"
+                android:textColor="#aaa" />
+
+            <TextView
+                android:id="@+id/tv_from"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                android:text="@{viewModel.payerFioName}"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:typeface="monospace"
+                tools:text="myfiowallet@mycelium" />
+
+            <ImageView
+                android:id="@+id/iv_from_fio_name"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:clickable="false"
+                android:contentDescription="change sender fio name"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sender_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sender">
+
+            <TextView
+                android:id="@+id/tv_from_account_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Spending from:"
+                android:textColor="#aaa" />
+
+            <TextView
+                android:id="@+id/tv_from_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                android:text="@{viewModel.account.label}"
+                android:textColor="@color/green"
+                android:textStyle="bold"
+                android:typeface="monospace"
+                tools:text="Account 1" />
+        </LinearLayout>
+    </merge>
+</layout>

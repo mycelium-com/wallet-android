@@ -31,7 +31,7 @@
                 android:layout_gravity="bottom"
                 android:fontFamily="sans-serif-medium"
                 android:paddingStart="4dp"
-                android:textColor="@color/fio_request_pending"
+                android:textColor="@color/fio_yellow"
                 android:textSize="14sp"
                 tools:text="Pending" />
         </LinearLayout>

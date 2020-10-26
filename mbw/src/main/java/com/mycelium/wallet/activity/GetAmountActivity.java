@@ -152,7 +152,6 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_amount_activity);
       ButterKnife.bind(this);
-      getSupportActionBar().hide();
 
       _mbwManager = MbwManager.getInstance(getApplication());
       isSendMode = getIntent().getBooleanExtra(SEND_MODE, false);
@@ -172,6 +171,14 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       }
       updateUI();
       checkEntry();
+      setupActionBar();
+   }
+
+   private void setupActionBar() {
+      getSupportActionBar().setTitle("Enter amount");
+      getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back_arrow);
+      getSupportActionBar().setHomeButtonEnabled(true);
+      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
    }
 
    private int getMaxDecimal(AssetInfo assetInfo) {

@@ -68,7 +68,7 @@ class FioRequestArrayAdapter(var activity: Activity,
                 hasStatus = true
                 val color = ContextCompat.getColor(activity,
                         when (status) {
-                            FioRequestStatus.REQUESTED -> R.color.fio_request_pending
+                            FioRequestStatus.REQUESTED -> R.color.fio_yellow
                             FioRequestStatus.REJECTED -> R.color.red
                             FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.green
                             FioRequestStatus.NONE -> R.color.green

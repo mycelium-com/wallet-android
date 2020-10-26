@@ -54,7 +54,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="5dp"
-                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginHorizontal="@dimen/horizontal_page_margin"
                         android:orientation="vertical">
 
                     <!--Transaction label (might be part of bip21)-->

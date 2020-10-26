@@ -129,7 +129,7 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         val color = when (status) {
             FioRequestStatus.SENT_TO_BLOCKCHAIN -> R.color.fio_green
             FioRequestStatus.REJECTED -> R.color.fio_red
-            else -> R.color.fio_request_pending
+            else -> R.color.fio_yellow
         }
         tvStatus.setTextColor(ContextCompat.getColor(this, color))
         tvStatus.text = when (status) {

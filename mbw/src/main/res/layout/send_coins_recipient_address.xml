@@ -16,9 +16,8 @@
 
         <TextView
             android:id="@+id/tvReceiver"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="0dp"
             android:text="@{viewModel.receivingAddressText}"
             android:visibility="@{viewModel.receivingAddressText.isEmpty() ? View.GONE : View.VISIBLE}"
             android:textColor="@color/white"
@@ -26,7 +25,7 @@
             android:textSize="20sp"
             android:layout_weight="1"
             android:typeface="monospace"
-            tools:text="1Address1234\n567890abcdef\nghijklmnop" />
+            tools:text="1Address1234567890\nabcdefghijklmnop" />
 
         <TextView
             android:id="@+id/tvReceiverAddress"

@@ -7,9 +7,10 @@
     android:scrollbars="vertical">
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:layout_marginHorizontal="@dimen/horizontal_page_margin"
         android:orientation="vertical" >
 
         <FrameLayout
@@ -18,7 +19,7 @@
 
             <LinearLayout
                 android:id="@+id/llInfo"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                                 android:orientation="vertical" >
 
@@ -31,33 +32,27 @@
                     android:orientation="horizontal" >
 
                     <TextView
-
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/amount_label"
-                        android:textSize="22sp" />
-
-                    <TextView
                         android:id="@+id/tvAmount"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="5dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:gravity="end"
                         android:hint="@string/amount_hint"
+                        android:textStyle="bold"
                         android:lines="1"
                         android:singleLine="true"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:typeface="monospace" />
 
                     <TextView
                         android:id="@+id/btCurrency"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingStart="3dp"
                         android:singleLine="true"
                         android:textColor="@color/lightgrey"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
                         android:typeface="monospace"
                         tools:text="BTC"
                         tools:ignore="RtlSymmetry" />
@@ -68,12 +63,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:contentDescription="Arrow"
-                        android:paddingEnd="3dp"
                         app:srcCompat="@drawable/ic_arrow_drop_down" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal" >
 
@@ -81,12 +75,9 @@
 
                     <Button
                         android:id="@+id/btPaste"
-
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/MyceliumSlimButton"
-                        android:paddingStart="3dp"
-                        android:paddingEnd="3dp"
                         android:text="@string/paste"
                         android:textSize="22sp" />
 
@@ -101,18 +92,12 @@
                         android:id="@+id/tvAlternateAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="18sp" />
+                        android:textColor="@color/fio_white_alpha_0_8"
+                        android:textSize="14sp"
+                        android:typeface="monospace"
+                        tools:text="0.00 USD" />
                 </LinearLayout>
-                <!-- Balance -->
 
-                <TextView
-                    android:id="@+id/tvMaxAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:visibility="gone"
-                    android:text="@string/max_btc"
-                    android:textSize="18sp" />
 
             </LinearLayout>
 
@@ -137,15 +122,35 @@
             </LinearLayout>
         </FrameLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="16dp"
+            android:background="#33FFFFFF" />
+
+        <!-- Balance -->
+
+        <TextView
+            android:id="@+id/tvMaxAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:visibility="gone"
+            android:text="@string/max_btc"
+            tools:visibility="visible"
+            android:textSize="18sp" />
+
         <TextView
             android:id="@+id/tvHowIsItCalculated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
+            android:layout_marginTop="2dp"
             android:visibility="gone"
             android:text="@string/how_is_it_calculated"
             android:textSize="16sp"
-            android:textColor="#4583de"/>
+            android:textColor="@color/fio_prm_btn_line"
+            tools:visibility="visible"/>
 
         <LinearLayout
             android:layout_width="250dp"
@@ -191,7 +196,7 @@
 
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:text="@string/ok"
+                android:text="@string/button_ok"
                 android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>
