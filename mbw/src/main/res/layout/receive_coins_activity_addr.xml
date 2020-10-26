@@ -15,14 +15,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="@dimen/horizontal_page_margin"
         android:layout_marginTop="10dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/addressLabel"
-            android:layout_width="101dp"
-            android:layout_height="21dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@{@string/crypto_address(viewModel.currencyName)}"
             android:textColor="#bbb"
             android:textSize="14sp"
@@ -53,7 +53,7 @@
             android:onClick="@{() -> viewModel.copyToClipboard()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/share"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/address"
             app:srcCompat="@drawable/ic_content_copy_white" />
 
         <ImageView
@@ -63,7 +63,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:onClick="@{() -> viewModel.shareRequest()}"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/address"
             app:srcCompat="@drawable/ic_share_24px" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -39,5 +39,6 @@
     <dimen name="button_ads_icon_size">16dp</dimen>
     <dimen name="fio_mapping_group_margin">4dp</dimen>
     <dimen name="fio_list_item_space">8dp</dimen>
+    <dimen name="horizontal_page_margin">16dp</dimen>
 
 </resources>

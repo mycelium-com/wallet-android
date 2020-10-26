@@ -4,6 +4,7 @@
     <data>
 
         <import type="androidx.lifecycle.AndroidViewModel" />
+        <import type="android.view.View" />
 
         <variable
                 name="activity"
@@ -37,8 +38,8 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginVertical="10dp">
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:layout_marginVertical="8dp">
                 <include layout="@layout/receive_coins_activity_qr" />
                 <include
                     layout="@layout/receive_coins_activity_nfc"
@@ -50,6 +51,13 @@
             <include
                     layout="@layout/receive_coins_activity_ro"
                     bind:viewModel="@{viewModel}" />
+
+            <!-- Amount -->
+
+            <include
+                layout="@layout/receive_coins_activity_amount"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
 
             <!-- Selecting address type to display -->
             <include
@@ -63,15 +71,16 @@
                     layout="@layout/receive_coins_activity_addr"
                     bind:viewModel="@{viewModel}" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:layout_marginVertical="24dp"
+                android:visibility="@{viewModel.fioNameList.isEmpty() ? View.GONE : View.VISIBLE}"
+                android:background="#33FFFFFF" />
+
             <include
                     layout="@layout/receive_coins_activity_fio_name"
-                    bind:viewModel="@{viewModel}" />
-
-            <!-- Amount -->
-
-            <include
-                    layout="@layout/receive_coins_activity_amount"
-                    bind:activity="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
             <include
