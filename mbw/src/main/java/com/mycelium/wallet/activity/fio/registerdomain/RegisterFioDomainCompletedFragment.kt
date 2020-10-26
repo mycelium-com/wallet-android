@@ -9,10 +9,13 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wapi.wallet.Util.transformExpirationDate
+import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_completed.*
+import java.util.*
 
 class RegisterFioDomainCompletedFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,8 +27,11 @@ class RegisterFioDomainCompletedFragment : Fragment() {
         }.apply { this.isEnabled = true }
     }
 
-    private val fioDomain: String by lazy {
+    private val domain: String by lazy {
         requireArguments().getSerializable("fioDomain") as String
+    }
+    private val accountId: UUID by lazy {
+        requireArguments().getSerializable("fioAccountId") as UUID
     }
     private val fioAccountLabel: String by lazy {
         requireArguments().getSerializable("fioAccountLabel") as String
@@ -48,11 +54,13 @@ class RegisterFioDomainCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         btRegisterFioName.setOnClickListener {
-            RegisterFioNameActivity.start(requireContext())
+            val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
+            val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+            RegisterFioNameActivity.start(requireContext(), accountId, fioModule.getFIODomainInfo(domain))
             requireActivity().finish()
         }
-        tvFioDomain.text = "@$fioDomain"
-        tvRegisterFioNameDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$fioDomain"),
+        tvFioDomain.text = "@$domain"
+        tvRegisterFioNameDesc.text = HtmlCompat.fromHtml(resources.getString(R.string.fio_create_name_desc, "@$domain"),
                 HtmlCompat.FROM_HTML_MODE_COMPACT)
         tvConnectedFioAccount.text = fioAccountLabel
         tvExpirationDate.text = transformExpirationDate(expirationDate)
@@ -60,11 +68,13 @@ class RegisterFioDomainCompletedFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(fioDomain: String, fioAccountLabel: String, expirationDate: String): RegisterFioDomainCompletedFragment {
+        fun newInstance(fioDomain: String, fioAccountLabel: String,
+                        accountId: UUID, expirationDate: String): RegisterFioDomainCompletedFragment {
             val f = RegisterFioDomainCompletedFragment()
             val args = Bundle()
 
             args.putString("fioDomain", fioDomain)
+            args.putSerializable("fioAccountId", accountId)
             args.putString("fioAccountLabel", fioAccountLabel)
             args.putString("expirationDate", expirationDate)
 

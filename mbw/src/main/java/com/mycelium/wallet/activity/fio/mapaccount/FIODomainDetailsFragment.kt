@@ -71,7 +71,6 @@ class FIODomainDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = getString(R.string.domain_details)
         }
-        val mbwManager = MbwManager.getInstance(requireContext())
         setFioDomain()
         fioModule.getFioAccountByFioDomain(args.domain.domain)?.run {
             viewModel.fioAccount.value = walletManager.getAccount(this) as FioAccount
@@ -85,7 +84,7 @@ class FIODomainDetailsFragment : Fragment() {
         updateList()
         createFIOName.setOnClickListener {
             RegisterFioNameActivity.start(requireContext(),
-                    mbwManager.selectedAccount.id)
+                    viewModel.fioAccount.value!!.id, viewModel.fioDomain.value!!)
         }
         renewFIODomain.setOnClickListener {
             val fioDomain = viewModel.fioDomain.value!!.domain

@@ -100,7 +100,8 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                             .beginTransaction()
                             .replace(R.id.container,
                                     RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!,
-                                            viewModel.fioAccountToRegisterName.value!!.label, expiration))
+                                            viewModel.fioAccountToRegisterName.value!!.label,
+                                            viewModel.fioAccountToRegisterName.value!!.id, expiration))
                             .commit()
                 } else {
                     Toaster(this).toast("Something went wrong", true)
