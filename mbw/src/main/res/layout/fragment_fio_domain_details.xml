@@ -111,18 +111,20 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:text="@string/renew_fio_domain"
+                    android:visibility="@{viewModel.fioAccount.canSpend() ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
+                android:id="@+id/tvFioNamesDesc"
                 style="@style/fio_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="@string/fio_names_registered" />
+                tools:text="@string/fio_names_registered" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list"
@@ -140,6 +142,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
+                android:visibility="@{viewModel.fioAccount.canSpend() ? View.VISIBLE : View.GONE}"
                 android:enabled="@{!viewModel.isExpired(viewModel.fioDomain.expireDate)}"
                 android:text="@string/create_new_fio_name"
                 app:layout_constraintBottom_toBottomOf="parent" />

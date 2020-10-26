@@ -45,6 +45,9 @@ class FIODomainDetailsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        fioModule.getFioAccountByFioDomain(args.domain.domain)?.run {
+            viewModel.fioAccount.value = walletManager.getAccount(this) as FioAccount
+        }
     }
 
     override fun onResume() {
@@ -54,7 +57,7 @@ class FIODomainDetailsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        setHasOptionsMenu(true)
+        setHasOptionsMenu(viewModel.fioAccount.value!!.canSpend())
         return DataBindingUtil.inflate<FragmentFioDomainDetailsBinding>(inflater, R.layout.fragment_fio_domain_details, container, false)
                 .apply {
                     viewModel = this@FIODomainDetailsFragment.viewModel
@@ -72,9 +75,6 @@ class FIODomainDetailsFragment : Fragment() {
             title = getString(R.string.domain_details)
         }
         setFioDomain()
-        fioModule.getFioAccountByFioDomain(args.domain.domain)?.run {
-            viewModel.fioAccount.value = walletManager.getAccount(this) as FioAccount
-        }
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         list.adapter = adapter
         list.itemAnimator = null
@@ -90,6 +90,9 @@ class FIODomainDetailsFragment : Fragment() {
             val fioDomain = viewModel.fioDomain.value!!.domain
             RegisterFIODomainActivity.startRenew(requireContext(), viewModel.fioAccount.value!!.id, fioDomain)
         }
+        tvFioNamesDesc.text = if (viewModel.fioAccount.value!!.canSpend()) getString(R.string.fio_names_registered) else
+            getString(R.string.fio_names_registered_read_only_account)
+        tvFioNamesDesc.visibility = if (adapter.itemCount == 0) View.GONE else View.VISIBLE
     }
 
     private fun updateList() {
@@ -106,18 +109,13 @@ class FIODomainDetailsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.miAddFIOName) {
-            RegisterFioNameActivity.start(requireContext(),
-                    viewModel.fioAccount.value!!.id, viewModel.fioDomain.value!!)
+            RegisterFioNameActivity.start(requireContext(), viewModel.fioAccount.value!!.id, viewModel.fioDomain.value!!)
             return true
         } else if (item.itemId == R.id.miMakeDomainPublic) {
             if (args.domain.isPublic) {
                 Toaster(this).toast("Domain is already public", false)
             } else {
-                val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-                val uuid = fioModule.getFioAccountByFioDomain(args.domain.domain)
-                        ?: throw IllegalStateException("Illegal domain ${args.domain.domain} (Not owned by any of user's accounts)")
-                val ownerFioAccount = walletManager.getAccount(uuid) as FioAccount
-                MakeMyceliumDomainPublicTask(ownerFioAccount, args.domain.domain) {
+                MakeMyceliumDomainPublicTask(viewModel.fioAccount.value!!, args.domain.domain) {
                     Toaster(this).toast(it, false)
                 }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             }

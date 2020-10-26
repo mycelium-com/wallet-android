@@ -54,8 +54,8 @@
                     android:id="@+id/copy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
                     android:layout_marginStart="9dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintBottom_toBottomOf="@id/fioName"
                     app:layout_constraintLeft_toRightOf="@id/fioName"
                     app:layout_constraintTop_toTopOf="@id/fioName"
@@ -155,10 +155,12 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:text="@string/renew_fio_name"
+                    android:visibility="@{viewModel.fioAccount.canSpend() ? View.VISIBLE : View.GONE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
 
             <TextView
                 style="@style/fio_account"
@@ -178,26 +180,32 @@
                 app:layout_constraintTop_toBottomOf="@id/title"
                 tools:listitem="@layout/item_fio_account_mapping_account" />
 
-            <CheckBox
-                android:id="@+id/acknowledge"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="36dp"
-                android:layout_marginEnd="16dp"
-                android:checked="@={viewModel.acknowledge}"
-                android:text="@string/fio_acknowledge_mapping" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="@{viewModel.fioAccount.canSpend() ? View.VISIBLE : View.GONE}">
 
-            <Button
-                android:id="@+id/buttonContinue"
-                style="@style/MyceliumButton.FIO"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:enabled="@{viewModel.acknowledge}"
-                android:text="@string/connect_accounts"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                <CheckBox
+                    android:id="@+id/acknowledge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="36dp"
+                    android:layout_marginEnd="16dp"
+                    android:checked="@={viewModel.acknowledge}"
+                    android:text="@string/fio_acknowledge_mapping" />
 
+                <Button
+                    android:id="@+id/buttonContinue"
+                    style="@style/MyceliumButton.FIO"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:enabled="@{viewModel.acknowledge}"
+                    android:text="@string/connect_accounts"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>

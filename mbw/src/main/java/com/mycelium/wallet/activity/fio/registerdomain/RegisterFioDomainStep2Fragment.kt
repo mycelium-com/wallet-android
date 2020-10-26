@@ -22,7 +22,7 @@ import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.getSpendableFioAccounts
+import com.mycelium.wapi.wallet.fio.getActiveSpendableFioAccounts
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_step2.*
 
 class RegisterFioDomainStep2Fragment : Fragment() {
@@ -42,7 +42,7 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                     .apply {
                         viewModel = this@RegisterFioDomainStep2Fragment.viewModel.apply {
                             val walletManager = MbwManager.getInstance(context).getWalletManager(false)
-                            val fioAccounts = walletManager.getSpendableFioAccounts()
+                            val fioAccounts = walletManager.getActiveSpendableFioAccounts()
                             spinnerFioAccounts?.adapter = ArrayAdapter(context,
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text, fioAccounts.map { it.label }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)

@@ -601,11 +601,12 @@ public class AccountsFragment extends Fragment {
 
         final List<RegisteredFIOName> fioNames = ((FioModule) walletManager.getModuleById(FioModule.ID)).getAllRegisteredFioNames();
         if (account instanceof FioAccount) {
-            if (fioNames.isEmpty()) {
+            if (account.canSpend()) {
                 menus.add(R.menu.record_options_menu_add_fio_name);
+            }
+            if (fioNames.isEmpty()) {
                 menus.add(R.menu.record_options_menu_about_fio_protocol);
             } else {
-                menus.add(R.menu.record_options_menu_add_fio_name);
                 menus.add(R.menu.record_options_menu_my_fio_names);
                 menus.add(R.menu.record_options_menu_about_fio_protocol);
                 menus.add(R.menu.record_options_menu_fio_requests);
@@ -654,7 +655,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
-        final List<FioAccount> fioAccounts = FioModuleKt.getActiveFioAccounts(walletManager);
+        final List<FioAccount> fioAccounts = FioModuleKt.getActiveSpendableFioAccounts(_mbwManager.getWalletManager(false));
         if (!(account instanceof FioAccount) && !fioAccounts.isEmpty() && fioNames.isEmpty()) {
             menus.add(R.menu.record_options_menu_add_fio_name);
         }

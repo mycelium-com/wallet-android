@@ -91,8 +91,10 @@ class FIONameListFragment : Fragment(R.layout.fragment_fio_name_details) {
                     add(AccountItem(account, isClosed))
                     if (isClosed) {
                         if (viewModel.mode.value != Mode.NEED_FIO_NAME_MAPPING) {
-                            add(RegisterFIONameItem(account))
-                            add(RegisterFIODomainItem(account))
+                            if (account.canSpend()) {
+                                add(RegisterFIONameItem(account))
+                                add(RegisterFIODomainItem(account))
+                            }
                             addAll(account.registeredFIODomains.map { FIODomainItem(it) })
                         }
                         addAll(account.registeredFIONames.map { FIONameItem(it) })

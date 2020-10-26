@@ -320,7 +320,7 @@ class FioModule(
 fun WalletManager.getFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible }
         .map { it as FioAccount }.sortedBy { it.accountIndex }
 
-fun WalletManager.getSpendableFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible && it.canSpend() }
+fun WalletManager.getActiveSpendableFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible && it.isActive && it.canSpend() }
         .map { it as FioAccount }.sortedBy { it.accountIndex }
 
 fun WalletManager.getActiveFioAccounts() = getAccounts()
