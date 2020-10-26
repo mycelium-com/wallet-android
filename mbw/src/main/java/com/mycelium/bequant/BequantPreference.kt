@@ -91,7 +91,7 @@ object BequantPreference {
         preference.edit().putString(Constants.KYC_REQUEST_KEY, Gson().toJson(request)).apply()
     }
 
-    fun getKYCStatus(): KYCStatus = KYCStatus.valueOf(preference.getString("kyc_status", "NONE")
+    fun getKYCStatus(): KYCStatus = KYCStatus.valueOf(preference.getString(Constants.KYC_STATUS_KEY, "NONE")
             ?: "NONE")
 
     fun setKYCStatus(status: KYCStatus) {
