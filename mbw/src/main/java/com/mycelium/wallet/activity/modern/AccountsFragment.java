@@ -59,6 +59,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.view.ActionMode.Callback;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,6 +75,7 @@ import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
+import com.mycelium.wallet.activity.main.FioProtocolBannerFragment;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
@@ -171,8 +173,11 @@ public class AccountsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (root == null) {
-            root = inflater.inflate(R.layout.records_activity, container, false);
+            root = inflater.inflate(R.layout.fragment_accounts, container, false);
         }
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.phFragmentFioBanner, FioProtocolBannerFragment.newInstance(true));
+        fragmentTransaction.commitAllowingStateLoss();
         return root;
     }
 

@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/phFragmentFioBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRecords"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/phFragmentFioBanner"
         android:orientation="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-    
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
     <LinearLayout
         android:id="@+id/llLocked"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/phFragmentFioBanner"
         android:layout_gravity="center"
         android:background="@color/transparent"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tvLocked"
@@ -39,5 +46,4 @@
             android:paddingEnd="20dp"
             android:text="@string/unlock_label" />
     </LinearLayout>
-
-</FrameLayout>
+</RelativeLayout>

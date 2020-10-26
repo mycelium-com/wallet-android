@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fio_protocol_banner_created"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#444444"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:visibility="gone"
+    tools:visibility="visible">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:paddingBottom="15dp">
+
+        <ImageView
+            android:id="@+id/icFioLogo"
+            android:layout_width="48dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="13dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_fio_logo_and_abbr_white" />
+
+        <TextView
+            android:id="@+id/tvFioProtocol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="Protocol"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@id/icFioLogo"
+            app:layout_constraintLeft_toRightOf="@id/icFioLogo"
+            app:layout_constraintTop_toTopOf="@id/icFioLogo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="2dp"
+            android:text="@string/fio_create_name_banner_desc"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icFioLogo" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btFioRequests"
+            android:layout_width="114dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="18dp"
+            android:background="@drawable/background_fio_names_banner"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="FIO Requests"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btFioNames"
+            android:layout_width="114dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="18dp"
+            android:layout_marginBottom="17dp"
+            android:background="@drawable/background_fio_names_banner"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="FIO Names"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

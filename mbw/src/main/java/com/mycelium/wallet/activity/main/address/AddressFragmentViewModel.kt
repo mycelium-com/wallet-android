@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import android.content.Intent
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.widget.Toast
@@ -10,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)
@@ -47,15 +45,9 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     fun getAddressString(): String = getAccountAddress().value!!.toString()
 
-    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString().equals(""))
+    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString() == "")
 
     abstract fun qrClickReaction(activity: FragmentActivity)
 
     fun isInitialized() = ::model.isInitialized
-
-    fun startRegisterFIONameActivity(activity: FragmentActivity) {
-        val intent: Intent = Intent(activity, RegisterFioNameActivity::class.java)
-                .putExtra("account", model.account.id)
-        activity.startActivity(intent)
-    }
 }
