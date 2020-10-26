@@ -106,7 +106,8 @@ class FIODomainDetailsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.miAddFIOName) {
-            RegisterFioNameActivity.start(requireContext())
+            RegisterFioNameActivity.start(requireContext(),
+                    viewModel.fioAccount.value!!.id, viewModel.fioDomain.value!!)
             return true
         } else if (item.itemId == R.id.miMakeDomainPublic) {
             if (args.domain.isPublic) {
