@@ -105,7 +105,9 @@
             app:popUpTo="@id/kycStep1" />
         <action
             android:id="@+id/actionPending"
-            app:destination="@id/pendingFragment" />
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/chooseCountry"
@@ -166,7 +168,9 @@
         </action>
         <action
             android:id="@+id/actionPending"
-            app:destination="@id/pendingFragment" />
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -211,7 +215,9 @@
         </action>
         <action
             android:id="@+id/actionPending"
-            app:destination="@id/pendingFragment" />
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -270,7 +276,9 @@
             app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
         <action
             android:id="@+id/actionFinish"
-            app:destination="@id/pendingFragment" />
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/actionEditDocs"
             app:destination="@id/kycStep4"

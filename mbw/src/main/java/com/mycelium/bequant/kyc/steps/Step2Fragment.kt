@@ -139,7 +139,6 @@ class Step2Fragment : Fragment() {
                 applicant.userId = onceToken
                 BequantPreference.setKYCRequest(kycRequest)
                 Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
-                    BequantPreference.setKYCSubmitDate(Date())
                     nextPage()
                 }, { _, msg ->
                     loader(false)

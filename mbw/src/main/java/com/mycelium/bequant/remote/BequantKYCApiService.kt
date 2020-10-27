@@ -21,6 +21,9 @@ interface BequantKYCApiService {
     suspend fun checkMobileVerification(@Query("uuid") uuid: String,
                                         @Query("code") code: String): Response<KYCResponse>
 
+    @POST("eapi/applicant/update/submit")
+    suspend fun submit(@Body onceToken: OnceToken): Response<KYCResponse>
+
     @Multipart
     @POST("eapi/applicant/fileupload")
     suspend fun uploadFile(@Query("uuid") uuid: String,

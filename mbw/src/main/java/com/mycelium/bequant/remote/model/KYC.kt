@@ -59,6 +59,8 @@ data class KYCApplicant(@JsonInclude(JsonInclude.Include.NON_NULL) var email: St
 //                        @JsonProperty("account_type") val accountType: String = "pro",
                         @JsonProperty("residential_address") var address: ResidentialAddress = ResidentialAddress())
 
+data class OnceToken(@JsonProperty("once-token") var userId: String)
+
 data class ResidentialAddress(@JsonProperty("address_1") var address1: String = "",
                               @JsonProperty("address_2") var address2: String = "",
                               @JsonProperty("city") var city: String = "",

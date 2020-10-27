@@ -60,6 +60,26 @@ class KYCRepository {
         }, {})
     }
 
+    fun submit(scope: CoroutineScope, success: (() -> Unit),
+               error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
+        Api.signRepository.accountOnceToken(scope,
+                success = { onceTokenResponse ->
+                    onceTokenResponse?.token?.let { onceToken ->
+                        doRequest(scope, {
+                            service.submit(OnceToken(onceToken))
+                        }, {
+                            success()
+                        }, { code, msg ->
+                            error?.invoke(code, msg)
+                        }, finally)
+                    }
+                },
+                error = { code, msg ->
+                    error?.invoke(code, msg)
+                    finally?.invoke()
+                })
+    }
+
     fun uploadDocument(scope: CoroutineScope, type: KYCDocument, file: File, country: String,
                        progress: ((Long, Long) -> Unit), success: () -> Unit, error: () -> Unit) {
         doRequest(scope, {
@@ -77,7 +97,7 @@ class KYCRepository {
     }
 
     fun uploadDocuments(scope: CoroutineScope, fileMap: Map<File, KYCDocument>, country: String,
-                        success: () -> Unit, error: (String) -> Unit, finally: () -> Unit) {
+                        success: () -> Unit, error: (String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             var result: Response<KYCResponse> = Response.success(null)
             fileMap.forEach {

@@ -147,7 +147,6 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
         loader(true)
         Api.kycRepository.checkMobileVerification(viewModel.viewModelScope, code, {
             loader(false)
-            BequantPreference.setKYCSubmitDate(Date())
             nextPage()
         }, {
             loader(false)
