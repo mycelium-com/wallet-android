@@ -31,7 +31,9 @@
             android:visibility="gone"
             app:errorAnimatedText="@{viewModel.feeWarning}"
             app:feeExtDialogOnClick="@{viewModel.isFeeExtended}"
-            android:textColor="@color/red"
-            android:textSize="14sp" />
+            android:textColor="@color/fio_red"
+            android:textSize="14sp"
+            tools:text="some text"
+            tools:visibility="visible"/>
     </LinearLayout>
 </layout>

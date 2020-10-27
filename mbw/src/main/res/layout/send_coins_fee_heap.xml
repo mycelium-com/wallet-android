@@ -32,7 +32,7 @@
                 tools:visibility="visible"
                 tools:text="@string/fee_is_zero"
                 app:errorAnimatedText="@{viewModel.feeWarning}"
-                android:textColor="@color/red"
+                android:textColor="@color/fio_red"
                 android:textSize="14sp" />
     </LinearLayout>
 </layout>

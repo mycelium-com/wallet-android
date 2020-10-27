@@ -13,6 +13,7 @@
     <LinearLayout
             android:id="@+id/ll_fio_memo"
             android:orientation="vertical"
+            android:layout_marginTop="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         <TextView
@@ -28,6 +29,7 @@
                 android:hint="@{`Leave a message for ` + payeeFioName ?? `the recipient` + `…`}"
                 tools:hint="Leave a message for tom@fiotestnet…"
                 tools:text="Leave a message for tom@fiotestnet…"
+                android:textSize="14sp"
                 android:text="@{fioMemo}"
                 android:singleLine="false"
                 android:maxLength="64"/>

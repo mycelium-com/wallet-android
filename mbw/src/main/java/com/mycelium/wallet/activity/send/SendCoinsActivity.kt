@@ -57,7 +57,7 @@ import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
-import kotlinx.android.synthetic.main.send_coins_recipient_fio.*
+import kotlinx.android.synthetic.main.send_coins_sender_fio.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 

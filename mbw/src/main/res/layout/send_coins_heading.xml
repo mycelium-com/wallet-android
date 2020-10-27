@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:gravity="start"
             android:orientation="vertical">
 
@@ -40,12 +40,6 @@
                 bind:activity="@{activity}"
                 android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.COIN) ? View.VISIBLE : View.GONE}" />
 
-        <!-- Recipient Fio Config -->
-        <include
-                layout="@layout/send_coins_recipient_fio"
-                bind:viewModel="@{viewModel}"
-                bind:activity="@{activity}"
-                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}" />
     </LinearLayout>
 
 </layout>
