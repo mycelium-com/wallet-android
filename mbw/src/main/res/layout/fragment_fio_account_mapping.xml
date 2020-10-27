@@ -163,12 +163,13 @@
 
 
             <TextView
+                android:id="@+id/tvConnectAccountsDesc"
                 style="@style/fio_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="@string/select_name_to_associate" />
+                tools:text="@string/select_name_to_associate" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list"

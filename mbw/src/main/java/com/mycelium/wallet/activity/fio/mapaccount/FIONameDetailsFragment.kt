@@ -149,6 +149,11 @@ class FIONameDetailsFragment : Fragment() {
         viewModel.fioName.observe(viewLifecycleOwner) {
             viewModel.update()
         }
+        tvConnectAccountsDesc.text = if (viewModel.fioAccount.value!!.canSpend()) {
+            getText(R.string.select_name_to_associate)
+        } else {
+            getText(R.string.select_name_to_associate_read_only_account)
+        }
     }
 
     private fun updateList(walletManager: WalletManager, preference: SharedPreferences) {

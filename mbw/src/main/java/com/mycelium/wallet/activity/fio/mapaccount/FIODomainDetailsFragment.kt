@@ -12,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.fio.ExpirationDetailsDialog
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.AccountNamesAdapter
 import com.mycelium.wallet.activity.fio.mapaccount.adapter.FIONameItem
 import com.mycelium.wallet.activity.fio.mapaccount.viewmodel.FIODomainViewModel
@@ -57,7 +58,7 @@ class FIODomainDetailsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        setHasOptionsMenu(viewModel.fioAccount.value!!.canSpend())
+        setHasOptionsMenu(true)
         return DataBindingUtil.inflate<FragmentFioDomainDetailsBinding>(inflater, R.layout.fragment_fio_domain_details, container, false)
                 .apply {
                     viewModel = this@FIODomainDetailsFragment.viewModel
@@ -90,9 +91,6 @@ class FIODomainDetailsFragment : Fragment() {
             val fioDomain = viewModel.fioDomain.value!!.domain
             RegisterFIODomainActivity.startRenew(requireContext(), viewModel.fioAccount.value!!.id, fioDomain)
         }
-        tvFioNamesDesc.text = if (viewModel.fioAccount.value!!.canSpend()) getString(R.string.fio_names_registered) else
-            getString(R.string.fio_names_registered_read_only_account)
-        tvFioNamesDesc.visibility = if (adapter.itemCount == 0) View.GONE else View.VISIBLE
     }
 
     private fun updateList() {
@@ -100,28 +98,48 @@ class FIODomainDetailsFragment : Fragment() {
             adapter.submitList((walletManager.getModuleById(FioModule.ID) as FioModule)
                     .getFIONames(args.domain.domain).map { FIONameItem(it) })
         }
+        tvFioNamesDesc.text = if (adapter.itemCount > 0) {
+            if (viewModel.fioAccount.value!!.canSpend()) {
+                getString(R.string.fio_names_registered)
+            } else {
+                getString(R.string.fio_names_registered_read_only_account)
+            }
+        } else {
+            getString(R.string.no_fio_names_registered)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.domain_details_context_menu, menu)
+        if (viewModel.fioAccount.value!!.canSpend()) {
+            inflater.inflate(R.menu.domain_details_context_menu, menu)
+        }
+
+        inflater.inflate(R.menu.expiration_details_option, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.miAddFIOName) {
-            RegisterFioNameActivity.start(requireContext(), viewModel.fioAccount.value!!.id, viewModel.fioDomain.value!!)
-            return true
-        } else if (item.itemId == R.id.miMakeDomainPublic) {
-            if (args.domain.isPublic) {
-                Toaster(this).toast("Domain is already public", false)
-            } else {
-                MakeMyceliumDomainPublicTask(viewModel.fioAccount.value!!, args.domain.domain) {
-                    Toaster(this).toast(it, false)
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        return when (item.itemId) {
+            R.id.miAddFIOName -> {
+                RegisterFioNameActivity.start(requireContext(), viewModel.fioAccount.value!!.id, viewModel.fioDomain.value!!)
+                return true
             }
-            return true
+            R.id.miMakeDomainPublic -> {
+                if (args.domain.isPublic) {
+                    Toaster(this).toast("Domain is already public", false)
+                } else {
+                    MakeMyceliumDomainPublicTask(viewModel.fioAccount.value!!, args.domain.domain) {
+                        Toaster(this).toast(it, false)
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                }
+                return true
+            }
+            R.id.miExpirationDetails -> {
+                ExpirationDetailsDialog().show(parentFragmentManager, "modal")
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
     inner class MakeMyceliumDomainPublicTask(
