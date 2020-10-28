@@ -62,12 +62,7 @@
                     layout="@layout/send_coins_amount"
                     bind:activity="@{activity}"
                     bind:viewModel="@{viewModel}" />
-
-                <!--FIO Memo-->
-                <include
-                    layout="@layout/fio_memo_input"
-                    bind:fioMemo="@{viewModel.fioMemo}"
-                    bind:payeeFioName="@{viewModel.payeeFioName}" />
+                <!-- Recipient Fio Config -->
 
             </LinearLayout>
 
@@ -75,6 +70,18 @@
             <include
                 layout="@layout/send_coins_fee_block_btc"
                 bind:viewModel="@{viewModel}" />
+
+            <!-- Sender -->
+            <include
+                layout="@layout/send_coins_sender_fio"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
+            <!--FIO Memo-->
+            <include
+                layout="@layout/fio_memo_input"
+                bind:fioMemo="@{viewModel.fioMemo}"
+                bind:payeeFioName="@{viewModel.payeeFioName}" />
 
             <!-- Amount Error -->
             <include

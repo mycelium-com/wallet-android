@@ -61,12 +61,6 @@
                     bind:activity="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
-                <!--FIO Memo-->
-                <include
-                    layout="@layout/fio_memo_input"
-                    bind:fioMemo="@{viewModel.fioMemo}"
-                    bind:payeeFioName="@{viewModel.payeeFioName}" />
-
                 <!-- Advanced block -->
                 <include
                     layout="@layout/send_coins_advanced_block"
@@ -79,6 +73,18 @@
             <include
                 layout="@layout/send_coins_fee_block"
                 bind:viewModel="@{viewModel}" />
+
+            <!-- Sender -->
+            <include
+                layout="@layout/send_coins_sender_fio"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
+            <!--FIO Memo-->
+            <include
+                layout="@layout/fio_memo_input"
+                bind:fioMemo="@{viewModel.fioMemo}"
+                bind:payeeFioName="@{viewModel.payeeFioName}" />
 
             <!-- Amount Error -->
             <include

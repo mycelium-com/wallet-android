@@ -39,11 +39,10 @@
                         android:layout_weight="1"
                         android:gravity="end"
                         android:hint="@string/amount_hint"
-                        android:textStyle="bold"
+                        android:fontFamily="@font/roboto_mono_medium"
                         android:lines="1"
                         android:singleLine="true"
-                        android:textSize="20sp"
-                        android:typeface="monospace" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/btCurrency"
@@ -51,9 +50,8 @@
                         android:layout_height="wrap_content"
                         android:singleLine="true"
                         android:textColor="@color/lightgrey"
+                        android:fontFamily="@font/roboto_mono_medium"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:typeface="monospace"
                         tools:text="BTC"
                         tools:ignore="RtlSymmetry" />
 
@@ -77,6 +75,8 @@
                         android:id="@+id/btPaste"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
                         style="@style/MyceliumSlimButton"
                         android:text="@string/paste"
                         android:textSize="22sp" />
@@ -94,7 +94,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/fio_white_alpha_0_8"
                         android:textSize="14sp"
-                        android:typeface="monospace"
+                        android:fontFamily="@font/roboto_mono_regular"
                         tools:text="0.00 USD" />
                 </LinearLayout>
 

@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -30,6 +31,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     protected lateinit var account: WalletAccount<*>
     protected val context: Context = application
     var hasPrivateKey: Boolean = false
+    val isNfcAvailable = MutableLiveData<Boolean>()
 
     open fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
         if (::model.isInitialized) {
@@ -92,7 +94,9 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
         }
     }
 
-    fun isNfcAvailable() = model.nfc?.isNdefPushEnabled == true
+    fun checkNfcAvailable() {
+        isNfcAvailable.value = model.nfc?.isNdefPushEnabled == true
+    }
 
     fun getNfc() = model.nfc
 

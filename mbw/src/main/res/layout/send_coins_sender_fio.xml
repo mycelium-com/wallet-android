@@ -2,8 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/send_coins_heading_btc">
-
+    tools:showIn="@layout/send_coins_activity_btc">
     <data>
 
         <import type="android.view.View" />
@@ -22,22 +21,69 @@
     <merge>
 
         <LinearLayout
+            android:id="@+id/sender_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/horizontal_page_margin"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="@dimen/horizontal_page_margin"
+            android:orientation="horizontal"
+            android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sender">
+
+            <ImageView
+                android:id="@+id/icInfo1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/tvConnectedFioAccount"
+                app:layout_constraintStart_toEndOf="@+id/tvConnectedFioAccount"
+                app:layout_constraintTop_toTopOf="@id/tvConnectedFioAccount"
+                app:srcCompat="@drawable/ic_fio_info" />
+
+            <TextView
+                android:id="@+id/tv_from_account_label"
+                android:layout_width="wrap_content"
+                android:layout_height="21dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="6dp"
+                android:text="Spending from:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_from_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@{viewModel.account.label}"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:typeface="monospace"
+                tools:text="Account 1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="21dp"
+                android:layout_marginStart="4dp"
+                android:text="as"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/sender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginStart="@dimen/horizontal_page_margin"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="@dimen/horizontal_page_margin"
             android:onClick="@{_->activity.onClickSenderFioNames()}"
             android:orientation="horizontal"
             android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvWarning">
 
-            <TextView
-                android:id="@+id/tv_from_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="From:"
-                android:textColor="#aaa" />
 
             <TextView
                 android:id="@+id/tv_from"
@@ -57,35 +103,6 @@
                 android:clickable="false"
                 android:contentDescription="change sender fio name"
                 app:srcCompat="@drawable/ic_arrow_drop_down" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sender_account"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="horizontal"
-            android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sender">
-
-            <TextView
-                android:id="@+id/tv_from_account_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Spending from:"
-                android:textColor="#aaa" />
-
-            <TextView
-                android:id="@+id/tv_from_account"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
-                android:text="@{viewModel.account.label}"
-                android:textColor="@color/green"
-                android:textStyle="bold"
-                android:typeface="monospace"
-                tools:text="Account 1" />
         </LinearLayout>
     </merge>
 </layout>

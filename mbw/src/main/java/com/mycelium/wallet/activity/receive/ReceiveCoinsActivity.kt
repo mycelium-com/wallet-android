@@ -1,7 +1,10 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
@@ -94,6 +97,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
+        registerReceiver(nfcReceiver, IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED))
     }
 
 
@@ -158,7 +162,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         val receiveCoinsActivityNBinding =
                 when (account) {
                     is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
-                    is AbstractBtcAccount ->  {
+                    is AbstractBtcAccount -> {
                         // This is only actual if account contains multiple address types inside
                         if (account.availableAddressTypes.size > 1) {
                             val contentView =
@@ -187,6 +191,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                     }
 
     private fun activateNfc() {
+        viewModel.checkNfcAvailable()
         val nfc = viewModel.getNfc()
         if (nfc?.isNdefPushEnabled == true) {
             nfc.setNdefPushMessageCallback(NfcAdapter.CreateNdefMessageCallback {
@@ -199,6 +204,17 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         viewModel.saveInstance(outState)
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(nfcReceiver)
+        super.onDestroy()
+    }
+
+    val nfcReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            activateNfc()
+        }
     }
 
     companion object {
