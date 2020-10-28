@@ -124,7 +124,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
     private fun getFioAccountsToRegisterTo(fioDomain: FIODomain): List<FioAccount> {
         val walletManager = MbwManager.getInstance(context).getWalletManager(false)
         return if (fioDomain.isPublic) {
-            walletManager.getSpendableFioAccounts()
+            walletManager.getActiveSpendableFioAccounts()
         } else {
             val uuid = (walletManager.getModuleById(FioModule.ID) as FioModule).getFioAccountByFioDomain(fioDomain.domain)
                     ?: throw IllegalStateException("Illegal domain ${fioDomain.domain} (Not owned by any of user's accounts)")

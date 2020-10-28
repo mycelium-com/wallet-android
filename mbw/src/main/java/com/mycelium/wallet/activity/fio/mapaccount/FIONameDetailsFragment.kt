@@ -34,13 +34,11 @@ import com.mycelium.wapi.wallet.erc20.getActiveERC20Accounts
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.FioBlockchainService
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.concurrent.thread
 
 
 class FIONameDetailsFragment : Fragment() {
@@ -50,6 +48,8 @@ class FIONameDetailsFragment : Fragment() {
     val adapter = AccountMappingAdapter()
     val data = mutableListOf<Item>()
     private lateinit var fioAccount: FioAccount
+    private lateinit var walletManager: WalletManager
+    private lateinit var fioModule: FioModule
 
     val args: FIONameDetailsFragmentArgs by navArgs()
 
@@ -60,26 +60,34 @@ class FIONameDetailsFragment : Fragment() {
                         lifecycleOwner = this@FIONameDetailsFragment
                     }.root
 
+    override fun onResume() {
+        setFioName()
+        super.onResume()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
+        fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+    }
+
+    private fun setFioName() {
+        viewModel.fioName.value = fioModule.getFIONameInfo(args.fioName.name)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         (requireActivity() as AppCompatActivity).supportActionBar?.run {
             title = getString(R.string.fio_name_details)
         }
-        val mbwManager = MbwManager.getInstance(requireContext())
-        val walletManager = mbwManager.getWalletManager(false)
         list.adapter = adapter
         list.itemAnimator = null
-        val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-        viewModel.fioName.value = fioModule.getFIONameInfo(args.fioName.name)
+        setFioName()
         fioAccount = fioModule.getFioAccountByFioName(args.fioName.name)!!.let { accountId ->
             walletManager.getAccount(accountId) as FioAccount
         }
         viewModel.fioAccount.value = fioAccount
-        thread {
-            viewModel.bundledTransactions.postValue(
-                    FioBlockchainService.getBundledTxsNum(Utils.getFIOCoinType(), args.fioName.name))
-        }
         adapter.selectChangeListener = { accountItem ->
             data.filterIsInstance<ItemAccount>()
                     .filter { it.coinType == accountItem.coinType }
@@ -138,13 +146,17 @@ class FIONameDetailsFragment : Fragment() {
             }
             viewModel.acknowledge.value = false
         }
-        viewModel.bundledTransactions.observe(viewLifecycleOwner) {
+        viewModel.fioName.observe(viewLifecycleOwner) {
             viewModel.update()
+        }
+        tvConnectAccountsDesc.text = if (viewModel.fioAccount.value!!.canSpend()) {
+            getText(R.string.select_name_to_associate)
+        } else {
+            getText(R.string.select_name_to_associate_read_only_account)
         }
     }
 
     private fun updateList(walletManager: WalletManager, preference: SharedPreferences) {
-        val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val mappedAccounts = fioModule.getConnectedAccounts(args.fioName.name)
         data.apply {
             clear()
@@ -232,9 +244,8 @@ class FIONameDetailsFragment : Fragment() {
                     it.coinType, mappedAccounts.contains(it))
         }.apply {
             if (isNotEmpty()) {
-                val title = symbol
-                val isClosed = preference.getBoolean("isClosed$title", false)
-                add(ItemGroup(title, this.size, isClosed))
+                val isClosed = preference.getBoolean("isClosed$symbol", false)
+                add(ItemGroup(symbol, this.size, isClosed))
                 if (!isClosed) {
                     add(ItemDivider())
                     addAll(this)

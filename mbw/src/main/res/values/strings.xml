@@ -1387,7 +1387,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="none">none</string>
     <string name="receive_title_fio">FIO Public key</string>
     <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
-    <string name="select_name_to_associate">Connect accounts to your FIO Name. Only <b>one</b> account per each cryptocurrency can be mapped with <b>one</b> FIO Name.</string>
+    <string name="select_name_to_associate">Connect accounts to your FIO Name. Only <b>one</b> account per each cryptocurrency can be connected with <b>one</b> FIO Name.</string>
+    <string name="select_name_to_associate_read_only_account">Accounts connected to this FIO Name. Only <b>one</b> account per each cryptocurrency can be connected with <b>one</b> FIO Name.</string>
     <string name="fio_register_address">Register FIO Name</string>
     <string name="fio_create_name_title">Create FIO Name</string>
     <string name="fio_create_domain_title">Create FIO Domain</string>
@@ -1422,6 +1423,14 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_protocol_decentralized">The <font color="#2AA5DB"><u><b>FIO Protocol</b></u></font> is a decentralized service layer that bridges the gap between crypto endpoints such as wallets, exchanges, crypto payment processors, and any other application in which crypto assets are held and/or transferred.</string>
     <string name="fio_name_readable_wallet_identifier"><b>FIO Name</b> - a human-readable wallet identifier (such as john@edge or alice@gold) which eliminates the need to see, or even know of, blockchain public addresses. FIO Addresses automatically support any token in a wallet/exchange, and requires no manual mapping.</string>
     <string name="fio_requests_ability_to_request_funds"><b>FIO Requests</b> - the ability to request funds from any other wallet, utilizing in-wallet/app notifications and simple approvals. FIO Requests are fully encrypted between counter-parties, and do not interfere with the actual underlying blockchain transactions.</string>
+    <string name="fio_expiration_details_desc">If the renewal fee for a FIO Domain is not paid by its expiration date, the following restrictions will be placed on the domain and addresses on that domain:</string>
+    <string name="fio_expiration_details_0_30_days">Days after expiration date: 0–30 days</string>
+    <string name="fio_expiration_details_0_30_days_desc">Disallowed to register new FIO Names under expired FIO Domain. \nRegistered FIO Names can be still used for 30 days after FIO Domain expiration date.</string>
+    <string name="fio_expiration_details_30_90_days">Days after expiration date: 31–90 days</string>
+    <string name="fio_expiration_details_30_90_days_desc">Disallowed following actions:\n- register new FIO Names\n- renew FIO Names under expired domain\n- Request, Send or Reject with FIO Names under expired domain</string>
+    <string name="fio_expiration_details_90_days">Days after expiration date: on day 90 days</string>
+    <string name="fio_expiration_details_90_days_desc">Domain is burned and can be re-registered by any user.\nAll addresses on that domain and associated data are burned.</string>
+    <string name="fio_expiration_details_anyone_can_renew">Anyone can renew a domain as long as they are willing to pay the renewal fee.</string>
     <string name="fio_names">Fio Names</string>
     <string name="fio_name">Fio Name</string>
     <string name="my_fio_names">My FIO Names</string>
@@ -1435,6 +1444,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="domain_details">Domain details</string>
     <string name="renew_fio_domain">Renew FIO Domain</string>
     <string name="fio_names_registered">Your FIO Names in this domain:</string>
+    <string name="no_fio_names_registered">No FIO Names in this domain</string>
+    <string name="fio_names_registered_read_only_account">FIO Names in this domain:</string>
     <string name="create_new_fio_name">Create new FIO Name</string>
     <string name="expiration_date">Expiration date:</string>
     <string name="bundled_transactions">Bundled transactions:</string>
@@ -1448,4 +1459,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_requests_tab_fio_protocol_desc_part1"><b>FIO Protocol</b> is a new simple way to Send, Receive, and Request <b>ANY CRYPTO</b> with one public alias for all crypto accounts!</string>
     <string name="fio_requests_tab_fio_protocol_desc_part2">- Crypto transactions with memos\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized</string>
     <string name="about_fio_protocol_title">About FIO Protocol</string>
+    <string name="fio_create_name_banner_desc">New &amp; easy way to send\nand request crypto!</string>
+    <string name="create_fio_account">Create FIO Account</string>
 </resources>

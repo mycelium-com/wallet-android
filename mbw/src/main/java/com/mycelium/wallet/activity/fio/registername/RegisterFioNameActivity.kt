@@ -14,6 +14,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioBlockchainService
 import fiofoundation.io.fiosdk.isFioAddress
@@ -55,6 +56,9 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
         (intent.getSerializableExtra(EXT_ACCOUNT) as? UUID)?.let {
             val walletManager = MbwManager.getInstance(this).getWalletManager(false)
             viewModel.fioAccountToRegisterName.value = walletManager.getAccount(it) as? FioAccount
+        }
+        (intent.getSerializableExtra(EXT_DOMAIN) as? FIODomain)?.let {
+            viewModel.domain.value = it
         }
         (intent.getSerializableExtra(EXT_RENEW) as? Boolean)?.let {
             viewModel.isRenew.value = true
@@ -128,6 +132,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
 
     companion object {
         private const val EXT_ACCOUNT = "account"
+        private const val EXT_DOMAIN = "domain"
         private const val EXT_FIO_NAME = "fioName"
         private const val EXT_RENEW = "renew"
         const val DEFAULT_FEE = "10000000000" // 10 FIO
@@ -140,6 +145,12 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
         fun start(context: Context, account: UUID) {
             context.startActivity(Intent(context, RegisterFioNameActivity::class.java)
                     .putExtra(EXT_ACCOUNT, account))
+        }
+
+        fun start(context: Context, account: UUID, domain: FIODomain) {
+            context.startActivity(Intent(context, RegisterFioNameActivity::class.java)
+                    .putExtra(EXT_ACCOUNT, account)
+                    .putExtra(EXT_DOMAIN, domain))
         }
 
         fun startRenew(context: Context, account: UUID, fioName: String) {

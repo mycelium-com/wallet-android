@@ -5,14 +5,15 @@
     android:layout_height="match_parent"
     android:background="@color/black"
     android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/ic_back_arrow"
         android:theme="@style/MyceliumFIOMapping.ActionBar"
+        app:navigationIcon="@drawable/ic_back_arrow"
         app:title="FIO Protocol" />
 
     <TextView

@@ -20,19 +20,6 @@
 
     <merge>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="start"
-            android:onClick="@{_ -> viewModel.startRegisterFIONameActivity(activity)}"
-            android:text="Register FIO Name"
-            android:textColor="@color/fio_blue"
-            android:textSize="14sp"
-            android:typeface="monospace"
-            android:visibility="@{(viewModel.account instanceof FioAccount) &amp;&amp; viewModel.registeredFIONames.size() == 0 ? View.VISIBLE : View.GONE}" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

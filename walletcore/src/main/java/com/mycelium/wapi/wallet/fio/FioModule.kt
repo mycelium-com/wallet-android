@@ -66,6 +66,8 @@ class FioModule(
 
     fun getFIONameInfo(name: String): RegisteredFIOName = getAllRegisteredFioNames().first { it.name == name }
 
+    fun getFIODomainInfo(domain: String): FIODomain = getAllRegisteredFioDomains().first { it.domain == domain }
+
     fun getKnownNames(): List<FioName> = walletDB.fioKnownNamesQueries.selectAllFioKnownNames()
             .executeAsList().sortedBy { "${it.name}@${it.domain}" }
 
@@ -318,7 +320,7 @@ class FioModule(
 fun WalletManager.getFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible }
         .map { it as FioAccount }.sortedBy { it.accountIndex }
 
-fun WalletManager.getSpendableFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible && it.canSpend() }
+fun WalletManager.getActiveSpendableFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible && it.isActive && it.canSpend() }
         .map { it as FioAccount }.sortedBy { it.accountIndex }
 
 fun WalletManager.getActiveFioAccounts() = getAccounts()
