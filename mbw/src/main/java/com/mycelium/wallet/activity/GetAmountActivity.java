@@ -42,9 +42,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +50,9 @@ import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.view.Denomination;
@@ -69,8 +69,8 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.FeePerKbFee;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException;
@@ -413,7 +413,18 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       super.onPause();
    }
 
-   @Override
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
    public void onEntryChanged(String entry, boolean wasSet) {
       if (!wasSet) {
          // if it was change by the user pressing buttons (show it unformatted)
