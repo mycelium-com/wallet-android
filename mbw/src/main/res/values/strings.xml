@@ -1526,4 +1526,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_fiat_tx_not_supported">Fiat transactions are not yet supported directly in the mycelium app.\n\nIf you wish to deposit or withdraw fiat please go to <font color="#F2E868"><u>bequant.io</u></font> and follow the simple instructions on the platform.</string>
     <string name="you_cant_change_info">You can’t change your application at this time. We will be in touch with an assessment shortly.</string>
     <string name="dear_user_s_s">Dear %s %s,</string>
+    <string name="dear_user">Dear User,</string>
+    <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
 </resources>

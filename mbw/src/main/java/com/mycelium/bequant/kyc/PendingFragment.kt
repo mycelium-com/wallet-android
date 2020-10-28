@@ -34,21 +34,12 @@ class PendingFragment : Fragment(R.layout.fragment_bequant_kyc_final_pending) {
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         }
         stepper.adapter = stepAdapter
-        if (BequantPreference.getKYCStatus() == KYCStatus.PENDING) {
-            stepAdapter.submitList(listOf(
-                    ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE),
-                    ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE),
-                    ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE),
-                    ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE_EDITABLE)))
-            subtitle3.text = getString(R.string.you_still_can_resubmit_info)
-        } else {
-            stepAdapter.submitList(listOf(
-                    ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE),
-                    ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE),
-                    ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE),
-                    ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE)))
-            subtitle3.text = getString(R.string.you_cant_change_info)
-        }
+        stepAdapter.submitList(listOf(
+                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE),
+                ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE),
+                ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE),
+                ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE)))
+        subtitle3.text = getString(R.string.you_cant_change_info)
         stepAdapter.clickListener = {
             when (it) {
                 4 -> findNavController().navigate(PendingFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest().apply {

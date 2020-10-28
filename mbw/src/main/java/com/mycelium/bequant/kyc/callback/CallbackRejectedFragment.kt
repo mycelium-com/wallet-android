@@ -25,7 +25,9 @@ class CallbackRejectedFragment : Fragment(R.layout.fragment_bequant_kyc_rejected
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         }
         val kycRequest = BequantPreference.getKYCRequest()
-        dear_user.text = getString(R.string.dear_user_s_s, kycRequest.first_name, kycRequest.last_name)
+        dear_user.text = if (kycRequest.first_name != null && kycRequest.last_name != null)
+            getString(R.string.dear_user_s_s, kycRequest.first_name, kycRequest.last_name)
+        else getString(R.string.dear_user)
         supportCenter.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }

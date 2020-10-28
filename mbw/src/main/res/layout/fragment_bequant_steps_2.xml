@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:alpha="0.5"
-                    android:text="Please fill in your personal information as it appears on the proof of identity document."
+                    android:text="@string/please_fill_proof_of_address"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
 
