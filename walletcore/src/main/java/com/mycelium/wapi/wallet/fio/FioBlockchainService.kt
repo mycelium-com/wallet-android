@@ -3,11 +3,17 @@ package com.mycelium.wapi.wallet.fio
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.gson.GsonBuilder
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
+import fiofoundation.io.fiosdk.errors.serializationprovider.DeserializeTransactionError
+import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
+import fiofoundation.io.fiosdk.models.fionetworkprovider.ObtDataRecord
+import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
+import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetObtDataResponse
 import fiofoundation.io.fiosdk.utilities.HashUtils
 import fiofoundation.io.fiosdk.utilities.Utils
 import okhttp3.*
@@ -20,6 +26,36 @@ import java.util.*
 
 class FioBlockchainService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
     var lastActionSequenceNumber: BigInteger = BigInteger.ZERO
+
+    fun getObtData(privateKey: String, serializationProvider: ISerializationProvider, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
+        val requestBody = if (limit == null && offset == null) {
+            """{"fio_public_key":"$ownerPublicKey"}"""
+        } else if (limit == null) {
+            """{"fio_public_key":"$ownerPublicKey", "offset":$offset}"""
+        } else if (offset == null) {
+            """{"fio_public_key":"$ownerPublicKey", "limit":$limit}"""
+        } else {
+            """{"fio_public_key":"$ownerPublicKey", "limit":$limit, "offset":$offset}"""
+        }
+        val request = Request.Builder()
+                .url((coinType as FIOToken).url + "chain/get_obt_data")
+                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .build()
+
+        val response = client.newCall(request).execute()
+        val gson = GsonBuilder().serializeNulls().create()
+        val result = gson.fromJson(response.body()!!.string(), GetObtDataResponse::class.java)
+        for (item in result.records) {
+            try {
+                val pubkey = if (item.payeeFioPublicKey.equals(ownerPublicKey, true)) item.payerFioPublicKey else item.payeeFioPublicKey
+                item.deserializedContent = RecordObtDataContent.deserialize(privateKey, pubkey, serializationProvider, item.content)
+            } catch (deserializationError: DeserializeTransactionError) {
+                //eat this error.  We do not want this error to stop the process.
+            }
+        }
+
+        return result.records
+    }
 
     fun getTransactions(latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
@@ -235,11 +271,11 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val own
                     .url(fioToken.url + "chain/get_pub_address")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
-            client.newCall(request).enqueue(object: Callback {
+            client.newCall(request).enqueue(object : Callback {
                 override fun onResponse(call: Call, response: Response) {
                     val reply = response.body()!!.string()
                     val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
-                    if(result.publicAddress != null)
+                    if (result.publicAddress != null)
                         success(result.publicAddress)
                     else
                         failure("no address found")
@@ -395,9 +431,11 @@ class GetFioNamesTableRowsResponse {
 class GetPubAddressesResponse {
     val rows: List<GetPubAddressesResponseRow> = listOf()
 }
+
 class GetPubAddressesResponseRow {
     val addresses: List<PublicAddressEntry> = listOf()
 }
+
 class PublicAddressEntry {
     @JsonProperty("token_code")
     val tokenCode: String = ""

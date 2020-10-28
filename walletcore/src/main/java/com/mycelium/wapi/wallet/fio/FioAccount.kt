@@ -353,11 +353,14 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun syncFioOBT() {
+        // we aren't sync obt records for read-only accounts yet
+        if (fiosdk == null) return
+
         try {
-            val obtList = fiosdk?.getObtData() ?: emptyList()
+            val obtList = transactionService.getObtData(fiosdk.getPrivateKey(), fiosdk.serializationProvider)
             logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
-        } catch (ex: FIOError) {
+        } catch (ex: Exception) {
             logger.log(Level.SEVERE, "Update OBT transactions exception: ${ex.message}", ex)
         }
     }
