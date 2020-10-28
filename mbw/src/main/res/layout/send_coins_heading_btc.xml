@@ -37,15 +37,13 @@
         <include
                 layout="@layout/send_coins_recipient_btc"
                 bind:viewModel="@{viewModel}"
-                bind:activity="@{activity}"
-                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.COIN) ? View.VISIBLE : View.GONE}" />
+                bind:activity="@{activity}" />
 
         <!-- Recipient Fio Config -->
         <include
                 layout="@layout/send_coins_sender_fio"
                 bind:viewModel="@{viewModel}"
-                bind:activity="@{activity}"
-                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}" />
+                bind:activity="@{activity}"/>
     </LinearLayout>
 
 </layout>

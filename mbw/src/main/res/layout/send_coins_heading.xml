@@ -37,8 +37,7 @@
         <include
                 layout="@layout/send_coins_recipient"
                 bind:viewModel="@{viewModel}"
-                bind:activity="@{activity}"
-                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.COIN) ? View.VISIBLE : View.GONE}" />
+                bind:activity="@{activity}" />
 
     </LinearLayout>
 

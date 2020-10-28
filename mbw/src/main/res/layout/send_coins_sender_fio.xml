@@ -8,6 +8,8 @@
 
         <import type="android.view.View" />
 
+        <import type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel.RecipientRepresentation" />
+
         <variable
             name="activity"
             type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
@@ -18,6 +20,7 @@
     </data>
 
     <merge>
+
         <LinearLayout
             android:id="@+id/sender"
             android:layout_width="match_parent"
@@ -25,6 +28,7 @@
             android:layout_marginTop="20dp"
             android:onClick="@{_->activity.onClickSenderFioNames()}"
             android:orientation="horizontal"
+            android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvWarning">
 
@@ -61,6 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:orientation="horizontal"
+            android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sender">
 

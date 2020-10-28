@@ -7,6 +7,7 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel.RecipientRepresentation" />
 
         <variable
             name="activity"
@@ -23,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:visibility="@{(viewModel.getRecipientRepresentation() != RecipientRepresentation.ASK) ? View.VISIBLE : View.GONE}"
         android:orientation="vertical">
 
         <!-- Receiver Label -->
@@ -32,7 +34,8 @@
 
         <include
             layout="@layout/send_coins_recipient_fio"
-            app:viewModel="@{viewModel}" />
+            app:viewModel="@{viewModel}"
+            android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}"/>
 
         <LinearLayout
             android:layout_width="match_parent"
