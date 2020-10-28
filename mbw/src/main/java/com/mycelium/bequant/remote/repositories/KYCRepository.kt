@@ -18,6 +18,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.File
+import java.util.*
 
 
 class KYCRepository {
@@ -123,6 +124,8 @@ class KYCRepository {
             BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
             BequantPreference.setKYCStatusMessage(response?.message?.message ?: "")
             BequantPreference.setKYCSectionStatus(response?.message?.sections?.flatMap { it.map { it.key to it.value } })
+            BequantPreference.setKYCSubmitDate(response?.message?.submitDate ?: Date(0))
+            BequantPreference.setKYCSubmitted(response?.message?.submitted ?: false)
             success(response?.message!!)
         }, { code, msg ->
             error?.invoke(code, msg)

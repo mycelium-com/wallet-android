@@ -80,6 +80,8 @@ data class KYCStatusResponse(var status: Int?,
 
 data class StatusMessage(val global: KYCStatus,
                          @JsonProperty("global_message") val message: String,
+                         val submitted: Boolean,
+                         @JsonProperty("submitted_timestamp") val submitDate: Date,
                          val sections: List<Map<String, Boolean>>)
 
 data class KYCTokenResponse(var status: Int?,

@@ -22,7 +22,7 @@ class CallbackRejectedFragment : Fragment(R.layout.fragment_bequant_kyc_rejected
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.run {
             title = getString(R.string.identity_auth)
-            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         }
         val kycRequest = BequantPreference.getKYCRequest()
         dear_user.text = getString(R.string.dear_user_s_s, kycRequest.first_name, kycRequest.last_name)
