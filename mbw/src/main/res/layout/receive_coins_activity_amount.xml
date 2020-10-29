@@ -34,8 +34,8 @@
                 android:id="@+id/tvAmountLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/enter_amount_title"
-                android:textColor="#BBB"
+                android:text="@string/amount_label"
+                android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
