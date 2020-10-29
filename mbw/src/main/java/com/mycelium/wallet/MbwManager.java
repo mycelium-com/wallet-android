@@ -1418,6 +1418,7 @@ public class MbwManager {
             for (WalletAccount activeAccount :_walletManager.getAllActiveAccounts()) {
                 if (!(activeAccount instanceof InvestmentAccount)) {
                     uuid = activeAccount.getId();
+                    break;
                 }
             }
             setSelectedAccount(uuid);
