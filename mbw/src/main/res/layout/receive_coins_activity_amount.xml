@@ -23,10 +23,11 @@
     Those layouts do the same and making sure they look the same is always extra
     work. -->
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:layout_marginTop="4dp"
+            android:minWidth="220dp"
             android:layout_marginBottom="24dp"
             android:onClick="@{_ -> viewModel.onEnterClick(activity)}">
 
@@ -42,7 +43,7 @@
 
         <TextView
                 android:id="@+id/tvAmount"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="@{viewModel.hint}"
                 android:text="@{viewModel.requestedAmountFormatted}"
@@ -51,10 +52,11 @@
                 android:textColorHint="@color/darkgrey"
                 android:textSize="20sp"
                 android:fontFamily="@font/roboto_mono_medium"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                 app:layout_constraintTop_toBottomOf="@id/tvAmountLabel"
-                tools:text="0.00123305 tBTC" />
+                tools:text="0.5 tBTC" />
 
         <TextView
                 android:id="@+id/tvAmountFiat"
@@ -82,6 +84,7 @@
                 android:src="@drawable/keyboard_icon"
                 app:layout_constraintStart_toEndOf="@id/tvAmount"
                 app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintTop_toTopOf="@id/tvAmount" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

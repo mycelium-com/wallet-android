@@ -77,11 +77,6 @@
             <include
                 layout="@layout/receive_coins_activity_fio_name"
                 bind:viewModel="@{viewModel}"/>
-
-
-            <include
-                layout="@layout/receive_coins_activity_share"
-                bind:viewModel="@{viewModel}" />
         </LinearLayout>
     </ScrollView>
 </layout>

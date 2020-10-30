@@ -174,13 +174,15 @@
         <activity android:name=".activity.send.SendInitializationActivity" />
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity
-            android:name=".activity.send.SendCoinsActivity" />
+            android:name=".activity.send.SendCoinsActivity"
+            android:theme="@style/MyceliumFIOMapping" />
         <activity
             android:name=".activity.send.ManualAddressEntry"
             android:theme="@style/MyceliumFIO" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity
-            android:name=".activity.receive.ReceiveCoinsActivity" />
+            android:name=".activity.receive.ReceiveCoinsActivity"
+            android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity
             android:name=".external.changelly.ChangellyActivity"
@@ -230,7 +232,9 @@
         <activity android:name=".extsig.ledger.activity.LedgerSignTransactionActivity" />
         <activity android:name=".activity.InstantMasterseedActivity" />
         <activity android:name=".activity.ConnectionLogsActivity" />
-        <activity android:name=".activity.GetAmountActivity" />
+        <activity
+            android:name=".activity.GetAmountActivity"
+            android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".activity.StringHandlerActivity" />
         <activity android:name=".activity.send.VerifyPaymentRequestActivity" />
         <activity

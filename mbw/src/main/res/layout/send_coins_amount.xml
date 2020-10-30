@@ -23,9 +23,11 @@
     Those layouts do the same and making sure they look the same is always extra
     work. -->
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:minWidth="220dp"
+            android:layout_gravity="center"
             android:onClick="@{_ -> activity.onClickAmount()}">
 
         <TextView
@@ -33,19 +35,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/amount_label"
-                android:textColor="@color/fio_white_alpha_0_8"
+                android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
                 android:id="@+id/tvAmount"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:hint="@{viewModel.amountHint}"
                 android:text="@{viewModel.requestedAmountFormatted}"
                 android:textAlignment="textEnd"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:textColor="@color/white"
                 android:textColorHint="@color/darkgrey"
                 android:textSize="20sp"
@@ -53,7 +57,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                 app:layout_constraintTop_toBottomOf="@id/tvAmountLabel"
-                tools:text="0.00123305 tBTC" />
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                tools:text="0.05 tBTC" />
 
         <TextView
                 android:id="@+id/tvAmountFiat"
@@ -69,6 +74,10 @@
                 app:layout_constraintTop_toBottomOf="@id/tvAmount"
                 tools:text="55.02 USD" />
 
+<!--        <androidx.constraintlayout.widget.Constraints-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content" />-->
+
         <ImageButton
                 android:id="@+id/btEnterAmount"
                 style="@style/MyceliumSlimButton"
@@ -80,6 +89,8 @@
                 android:clickable="false"
                 android:src="@drawable/keyboard_icon"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toEndOf="@id/tvAmount"
                 app:layout_constraintTop_toTopOf="@id/tvAmount" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

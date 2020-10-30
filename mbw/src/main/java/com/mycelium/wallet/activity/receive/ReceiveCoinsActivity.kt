@@ -38,7 +38,6 @@ import com.mycelium.wapi.wallet.fio.FioAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_fio_name.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
-import kotlinx.android.synthetic.main.receive_coins_activity_share.*
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {

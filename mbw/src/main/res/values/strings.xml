@@ -43,6 +43,8 @@
     <string name="crypto_address">%1$s Address:</string>
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$s %2$s</string>
+    <string name="s_payment_request">%s Payment Request</string>
+    <string name="s_fio_request">%s FIO Request</string>
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
     <string name="insufficient_funds">Insufficient funds</string>
