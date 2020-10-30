@@ -38,7 +38,7 @@
 
     -->
 
-    <style name="AppBaseTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppBaseTheme" parent="Theme.AppCompat">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -60,6 +60,7 @@
         <!-- Load it later in code with a lower pixel format, to save some memory
         <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
     </style>
+
 
     <style name="MyceliumSettings" parent="MyceliumModern">
         <item name="colorAccent">@color/lightgrey</item>
