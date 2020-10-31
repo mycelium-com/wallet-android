@@ -59,6 +59,12 @@
     <style name="MyceliumActionBar" parent="MyceliumModern">
         <!-- Load it later in code with a lower pixel format, to save some memory
         <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
+
+        <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
 
@@ -68,8 +74,7 @@
         <item name="android:colorControlActivated" tools:ignore="NewApi">@color/common_blue</item>
         <item name="android:actionBarStyle">@style/MyceliumSettings.ActionBar</item>
         <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
-        <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
-        </item>
+        <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay</item>
         <item name="preference_module_item_color">@color/preference_item_color</item>
         <item name="preference_module_divider_color">@color/preference_background</item>
     </style>
@@ -162,12 +167,7 @@
 
     <style name="MyceliumModern" parent="AppBaseTheme">
         <!--<item name="android:windowFullscreen">true</item>-->
-        <item name="android:windowActionBar">false</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionModeOverlay">true</item>
 
-        <item name="android:windowNoTitle">true</item>
         <item name="android:popupBackground">@drawable/semi_black</item>
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
