@@ -157,7 +157,6 @@ public class ModernMain extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.pager_tabs);
         mViewPager = findViewById(R.id.pager);
         tabLayout.setupWithViewPager(mViewPager);
-git status
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
