@@ -1,11 +1,11 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import androidx.fragment.app.FragmentActivity
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.AndroidViewModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils

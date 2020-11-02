@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/startFragment">
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="com.mycelium.bequant.kyc.StartFragment"
+        android:label="StartFragment"
+        tools:layout="@layout/fragment_bequant_kyc_start">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/kycStep1" />
+        <action
+            android:id="@+id/actionRejected"
+            app:destination="@id/callbackRejected"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/actionPending"
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/actionApproved"
+            app:destination="@id/callbackApprovedFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/actionIncomplete"
+            app:destination="@id/callbackIncompleteFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/actionEditStep3"
+            app:destination="@id/kycStep3">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/kycStep3"
+        android:name="com.mycelium.bequant.kyc.steps.Step3Fragment"
+        android:label="InputPhoneFragment"
+        tools:layout="@layout/fragment_bequant_kyc_step_3">
+        <argument
+            android:name="kycRequest"
+            android:defaultValue="@null"
+            app:argType="com.mycelium.bequant.remote.model.KYCRequest"
+            app:nullable="true" />
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/phoneVerify">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep1"
+            app:destination="@id/kycStep1"
+            app:popUpTo="@id/startFragment">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep2"
+            app:destination="@id/kycStep2"
+            app:popUpTo="@id/kycStep1">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionChooseCountry"
+            app:destination="@id/chooseCountry" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/phoneVerify"
+        android:name="com.mycelium.bequant.kyc.checkCode.VerifyPhoneFragment"
+        android:label="VerifyPhoneFragment"
+        tools:layout="@layout/fragment_bequant_kyc_verify_phone">
+        <argument
+            android:name="kycRequest"
+            android:defaultValue="@null"
+            app:argType="com.mycelium.bequant.remote.model.KYCRequest"
+            app:nullable="true" />
+        <action
+            android:id="@+id/actionEditStep4"
+            app:destination="@id/kycStep4">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep1"
+            app:destination="@id/kycStep1"
+            app:popUpTo="@id/startFragment" />
+        <action
+            android:id="@+id/actionEditStep2"
+            app:destination="@id/kycStep2"
+            app:popUpTo="@id/kycStep1" />
+        <action
+            android:id="@+id/actionPending"
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/chooseCountry"
+        android:name="com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment"
+        android:label="CountrySelectorFragment"
+        tools:layout="@layout/activity_bequant_kyc_country_of_residence">
+        <action
+            android:id="@+id/actionFail"
+            app:destination="@id/countryFailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/kycStep1"
+        android:name="com.mycelium.bequant.kyc.steps.Step1Fragment"
+        android:label="Step1Fragment"
+        tools:layout="@layout/fragment_bequant_steps_1">
+        <argument
+            android:name="kycRequest"
+            android:defaultValue="@null"
+            app:argType="com.mycelium.bequant.remote.model.KYCRequest"
+            app:nullable="true" />
+        <action
+            android:id="@+id/actionEditStep2"
+            app:destination="@id/kycStep2">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionSelectCountry"
+            app:destination="@id/chooseCountry">
+            <argument
+                android:name="showPhoneCode"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="nationality"
+                android:defaultValue="true"
+                app:argType="boolean" />
+        </action>
+        <action
+            android:id="@+id/actionFatca"
+            app:destination="@id/countryFailFragment" />
+        <action
+            android:id="@+id/actionEditStep3"
+            app:destination="@id/kycStep3">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
+        <action
+            android:id="@+id/actionEditStep4"
+            app:destination="@id/kycStep4">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
+        <action
+            android:id="@+id/actionPending"
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/kycStep2"
+        android:name="com.mycelium.bequant.kyc.steps.Step2Fragment"
+        android:label="Step2Fragment"
+        tools:layout="@layout/fragment_bequant_steps_2">
+        <argument
+            android:name="kycRequest"
+            app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        <action
+            android:id="@+id/actionEditStep3"
+            app:destination="@id/kycStep3">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
+        <action
+            android:id="@+id/actionEditStep1"
+            app:destination="@id/kycStep1"
+            app:popUpTo="@id/startFragment">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
+        <action
+            android:id="@+id/actionSelectCountry"
+            app:destination="@id/chooseCountry">
+            <argument
+                android:name="showPhoneCode"
+                android:defaultValue="false"
+                app:argType="boolean" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep4"
+            app:destination="@id/kycStep4">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionPending"
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/kycStep4"
+        android:name="com.mycelium.bequant.kyc.steps.Step4Fragment"
+        android:label="Step3Fragment"
+        tools:layout="@layout/fragment_bequant_steps_4">
+        <argument
+            android:name="kycRequest"
+            app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/finalPresubmit">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep1"
+            app:destination="@id/kycStep1">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
+        <action
+            android:id="@+id/actionEditStep2"
+            app:destination="@id/kycStep2">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
+        <action
+            android:id="@+id/actionEditStep3"
+            app:destination="@id/kycStep3">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/callbackRejected"
+        android:name="com.mycelium.bequant.kyc.callback.CallbackRejectedFragment"
+        android:label="CallbackFailedFragment"
+        tools:layout="@layout/fragment_bequant_kyc_rejected_callback" />
+
+    <fragment
+        android:id="@+id/finalPresubmit"
+        android:name="com.mycelium.bequant.kyc.FinalPresubmitFragment"
+        android:label="FinalPresubmitFragment"
+        tools:layout="@layout/fragment_bequant_kyc_final_presubmit">
+        <argument
+            android:name="kycRequest"
+            app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        <action
+            android:id="@+id/actionFinish"
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/actionEditDocs"
+            app:destination="@id/kycStep4"
+            app:popUpTo="@id/phoneVerify">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/countryFailFragment"
+        android:name="com.mycelium.bequant.common.CountryFailFragment"
+        android:label="CountryFailFragment"
+        tools:layout="@layout/fragment_country_fail" />
+    <fragment
+        android:id="@+id/callbackApprovedFragment"
+        android:name="com.mycelium.bequant.kyc.callback.CallbackApprovedFragment"
+        android:label="CallbackApprovedFragment"
+        tools:layout="@layout/fragment_bequant_kyc_approved_callback" />
+    <fragment
+        android:id="@+id/callbackIncompleteFragment"
+        android:name="com.mycelium.bequant.kyc.callback.CallbackIncompleteFragment"
+        android:label="CallbackRejectFragment"
+        tools:layout="@layout/fragment_bequant_kyc_incomplete_callback">
+        <action
+            android:id="@+id/actionEditDocs"
+            app:destination="@id/kycStep4"
+            app:popUpTo="@id/phoneVerify">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep2"
+            app:destination="@id/kycStep2">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep3"
+            app:destination="@id/kycStep3">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+        <action
+            android:id="@+id/actionEditStep1"
+            app:destination="@id/kycStep1">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/pendingFragment"
+        android:name="com.mycelium.bequant.kyc.PendingFragment"
+        android:label="PendingFragment"
+        tools:layout="@layout/fragment_bequant_kyc_final_pending">
+        <action
+            android:id="@+id/actionEditDocs"
+            app:destination="@id/kycStep4"
+            app:popUpTo="@id/phoneVerify">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+    </fragment>
+</navigation>

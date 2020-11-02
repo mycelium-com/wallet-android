@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="preference_module_item_color" format="color"/>
-    <attr name="preference_module_divider_color" format="color"/>
+    <attr name="preference_module_item_color" format="color" />
+    <attr name="preference_module_divider_color" format="color" />
+
+    <declare-styleable name="PinField">
+        <attr name="noOfFields" format="integer" />
+        <attr name="distanceInBetween" format="dimension" />
+        <attr name="lineThickness" format="dimension" />
+        <attr name="fieldColor" format="color" />
+        <attr name="highlightColor" format="color" />
+        <attr name="highlightEnabled" format="boolean" />
+        <attr name="isCustomBackground" format="boolean" />
+        <attr name="isCursorEnabled" format="boolean" />
+        <!--Single Field Mode is deprecated use highlight type to define how to highlight the fields-->
+        <attr name="highlightSingleFieldMode" format="boolean" />
+        <attr name="highlightType" format="enum">
+            <enum name="allFields" value="0" />
+            <enum name="currentField" value="1" />
+            <enum name="completedFields" value="2" />
+            <enum name="noFields" value="3" />
+        </attr>
+        <attr name="fieldBgColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="SquarePinField">
+        <attr name="cornerRadius" format="dimension" />
+    </declare-styleable>
 </resources>

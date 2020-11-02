@@ -64,6 +64,7 @@ import android.widget.CheckBox;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -121,6 +122,8 @@ import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -186,6 +189,12 @@ public class AccountsFragment extends Fragment {
             llLocked = view.findViewById(R.id.llLocked);
         }
         accountListAdapter.setItemClickListener(recordAddressClickListener);
+        accountListAdapter.setInvestmentAccountClickListener(new AccountListAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(@NotNull WalletAccount<? extends GenericAddress> account) {
+                startActivity(new Intent(requireContext(), BequantIntroActivity.class));
+            }
+        });
     }
 
     @Override

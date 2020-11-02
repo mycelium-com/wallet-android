@@ -75,6 +75,8 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
+import com.mycelium.bequant.InvestmentAccount;
+import com.mycelium.bequant.InvestmentModule;
 import com.mycelium.generated.wallet.database.Logs;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
@@ -827,6 +829,8 @@ public class MbwManager {
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
+
+        walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();
         return walletManager;
     }
@@ -1407,11 +1411,16 @@ public class MbwManager {
     public WalletAccount getSelectedAccount() {
         UUID uuid = getLastSelectedAccountId();
 
-        // If nothing is selected, or selected is archived, pick the first one
+        // If nothing is selected, or selected is archived, pick the first one but not Investment Account
         if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
             return _walletManager.getAccount(uuid);
         } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            uuid = _walletManager.getAllActiveAccounts().get(0).getId();
+            for (WalletAccount activeAccount :_walletManager.getAllActiveAccounts()) {
+                if (!(activeAccount instanceof InvestmentAccount)) {
+                    uuid = activeAccount.getId();
+                    break;
+                }
+            }
             setSelectedAccount(uuid);
         }
 

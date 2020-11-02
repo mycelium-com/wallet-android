@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.receive.viewmodel.ShowQRViewModel" />
+
+        <variable
+            name="parentViewModel"
+            type="com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel" />
+    </data>
+
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/tagLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{parentViewModel.tag != null ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:id="@+id/tagLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@{@string/bequant_s_deposit_tag(parentViewModel.currency)}"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Deposit Tag" />
+
+            <TextView
+                android:id="@+id/tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@{parentViewModel.tag}"
+                android:textColor="#F2E868"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/copyTag"
+                app:layout_constraintTop_toBottomOf="@id/tagLabel"
+                tools:text="10790812" />
+
+            <Button
+                android:id="@+id/copyTag"
+                style="@style/Bequant.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="Copy"
+                app:layout_constraintBaseline_toBaselineOf="@id/tag"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <TextView
+                android:id="@+id/tagNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/deposits_without_destination_tag_will_be_lost"
+                android:textColor="@color/bequant_red"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/tag" />
+
+            <View
+                android:id="@+id/tagDivider"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="16dp"
+                android:background="#070A0A"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tagNote" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@{@string/bequant_s_deposit_address(parentViewModel.currency)}"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            tools:text="BTC Deposit Address" />
+
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@{parentViewModel.address}"
+            android:textColor="#F2E868"
+            android:textSize="16sp"
+            tools:text="BTC Deposit Address" />
+
+        <com.mycelium.wallet.activity.util.QrImageView
+            android:id="@+id/qrCodeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:background="@color/white"
+            app:qrCode="@{parentViewModel.address}"
+            android:maxWidth="@dimen/large_qrcode"
+            android:maxHeight="@dimen/large_qrcode"
+            android:minWidth="@dimen/large_qrcode"
+            android:minHeight="@dimen/large_qrcode" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/copyAddress"
+                style="@style/Bequant.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Copy" />
+
+            <TextView
+                android:id="@+id/createNewAddress"
+                style="@style/Bequant.Button.Gray"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Create New" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="16dp"
+            android:background="#070A0A" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/important_notes"
+            android:textColor="@color/bequant_red"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@{@string/only_send_btc_to_this_address(parentViewModel.currency)}"
+            android:textColor="#49505C" />
+    </LinearLayout>
+</layout>

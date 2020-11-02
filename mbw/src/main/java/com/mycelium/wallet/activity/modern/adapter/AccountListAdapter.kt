@@ -9,16 +9,16 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
-import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.ArchivedGroupTitleViewHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder
+import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
 import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
@@ -36,19 +36,20 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private var selectedAccountId: UUID? = mbwManager.selectedAccount.id
 
     private var itemClickListener: ItemClickListener? = null
+    var investmentAccountClickListener: ItemClickListener? = null
     private val layoutInflater: LayoutInflater
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
     private val walletManager = mbwManager.getWalletManager(false)
 
     val focusedAccount: WalletAccount<out GenericAddress>?
-        get() = focusedAccountId?.let { walletManager.getAccount(it)}
+        get() = focusedAccountId?.let { walletManager.getAccount(it) }
 
     init {
         layoutInflater = LayoutInflater.from(context)
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
             accountsGroupModels!!
-            val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it.accountId == selectedAccountId } }
+            val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it is AccountViewModel && it.accountId == selectedAccountId } }
             if (!selectedAccountExists) {
                 setFocusedAccountId(null)
             }
@@ -56,6 +57,14 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         })
         val accountsGroupsList = listModel.accountsData.value!!
         refreshList(accountsGroupsList)
+
+        Api.accountRepository.accountBalanceGet(fragment.lifecycleScope, {
+            val find = it?.find { it.currency?.toLowerCase() == "btc" }
+        }, { _, _ ->
+
+        }, {
+
+        })
     }
 
     private fun refreshList(accountsGroupModels: List<AccountsGroupModel>) {
@@ -98,7 +107,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val updateOld = walletManager.getAccount(this.focusedAccountId!!) != null
         val oldSelectedPosition = findPosition(this.selectedAccountId)
         this.focusedAccountId = focusedAccountId
-        if(focusedAccountId != null && walletManager.getAccount(focusedAccountId)?.isActive == true) {
+        if (focusedAccountId != null && walletManager.getAccount(focusedAccountId)?.isActive == true) {
             this.selectedAccountId = focusedAccountId
             notifyItemChanged(oldSelectedPosition)
         }
@@ -128,7 +137,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             GROUP_ARCHIVED_TITLE_TYPE -> createArchivedTitleViewHolder(parent)
             ACCOUNT_TYPE -> createAccountViewHolder(parent)
             TOTAL_BALANCE_TYPE -> createTotalBalanceViewHolder(parent)
-            else -> throw IllegalArgumentException("Unknow account type")
+            INVESTMENT_TYPE -> createInvestmentAccountViewHolder(parent)
+            else -> throw IllegalArgumentException("Unknown account type")
         }
     }
 
@@ -151,6 +161,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
         return TotalViewHolder(view)
     }
+
+    private fun createInvestmentAccountViewHolder(parent: ViewGroup): InvestmentViewHolder =
+            InvestmentViewHolder(layoutInflater.inflate(R.layout.record_row_investment, parent, false))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
@@ -186,7 +199,25 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val sum = (item as TotalViewModel).balance
                 totalHolder.tcdBalance.setValue(sum, totalBalance = true)
             }
-            UKNOWN -> throw IllegalArgumentException("Unknown view type")
+            INVESTMENT_TYPE -> {
+                val investHolder = holder as InvestmentViewHolder
+                val investItem = item as AccountInvestmentViewModel
+                investHolder.label.text = investItem.label
+                investHolder.balance.text = investItem.balance
+                investHolder.itemView.setOnClickListener {
+//                    walletManager.getAccount(investItem.accountId)?.run {
+                    investmentAccountClickListener?.onItemClick(item.account)
+//                    }
+                }
+                if (BequantPreference.isLogged()) {
+                    investHolder.balance.visibility = View.VISIBLE
+                    investHolder.activateLink.visibility = View.GONE
+                } else {
+                    investHolder.balance.visibility = View.GONE
+                    investHolder.activateLink.visibility = View.VISIBLE
+                }
+            }
+            UNKNOWN -> throw IllegalArgumentException("Unknown view type")
         }
     }
 
@@ -195,7 +226,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val title = group.getTitle(context)
         groupHolder.tvTitle.text = Html.fromHtml(title)
         val count = group.accountsList.size
-        groupHolder.tvAccountsCount.visibility = if (count > 0) View.VISIBLE else View.GONE
+        groupHolder.tvAccountsCount.visibility = if (count > 0 && !group.isInvestmentAccount) View.VISIBLE else View.GONE
         groupHolder.tvAccountsCount.text = "($count)"
         groupHolder.itemView.setOnClickListener {
             //Should be here as initial state in model is wrong
@@ -211,8 +242,12 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         for (item in walletAccountList) {
             if (item.getType() == GROUP_TITLE_TYPE) {
                 for (account in (item as AccountsGroupModel).accountsList) {
-                    if (account.isActive) {
+                    if (account.getType() == ACCOUNT_TYPE && (account as AccountViewModel).isActive) {
                         sum.add(account.balance!!.spendable)
+                    }
+                    if (account.getType() == INVESTMENT_TYPE) {
+                        val account = account as AccountInvestmentViewModel
+                        sum.add(account.account.accountBalance.spendable)
                     }
                 }
             }
@@ -235,6 +270,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 }
                 oldItem.getType() == ACCOUNT_TYPE -> {
                     (oldItem as AccountViewModel).accountId == (newItem as AccountViewModel).accountId
+                }
+                oldItem.getType() == INVESTMENT_TYPE -> {
+                    (oldItem as AccountInvestmentViewModel).accountId == (newItem as AccountInvestmentViewModel).accountId
                 }
                 else -> true
             }
@@ -269,6 +307,12 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                         newItem as TotalViewModel
                         oldItem as TotalViewModel
                         newItem.balance.values == oldItem.balance.values
+                    }
+                    INVESTMENT_TYPE -> {
+                        newItem as AccountInvestmentViewModel
+                        oldItem as AccountInvestmentViewModel
+                        newItem.accountId == oldItem.accountId
+                                && newItem.balance == oldItem.balance
                     }
                     else -> oldItem == newItem
                 }

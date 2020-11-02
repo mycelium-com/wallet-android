@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel" />
+    </data>
+
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/we_sent_a_confirmation_email_to"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_bequant_text"
+            android:fontFamily="@font/exo2medium"
+            android:padding="8dp"
+            android:text="@{viewModel.email}"
+            android:textColor="#F2E868"
+            android:textSize="16sp"
+            tools:text="xomiwa4145@win-777.net." />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/please_check_your_inbox_to_complete_setup"
+            android:textSize="16sp" />
+
+        <include
+            layout="@layout/part_bequant_not_receive_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" />
+    </LinearLayout>
+</layout>
