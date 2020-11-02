@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/marketFragment">
+    <fragment
+        android:id="@+id/marketFragment"
+        android:name="com.mycelium.bequant.market.MarketFragment"
+        android:label="MarketFragment"
+        tools:layout="@layout/fragment_bequant_main">
+        <action
+            android:id="@+id/actionWithdraw"
+            app:destination="@id/withdrawFragment" />
+        <action
+            android:id="@+id/actionDeposit"
+            app:destination="@id/receiveFragment">
+        </action>
+        <action
+            android:id="@+id/actionSelectCoin"
+            app:destination="@id/choseCoinFragment">
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/withdrawFragment"
+        android:name="com.mycelium.bequant.withdraw.WithdrawFragment"
+        android:label="WithdrawFragment"
+        tools:layout="@layout/fragment_bequant_withdraw">
+        <action
+            android:id="@+id/actionSelectAccount"
+            app:destination="@id/selectAccountFragment" />
+        <argument
+            android:name="currency"
+            app:argType="string"/>
+
+    </fragment>
+    <fragment
+        android:id="@+id/receiveFragment"
+        android:name="com.mycelium.bequant.receive.ReceiveFragment"
+        android:label="ReceiveFragment"
+        tools:layout="@layout/fragment_bequant_receive">
+        <action
+            android:id="@+id/actionSelectAccount"
+            app:destination="@id/selectAccountFragment" />
+        <argument
+            android:name="currency"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectAccountFragment"
+        android:name="com.mycelium.bequant.receive.SelectAccountFragment"
+        android:label="SelectAccountFragment"
+        tools:layout="@layout/fragment_bequant_select_account" >
+        <argument
+            android:name="currency"
+            app:argType="string"
+            app:nullable="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/choseCoinFragment"
+        android:name="com.mycelium.bequant.common.ChoseCoinFragment"
+        android:label="ChoseCoinFragment"
+        tools:layout="@layout/fragment_bequant_receive_choose_coin">
+        <action
+            android:id="@+id/actionDeposit"
+            app:destination="@id/receiveFragment"
+            app:popUpTo="@+id/marketFragment">
+        </action>
+        <action
+            android:id="@+id/actionWithdraw"
+            app:destination="@id/withdrawFragment"
+            app:popUpTo="@+id/marketFragment">
+        </action>
+        <argument
+            android:name="action"
+            app:argType="string" />
+    </fragment>
+</navigation>

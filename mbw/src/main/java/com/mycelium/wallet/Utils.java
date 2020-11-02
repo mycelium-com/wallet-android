@@ -52,10 +52,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import androidx.annotation.StringRes;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +65,11 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -125,6 +126,8 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 import com.mycelium.wapi.wallet.fio.coins.FIOTest;
@@ -1060,6 +1063,10 @@ public class Utils {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
    }
 
+   public static CryptoCurrency getEthCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? EthMain.INSTANCE : EthTest.INSTANCE;
+   }
+
    public static CryptoCurrency getMtCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? MTCoin.INSTANCE : MTCoinTest.INSTANCE;
    }
@@ -1122,6 +1129,15 @@ public class Utils {
               == PackageManager.PERMISSION_GRANTED);
       if (!hasPermission) {
          ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
+      }
+      return hasPermission;
+   }
+
+   public static boolean hasOrRequestAccess(androidx.fragment.app.Fragment fragment, String permission, int requestCode){
+      boolean hasPermission = (ContextCompat.checkSelfPermission(fragment.getActivity(), permission)
+              == PackageManager.PERMISSION_GRANTED);
+      if (!hasPermission) {
+         fragment.requestPermissions(new String[]{permission}, requestCode);
       }
       return hasPermission;
    }

@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet.fio.coins
 
 import com.mycelium.wapi.wallet.Address
-import com.mycelium.wapi.wallet.coins.families.EOSBasedCryptoCurrency
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.fio.FioAddress
 import com.mycelium.wapi.wallet.fio.FioAddressData
 import com.mycelium.wapi.wallet.fio.FioAddressSubtype
@@ -18,12 +18,7 @@ fun String.isFioDomain(): Boolean =
                 && length in 1..62
                 && Regex("^[a-zA-Z0-9](?:(?!-{2,}))[a-zA-Z0-9-]*(?:(?<!-))$").matchEntire(this) != null
 
-abstract class FIOToken : EOSBasedCryptoCurrency() {
-    init {
-        unitExponent = 9
-        symbol = "FIO"
-    }
-
+abstract class FIOToken(id: String, name: String) : CryptoCurrency(id, name, "FIO", 9, 2, false) {
     abstract val url: String
 
     override fun parseAddress(addressString: String?): Address? {

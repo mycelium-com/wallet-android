@@ -43,7 +43,7 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                         viewModel = this@RegisterFioDomainStep2Fragment.viewModel.apply {
                             val walletManager = MbwManager.getInstance(context).getWalletManager(false)
                             val fioAccounts = walletManager.getActiveSpendableFioAccounts()
-                            spinnerFioAccounts?.adapter = ArrayAdapter(context,
+                            spinnerFioAccounts?.adapter = ArrayAdapter<String>(requireContext(),
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text, fioAccounts.map { it.label }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }
@@ -58,7 +58,7 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                                             "${fioAccounts[p2].label} ${fioAccounts[p2].accountBalance.spendable.toStringWithUnit()}"))
                                 }
                             }
-                            spinnerPayFromAccounts?.adapter = ArrayAdapter(context,
+                            spinnerPayFromAccounts?.adapter = ArrayAdapter<String>(requireContext(),
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text,
                                     fioAccounts.map { "${it.label} ${it.accountBalance.spendable.toStringWithUnit()}" }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)

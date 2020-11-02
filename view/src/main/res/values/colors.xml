@@ -7,4 +7,7 @@
     <color name="grey">#888</color>
     <color name="preference_background">#252525</color>
     <color name="preference_item">#2c2c2c</color>
+    <color name="pinFieldLibraryAccent">#FF4081</color>
+    <color name="inactivePinFieldColor">#808080</color>
+    <color name="pinFieldLibraryTransparent">#00000000</color>
 </resources>

@@ -248,7 +248,7 @@ class WalletConsole {
     }
 
     private static void sendColuWithFundingAccount(PrivateColuAccount coluAccount, SingleAddressAccount coluSAAccount, HDAccount hdAccount1) {
-        GenericTransaction<ColuTransactionSummary> sendRequest = coluAccount.getSendToRequest(
+        Address<ColuTransactionSummary> sendRequest = coluAccount.getSendToRequest(
                 new BtcAddress(RMCCoin.INSTANCE
                         , Address.fromString("1MmgmNmKTzaNmQRi3DEmzULrxpPnxszh1c"))
                 , Value.valueOf(RMCCoin.INSTANCE, 1));

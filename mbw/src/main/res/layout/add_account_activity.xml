@@ -119,6 +119,15 @@
                 tools:ignore="SmallSp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <Button
+            android:id="@+id/btInvestmentCreate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:text="Activate Trading Account"
+            android:layout_marginTop="24dp"/>
 
         <Button
             android:id="@+id/btEthCreate"

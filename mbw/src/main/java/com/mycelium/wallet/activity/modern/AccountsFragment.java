@@ -66,6 +66,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.BitcoinAddress;
+import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -131,6 +132,8 @@ import com.mycelium.wapi.wallet.fio.RegisteredFIOName;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -199,6 +202,12 @@ public class AccountsFragment extends Fragment {
             llLocked = view.findViewById(R.id.llLocked);
         }
         accountListAdapter.setItemClickListener(recordAddressClickListener);
+        accountListAdapter.setInvestmentAccountClickListener(new AccountListAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(@NotNull WalletAccount<? extends Address> account) {
+                startActivity(new Intent(requireContext(), BequantIntroActivity.class));
+            }
+        });
     }
 
     @Override
