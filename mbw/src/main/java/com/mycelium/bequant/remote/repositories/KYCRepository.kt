@@ -13,7 +13,6 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -179,7 +178,6 @@ class KYCRepository {
                                     }
                                 }.build())
                             }
-                            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                             .build())
                     .addConverterFactory(NullOnEmptyConverterFactory())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
