@@ -25,7 +25,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:minWidth="220dp"
             android:layout_gravity="center"
             android:onClick="@{_ -> activity.onClickAmount()}">
@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:hint="@{viewModel.amountHint}"
+                android:hint="@{viewModel.requestedAmountFormatted.isEmpty() ? viewModel.amountHint : null}"
                 android:text="@{viewModel.requestedAmountFormatted}"
                 android:textAlignment="textEnd"
                 android:singleLine="true"

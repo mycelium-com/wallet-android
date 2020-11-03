@@ -175,7 +175,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    }
 
    private void setupActionBar() {
-      getSupportActionBar().setTitle("Enter amount");
+      getSupportActionBar().setTitle("Amount");
       getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back_arrow);
       getSupportActionBar().setHomeButtonEnabled(true);
       getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -268,7 +268,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       }
    }
 
-   @OnClick(R.id.btRight)
+   @OnClick(R.id.btCurrency)
    void onSwitchCurrencyClick() {
       final List<AssetInfo> currencyList = getAvailableCurrencyList();
       if (currencyList.size() > 1) {
@@ -313,7 +313,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       return result;
    }
 
-   @OnClick({R.id.btLeft, R.id.btPaste})
+   @OnClick(R.id.btPaste)
    void onPasteButtonClick() {
       String clipboardValue = getAmountFromClipboard();
       if (clipboardValue == null) {

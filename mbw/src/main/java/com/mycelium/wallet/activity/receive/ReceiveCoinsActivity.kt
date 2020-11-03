@@ -91,7 +91,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             }
         }
         supportActionBar?.run {
-            title = getString(R.string.receive_cointype, viewModel.getCurrencyName())
+            title = getString(R.string.receive_cointype, viewModel.getCurrencySymbol())
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)

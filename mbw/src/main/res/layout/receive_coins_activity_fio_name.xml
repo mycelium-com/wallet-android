@@ -72,7 +72,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="0dp"
             tools:text="BTC FIO Request"
-            android:text="@{@string/s_fio_request(viewModel.currencyName)}"
+            android:text="@{@string/s_fio_request(viewModel.currencySymbol)}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fioNameSpinner" />
     </androidx.constraintlayout.widget.ConstraintLayout>

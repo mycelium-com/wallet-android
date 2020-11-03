@@ -275,13 +275,17 @@
             android:name=".activity.fio.mapaccount.AccountMappingActivity"
             android:theme="@style/MyceliumFIOMapping" />
 
-        <activity android:name=".activity.fio.requests.FioRequestCreateActivity" />
+        <activity android:name=".activity.fio.requests.FioRequestCreateActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
 
-        <activity android:name=".activity.fio.requests.ApproveFioRequestActivity" />
+        <activity android:name=".activity.fio.requests.ApproveFioRequestActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
 
-        <activity android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity" />
+        <activity android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
 
-        <activity android:name=".activity.fio.requests.SentFioRequestStatusActivity" />
+        <activity android:name=".activity.fio.requests.SentFioRequestStatusActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
         
         <service android:name=".fio.FioRequestService"/>
     </application>

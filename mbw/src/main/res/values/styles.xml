@@ -422,7 +422,7 @@
 
     <style name="MyceliumFIOMapping.ActionBar.Title">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">#E6FFFFFF</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
 

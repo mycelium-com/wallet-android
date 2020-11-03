@@ -73,7 +73,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="0dp"
             android:onClick="@{() -> viewModel.shareRequest()}"
-            android:text="@{@string/s_payment_request(viewModel.currencyName)}"
+            android:text="@{@string/s_payment_request(viewModel.currencySymbol)}"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="BTC Payment Request"
             app:layout_constraintTop_toBottomOf="@id/address" />

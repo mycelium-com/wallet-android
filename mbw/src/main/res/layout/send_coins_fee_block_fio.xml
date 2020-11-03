@@ -25,6 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:minWidth="220dp"
             android:orientation="horizontal">
 
             <TextView
@@ -34,8 +35,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="5dp"
                 android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
-                android:gravity="center"
+                android:fontFamily="@font/roboto_mono_regular"
                 android:maxLines="1"
                 android:orientation="vertical"
                 android:text="@{viewModel.fee(viewModel.selectedFee)}"
@@ -50,8 +50,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="5dp"
                 android:ellipsize="middle"
-                android:fontFamily="sans-serif"
-                android:gravity="center"
+                android:fontFamily="@font/roboto_mono_regular"
                 android:text="@{viewModel.feeFiat(viewModel.selectedFee)}"
                 android:textColor="@color/horizontalpicker_text_color"
                 android:textSize="12sp" />

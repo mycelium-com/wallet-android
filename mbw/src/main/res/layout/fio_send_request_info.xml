@@ -19,13 +19,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingStart="@dimen/page_margin_width"
+        android:paddingEnd="@dimen/page_margin_width"
         android:orientation="vertical">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clReceivedRequestInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="18dp"
             android:background="@drawable/received_fio_request_info_bg"
             android:padding="14dp">
 
@@ -134,7 +135,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="18dp"
             android:layout_marginTop="24dp">
 
             <TextView
@@ -198,6 +198,8 @@
                 android:hint="Leave a message for newfriend@histdo.."
                 android:text="@={fioRequestViewModel.memoTo}"
                 android:maxLength="64"
+                android:layout_marginStart="-4dp"
+                android:layout_marginEnd="-4dp"
                 android:textSize="14sp"
                 android:typeface="monospace"
                 app:layout_constraintStart_toStartOf="parent"

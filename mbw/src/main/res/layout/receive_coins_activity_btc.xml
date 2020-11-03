@@ -27,7 +27,7 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingBottom="8dp">
+                android:paddingBottom="60dp">
 
             <!-- Receiving currency name, receiving amount and warning if amount don't match-->
             <include

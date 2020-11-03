@@ -58,6 +58,8 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
 
     abstract fun getCurrencyName(): String
 
+    fun getCurrencySymbol():String = account.coinType.symbol
+
     override fun onCleared() = model.onCleared()
 
     fun isInitialized() = ::model.isInitialized

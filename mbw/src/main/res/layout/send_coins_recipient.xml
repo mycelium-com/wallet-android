@@ -54,7 +54,7 @@
             android:id="@+id/tvWarning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
             android:text="@{viewModel.heapWarning}"
             android:textSize="16sp"
             android:visibility="@{viewModel.heapWarning.toString().isEmpty() ? View.GONE :  View.VISIBLE }"

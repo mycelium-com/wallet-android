@@ -22,47 +22,48 @@
             type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
     </data>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <ScrollView
-            android:id="@+id/root"
+    <ScrollView
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical">
+            android:gravity="center"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical">
+            <!--Request info-->
+            <include
+                layout="@layout/fio_send_request_info"
+                bind:fioRequestViewModel="@{fioRequestViewModel}" />
 
-                <!--Request info-->
-                <include
-                    layout="@layout/fio_send_request_info"
-                    bind:fioRequestViewModel="@{fioRequestViewModel}" />
+            <!--Fee selector-->
+            <include
+                layout="@layout/send_coins_fee_block"
+                app:viewModel="@{sendViewModel}" />
 
-                <!--Fee selector-->
-                <include
-                    layout="@layout/send_coins_fee_block"
-                    app:viewModel="@{sendViewModel}" />
+            <!-- Amount Error -->
+            <include
+                layout="@layout/send_coins_insufficient_fio"
+                app:viewModel="@{sendViewModel}" />
 
-                <!-- Amount Error -->
-                <include
-                    layout="@layout/send_coins_insufficient_fio"
-                    app:viewModel="@{sendViewModel}" />
+            <!--Update progress bar-->
+            <include
+                layout="@layout/send_coins_progress_fio_request"
+                app:viewModel="@{sendViewModel}" />
 
-                <!--Update progress bar-->
-                <include
-                    layout="@layout/send_coins_progress_fio_request"
-                    app:viewModel="@{sendViewModel}" />
-
-                <!-- Buttons -->
-                <include
-                    layout="@layout/fio_send_request_buttons"
-                    bind:activity="@{activity}" />
-            </LinearLayout>
-        </ScrollView>
-    </FrameLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <!-- Buttons -->
+            <include
+                layout="@layout/fio_send_request_buttons"
+                bind:activity="@{activity}" />
+        </LinearLayout>
+    </ScrollView>
 </layout>

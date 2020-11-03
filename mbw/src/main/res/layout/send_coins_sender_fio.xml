@@ -36,6 +36,7 @@
                 android:id="@+id/icInfo1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 app:layout_constraintBottom_toBottomOf="@id/tvConnectedFioAccount"
                 app:layout_constraintStart_toEndOf="@+id/tvConnectedFioAccount"
                 app:layout_constraintTop_toTopOf="@id/tvConnectedFioAccount"
@@ -44,11 +45,11 @@
             <TextView
                 android:id="@+id/tv_from_account_label"
                 android:layout_width="wrap_content"
-                android:layout_height="21dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="6dp"
                 android:text="Spending from:"
-                android:textColor="@color/fio_white_alpha_0_8"
+                android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp" />
 
             <TextView
@@ -58,14 +59,16 @@
                 android:layout_marginStart="6dp"
                 android:text="@{viewModel.account.label}"
                 android:textColor="@color/white"
+                android:layout_gravity="center"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                android:typeface="monospace"
                 tools:text="Account 1" />
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="21dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
+                android:layout_gravity="center"
                 android:text="as"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp" />
@@ -89,17 +92,16 @@
                 android:id="@+id/tv_from"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="6dp"
                 android:text="@{viewModel.payerFioName}"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:typeface="monospace"
                 tools:text="myfiowallet@mycelium" />
 
             <ImageView
                 android:id="@+id/iv_from_fio_name"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:layout_marginStart="6dp"
                 android:clickable="false"
                 android:contentDescription="change sender fio name"
                 app:srcCompat="@drawable/ic_arrow_drop_down" />
