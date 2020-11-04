@@ -41,7 +41,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
                     .apply {
                         viewModel = this@RegisterFioNameStep2Fragment.viewModel.apply {
                             val fioAccounts = getFioAccountsToRegisterTo(this.domain.value!!)
-                            spinnerFioAccounts?.adapter = ArrayAdapter(context,
+                            spinnerFioAccounts?.adapter = ArrayAdapter<String>(requireContext(),
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text, fioAccounts.map { it.label }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                             }
@@ -56,7 +56,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
                                             "${fioAccounts[p2].label} ${fioAccounts[p2].accountBalance.spendable.toStringWithUnit()}"))
                                 }
                             }
-                            spinnerPayFromAccounts?.adapter = ArrayAdapter(context,
+                            spinnerPayFromAccounts?.adapter = ArrayAdapter<String>(requireContext(),
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text,
                                     fioAccounts.map { "${it.label} ${it.accountBalance.spendable.toStringWithUnit()}" }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)

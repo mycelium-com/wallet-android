@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bequant_gray_3"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/logoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_launcher"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/logoArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toBottomOf="@id/logo"
+                app:layout_constraintLeft_toRightOf="@id/logo"
+                app:layout_constraintTop_toTopOf="@id/logo"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+            <TextView
+                android:id="@+id/poweredBy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="Powered by"
+                android:textColor="#F2E868"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toTopOf="@id/bequant"
+                app:layout_constraintLeft_toRightOf="@id/logoArrow"
+                app:layout_constraintTop_toTopOf="@id/logo" />
+
+            <ImageView
+                android:id="@+id/bequant"
+                android:layout_width="wrap_content"
+                android:layout_height="12dp"
+                android:layout_marginStart="16dp"
+                android:scaleType="fitStart"
+                app:layout_constraintBottom_toBottomOf="@id/logo"
+                app:layout_constraintLeft_toRightOf="@id/logoArrow"
+                app:layout_constraintTop_toBottomOf="@id/poweredBy"
+                app:srcCompat="@drawable/bequant_logo" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <fragment
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <LinearLayout
+        android:id="@+id/logoMenu"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/lightgrey_transparent"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <TextView
+            style="@style/Bequant.TextMiddle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bequant_gray_3"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:text="@string/bequant_choose_service" />
+
+        <TextView
+            android:id="@+id/myceliumWallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bequant_gray_3"
+            android:fontFamily="@font/exo2medium"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:text="@string/bequant_mycelium_wallet"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bequant_gray_3"
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingTop="21dp"
+            android:paddingBottom="27dp">
+
+            <TextView
+                android:id="@+id/investmentWallet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/bequant_gray_3"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/bequant_trading_account"
+                android:textColor="@color/bequant_yellow"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingEnd="19dp"
+                app:srcCompat="@drawable/ic_bequant_yellow_check_mark" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

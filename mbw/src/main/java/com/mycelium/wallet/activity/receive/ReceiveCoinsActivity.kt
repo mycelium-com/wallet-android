@@ -78,7 +78,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
         }
         fioNameSpinner.adapter = ArrayAdapter<String>(this,
-                R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value).apply {
+                R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value!!).apply {
             setDropDownViewResource(R.layout.layout_receive_fio_names_dropdown)
         }
         fioNameSpinner.onItemSelectedListener = object:AdapterView.OnItemSelectedListener {

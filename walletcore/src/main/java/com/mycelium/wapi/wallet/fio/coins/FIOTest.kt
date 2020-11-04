@@ -1,10 +1,5 @@
 package com.mycelium.wapi.wallet.fio.coins
 
-object FIOTest : FIOToken() {
+object FIOTest : FIOToken("fio.test", "FIO test") {
     override val url = "http://testnet.fioprotocol.io/v1/"
-
-    init {
-        id = "fio.test"
-        name = "FIO test"
-    }
 }

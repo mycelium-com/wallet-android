@@ -17,7 +17,7 @@ class FioRequestService : Service() {
         startActivity(Intent(this,
                 if (MbwManager.getInstance(context).isAppInForeground) ApproveFioRequestActivity::class.java else StartupActivity::class.java)
                 .setAction(FIO_REQUEST_ACTION)
-                .putExtras(intent)
+                .putExtras(requireNotNull(intent))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         return START_STICKY
     }

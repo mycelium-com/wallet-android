@@ -82,7 +82,7 @@ class AddressFragment : Fragment() {
 
         val preference = requireContext().getSharedPreferences("fio_balance_screen_preference", Context.MODE_PRIVATE)
         viewModel.getRegisteredFIONames().observe(this, Observer { names ->
-            val spinnerAdapter: ArrayAdapter<String> = ArrayAdapter(context,
+            val spinnerAdapter: ArrayAdapter<String> = ArrayAdapter<String>(requireContext(),
                     R.layout.layout_address_fragment_fio_names, R.id.text, names.map { it.name }).apply {
                 setDropDownViewResource(R.layout.layout_address_fragment_fio_names_dropdown)
             }

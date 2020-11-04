@@ -34,7 +34,7 @@ class RenewFioDomainFragment : Fragment() {
                     .apply {
                         viewModel = this@RenewFioDomainFragment.viewModel.apply {
                             val fioAccounts = listOf(this.fioAccountToRegisterName.value!!)
-                            spinnerPayFromAccounts.adapter = ArrayAdapter(context,
+                            spinnerPayFromAccounts.adapter = ArrayAdapter<String>(requireContext(),
                                     R.layout.layout_fio_dropdown_medium_font, R.id.text,
                                     fioAccounts.map { "${it.label} ${it.accountBalance.spendable.toStringWithUnit()}" }).apply {
                                 this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)

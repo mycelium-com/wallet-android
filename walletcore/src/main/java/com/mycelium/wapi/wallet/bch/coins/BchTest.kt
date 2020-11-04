@@ -1,16 +1,5 @@
 package com.mycelium.wapi.wallet.bch.coins
 
 
-object BchTest: BchCoin() {
-
-    init {
-        id = "bitcoin_cash.test"
-        name = "Bitcoin Cash Test"
-        symbol = "BCH"
-        unitExponent = 8
-    }
-
-    override fun getUnitExponent(): Int {
-        return 0
-    }
+object BchTest: BchCoin("bitcoin_cash.test", "Bitcoin Cash Test", "BCH", 8, 2, true) {
 }

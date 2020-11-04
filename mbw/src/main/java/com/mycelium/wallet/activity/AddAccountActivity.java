@@ -57,6 +57,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.bequant.BequantPreference;
+import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
@@ -150,6 +152,11 @@ public class AddAccountActivity extends AppCompatActivity {
             }
         }
         return result;
+    }
+
+    @OnClick(R.id.btInvestmentCreate)
+    void onAddInvestment() {
+        startActivity(new Intent(this, BequantIntroActivity.class));
     }
 
     @OnClick(R.id.btEthCreate)
@@ -481,6 +488,9 @@ public class AddAccountActivity extends AppCompatActivity {
     public void onResume() {
         MbwManager.getEventBus().register(this);
         super.onResume();
+
+        boolean logged = BequantPreference.isLogged();
+        findViewById(R.id.btInvestmentCreate).setVisibility(logged ? View.GONE : View.VISIBLE);
     }
 
     @Override

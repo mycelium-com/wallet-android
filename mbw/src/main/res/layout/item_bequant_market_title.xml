@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp">
+
+    <TextView
+        android:id="@+id/nameLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/exo2medium"
+        android:tag="0"
+        android:text="Name"
+        android:textColor="#49505C"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="0_arrow"
+        app:layout_constraintBottom_toBottomOf="@id/nameLabel"
+        app:layout_constraintLeft_toRightOf="@id/nameLabel"
+        app:layout_constraintTop_toTopOf="@id/nameLabel"
+        app:srcCompat="@drawable/ic_bequant_arrow_up" />
+
+    <TextView
+        android:id="@+id/volumeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/exo2medium"
+        android:tag="1"
+        android:text="Vol 24h"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/nameLabel"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="1_arrow"
+        app:layout_constraintBottom_toBottomOf="@id/volumeLabel"
+        app:layout_constraintLeft_toRightOf="@id/volumeLabel"
+        app:layout_constraintTop_toTopOf="@id/volumeLabel"
+        app:srcCompat="@drawable/ic_bequant_arrow_up" />
+
+    <TextView
+        android:id="@+id/priceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/exo2medium"
+        android:tag="2"
+        android:text="Price"
+        android:textColor="#49505C"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/changeLabel"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="2_arrow"
+        app:layout_constraintBottom_toBottomOf="@id/priceLabel"
+        app:layout_constraintLeft_toRightOf="@id/priceLabel"
+        app:layout_constraintTop_toTopOf="@id/priceLabel"
+        app:srcCompat="@drawable/ic_bequant_arrow_up" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:id="@+id/changeLabel"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/exo2medium"
+        android:tag="3"
+        android:layout_marginEnd="24dp"
+        android:text="Change"
+        android:textColor="#49505C"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:tag="3_arrow"
+        app:layout_constraintBottom_toBottomOf="@id/changeLabel"
+        app:layout_constraintLeft_toRightOf="@id/changeLabel"
+        app:layout_constraintTop_toTopOf="@id/changeLabel"
+        app:srcCompat="@drawable/ic_bequant_arrow_up" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
