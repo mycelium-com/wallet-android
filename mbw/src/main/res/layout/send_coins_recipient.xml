@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="@{viewModel.receivingAddressText.isEmpty() ? View.GONE : View.VISIBLE }">
+            android:visibility="@{!viewModel.receivingAddressText.isEmpty() &amp;&amp; viewModel.payeeFioName == null ? View.VISIBLE : View.GONE }">
 
             <include
                 layout="@layout/send_coins_recipient_address"
