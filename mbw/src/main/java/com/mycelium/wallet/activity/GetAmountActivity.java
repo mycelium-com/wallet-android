@@ -462,6 +462,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
               || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType())
               || Value.isNullOrZero(_amount)) {
          tvAlternateAmount.setText("");
+         tvAlternateAmount.setVisibility(View.GONE);
       } else {
          Value convertedAmount;
          if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()))) {
@@ -478,6 +479,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          }
          if(convertedAmount != null) {
             tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getDenomination(_account.getCoinType())));
+            tvAlternateAmount.setVisibility(View.VISIBLE);
          }
       }
    }
