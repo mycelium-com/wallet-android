@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-    <!--tools:showIn="@layout/receive_coins_activity" -->
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/receive_coins_activity">
+
     <data>
 
         <variable
@@ -15,14 +16,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="@dimen/horizontal_page_margin"
         android:layout_marginTop="10dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/addressLabel"
-            android:layout_width="101dp"
-            android:layout_height="21dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@{@string/crypto_address(viewModel.currencyName)}"
             android:textColor="#bbb"
             android:textSize="14sp"
@@ -35,11 +36,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
+            android:fontFamily="@font/roboto_mono_regular"
             android:gravity="start"
             android:text="@{AddressUtils.toDoubleLineString(viewModel.receivingAddress.toString())}"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:typeface="monospace"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/copy"
             app:layout_constraintTop_toBottomOf="@id/addressLabel"
@@ -51,19 +51,31 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:onClick="@{() -> viewModel.copyToClipboard()}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/address"
             app:layout_constraintRight_toLeftOf="@id/share"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/address"
             app:srcCompat="@drawable/ic_content_copy_white" />
 
         <ImageView
             android:id="@+id/share"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:onClick="@{() -> viewModel.shareRequest()}"
+            app:layout_constraintBottom_toBottomOf="@id/address"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/address"
             app:srcCompat="@drawable/ic_share_24px" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            style="@style/MyceliumButton.FIO"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="0dp"
+            android:onClick="@{() -> viewModel.shareRequest()}"
+            android:text="@{@string/s_payment_request(viewModel.currencySymbol)}"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="BTC Payment Request"
+            app:layout_constraintTop_toBottomOf="@id/address" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

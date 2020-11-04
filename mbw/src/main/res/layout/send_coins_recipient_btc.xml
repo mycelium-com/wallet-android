@@ -7,6 +7,7 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel.RecipientRepresentation" />
 
         <variable
             name="activity"
@@ -23,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:visibility="@{(viewModel.getRecipientRepresentation() != RecipientRepresentation.ASK) ? View.VISIBLE : View.GONE}"
         android:orientation="vertical">
 
         <!-- Receiver Label -->
@@ -30,12 +32,16 @@
                 layout="@layout/send_coins_recipient_label"
                 app:viewModel="@{viewModel}" />
 
+        <include
+            layout="@layout/send_coins_recipient_fio"
+            app:viewModel="@{viewModel}"
+            android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.FIO) ? View.VISIBLE : View.GONE}"/>
+
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="@{viewModel.receivingAddresses.isEmpty() ? View.VISIBLE : View.GONE}">
+            android:visibility="@{!viewModel.receivingAddressText.isEmpty() &amp;&amp; viewModel.payeeFioName == null ? View.VISIBLE : View.GONE}">
 
             <include
                     layout="@layout/send_coins_recipient_address"
@@ -43,14 +49,13 @@
         </LinearLayout>
         <TextView
                 android:id="@+id/tvWarning"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginBottom="4dp"
-                android:gravity="center"
+                android:layout_marginTop="4dp"
                 android:text="@{viewModel.heapWarning}"
                 tools:text="Some rather long, long warning about sending to yourself."
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:visibility="@{viewModel.heapWarning.toString().isEmpty() ? View.GONE :  View.VISIBLE }" />
 
         <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
@@ -58,6 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/fee_recycler_item"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal"
             android:layoutDirection="ltr"
             android:scrollbars="none"

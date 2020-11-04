@@ -19,13 +19,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingStart="@dimen/page_margin_width"
+        android:paddingEnd="@dimen/page_margin_width"
         android:orientation="vertical">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clReceivedRequestInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="18dp"
             android:background="@drawable/received_fio_request_info_bg"
             android:padding="14dp">
 
@@ -56,7 +57,6 @@
                 android:text="@{fioRequestViewModel.requestDate}"
                 android:textSize="14sp"
                 android:layout_marginTop="12dp"
-                android:typeface="monospace"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 tools:text="September 23, 2020 at 6:23pm" />
@@ -80,7 +80,7 @@
                 android:layout_marginTop="4dp"
                 android:text="@{fioRequestViewModel.payeeName}"
                 android:textSize="18sp"
-                android:typeface="monospace"
+                android:fontFamily="sans-serif-medium"
                 app:layout_constraintStart_toEndOf="@id/tvFromTitle"
                 app:layout_constraintTop_toBottomOf="@id/requestDate"
                 tools:text="newfriend@hisdomain" />
@@ -92,7 +92,6 @@
                 android:layout_marginTop="4dp"
                 android:text="@{fioRequestViewModel.memoFrom}"
                 android:textSize="14sp"
-                android:typeface="monospace"
                 android:visibility="@{fioRequestViewModel.memoFrom.empty ? View.GONE : View.VISIBLE}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvFromTitle"
@@ -116,7 +115,7 @@
                 android:layout_marginStart="4dp"
                 android:textSize="18sp"
                 android:text="@{ValueExtensionsKt.toStringWithUnit(fioRequestViewModel.amount)}"
-                android:typeface="monospace"
+                android:fontFamily="@font/roboto_mono_medium"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvAmountTitle"
                 app:layout_constraintStart_toEndOf="@id/tvAmountTitle"
                 tools:text="0.00123305 tBTC" />
@@ -134,7 +133,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="18dp"
             android:layout_marginTop="24dp">
 
             <TextView
@@ -198,6 +196,8 @@
                 android:hint="Leave a message for newfriend@histdo.."
                 android:text="@={fioRequestViewModel.memoTo}"
                 android:maxLength="64"
+                android:layout_marginStart="-4dp"
+                android:layout_marginEnd="-4dp"
                 android:textSize="14sp"
                 android:typeface="monospace"
                 app:layout_constraintStart_toStartOf="parent"

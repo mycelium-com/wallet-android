@@ -13,7 +13,7 @@
     <color name="darkred">#99662f</color>
     <color name="brightred">#ef9d44</color>
     <color name="brightgreen">#44ef9d</color>
-    
+
     <color name="mycelium_midblue">#3e9bd3</color>
     <color name="mycelium_brightblue">#5fcbf2</color>
 
@@ -64,7 +64,7 @@
     <color name="fio_green">#51F129</color>
     <color name="fio_red">#D21614</color>
     <color name="fio_prm_btn_line">#2E6699</color>
-    <color name="fio_request_pending">#FBD408</color>
+    <color name="fio_yellow">#FBD408</color>
     <color name="fio_blue">#13C4FF</color>
     <color name="fio_blue_banner">#3552B8</color>
     <color name="fio_white_alpha_0_6">#99FFFFFF</color>

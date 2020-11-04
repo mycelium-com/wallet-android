@@ -13,6 +13,9 @@
     <LinearLayout
             android:id="@+id/ll_fio_memo"
             android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/horizontal_page_margin"
+            android:layout_marginEnd="@dimen/horizontal_page_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         <TextView
@@ -25,9 +28,12 @@
                 android:id="@+id/et_fio_memo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="-4dp"
+                android:layout_marginEnd="-4dp"
                 android:hint="@{`Leave a message for ` + payeeFioName ?? `the recipient` + `…`}"
                 tools:hint="Leave a message for tom@fiotestnet…"
                 tools:text="Leave a message for tom@fiotestnet…"
+                android:textSize="14sp"
                 android:text="@{fioMemo}"
                 android:singleLine="false"
                 android:maxLength="64"/>

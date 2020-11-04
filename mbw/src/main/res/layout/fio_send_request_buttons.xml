@@ -13,8 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="18dp"
-        android:layout_marginTop="21dp"
+        android:layout_marginStart="@dimen/page_margin_width"
+        android:layout_marginEnd="@dimen/page_margin_width"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="32dp"
         android:orientation="vertical">
 
         <Button
@@ -23,6 +25,7 @@
             android:layout_width="match_parent"
             android:enabled="false"
             android:layout_height="wrap_content"
+            android:textSize="20sp"
             android:onClick="@{_ -> activity.onClickSend()}"
             android:text="@string/fio_confirm_and_pay" />
 
@@ -32,6 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:textSize="20sp"
             android:background="@drawable/bg_btn_fio"
             android:onClick="@{_ -> activity.onClickDecline()}"
             android:text="Decline &amp; Delete"

@@ -53,7 +53,7 @@
                 android:singleLine="true"
                 android:textSize="12sp"
                 tools:text="Pending"
-                tools:textColor="@color/fio_request_pending" />
+                tools:textColor="@color/fio_yellow" />
 
 
             <TextView

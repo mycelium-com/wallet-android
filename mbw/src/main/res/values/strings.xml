@@ -43,6 +43,8 @@
     <string name="crypto_address">%1$s Address:</string>
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$s %2$s</string>
+    <string name="s_payment_request">%s Payment Request</string>
+    <string name="s_fio_request">%s FIO Request</string>
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
     <string name="insufficient_funds">Insufficient funds</string>
@@ -52,7 +54,7 @@
     <string name="unable_to_build_tx">Unable to build transaction</string>
     <string name="amount_too_small_short">Amount too small</string>
     <string name="miner_fee_label">Miner fee</string>
-    <string name="miner_fee_title">Miner Fee</string>
+    <string name="miner_fee_title">Miner Fee:</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
@@ -177,7 +179,7 @@
     <string name="cold_storage_title">Cold Storage Spending</string>
     <string name="cold_storage_desc">You are about to spend from a private key in cold storage. This could be a private key paper backup or a private key slip from a Bitcoin ATM. Following Formats are supported:\nPrivate Key, Master Seed, xPriv Key\n\nOnce the transaction has been sent every trace of it will be erased from the internal memory.</string>
     <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
-    <string name="manual_entry">Enter Address or FIO Name</string>
+    <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>

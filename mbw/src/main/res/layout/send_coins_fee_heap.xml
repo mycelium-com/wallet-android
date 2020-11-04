@@ -16,7 +16,7 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:orientation="vertical">
         <!-- Fee Title -->
         <include layout="@layout/send_coins_fee_title" />
@@ -25,14 +25,14 @@
                 android:id="@+id/tvFeeWarning"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
+                android:layout_gravity="center"
                 android:layout_marginBottom="4dp"
-                android:gravity="start"
+                android:minWidth="220dp"
                 android:visibility="gone"
                 tools:visibility="visible"
                 tools:text="@string/fee_is_zero"
                 app:errorAnimatedText="@{viewModel.feeWarning}"
-                android:textColor="@color/red"
+                android:textColor="@color/fio_red"
                 android:textSize="14sp" />
     </LinearLayout>
 </layout>

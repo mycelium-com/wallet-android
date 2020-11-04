@@ -1,136 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        tools:showIn="@layout/send_coins_heading">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_recipient_btc">
 
     <data>
 
         <import type="android.view.View" />
 
         <variable
-                name="activity"
-                type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
 
         <variable
-                name="viewModel"
-                type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        <LinearLayout
-                android:id="@+id/recipient"
-                android:onClick="@{_->activity.onClickManualEntry()}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                    android:id="@+id/tv_to_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="To:"
-                    android:textColor="#aaa" />
-
-            <TextView
-                    android:id="@+id/tv_to"
-                    android:text="@{viewModel.payeeFioName}"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="6dp"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:typeface="monospace"
-                    tools:text="newfriend@hisdomain" />
-
-            <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:clickable="false"
-                    android:scaleType="center"
-                    android:contentDescription="change recipient"
-                    app:srcCompat="@drawable/ic_edit_fio_name" />
-        </LinearLayout>
+    <LinearLayout
+        android:id="@+id/recipient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{_->activity.onClickManualEntry()}"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-                android:id="@+id/tvWarning"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/recipient"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginBottom="4dp"
-                android:text="@{viewModel.heapWarning}"
-                android:textSize="18sp"
-                android:visibility="@{viewModel.heapWarning.toString().isEmpty() ? View.GONE :  View.VISIBLE }" />
+            android:id="@+id/tv_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.payeeFioName}"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="newfriend@hisdomain" />
 
-        <LinearLayout
-                android:id="@+id/sender"
-                android:onClick="@{_->activity.onClickSenderFioNames()}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvWarning">
-
-            <TextView
-                    android:id="@+id/tv_from_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="From:"
-                    android:textColor="#aaa" />
-
-            <TextView
-                    android:id="@+id/tv_from"
-                    android:text="@{viewModel.payerFioName}"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="6dp"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:typeface="monospace"
-                    tools:text="myfiowallet@mycelium" />
-
-            <ImageView
-                    android:id="@+id/iv_from_fio_name"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:clickable="false"
-                    android:contentDescription="change sender fio name"
-                    app:srcCompat="@drawable/ic_arrow_drop_down" />
-        </LinearLayout>
-        <LinearLayout
-                android:id="@+id/sender_account"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="6dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sender">
-
-            <TextView
-                    android:id="@+id/tv_from_account_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Spending from:"
-                    android:textColor="#aaa" />
-
-            <TextView
-                    android:id="@+id/tv_from_account"
-                    android:text="@{viewModel.account.label}"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="6dp"
-                    android:textStyle="bold"
-                    android:typeface="monospace"
-                    android:textColor="@color/green"
-                    tools:text="Account 1" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:clickable="false"
+            android:layout_marginStart="6dp"
+            android:contentDescription="change recipient"
+            android:scaleType="center"
+            app:srcCompat="@drawable/ic_edit_fio_name" />
+    </LinearLayout>
 </layout>

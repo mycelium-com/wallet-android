@@ -363,7 +363,7 @@ abstract class SendCoinsModel(
             receivingAddressText.postValue(addressText)
         } else {
             if (receivingAddress.value != null) {
-                receivingAddressText.postValue(AddressUtils.toMultiLineString(
+                receivingAddressText.postValue(AddressUtils.toDoubleLineString(
                         this.receivingAddress.value.toString()))
             }
         }

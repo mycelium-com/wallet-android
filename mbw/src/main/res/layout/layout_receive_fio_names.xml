@@ -4,10 +4,9 @@
     android:id="@+id/text"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="18sp"
+    android:textSize="16sp"
     android:singleLine="true"
+    android:fontFamily="@font/roboto_mono_regular"
     android:ellipsize="end"
-    android:textStyle="bold"
-    android:typeface="monospace"
     tools:text="fioname@domain" />
 

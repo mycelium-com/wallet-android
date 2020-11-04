@@ -16,12 +16,13 @@
                 android:id="@+id/tvReceived"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/green"
+                android:textColor="@color/fio_green"
                 android:gravity="center"
                 android:textStyle="bold"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
                 tools:text="@string/incoming_payment"
                 android:text="@{@string/incoming_payment(viewModel.currentlyReceivingFormatted)}"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:visibility="@{Value.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
                 tools:visibility="visible" />
 
@@ -30,8 +31,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_marginTop="2dp"
             android:text="@string/warning_amount_does_not_match"
-            android:textColor="@color/red"
+            android:textColor="@color/fio_red"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:textSize="14sp"
             android:visibility="@{viewModel.isReceivingAmountWrong() ? View.VISIBLE : View.GONE}"
             tools:visibility="visible" />
     </merge>

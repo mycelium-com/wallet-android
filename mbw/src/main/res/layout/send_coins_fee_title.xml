@@ -6,8 +6,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/miner_fee_title"
-        android:layout_gravity="start"
-        android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        android:minWidth="220dp"
+        android:layout_marginTop="24dp"
         android:textSize="14sp"
+        android:textColor="@color/fio_white_alpha_0_6"
         xmlns:tools="http://schemas.android.com/tools"
         tools:showIn="@layout/send_coins_activity"/>

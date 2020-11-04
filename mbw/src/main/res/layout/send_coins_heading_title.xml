@@ -8,7 +8,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/recipient_title"
-                android:textColor="@color/white"
+                android:textColor="@color/fio_white_alpha_0_6"
+                android:layout_marginBottom="4dp"
                 android:textSize="14sp" />
     </merge>
 </layout>

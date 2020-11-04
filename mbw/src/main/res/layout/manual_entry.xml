@@ -8,18 +8,13 @@
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <EditText
         android:id="@+id/etRecipient"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="18dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="18dp"
         android:hint="@string/enter_recipient_hint"
         android:inputType="textAutoComplete"
         android:textSize="18sp" />

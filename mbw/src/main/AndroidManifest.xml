@@ -174,13 +174,15 @@
         <activity android:name=".activity.send.SendInitializationActivity" />
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity
-            android:name=".activity.send.SendCoinsActivity" />
+            android:name=".activity.send.SendCoinsActivity"
+            android:theme="@style/MyceliumFIOMapping" />
         <activity
             android:name=".activity.send.ManualAddressEntry"
-            android:theme="@style/MyceliumFIO" />
+            android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity
-            android:name=".activity.receive.ReceiveCoinsActivity" />
+            android:name=".activity.receive.ReceiveCoinsActivity"
+            android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity
             android:name=".external.changelly.ChangellyActivity"
@@ -230,7 +232,9 @@
         <activity android:name=".extsig.ledger.activity.LedgerSignTransactionActivity" />
         <activity android:name=".activity.InstantMasterseedActivity" />
         <activity android:name=".activity.ConnectionLogsActivity" />
-        <activity android:name=".activity.GetAmountActivity" />
+        <activity
+            android:name=".activity.GetAmountActivity"
+            android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".activity.StringHandlerActivity" />
         <activity android:name=".activity.send.VerifyPaymentRequestActivity" />
         <activity
@@ -271,13 +275,17 @@
             android:name=".activity.fio.mapaccount.AccountMappingActivity"
             android:theme="@style/MyceliumFIOMapping" />
 
-        <activity android:name=".activity.fio.requests.FioRequestCreateActivity" />
+        <activity android:name=".activity.fio.requests.FioRequestCreateActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
 
-        <activity android:name=".activity.fio.requests.ApproveFioRequestActivity" />
+        <activity android:name=".activity.fio.requests.ApproveFioRequestActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
 
-        <activity android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity" />
+        <activity android:name=".activity.fio.requests.ApproveFioRequestSuccessActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
 
-        <activity android:name=".activity.fio.requests.SentFioRequestStatusActivity" />
+        <activity android:name=".activity.fio.requests.SentFioRequestStatusActivity"
+            android:theme="@style/MyceliumFIOMapping"/>
         
         <service android:name=".fio.FioRequestService"/>
     </application>

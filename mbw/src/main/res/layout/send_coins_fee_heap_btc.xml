@@ -16,7 +16,7 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:orientation="vertical">
         <!-- Fee Title -->
         <include layout="@layout/send_coins_fee_title" />
@@ -31,7 +31,9 @@
             android:visibility="gone"
             app:errorAnimatedText="@{viewModel.feeWarning}"
             app:feeExtDialogOnClick="@{viewModel.isFeeExtended}"
-            android:textColor="@color/red"
-            android:textSize="14sp" />
+            android:textColor="@color/fio_red"
+            android:textSize="14sp"
+            tools:text="some text"
+            tools:visibility="visible"/>
     </LinearLayout>
 </layout>

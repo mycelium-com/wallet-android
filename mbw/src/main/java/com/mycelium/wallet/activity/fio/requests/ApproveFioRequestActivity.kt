@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
@@ -40,8 +41,8 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioBlockchainService
+import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
@@ -256,11 +257,21 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     fun onClickDecline() {
-        RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
-                fioRequestViewModel.request.value!!.fioRequestId) {
-            Log.i("asdaf", "asdaf rejection status: ${it?.status}")
-            finish()
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        val dialog = AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setTitle("Delete received FIO Request")
+                .setMessage("Are you sure you want to delete this FIO Request?")
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete) { _, _ ->
+                    RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
+                            fioRequestViewModel.request.value!!.fioRequestId) {
+                        Log.i("asdaf", "asdaf rejection status: ${it?.status}")
+                        finish()
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                }.create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColor(R.color.fio_red))
+        }
+        dialog.show()
     }
 
     override fun onResume() {
