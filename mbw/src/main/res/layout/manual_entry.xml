@@ -8,11 +8,6 @@
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <EditText
         android:id="@+id/etRecipient"
         android:layout_width="match_parent"

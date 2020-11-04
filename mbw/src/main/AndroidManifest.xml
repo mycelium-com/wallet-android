@@ -178,7 +178,7 @@
             android:theme="@style/MyceliumFIOMapping" />
         <activity
             android:name=".activity.send.ManualAddressEntry"
-            android:theme="@style/MyceliumFIO" />
+            android:theme="@style/MyceliumFIOMapping" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity
             android:name=".activity.receive.ReceiveCoinsActivity"

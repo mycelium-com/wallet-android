@@ -53,7 +53,6 @@ class ManualAddressEntry : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.manual_entry)
         val isForFio = intent.getBooleanExtra(FOR_FIO_REQUEST, false)
-        setSupportActionBar(toolbar)
         supportActionBar?.run {
             title = getString(if (!isForFio) R.string.enter_recipient_title else R.string.fio_enter_fio_name_title)
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
