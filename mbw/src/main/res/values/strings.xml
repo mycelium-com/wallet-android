@@ -35,7 +35,7 @@
     <string name="enter_recipient_title">Send to</string>
     <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
     <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
-    <string name="recipient_title">Enter recipient address</string>
+    <string name="recipient_title">Enter recipient address:</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_label_s">Amount: %s</string>
     <string name="amount_title">Amount</string>

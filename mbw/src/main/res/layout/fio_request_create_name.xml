@@ -13,6 +13,10 @@
             name="viewModel"
             type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel" />
 
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity" />
+
     </data>
 
     <LinearLayout
@@ -95,67 +99,15 @@
 
         <!--Contains amount selection-->
 
-        <TextView
-            android:id="@+id/tvAmountLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/amount_label"
-            android:textColor="@color/fio_white_alpha_0_6"
-            android:textSize="14sp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp">
-            <TextView
-                android:id="@+id/tvAmount"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:hint="@{viewModel.requestedAmountFormatted.isEmpty() ? viewModel.amountHint : null}"
-                android:text="@{viewModel.requestedAmountFormatted}"
-                android:textAlignment="textEnd"
-                android:textColor="@color/white"
-                android:textColorHint="@color/darkgrey"
-                android:textSize="18sp"
-                android:fontFamily="@font/roboto_mono_medium"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="0.00123305 tBTC" />
-
-            <TextView
-                android:id="@+id/tvAmountFiat"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.requestedAmountAlternativeFormatted}"
-                android:textAlignment="textEnd"
-                android:textSize="12sp"
-                android:fontFamily="@font/roboto_mono_regular"
-                android:visibility="@{viewModel.requestedAmountAlternativeFormatted.isEmpty() ? View.GONE : View.VISIBLE}"
-                app:layout_constraintEnd_toEndOf="@id/tvAmount"
-                app:layout_constraintTop_toBottomOf="@id/tvAmount"
-                tools:text="55.02 USD" />
-
-            <ImageButton
-                android:id="@+id/btEnterAmount"
-                style="@style/MyceliumSlimButton"
-                android:layout_width="75dp"
-                android:layout_height="45dp"
-                android:layout_marginStart="10dp"
-                android:clickable="false"
-                android:contentDescription="@string/enter_amount_title"
-                android:scaleType="fitCenter"
-                android:src="@drawable/keyboard_icon"
-                app:layout_constraintStart_toEndOf="@id/tvAmount"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <include
+            layout="@layout/send_coins_amount"
+            app:listener="@{activity}"
+            app:viewModel="@{viewModel}" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="32dp">
 
             <TextView

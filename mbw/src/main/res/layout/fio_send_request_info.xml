@@ -199,7 +199,6 @@
                 android:layout_marginStart="-4dp"
                 android:layout_marginEnd="-4dp"
                 android:textSize="14sp"
-                android:typeface="monospace"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvMemoToTitle" />
             <!--

@@ -24,8 +24,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:minWidth="220dp"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:orientation="horizontal">
 
             <TextView
@@ -40,7 +39,8 @@
                 android:orientation="vertical"
                 android:text="@{viewModel.fee(viewModel.selectedFee)}"
                 android:textColor="@color/horizontalpicker_text_color"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                tools:text="0.45629489 FIO"/>
 
             <TextView
                 android:id="@+id/fioFeeFiat"
@@ -53,7 +53,8 @@
                 android:fontFamily="@font/roboto_mono_regular"
                 android:text="@{viewModel.feeFiat(viewModel.selectedFee)}"
                 android:textColor="@color/horizontalpicker_text_color"
-                android:textSize="12sp" />
+                android:textSize="14sp"
+                tools:text="~0.05 USD"/>
         </LinearLayout>
 
         <include layout="@layout/send_coins_fee_description" />
