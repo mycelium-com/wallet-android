@@ -53,7 +53,19 @@ class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
                                         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
                                     },
                                     error = { _, message ->
-                                        ErrorHandler(this).handle(message)
+                                        try {
+                                            var obj = JSONObject(message)
+                                            var code = obj.getString("code")
+                                            var message = obj.getString("message")
+
+                                            if (code == "400") {
+                                                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
+                                            } else {
+                                                ErrorHandler(this).handle(message)
+                                            }
+                                        } catch (ex: Exception) {
+                                            ErrorHandler(this).handle(message)
+                                        }
                                     },
                                     finally = {
                                         loader(false)
