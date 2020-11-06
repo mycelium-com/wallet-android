@@ -16,11 +16,9 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_two_factor.*
 import org.json.JSONObject
-
+import com.mycelium.wallet.Constants.BAD_REQUEST_HTTP_CODE
 
 class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
-    private var BAD_REQUEST_HTTP_CODE = "400"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(toolbar)
