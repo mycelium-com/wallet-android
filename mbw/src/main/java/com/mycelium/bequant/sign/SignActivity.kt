@@ -53,13 +53,17 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                                         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
                                     },
                                     error = { _, message ->
-                                        var obj = JSONObject(message)
-                                        var code = obj.getString("code")
-                                        var message = obj.getString("message")
+                                        try {
+                                            var obj = JSONObject(message)
+                                            var code = obj.getString("code")
+                                            var message = obj.getString("message")
 
-                                        if (code == "400" && message == "user already confirmed") {
-                                            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
-                                        } else {
+                                            if (code == "400" && message == "user already confirmed") {
+                                                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
+                                            } else {
+                                                ErrorHandler(this).handle(message)
+                                            }
+                                        } catch (ex: Exception) {
                                             ErrorHandler(this).handle(message)
                                         }
                                     },
