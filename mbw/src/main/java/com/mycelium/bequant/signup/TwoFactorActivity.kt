@@ -19,6 +19,8 @@ import org.json.JSONObject
 
 
 class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
+    private var BAD_REQUEST_HTTP_CODE = "400"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(toolbar)
@@ -58,7 +60,9 @@ class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
                                             var code = obj.getString("code")
                                             var message = obj.getString("message")
 
-                                            if (code == "400") {
+                                            // Handles the case when TOTP email is already confirmed.
+                                            // The current API returns HTTP 400 for it
+                                            if (code == BAD_REQUEST_HTTP_CODE) {
                                                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
                                             } else {
                                                 ErrorHandler(this).handle(message)
