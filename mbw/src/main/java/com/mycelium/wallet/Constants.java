@@ -130,4 +130,6 @@ public interface Constants {
    String SETTING_MINER_FEE = "miner_fee";
    long CONFIG_UPDATE_PERIOD_MINS = 20;
    int BTC_BLOCK_TIME_IN_SECONDS = 600;
+
+   String BAD_REQUEST_HTTP_CODE = "400";
 }
