@@ -1528,4 +1528,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="dear_user_s_s">Dear %s %s,</string>
     <string name="dear_user">Dear User,</string>
     <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
+    <string name="settings_media_flow_title">Enable Media Flow</string>
+    <string name="cant_disable_active_account">You can\'t disable active account</string>
 </resources>
