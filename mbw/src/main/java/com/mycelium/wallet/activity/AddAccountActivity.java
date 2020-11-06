@@ -56,12 +56,14 @@ import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.bequant.BequantPreference;
+import com.mycelium.bequant.Constants;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
 import com.mycelium.wallet.activity.addaccount.ERC20TokenAdapter;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
@@ -450,8 +452,9 @@ public class AddAccountActivity extends Activity {
         MbwManager.getEventBus().register(this);
         super.onResume();
 
-        boolean logged = BequantPreference.isLogged();
-        findViewById(R.id.btInvestmentCreate).setVisibility(logged ? View.GONE : View.VISIBLE);
+        findViewById(R.id.btInvestmentCreate).setVisibility(
+                BequantPreference.isLogged() || !SettingsPreference.isContentEnabled(Constants.PARTNER_ID) ?
+                        View.GONE : View.VISIBLE);
     }
 
     @Override
