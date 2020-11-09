@@ -3,14 +3,13 @@ package com.mycelium.wallet.activity.modern.model.accounts
 import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
-import com.mycelium.bequant.BQExchangeRateManager
-import com.mycelium.bequant.InvestmentAccount
-import com.mycelium.bequant.getInvestmentAccounts
+import com.mycelium.bequant.*
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountListChanged
@@ -66,14 +65,18 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             val walletManager = mbwManager.getWalletManager(false)
             val accountsList: MutableList<AccountsGroupModel> = mutableListOf()
 
-            listOf(R.string.active_hd_accounts_name to walletManager.getBTCBip44Accounts(),
+            mutableListOf(R.string.active_hd_accounts_name to walletManager.getBTCBip44Accounts(),
                     R.string.active_bitcoin_sa_group_name to walletManager.getBTCSingleAddressAccounts(),
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
-                    R.string.eth_accounts_name to getEthERC20Accounts(walletManager),
-                    R.string.bequant_trading_account to getInvestmentAccounts(walletManager)
-            ).forEach {
+                    R.string.eth_accounts_name to getEthERC20Accounts(walletManager)
+            ).apply {
+                if ((BequantPreference.isLogged() && SettingsPreference.isEnabled(Constants.PARTNER_ID)) ||
+                        (!BequantPreference.isLogged() && SettingsPreference.isContentEnabled(Constants.PARTNER_ID))) {
+                    this.add(R.string.bequant_trading_account to getInvestmentAccounts(walletManager))
+                }
+            }.forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
                     val sum = getSpendableBalance(accounts)
