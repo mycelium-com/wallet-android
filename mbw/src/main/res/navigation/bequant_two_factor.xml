@@ -55,12 +55,6 @@
         android:id="@+id/registrationTotpFragment"
         android:name="com.mycelium.bequant.signup.RegistrationTotpFragment"
         android:label="RegistrationTotpFragment"
-        tools:layout="@layout/fragment_bequant_registration_totp">
-        <action
-            android:id="@+id/actionFinish"
-            app:destination="@id/signFragment"
-            app:popUpTo="@id/signFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_bequant_registration_totp" />
 
 </navigation>
