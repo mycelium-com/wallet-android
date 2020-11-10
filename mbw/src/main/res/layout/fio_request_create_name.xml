@@ -160,7 +160,7 @@
             android:layout_marginBottom="60dp"
             android:textSize="20sp"
             android:enabled="@{viewModel.amount.moreThanZero()}"
-            android:text="Send FIO request"
+            android:text="@string/send_fio_request"
             app:layout_constraintStart_toStartOf="parent" />
     </LinearLayout>
 </layout>

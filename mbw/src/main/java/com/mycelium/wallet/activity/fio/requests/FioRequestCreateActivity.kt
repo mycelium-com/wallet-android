@@ -99,9 +99,6 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
                                     .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
                             this@FioRequestCreateActivity.startActivityForResult(intent, ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE)
                         }
-//                        btEnterAmount.setOnClickListener {
-//                            onClickAmount()
-//                        }
                     }
                 }
     }
