@@ -32,6 +32,7 @@ import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
+import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.AnimationUtils
@@ -61,7 +62,7 @@ import kotlinx.android.synthetic.main.send_coins_sender_fio.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
+class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
     private lateinit var viewModel: SendCoinsViewModel
     private lateinit var mbwManager: MbwManager
     private lateinit var senderFioNamesMenu: PopupMenu
@@ -137,6 +138,11 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             updateMemoVisibility()
         }
         updateMemoVisibility()
+        et_fio_memo.setOnFocusChangeListener { view, b ->
+            if(b) {
+                root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
+            }
+        }
     }
 
     private fun updateMemoVisibility() {
@@ -296,7 +302,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 .show()
     }
 
-    fun onClickAmount() {
+    override fun onClickAmount() {
         val account = viewModel.getAccount()
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, account.id,
                 viewModel.getAmount().value, viewModel.getSelectedFee().value,

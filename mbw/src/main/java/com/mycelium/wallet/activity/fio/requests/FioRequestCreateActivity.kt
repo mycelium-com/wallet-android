@@ -17,13 +17,14 @@ import com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateView
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
+import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.databinding.FioRequestCreateNameBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 
 
-class FioRequestCreateActivity : AppCompatActivity() {
+class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
 
     private lateinit var viewModel: FioRequestCreateViewModel
 
@@ -78,6 +79,7 @@ class FioRequestCreateActivity : AppCompatActivity() {
                 R.layout.fio_request_create_name)
                 .also {
                     it.viewModel = viewModel
+                    it.activity = this
                 }.apply {
                     lifecycleOwner = this@FioRequestCreateActivity
                     with(this) {
@@ -97,9 +99,6 @@ class FioRequestCreateActivity : AppCompatActivity() {
                                     .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
                             this@FioRequestCreateActivity.startActivityForResult(intent, ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE)
                         }
-                        btEnterAmount.setOnClickListener {
-                            onClickAmount()
-                        }
                     }
                 }
     }
@@ -115,7 +114,7 @@ class FioRequestCreateActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    fun onClickAmount() {
+    override fun onClickAmount() {
         val account = viewModel.getAccount()
         GetAmountActivity.callMeToReceive(this, viewModel.getAmount().value,
                 SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.coinType)

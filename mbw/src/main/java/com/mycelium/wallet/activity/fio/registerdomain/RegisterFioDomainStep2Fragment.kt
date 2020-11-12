@@ -24,6 +24,8 @@ import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.getActiveSpendableFioAccounts
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_step2.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class RegisterFioDomainStep2Fragment : Fragment() {
     private val viewModel: RegisterFioDomainViewModel by activityViewModels()
@@ -137,6 +139,7 @@ class RegisterDomainTask(
         return try {
             account.registerFIODomain(fioDomain)
         } catch (e: Exception) {
+            Logger.getLogger(RegisterDomainTask::class.simpleName).log(Level.WARNING, e.message)
             null
         }
     }

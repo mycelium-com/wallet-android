@@ -55,7 +55,7 @@
                 <!--Contains amount selection-->
                 <include
                     layout="@layout/send_coins_amount"
-                    bind:activity="@{activity}"
+                    bind:listener="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
                 <!-- Advanced block -->

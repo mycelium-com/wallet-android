@@ -23,12 +23,11 @@
     Those layouts do the same and making sure they look the same is always extra
     work. -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/horizontal_page_margin"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="24dp"
-        android:minWidth="220dp"
         android:onClick="@{_ -> viewModel.onEnterClick(activity)}">
 
         <TextView
@@ -36,58 +35,69 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/amount_label"
-            android:textColor="@color/fio_white_alpha_0_8"
+            android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvAmount"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
             android:fontFamily="@font/roboto_mono_medium"
             android:hint="@{Value.isNullOrZero(viewModel.requestedAmount) ? viewModel.hint : null}"
             android:singleLine="true"
             android:text="@{viewModel.requestedAmountFormatted}"
-            android:textAlignment="textEnd"
+            android:textAlignment="@{Value.isNullOrZero(viewModel.requestedAmount) ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"
             android:textColor="@color/white"
             android:textColorHint="@color/darkgrey"
             android:textSize="20sp"
             app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
-            app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvAmountLabel"
+            app:layout_constraintBottom_toTopOf="@id/tvAmountFiat"
+            app:layout_constraintTop_toTopOf="@id/btEnterAmount"
+            tools:hint="0.00 tBTC"
             tools:text="5 tBTC" />
 
         <TextView
             android:id="@+id/tvAmountFiat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:fontFamily="@font/roboto_mono_regular"
             android:singleLine="true"
             android:text="@{viewModel.requestedAmountAlternativeFormatted}"
             android:textAlignment="textEnd"
             android:textSize="12sp"
+            android:textColor="@color/fio_white_alpha_0_6"
             android:visibility="@{Value.isNullOrZero(viewModel.requestedAmountAlternative) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/btEnterAmount"
             app:layout_constraintEnd_toEndOf="@id/tvAmount"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvAmount"
             tools:text="55.02 USD" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="12dp"
+            android:background="#393939"
+            app:layout_constraintTop_toBottomOf="@id/tvAmountFiat"
+            app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
+            app:layout_constraintStart_toStartOf="@id/tvAmount" />
 
         <ImageButton
             android:id="@+id/btEnterAmount"
             style="@style/MyceliumSlimButton"
             android:layout_width="75dp"
             android:layout_height="45dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="4dp"
             android:clickable="false"
             android:contentDescription="@string/enter_amount_title"
             android:scaleType="fitCenter"
             android:src="@drawable/keyboard_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_chainStyle="spread_inside"
-            app:layout_constraintStart_toEndOf="@id/tvAmount"
-            app:layout_constraintTop_toTopOf="@id/tvAmount" />
+            app:layout_constraintTop_toBottomOf="@id/tvAmountLabel" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

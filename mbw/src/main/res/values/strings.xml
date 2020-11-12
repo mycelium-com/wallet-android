@@ -35,7 +35,7 @@
     <string name="enter_recipient_title">Send to</string>
     <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
     <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
-    <string name="recipient_title">Enter recipient address</string>
+    <string name="recipient_title">Enter recipient address:</string>
     <string name="amount_label">Amount:</string>
     <string name="amount_label_s">Amount: %s</string>
     <string name="amount_title">Amount</string>
@@ -1619,4 +1619,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="dear_user_s_s">Dear %s %s,</string>
     <string name="dear_user">Dear User,</string>
     <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
+    <string name="send_fio_request">Send FIO Request</string>
+    <string name="leave_a_message_for_s">Leave a message for %s</string>
+    <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
 </resources>

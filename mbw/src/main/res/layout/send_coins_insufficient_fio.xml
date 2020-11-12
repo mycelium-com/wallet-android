@@ -14,11 +14,11 @@
 
     <TextView
         android:id="@+id/tvError"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:textColor="@color/red"
-        android:textSize="18sp"
+        android:layout_marginHorizontal="@dimen/page_margin_width"
+        android:textColor="@color/fio_red"
+        android:textSize="14sp"
         android:visibility="@{viewModel.errorText.isEmpty() ? View.GONE : View.VISIBLE}"
         android:text="@{viewModel.errorText}"
         tools:text="Amount too small"
