@@ -51,6 +51,7 @@ object NewsSyncUtils {
 
     private const val mediaFlowNotificationId = 34563487
     private const val mediaFlowNotificationGroup = "Media Flow"
+    private const val TAG_IMPORTANT = "important"
 
     @JvmStatic
     fun startNewsUpdateRepeating(context: Context) {
@@ -149,7 +150,7 @@ object NewsSyncUtils {
     }
 
     fun notifyAboutMediaFlowTopics(context: Context, newTopicsRaw: List<News>) {
-        val newTopics = newTopicsRaw.filter { it.tags.any { it?.name == "important" } }
+        val newTopics = newTopicsRaw.filter { topic -> topic.tags?.any { tag -> tag?.name == TAG_IMPORTANT } == true }
         val builder = createNotificationMediaFlowBuilder(context)
 
         if (newTopics.size == 1) {
