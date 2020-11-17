@@ -1528,4 +1528,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="dear_user_s_s">Dear %s %s,</string>
     <string name="dear_user">Dear User,</string>
     <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
+    <string name="try_request_backup_again"><![CDATA[It might be an issue with your internet connection or an internal server issue.<br/>Please try to request Backup Code again or contact <font color="#F2E868">Support Center</font> for help.]]></string>
+    <string name="backup_not_generated">Backup Code was not generated</string>
 </resources>
