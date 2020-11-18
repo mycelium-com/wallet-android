@@ -20,6 +20,7 @@ import java.text.DateFormat
 import java.util.*
 
 class FioModule(
+        private val fioBlockchainService: FioBlockchainService,
         private val serializationProvider: ISerializationProvider,
         private val secureStore: SecureKeyValueStore,
         private val backing: Backing<FioAccountContext>,
@@ -168,14 +169,14 @@ class FioModule(
             val fioAddress = FioAddress(coinType, FioAddressData(String(secureStore.getPlaintextValue(uuid.toString().toByteArray()))))
             val accountContext = createAccountContext(uuid)
             val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-            val account = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+            val account = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
                     accountListener = accountListener, address = fioAddress, walletManager = walletManager)
             accounts[account.id] = account
             account
         } else {
             val accountContext = createAccountContext(uuid)
             val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-            val account = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+            val account = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
                     accountListener = accountListener, fiosdk = getFioSdk(accountContext.accountIndex),
                     walletManager = walletManager)
             accounts[account.id] = account
@@ -193,7 +194,7 @@ class FioModule(
                 baseLabel = accountContext.accountName
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+                result = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
                         accountListener = accountListener, fiosdk = getFioSdk(newIndex),
                         walletManager = walletManager)
             }
@@ -204,7 +205,7 @@ class FioModule(
                 baseLabel = accountContext.accountName
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+                result = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
                         accountListener = accountListener, fiosdk = getFioSdkByNode(hdKeyNode),
                         walletManager = walletManager)
             }
@@ -224,7 +225,7 @@ class FioModule(
                 baseLabel = accountContext.accountName
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+                result = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
                         accountListener = accountListener, address = fioAddress,
                         walletManager = walletManager)
             }
@@ -236,7 +237,7 @@ class FioModule(
                 baseLabel = accountContext.accountName
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = FioAccount(accountContext = accountContext, backing = fioAccountBacking,
+                result = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
                         accountListener = accountListener, fiosdk = getFioSdkByPrivkey(config.privkey),
                         walletManager = walletManager)
             }

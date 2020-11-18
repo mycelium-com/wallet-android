@@ -24,10 +24,10 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FioBlockchainService(private val coinType: CryptoCurrency, private val ownerPublicKey: String, private val accountName: String) {
-    var lastActionSequenceNumber: BigInteger = BigInteger.ZERO
-
-    fun getObtData(privateKey: String, serializationProvider: ISerializationProvider, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
+class FioBlockchainService(private val coinType: CryptoCurrency,
+                           private var apiEndpoints: FioApiEndpoints,
+                           private var historyEndpoints: FioHistoryEndpoints) {
+    fun getObtData(ownerPublicKey: String, privateKey: String, serializationProvider: ISerializationProvider, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
         val requestBody = if (limit == null && offset == null) {
             """{"fio_public_key":"$ownerPublicKey"}"""
         } else if (limit == null) {
@@ -57,8 +57,9 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val own
         return result.records
     }
 
-    fun getTransactions(latestBlockNum: BigInteger): List<Tx> {
+    fun getTransactions(ownerPublicKey: String, latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
+        val accountName = Utils.generateActor(ownerPublicKey)
         var requestBody = "{\"account_name\":\"$accountName\", \"pos\":-1, \"offset\":-1}"
         var request = Request.Builder()
                 .url(historyNodeUrl)
@@ -69,8 +70,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val own
             var result = mapper.readValue(response.body()!!.string(), GetActionsResponse::class.java)
 
             if (result.actions.isNotEmpty()) {
-                lastActionSequenceNumber = result.actions[0].accountActionSeq
-                var pos = lastActionSequenceNumber
+                var pos = result.actions[0].accountActionSeq
                 val finish = false
                 while (!finish) {
                     if (pos < BigInteger.ZERO) {
@@ -95,7 +95,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val own
                         e.printStackTrace()
                     }
                 }
-                return transform(actions)
+                return transform(ownerPublicKey, accountName, actions)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -118,7 +118,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val own
         }
     }
 
-    private fun transform(txs: MutableList<GetActionsResponse.ActionObject>): List<Tx> {
+    private fun transform(ownerPublicKey: String, accountName: String, txs: MutableList<GetActionsResponse.ActionObject>): List<Tx> {
         val result: MutableList<Tx> = mutableListOf()
         val feeMap: Map<String, Value> = txs
                 .filter { isFee(it.actionTrace!!.act!!.name, it.actionTrace.act!!.data!!.to) }
@@ -144,7 +144,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val own
                         it.act.data.memo ?: "",
                         if (it.blockNum > BigInteger.ZERO) it.blockNum else BigInteger.ZERO,
                         getTimestamp(it.blockTime),
-                        getTransferred(it.act.name, it.act.data, feeMap[it.trxId]
+                        getTransferred(ownerPublicKey, accountName, it.act.name, it.act.data, feeMap[it.trxId]
                                 ?: Value.zeroValue(coinType)),
                         Value.valueOf(coinType, it.act.data.amount!!),
                         feeMap[it.trxId] ?: Value.zeroValue(coinType)
@@ -169,7 +169,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val own
         return sdf.parse(timeString).time / 1000
     }
 
-    private fun getTransferred(type: String, data: GetActionsResponse.ActionObject.ActionTrace.Act.Data, fee: Value): Value {
+    private fun getTransferred(ownerPublicKey: String, accountName: String, type: String, data: GetActionsResponse.ActionObject.ActionTrace.Act.Data, fee: Value): Value {
         when (type) {
             "trnsfiopubky" -> {
                 // Check if transaction is sent or received

@@ -22,14 +22,14 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
-import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class FioAccount(private val accountContext: FioAccountContext,
+class FioAccount(private val fioBlockchainService: FioBlockchainService,
+                 private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
                  private val fiosdk: FIOSDK? = null, // null if it's read-only account
@@ -38,8 +38,6 @@ class FioAccount(private val accountContext: FioAccountContext,
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = fiosdk?.let { FioAddress(coinType, FioAddressData(it.publicKey)) }
             ?: address!!
-    private val transactionService = FioBlockchainService(accountContext.currency,
-            receiveAddress.toString(), Utils.generateActor(receiveAddress.toString()))
     private val balanceService by lazy {
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
     }
@@ -357,7 +355,7 @@ class FioAccount(private val accountContext: FioAccountContext,
         if (fiosdk == null) return
 
         try {
-            val obtList = transactionService.getObtData(fiosdk.getPrivateKey(), fiosdk.serializationProvider)
+            val obtList = fioBlockchainService.getObtData(receivingAddress.toString(), fiosdk.getPrivateKey(), fiosdk.serializationProvider)
             logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: Exception) {
@@ -410,12 +408,12 @@ class FioAccount(private val accountContext: FioAccountContext,
     }
 
     private fun updateBlockHeight() {
-        accountContext.blockHeight = transactionService.getLatestBlock()?.toInt()
+        accountContext.blockHeight = fioBlockchainService.getLatestBlock()?.toInt()
                 ?: accountContext.blockHeight
     }
 
     private fun syncTransactions() {
-        transactionService.getTransactions(accountContext.blockHeight.toBigInteger()).forEach {
+        fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger()).forEach {
             try {
                 backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
                         it.fromAddress, it.toAddress, it.sum,
@@ -426,7 +424,8 @@ class FioAccount(private val accountContext: FioAccountContext,
                 logger.log(Level.INFO, "asdaf syncTransactions exception: ${e.message}")
             }
         }
-        accountContext.actionSequenceNumber = transactionService.lastActionSequenceNumber
+        // TODO
+        accountContext.actionSequenceNumber = BigInteger.ZERO
     }
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight

@@ -170,6 +170,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private val ethBBServers: Set<String>
         get() = prefs.getStringSet(PREFS_ETH_BB_SERVERS, mutableSetOf(*BuildConfig.EthBlockBook))!!
 
+    private val fioApiServers: Set<String>
+        get() = prefs.getStringSet(PREFS_FIO_API_SERVERS, mutableSetOf(*BuildConfig.FioApiServers))!!
+
+    private val fioHistoryServers: Set<String>
+        get() = prefs.getStringSet(PREFS_FIO_HISTORY_SERVERS, mutableSetOf(*BuildConfig.FioHistoryServers))!!
+    
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
@@ -197,6 +203,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
     fun getBlockBookEndpoints(): List<HttpsEndpoint> = ethBBServers.map { HttpsEndpoint(it) }
+
+    fun getFioApiEndpoints(): List<HttpsEndpoint> = fioApiServers.map { HttpsEndpoint(it) }
+    fun getFioHistoryEndpoints(): List<HttpsEndpoint> = fioHistoryServers.map { HttpsEndpoint(it) }
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
@@ -289,14 +298,16 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         this.serverElectrumListChangedListener = serverElectrumListChangedListener
     }
 
-    fun addEthServerListChangedListener(servereEthListChangedListener : ServerEthListChangedListener) {
-        this.serverEthListChangedListeners.add(servereEthListChangedListener)
+    fun addEthServerListChangedListener(serverEthListChangedListener : ServerEthListChangedListener) {
+        this.serverEthListChangedListeners.add(serverEthListChangedListener)
     }
 
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
+        const val PREFS_FIO_API_SERVERS = "fio_api_servers"
+        const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
         const val ONION_DOMAIN = ".onion"
         const val PREFS_FIO_END_DATE = "fio_end_date"
         const val PREFS_FIO_START_DATE = "fio_start_date"
