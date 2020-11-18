@@ -22,6 +22,7 @@ import com.mycelium.wallet.activity.send.adapter.FIONameAdapter
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.fio.FioBlockchainService
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
@@ -164,6 +165,7 @@ class ManualAddressEntry : AppCompatActivity() {
 
     private fun queryAddress(address: String, chainCode: String, tokenCode: String) {
         val requestBody = """{"fio_address":"$address","chain_code":"$chainCode","token_code":"$tokenCode"}"""
+
         val request = Request.Builder()
                 .url("${Utils.getFIOCoinType().url}chain/get_pub_address")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))

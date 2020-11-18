@@ -101,8 +101,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
-                FioBlockchainService.getFeeByEndpoint(Utils.getFIOCoinType(),
-                        endpoint).toString()
+                FioBlockchainService.getFeeByEndpoint(endpoint).toString()
             } catch (e: Exception) {
                 null
             }
@@ -118,8 +117,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                FioBlockchainService.isFioNameOrDomainAvailable(Utils.getFIOCoinType(),
-                        addressWithDomain)
+                FioBlockchainService.isFioNameOrDomainAvailable(addressWithDomain)
             } catch (e: Exception) {
                 null
             }

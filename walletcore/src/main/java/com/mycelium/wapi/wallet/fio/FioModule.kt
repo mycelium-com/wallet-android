@@ -211,9 +211,9 @@ class FioModule(
             }
             is FIOAddressConfig -> {
                 val pubkeyString = when (config.address.getSubType()) {
-                    FioAddressSubtype.ACTOR.toString() -> FioBlockchainService.getPubkeyByActor(config.address.toString(), coinType)
+                    FioAddressSubtype.ACTOR.toString() -> FioBlockchainService.getPubkeyByActor(config.address.toString())
                     FioAddressSubtype.ADDRESS.toString() -> FioBlockchainService.getPubkeyByFioAddress(config.address.toString(),
-                            coinType, coinType.symbol, coinType.symbol).publicAddress
+                            coinType.symbol, coinType.symbol).publicAddress
                     else -> config.address.toString()
                 }
                 val fioAddress = FioAddress(coinType, FioAddressData(pubkeyString

@@ -7,8 +7,6 @@ import com.google.gson.GsonBuilder
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fio.coins.FIOTest
-import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.errors.serializationprovider.DeserializeTransactionError
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
 import fiofoundation.io.fiosdk.models.fionetworkprovider.ObtDataRecord
@@ -24,9 +22,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FioBlockchainService(private val coinType: CryptoCurrency,
-                           private var apiEndpoints: FioApiEndpoints,
-                           private var historyEndpoints: FioHistoryEndpoints) {
+class FioBlockchainService(private val coinType: CryptoCurrency) {
     fun getObtData(ownerPublicKey: String, privateKey: String, serializationProvider: ISerializationProvider, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
         val requestBody = if (limit == null && offset == null) {
             """{"fio_public_key":"$ownerPublicKey"}"""
@@ -38,7 +34,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
             """{"fio_public_key":"$ownerPublicKey", "limit":$limit, "offset":$offset}"""
         }
         val request = Request.Builder()
-                .url((coinType as FIOToken).url + "chain/get_obt_data")
+                .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_obt_data")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
 
@@ -62,7 +58,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         val accountName = Utils.generateActor(ownerPublicKey)
         var requestBody = "{\"account_name\":\"$accountName\", \"pos\":-1, \"offset\":-1}"
         var request = Request.Builder()
-                .url(historyNodeUrl)
+                .url(FioEndpoints.currentHistoryEndpoint().baseUrl)
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         try {
@@ -79,7 +75,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
 
                     requestBody = "{\"account_name\":\"$accountName\", \"pos\":$pos, \"offset\":${-offset + BigInteger.ONE}}"
                     request = Request.Builder()
-                            .url(historyNodeUrl)
+                            .url(FioEndpoints.currentApiEndpoint().baseUrl)
                             .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                             .build()
                     try {
@@ -105,7 +101,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
 
     fun getLatestBlock(): BigInteger? {
         val request = Request.Builder()
-                .url((coinType as FIOToken).url + "chain/get_info")
+                .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_info")
                 .post(RequestBody.create(null, ""))
                 .build()
         return try {
@@ -202,25 +198,26 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
                 .multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
     }
 
-    private val historyNodeUrl = if (coinType is FIOTest) "https://fiotestnet.greymass.com/v1/history/get_actions" else
-        "https://fio.greymass.com/v1/history/get_actions"
-    val offset: BigInteger = BigInteger.valueOf(1000)
+    private val offset: BigInteger = BigInteger.valueOf(1000)
 
     companion object {
         private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         private val client = OkHttpClient()
 
         @JvmStatic
-        fun getPubkeyByActor(actor: String, coinType: CryptoCurrency): String? {
+        fun getPubkeyByActor(actor: String): String? {
             val requestBody = """{"account_name":"$actor"}"""
             val request = Request.Builder()
-                    .url((coinType as FIOToken).url + "chain/get_account")
+                    .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_account")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
             return try {
                 val response = client.newCall(request).execute()
                 val result = mapper.readValue(response.body()!!.string(), GetAccountResponse::class.java)
                 result.permissions[0].requiredAuth!!.keys[0].key
+            } catch (e: IOException) {
+                FioEndpoints.moveToNextApiEndpoint()
+                null
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -228,7 +225,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         }
 
         @JvmStatic
-        fun getPubkeysByFioName(fioAddress: String, fioToken: FIOToken): List<PublicAddressEntry> {
+        fun getPubkeysByFioName(fioAddress: String): List<PublicAddressEntry> {
             val md = MessageDigest.getInstance("SHA-1")
             val nameHash = HexUtils.toHex(md.digest(fioAddress.toByteArray()).slice(IntRange(0, 15)).reversed().toByteArray())
             val requestBody = """|{
@@ -242,7 +239,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
                     |  "json": true
                     |}""".trimMargin()
             val request = Request.Builder()
-                    .url(fioToken.url + "chain/get_table_rows")
+                    .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_table_rows")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
             val response = client.newCall(request).execute()
@@ -252,10 +249,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         }
 
         @JvmStatic
-        fun getPubkeyByFioAddress(fioAddress: String, fioToken: FIOToken, chainCode: String, tokenCode: String): GetPubAddressResponse {
+        fun getPubkeyByFioAddress(fioAddress: String, chainCode: String, tokenCode: String): GetPubAddressResponse {
             val requestBody = """{"fio_address":"$fioAddress","chain_code":"$chainCode","token_code":"$tokenCode"}"""
             val request = Request.Builder()
-                    .url(fioToken.url + "chain/get_pub_address")
+                    .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_pub_address")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
             val response = client.newCall(request).execute()
@@ -263,35 +260,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         }
 
         @JvmStatic
-        fun getPubkeyByFioAddressAsync(fioAddress: String, fioToken: FIOToken, chainCode: String,
-                                       tokenCode: String, success: (String) -> Unit,
-                                       failure: (String) -> Unit) {
-            val requestBody = """{"fio_address":"$fioAddress","chain_code":"$chainCode","token_code":"$tokenCode"}"""
-            val request = Request.Builder()
-                    .url(fioToken.url + "chain/get_pub_address")
-                    .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
-                    .build()
-            client.newCall(request).enqueue(object : Callback {
-                override fun onResponse(call: Call, response: Response) {
-                    val reply = response.body()!!.string()
-                    val result = mapper.readValue(reply, GetPubAddressResponse::class.java)
-                    if (result.publicAddress != null)
-                        success(result.publicAddress)
-                    else
-                        failure("no address found")
-                }
-
-                override fun onFailure(call: Call, e: IOException) {
-                    failure(e.toString())
-                }
-            })
-        }
-
-        @JvmStatic
-        fun getFeeByEndpoint(fioToken: FIOToken, endpoint: String, fioAddress: String = ""): String? {
+        fun getFeeByEndpoint(endpoint: String, fioAddress: String = ""): String? {
             val requestBody = """{"end_point":"$endpoint","fio_address":"$fioAddress"}"""
             val request = Request.Builder()
-                    .url(fioToken.url + "chain/get_fee")
+                    .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_fee")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
             return try {
@@ -305,10 +277,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         }
 
         @JvmStatic
-        fun isFioNameOrDomainAvailable(fioToken: FIOToken, fioNameOrDomain: String): Boolean? {
+        fun isFioNameOrDomainAvailable(fioNameOrDomain: String): Boolean? {
             val requestBody = """{"fio_name":"$fioNameOrDomain"}"""
             val request = Request.Builder()
-                    .url(fioToken.url + "chain/avail_check")
+                    .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/avail_check")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
             return try {
@@ -322,10 +294,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         }
 
         @JvmStatic
-        fun getFioNames(fioToken: FIOToken, publicKey: String): GetFIONamesResponse? {
+        fun getFioNames(publicKey: String): GetFIONamesResponse? {
             val requestBody = """{"fio_public_key":"$publicKey"}"""
             val request = Request.Builder()
-                    .url(fioToken.url + "chain/get_fio_names")
+                    .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_fio_names")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
             return try {
@@ -339,7 +311,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
         }
 
         @JvmStatic
-        fun getBundledTxsNum(fioToken: FIOToken, fioName: String): Int? {
+        fun getBundledTxsNum(fioName: String): Int? {
             val hash = getNameHash(fioName)
             val requestBody = """{"code": "fio.address",
                                   "scope": "fio.address",
@@ -350,7 +322,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
                                   "index_position": "5",
                                   "json": true}"""
             val request = Request.Builder()
-                    .url(fioToken.url + "chain/get_table_rows")
+                    .url(FioEndpoints.currentApiEndpoint().baseUrl + "chain/get_table_rows")
                     .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                     .build()
             return try {

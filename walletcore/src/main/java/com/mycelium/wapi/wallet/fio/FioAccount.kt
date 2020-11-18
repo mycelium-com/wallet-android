@@ -140,10 +140,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     private fun getFioNames(): List<RegisteredFIOName> = try {
-        val fioToken = coinType as FIOToken
-        FioBlockchainService.getFioNames(fioToken,
-                receivingAddress.toString())?.fio_addresses?.map {
-            val bundledTxsNum = FioBlockchainService.getBundledTxsNum(fioToken, it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
+        FioBlockchainService.getFioNames(receivingAddress.toString())?.fio_addresses?.map {
+            val bundledTxsNum = FioBlockchainService.getBundledTxsNum(it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
             RegisteredFIOName(it.fio_address, convertToDate(it.expiration), bundledTxsNum)
         } ?: emptyList()
     } catch (e: Exception) {
@@ -151,8 +149,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     private fun getFioDomains(): List<FIODomain> = try {
-        FioBlockchainService.getFioNames(coinType as FIOToken,
-                receivingAddress.toString())?.fio_domains?.map {
+        FioBlockchainService.getFioNames(receivingAddress.toString())?.fio_domains?.map {
             FIODomain(it.fio_domain, convertToDate(it.expiration), it.isPublic != 0)
         } ?: emptyList()
     } catch (e: Exception) {
@@ -286,7 +283,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     private fun updateMappings() {
          val fioNameMappings = accountContext.registeredFIONames?.map { fioName ->
              fioName.name to FioBlockchainService
-                     .getPubkeysByFioName(fioName.name, coinType as FIOToken).map {
+                     .getPubkeysByFioName(fioName.name).map {
                          "${it.chainCode}-${it.tokenCode}" to it.publicAddress
                      }.toMap()
          }?.toMap()
@@ -351,7 +348,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     private fun syncFioOBT() {
-        // we aren't sync obt records for read-only accounts yet
+        // we don't sync obt records for read-only accounts yet
         if (fiosdk == null) return
 
         try {
@@ -493,8 +490,6 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     fun getTransferTokensFee() = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
-
-    fun getFeeForFunds(payeeFioAddress: String) = fiosdk!!.getFeeForNewFundsRequest(payeeFioAddress)
 
     fun getFeeByEndpoint(endpoint: FIOApiEndPoints.FeeEndPoint) = fiosdk!!.getFee(endpoint).fee
 

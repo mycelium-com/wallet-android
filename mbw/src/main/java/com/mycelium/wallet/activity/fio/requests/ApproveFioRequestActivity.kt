@@ -21,7 +21,6 @@ import com.google.gson.Gson
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.BroadcastDialog
@@ -443,7 +442,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             val listener: ((GetPubAddressResponse) -> Unit)) : AsyncTask<Void, Void, GetPubAddressResponse>() {
         override fun doInBackground(vararg args: Void): GetPubAddressResponse {
             return try {
-                FioBlockchainService.getPubkeyByFioAddress(fioName, Utils.getFIOCoinType(), chainCode, tokenCode)
+                FioBlockchainService.getPubkeyByFioAddress(fioName, chainCode, tokenCode)
             } catch (e: IOException) {
                 GetPubAddressResponse().also {
                     it.message = e.localizedMessage
