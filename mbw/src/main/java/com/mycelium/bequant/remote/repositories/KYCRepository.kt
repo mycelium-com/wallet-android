@@ -119,8 +119,6 @@ class KYCRepository {
         }, finally)
     }
 
-    data class UserInfo(val email: String, val status: KYCStatus, val updateDate: Date = Date())
-
     fun status(scope: CoroutineScope, success: ((StatusMessage) -> Unit),
                error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
         doRequest(scope, {
@@ -134,10 +132,7 @@ class KYCRepository {
             BequantPreference.setKYCSubmitDate(response?.message?.submitDate ?: Date(0))
             BequantPreference.setKYCSubmitted(response?.message?.submitted ?: false)
             if (status != oldStatus || status == KYCStatus.NONE) {
-                Firebase.database.getReference(DB_COLLECTION)
-                        .child(DB_DOCUMENT_USERS)
-                        .child(BequantPreference.getEmail().replace('.', '_'))
-                        .setValue(UserInfo(BequantPreference.getEmail(), status))
+                UserStatus.KYC_STATUS_CHANGED.track()
             }
             success(response?.message!!)
         }, { code, msg ->

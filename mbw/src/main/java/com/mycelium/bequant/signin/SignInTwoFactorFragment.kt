@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.BequantMarketActivity
+import com.mycelium.bequant.remote.model.UserStatus
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -43,6 +44,7 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
                 Api.signRepository.authorize(this@SignInTwoFactorFragment.lifecycleScope, auth.copy(otpCode = enteredText), {
                     startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
                     requireActivity().finish()
+                    UserStatus.SIGNIN.track()
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
                 }, finally = {
