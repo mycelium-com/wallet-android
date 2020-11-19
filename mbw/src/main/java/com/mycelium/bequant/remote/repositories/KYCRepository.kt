@@ -133,7 +133,7 @@ class KYCRepository {
             BequantPreference.setKYCSectionStatus(response?.message?.sections?.flatMap { it.map { it.key to it.value } })
             BequantPreference.setKYCSubmitDate(response?.message?.submitDate ?: Date(0))
             BequantPreference.setKYCSubmitted(response?.message?.submitted ?: false)
-            if (status != oldStatus) {
+            if (status != oldStatus || status == KYCStatus.NONE) {
                 Firebase.database.getReference(DB_COLLECTION)
                         .child(DB_DOCUMENT_USERS)
                         .child(BequantPreference.getEmail().replace('.', '_'))
