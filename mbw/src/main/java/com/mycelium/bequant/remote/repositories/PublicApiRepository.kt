@@ -60,16 +60,16 @@ class PublicApiRepository {
             finally?.invoke()
         } else {
             doRequest(scope, {
-                api.publicCurrencyGet(currencies).apply {
-                    if (currencies == null) {
-                        publicCurrencies = body() ?: arrayOf()
-                    }
-                }
+                api.publicCurrencyGet(currencies)
             }, successBlock = success, errorBlock = error, finallyBlock = finally,
                     responseModifier = { result ->
                         result?.filterNot { EXCLUDE_COIN_LIST.contains(it.id) }?.apply {
                             firstOrNull { it.id == "USD" }?.id = "USDT"
-                        }?.toTypedArray()
+                        }?.toTypedArray()?.apply {
+                            if (currencies == null) {
+                                publicCurrencies = this
+                            }
+                        }
                     })
         }
     }
