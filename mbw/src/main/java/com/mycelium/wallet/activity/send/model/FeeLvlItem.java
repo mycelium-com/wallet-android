@@ -2,10 +2,6 @@ package com.mycelium.wallet.activity.send.model;
 
 import com.mycelium.wallet.MinerFee;
 
-/**
- * Created by elvis on 31.08.17.
- */
-
 public class FeeLvlItem {
     public MinerFee minerFee;
     public String duration;

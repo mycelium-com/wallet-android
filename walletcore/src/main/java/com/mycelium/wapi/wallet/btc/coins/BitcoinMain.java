@@ -4,15 +4,10 @@ import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 
-public class BitcoinMain extends BitcoinBasedCryptoCurrency {
+public class BitcoinMain extends CryptoCurrency {
     private BitcoinMain() {
-        id = "bitcoin.main";
-
-        name = "Bitcoin";
-        symbol = "BTC";
-        unitExponent = 8;
+        super("bitcoin.main", "Bitcoin", "BTC", 8, 2, true);
     }
 
     private static BitcoinMain instance = new BitcoinMain();

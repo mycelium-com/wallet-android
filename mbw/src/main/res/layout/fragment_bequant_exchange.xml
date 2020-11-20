@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.view.Denomination" />
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.market.viewmodel.ExchangeViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="false"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/availableLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/available"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/available"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/exo2regular"
+            android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.available,Denomination.UNIT)}"
+            android:textColor="@color/bequant_yellow"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="@+id/availableLabel"
+            app:layout_constraintTop_toBottomOf="@id/availableLabel"
+            tools:text="12 000 BTC" />
+
+        <Button
+            android:id="@+id/deposit"
+            style="@style/Bequant.Button.PrimarySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bequant_deposit"
+            android:visibility="@{viewModel.available.equalZero() ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintEnd_toEndOf="@+id/availableLabel"
+            app:layout_constraintTop_toBottomOf="@id/availableLabel" />
+
+        <TextView
+            android:id="@+id/youSendLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/you_send"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/available" />
+
+        <RadioGroup
+            android:id="@+id/send_percent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/youSendLabel" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clSendView"
+            isRedColor="@{!viewModel.isEnoughFundsIncludingFees()}"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_bequant_text_with_stroke"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/send_percent">
+
+            <EditText
+                android:id="@+id/sendView"
+                style="@style/Bequant.TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@null"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:inputType="numberDecimal"
+                android:text="@={viewModel.youSendText}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/sendSymbolLayout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="1000" />
+
+            <LinearLayout
+                android:id="@+id/sendSymbolLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="18dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/sendViewSymbol"
+                    style="@style/Bequant.TextNormal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:text="@{viewModel.youSend.currencySymbol}"
+                    android:textColor="@color/bequant_yellow"
+                    tools:text="BTC" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:rotation="180"
+                    app:srcCompat="@drawable/ic_arrow_drop_down_active" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tvInsufficientFunds"
+            style="@style/Bequant.TextSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/insufficient_funds"
+            android:textColor="@color/bequant_red"
+            android:visibility="@{viewModel.isEnoughFundsIncludingFees() ? View.GONE : View.VISIBLE}"
+            app:layout_constraintTop_toBottomOf="@id/clSendView" />
+
+        <TextView
+            android:id="@+id/rate"
+            style="@style/Bequant.TextMiddle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@{viewModel.rate}"
+            app:layout_constraintTop_toBottomOf="@id/tvInsufficientFunds"
+            tools:text="1 BTC ~ 45 ETH" />
+
+        <ImageView
+            android:id="@+id/icExchange"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@null"
+            app:layout_constraintBottom_toTopOf="@id/clGetView"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clSendView"
+            app:srcCompat="@drawable/ic_bequant_exchange" />
+
+        <TextView
+            android:id="@+id/youGetLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/you_get"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/rate" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clGetView"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_bequant_text_with_stroke"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/youGetLabel">
+
+            <EditText
+                android:id="@+id/getView"
+                style="@style/Bequant.TextNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@null"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:inputType="numberDecimal"
+                android:text="@={viewModel.youGetText}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/getSymbolLayout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="1000 " />
+
+            <LinearLayout
+                android:id="@+id/getSymbolLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="18dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/getViewSymbol"
+                    style="@style/Bequant.TextNormal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:text="@{viewModel.youGet.currencySymbol}"
+                    android:textColor="@color/bequant_yellow"
+                    tools:text="BTC" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:rotation="180"
+                    app:srcCompat="@drawable/ic_arrow_drop_down_active" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/exchange"
+            style="@style/Bequant.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:enabled="@{viewModel.isExchangeEnabled()}"
+            android:text="@string/exchange"
+            app:layout_constraintTop_toBottomOf="@id/clGetView" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clOrderRejected"
+            android:layout_width="match_parent"
+            android:layout_height="116dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_bequant_order_rejected"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/exchange">
+
+            <ImageView
+                android:id="@+id/icOrderRejected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_bequant_clear_24" />
+
+            <TextView
+                android:id="@+id/tvOrderRejected"
+                style="@style/Bequant.TextNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="@string/bequant_order_rejected"
+                app:layout_constraintBottom_toBottomOf="@id/icOrderRejected"
+                app:layout_constraintStart_toEndOf="@id/icOrderRejected"
+                app:layout_constraintTop_toTopOf="@id/icOrderRejected" />
+
+            <TextView
+                style="@style/Bequant.TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:alpha="0.6"
+                android:text="@string/bequant_exchange_temporary_closed"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="@id/tvOrderRejected"
+                app:layout_constraintTop_toBottomOf="@id/tvOrderRejected" />
+
+            <Button
+                android:id="@+id/btContactSupport"
+                style="@style/Bequant.Button.PrimarySmall.Ghost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="18dp"
+                android:layout_marginBottom="18dp"
+                android:text="@string/bequant_contact_support"
+                android:textColor="@color/bequant_yellow"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

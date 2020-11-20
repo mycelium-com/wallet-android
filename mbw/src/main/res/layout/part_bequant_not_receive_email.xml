@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/bg_bequant_text"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:showIn="@layout/fragment_bequant_registration_info">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/exo2medium"
+        android:text="If you haven\'t received the email, do the following:"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/checkIsEmailCorrect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
+        android:drawablePadding="13dp"
+        android:fontFamily="@font/exo2medium"
+        android:text="Please make sure you entered your email address correctly"
+        android:textColor="@color/white"
+        app:drawableStartCompat="@drawable/ic_dash" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
+        android:drawablePadding="13dp"
+        android:fontFamily="@font/exo2medium"
+        android:text="Check Promotions and Spam folders"
+        android:textColor="@color/white"
+        app:drawableStartCompat="@drawable/ic_dash" />
+
+    <TextView
+        android:id="@+id/resendConfirmationEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
+        android:drawablePadding="13dp"
+        android:fontFamily="@font/exo2medium"
+        android:text="@string/resend_confirmation_email"
+        android:textColor="@color/bequant_yellow"
+        app:drawableStartCompat="@drawable/ic_dash" />
+
+    <TextView
+        android:id="@+id/supportTeam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/exo2medium"
+        android:text="@string/if_none_of_the_above_helps_please_contact_our_support_team" />
+</LinearLayout>

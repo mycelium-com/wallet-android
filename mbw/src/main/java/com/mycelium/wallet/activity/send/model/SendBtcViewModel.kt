@@ -31,7 +31,7 @@ import java.util.*
 import java.util.regex.Pattern
 
 
-open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) {
+open class SendBtcViewModel(application: Application) : SendCoinsViewModel(application) {
     override val uriPattern =  Pattern.compile("[a-zA-Z0-9]+")!!
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
@@ -43,8 +43,12 @@ open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) 
         if (isColdStorage() || model.account is HDAccountExternalSignature) {
             // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
             model.signTransaction(activity)
+            sendFioObtData()
         } else {
-            mbwManager.runPinProtectedFunction(activity) { model.signTransaction(activity) }
+            mbwManager.runPinProtectedFunction(activity) {
+                model.signTransaction(activity)
+                sendFioObtData()
+            }
         }
     }
 

@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -102,17 +103,19 @@ public class InstantMasterseedActivity extends HdAccountSelectorActivity {
          if (masterSeed != null) {
             walletManager.accountScanManager = new MasterseedScanManager(
                     this,
-                   mbwManager.getNetwork(),
-                   masterSeed,
-                   mbwManager.getEventBus());
+                    mbwManager.getNetwork(),
+                    masterSeed,
+                    mbwManager.getEventBus(),
+                    coinType);
          } else {
             // only provide the words - the manager will ask for a passphrase
             walletManager.accountScanManager = new MasterseedScanManager(
-                   this,
-                   mbwManager.getNetwork(),
-                   words,
-                   password,
-                   mbwManager.getEventBus());
+                    this,
+                    mbwManager.getNetwork(),
+                    words,
+                    password,
+                    mbwManager.getEventBus(),
+                    coinType);
          }
       }
       return (AbstractAccountScanManager) walletManager.accountScanManager;

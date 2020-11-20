@@ -331,7 +331,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
         val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(parameters))
-
         for (i in 0 until signTx.inputs.size) {
             val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
             val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)

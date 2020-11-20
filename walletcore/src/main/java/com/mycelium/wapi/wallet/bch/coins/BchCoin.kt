@@ -6,16 +6,9 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.families.Families
 
-abstract class BchCoin: CryptoCurrency(){
-    init {
-        family = Families.BITCOIN
-    }
-
-    override fun getName(): String {
-        return "Bitcoin Cash"
-    }
+abstract class BchCoin(id: String?, name: String?, symbol: String?, unitExponent: Int?, friendlyDigits: Int?, isUtxosBased: Boolean)
+        : CryptoCurrency(id, name, symbol, unitExponent, friendlyDigits, isUtxosBased){
 
     override fun parseAddress(addressString: String?): Address {
         val address = BitcoinAddress.fromString(addressString)

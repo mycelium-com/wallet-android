@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/page_margin_width"
+        android:layout_marginEnd="@dimen/page_margin_width"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="32dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btSend"
+            style="@style/FioNameRegistrationButton"
+            android:layout_width="match_parent"
+            android:enabled="false"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:onClick="@{_ -> activity.onClickSend()}"
+            android:text="@string/fio_confirm_and_pay" />
+
+        <Button
+            android:id="@+id/btDecline"
+            style="@style/FioNameRegistrationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="20sp"
+            android:background="@drawable/bg_btn_fio"
+            android:onClick="@{_ -> activity.onClickDecline()}"
+            android:text="Decline &amp; Delete"
+            android:textColor="@color/fio_white_alpha_0_8" />
+    </LinearLayout>
+</layout>

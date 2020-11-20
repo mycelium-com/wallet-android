@@ -130,7 +130,9 @@ public class SendInitializationActivity extends Activity {
       WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
       _account = Preconditions.checkNotNull(account, crashHint);
 
-      continueIfReadyOrNonUtxos();
+      if (!_isColdStorage) {
+         continueIfReadyOrNonUtxos();
+      }
    }
 
    @Override
@@ -207,7 +209,7 @@ public class SendInitializationActivity extends Activity {
       if (isFinishing()) {
          return;
       }
-      if (_account.isSyncing() && _account.getCoinType().isUtxosBased()) {
+      if (_account.isSyncing() && (_account.getCoinType().isUtxosBased() || _isColdStorage)) {
          // wait till its finished syncing
          // no need wait for non utxo's based accounts
          return;

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_bequant_text"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/accountLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/exo2medium"
+        android:textColor="#49505C"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Bitcoin HD 1" />
+
+    <TextView
+        android:id="@+id/accountBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/exo2medium"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountLabel"
+        tools:text="12.68456270" />
+
+    <TextView
+        android:id="@+id/accountBalanceCurrency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:fontFamily="@font/exo2medium"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/accountBalance"
+        app:layout_constraintLeft_toRightOf="@id/accountBalance"
+        tools:text="BTC" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

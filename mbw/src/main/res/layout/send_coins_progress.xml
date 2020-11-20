@@ -6,8 +6,6 @@
 
     <data>
 
-        <import type="android.view.View" />
-
         <import type="com.mycelium.wallet.activity.send.model.SendCoinsModel.TransactionStatus" />
 
         <variable

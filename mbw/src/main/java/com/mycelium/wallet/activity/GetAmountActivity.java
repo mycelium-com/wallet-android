@@ -42,9 +42,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +50,9 @@ import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.view.Denomination;
@@ -69,8 +69,8 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.FeePerKbFee;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException;
@@ -152,7 +152,6 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_amount_activity);
       ButterKnife.bind(this);
-      getSupportActionBar().hide();
 
       _mbwManager = MbwManager.getInstance(getApplication());
       isSendMode = getIntent().getBooleanExtra(SEND_MODE, false);
@@ -172,6 +171,14 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       }
       updateUI();
       checkEntry();
+      setupActionBar();
+   }
+
+   private void setupActionBar() {
+      getSupportActionBar().setTitle("Amount");
+      getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back_arrow);
+      getSupportActionBar().setHomeButtonEnabled(true);
+      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
    }
 
    private int getMaxDecimal(AssetInfo assetInfo) {
@@ -261,7 +268,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       }
    }
 
-   @OnClick(R.id.btRight)
+   @OnClick(R.id.btCurrency)
    void onSwitchCurrencyClick() {
       final List<AssetInfo> currencyList = getAvailableCurrencyList();
       if (currencyList.size() > 1) {
@@ -306,7 +313,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       return result;
    }
 
-   @OnClick({R.id.btLeft, R.id.btPaste})
+   @OnClick(R.id.btPaste)
    void onPasteButtonClick() {
       String clipboardValue = getAmountFromClipboard();
       if (clipboardValue == null) {
@@ -406,7 +413,18 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       super.onPause();
    }
 
-   @Override
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
    public void onEntryChanged(String entry, boolean wasSet) {
       if (!wasSet) {
          // if it was change by the user pressing buttons (show it unformatted)
@@ -444,6 +462,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
               || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType())
               || Value.isNullOrZero(_amount)) {
          tvAlternateAmount.setText("");
+         tvAlternateAmount.setVisibility(View.GONE);
       } else {
          Value convertedAmount;
          if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()))) {
@@ -460,6 +479,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          }
          if(convertedAmount != null) {
             tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getDenomination(_account.getCoinType())));
+            tvAlternateAmount.setVisibility(View.VISIBLE);
          }
       }
    }

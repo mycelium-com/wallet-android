@@ -48,6 +48,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
@@ -55,14 +59,14 @@ import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
+import com.mycelium.wallet.fio.FioRequestNotificator;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -72,8 +76,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
-
-    private Logger rootLogger;
 
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
@@ -104,6 +106,13 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                     .build());
         }
         super.onCreate();
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Prompt the user to install/update/enable Google Play services.
+            GoogleApiAvailability.getInstance().showErrorNotification(this, e.getConnectionStatusCode());
+        } catch (GooglePlayServicesNotAvailableException ignore) {
+        }
         CommunicationManager.init(this);
         moduleMessageReceiver = new MbwMessageReceiver(this);
         applyLanguageChange(getBaseContext(), SettingsPreference.getLanguage());
@@ -119,6 +128,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+        FioRequestNotificator.initialize(this);
 
         UpdateConfigWorker.start(this);
     }

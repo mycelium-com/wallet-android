@@ -98,7 +98,8 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
             return linked is ColuAccount && (linked.coinType == RMCCoin || linked.coinType == RMCCoinTest)
         }
 
-        private fun showBackupMissingWarning(account: WalletAccount<out Address>, mbwManager: MbwManager): Boolean {
+        @JvmStatic
+        fun showBackupMissingWarning(account: WalletAccount<out Address>, mbwManager: MbwManager): Boolean {
             if (account.isArchived) {
                 return false
             }

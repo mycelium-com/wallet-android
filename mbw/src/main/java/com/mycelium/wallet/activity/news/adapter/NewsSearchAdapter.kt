@@ -46,7 +46,7 @@ class NewsSearchAdapter(val preferences: SharedPreferences) : RecyclerView.Adapt
             when (viewType) {
                 TYPE_NEWS_ITEM_ALL -> NewsSearchItemAllHolder(preferences, layoutInflater.inflate(R.layout.item_all_news_search, parent, false))
                 TYPE_NEWS_V2 -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
-                else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
+                else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_list_space, parent, false))
             }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

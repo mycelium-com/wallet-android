@@ -82,7 +82,7 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             postEvent(new SyncFailed());
             break;
          case BROADCASTED_TRANSACTION_ACCEPTED:
-            postEvent(new TransactionBroadcasted());
+            postEvent(new TransactionBroadcasted(null));
             break;
          case BROADCASTED_TRANSACTION_DENIED:
             //One of the transactions was rejected by the network

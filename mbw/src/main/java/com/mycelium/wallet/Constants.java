@@ -78,6 +78,7 @@ public interface Constants {
    String TOR_MODE = "tor_mode";
    String BLOCK_EXPLORERS = "BlockExplorers";
    String CHANGE_ADDRESS_MODE = "change_type";
+   String LAST_FIO_SENDER = "fio_sender";
 
    // Ledger preferences
    String LEDGER_SETTINGS_NAME = "ledger_settings";

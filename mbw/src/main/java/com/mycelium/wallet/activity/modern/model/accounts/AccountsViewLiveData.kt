@@ -3,12 +3,16 @@ package com.mycelium.wallet.activity.modern.model.accounts
 import android.annotation.SuppressLint
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
+import com.mycelium.bequant.BQExchangeRateManager
+import com.mycelium.bequant.InvestmentAccount
+import com.mycelium.bequant.getInvestmentAccounts
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.Address
@@ -20,6 +24,7 @@ import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
+import com.mycelium.wapi.wallet.fio.getFioAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -67,13 +72,15 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
-                    R.string.eth_accounts_name to getEthERC20Accounts(walletManager)
+                    R.string.eth_accounts_name to getEthERC20Accounts(walletManager),
+                    R.string.fio_accounts_name to getFIOAccounts(walletManager),
+                    R.string.bequant_trading_account to getInvestmentAccounts(walletManager)
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
                     val sum = getSpendableBalance(accounts)
                     accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, sum, accountsToViewModel(accounts),
-                            accounts[0].basedOnCoinType))
+                            accounts[0].basedOnCoinType, it.second.first() is InvestmentAccount))
                 }
             }
             if (value!!.isEmpty()) {
@@ -82,9 +89,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
             val archivedList = walletManager.getArchivedAccounts()
             if (archivedList.isNotEmpty()) {
-                accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE,
-                        null,
-                        accountsToViewModel(archivedList), archivedList[0].basedOnCoinType))
+                accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, null,
+                        accountsToViewModel(archivedList), archivedList[0].basedOnCoinType, false))
             }
             if (accountsList == value) {
                 cancel(true)
@@ -98,8 +104,19 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         private fun getEthERC20Accounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getEthAccounts() + walletManager.getERC20Accounts()
 
+        private fun getFIOAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
+                walletManager.getFioAccounts()
+
+        private fun getInvestmentAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
+                walletManager.getInvestmentAccounts()
+
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>) =
-                accounts.map { AccountViewModel(it, mbwManager) }
+                accounts.map {
+                    if (it is InvestmentAccount) {
+                        BQExchangeRateManager.requestOptionalRefresh()
+                        AccountInvestmentViewModel(it, it.accountBalance.confirmed.toStringWithUnit())
+                    } else AccountViewModel(it, mbwManager)
+                }
 
         private fun sortAccounts(accounts: Collection<WalletAccount<out Address>>) =
                 Utils.sortAccounts(accounts, mbwManager.metadataStorage)

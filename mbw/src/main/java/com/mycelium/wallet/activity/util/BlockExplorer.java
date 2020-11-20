@@ -73,6 +73,14 @@ public class BlockExplorer {
       }
    }
 
+    public String getUrl(String txid, boolean isTor) {
+        if (isTor) {
+            return baseTransactionUrlTor + txid;
+        } else {
+            return baseTransactionUrlClear + txid;
+        }
+    }
+
    public String getTitle() {
       return title;
    }

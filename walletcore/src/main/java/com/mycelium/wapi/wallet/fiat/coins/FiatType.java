@@ -7,22 +7,27 @@ import com.mycelium.wapi.wallet.coins.Value;
 import java.math.BigInteger;
 import java.util.Objects;
 
+import javax.annotation.Nonnull;
+
 public class FiatType extends AbstractAsset {
 
     public FiatType(String symbol) {
         this.symbol = symbol;
     }
 
+    @Nonnull
     @Override
     public String getId() {
         return symbol;
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return symbol;
     }
 
+    @Nonnull
     @Override
     public String getSymbol() {
         return symbol;
@@ -43,6 +48,7 @@ public class FiatType extends AbstractAsset {
         return null;
     }
 
+    @Nonnull
     @Override
     public Value oneCoin() {
         if (oneCoin == null) {
@@ -52,6 +58,7 @@ public class FiatType extends AbstractAsset {
         return oneCoin;
     }
 
+    @Nonnull
     @Override
     public Value value(long units) {
         return Value.valueOf(this, units);
@@ -74,8 +81,9 @@ e
         return Objects.hash(symbol);
     }
 
+    @Nonnull
     @Override
-    public Value value(String string) {
+    public Value value(@Nonnull String string) {
         return Value.parse(this, string);
     }
 }

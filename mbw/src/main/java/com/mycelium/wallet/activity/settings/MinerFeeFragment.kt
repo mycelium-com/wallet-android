@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.settings
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.preference.ListPreference
@@ -7,16 +8,18 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.MinerFee.fromString
+import com.mycelium.wallet.MinerFee.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.send.model.SendFioModel
+import com.mycelium.wallet.activity.send.model.SendFioModel.Companion.DEFAULT_FEE
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler
-import com.mycelium.wallet.MinerFee.ECONOMIC
-import com.mycelium.wallet.MinerFee.LOWPRIO
-import com.mycelium.wallet.MinerFee.NORMAL
-import com.mycelium.wallet.MinerFee.PRIORITY
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.getFioAccounts
 
 class MinerFeeFragment : PreferenceFragmentCompat() {
 
@@ -41,24 +44,43 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
         val minerFeeNames = arrayOf<CharSequence>(getString(R.string.miner_fee_lowprio_name), getString(R.string.miner_fee_economic_name), getString(R.string.miner_fee_normal_name), getString(R.string.miner_fee_priority_name))
         val cryptocurrencies = mbwManager.cryptocurrenciesSorted
         for (name in cryptocurrencies) {
-            val listPreference = ListPreference(preferenceScreen.context).apply {
-                title = name
-                summary = getMinerFeeSummary(name)
-                value = mbwManager.getMinerFee(name).toString()
-                entries = minerFeeNames
-                entryValues = minerFees
-                onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                    mbwManager.setMinerFee(name, fromString(newValue.toString()))
+            if (name.startsWith("FIO")) {
+                prefCat.addPreference(Preference(preferenceScreen.context).apply {
+                    title = name
+                    summary = getString(R.string.settings_summary_fio_fee, "", "")
+                    layoutResource = R.layout.preference_layout_no_icon
+                    val account = mbwManager.getWalletManager(false).getFioAccounts().first() as FioAccount
+                    SendFioModel.UpdateFeeTask(account) { feeInSUF ->
+                        val coinType = account.coinType
+                        val feeValue = if (feeInSUF != null) {
+                            Value.valueOf(coinType, feeInSUF)
+                        } else {
+                            Value.valueOf(coinType, DEFAULT_FEE)
+                        }
+                        summary = getString(R.string.settings_summary_fio_fee, feeValue.toStringWithUnit(),
+                                "~${mbwManager.exchangeRateManager.get(feeValue, mbwManager.getFiatCurrency(coinType)).toStringWithUnit()}")
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                })
+            } else {
+                val listPreference = ListPreference(preferenceScreen.context).apply {
+                    title = name
                     summary = getMinerFeeSummary(name)
-                    val description = mbwManager.getMinerFee(name).getMinerFeeDescription(requireActivity())
-                    Utils.showSimpleMessageDialog(requireContext(), description)
-                    true
+                    value = mbwManager.getMinerFee(name).toString()
+                    entries = minerFeeNames
+                    entryValues = minerFees
+                    onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+                        mbwManager.setMinerFee(name, fromString(newValue.toString()))
+                        summary = getMinerFeeSummary(name)
+                        val description = mbwManager.getMinerFee(name).getMinerFeeDescription(requireActivity())
+                        Utils.showSimpleMessageDialog(requireContext(), description)
+                        true
+                    }
+                    layoutResource = R.layout.preference_layout_no_icon
+                    widgetLayoutResource = R.layout.preference_arrow
+                    dialogTitle = "$name miner fee"
                 }
-                layoutResource = R.layout.preference_layout_no_icon
-                widgetLayoutResource = R.layout.preference_arrow
-                dialogTitle = "$name miner fee"
+                prefCat.addPreference(listPreference)
             }
-            prefCat.addPreference(listPreference)
         }
     }
 
