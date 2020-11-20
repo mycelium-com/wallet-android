@@ -119,23 +119,21 @@ class KYCRepository {
         }, finally)
     }
 
-    data class UserInfo(val email: String, val status: KYCStatus, val updateDate: Date = Date())
-
     fun status(scope: CoroutineScope, success: ((StatusMessage) -> Unit),
                error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
+            val oldStatus = BequantPreference.getKYCStatus()
             val status = response?.message?.global ?: KYCStatus.NONE
             BequantPreference.setKYCStatus(status)
             BequantPreference.setKYCStatusMessage(response?.message?.message ?: "")
             BequantPreference.setKYCSectionStatus(response?.message?.sections?.flatMap { it.map { it.key to it.value } })
             BequantPreference.setKYCSubmitDate(response?.message?.submitDate ?: Date(0))
             BequantPreference.setKYCSubmitted(response?.message?.submitted ?: false)
-            Firebase.database.getReference(DB_COLLECTION)
-                    .child(DB_DOCUMENT_USERS)
-                    .child(BequantPreference.getEmail().replace('.', '_'))
-                    .setValue(UserInfo(BequantPreference.getEmail(), status))
+            if (status != oldStatus || status == KYCStatus.NONE) {
+                UserStatus.KYC_STATUS_CHANGED.track()
+            }
             success(response?.message!!)
         }, { code, msg ->
             error?.invoke(code, msg)
