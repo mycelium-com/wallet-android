@@ -25,7 +25,7 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.bequant.remote.client.models.AccountEmailConfirmResend
-import com.mycelium.bequant.remote.model.UserStatus
+import com.mycelium.bequant.remote.model.BequantUserEvent
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
@@ -45,7 +45,7 @@ class RegistrationInfoFragment : Fragment() {
                 startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
                         .putExtra("from", "registration"))
                 requireActivity().finish()
-                UserStatus.SINGUP.track()
+                BequantUserEvent.SINGUP.track()
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
             }, finally = {

@@ -20,7 +20,7 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.market.BequantMarketActivity
-import com.mycelium.bequant.remote.model.UserStatus
+import com.mycelium.bequant.remote.model.BequantUserEvent
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantRegistrationTotpBinding
@@ -36,7 +36,7 @@ class RegistrationTotpFragment : Fragment() {
             startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
                     .putExtra("from", "totp_registration"))
             requireActivity().finish()
-            UserStatus.TWO_FACTOR.track()
+            BequantUserEvent.TWO_FACTOR.track()
         }
     }
 
