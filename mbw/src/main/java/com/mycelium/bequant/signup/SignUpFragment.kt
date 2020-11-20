@@ -94,7 +94,7 @@ class SignUpFragment : Fragment() {
                 val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
                 Api.signRepository.signUp(lifecycleScope, registerAccountRequest, success = {
                     findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
-                    BequantUserEvent.SINGUP_START
+                    BequantUserEvent.REGISTRATION_COMPLETED
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
                 }, finally = {

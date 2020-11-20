@@ -16,7 +16,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.market.BequantMarketActivity
@@ -36,7 +35,7 @@ class RegistrationTotpFragment : Fragment() {
             startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
                     .putExtra("from", "totp_registration"))
             requireActivity().finish()
-            BequantUserEvent.TWO_FACTOR.track()
+            BequantUserEvent.TWO_FACTOR_SETUP_DONE.track()
         }
     }
 

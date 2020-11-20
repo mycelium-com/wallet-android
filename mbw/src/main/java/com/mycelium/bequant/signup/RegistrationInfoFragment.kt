@@ -45,7 +45,7 @@ class RegistrationInfoFragment : Fragment() {
                 startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
                         .putExtra("from", "registration"))
                 requireActivity().finish()
-                BequantUserEvent.SINGUP.track()
+                BequantUserEvent.EMAIL_CONFIRMED.track()
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
             }, finally = {

@@ -14,10 +14,10 @@ data class UserInfo(val userId: String,
                     val timeStamp: String = Date().time.toString())
 
 enum class BequantUserEvent {
-    SINGUP_START,
+    REGISTRATION_COMPLETED,
     SIGNIN,
-    SINGUP,
-    TWO_FACTOR,
+    EMAIL_CONFIRMED,
+    TWO_FACTOR_SETUP_DONE,
     KYC_STATUS_CHANGE;
 
     val db = Firebase.database.getReference(Constants.DB_COLLECTION)
