@@ -11,4 +11,9 @@
             android:icon="@drawable/holo_dark_ic_action_secure"
             android:title="@string/lock_label"
             yourapp:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/miAddRecordDuplicate"
+        android:title="@string/add_key"
+        yourapp:showAsAction="never" />
+
 </menu>

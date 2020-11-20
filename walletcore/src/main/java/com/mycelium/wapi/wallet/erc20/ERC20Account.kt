@@ -28,7 +28,7 @@ import java.util.logging.Level
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
-                   private val ethAcc: EthAccount,
+                   val ethAcc: EthAccount,
                    credentials: Credentials,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,

@@ -20,35 +20,25 @@
 
         <TextView
             android:id="@+id/tvStaleWarning"
-            android:layout_width="wrap_content"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginTop="4dp"
             android:layout_gravity="center"
-            android:layout_marginBottom="4dp"
-            android:gravity="center"
             android:visibility="@{viewModel.showStaleWarning == true ? View.VISIBLE : View.GONE}"
             android:text="@string/stale_fee_warning"
-            android:textColor="@color/red"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tvWarning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp"
-            android:gravity="center"
-            android:text="@{viewModel.heapWarning}"
-            android:textSize="18sp"
-            android:visibility="@{viewModel.heapWarning.toString().isEmpty() ? View.GONE :  View.VISIBLE }" />
+            android:textColor="@color/fio_red"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvUnconfirmedWarning"
-            android:layout_width="wrap_content"
-            android:gravity="center"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:layout_gravity="center"
-            android:textColor="@color/yellow"
-            android:textSize="18sp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/fio_yellow"
+            android:textSize="14sp"
             android:text="@string/spending_unconfirmed_warning"
             android:visibility="@{viewModel.isSpendingUnconfirmed == true ? View.VISIBLE : View.GONE}"
             android:onClick="@{_ -> activity.onClickUnconfirmedWarning()}"

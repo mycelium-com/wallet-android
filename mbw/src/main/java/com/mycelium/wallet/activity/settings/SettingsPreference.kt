@@ -2,7 +2,7 @@ package com.mycelium.wallet.activity.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.mycelium.wallet.Constants
 import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
@@ -22,7 +22,9 @@ object SettingsPreference {
     private const val PARTNER_ENABLED = "partner-enabled"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
-    private val gson = Gson()
+    private val gson by lazy {
+        GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
+    }
 
     @JvmStatic
     var fioEnabled

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Transaction History -->
+    <ExpandableListView
+        android:id="@+id/lvTransactionHistory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:divider="@color/darkgrey"
+        android:dividerHeight="1dp"
+        android:groupIndicator="@null" />
+
+    <!--    android:groupIndicator="@drawable/arrow_expanded_selector"-->
+
+    <LinearLayout
+        android:id="@+id/llNoRecords"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="38dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <include layout="@layout/fio_requests_empty_state_logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="31dp"
+            android:text="@string/fio_requests_tab_fio_protocol_desc_part1"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="15dp"
+            android:text="@string/fio_requests_tab_fio_protocol_desc_part2"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btAboutFioProtocol"
+            style="@style/FioNameRegistrationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:drawablePadding="13dp"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="17dp"
+            android:paddingEnd="17dp"
+            android:text="@string/about_fio_protocol_title"
+            android:textAlignment="textStart"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_fiopresale_icon_small" />
+    </LinearLayout>
+</RelativeLayout>

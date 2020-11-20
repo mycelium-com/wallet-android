@@ -109,18 +109,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                     val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
                     keyManagerMap[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
                 }
-                ACCOUNT_TYPE_UNRELATED_X_PUB -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
+                ACCOUNT_TYPE_UNRELATED_X_PUB,
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR,
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER,
                 ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY -> {
                     val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
                     keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)

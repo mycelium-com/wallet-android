@@ -42,13 +42,12 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
     }
 
     private fun sendColuTransaction(activity: Activity) {
-        val dialog = ProgressDialog(activity)
-        dialog.setCancelable(false)
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
-        dialog.setMessage(activity.getString(R.string.sending_assets, model.account.coinType.symbol))
-        progressDialog = dialog
-        progressDialog?.show()
-
+        progressDialog = ProgressDialog(activity).apply {
+            setCancelable(false)
+            setProgressStyle(ProgressDialog.STYLE_SPINNER)
+            setMessage(activity.getString(R.string.sending_assets, model.account.coinType.symbol))
+            show()
+        }
         Single.just(model.transaction)
                 .subscribeOn(Schedulers.computation())
                 .flatMapCompletable { transaction ->
@@ -60,6 +59,7 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
                 .subscribeOn(Schedulers.io())
                 .doOnComplete {
                     model.account.broadcastTx(model.transaction)
+                    sendFioObtData()
                 }
                 .doOnError { Log.e(TAG, "", it )}
                 .subscribeOn(AndroidSchedulers.mainThread())

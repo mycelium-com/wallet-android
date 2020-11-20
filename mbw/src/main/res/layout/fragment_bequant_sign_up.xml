@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.signup.viewmodel.SignUpViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/emailLayout"
+                style="@style/Bequant.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/exo2medium"
+                    android:hint="@string/email"
+                    android:padding="8dp"
+                    android:singleLine="true"
+                    android:text="@={viewModel.email}"
+                    android:textSize="16sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <include
+                layout="@layout/layout_password_registration"
+                app:viewModel="@{viewModel}" />
+
+            <TextView
+                android:id="@+id/countrySelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_bequant_input_text"
+                android:fontFamily="@font/exo2medium"
+                android:hint="@string/residence_country"
+                android:text="@{viewModel.country}"
+                android:padding="8dp"
+                android:textSize="16sp"
+                app:drawableEndCompat="@drawable/ic_arrow_drop_down" />
+
+            <TextView
+                android:id="@+id/iHaveRefCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:drawablePadding="8dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/i_have_a_referral_code"
+                android:textColor="@color/bequant_yellow"
+                android:textSize="14sp"
+                app:drawableEndCompat="@drawable/ic_chevron_down" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/referralLayout"
+                style="@style/Bequant.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/referralCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/exo2medium"
+                    android:hint="@string/referral_code"
+                    android:padding="8dp"
+                    android:text="@={viewModel.referralCode}"
+                    android:singleLine="true"
+                    android:textSize="16sp"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/termsOfUse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/exo2medium"
+                android:gravity="center"
+                android:text="@string/by_clicking_sign_up_you_agree_to_our_terms_of_use" />
+
+            <Button
+                android:id="@+id/register"
+                style="@style/Bequant.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/register" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/supportCenter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/exo2medium"
+                android:gravity="center"
+                android:text="@string/support_center"
+                android:textColor="@color/bequant_yellow" />
+
+            <TextView
+                android:id="@+id/buildVersion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:fontFamily="@font/exo2medium"
+                android:gravity="center"
+                android:text="@{viewModel.buildVersion}"
+                android:textColor="#3C424B"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

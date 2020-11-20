@@ -43,6 +43,5 @@ abstract class Node3Test {
    private final HttpsEndpoint endpoint = new HttpsEndpoint(
          "https://node3.mycelium.com/wapitestnet", "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F");
 
-   final WapiClient api = new WapiClientElectrumX(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), null, "test");
-
+   final WapiClient api = new WapiClientElectrumX(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), null, "test", 29);
 }

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="parentViewModel"
+            type="com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel" />
+    </data>
+
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            style="@style/Bequant.TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/from"
+            android:textSize="16sp" />
+
+        <include layout="@layout/item_bequant_withdraw_pager_accounts" />
+
+        <TextView
+            android:id="@+id/oneCoinFiatRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@{viewModel.oneCoinFiatRate}"
+            android:textColor="#49505C"
+            android:textSize="14sp"
+            android:visibility="@{viewModel.hasOneCoinFiatRate() ? View.VISIBLE : View.GONE}"
+            tools:text="1 BTC ~ 37.767667876 ETH" />
+
+        <TextView
+            style="@style/Bequant.TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/to"
+            android:textSize="16sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_bequant_text"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/custodialLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:text="@{@string/bequant_custodial_wallet_s(parentViewModel.currency)}"
+                android:textColor="#49505C"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Custodial wallet (ETH)" />
+
+            <TextView
+                android:id="@+id/receiveBalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@{viewModel.custodialBalance}"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/custodialLabel"
+                tools:text="12.68456270" />
+
+            <TextView
+                android:id="@+id/receiveBalanceCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="@{parentViewModel.currency}"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/receiveBalance"
+                app:layout_constraintLeft_toRightOf="@id/receiveBalance"
+                tools:text="BTC" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            style="@style/Bequant.TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Amount"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/llAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_bequant_text"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <EditText
+                android:id="@+id/edAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@null"
+                android:digits="0123456789."
+                android:fontFamily="@font/exo2medium"
+                android:hint="0"
+                android:inputType="numberDecimal"
+                android:text="@={viewModel.amount}"
+                android:textSize="16sp"
+                tools:text="100" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/coinSelector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@{viewModel.amountFiat}"
+            android:textColor="#49505C"
+            android:textSize="14sp"
+            tools:text="~ 37.767667876 ETH" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/confirm"
+            style="@style/Bequant.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/confirm" />
+
+    </LinearLayout>
+</layout>

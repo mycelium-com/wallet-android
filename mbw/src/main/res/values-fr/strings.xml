@@ -24,7 +24,6 @@
     <string name="send">Envoyer</string>
     <string name="receive">Recevoir</string>
     <string name="private_key_deleted">Clé privée supprimée.</string>
-    <string name="enter_recipient_title">Entrez l\'adresse du destinataire</string>
     <string name="recipient_title">Adresse du destinataire</string>
     <string name="amount_label">Montant :</string>
     <string name="amount_title">Montant</string>
@@ -38,7 +37,7 @@
     <string name="amount_too_small">Le montant que vous avez choisi est trop faible</string>
     <string name="unable_to_build_tx">Impossible de générer la transaction</string>
     <string name="amount_too_small_short">Montant trop faible</string>
-    <string name="miner_fee_label">Frais de transaction :</string>
+    <string name="miner_fee_label">Frais de transaction</string>
     <string name="miner_fee_title">Frais de transaction</string>
     <string name="synchronizing">Synchronisation</string>
     <string name="transaction_not_sent">Échec de l\'envoi de la transaction</string>
@@ -135,8 +134,6 @@
     <string name="broadcasting_transaction">Diffusion de la transaction</string>
     <string name="transaction_rejected_message">La transaction a été rejetée par le réseau. Cela indique que votre portefeuille est désynchronisé</string>
     <string name="enter_bitcoin_address">Entrez l\'adresse Bitcoin</string>
-    <string name="bitcoin_address_invalid">Adresse Bitcoin invalide</string>
-    <string name="bitcoin_address_valid">Adresse Bitcoin valide</string>
     <string name="redirecting_to_block_explorer">Redirection vers un explorateur de blocs</string>
     <string name="enter_local_currency">Entrez votre devise locale</string>
     <string name="using_address_from_clipboard">Adresse depuis le presse-papier</string>

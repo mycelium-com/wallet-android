@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+        tools:showIn="@layout/receive_coins_activity">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -23,15 +24,16 @@
                 android:background="@color/white"
                 android:contentDescription="@string/qr_code"
                 android:longClickable="false"
-                android:maxHeight="@dimen/large_qrcode"
-                android:maxWidth="@dimen/large_qrcode"
-                android:minHeight="@dimen/large_qrcode"
-                android:minWidth="@dimen/large_qrcode" />
+                android:maxHeight="180dp"
+                android:maxWidth="180dp"
+                android:minHeight="180dp"
+                android:minWidth="180dp" />
         </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="@string/tap_qr_code_desc"
             android:textColor="@color/grey"
             android:textSize="12sp" />

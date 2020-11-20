@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel" />
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/create_fio_name_bg"
+        android:padding="18dp">
+
+        <ImageView
+            android:id="@+id/imFioLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/tvTitle"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+            app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Confirm FIO Name"
+            android:textColor="@color/fio_white_alpha_0_9"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/imFioLogo"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="13dp"
+            android:text="Step 2/2"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvTitle"
+            app:layout_constraintStart_toEndOf="@id/tvTitle"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvFeeInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            tools:text="Register FIO name and use FIO services for 9.066079 FIO/year including 100 comission free transactions." />
+
+        <TextView
+            android:id="@+id/tvFioName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="@{viewModel.addressWithDomain}"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-medium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFeeInfo"
+            tools:text="myfiowallet@mycelium" />
+
+        <ImageView
+            android:id="@+id/icEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/tvFioName"
+            app:layout_constraintStart_toEndOf="@+id/tvFioName"
+            app:layout_constraintTop_toTopOf="@id/tvFioName"
+            app:srcCompat="@drawable/ic_edit_fio_name" />
+
+        <TextView
+            android:id="@+id/tvConnectedFioAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Connect to: "
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFioName" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinnerFioAccounts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:textSize="16sp"
+            android:dropDownWidth="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/tvConnectedFioAccount"
+            app:layout_constraintStart_toEndOf="@id/tvConnectedFioAccount"
+            app:layout_constraintTop_toTopOf="@id/tvConnectedFioAccount" />
+
+        <TextView
+            android:id="@+id/tvAnnualFeeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Annual fee: "
+            android:textColor="#99FFFFFF"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvConnectedFioAccount" />
+
+        <TextView
+            android:id="@+id/tvAnnualFee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{ValueExtensionsKt.toStringWithUnit(viewModel.registrationFee)}"
+            android:textSize="14sp"
+            android:layout_marginStart="4dp"
+            android:fontFamily="sans-serif-medium"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvAnnualFeeTitle"
+            app:layout_constraintStart_toEndOf="@id/tvAnnualFeeTitle"
+            tools:text="9.066079 FIO" />
+
+        <TextView
+            android:id="@+id/tvPayFrom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Pay from: "
+            android:textColor="#99FFFFFF"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvAnnualFeeTitle" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinnerPayFromAccounts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvPayFrom"
+            app:layout_constraintStart_toEndOf="@id/tvPayFrom"
+            app:layout_constraintTop_toTopOf="@id/tvPayFrom" />
+
+        <TextView
+            android:id="@+id/tvNotEnoughFundsError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="70dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/fio_not_sufficient_funds_on_selected_account"
+            android:textColor="@color/fio_red"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPayFrom"
+            app:layout_constraintBottom_toTopOf="@id/btNextButton" />
+
+        <Button
+            android:id="@+id/btNextButton"
+            style="@style/FioNameRegistrationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:text="@string/fio_confirm_and_pay"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPayFrom" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

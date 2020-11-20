@@ -1,12 +1,11 @@
 package com.mycelium.wapi.api.jsonrpc
 
+import com.mrd.bitlib.util.SslUtils
 import com.mycelium.wapi.api.exception.RpcResponseException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
-import java.io.BufferedOutputStream
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import java.io.*
 import java.lang.Thread.sleep
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -39,10 +38,11 @@ data class TcpEndpoint(val host: String, val port: Int)
     - If connection thread is no longer active, all write() calls are forced to stop by notifying them
       by using 'waitingLatches' map
  */
-open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
-    private val logger = Logger.getLogger(JsonRpcTcpClient::class.java.getSimpleName())
+open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidApiVersion: Int) {
+    private val logger = Logger.getLogger(JsonRpcTcpClient::class.java.simpleName)
     private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
-    private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
+    private val ssf = if (androidApiVersion < 22) SslUtils.getSsLSocketFactory(ELECTRUMX_THUMBPRINT)
+                        else SSLSocketFactory.getDefault() as SSLSocketFactory
     val isConnected = AtomicBoolean(false)
 
     /* isConnectionThreadActive is used to pause main connection thread
@@ -379,6 +379,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
         private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = TimeUnit.SECONDS.toMillis(1)
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
         private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(30)
-        private val WAITING_FOR_CONNECTED_INTERVAL = 300L
+        private const val WAITING_FOR_CONNECTED_INTERVAL = 300L
+        private const val ELECTRUMX_THUMBPRINT = "E7:4E:48:56:94:EF:A6:9E:2A:9A:30:BD:1B:9A:CF:59:31:FB:66:24"
     }
 }

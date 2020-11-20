@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.mapaccount.viewmodel.AccountMappingViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fioNameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:background="@drawable/bg_fio_rectangle">
+
+                <ImageView
+                    android:id="@+id/coinIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="12dp"
+                    android:scaleType="center"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_fiopresale_icon_small" />
+
+                <TextView
+                    android:id="@+id/fioName"
+                    style="@style/myfiowallet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.fioName.name}"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/coinIcon"
+                    app:layout_constraintLeft_toRightOf="@id/coinIcon"
+                    app:layout_constraintTop_toTopOf="@id/coinIcon"
+                    tools:text="myfiowallet@mycelium" />
+
+                <ImageView
+                    android:id="@+id/copy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp"
+                    android:layout_marginEnd="16dp"
+                    app:layout_constraintBottom_toBottomOf="@id/fioName"
+                    app:layout_constraintLeft_toRightOf="@id/fioName"
+                    app:layout_constraintTop_toTopOf="@id/fioName"
+                    app:srcCompat="@drawable/ic_content_copy_white" />
+
+                <TextView
+                    android:id="@+id/fioAccount"
+                    style="@style/fio_account"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@{@string/fio_account_s(viewModel.fioAccount.label)}"
+                    app:layout_constraintLeft_toRightOf="@id/coinIcon"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fioName"
+                    tools:text="@string/fio_account_s" />
+
+                <LinearLayout
+                    android:id="@+id/llBundled"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintLeft_toRightOf="@id/coinIcon"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/fioAccount">
+
+                    <TextView
+                        style="@style/fio_account"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bundled transactions: " />
+
+                    <TextView
+                        style="@style/fio_account"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.intToString(viewModel.fioName.bundledTxsNum)}"
+                        android:textColor="@{viewModel.fewTransactionsLeft ? @color/fio_red : @color/white}"
+                        tools:text="46" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="2dp"
+                        app:srcCompat="@drawable/ic_info_icon" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/expireDate"
+                    style="@style/fio_account"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/expiration_date"
+                    app:layout_constraintLeft_toRightOf="@id/coinIcon"
+                    app:layout_constraintTop_toBottomOf="@id/llBundled"
+                    app:layout_goneMarginBottom="16dp" />
+
+                <ImageView
+                    android:id="@+id/expireDateIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:visibility="@{viewModel.soonExpiring() ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="@id/expireDate"
+                    app:layout_constraintLeft_toRightOf="@id/expireDate"
+                    app:srcCompat="@drawable/ic_fio_error" />
+
+                <TextView
+                    android:id="@+id/expireDateValue"
+                    style="@style/fio_account"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@{viewModel.dateToString(viewModel.fioName.expireDate)}"
+                    android:textColor="@{viewModel.soonExpiring() ? @color/fio_red : @color/white}"
+                    app:layout_constraintBottom_toTopOf="@id/renewFIOName"
+                    app:layout_constraintLeft_toRightOf="@id/expireDateIcon"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/llBundled"
+                    app:layout_goneMarginBottom="16dp"
+                    tools:text="September 20, 2021 \n6:23pm" />
+
+                <Button
+                    android:id="@+id/renewFIOName"
+                    style="@style/MyceliumButton.FIO"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:text="@string/renew_fio_name"
+                    android:visibility="@{viewModel.fioAccount.canSpend() ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/expireDateValue" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <TextView
+                android:id="@+id/tvConnectAccountsDesc"
+                style="@style/fio_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                tools:text="@string/select_name_to_associate" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                tools:listitem="@layout/item_fio_account_mapping_account" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="@{viewModel.fioAccount.canSpend() ? View.VISIBLE : View.GONE}">
+
+                <CheckBox
+                    android:id="@+id/acknowledge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="36dp"
+                    android:layout_marginEnd="16dp"
+                    android:checked="@={viewModel.acknowledge}"
+                    android:text="@string/fio_acknowledge_mapping" />
+
+                <Button
+                    android:id="@+id/buttonContinue"
+                    style="@style/MyceliumButton.FIO"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:enabled="@{viewModel.acknowledge}"
+                    android:text="@string/connect_accounts"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

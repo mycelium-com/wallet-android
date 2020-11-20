@@ -1,16 +1,17 @@
 package com.mycelium.wallet.activity.main.model.transactionhistory
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
 import android.os.AsyncTask
+import androidx.lifecycle.LiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
 import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.fio.FIOOBTransaction
+import com.mycelium.wapi.wallet.fio.FioModule
 import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 import kotlin.math.max
 
 /**
@@ -19,11 +20,13 @@ import kotlin.math.max
 class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<TransactionSummary>>() {
     private var account = mbwManager.selectedAccount!!
     private var historyList = mutableSetOf<TransactionSummary>()
+    val fioMetadataMap = mutableMapOf<String, FIOOBTransaction>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>>>? = null
     @Volatile
     private var executorService: ExecutorService
+    val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
 
     init {
         value = historyList
@@ -41,7 +44,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         MbwManager.getEventBus().register(this)
         if (account !== mbwManager.selectedAccount) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList())
+            updateValue(listOf())
         }
         startHistoryUpdate()
     }
@@ -67,7 +70,13 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         }
 
         override fun doInBackground(vararg voids: Void): List<TransactionSummary>  =
-                account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>
+                (account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>).apply {
+                    forEach { txSummary ->
+                        fioModule.getFioTxMetadata(txSummary.idHex)?.let {
+                            fioMetadataMap[txSummary.idHex] = it
+                        }
+                    }
+                }
 
         override fun onPostExecute(transactions: List<TransactionSummary>) {
             if (account === mbwManager.selectedAccount) {
@@ -88,7 +97,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         oldExecutor.shutdownNow()
         if (event.account != account.id) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList())
+            updateValue(listOf())
             startHistoryUpdate()
         }
     }

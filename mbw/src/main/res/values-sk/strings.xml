@@ -11,7 +11,6 @@
     <string name="send">Poslať</string>
     <string name="receive">Prijať</string>
     <string name="private_key_deleted">Privátny kľúč bol vymazaný.</string>
-    <string name="enter_recipient_title">Vložte Príjemcovú Adresu</string>
     <string name="recipient_title">Príjemcova Adresa</string>
     <string name="amount_label">Suma:</string>
     <string name="amount_title">Suma</string>
@@ -24,7 +23,7 @@
     <string name="insufficient_funds_for_fee">Nedostatok prostriedkov na zaplatenie poplatku</string>
     <string name="amount_too_small">Posielaná suma je primalá</string>
     <string name="amount_too_small_short">Suma transakcie je príliš malá</string>
-    <string name="miner_fee_label">Poplatok za transakciu:</string>
+    <string name="miner_fee_label">Poplatok za transakciu</string>
     <string name="miner_fee_title">Poplatok za transakciu</string>
     <string name="synchronizing">Synchronizuje sa</string>
     <string name="transaction_not_sent">Neúspešne sa odoslala transakcia</string>
@@ -103,8 +102,6 @@
     <string name="slow_network">Vaše internetové pripojenie je zrejme pomalé.\nS trochou trpezlivosti sa to podarí&#8230;</string>
     <string name="broadcasting_transaction">Vysielanie Transakcie</string>
     <string name="enter_bitcoin_address">Vložte Bitcoinovú Adresu</string>
-    <string name="bitcoin_address_invalid">Neplatná Bitcoinová Adresa</string>
-    <string name="bitcoin_address_valid">Bitcoinová Adresa je platná</string>
     <string name="enter_local_currency">Zadajte Vašu lokálnu menu</string>
     <string name="using_address_from_clipboard">Použi Adresu zo Schránky</string>
     <string name="confirm_delete_pk_title">Ste si istý?</string>

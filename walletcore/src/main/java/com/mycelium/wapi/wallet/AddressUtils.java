@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
+import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 
 public class AddressUtils {
 
@@ -16,7 +17,7 @@ public class AddressUtils {
         if (address.length() == 0) {
             return null;
         }
-        if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest) {
+        if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest || currencyType instanceof FIOToken) {
             return currencyType.parseAddress(address);
         } else if (currencyType instanceof ColuMain) {
             BitcoinAddress addr = BitcoinAddress.fromString(address);

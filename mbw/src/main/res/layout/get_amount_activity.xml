@@ -1,163 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
     android:scrollbars="vertical">
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_page_margin"
         android:gravity="center"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:id="@+id/llInfo"
-                android:layout_width="fill_parent"
+            <!-- Amount: -->
+            <TextView
+                android:id="@+id/tvAmount"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                                android:orientation="vertical" >
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/roboto_mono_medium"
+                android:gravity="end"
+                android:hint="@string/amount_hint"
+                android:lines="1"
+                android:singleLine="true"
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toStartOf="@id/btCurrency"
+                app:layout_constraintStart_toStartOf="parent" />
 
-                <!-- Amount: -->
+            <TextView
+                android:id="@+id/btCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_mono_medium"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvAmount"
+                app:layout_constraintEnd_toStartOf="@id/currency_dropdown_image_view"
+                tools:ignore="RtlSymmetry"
+                tools:text="BTC" />
 
-                <LinearLayout
-                    android:id="@+id/llAmount"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
+            <ImageView
+                android:id="@+id/currency_dropdown_image_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="Arrow"
+                app:layout_constraintBottom_toBottomOf="@id/btCurrency"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/btCurrency"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
 
-                    <TextView
+            <!-- Paste Button -->
 
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/amount_label"
-                        android:textSize="22sp" />
+            <Button
+                android:id="@+id/btPaste"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/paste"
+                android:textSize="22sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tvAmount"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="5dp"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:hint="@string/amount_hint"
-                        android:lines="1"
-                        android:singleLine="true"
-                        android:textSize="22sp"
-                        android:typeface="monospace" />
 
-                    <TextView
-                        android:id="@+id/btCurrency"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="3dp"
-                        android:singleLine="true"
-                        android:textColor="@color/lightgrey"
-                        android:textSize="22sp"
-                        android:typeface="monospace"
-                        tools:text="BTC"
-                        tools:ignore="RtlSymmetry" />
+            <!-- Alternative value -->
 
-                    <ImageView
-                        android:id="@+id/currency_dropdown_image_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:contentDescription="Arrow"
-                        android:paddingEnd="3dp"
-                        app:srcCompat="@drawable/ic_arrow_drop_down" />
-                </LinearLayout>
+            <TextView
+                android:id="@+id/tvAlternateAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/roboto_mono_regular"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@id/btCurrency"
+                app:layout_constraintTop_toBottomOf="@id/btCurrency"
+                tools:text="0.00 USD"
+                tools:visibility="visible"/>
 
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
 
-                    <!-- Paste Button -->
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <Button
-                        android:id="@+id/btPaste"
 
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/MyceliumSlimButton"
-                        android:paddingStart="3dp"
-                        android:paddingEnd="3dp"
-                        android:text="@string/paste"
-                        android:textSize="22sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#33FFFFFF" />
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
+        <!-- Balance -->
 
-                    <!-- Alternative value -->
-
-                    <TextView
-                        android:id="@+id/tvAlternateAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="18sp" />
-                </LinearLayout>
-                <!-- Balance -->
-
-                <TextView
-                    android:id="@+id/tvMaxAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:visibility="gone"
-                    android:text="@string/max_btc"
-                    android:textSize="18sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="horizontal" >
-
-                <Button
-                    android:id="@+id/btLeft"
-                    android:layout_width="0dp"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/btn_transparent_slim" />
-
-                <Button
-                    android:id="@+id/btRight"
-                    android:layout_width="0dp"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/btn_transparent_slim" />
-            </LinearLayout>
-        </FrameLayout>
+        <TextView
+            android:id="@+id/tvMaxAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="@string/max_btc"
+            android:textSize="18sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/tvHowIsItCalculated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:visibility="gone"
+            android:layout_marginTop="2dp"
             android:text="@string/how_is_it_calculated"
+            android:textColor="@color/fio_prm_btn_line"
             android:textSize="16sp"
-            android:textColor="#4583de"/>
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <LinearLayout
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_marginTop="@dimen/margin_large"
             android:layout_marginBottom="20dp"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <include
+                layout="@layout/number_entry"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                layout="@layout/number_entry" />
+                android:layout_height="fill_parent" />
         </LinearLayout>
 
         <!-- Buttons -->
@@ -165,18 +140,18 @@
         <LinearLayout
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btMax"
 
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="@string/max"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="0dp"
@@ -191,7 +166,7 @@
 
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:text="@string/ok"
+                android:text="@string/button_ok"
                 android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>

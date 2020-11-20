@@ -24,7 +24,6 @@
     <string name="receive">קבל</string>
     <string name="private_key_deleted">המפתח נמחק.</string>
     <string name="account_deleted">חשבון נמחק.</string>
-    <string name="enter_recipient_title">הכניסו כתובת מקבלת</string>
     <string name="recipient_title">כתובת מקבלת</string>
     <string name="amount_label">סכום:</string>
     <string name="amount_title">סכום</string>
@@ -128,8 +127,6 @@
     <string name="signing_transaction">חותם עסקה</string>
     <string name="broadcasting_transaction">שולח את הפעולה</string>
     <string name="enter_bitcoin_address">הכנס כתובת</string>
-    <string name="bitcoin_address_invalid">כתובת ביטקוין בלתי תקינה</string>
-    <string name="bitcoin_address_valid">כתובת ביטקוין תקינה</string>
     <string name="enter_local_currency">הזן את המטבע המקומי שלך</string>
     <string name="using_address_from_clipboard">משתמש בכתובת מהעתק-הדבק</string>
     <string name="my_accounts">החשבונות שלי</string>

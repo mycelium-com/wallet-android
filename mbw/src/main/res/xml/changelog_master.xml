@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.8.0.0" versioncode="3080000">
+        <change>Full FIO support</change>
+    </release>
+    <release version="3.7.0.0" versioncode="3070000">
+        <change>Bequant exchange integration</change>
+    </release>
     <release version="3.5.1.0" versioncode="3050100">
         <change>Synchronization speed improvements</change>
     </release>

@@ -38,6 +38,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +54,7 @@ public interface AccountScanManager {
 
    List<HdKeyNode> getNextUnusedAccounts();
    Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath, BipDerivationType derivationType);
-   Map<BipDerivationType, ? extends HdKeyPath> getAccountPathsToScan(HdKeyPath lastPath, boolean wasUsed);
+   Map<BipDerivationType, ? extends HdKeyPath> getAccountPathsToScan(HdKeyPath lastPath, boolean wasUsed, CryptoCurrency coinType);
 
    void setPassphrase(String passphrase);
 

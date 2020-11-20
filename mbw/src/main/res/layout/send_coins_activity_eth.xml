@@ -15,83 +15,89 @@
             type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
     </data>
 
-    <FrameLayout
+    <ScrollView
+        android:id="@+id/root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scrollbars="vertical">
 
-        <ScrollView
-            android:id="@+id/root"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical">
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+            <!--Heading, containing buttons, or currently selected address-->
+            <include
+                layout="@layout/send_coins_heading"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
+
+            <!--Warnings-->
+            <include
+                layout="@layout/send_coins_activity_warnings_heap"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
                 android:orientation="vertical">
 
-                <!--Heading, containing buttons, or currently selected address-->
+                <!--Transaction label (might be part of bip21)-->
                 <include
-                    layout="@layout/send_coins_heading"
+                    layout="@layout/send_coins_tx_label"
+                    bind:viewModel="@{viewModel}" />
+
+                <!--Contains amount selection-->
+                <include
+                    layout="@layout/send_coins_amount"
+                    bind:listener="@{activity}"
+                    bind:viewModel="@{viewModel}" />
+
+                <!-- Advanced block -->
+                <include
+                    layout="@layout/send_coins_advanced_block"
                     bind:activity="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
-
-                <!--Warnings-->
-                <include
-                    layout="@layout/send_coins_activity_warnings_heap"
-                    bind:activity="@{activity}"
-                    bind:viewModel="@{viewModel}" />
-
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="5dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <!--Transaction label (might be part of bip21)-->
-                    <include
-                        layout="@layout/send_coins_tx_label"
-                        bind:viewModel="@{viewModel}" />
-
-                    <!--Contains amount selection-->
-                    <include
-                        layout="@layout/send_coins_amount"
-                        bind:activity="@{activity}"
-                        bind:viewModel="@{viewModel}" />
-
-                    <!-- Advanced block -->
-                    <include
-                        layout="@layout/send_coins_advanced_block"
-                        bind:activity="@{activity}"
-                        bind:viewModel="@{viewModel}" />
-
-                    <!--Fee selector-->
-                    <include
-                        layout="@layout/send_coins_fee_block"
-                        bind:viewModel="@{viewModel}" />
-                </LinearLayout>
-
-                <!-- Amount Error -->
-                <include
-                    layout="@layout/send_coins_insufficient"
-                    bind:viewModel="@{viewModel}" />
-
-                <!--Update progress bar-->
-                <include
-                    layout="@layout/send_coins_progress"
-                    bind:viewModel="@{viewModel}" />
-
-                <!-- Send -->
-                <include
-                    layout="@layout/send_coins_send_section"
-                    bind:activity="@{activity}"
-                    bind:viewModel="@{viewModel}" />
             </LinearLayout>
-        </ScrollView>
-    </FrameLayout>
+
+            <!--Fee selector-->
+            <include
+                layout="@layout/send_coins_fee_block"
+                bind:viewModel="@{viewModel}" />
+
+            <!-- Sender -->
+            <include
+                layout="@layout/send_coins_sender_fio"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
+            <!--FIO Memo-->
+            <include
+                layout="@layout/fio_memo_input"
+                bind:fioMemo="@{viewModel.fioMemo}"
+                bind:payeeFioName="@{viewModel.payeeFioName}" />
+
+            <!-- Amount Error -->
+            <include
+                layout="@layout/send_coins_insufficient"
+                bind:viewModel="@{viewModel}" />
+
+            <!--Update progress bar-->
+            <include
+                layout="@layout/send_coins_progress"
+                bind:viewModel="@{viewModel}" />
+
+            <!-- Send -->
+            <include
+                layout="@layout/send_coins_send_section"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+        </LinearLayout>
+    </ScrollView>
 </layout>

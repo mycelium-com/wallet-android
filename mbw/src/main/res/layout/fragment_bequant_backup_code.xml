@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:srcCompat="@drawable/ic_two_factor" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/exo2medium"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:text="@string/write_down_the_backup_code"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/backupCodeView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@color/bequant_gray_4"
+        android:gravity="center"
+        android:padding="16dp"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        tools:text="xxxx - xxxx - xxxx -\n xxxx - xxxx - xxxx" />
+
+    <TextView
+        android:id="@+id/backupCodeNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@color/bequant_gray_4"
+        android:fontFamily="@font/exo2medium"
+        android:padding="16dp"
+        android:textColor="@color/white"
+        android:text="@string/backup_code_will_be_the_font_only"
+        android:textSize="14sp" />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <CheckBox
+        android:id="@+id/backupCodeWritten"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="@font/exo2medium"
+        android:text="I have written down the backup code" />
+
+    <Button
+        android:id="@+id/next"
+        style="@style/Bequant.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/next" />
+</LinearLayout>

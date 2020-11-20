@@ -4,10 +4,10 @@ import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
-
-abstract class ColuMain : BitcoinBasedCryptoCurrency() {
+abstract class ColuMain(id: String?, name: String?, symbol: String?, unitExponent: Int?, friendlyDigits: Int?)
+    : CryptoCurrency(id, name, symbol, unitExponent, friendlyDigits, true) {
 
     override fun getName(): String = name
 
@@ -23,7 +23,7 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
         return javaClass.hashCode()
     }
 
-    override fun parseAddress(addressString: String): Address? {
+    override fun parseAddress(addressString: String?): Address? {
         val address = BitcoinAddress.fromString(addressString) ?: return null
 
         try {

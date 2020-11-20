@@ -32,6 +32,7 @@
             android:textColor="@color/white"
             android:textSize="15sp"
             android:text="@{viewModel.transactionLabel}"
+                tools:text="Dinner Tacos"
             android:visibility="@{viewModel.transactionLabel.isEmpty() ? View.GONE : View.VISIBLE }"
             android:typeface="monospace" />
     </merge>

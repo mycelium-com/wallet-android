@@ -3,15 +3,18 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.Application
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast.*
+import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.paymentrequest.PaymentRequestException
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -35,26 +38,32 @@ import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
+import com.mycelium.wapi.content.fio.FIOUri
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.fio.RecordObtData
+import com.mycelium.wapi.wallet.fio.getActiveFioAccount
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
+import java.math.BigInteger
 import java.util.*
 import java.util.regex.Pattern
 
-abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(context) {
+abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(application) {
+    val context: Context = application
     var activityResultDialog: DialogFragment? = null
     var activity: Activity? = null
     lateinit var amountHint: String
         private set
 
-    protected val mbwManager = MbwManager.getInstance(context)!!
+    protected val mbwManager = MbwManager.getInstance(context)
     protected lateinit var model: SendCoinsModel
     protected var progressDialog: ProgressDialog? = null
 
@@ -97,20 +106,47 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         }
     }
 
+    init {
+        mbwManager.obtDataRecordCache = null
+    }
 
-    open fun init(account: WalletAccount<*>,
-                  intent: Intent) {
-
+    open fun init(account: WalletAccount<*>, intent: Intent) {
         amountHint = context.getString(R.string.amount_hint_denomination,
                 mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
-        if (::model.isInitialized) {
-            throw IllegalStateException("This method should be called only once.")
-        }
 
         MbwManager.getEventBus().register(eventListener)
     }
 
     abstract fun sendTransaction(activity: Activity)
+
+    protected fun sendFioObtData() {
+        // TODO: 10/7/20 redesign the whole process to have the viewModel around until after the
+        //       transaction was sent.
+        // We can't send it yet as the transaction is not finalized yet and as that will happen
+        // after this ViewModel is disposed, we need to put that data somewhere so we can broadcast
+        // that fio obt record after broadcasting the transaction.
+        mbwManager
+                .getWalletManager(false)
+                .getActiveFioAccount(payerFioName.value ?: return)
+                // If there is no FioAccount, we are done here.
+                ?: return
+        val tokenCode = getAccount().coinType.symbol.toUpperCase(Locale.US)
+        val chainCode = if (getAccount() is ERC20Account) "ETH" else tokenCode
+
+        if (payeeFioName.value != null) {
+            mbwManager.obtDataRecordCache = RecordObtData(
+                    payerFioName.value!!,
+                    payeeFioName.value!!,
+                    "", // TODO: fix
+                    getReceivingAddress().value?.toString() ?: "no address provided",
+                    getAmount().value?.toString(Denomination.UNIT)!!.toDouble(),
+                    chainCode,
+                    tokenCode,
+                    "will be filled in after signing",
+                    fioMemo.value ?: ""
+            )
+        }
+    }
 
     abstract fun getFeeFormatter(): FeeFormatter
 
@@ -141,6 +177,18 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     fun isColdStorage() = model.isColdStorage
 
     fun getReceivingAddress() = model.receivingAddress
+
+    val payerFioName get() = model.payerFioName
+
+    val payeeFioName get() = model.payeeFioName
+
+    val fioMemo get() = model.fioMemo
+
+    fun getRecipientRepresentation() = model.recipientRepresentation
+
+    enum class RecipientRepresentation {
+        ASK, COIN, FIO
+    }
 
     fun getReceivingAddressText() = model.receivingAddressText
 
@@ -182,6 +230,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun showStaleWarning() = model.showStaleWarning
 
+    fun getTransaction() = model.transaction
     fun getSignedTransaction() = model.signedTransaction
 
     fun getGenericUri() = model.genericUri
@@ -241,6 +290,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     coinType is ERC20Token && uri.asset.equals(coinType.contractAddress, true)
                 }
             }
+            is FIOUri -> coinType == Utils.getFIOCoinType()
             else -> false
         }
     }
@@ -266,9 +316,11 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             handleScanResults(resultCode, data, activity)
         } else if (requestCode == SendCoinsActivity.ADDRESS_BOOK_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             handleAddressBookResults(data)
-        } else if (requestCode == SendCoinsActivity.MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+        } else if (requestCode == SendCoinsActivity.
+                MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
                     data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
+            model.payeeFioName.value = data.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
                     (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction
@@ -377,4 +429,22 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             MbwManager.getEventBus().post(SyncFailed())
         }
     }
+}
+
+object Converter {
+    @InverseMethod("stringToBigInt")
+    @JvmStatic
+    fun bigIntToString(value: BigInteger?): String {
+        return value?.toString() ?: ""
+    }
+
+    @JvmStatic
+    fun stringToBigInt(value: String): BigInteger? {
+        return if (value.isNotEmpty()) BigInteger(value) else null
+    }
+
+    @JvmStatic
+    fun valueToStr(value: Value?): String =
+            value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
+
 }

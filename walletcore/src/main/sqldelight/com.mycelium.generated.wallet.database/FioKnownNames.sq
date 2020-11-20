@@ -1,0 +1,17 @@
+import com.mycelium.wapi.wallet.fio.FioName;
+
+CREATE TABLE IF NOT EXISTS FioKnownNames(
+    name TEXT AS FioName PRIMARY KEY
+);
+
+selectAllFioKnownNames:
+SELECT name
+FROM FioKnownNames;
+
+insert:
+INSERT OR REPLACE INTO FioKnownNames(name)
+VALUES (?);
+
+delete:
+DELETE FROM FioKnownNames
+WHERE name = (?);
