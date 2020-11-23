@@ -166,7 +166,7 @@ class ManualAddressEntry : AppCompatActivity() {
         val requestBody = """{"fio_address":"$address","chain_code":"$chainCode","token_code":"$tokenCode"}"""
 
         val request = Request.Builder()
-                .url("${FioEndpoints.currentApiEndpoint().baseUrl}chain/get_pub_address")
+                .url("${FioEndpoints.getCurrentApiEndpoint().baseUrl}chain/get_pub_address")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {
@@ -186,7 +186,6 @@ class ManualAddressEntry : AppCompatActivity() {
                 checkedFioNames.remove(address)
                 noConnection = true
                 fioQueryCounter--
-                FioEndpoints.moveToNextApiEndpoint()
                 runOnUiThread { updateUI() }
             }
         })
@@ -195,7 +194,7 @@ class ManualAddressEntry : AppCompatActivity() {
     private fun queryAddressAvailability(address: String) {
         val requestBody = """{"fio_name":"$address"}"""
         val request = Request.Builder()
-                .url("${FioEndpoints.currentApiEndpoint().baseUrl}chain/avail_check")
+                .url("${FioEndpoints.getCurrentApiEndpoint().baseUrl}chain/avail_check")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {
@@ -210,7 +209,6 @@ class ManualAddressEntry : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 fioQueryCounter--
                 noConnection = true
-                FioEndpoints.moveToNextApiEndpoint()
                 runOnUiThread { updateUI() }
             }
         })
