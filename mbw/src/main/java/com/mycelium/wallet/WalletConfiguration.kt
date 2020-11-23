@@ -133,9 +133,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         myceliumNodesResponse?.fioMainnet
                     }?.fioHistoryServers?.primary?.map { it.url }?.toSet()
 
-                    Logger.getLogger("asdaf").log(Level.WARNING, "got response from serv. api: $fioApiServersFromResponse \n " +
-                            "history: $fioHistoryServersFromResponse")
-
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))

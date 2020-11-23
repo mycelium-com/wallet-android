@@ -22,6 +22,7 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
+import fiofoundation.io.fiosdk.utilities.Utils
 import java.math.BigInteger
 import java.text.SimpleDateFormat
 import java.util.*
@@ -426,8 +427,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                 logger.log(Level.INFO, "asdaf syncTransactions exception: ${e.message}")
             }
         }
-        // TODO
-        accountContext.actionSequenceNumber = BigInteger.ZERO
+
+        accountContext.actionSequenceNumber =
+                fioBlockchainService.getAccountActionSeqNumber(Utils.generateActor(receivingAddress.toString()))
+                        ?: accountContext.actionSequenceNumber
     }
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight

@@ -288,7 +288,7 @@ android {
                         '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
                 EthBlockBook = '{"https://eth1.trezor.io", "https://eth2.trezor.io"}'
                 FioApiServers = '{"https://fio.greymass.com/v1/"}'
-                FioHistoryServers = '{"https://fio.greymass.com/v1/history/get_actions"}'
+                FioHistoryServers = '{"https://fio.greymass.com/v1/"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -325,7 +325,7 @@ android {
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
                 EthBlockBook = '{"https://ropsten1.trezor.io", "https://ropsten2.trezor.io"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
-                FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/history/get_actions"}'
+                FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]

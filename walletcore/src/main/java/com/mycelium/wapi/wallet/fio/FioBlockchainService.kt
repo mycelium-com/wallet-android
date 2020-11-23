@@ -56,48 +56,49 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val ser
         return result.records
     }
 
+    private fun getActions(accountName: String, pos: BigInteger, offset: BigInteger): List<GetActionsResponse.ActionObject> {
+        val requestBody = "{\"account_name\":\"$accountName\", \"pos\":$pos, \"offset\":$offset}"
+        val request = Request.Builder()
+                .url(FioEndpoints.getCurrentHistoryEndpoint().baseUrl + "history/get_actions")
+                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
+                .build()
+        return try {
+            val response = client.newCall(request).execute()
+            val result = mapper.readValue(response.body()!!.string(), GetActionsResponse::class.java)
+            result.actions
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    fun getAccountActionSeqNumber(accountName: String): BigInteger? {
+        val actions = getActions(accountName, BigInteger.valueOf(-1), BigInteger.valueOf(-1))
+        return actions.firstOrNull()?.accountActionSeq
+    }
+
     fun getTransactions(ownerPublicKey: String, latestBlockNum: BigInteger): List<Tx> {
         val actions: MutableList<GetActionsResponse.ActionObject> = mutableListOf()
         val accountName = Utils.generateActor(ownerPublicKey)
-        var requestBody = "{\"account_name\":\"$accountName\", \"pos\":-1, \"offset\":-1}"
-        var request = Request.Builder()
-                .url(FioEndpoints.getCurrentHistoryEndpoint().baseUrl)
-                .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
-                .build()
-        try {
-            var response = client.newCall(request).execute()
-            var result = mapper.readValue(response.body()!!.string(), GetActionsResponse::class.java)
 
-            if (result.actions.isNotEmpty()) {
-                var pos = result.actions[0].accountActionSeq
-                val finish = false
-                while (!finish) {
-                    if (pos < BigInteger.ZERO) {
-                        break
-                    }
+        var result = getActions(accountName, BigInteger.valueOf(-1), BigInteger.valueOf(-1))
 
-                    requestBody = "{\"account_name\":\"$accountName\", \"pos\":$pos, \"offset\":${-offset + BigInteger.ONE}}"
-                    request = Request.Builder()
-                            .url(FioEndpoints.getCurrentApiEndpoint().baseUrl)
-                            .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
-                            .build()
-                    try {
-                        response = client.newCall(request).execute()
-                        result = mapper.readValue(response.body()!!.string(), GetActionsResponse::class.java)
-                        actions.addAll(result.actions)
-
-                        if (result.actions.isEmpty() || result.actions.size.toBigInteger() < offset) {
-                            break
-                        }
-                        pos -= offset
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+        if (result.isNotEmpty()) {
+            var pos = result.first().accountActionSeq
+            val finish = false
+            while (!finish) {
+                if (pos < BigInteger.ZERO) {
+                    break
                 }
-                return transform(ownerPublicKey, accountName, actions)
+
+                result = getActions(accountName, pos, -offset + BigInteger.ONE)
+                actions.addAll(result)
+                if (result.isEmpty() || result.size.toBigInteger() < offset) {
+                    break
+                }
+                pos -= offset
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+            return transform(ownerPublicKey, accountName, actions)
         }
         return emptyList()
     }
