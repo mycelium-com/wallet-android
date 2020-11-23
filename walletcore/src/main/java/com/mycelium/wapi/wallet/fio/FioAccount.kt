@@ -11,7 +11,6 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.fio.FioModule.Companion.DEFAULT_BUNDLED_TXS_NUM
-import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.enums.FioDomainVisiblity
 import fiofoundation.io.fiosdk.errors.FIOError
@@ -40,7 +39,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!
     private val balanceService by lazy {
-        FioBalanceService(coinType as FIOToken, receivingAddress.toString())
+        FioBalanceService(receivingAddress.toString())
     }
 
     var registeredFIONames: MutableList<RegisteredFIOName> = accountContext.registeredFIONames?.toMutableList()
