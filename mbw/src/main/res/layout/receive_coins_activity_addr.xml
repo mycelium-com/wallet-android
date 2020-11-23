@@ -73,9 +73,9 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="0dp"
             android:onClick="@{() -> viewModel.shareRequest()}"
-            android:text="@{@string/s_payment_request(viewModel.currencySymbol)}"
+            android:text="@{viewModel.requestedAmount != null ? @string/share_address : @string/share_address_and_amount}"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="BTC Payment Request"
+            tools:text="Share Address"
             app:layout_constraintTop_toBottomOf="@id/address" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

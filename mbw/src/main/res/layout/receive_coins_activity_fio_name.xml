@@ -71,8 +71,8 @@
             style="@style/MyceliumButton.FIO"
             android:layout_marginTop="16dp"
             android:layout_marginStart="0dp"
-            tools:text="BTC FIO Request"
-            android:text="@{@string/s_fio_request(viewModel.currencySymbol)}"
+            tools:text="@string/fio_payment_request"
+            android:text="@string/fio_payment_request"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fioNameSpinner" />
     </androidx.constraintlayout.widget.ConstraintLayout>

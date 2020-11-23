@@ -44,6 +44,8 @@
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$s %2$s</string>
     <string name="s_payment_request">%s Payment Request</string>
+    <string name="share_address">Share Address</string>
+    <string name="share_address_and_amount">Share Address and Amount</string>
     <string name="s_fio_request">%s FIO Request</string>
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
@@ -1622,4 +1624,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="send_fio_request">Send FIO Request</string>
     <string name="leave_a_message_for_s">Leave a message for %s</string>
     <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
+    <string name="fio_payment_request">FIO Payment Request</string>
 </resources>
