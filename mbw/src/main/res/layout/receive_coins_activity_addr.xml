@@ -73,7 +73,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="0dp"
             android:onClick="@{() -> viewModel.shareRequest()}"
-            android:text="@{viewModel.requestedAmount != null ? @string/share_address : @string/share_address_and_amount}"
+            android:text="@{viewModel.requestedAmount != null ? @string/share_address_and_amount : @string/share_address}"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="Share Address"
             app:layout_constraintTop_toBottomOf="@id/address" />
