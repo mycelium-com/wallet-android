@@ -82,7 +82,7 @@ public class ConnectionLogsActivity extends Activity {
 
     private Logger _logger = Logger.getLogger(ConnectionLogsActivity.class.getSimpleName());
     @SuppressLint("SimpleDateFormat")
-    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd-hh-mm-ss");
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
