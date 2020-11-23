@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.serializationprovider.DeserializeTransactionError
 import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
 import fiofoundation.io.fiosdk.models.fionetworkprovider.ObtDataRecord
@@ -22,8 +23,11 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FioBlockchainService(private val coinType: CryptoCurrency) {
-    fun getObtData(ownerPublicKey: String, privateKey: String, serializationProvider: ISerializationProvider, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
+class FioBlockchainService(private val coinType: CryptoCurrency, private val serializationProvider: ISerializationProvider) {
+    fun getFioSdk(privkeyString: String) = FIOSDK.getInstance(privkeyString,
+            FIOSDK.derivedPublicKey(privkeyString), serializationProvider, FioEndpoints.currentApiEndpoint().baseUrl)
+
+    fun getObtData(ownerPublicKey: String, privateKey: String, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
         val requestBody = if (limit == null && offset == null) {
             """{"fio_public_key":"$ownerPublicKey"}"""
         } else if (limit == null) {

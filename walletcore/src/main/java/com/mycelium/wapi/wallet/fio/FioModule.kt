@@ -14,14 +14,12 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
-import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import java.text.DateFormat
 import java.util.*
 
 class FioModule(
         private val fioBlockchainService: FioBlockchainService,
-        private val serializationProvider: ISerializationProvider,
         private val secureStore: SecureKeyValueStore,
         private val backing: Backing<FioAccountContext>,
         private val walletDB: WalletDB,
@@ -140,20 +138,11 @@ class FioModule(
                 FIOOBTransaction(obtId, payerFioAddress, payeeFioAddress, deserializedContent?.memo?:"")
             }
 
-    private fun getFioSdk(accountIndex: Int): FIOSDK {
-        val privkeyString = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)
-        return FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString), serializationProvider, coinType.url)
-    }
+    private fun getPrivkeyStringByIndex(accountIndex: Int) = fioKeyManager.getFioPrivateKey(accountIndex).getBase58EncodedPrivateKey(networkParameters)
 
-    private fun getFioSdkByNode(node: HdKeyNode): FIOSDK {
-        val privkeyString = node.createChildNode(0).createChildNode(0).privateKey.getBase58EncodedPrivateKey(networkParameters)
-        return FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString), serializationProvider, coinType.url)
-    }
+    private fun getPrivkeyStringByHdNode(node: HdKeyNode) = node.createChildNode(0).createChildNode(0).privateKey.getBase58EncodedPrivateKey(networkParameters)
 
-    private fun getFioSdkByPrivkey(privateKey: InMemoryPrivateKey): FIOSDK {
-        val privkeyString = privateKey.getBase58EncodedPrivateKey(networkParameters)
-        return FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString), serializationProvider, coinType.url)
-    }
+    private fun getPrivkeyString(privateKey: InMemoryPrivateKey) = privateKey.getBase58EncodedPrivateKey(networkParameters)
 
     private fun getFioAddressByPrivkey(privateKey: InMemoryPrivateKey): FioAddress {
         val privkeyString = privateKey.getBase58EncodedPrivateKey(networkParameters)
@@ -177,7 +166,7 @@ class FioModule(
             val accountContext = createAccountContext(uuid)
             val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
             val account = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
-                    accountListener = accountListener, fiosdk = getFioSdk(accountContext.accountIndex),
+                    accountListener = accountListener, privkeyString = getPrivkeyStringByIndex(accountContext.accountIndex),
                     walletManager = walletManager)
             accounts[account.id] = account
             account
@@ -195,7 +184,7 @@ class FioModule(
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
-                        accountListener = accountListener, fiosdk = getFioSdk(newIndex),
+                        accountListener = accountListener, privkeyString = getPrivkeyStringByIndex(accountContext.accountIndex),
                         walletManager = walletManager)
             }
             is FIOUnrelatedHDConfig -> {
@@ -206,7 +195,7 @@ class FioModule(
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
-                        accountListener = accountListener, fiosdk = getFioSdkByNode(hdKeyNode),
+                        accountListener = accountListener, privkeyString = getPrivkeyStringByHdNode(hdKeyNode),
                         walletManager = walletManager)
             }
             is FIOAddressConfig -> {
@@ -238,7 +227,7 @@ class FioModule(
                 backing.createAccountContext(accountContext)
                 val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = FioAccount(fioBlockchainService, accountContext = accountContext, backing = fioAccountBacking,
-                        accountListener = accountListener, fiosdk = getFioSdkByPrivkey(config.privkey),
+                        accountListener = accountListener, privkeyString = getPrivkeyString(config.privkey),
                         walletManager = walletManager)
             }
             else -> {

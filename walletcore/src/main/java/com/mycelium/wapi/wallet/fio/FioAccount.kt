@@ -32,11 +32,11 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                  private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
-                 private val fiosdk: FIOSDK? = null, // null if it's read-only account
+                 private val privkeyString: String? = null, // null if it's read-only account
                  val walletManager: WalletManager,
                  address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
-    private val receivingAddress = fiosdk?.let { FioAddress(coinType, FioAddressData(it.publicKey)) }
+    private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!
     private val balanceService by lazy {
         FioBalanceService(coinType as FIOToken, receivingAddress.toString())
@@ -70,7 +70,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
      * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
      */
     fun registerFIOAddress(fioAddress: String): String? =
-            fiosdk!!.registerFioAddress(fioAddress, receivingAddress.toString(),
+            getFioSdk()!!.registerFioAddress(fioAddress, receivingAddress.toString(),
                     getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress)).getActionTraceResponse()?.expiration?.also {
                 addRegisteredName(RegisteredFIOName(fioAddress, convertToDate(it), DEFAULT_BUNDLED_TXS_NUM))
             }
@@ -79,13 +79,13 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
      * @return expiration date in format "yyyy-MM-dd'T'HH:mm:ss"
      */
     fun registerFIODomain(fioDomain: String): String? =
-            fiosdk!!.registerFioDomain(fioDomain, receivingAddress.toString(),
+            getFioSdk()!!.registerFioDomain(fioDomain, receivingAddress.toString(),
                     getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain)).getActionTraceResponse()?.expiration?.also {
                 addRegisteredDomain(FIODomain(fioDomain, convertToDate(it), false))
             }
 
     fun renewFIOAddress(fioAddress: String): String? =
-            fiosdk!!.renewFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioAddress))
+            getFioSdk()!!.renewFioAddress(fioAddress, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioAddress))
                     .getActionTraceResponse()?.expiration?.also { expirationDate ->
                         val oldName = registeredFIONames.first { it.name == fioAddress }
                         oldName.expireDate = convertToDate(expirationDate)
@@ -94,7 +94,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                     }
 
     fun renewFIODomain(fioDomain: String): String? =
-            fiosdk!!.renewFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioDomain))
+            getFioSdk()!!.renewFioDomain(fioDomain, getFeeByEndpoint(FIOApiEndPoints.FeeEndPoint.RenewFioDomain))
                     .getActionTraceResponse()?.expiration?.also { expirationDate ->
                         val oldDomain = registeredFIODomains.first { it.domain == fioDomain }
                         oldDomain.expireDate = convertToDate(expirationDate)
@@ -103,6 +103,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     @ExperimentalUnsignedTypes
     fun setDomainVisibility(fioDomain: String, isPublic: Boolean): PushTransactionResponse.ActionTraceResponse? {
+        val fiosdk = getFioSdk()
         val fee = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.SetDomainVisibility).fee
 
         return fiosdk.setFioDomainVisibility(fioDomain, if (isPublic) FioDomainVisiblity.PUBLIC else FioDomainVisiblity.PRIVATE,
@@ -112,8 +113,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     @ExperimentalUnsignedTypes
     fun addPubAddress(fioAddress: String, publicAddresses: List<TokenPublicAddress>): Boolean {
         return try {
-            val actionTraceResponse = fiosdk!!.addPublicAddresses(fioAddress, publicAddresses, fiosdk.getFeeForAddPublicAddress(fioAddress).fee)
-                    .getActionTraceResponse()
+            val fiosdk = getFioSdk()
+            val actionTraceResponse = fiosdk!!.addPublicAddresses(fioAddress, publicAddresses,
+                    fiosdk.getFeeForAddPublicAddress(fioAddress).fee).getActionTraceResponse()
             actionTraceResponse != null && actionTraceResponse.status == "OK"
         } catch (e: FIOError) {
             logger.log(Level.SEVERE, "Add pub address exception", e)
@@ -125,17 +127,18 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     fun recordObtData(fioRequestId: BigInteger, payerFioAddress: String, payeeFioAddress: String,
                       payerTokenPublicAddress: String, payeeTokenPublicAddress: String, amount: Double,
                       chainCode: String, tokenCode: String, obtId: String, memo: String): Boolean {
+        val fiosdk = getFioSdk()
         val actionTraceResponse = fiosdk!!.recordObtData(fioRequestId = fioRequestId,
-                payerFioAddress = payerFioAddress,
-                payeeFioAddress = payeeFioAddress,
-                payerTokenPublicAddress = payerTokenPublicAddress,
-                payeeTokenPublicAddress = payeeTokenPublicAddress,
-                amount = amount,
-                chainCode = chainCode,
-                tokenCode = tokenCode,
-                obtId = obtId,
-                maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
-                memo = memo).getActionTraceResponse()
+                                                        payerFioAddress = payerFioAddress,
+                                                        payeeFioAddress = payeeFioAddress,
+                                                        payerTokenPublicAddress = payerTokenPublicAddress,
+                                                        payeeTokenPublicAddress = payeeTokenPublicAddress,
+                                                        amount = amount,
+                                                        chainCode = chainCode,
+                                                        tokenCode = tokenCode,
+                                                        obtId = obtId,
+                                                        maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
+                                                        memo = memo).getActionTraceResponse()
         return actionTraceResponse != null && actionTraceResponse.status == "sent_to_blockchain"
     }
 
@@ -180,7 +183,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     override fun broadcastTx(tx: Transaction?): BroadcastResult {
         val fioTx = tx as FioTransaction
         return try {
-            val response = fiosdk!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.feePerKb.value)
+            val response = getFioSdk()!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.feePerKb.value)
             val actionTraceResponse = response.getActionTraceResponse()
             if (actionTraceResponse != null && actionTraceResponse.status == "OK") {
                 tx.txId = HexUtils.toBytes(response.transactionId)
@@ -224,6 +227,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
 
     fun rejectFundsRequest(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
+        val fiosdk = getFioSdk()
         return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
     }
 
@@ -231,7 +235,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                      payeeTokenPublicAddress: String, amount: Double, memo: String,
                      chainCode: String, tokenCode: String, maxFee: BigInteger,
                      technologyPartnerId: String = "") =
-            fiosdk!!.requestFunds(payerFioAddress, payeeFioAddress,
+            getFioSdk()!!.requestFunds(payerFioAddress, payeeFioAddress,
                     payeeTokenPublicAddress, amount, chainCode, tokenCode, memo, maxFee, technologyPartnerId)
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
@@ -313,6 +317,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     private fun syncFioRequests() {
+        val fiosdk = getFioSdk()
         try {
             val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
             logger.log(Level.INFO, "Received ${pendingFioRequests.size} pending requests")
@@ -349,10 +354,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     private fun syncFioOBT() {
         // we don't sync obt records for read-only accounts yet
-        if (fiosdk == null) return
+        if (privkeyString == null) return
 
         try {
-            val obtList = fioBlockchainService.getObtData(receivingAddress.toString(), fiosdk.getPrivateKey(), fiosdk.serializationProvider)
+            val obtList = fioBlockchainService.getObtData(receivingAddress.toString(), privkeyString!!)
             logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: Exception) {
@@ -427,7 +432,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight
 
-    override fun canSpend(): Boolean = fiosdk != null
+    override fun canSpend(): Boolean = privkeyString != null
 
     override fun canSign(): Boolean = false
 
@@ -454,7 +459,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isVisible(): Boolean = true
 
-    override fun isDerivedFromInternalMasterseed(): Boolean = fiosdk != null
+    override fun isDerivedFromInternalMasterseed(): Boolean = privkeyString != null
 
     override fun getId(): UUID = accountContext.uuid
 
@@ -489,16 +494,17 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         TODO("Not yet implemented")
     }
 
-    fun getTransferTokensFee() = fiosdk!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
+    fun getTransferTokensFee() = getFioSdk()!!.getFee(FIOApiEndPoints.FeeEndPoint.TransferTokens).fee
 
-    fun getFeeByEndpoint(endpoint: FIOApiEndPoints.FeeEndPoint) = fiosdk!!.getFee(endpoint).fee
+    fun getFeeByEndpoint(endpoint: FIOApiEndPoints.FeeEndPoint) = getFioSdk()!!.getFee(endpoint).fee
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data =
-            ExportableAccount.Data(Optional.fromNullable(fiosdk?.getPrivateKey()),
+            ExportableAccount.Data(Optional.fromNullable(privkeyString),
                     mutableMapOf<BipDerivationType, String>().apply {
-                        this[BipDerivationType.BIP44] = fiosdk?.publicKey
-                                ?: receivingAddress.toString()
+                        this[BipDerivationType.BIP44] = receivingAddress.toString()
                     })
+
+    private fun getFioSdk(): FIOSDK? = privkeyString?.let { fioBlockchainService.getFioSdk(it) }
 }
 
 data class RecordObtData(
