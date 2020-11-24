@@ -2,6 +2,7 @@ package com.mycelium.bequant
 
 
 object Constants {
+    const val PARTNER_ID = "bequant"
     const val LINK_TERMS_OF_USE = "https://bequant.io/terms-of-use"
     const val LINK_SUPPORT_CENTER = "https://support.bequant.io"
     const val LINK_GOOGLE_AUTHENTICATOR = "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
@@ -47,4 +48,7 @@ object Constants {
     const val PUBLIC_REPOSITORY = "bequant_public_repository"
     val EXCLUDE_COIN_LIST = listOf("USDB", "EURB", "GBPB")
     fun changeCoinToServer(symbol: String) = if (symbol == "USDT") "USD" else symbol
+
+    const val DB_COLLECTION = "bequant"
+    const val DB_DOCUMENT_USERS = "users"
 }

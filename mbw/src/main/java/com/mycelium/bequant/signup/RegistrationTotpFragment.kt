@@ -16,10 +16,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.market.BequantMarketActivity
+import com.mycelium.bequant.remote.model.BequantUserEvent
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantRegistrationTotpBinding
@@ -34,6 +34,8 @@ class RegistrationTotpFragment : Fragment() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
                     .putExtra("from", "totp_registration"))
+            requireActivity().finish()
+            BequantUserEvent.TWO_FACTOR_SETUP_DONE.track()
         }
     }
 
@@ -70,7 +72,7 @@ class RegistrationTotpFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 android.R.id.home -> {
-                    findNavController().navigate(RegistrationTotpFragmentDirections.actionFinish())
+                    requireActivity().finish()
                     true
                 }
                 else -> super.onOptionsItemSelected(item)

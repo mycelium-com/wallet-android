@@ -16,7 +16,7 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_two_factor.*
 import org.json.JSONObject
-
+import com.mycelium.wallet.Constants.BAD_REQUEST_HTTP_CODE
 
 class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +53,21 @@ class TwoFactorActivity : AppCompatActivity(R.layout.activity_two_factor) {
                                         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
                                     },
                                     error = { _, message ->
-                                        ErrorHandler(this).handle(message)
+                                        try {
+                                            var obj = JSONObject(message)
+                                            var code = obj.getString("code")
+                                            var message = obj.getString("message")
+
+                                            // Handles the case when TOTP email is already confirmed.
+                                            // The current API returns HTTP 400 for it
+                                            if (code == BAD_REQUEST_HTTP_CODE) {
+                                                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
+                                            } else {
+                                                ErrorHandler(this).handle(message)
+                                            }
+                                        } catch (ex: Exception) {
+                                            ErrorHandler(this).handle(message)
+                                        }
                                     },
                                     finally = {
                                         loader(false)

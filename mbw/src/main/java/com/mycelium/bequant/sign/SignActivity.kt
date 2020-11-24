@@ -16,9 +16,10 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_bequant_sign.*
 import org.json.JSONObject
-
+import com.mycelium.wallet.Constants.BAD_REQUEST_HTTP_CODE
 
 class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(toolbar)
@@ -53,13 +54,19 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                                         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
                                     },
                                     error = { _, message ->
-                                        var obj = JSONObject(message)
-                                        var code = obj.getString("code")
-                                        var message = obj.getString("message")
+                                        try {
+                                            var obj = JSONObject(message)
+                                            var code = obj.getString("code")
+                                            var message = obj.getString("message")
 
-                                        if (code == "400" && message == "user already confirmed") {
-                                            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
-                                        } else {
+                                            // Handles the case when the user's email is already confirmed.
+                                            // The current API returns HTTP 400 with the message 'user already confirmed' for it
+                                            if (code == BAD_REQUEST_HTTP_CODE && message == "user already confirmed") {
+                                                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
+                                            } else {
+                                                ErrorHandler(this).handle(message)
+                                            }
+                                        } catch (ex: Exception) {
                                             ErrorHandler(this).handle(message)
                                         }
                                     },
