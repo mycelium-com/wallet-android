@@ -935,6 +935,8 @@ public class MbwManager {
 
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
         FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFIOSerializationProvider());
+        FioEndpoints.INSTANCE.init(new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
+        configuration.setFioServerListChangedListeners(FioEndpoints.INSTANCE, FioEndpoints.INSTANCE);
         FioModule fioModule = new FioModule(fioBlockchainService, secureKeyValueStore, fioGenericBacking,
                 db, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
