@@ -136,7 +136,7 @@ class BroadcastDialog : DialogFragment() {
             } else {
                 // Offer the user to queue the transaction
                 AlertDialog.Builder(activity)
-                        .setTitle(activity?.getString(R.string.no_server_connection, "") ?: "")
+                        .setTitle(activity!!.getString(R.string.no_server_connection, ""))
                         .setMessage(R.string.queue_transaction_message)
                         .setPositiveButton(R.string.yes) { textId, listener ->
                             account.queueTransaction(transaction)
