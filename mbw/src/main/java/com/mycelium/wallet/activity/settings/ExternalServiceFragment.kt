@@ -7,7 +7,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioActive
@@ -57,7 +57,7 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                     SettingsPreference.setEnabled(partnerInfo.id ?: "", p.isChecked)
                     true
                 }
-                if(partnerInfo.id == Constants.PARTNER_ID && BequantPreference.isLogged()) {
+                if(partnerInfo.id == BequantConstants.PARTNER_ID && BequantPreference.isLogged()) {
                     isEnabled = false
                     summary = getString(R.string.cant_disable_active_account)
                 }

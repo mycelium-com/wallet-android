@@ -2,8 +2,8 @@ package com.mycelium.bequant.remote.repositories
 
 import com.google.firebase.database.ktx.database
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
-import com.mycelium.bequant.Constants.KYC_ENDPOINT
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantConstants.KYC_ENDPOINT
 import com.mycelium.bequant.remote.BequantKYCApiService
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
 import com.mycelium.bequant.remote.client.RetrofitFactory.objectMapper
@@ -182,7 +182,7 @@ class KYCRepository {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
                                     if (BequantPreference.getAccessToken().isNotEmpty()) {
-                                        header("x-access-token", Constants.KYC_ACCESS_TOKEN)
+                                        header("x-access-token", BequantConstants.KYC_ACCESS_TOKEN)
                                     }
                                 }.build())
                             }

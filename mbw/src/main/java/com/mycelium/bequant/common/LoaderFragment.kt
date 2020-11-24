@@ -11,7 +11,7 @@ import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.wallet.R
 
 
@@ -38,10 +38,10 @@ fun Fragment.loader(show: Boolean) {
     }
     if (show) {
         val loader = LoaderFragment()
-        loader.show(childFragmentManager, Constants.LOADER_TAG)
+        loader.show(childFragmentManager, BequantConstants.LOADER_TAG)
     } else {
         childFragmentManager.executePendingTransactions()
-        val findFragmentByTag = childFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
+        val findFragmentByTag = childFragmentManager.findFragmentByTag(BequantConstants.LOADER_TAG)
         if (findFragmentByTag is LoaderFragment && findFragmentByTag.isAdded) {
             findFragmentByTag.dismissAllowingStateLoss()
         }
@@ -51,9 +51,9 @@ fun Fragment.loader(show: Boolean) {
 fun AppCompatActivity.loader(show: Boolean) {
     if (show) {
         val loader = LoaderFragment()
-        loader.show(supportFragmentManager, Constants.LOADER_TAG)
+        loader.show(supportFragmentManager, BequantConstants.LOADER_TAG)
     } else {
-        val findFragmentByTag = supportFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
+        val findFragmentByTag = supportFragmentManager.findFragmentByTag(BequantConstants.LOADER_TAG)
         if (findFragmentByTag is LoaderFragment && findFragmentByTag.isAdded) {
             findFragmentByTag.dismissAllowingStateLoss()
         }

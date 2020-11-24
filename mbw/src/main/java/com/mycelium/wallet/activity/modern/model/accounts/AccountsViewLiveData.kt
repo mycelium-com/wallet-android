@@ -72,8 +72,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.digital_assets to getColuAccounts(walletManager),
                     R.string.eth_accounts_name to getEthERC20Accounts(walletManager)
             ).apply {
-                if ((BequantPreference.isLogged() && SettingsPreference.isEnabled(Constants.PARTNER_ID)) ||
-                        (!BequantPreference.isLogged() && SettingsPreference.isContentEnabled(Constants.PARTNER_ID))) {
+                if ((BequantPreference.isLogged() && SettingsPreference.isEnabled(BequantConstants.PARTNER_ID)) ||
+                        (!BequantPreference.isLogged() && SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID))) {
                     this.add(R.string.bequant_trading_account to getInvestmentAccounts(walletManager))
                 }
             }.forEach {

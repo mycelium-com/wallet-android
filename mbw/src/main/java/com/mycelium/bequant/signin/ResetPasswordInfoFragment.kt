@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantResetPasswordInfoBinding
@@ -42,7 +42,7 @@ class ResetPasswordInfoFragment : Fragment() {
         viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
                 resetPasswordConfirmedReceiver,
-                IntentFilter(Constants.ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED))
+                IntentFilter(BequantConstants.ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -61,7 +61,7 @@ class ResetPasswordInfoFragment : Fragment() {
         }
         viewModel.email.value = args.email
         supportTeam.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_SUPPORT_CENTER)))
         }
     }
 
