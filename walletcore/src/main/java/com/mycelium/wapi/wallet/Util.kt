@@ -26,14 +26,16 @@ object Util {
     }
 
     @JvmStatic
-    fun addTestnetSymbolDecoration(symbol: String): String {
-        if (symbol == "BTC") {
-            return "t$symbol"
-        }
-        return if (symbol == "MT") {
-            symbol + "t"
-        } else symbol
-    }
+    fun addTestnetSymbolDecoration(symbol: String, isTestnet: Boolean): String =
+            if (isTestnet) {
+                when (symbol) {
+                    "BTC" -> "t$symbol"
+                    "MT" -> symbol + "t"
+                    else -> symbol
+                }
+            } else {
+                symbol
+            }
 
     @JvmStatic
     fun getCoinsByChain(networkParameters: NetworkParameters): List<CryptoCurrency> =
