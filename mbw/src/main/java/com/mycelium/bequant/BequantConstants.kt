@@ -48,7 +48,4 @@ object BequantConstants {
     const val PUBLIC_REPOSITORY = "bequant_public_repository"
     val EXCLUDE_COIN_LIST = listOf("USDB", "EURB", "GBPB")
     fun changeCoinToServer(symbol: String) = if (symbol == "USDT") "USD" else symbol
-
-    const val DB_COLLECTION = "bequant"
-    const val DB_DOCUMENT_USERS = "users"
 }
