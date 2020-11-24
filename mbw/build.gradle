@@ -177,8 +177,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3070003
-        versionName '3.7.0.3'
+        versionCode 3070004
+        versionName '3.7.0.4'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
