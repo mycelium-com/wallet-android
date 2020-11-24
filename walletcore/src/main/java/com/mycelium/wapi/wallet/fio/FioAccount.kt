@@ -357,7 +357,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         if (privkeyString == null) return
 
         try {
-            val obtList = fioBlockchainService.getObtData(receivingAddress.toString(), privkeyString!!)
+            val obtList = fioBlockchainService.getObtData(receivingAddress.toString(), privkeyString)
             logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: Exception) {
