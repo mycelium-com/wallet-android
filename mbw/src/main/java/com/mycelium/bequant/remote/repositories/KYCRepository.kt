@@ -1,6 +1,5 @@
 package com.mycelium.bequant.remote.repositories
 
-import com.google.firebase.database.ktx.database
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.BequantConstants.KYC_ENDPOINT

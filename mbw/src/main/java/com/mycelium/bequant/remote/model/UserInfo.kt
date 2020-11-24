@@ -1,10 +1,7 @@
 package com.mycelium.bequant.remote.model
 
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import com.mrd.bitlib.util.HashUtils
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.BequantConstants
 import java.util.*
 
 
@@ -20,12 +17,13 @@ enum class BequantUserEvent {
     TWO_FACTOR_SETUP_DONE,
     KYC_STATUS_CHANGE;
 
-    val db = Firebase.database.getReference(BequantConstants.DB_COLLECTION)
-            .child(BequantConstants.DB_DOCUMENT_USERS)
+    fun sendInfo(info: UserInfo) {
+        // Here the data should be sent
+    }
 
     fun track() {
         val hashedEmail = HashUtils.doubleSha256(BequantPreference.getEmail().toByteArray()).toHex()
-        db.push().setValue(UserInfo(hashedEmail,
+        sendInfo(UserInfo(hashedEmail,
                         this,
                         if (this == KYC_STATUS_CHANGE) BequantPreference.getKYCStatus() else null));
     }
