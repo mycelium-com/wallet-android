@@ -10,7 +10,7 @@ class NetworkChangedReceiver : BroadcastReceiver() {
     // We receive this event on wallet start, but this would start heavy init, which we don't want to.
     var wasInited: Boolean = false
 
-    val logger = java.util.logging.Logger.getLogger(com.mycelium.wapi.wallet.btc.AbstractBtcAccount::class.java.getSimpleName())
+    val logger = java.util.logging.Logger.getLogger(NetworkChangedReceiver::class.java.getSimpleName())
 
     override fun onReceive(context: Context, intent: Intent) {
         if (!wasInited) {
