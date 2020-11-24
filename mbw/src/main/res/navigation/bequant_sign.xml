@@ -22,9 +22,6 @@
             app:destination="@id/signInTwoFactorFragment">
         </action>
         <action
-            android:id="@+id/actionSignUp"
-            app:destination="@id/signUpTwoFactorFragment" />
-        <action
             android:id="@+id/actionSelectCountry"
             app:destination="@id/countrySelectorFragment">
         </action>

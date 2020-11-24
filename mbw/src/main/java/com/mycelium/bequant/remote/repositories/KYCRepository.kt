@@ -1,5 +1,6 @@
 package com.mycelium.bequant.remote.repositories
 
+import com.google.firebase.database.ktx.database
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.KYC_ENDPOINT
@@ -120,11 +121,18 @@ class KYCRepository {
         doRequest(scope, {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
-            BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
+            val oldStatus = BequantPreference.getKYCStatus()
+            val status = response?.message?.global ?: KYCStatus.NONE
+            BequantPreference.setKYCStatus(status)
             BequantPreference.setKYCStatusMessage(response?.message?.message ?: "")
             BequantPreference.setKYCSectionStatus(response?.message?.sections?.flatMap { it.map { it.key to it.value } })
             BequantPreference.setKYCSubmitDate(response?.message?.submitDate ?: Date(0))
             BequantPreference.setKYCSubmitted(response?.message?.submitted ?: false)
+
+            if ((oldStatus == KYCStatus.NONE && status == KYCStatus.PENDING) || (oldStatus != KYCStatus.NONE && status != oldStatus)) {
+                BequantUserEvent.KYC_STATUS_CHANGE.track()
+            }
+
             success(response?.message!!)
         }, { code, msg ->
             error?.invoke(code, msg)

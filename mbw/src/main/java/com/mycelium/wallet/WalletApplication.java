@@ -36,6 +36,7 @@ package com.mycelium.wallet;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -138,10 +139,13 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         int pid = android.os.Process.myPid();
         ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
         if (manager != null) {
-            for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
-                if (processInfo.pid == pid) {
-                    currentProcName = processInfo.processName;
-                    break;
+            List<RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
+            if (runningAppProcesses != null) {
+                for (RunningAppProcessInfo processInfo : runningAppProcesses) {
+                    if (processInfo.pid == pid) {
+                        currentProcName = processInfo.processName;
+                        break;
+                    }
                 }
             }
         }

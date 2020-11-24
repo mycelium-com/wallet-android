@@ -114,6 +114,8 @@ import java.util.concurrent.TimeUnit;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ModernMain extends AppCompatActivity {
@@ -161,7 +163,10 @@ public class ModernMain extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
         findViewById(R.id.logoMenu).setOnClickListener(new LogoMenuClick());
-        findViewById(R.id.investmentWallet).setOnClickListener(view -> {
+        View investmentWallet = findViewById(R.id.investmentWallet);
+        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(com.mycelium.bequant.Constants.PARTNER_ID) ?
+                VISIBLE : GONE);
+        investmentWallet.setOnClickListener(view -> {
             findViewById(R.id.logoMenu).performClick(); // to hide menu
             startActivity(new Intent(view.getContext(), BequantIntroActivity.class));
         });
@@ -587,14 +592,14 @@ public class ModernMain extends AppCompatActivity {
         ImageView ivTorIcon = menuItem.getActionView().findViewById(R.id.ivTorIcon);
 
         if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null) {
-            ivTorIcon.setVisibility(View.VISIBLE);
+            ivTorIcon.setVisibility(VISIBLE);
             if (_mbwManager.getTorManager().getInitState() == 100) {
                 ivTorIcon.setImageResource(R.drawable.tor);
             } else {
                 ivTorIcon.setImageResource(R.drawable.tor_gray);
             }
         } else {
-            ivTorIcon.setVisibility(View.GONE);
+            ivTorIcon.setVisibility(GONE);
         }
     }
 
@@ -603,8 +608,8 @@ public class ModernMain extends AppCompatActivity {
         public void onClick(View view) {
             Activity host = (Activity) view.getContext();
             View logoMenu = host.findViewById(R.id.logoMenu);
-            boolean isOpened = logoMenu.getVisibility() == View.VISIBLE;
-            logoMenu.setVisibility(isOpened ? View.GONE : View.VISIBLE);
+            boolean isOpened = logoMenu.getVisibility() == VISIBLE;
+            logoMenu.setVisibility(isOpened ? GONE : VISIBLE);
             ImageView logoArrow = host.findViewById(R.id.logoArrow);
             logoArrow.setImageDrawable(logoArrow.getResources().getDrawable(isOpened ?
                     R.drawable.ic_arrow_drop_down : R.drawable.ic_arrow_drop_down_active));
