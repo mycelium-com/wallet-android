@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.client.models.TotpCreateResponse
 import com.mycelium.bequant.remote.repositories.Api
@@ -61,7 +61,7 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
                         this.message?.let {
                             it.text = Html.fromHtml(context.getString(R.string.try_request_backup_again))
                             it.setOnClickListener {
-                                Utils.openWebsite(requireContext(), Constants.LINK_SUPPORT_CENTER)
+                                Utils.openWebsite(requireContext(), BequantConstants.LINK_SUPPORT_CENTER)
                             }
                         }
                         this.message

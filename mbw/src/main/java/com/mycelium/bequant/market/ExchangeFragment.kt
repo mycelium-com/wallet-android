@@ -29,8 +29,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
-import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantConstants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.kyc.BequantKycActivity
@@ -87,7 +87,7 @@ class ExchangeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         BQExchangeRateManager.requestOptionalRefresh()
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_EXCHANGE))
         MbwManager.getEventBus().register(this)
     }
 
@@ -213,7 +213,7 @@ class ExchangeFragment : Fragment() {
             }
         }
         btContactSupport.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_SUPPORT_CENTER)))
         }
     }
 

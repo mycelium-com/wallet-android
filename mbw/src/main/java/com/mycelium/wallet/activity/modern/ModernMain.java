@@ -159,7 +159,7 @@ public class ModernMain extends AppCompatActivity {
         findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
         findViewById(R.id.logoMenu).setOnClickListener(new LogoMenuClick());
         View investmentWallet = findViewById(R.id.investmentWallet);
-        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(com.mycelium.bequant.Constants.PARTNER_ID) ?
+        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(com.mycelium.bequant.BequantConstants.PARTNER_ID) ?
                 VISIBLE : GONE);
         investmentWallet.setOnClickListener(view -> {
             findViewById(R.id.logoMenu).performClick(); // to hide menu

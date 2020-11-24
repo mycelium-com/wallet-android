@@ -1,7 +1,7 @@
 package com.mycelium.bequant
 
 
-object Constants {
+object BequantConstants {
     const val PARTNER_ID = "bequant"
     const val LINK_TERMS_OF_USE = "https://bequant.io/terms-of-use"
     const val LINK_SUPPORT_CENTER = "https://support.bequant.io"
