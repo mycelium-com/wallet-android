@@ -33,7 +33,7 @@ import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.*
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.Util.getCoinsByChain
+import com.mycelium.wapi.wallet.Util.getCoinByChain
 import com.mycelium.wapi.wallet.Util.strToBigInteger
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
@@ -110,17 +110,15 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
-        val requestedCurrency = getCoinsByChain(mbwManager.network)
-                .firstOrNull {
-                    it.symbol.toUpperCase(Locale.US) == fioRequestContent.deserializedContent!!.chainCode.toUpperCase(Locale.US)
-                }
+        val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent.deserializedContent!!.chainCode)
         if (requestedCurrency == null) {
             Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.chainCode} currency", true)
             finish()
+            return
         }
 
         val spendingAccounts = mbwManager.getWalletManager(false)
-                .getAllActiveAccounts().filter { it.coinType.id == requestedCurrency!!.id }.sortedBy { it.label }
+                .getAllActiveAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
 
         if (spendingAccounts.isNotEmpty()) {
             val account = spendingAccounts.first()
@@ -156,7 +154,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         })
 
-        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency!!, strToBigInteger(requestedCurrency,
+        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
                 fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
         GetPublicAddressTask(fioRequestViewModel.payeeName.value!!,

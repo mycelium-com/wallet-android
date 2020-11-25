@@ -16,14 +16,13 @@ import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.Util
-import com.mycelium.wapi.wallet.Util.getCoinsByChain
+import com.mycelium.wapi.wallet.Util.getCoinByChain
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
 import com.squareup.otto.Subscribe
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
-import java.util.*
 
 
 object FioRequestNotificator {
@@ -65,10 +64,7 @@ object FioRequestNotificator {
 
     private fun notifyRequest(requests: List<FIORequestContent>) {
         requests.forEach {
-            val requestedCurrency = getCoinsByChain(MbwManager.getInstance(context).network)
-                    .firstOrNull { currency ->
-                        currency.symbol.toUpperCase(Locale.US) == it.deserializedContent!!.chainCode.toUpperCase(Locale.US)
-                    }
+            val requestedCurrency = getCoinByChain(MbwManager.getInstance(context).network, it.deserializedContent!!.chainCode)
             val amount = Value.valueOf(requestedCurrency!!, Util.strToBigInteger(requestedCurrency, it.deserializedContent!!.amount))
             val bigView = RemoteViews(context.packageName, R.layout.layout_fio_request_notification_big).apply {
                 setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payeeFioAddress))

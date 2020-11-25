@@ -45,6 +45,10 @@ object Util {
             }
 
     @JvmStatic
+    fun getCoinByChain(networkParameters: NetworkParameters, symbol: String) =
+            getCoinsByChain(networkParameters).find { it.symbol.equals(symbol, true) }
+
+    @JvmStatic
     fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
                 BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
 

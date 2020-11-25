@@ -18,8 +18,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.convertToDate
-import com.mycelium.wapi.wallet.coins.COINS
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.Util.getCoinByChain
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
@@ -95,14 +94,7 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
     private fun setAmount() {
         if (fioRequestContent != null) {
             // hack for requests requesting bitcoins
-            val requestedCurrency: CryptoCurrency? = if (fioRequestContent!!.deserializedContent!!.chainCode == "BTC") {
-                Utils.getBtcCoinType()
-            } else {
-                COINS.values.firstOrNull {
-                    it.symbol.equals(fioRequestContent!!.deserializedContent?.chainCode ?: "", true)
-                }
-            }
-
+            val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent!!.deserializedContent!!.chainCode)
             if (requestedCurrency != null) {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
                         fioRequestContent!!.deserializedContent!!.amount))
