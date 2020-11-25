@@ -12,7 +12,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/bg_bequant_search"
-        android:drawableStart="@drawable/ic_search"
+        app:drawableStartCompat="@drawable/ic_search"
         android:drawablePadding="8dp"
         android:hint="Search coins"
         android:lines="1"
