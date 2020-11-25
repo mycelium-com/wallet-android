@@ -7,6 +7,7 @@ import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
+import com.mycelium.wapi.wallet.coins.COINS_SET
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
@@ -309,12 +310,16 @@ class FioAccount(private val accountContext: FioAccountContext,
 
     private fun renewPendingFioRequests(pendingFioRequests: List<FIORequestContent>) {
         backing.deletePendingRequests()
-        backing.putReceivedRequests(pendingFioRequests)
+        backing.putReceivedRequests(pendingFioRequests.filter { request ->
+            COINS_SET.any { it.symbol.equals(request.deserializedContent?.chainCode, true) }
+        })
     }
 
     private fun renewSentFioRequests(sentFioRequests: List<FIORequestContent>) {
         backing.deleteSentRequests()
-        backing.putSentRequests(sentFioRequests as List<SentFIORequestContent>)
+        backing.putSentRequests(sentFioRequests.filterIsInstance<SentFIORequestContent>().filter { request ->
+            COINS_SET.any { it.symbol.equals(request.deserializedContent?.chainCode, true) }
+        })
     }
 
     private fun syncFioRequests() {
