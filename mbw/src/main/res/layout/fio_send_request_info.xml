@@ -196,20 +196,27 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromAccountTitle" />
 
-            <EditText
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@{@string/leave_a_message_for_s(fioRequestViewModel.payeeName)}"
-                android:text="@={fioRequestViewModel.memoTo}"
-                android:maxLength="64"
-                android:layout_marginStart="-4dp"
-                android:layout_marginEnd="-4dp"
-                android:textSize="14sp"
+                app:counterEnabled="true"
+                app:counterMaxLength="@{fioRequestViewModel.memoMaxLength}"
+                app:counterTextColor="@color/fio_white_alpha_0_6"
+                app:hintEnabled="false"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvMemoToTitle" />
+                app:layout_constraintTop_toBottomOf="@id/tvMemoToTitle">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="-4dp"
+                    android:layout_marginEnd="-4dp"
+                    android:hint="@{@string/leave_a_message_for_s(fioRequestViewModel.payeeName)}"
+                    android:maxLength="@{fioRequestViewModel.memoMaxLength}"
+                    android:text="@={fioRequestViewModel.memoTo}"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
             <!--
-            TODO: make the length dynamic depending on limiting factors according to
-                  https://developers.fioprotocol.io/wallet-integration-guide/encrypting-fio-data#size-limitations-on-encrypted-data
             TODO: use fio_memo_input.xml
             -->
         </androidx.constraintlayout.widget.ConstraintLayout>

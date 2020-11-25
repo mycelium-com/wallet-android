@@ -150,7 +150,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 sendViewModel.getAmount().value = fioRequestViewModel.amount.value
                 initReceivingAddress()
                 sendViewModel.getTransactionStatus().observe(this, Observer {
-                    Log.i("asdaf", "asdaf TransactionStatus: $it")
+                    Log.i("ApproveFioRequest", "sendViewModel.observer TransactionStatus: $it")
                     btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
                 })
             }
@@ -182,8 +182,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
                 mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type))?.toStringWithUnit()
 
-        sendViewModel.getTransactionStatus().observe(this, Observer {
-            Log.i("asdaf", "asdaf TransactionStatus: $it")
+        sendViewModel.getTransactionStatus().observe(this, Observer { // TODO Why
+            Log.i("ApproveFioRequest", "sendViewModel.observer TransactionStatus: $it")
             btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
         })
         fioRequestViewModel.payeeTokenPublicAddress.observe(this, Observer {
