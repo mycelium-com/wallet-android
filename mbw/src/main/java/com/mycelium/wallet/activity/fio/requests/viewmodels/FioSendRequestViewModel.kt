@@ -49,6 +49,6 @@ class FioSendRequestViewModel : ViewModel() {
             (payeeTokenPublicAddress.value?.length ?: 0) -
             (payerTokenPublicAddress.value?.length ?: 0) -
             Util.valueToDouble(amount.value!!).toString().length -
-            request.value!!.deserializedContent!!.chainCode.length -
-            request.value!!.deserializedContent!!.tokenCode.length
+            (request.value?.deserializedContent?.chainCode?.length ?: 0) -
+            (request.value?.deserializedContent?.tokenCode?.length ?: 0)
 }
