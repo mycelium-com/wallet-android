@@ -9,7 +9,6 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import fiofoundation.io.fiosdk.FIOSDK
 import fiofoundation.io.fiosdk.errors.serializationprovider.DeserializeTransactionError
-import fiofoundation.io.fiosdk.interfaces.ISerializationProvider
 import fiofoundation.io.fiosdk.models.fionetworkprovider.ObtDataRecord
 import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.GetObtDataResponse
@@ -22,9 +21,9 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FioBlockchainService(private val coinType: CryptoCurrency, private val serializationProvider: ISerializationProvider) {
+class FioBlockchainService(private val coinType: CryptoCurrency, private val serializationProviderWrapper: IAbiFioSerializationProviderWrapper) {
     fun getFioSdk(privkeyString: String) = FIOSDK.getInstance(privkeyString,
-            FIOSDK.derivedPublicKey(privkeyString), serializationProvider, FioEndpoints.getCurrentApiEndpoint().baseUrl)
+            FIOSDK.derivedPublicKey(privkeyString), serializationProviderWrapper.getAbiFioSerializationProvider(), FioEndpoints.getCurrentApiEndpoint().baseUrl)
 
     fun getObtData(ownerPublicKey: String, privateKey: String, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
         val requestBody = if (limit == null && offset == null) {
@@ -47,7 +46,8 @@ class FioBlockchainService(private val coinType: CryptoCurrency, private val ser
         for (item in result.records) {
             try {
                 val pubkey = if (item.payeeFioPublicKey.equals(ownerPublicKey, true)) item.payerFioPublicKey else item.payeeFioPublicKey
-                item.deserializedContent = RecordObtDataContent.deserialize(privateKey, pubkey, serializationProvider, item.content)
+                item.deserializedContent = RecordObtDataContent.deserialize(privateKey, pubkey,
+                        serializationProviderWrapper.getAbiFioSerializationProvider(), item.content)
             } catch (deserializationError: DeserializeTransactionError) {
                 //eat this error.  We do not want this error to stop the process.
             }

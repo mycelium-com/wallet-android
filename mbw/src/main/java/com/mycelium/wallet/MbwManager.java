@@ -105,6 +105,7 @@ import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
+import com.mycelium.wallet.fio.AbiFioSerializationProviderWrapper;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
@@ -856,7 +857,7 @@ public class MbwManager {
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
 
-        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFIOSerializationProvider());
+        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFioSerializationProviderWrapper());
         FioEndpoints.INSTANCE.init(new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
         configuration.setFioServerListChangedListeners(FioEndpoints.INSTANCE, FioEndpoints.INSTANCE);
         FioModule fioModule = new FioModule(fioBlockchainService, secureKeyValueStore,
@@ -934,7 +935,7 @@ public class MbwManager {
         walletManager.add(ethModule);
 
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
-        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFIOSerializationProvider());
+        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFioSerializationProviderWrapper());
         FioEndpoints.INSTANCE.init(new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
         configuration.setFioServerListChangedListeners(FioEndpoints.INSTANCE, FioEndpoints.INSTANCE);
         FioModule fioModule = new FioModule(fioBlockchainService, secureKeyValueStore, fioGenericBacking,
