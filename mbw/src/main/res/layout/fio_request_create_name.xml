@@ -147,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="-4dp"
                 android:layout_marginEnd="-4dp"
-                android:hint="Leave a message for boss@domain"
+                android:hint="@{@string/leave_a_message_for_s(viewModel.payeeFioName)}"
                 android:maxLength="@{viewModel.memoMaxLength}"
                 android:text="@={viewModel.fioMemo}"
                 android:textSize="14sp" />
