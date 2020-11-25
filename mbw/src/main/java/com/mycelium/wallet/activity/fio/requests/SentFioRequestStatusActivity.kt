@@ -93,7 +93,6 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
 
     private fun setAmount() {
         if (fioRequestContent != null) {
-            // hack for requests requesting bitcoins
             val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent!!.deserializedContent!!.chainCode)
             if (requestedCurrency != null) {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
