@@ -133,7 +133,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:drawableEnd="@drawable/ic_arrow_drop_down"
+                    app:drawableEndCompat="@drawable/ic_arrow_drop_down"
                     android:gravity="center_vertical"
                     android:text="@{viewModel.nationality}"
                     tools:text="American" />
