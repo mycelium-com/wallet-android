@@ -1,8 +1,9 @@
 package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.wallet.coins.COINS
+import com.mycelium.wapi.wallet.coins.COINS_SET
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.SYMBOL_COIN_MAP
 import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -38,15 +39,11 @@ object Util {
             }
 
     @JvmStatic
-    fun getCoinsByChain(networkParameters: NetworkParameters): List<CryptoCurrency> =
-            COINS.values.filter {
-                if (networkParameters.isProdnet) it.id.contains("main")
-                else it.id.contains("test")
-            }
-
-    @JvmStatic
     fun getCoinByChain(networkParameters: NetworkParameters, symbol: String) =
-            getCoinsByChain(networkParameters).find { it.symbol.equals(symbol, true) }
+            SYMBOL_COIN_MAP.filter {
+                if (networkParameters.isProdnet) it.value.id.contains("main")
+                else it.value.id.contains("test")
+            }[symbol.toUpperCase(Locale.US)]
 
     @JvmStatic
     fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
