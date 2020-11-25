@@ -32,7 +32,10 @@ import java.util.*
 import java.util.regex.Pattern
 
 class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) {
-    override val uriPattern = Pattern.compile("[a-zA-Z0-9]+")!!
+
+    val MAX_FIO_REQUEST_CONTENT_SIZE = 145
+    override val uriPattern = Pattern.compile("[a-zA-Z0-9]+")
+
     override fun sendTransaction(activity: Activity) {
         TODO("Not yet implemented")
     }
@@ -65,12 +68,19 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
         payeeFioAddreses.value = fioNames
         payeeFioName.value = fioNames[0].name
         payeeTokenPublicAddress.value = account.receiveAddress.toString()
+        payeeTokenPublicAddress.observeForever {
+            memoMaxLength.postValue(calculateMemoMaxLength())
+        }
+        getAmount().observeForever {
+            memoMaxLength.postValue(calculateMemoMaxLength())
+        }
     }
 
     val payerTokenPublicAddress = MutableLiveData<String>()
     val payeeTokenPublicAddress = MutableLiveData<String>()
     val payeeFioAddreses = MutableLiveData<List<RegisteredFIOName>>()
     val payeeAccount = MutableLiveData<WalletAccount<*>>()
+    val memoMaxLength = MutableLiveData<Int>()
 
     fun sendRequest(activity: Activity, doOnSuccess: (Unit) -> Unit, doOnError: (Exception) -> Unit) {
         viewModelScope.launch(IO) {
@@ -110,6 +120,15 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
         }
     }
 
+    /**
+     * https://developers.fioprotocol.io/wallet-integration-guide/encrypting-fio-data
+     * FIO memo has dynamic limit depends on amount, address, chain code, token code
+     */
+    fun calculateMemoMaxLength(): Int = MAX_FIO_REQUEST_CONTENT_SIZE -
+            (payeeTokenPublicAddress.value?.length ?: 0) -
+            Util.valueToDouble(getAmount().value!!).toString().length -
+            mbwManager.selectedAccount.basedOnCoinType.symbol.length -
+            mbwManager.selectedAccount.coinType.symbol.length
 
     fun getPayeeFioAddreses(): List<RegisteredFIOName>? {
         return payeeFioAddreses.value

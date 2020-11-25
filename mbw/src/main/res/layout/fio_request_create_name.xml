@@ -134,15 +134,24 @@
             android:textSize="14sp"
             android:text="Memo:" />
 
-
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="-4dp"
-            android:layout_marginEnd="-4dp"
-            android:textSize="14sp"
-            android:hint="Leave a message for boss@domain"
-            android:text="@={viewModel.fioMemo}"/>
+            app:counterEnabled="true"
+            app:counterMaxLength="@{viewModel.memoMaxLength}"
+            app:counterTextColor="@color/fio_white_alpha_0_6"
+            app:hintEnabled="false">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:hint="@{@string/leave_a_message_for_s(viewModel.payerFioName)}"
+                android:maxLength="@{viewModel.memoMaxLength}"
+                android:text="@={viewModel.fioMemo}"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <View
             android:layout_height="0dp"
