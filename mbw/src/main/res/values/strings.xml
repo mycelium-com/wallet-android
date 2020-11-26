@@ -1395,7 +1395,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_register_address">Register FIO Name</string>
     <string name="fio_create_name_title">Create FIO Name</string>
     <string name="fio_create_domain_title">Create FIO Domain</string>
-    <string name="fio_enter_fio_name_title">Enter FIO name</string>
+    <string name="fio_enter_fio_name_title">Send request to</string>
     <string name="fio_address">FIO Address</string>
     <string name="fio_registration_fee">Registration Fee</string>
     <string name="fio_remaining_balance">Remaining FIO Balance</string>
@@ -1434,8 +1434,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_expiration_details_90_days">Days after expiration date: on day 90 days</string>
     <string name="fio_expiration_details_90_days_desc">Domain is burned and can be re-registered by any user.\nAll addresses on that domain and associated data are burned.</string>
     <string name="fio_expiration_details_anyone_can_renew">Anyone can renew a domain as long as they are willing to pay the renewal fee.</string>
-    <string name="fio_names">Fio Names</string>
-    <string name="fio_name">Fio Name</string>
+    <string name="fio_names">RECENTS</string>
+    <string name="fio_name">FIO Name</string>
     <string name="my_fio_names">My FIO Names</string>
     <string name="fio_name_details">FIO Name details</string>
     <string name="my_fio_domains">My FIO Domains</string>
@@ -1629,6 +1629,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="leave_a_message_for_s">Leave a message for %s</string>
     <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
     <string name="fio_payment_request">FIO Payment Request</string>
-    <string name="enter_fio_name">Enter FIO Name</string>
+    <string name="enter_fio_name">Enter FIO Name you are requesting funds from</string>
     <string name="fio_recipient_invalid">Invalid FIO Name</string>
 </resources>
