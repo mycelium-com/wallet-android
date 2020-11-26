@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +21,7 @@ import com.mycelium.wallet.activity.send.adapter.FIONameAdapter
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.fio.FioEndpoints
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioName
 import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
@@ -164,8 +164,9 @@ class ManualAddressEntry : AppCompatActivity() {
 
     private fun queryAddress(address: String, chainCode: String, tokenCode: String) {
         val requestBody = """{"fio_address":"$address","chain_code":"$chainCode","token_code":"$tokenCode"}"""
+
         val request = Request.Builder()
-                .url("${Utils.getFIOCoinType().url}chain/get_pub_address")
+                .url("${FioEndpoints.getCurrentApiEndpoint().baseUrl}chain/get_pub_address")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {
@@ -193,7 +194,7 @@ class ManualAddressEntry : AppCompatActivity() {
     private fun queryAddressAvailability(address: String) {
         val requestBody = """{"fio_name":"$address"}"""
         val request = Request.Builder()
-                .url("${Utils.getFIOCoinType().url}chain/avail_check")
+                .url("${FioEndpoints.getCurrentApiEndpoint().baseUrl}chain/avail_check")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {

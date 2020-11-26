@@ -41,7 +41,6 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             if (viewModel.address.value!!.isNotEmpty()) {
                 viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
                     if (addressValid) {
-                        Log.i("asdaf", "asdaf checking avail. for $addressWithDomain")
                         CheckAddressAvailabilityTask(addressWithDomain) { isAvailable ->
                             if (isAvailable != null) {
                                 viewModel.isFioAddressAvailable.value = isAvailable
@@ -70,7 +69,6 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
         UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
-                Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
@@ -101,8 +99,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
-                FioBlockchainService.getFeeByEndpoint(Utils.getFIOCoinType(),
-                        endpoint).toString()
+                FioBlockchainService.getFeeByEndpoint(endpoint).toString()
             } catch (e: Exception) {
                 null
             }
@@ -118,8 +115,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                FioBlockchainService.isFioNameOrDomainAvailable(Utils.getFIOCoinType(),
-                        addressWithDomain)
+                FioBlockchainService.isFioNameOrDomainAvailable(addressWithDomain)
             } catch (e: Exception) {
                 null
             }

@@ -105,6 +105,7 @@ import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
+import com.mycelium.wallet.fio.AbiFioSerializationProviderWrapper;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
@@ -166,7 +167,11 @@ import com.mycelium.wapi.wallet.fio.FIOPrivateKeyConfig;
 import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.FioAccountContext;
 import com.mycelium.wapi.wallet.fio.FioAddress;
+import com.mycelium.wapi.wallet.fio.FioApiEndpoints;
 import com.mycelium.wapi.wallet.fio.FioBacking;
+import com.mycelium.wapi.wallet.fio.FioBlockchainService;
+import com.mycelium.wapi.wallet.fio.FioEndpoints;
+import com.mycelium.wapi.wallet.fio.FioHistoryEndpoints;
 import com.mycelium.wapi.wallet.fio.FioKeyManager;
 import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.fio.RecordObtData;
@@ -852,7 +857,10 @@ public class MbwManager {
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
 
-        FioModule fioModule = new FioModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
+        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFioSerializationProviderWrapper());
+        FioEndpoints.INSTANCE.init(new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
+        configuration.setFioServerListChangedListeners(FioEndpoints.INSTANCE, FioEndpoints.INSTANCE);
+        FioModule fioModule = new FioModule(fioBlockchainService, secureKeyValueStore,
                 new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
         walletManager.add(fioModule);
@@ -927,8 +935,11 @@ public class MbwManager {
         walletManager.add(ethModule);
 
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
-        FioModule fioModule = new FioModule(new AbiFIOSerializationProvider(), secureKeyValueStore,
-                fioGenericBacking, db, networkParameters, getMetadataStorage(),
+        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFioSerializationProviderWrapper());
+        FioEndpoints.INSTANCE.init(new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
+        configuration.setFioServerListChangedListeners(FioEndpoints.INSTANCE, FioEndpoints.INSTANCE);
+        FioModule fioModule = new FioModule(fioBlockchainService, secureKeyValueStore, fioGenericBacking,
+                db, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
         walletManager.add(fioModule);
         walletManager.disableTransactionHistorySynchronization();

@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.Util.transformExpirationDate
@@ -88,7 +87,7 @@ class RegisterFioNameCompletedFragment : Fragment() {
             val listener: ((Int) -> Unit)) : AsyncTask<Void, Void, Int>() {
         override fun doInBackground(vararg args: Void): Int {
             return try {
-                FioBlockchainService.getBundledTxsNum(Utils.getFIOCoinType(), fioName) ?: DEFAULT_BUNDLED_TXS_NUM
+                FioBlockchainService.getBundledTxsNum(fioName) ?: DEFAULT_BUNDLED_TXS_NUM
             } catch (e: Exception) {
                 Log.i("asdaf", "asdaf failed to get bundled txs num: ${e.localizedMessage}")
                 DEFAULT_BUNDLED_TXS_NUM

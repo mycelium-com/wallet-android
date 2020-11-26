@@ -2,21 +2,20 @@ package com.mycelium.wapi.wallet.fio
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mycelium.wapi.wallet.fio.coins.FIOToken
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import java.math.BigInteger
 
-class FioBalanceService(private val coinType: FIOToken, private val ownerPublicKey: String) {
+class FioBalanceService(private val ownerPublicKey: String) {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun getBalance(): BigInteger {
         val client = OkHttpClient()
         val requestBody = """{"fio_public_key":"$ownerPublicKey"}"""
         val request = Request.Builder()
-                .url(coinType.url + "chain/get_fio_balance")
+                .url(FioEndpoints.getCurrentApiEndpoint().baseUrl + "chain/get_fio_balance")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
 

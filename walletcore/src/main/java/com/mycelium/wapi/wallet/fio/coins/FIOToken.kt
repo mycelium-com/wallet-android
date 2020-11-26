@@ -19,8 +19,6 @@ fun String.isFioDomain(): Boolean =
                 && Regex("^[a-zA-Z0-9](?:(?!-{2,}))[a-zA-Z0-9-]*(?:(?<!-))$").matchEntire(this) != null
 
 abstract class FIOToken(id: String, name: String) : CryptoCurrency(id, name, "FIO", 9, 2, false) {
-    abstract val url: String
-
     override fun parseAddress(addressString: String?): Address? {
         return when {
             addressString == null -> null
