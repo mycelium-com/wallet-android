@@ -1629,4 +1629,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="leave_a_message_for_s">Leave a message for %s</string>
     <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
     <string name="fio_payment_request">FIO Payment Request</string>
+    <string name="enter_fio_name">Enter FIO Name</string>
+    <string name="fio_recipient_invalid">Invalid FIO Name</string>
 </resources>
