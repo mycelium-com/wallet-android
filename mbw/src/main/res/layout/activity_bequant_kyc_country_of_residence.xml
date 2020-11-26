@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_bequant_search"
-            android:drawableStart="@drawable/ic_search"
+            app:drawableStartCompat="@drawable/ic_search"
             android:drawablePadding="8dp"
             android:hint="Search countries"
             android:lines="1"

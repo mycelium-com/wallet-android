@@ -43,13 +43,11 @@
                 android:id="@+id/tvPayeeFio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableRight="@drawable/arrow_bottom"
+                app:drawableRightCompat="@drawable/arrow_bottom"
                 android:drawablePadding="16dp"
                 android:text="@{viewModel.payeeFioName}"
                 android:textSize="18sp"
                 tools:text="newAddress@domain" />
-
-
         </LinearLayout>
 
 
@@ -91,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:drawableRight="@drawable/ic_edit_fio_name"
+            app:drawableRightCompat="@drawable/ic_edit_fio_name"
             android:drawablePadding="16dp"
             android:text="@{viewModel.payerFioName}"
             android:textSize="18sp"
