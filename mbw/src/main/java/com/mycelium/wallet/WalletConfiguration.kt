@@ -23,8 +23,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.util.*
-import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 

@@ -41,7 +41,6 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             if (viewModel.address.value!!.isNotEmpty()) {
                 viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
                     if (addressValid) {
-                        Log.i("asdaf", "asdaf checking avail. for $addressWithDomain")
                         CheckAddressAvailabilityTask(addressWithDomain) { isAvailable ->
                             if (isAvailable != null) {
                                 viewModel.isFioAddressAvailable.value = isAvailable
@@ -70,7 +69,6 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
         UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
-                Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 

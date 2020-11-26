@@ -4,8 +4,6 @@ import com.mycelium.net.HttpEndpoint
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
-import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.concurrent.timerTask
 
 object FioEndpoints : ServerFioApiListChangedListener, ServerFioHistoryListChangedListener {
@@ -16,7 +14,6 @@ object FioEndpoints : ServerFioApiListChangedListener, ServerFioHistoryListChang
     private val endpointsLock: ReentrantLock = ReentrantLock()
 
     private val ROTATE_ENDPOINT_TIME = TimeUnit.MINUTES.toMillis(5)
-//    private val ROTATE_ENDPOINT_TIME = TimeUnit.SECONDS.toMillis(20)
 
     fun init(apiEndpoints: FioApiEndpoints, historyEndpoints: FioHistoryEndpoints) {
         this.apiEndpoints = apiEndpoints
