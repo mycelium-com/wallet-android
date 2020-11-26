@@ -180,9 +180,6 @@ class KYCRepository {
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
-                                    if (BequantPreference.getAccessToken().isNotEmpty()) {
-                                        header("x-access-token", BequantConstants.KYC_ACCESS_TOKEN)
-                                    }
                                 }.build())
                             }
                             .build())
