@@ -124,7 +124,7 @@ class ExchangeFragment : Fragment() {
             }
             recalculateDestinationPrice()
             viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
-            updateExchangeEnabledFlag();
+            updateExchangeEnabledFlag()
         })
         viewModel.youSendText.observe(viewLifecycleOwner, Observer {
             try {
@@ -148,7 +148,7 @@ class ExchangeFragment : Fragment() {
             }
             recalculateDestinationPrice()
             viewModel.isEnoughFundsIncludingFees.value = isEnoughFundsIncludingFees()
-            updateExchangeEnabledFlag();
+            updateExchangeEnabledFlag()
         })
         viewModel.youGetText.observe(viewLifecycleOwner, Observer {
             try {
@@ -280,7 +280,7 @@ class ExchangeFragment : Fragment() {
         viewModel.accountBalances.value = balance.balances
     }
 
-    fun updateExchangeEnabledFlag() {
+    private fun updateExchangeEnabledFlag() {
         val rateExists = viewModel.rate.value!!.isNotBlank();
         val moreThanZero = viewModel.youSend.value?.isPositive() ?: false
         viewModel.isExchangeEnabled.value = rateExists && isEnoughFundsIncludingFees() && moreThanZero;
@@ -346,14 +346,14 @@ class ExchangeFragment : Fragment() {
                                 showSummary()
                                 requestBalances()
                             }
-                        }, { code, error ->
+                        }, { _, error ->
                             ErrorHandler(requireContext()).handle(error)
                             requireActivity().runOnUiThread {
                                 clOrderRejected.visibility = View.VISIBLE
                             }
                         }, {})
                     }
-                }, { code, error ->
+                }, { _, error ->
                     ErrorHandler(requireContext()).handle(error)
                 }, {
                     loader(false)
@@ -366,7 +366,7 @@ class ExchangeFragment : Fragment() {
                         showSummary()
                         requestBalances()
                     }
-                }, { code, error ->
+                }, { _, error ->
                     ErrorHandler(requireContext()).handle(error)
                     requireActivity().runOnUiThread {
                         clOrderRejected.visibility = View.VISIBLE
@@ -432,11 +432,11 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun getFee(symbol: Symbol): BigDecimal {
-        return BigDecimal(symbol.takeLiquidityRate);
+        return BigDecimal(symbol.takeLiquidityRate)
     }
 
     private fun calculateSendValue() {
-        viewModel.youGet.value?.let { youGetValue ->
+        viewModel.youGet.value?.let {
             val youSend = viewModel.youSend.value!!
             val youGet = viewModel.youGet.value!!
             BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol) { symbol ->
@@ -455,7 +455,7 @@ class ExchangeFragment : Fragment() {
                                 viewModel.youSend.value = Value.parse(youSend.type, youSendDecimal.setScale(symbol.quantityIncrement.toBigDecimal().scale(), RoundingMode.DOWN))
                             }
                         }
-                    }, { code, msg ->
+                    }, { _, msg ->
                         ErrorHandler(requireContext()).handle(msg)
                     })
                 }
@@ -469,7 +469,7 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun calculateReceiveValue() {
-        viewModel.youSend.value?.let { youSendValue ->
+        viewModel.youSend.value?.let {
             val youSend = viewModel.youSend.value!!
             val youGet = viewModel.youGet.value!!
             BQExchangeRateManager.findSymbol(youGet.currencySymbol, youSend.currencySymbol) { symbol ->
@@ -508,7 +508,7 @@ class ExchangeFragment : Fragment() {
     private fun isEnoughFundsIncludingFees(): Boolean {
         // We don't need a warning about funds availability in case of demo
         if (isDemo) {
-            return true;
+            return true
         }
         val available = viewModel.available.value ?: return false
         val youSend = viewModel.youSend.value ?: return false

@@ -18,30 +18,28 @@ import java.util.concurrent.TimeUnit
 
 
 object BQExchangeRateManager : ExchangeRateProvider {
-
     interface Observer {
         fun refreshingExchangeRatesSucceeded()
         fun refreshingExchangeRatesFailed()
-        fun exchangeSourceChanged()
     }
 
     private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(BequantConstants.EXCHANGE_RATES, Activity.MODE_PRIVATE) }
-    private var _latestRates = mutableMapOf<String, MutableMap<String, BQExchangeRate>?>()
-    private var _latestRatesTime: Long = 0
+    private var latestRates = mutableMapOf<String, MutableMap<String, BQExchangeRate>?>()
+    private var latestRatesTime: Long = 0
 
     @Volatile
-    private var _fetcher: Fetcher? = null
+    private var fetcher: Fetcher? = null
 
-    private var _subscribers = mutableListOf<Observer>()
+    private var subscribers = mutableListOf<Observer>()
 
     @Synchronized
     fun subscribe(subscriber: Observer) {
-        _subscribers.add(subscriber)
+        subscribers.add(subscriber)
     }
 
     @Synchronized
     fun unsubscribe(subscriber: Observer) {
-        _subscribers.remove(subscriber)
+        subscribers.remove(subscriber)
     }
 
     class BQExchangeRate(val from: String, val to: String, price: Double, val time: Date? = Date()) :
@@ -49,11 +47,14 @@ object BQExchangeRateManager : ExchangeRateProvider {
 
     private var symbols = arrayOf<Symbol>()
 
-    fun findSymbol(a: String, b: String, answer: (Symbol?) -> Unit) {
-        Api.publicRepository.publicSymbolGet(GlobalScope, null, {
-            if (it?.isNotEmpty() == true) {
-                symbols = it
-                answer.invoke(symbols.find { (it.baseCurrency == a && it.quoteCurrency == b) || (it.baseCurrency == b && it.quoteCurrency == a) })
+    fun findSymbol(youGetSymbol: String, youSendSymbol: String, answer: (Symbol?) -> Unit) {
+        Api.publicRepository.publicSymbolGet(GlobalScope, null, { symbolArray ->
+            if (symbolArray?.isNotEmpty() == true) {
+                symbols = symbolArray
+                answer(symbols.find {
+                    it.baseCurrency == youGetSymbol && it.quoteCurrency == youSendSymbol
+                            || it.baseCurrency == youSendSymbol && it.quoteCurrency == youGetSymbol
+                })
             }
         }, { _, _ -> })
     }
@@ -83,9 +84,9 @@ object BQExchangeRateManager : ExchangeRateProvider {
                                 ticker.last ?: 0.0, ticker.timestamp))
                     }
                 }
-                synchronized(_requestLock) {
+                synchronized(requestLock) {
                     setLatestRates(response)
-                    _fetcher = null
+                    fetcher = null
                     notifyRefreshingExchangeRatesSucceeded()
                 }
 
@@ -93,14 +94,14 @@ object BQExchangeRateManager : ExchangeRateProvider {
                 // we failed to get the exchange rate, try to restore saved values from the local database
                 val savedExchangeRates = localValues()
                 if (savedExchangeRates.isNotEmpty()) {
-                    synchronized(_requestLock) {
+                    synchronized(requestLock) {
                         setLatestRates(savedExchangeRates)
-                        _fetcher = null
+                        fetcher = null
                         notifyRefreshingExchangeRatesSucceeded()
                     }
                 } else {
-                    synchronized(_requestLock) {
-                        _fetcher = null
+                    synchronized(requestLock) {
+                        fetcher = null
                         notifyRefreshingExchangeRatesFailed()
                     }
                 }
@@ -125,30 +126,26 @@ object BQExchangeRateManager : ExchangeRateProvider {
             }
 
     private fun notifyRefreshingExchangeRatesSucceeded() {
-        _subscribers.forEach { it.refreshingExchangeRatesSucceeded() }
+        subscribers.forEach { it.refreshingExchangeRatesSucceeded() }
     }
 
     private fun notifyRefreshingExchangeRatesFailed() {
-        _subscribers.forEach { it.refreshingExchangeRatesFailed() }
-    }
-
-    private fun notifyExchangeSourceChanged() {
-        _subscribers.forEach { it.exchangeSourceChanged() }
+        subscribers.forEach { it.refreshingExchangeRatesFailed() }
     }
 
     // only refresh if last refresh is old
     fun requestOptionalRefresh() {
-        if (System.currentTimeMillis() - _latestRatesTime > MIN_RATE_AGE_MS) {
+        if (System.currentTimeMillis() - latestRatesTime > MIN_RATE_AGE_MS) {
             requestRefresh()
         }
     }
 
-    fun requestRefresh() {
-        synchronized(_requestLock) {
+    private fun requestRefresh() {
+        synchronized(requestLock) {
             // Only start fetching if we are not already on it
-            if (_fetcher == null) {
-                _fetcher = Fetcher()
-                val t = Thread(_fetcher)
+            if (fetcher == null) {
+                fetcher = Fetcher()
+                val t = Thread(fetcher)
                 t.isDaemon = true
                 t.start()
             }
@@ -160,18 +157,18 @@ object BQExchangeRateManager : ExchangeRateProvider {
         if (latestRates.isEmpty()) {
             return
         }
-        _latestRates.clear()
+        this.latestRates.clear()
         for (response in latestRates) {
             val fromCurrency = addSymbolDecorations(response.from)
             val toCurrency = addSymbolDecorations(response.to)
-            if (_latestRates[fromCurrency] != null) {
-                _latestRates[fromCurrency]?.set(toCurrency, response)
+            if (this.latestRates[fromCurrency] != null) {
+                this.latestRates[fromCurrency]?.set(toCurrency, response)
             } else {
-                _latestRates[fromCurrency] = mutableMapOf(toCurrency to response)
+                this.latestRates[fromCurrency] = mutableMapOf(toCurrency to response)
             }
             storeExchangeRate(fromCurrency, toCurrency, response.price)
         }
-        _latestRatesTime = System.currentTimeMillis()
+        latestRatesTime = System.currentTimeMillis()
     }
 
     private fun storeExchangeRate(fromCurrency: String, toCurrency: String, price: Double?) {
@@ -181,17 +178,16 @@ object BQExchangeRateManager : ExchangeRateProvider {
     /**
      * Get the exchange rate for the specified currency.
      *
-     *
      * Returns null if the current rate is too old
      * In that the case the caller could choose to call refreshRates() and listen
      * for callbacks. If a rate is returned the contained price may be null if
      * the currently chosen exchange source is not available.
      */
+    override fun getExchangeRate(source: String, destination: String): ExchangeRate? {
+        val exchangeSource = "bequant"
+        val latestRatesForSourceCurrency: Map<String, BQExchangeRate>? = latestRates[source]
 
-    fun getExchangeRate(source: String, destination: String, exchangeSource: String): ExchangeRate? {
-        val latestRatesForSourceCurrency: Map<String, BQExchangeRate>? = _latestRates[source]
-
-        if (latestRatesForSourceCurrency == null || latestRatesForSourceCurrency.isEmpty() || !latestRatesForSourceCurrency.containsKey(destination)) {
+        if (latestRatesForSourceCurrency?.containsKey(destination) != true) {
             return null
         }
         val latestRatesForTargetCurrency = latestRatesForSourceCurrency[destination]
@@ -210,54 +206,24 @@ object BQExchangeRateManager : ExchangeRateProvider {
         return null
     }
 
-    override fun getExchangeRate(fromCurrency: String, toCurrency: String): ExchangeRate? =
-            getExchangeRate(fromCurrency, toCurrency, "bequant")
-
-
     fun get(value: Value, toCurrency: GenericAssetInfo): Value? {
-        var price: BigDecimal? = null
-        var exchangeRate = getExchangeRate(value.type.symbol, toCurrency.symbol)
-        if (exchangeRate?.price != null) {
-            price = BigDecimal.valueOf(exchangeRate.price)
-        } else {
-            // try inversed pair
-            exchangeRate = getExchangeRate(toCurrency.symbol, value.type.symbol)
-            if (exchangeRate?.price != null) {
-                price = BigDecimal.valueOf(1 / exchangeRate.price)
-            }
+        val price = getExchangeRate(value.type.symbol, toCurrency.symbol)?.let {
+            BigDecimal.valueOf(it.price)
+        } ?: getExchangeRate(toCurrency.symbol, value.type.symbol)?.let {
+            BigDecimal.valueOf(1 / it.price)
         }
-        val rateValue = price
-        return if (rateValue != null) {
-            val bigDecimal = rateValue.multiply(BigDecimal(value.value))
-                    .movePointLeft(value.type.unitExponent)
-                    .round(MathContext.DECIMAL128)
-            parse(toCurrency, bigDecimal)
-        } else {
-            null
-        }
+        return price
+                ?.multiply(BigDecimal(value.value))
+                ?.movePointLeft(value.type.unitExponent)
+                ?.round(MathContext.DECIMAL128)
+                ?.let {
+                    parse(toCurrency, it)
+                }
     }
-
 
     private val MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5)
-    val BTC = "BTC"
-    private val _requestLock = Any()
-
-    /**
-     * the method is used to remove additional characters indicating testnet coins from currencies' symbols
-     * before making request to the server with these symbols as parameters, as server provides
-     * exchange rates only by pure symbols, i.e. BTC and not tBTC
-     */
-    private fun trimSymbolDecorations(symbol: String): String? {
-        if (BuildConfig.FLAVOR == "btctestnet") {
-            if (symbol.startsWith("t")) {
-                return symbol.substring(1)
-            }
-            if (symbol.endsWith("t")) {
-                return symbol.substring(0, symbol.length - 1)
-            }
-        }
-        return symbol
-    }
+    const val BTC = "BTC"
+    private val requestLock = Any()
 
     private fun addSymbolDecorations(symbol: String): String {
         if (BuildConfig.FLAVOR == "btctestnet") {
