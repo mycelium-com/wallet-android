@@ -11,7 +11,7 @@ import java.math.BigDecimal
 
 
 class WithdrawViewModel() : ViewModel() {
-    var currency = MutableLiveData(Utils.getBtcCoinType().symbol)
+    val currency = MutableLiveData(Utils.getBtcCoinType().symbol)
     val custodialBalance = MutableLiveData<String>()
     val amount = MutableLiveData<String>()
     val address = MutableLiveData<String>()

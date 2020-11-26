@@ -15,43 +15,43 @@ object BequantPreference {
     private val preference: SharedPreferences by lazy { WalletApplication.getInstance().getSharedPreferences("bequant_main", Context.MODE_PRIVATE) }
 
     fun setPhone(phone: String) {
-        preference.edit().putString(Constants.PHONE_KEY, phone).apply()
+        preference.edit().putString(BequantConstants.PHONE_KEY, phone).apply()
     }
 
-    fun getPhone() = preference.getString(Constants.PHONE_KEY, null) ?: ""
+    fun getPhone() = preference.getString(BequantConstants.PHONE_KEY, null)
 
     fun setEmail(email: String) {
-        preference.edit().putString(Constants.EMAIL_KEY, email).apply()
+        preference.edit().putString(BequantConstants.EMAIL_KEY, email).apply()
     }
 
-    fun getEmail() = preference.getString(Constants.EMAIL_KEY, null) ?: ""
+    fun getEmail() = preference.getString(BequantConstants.EMAIL_KEY, null) ?: ""
 
-    fun getKYCToken() = preference.getString(Constants.KYC_UUID_KEY, null) ?: ""
+    fun getKYCToken() = preference.getString(BequantConstants.KYC_UUID_KEY, null) ?: ""
 
     fun setKYCToken(uuid: String) {
-        preference.edit().putString(Constants.KYC_UUID_KEY, uuid).apply()
+        preference.edit().putString(BequantConstants.KYC_UUID_KEY, uuid).apply()
     }
 
     fun setAccessToken(accessToken: String) {
-        preference.edit().putString(Constants.ACCESS_TOKEN_KEY, accessToken).apply()
+        preference.edit().putString(BequantConstants.ACCESS_TOKEN_KEY, accessToken).apply()
     }
 
-    fun getAccessToken() = preference.getString(Constants.ACCESS_TOKEN_KEY, null) ?: ""
+    fun getAccessToken() = preference.getString(BequantConstants.ACCESS_TOKEN_KEY, null) ?: ""
 
     fun setSession(session: String) {
-        preference.edit().putString(Constants.SESSION_KEY, session).apply()
+        preference.edit().putString(BequantConstants.SESSION_KEY, session).apply()
     }
 
-    fun getSession() = preference.getString(Constants.SESSION_KEY, null) ?: ""
+    fun getSession() = preference.getString(BequantConstants.SESSION_KEY, null) ?: ""
 
     @JvmStatic
     fun isLogged(): Boolean = getSession().isNotEmpty()
 
     fun isDemo(): Boolean = getAccessToken().isEmpty()
 
-    fun isIntroShown() = preference.getBoolean(Constants.INTRO_KEY, false)
+    fun isIntroShown() = preference.getBoolean(BequantConstants.INTRO_KEY, false)
 
-    fun setIntroShown() = preference.edit().putBoolean(Constants.INTRO_KEY, true).apply()
+    fun setIntroShown() = preference.edit().putBoolean(BequantConstants.INTRO_KEY, true).apply()
 
     fun clear() {
         preference.edit().clear().apply()
@@ -59,21 +59,21 @@ object BequantPreference {
 
     fun setApiKeys(privateKey: String?, publicKey: String?) {
         preference.edit()
-                .putString(Constants.PRIVATE_KEY, privateKey)
-                .putString(Constants.PUBLIC_KEY, publicKey)
+                .putString(BequantConstants.PRIVATE_KEY, privateKey)
+                .putString(BequantConstants.PUBLIC_KEY, publicKey)
                 .apply()
     }
 
-    fun getPublicKey(): String = preference.getString(Constants.PUBLIC_KEY, null) ?: ""
+    fun getPublicKey(): String = preference.getString(BequantConstants.PUBLIC_KEY, null) ?: ""
 
-    fun getPrivateKey(): String = preference.getString(Constants.PRIVATE_KEY, null) ?: ""
+    fun getPrivateKey(): String = preference.getString(BequantConstants.PRIVATE_KEY, null) ?: ""
 
     fun hasKeys(): Boolean = getPrivateKey().isNotEmpty()
 
-    fun hideZeroBalance() = preference.getBoolean(Constants.HIDE_ZERO_BALANCE_KEY, false)
+    fun hideZeroBalance() = preference.getBoolean(BequantConstants.HIDE_ZERO_BALANCE_KEY, false)
 
     fun setHideZeroBalance(checked: Boolean) {
-        preference.edit().putBoolean(Constants.HIDE_ZERO_BALANCE_KEY, checked).apply()
+        preference.edit().putBoolean(BequantConstants.HIDE_ZERO_BALANCE_KEY, checked).apply()
     }
 
     fun setLastKnownBalance(value: Value) {
@@ -84,18 +84,24 @@ object BequantPreference {
             preference.getString("balance", "0") ?: "0")
 
     fun getKYCRequest() =
-            Gson().fromJson(preference.getString(Constants.KYC_REQUEST_KEY, null), KYCRequest::class.java)
+            Gson().fromJson(preference.getString(BequantConstants.KYC_REQUEST_KEY, null), KYCRequest::class.java)
                     ?: KYCRequest()
 
     fun setKYCRequest(request: KYCRequest) {
-        preference.edit().putString(Constants.KYC_REQUEST_KEY, Gson().toJson(request)).apply()
+        preference.edit().putString(BequantConstants.KYC_REQUEST_KEY, Gson().toJson(request)).apply()
     }
 
-    fun getKYCStatus(): KYCStatus = KYCStatus.valueOf(preference.getString("kyc_status", "NONE")
+    fun getKYCStatus(): KYCStatus = KYCStatus.valueOf(preference.getString(BequantConstants.KYC_STATUS_KEY, "NONE")
             ?: "NONE")
 
     fun setKYCStatus(status: KYCStatus) {
-        preference.edit().putString(Constants.KYC_STATUS_KEY, status.toString()).apply()
+        preference.edit().putString(BequantConstants.KYC_STATUS_KEY, status.toString()).apply()
+    }
+
+    fun getKYCStatusMessage() = preference.getString(BequantConstants.KYC_STATUS_MESSAGE_KEY, "")
+
+    fun setKYCStatusMessage(message: String) {
+        preference.edit().putString(BequantConstants.KYC_STATUS_MESSAGE_KEY, message).apply()
     }
 
     fun setKYCSubmitDate(date: Date) {
@@ -103,4 +109,20 @@ object BequantPreference {
     }
 
     fun getKYCSubmitDate(): Date = Date(preference.getLong("kyc_submit_date", 0))
+
+    fun setKYCSubmitted(submitted: Boolean) {
+        preference.edit().putBoolean("kyc_submitted", submitted).apply()
+    }
+
+    fun getKYCSubmitted(): Boolean = preference.getBoolean("kyc_submitted", false)
+
+    fun setKYCSectionStatus(sections: List<Pair<String, Boolean>>?) {
+        preference.edit().apply {
+            sections?.forEach {
+                putBoolean("section_${it.first}", it.second)
+            }
+        }.apply()
+    }
+
+    fun getKYCSectionStatus(section: String) = preference.getBoolean("section_$section", true)
 }

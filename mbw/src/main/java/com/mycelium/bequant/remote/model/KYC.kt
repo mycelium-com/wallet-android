@@ -19,11 +19,11 @@ data class KYCRequest(
         var last_name: String? = null,
         var nationality: String? = null,
         var zip: String? = null,
-        var fatca:Boolean = false,
+        var fatca: Boolean = false,
         val identityList: MutableList<String> = mutableListOf(),
         val poaList: MutableList<String> = mutableListOf(),
         val selfieList: MutableList<String> = mutableListOf(),
-        @Transient var isResubmit:Boolean = false
+        @Transient var isResubmit: Boolean = false
 ) : Parcelable {
     fun toModel(applicant: KYCApplicant): KYCApplicant {
         applicant.firstName = this.first_name
@@ -42,9 +42,8 @@ data class KYCRequest(
 
 data class KYCCreateRequest(var applicant: KYCApplicant)
 
-data class KYCApplicant(@JsonProperty("phone-full") val phone: String,
-                        @JsonInclude(JsonInclude.Include.NON_NULL)
-                        var email: String,
+data class KYCApplicant(@JsonInclude(JsonInclude.Include.NON_NULL) var email: String,
+                        @JsonProperty("phone-full") var phone: String? = null,
                         @JsonInclude(JsonInclude.Include.NON_NULL)
                         @JsonProperty("first_name") var firstName: String? = null,
                         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -57,7 +56,10 @@ data class KYCApplicant(@JsonProperty("phone-full") val phone: String,
                         @JsonProperty("once-token") var userId: String? = null,
                         @JsonInclude(JsonInclude.Include.NON_NULL)
                         @JsonProperty("facta_declaration") var facta: Boolean? = null,
+//                        @JsonProperty("account_type") val accountType: String = "pro",
                         @JsonProperty("residential_address") var address: ResidentialAddress = ResidentialAddress())
+
+data class OnceToken(@JsonProperty("once-token") var userId: String)
 
 data class ResidentialAddress(@JsonProperty("address_1") var address1: String = "",
                               @JsonProperty("address_2") var address2: String = "",
@@ -78,6 +80,8 @@ data class KYCStatusResponse(var status: Int?,
 
 data class StatusMessage(val global: KYCStatus,
                          @JsonProperty("global_message") val message: String,
+                         val submitted: Boolean? = null,
+                         @JsonProperty("submitted_timestamp") val submitDate: Date? = null,
                          val sections: List<Map<String, Boolean>>)
 
 data class KYCTokenResponse(var status: Int?,
@@ -95,4 +99,8 @@ enum class KYCDocument {
     EXP, POA, DRIVERS_FRONT_SIDE, DRIVERS_BACK_SIDE
 }
 
-enum class KYCStatus { NONE, PENDING, INCOMPLETE, REJECTED, APPROVED, SIGNED_OFF }
+enum class KYCStatus {
+    NONE, PENDING, INCOMPLETE, REJECTED, VERIFIED, APPROVED,
+    @JsonProperty("SIGNED-OFF")
+    SIGNED_OFF
+}

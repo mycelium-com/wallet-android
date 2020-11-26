@@ -9,7 +9,7 @@ import com.mycelium.bequant.remote.client.models.KycSaveMobilePhoneRequest
 
 class InputPhoneViewModel : ViewModel() {
     val phoneNumber = MutableLiveData<String>()
-    val countryModel = MutableLiveData<CountryModel>(CountryModel("Russia", "RU", "RUS", 7))
+    val countryModel = MutableLiveData<CountryModel>()
 
     fun getRequest(): KycSaveMobilePhoneRequest? {
         if (!isValidMobile(phoneNumber.value)) {

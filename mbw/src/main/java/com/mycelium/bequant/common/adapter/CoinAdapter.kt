@@ -6,8 +6,8 @@ import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.mycelium.bequant.Constants.TYPE_ITEM
-import com.mycelium.bequant.Constants.TYPE_SEARCH
+import com.mycelium.bequant.BequantConstants.TYPE_ITEM
+import com.mycelium.bequant.BequantConstants.TYPE_SEARCH
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.bequant.common.holder.ItemViewHolder
 import com.mycelium.bequant.common.holder.SearchHolder

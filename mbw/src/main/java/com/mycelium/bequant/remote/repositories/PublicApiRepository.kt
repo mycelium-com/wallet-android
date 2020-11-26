@@ -2,8 +2,10 @@ package com.mycelium.bequant.remote.repositories
 
 import android.app.Activity
 import com.google.gson.Gson
-import com.mycelium.bequant.Constants
-import com.mycelium.bequant.Constants.LAST_SYMBOLS_UPDATE
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantConstants.EXCLUDE_COIN_LIST
+import com.mycelium.bequant.BequantConstants.LAST_SYMBOLS_UPDATE
+import com.mycelium.bequant.BequantConstants.changeCoinToServer
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.PublicApi
 import com.mycelium.bequant.remote.trading.model.*
@@ -15,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class PublicApiRepository {
     private val api = PublicApi.create()
-    private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(Constants.PUBLIC_REPOSITORY, Activity.MODE_PRIVATE) }
+    private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(BequantConstants.PUBLIC_REPOSITORY, Activity.MODE_PRIVATE) }
 
     fun publicCandlesGet(scope: CoroutineScope,
                          symbols: String, period: String, sort: String, from: String, till: String, limit: Int, offset: Int,
@@ -36,8 +38,14 @@ class PublicApiRepository {
     fun publicCurrencyCurrencyGet(scope: CoroutineScope, currency: String,
                                   success: (Currency?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            api.publicCurrencyCurrencyGet(currency)
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+            api.publicCurrencyCurrencyGet(changeCoinToServer(currency))
+        }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                responseModifier = { result ->
+                    if (result?.id == "USD") {
+                        result.id = "USDT"
+                    }
+                    result
+                })
     }
 
     // maybe need put it to sharedpreference
@@ -52,12 +60,17 @@ class PublicApiRepository {
             finally?.invoke()
         } else {
             doRequest(scope, {
-                api.publicCurrencyGet(currencies).apply {
-                    if (currencies == null) {
-                        publicCurrencies = body() ?: arrayOf()
-                    }
-                }
-            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+                api.publicCurrencyGet(currencies)
+            }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                    responseModifier = { result ->
+                        result?.filterNot { EXCLUDE_COIN_LIST.contains(it.id) }?.apply {
+                            firstOrNull { it.id == "USD" }?.id = "USDT"
+                        }?.toTypedArray()?.apply {
+                            if (currencies == null) {
+                                publicCurrencies = this
+                            }
+                        }
+                    })
         }
     }
 
@@ -98,12 +111,20 @@ class PublicApiRepository {
             finally?.invoke()
         } else {
             doRequest(scope, {
-                api.publicSymbolGet(symbols).apply {
-                    if (symbols == null) {
-                        publicSymbols = body() ?: arrayOf()
-                    }
-                }
-            }, successBlock = success, errorBlock = error, finallyBlock = finally)
+                api.publicSymbolGet(symbols)
+            }, successBlock = success, errorBlock = error, finallyBlock = finally,
+                    responseModifier = { result ->
+                        result?.filterNot {
+                            EXCLUDE_COIN_LIST.contains(it.baseCurrency) || EXCLUDE_COIN_LIST.contains(it.quoteCurrency)
+                        }?.apply {
+                            filter { it.baseCurrency == "USD" }.forEach { it.baseCurrency = "USDT" }
+                            filter { it.quoteCurrency == "USD" }.forEach { it.quoteCurrency = "USDT" }
+                        }?.toTypedArray()?.apply {
+                            if (symbols == null) {
+                                publicSymbols = this
+                            }
+                        }
+                    })
         }
     }
 

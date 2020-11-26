@@ -112,9 +112,9 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                                     (convertToVolumeInUSDT(symbol, ticker.volume!!) ?: 0.0).roundToInt(), ticker.last,
                                     getUSDForPriceCurrency(symbol.baseCurrency), change)
                         }
-                    }.filter { marketItem ->
-                        // currently we don't support pairs with fiat on any side
-                        !(isFiat(marketItem.from) || isFiat(marketItem.to))
+//                    }.filter { marketItem ->
+//                        // currently we don't support pairs with fiat on any side
+//                        !(isFiat(marketItem.from) || isFiat(marketItem.to))
                     }.let { marketItems ->
                         fun <T, R : Comparable<R>> Iterable<T>.mSort(selector: (T) -> R?) =
                                 if (sortDirection) sortedByDescending(selector) else sortedBy(selector)

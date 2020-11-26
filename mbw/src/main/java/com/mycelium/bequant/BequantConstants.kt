@@ -1,11 +1,13 @@
 package com.mycelium.bequant
 
 
-object Constants {
+object BequantConstants {
+    const val PARTNER_ID = "bequant"
     const val LINK_TERMS_OF_USE = "https://bequant.io/terms-of-use"
     const val LINK_SUPPORT_CENTER = "https://support.bequant.io"
     const val LINK_GOOGLE_AUTHENTICATOR = "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
-    const val KYC_ENDPOINT = "https://test006.bqtstuff.com/"
+    const val KYC_ENDPOINT = "https://account.bequant.io/"
+    const val KYC_ACCESS_TOKEN = "31b45d0a5015889db4b44d5efd635cbc"
     const val ACCOUNT_ENDPOINT = "https://fynh6mvro0.execute-api.us-east-1.amazonaws.com/prd/"
     const val AUTH_ENDPOINT = "https://xwpe71x4sg.execute-api.us-east-1.amazonaws.com/prd-reg/"
     const val VERSION_POSTFIX = "api/2/"
@@ -31,6 +33,7 @@ object Constants {
     const val COUNTRY_MODEL_KEY = "phoneModel"
     const val KYC_REQUEST_KEY ="kyc_request"
     const val KYC_STATUS_KEY ="kyc_status"
+    const val KYC_STATUS_MESSAGE_KEY ="kyc_status_message"
     const val LAST_SYMBOLS_UPDATE = "last_symbols_update"
 
     const val REQUEST_CODE_EXCHANGE_COINS = 3001
@@ -43,4 +46,6 @@ object Constants {
     const val TYPE_SPACE = 1
 
     const val PUBLIC_REPOSITORY = "bequant_public_repository"
+    val EXCLUDE_COIN_LIST = listOf("USDB", "EURB", "GBPB")
+    fun changeCoinToServer(symbol: String) = if (symbol == "USDT") "USD" else symbol
 }

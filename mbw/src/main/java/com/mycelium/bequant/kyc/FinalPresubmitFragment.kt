@@ -70,13 +70,19 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
                     put(File(it), KYCDocument.SELFIE)
                 }
             }, kycRequest.country ?: "", {
-                BequantPreference.setKYCSubmitDate(Date())
-                Toast.makeText(requireActivity(), "Submitted", Toast.LENGTH_LONG).show()
-                findNavController().navigate(FinalPresubmitFragmentDirections.actionFinish())
-            }, {
-                ErrorHandler(requireContext()).handle(it)
+                Api.kycRepository.submit(lifecycleScope, {
+                    BequantPreference.setKYCSubmitDate(Date())
+                    Toast.makeText(requireActivity(), "Submitted", Toast.LENGTH_LONG).show()
+                    findNavController().navigate(FinalPresubmitFragmentDirections.actionFinish())
+                }, { code, msg ->
+                    ErrorHandler(requireContext()).handle(msg)
+                }, {
+                    loader(false)
+                }
+                )
             }, {
                 loader(false)
+                ErrorHandler(requireContext()).handle(it)
             })
         }
         if (!kycRequest.isResubmit) {

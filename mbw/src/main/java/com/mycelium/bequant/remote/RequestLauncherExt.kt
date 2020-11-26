@@ -10,14 +10,15 @@ import retrofit2.Response
 fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Response<T>,
                   successBlock: (T?) -> Unit,
                   errorBlock: ((Int, String) -> Unit)? = null,
-                  finallyBlock: (() -> Unit)? = null) {
+                  finallyBlock: (() -> Unit)? = null,
+                  responseModifier: ((T?) -> T?)? = null) {
     coroutineScope.launch {
         withContext(Dispatchers.IO) {
             try {
                 val response = request()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        successBlock(response.body())
+                        successBlock(responseModifier?.invoke(response.body()) ?: response.body())
                     } else {
                         @Suppress("BlockingMethodInNonBlockingContext")
                         errorBlock?.invoke(response.code(), response.errorBody()?.string() ?: "")

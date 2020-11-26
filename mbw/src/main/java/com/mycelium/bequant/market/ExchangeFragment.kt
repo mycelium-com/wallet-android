@@ -29,8 +29,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BQExchangeRateManager
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
-import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantConstants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.common.*
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.kyc.BequantKycActivity
@@ -39,6 +39,7 @@ import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.bequant.remote.trading.model.Transaction
+import com.mycelium.bequant.sign.SignActivity
 import com.mycelium.bequant.signup.TwoFactorActivity
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
@@ -86,7 +87,7 @@ class ExchangeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         BQExchangeRateManager.requestOptionalRefresh()
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_EXCHANGE))
         MbwManager.getEventBus().register(this)
     }
 
@@ -179,14 +180,16 @@ class ExchangeFragment : Fragment() {
                     .putExtra(YOU_SEND_YOU_GET_PAIR, youSendYouGetPair), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
-            // TODO add check that KYC has been passed or show BequantKycActivity
-            // startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-            if (!BequantPreference.hasKeys()) {
+            if (isDemo) {
+                startActivity(Intent(requireActivity(), SignActivity::class.java))
+            } else if (!BequantPreference.hasKeys()) {
                 ModalDialog(getString(R.string.bequant_turn_2fa),
                         getString(R.string.bequant_recommend_enable_2fa),
                         getString(R.string.secure_your_account)) {
                     startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
                 }.show(childFragmentManager, "modal_dialog")
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
             } else {
                 makeExchange()
             }
@@ -199,25 +202,35 @@ class ExchangeFragment : Fragment() {
             updateAvailable()
         }
         deposit.setOnClickListener {
-            if (!BequantPreference.hasKeys()) {
-                ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
-                        getString(R.string.bequant_enable_2fa),
-                        getString(R.string.secure_your_account)) {
-                    startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
-                ModalDialog(getString(R.string.bequant_kyc_verify_title),
-                        getString(R.string.bequant_kyc_verify_message),
-                        getString(R.string.bequant_kyc_verify_button)) {
-                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
-                }.show(childFragmentManager, "modal_dialog")
+            if (isDemo) {
+                startActivity(Intent(requireActivity(), SignActivity::class.java))
+            } else if (!BequantPreference.hasKeys()) {
+                askEnable2Fa()
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
             } else {
                 findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(viewModel.available.value!!.currencySymbol))
             }
         }
         btContactSupport.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_SUPPORT_CENTER)))
         }
+    }
+
+    private fun askDoKyc() {
+        ModalDialog(getString(R.string.bequant_kyc_verify_title),
+                getString(R.string.bequant_kyc_verify_message),
+                getString(R.string.bequant_kyc_verify_button)) {
+            startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+        }.show(childFragmentManager, "modal_dialog")
+    }
+
+    private fun askEnable2Fa() {
+        ModalDialog(getString(R.string.bequant_turn_2fa_deposit),
+                getString(R.string.bequant_enable_2fa),
+                getString(R.string.secure_your_account)) {
+            startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
+        }.show(childFragmentManager, "modal_dialog")
     }
 
     private fun hideKeyboard(view: View) {
@@ -268,8 +281,9 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun updateExchangeEnabledFlag() {
-        val rateExists = viewModel.rate.value!!.isNotBlank()
-        viewModel.isExchangeEnabled.value = rateExists && isEnoughFundsIncludingFees()
+        val rateExists = viewModel.rate.value!!.isNotBlank();
+        val moreThanZero = viewModel.youSend.value?.isPositive() ?: false
+        viewModel.isExchangeEnabled.value = rateExists && isEnoughFundsIncludingFees() && moreThanZero;
     }
 
     override fun onDestroy() {

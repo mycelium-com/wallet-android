@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
@@ -15,8 +16,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants.HIDE_VALUE
-import com.mycelium.bequant.Constants.TYPE_ITEM
+import com.mycelium.bequant.BequantConstants.HIDE_VALUE
+import com.mycelium.bequant.BequantConstants.TYPE_ITEM
 import com.mycelium.bequant.common.ModalDialog
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.AccountItem
@@ -70,6 +71,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), TwoFactorActivity::class.java))
             }.show(childFragmentManager, "modal_dialog")
         }
+
         fun askDoKyc() {
             ModalDialog(getString(R.string.bequant_kyc_verify_title),
                     getString(R.string.bequant_kyc_verify_message),
@@ -82,7 +84,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_deposit)
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit"))
@@ -93,7 +95,7 @@ class AccountFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SignActivity::class.java))
             } else if (!BequantPreference.hasKeys()) {
                 askEnable2Fa(R.string.bequant_turn_2fa_withdraw)
-            } else if (BequantPreference.getKYCStatus() != KYCStatus.APPROVED) {
+            } else if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
                 askDoKyc()
             } else {
                 findNavController().navigate(MarketFragmentDirections.actionSelectCoin("withdraw"))
@@ -109,7 +111,19 @@ class AccountFragment : Fragment() {
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         list.adapter = adapter
         adapter.addCoinListener = {
-            findNavController().navigate(MarketFragmentDirections.actionDeposit(it))
+            if (BequantPreference.getKYCStatus() != KYCStatus.VERIFIED) {
+                askDoKyc()
+            } else {
+                when (it) {
+                    "EURB", "USDB", "GBPB" -> {
+                        AlertDialog.Builder(requireContext())
+                                .setMessage(getString(R.string.bequant_fiat_tx_not_supported))
+                                .setPositiveButton(R.string.button_ok) { _, _ ->
+                                }.show()
+                    }
+                    else -> findNavController().navigate(MarketFragmentDirections.actionDeposit(it))
+                }
+            }
         }
         viewModel.privateMode.observe(viewLifecycleOwner, Observer {
             privateModeButton.setImageDrawable(ContextCompat.getDrawable(requireContext(),
@@ -220,7 +234,7 @@ class AccountFragment : Fragment() {
         adapter.submitList(balancesData
                 .filter { !BequantPreference.hideZeroBalance() || it.available != "0" }
                 .map {
-                    AccountItem(TYPE_ITEM, it.currency!!, it.currency,
+                    AccountItem(TYPE_ITEM, it.currency!!, it.currency!!,
                             if (viewModel.privateMode.value == true) HIDE_VALUE else it.available!!)
                 }
                 .filter { it.name.contains(filter, true) || it.symbol.contains(filter, true) })

@@ -5,6 +5,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
+import java.util.*
 
 
 fun <T> equalsValuesBy(a: T, b: T, vararg selectors: (T) -> Any?): Boolean {
@@ -24,7 +25,7 @@ fun Currency.assetInfoById(): GenericAssetInfo {
         when (id) {
             "BTC" -> Utils.getBtcCoinType()
             "ETH" -> Utils.getEthCoinType()
-            else -> CryptoCurrency( this@assetInfoById.id, this@assetInfoById.fullName, this@assetInfoById.id, this@assetInfoById.precisionPayout, 2, true)
+            else -> CryptoCurrency(this@assetInfoById.id, this@assetInfoById.fullName, this@assetInfoById.id, this@assetInfoById.precisionPayout, 2, true)
         }
     } else {
         FiatType(id.substring(0, 3))

@@ -16,7 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
@@ -43,7 +43,7 @@ class Step2Fragment : Fragment() {
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
-            intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.let {
+            intent?.getParcelableExtra<CountryModel>(BequantConstants.COUNTRY_MODEL_KEY)?.let {
                 viewModel.country.value = it.name
                 viewModel.countryAcronym.value = it.acronym3
             }
@@ -57,7 +57,7 @@ class Step2Fragment : Fragment() {
         viewModel = ViewModelProviders.of(this).get(Step2ViewModel::class.java)
         viewModel.fromModel(kycRequest)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_COUNTRY_SELECTED))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -79,14 +79,11 @@ class Step2Fragment : Fragment() {
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
-                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.CURRENT)
-                , ItemStep(3, getString(R.string.phone_number), StepState.FUTURE)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
+                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE), ItemStep(2, getString(R.string.residential_address), StepState.CURRENT), ItemStep(3, getString(R.string.phone_number), StepState.FUTURE), ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
 
         stepAdapter.clickListener = {
             when (it) {
-                1 -> findNavController().navigate(Step2FragmentDirections.actionEditStep1().setKycRequest(kycRequest))
+                1 -> findNavController().navigate(Step2FragmentDirections.actionEditStep1(kycRequest))
             }
         }
 
@@ -94,28 +91,13 @@ class Step2Fragment : Fragment() {
             findNavController().navigate(Step2FragmentDirections.actionSelectCountry())
         }
         btNext.setOnClickListener {
-            loader(true)
-            Api.signRepository.accountOnceToken(viewModel.viewModelScope, {
-                it?.token?.let { onceToken ->
-                    viewModel.fillModel(kycRequest)
-                    val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
-                    applicant.userId = onceToken
-                    Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
-                        findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
-                    }, { _, msg ->
-                        ErrorHandler(requireContext()).handle(msg)
-                    }, {
-                        loader(false)
-                    })
-                }
-            }, { _, msg ->
-                loader(false)
-                ErrorHandler(requireContext()).handle(msg)
-            })
+            viewModel.fillModel(kycRequest)
+            BequantPreference.setKYCRequest(kycRequest)
+            sendData()
         }
 
-        viewModel.run { 
-            listOf(addressLine1, addressLine2, city, postcode, country).forEach { 
+        viewModel.run {
+            listOf(addressLine1, addressLine2, city, postcode, country).forEach {
                 it.observe(viewLifecycleOwner, Observer {
                     viewModel.nextButton.value = viewModel.isValid()
                 })
@@ -145,5 +127,40 @@ class Step2Fragment : Fragment() {
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
         super.onDestroy()
+    }
+
+
+    private fun sendData() {
+        loader(true)
+        Api.signRepository.accountOnceToken(viewModel.viewModelScope, {
+            it?.token?.let { onceToken ->
+                val applicant = KYCApplicant(BequantPreference.getEmail(), BequantPreference.getPhone())
+                applicant.userId = onceToken
+                BequantPreference.setKYCRequest(kycRequest)
+                Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
+                    nextPage()
+                }, { _, msg ->
+                    loader(false)
+                    ErrorHandler(requireContext()).handle(msg)
+                })
+            }
+        }, { _, msg ->
+            loader(false)
+            ErrorHandler(requireContext()).handle(msg)
+        })
+    }
+
+    private fun nextPage() {
+        when {
+            BequantPreference.getKYCSectionStatus("phone") -> {
+                findNavController().navigate(Step2FragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
+            }
+            BequantPreference.getKYCSectionStatus("documents") -> {
+                findNavController().navigate(Step2FragmentDirections.actionEditStep4(BequantPreference.getKYCRequest()))
+            }
+            else -> {
+                findNavController().navigate(Step2FragmentDirections.actionPending())
+            }
+        }
     }
 }

@@ -1,7 +1,8 @@
 package com.mycelium.bequant.remote.repositories
 
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants.KYC_ENDPOINT
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantConstants.KYC_ENDPOINT
 import com.mycelium.bequant.remote.BequantKYCApiService
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
 import com.mycelium.bequant.remote.client.RetrofitFactory.objectMapper
@@ -12,18 +13,22 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.File
+import java.util.*
 
 
 class KYCRepository {
     fun create(scope: CoroutineScope, applicant: KYCApplicant, success: (() -> Unit),
-               error: (Int, String) -> Unit, finally: () -> Unit) {
+               error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
-            service.create(KYCCreateRequest(applicant))
+            if (BequantPreference.getKYCToken().isNotEmpty()) {
+                service.update(applicant)
+            } else {
+                service.create(KYCCreateRequest(applicant))
+            }
         }, {
             val uuid = it?.uuid ?: ""
             BequantPreference.setKYCToken(uuid)
@@ -46,14 +51,33 @@ class KYCRepository {
         doRequest(scope, {
             service.checkMobileVerification(BequantPreference.getKYCToken(), code)
         }, {
-            if (it?.message == "CODE_VALID") {
-                success()
-            } else {
-                error()
+            when (it?.message) {
+                "CODE_VALID", "VERIFIED" -> success()
+                else -> error()
             }
         }, { _, _ ->
             error()
         }, {})
+    }
+
+    fun submit(scope: CoroutineScope, success: (() -> Unit),
+               error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
+        Api.signRepository.accountOnceToken(scope,
+                success = { onceTokenResponse ->
+                    onceTokenResponse?.token?.let { onceToken ->
+                        doRequest(scope, {
+                            service.submit(OnceToken(onceToken))
+                        }, {
+                            success()
+                        }, { code, msg ->
+                            error?.invoke(code, msg)
+                        }, finally)
+                    }
+                },
+                error = { code, msg ->
+                    error?.invoke(code, msg)
+                    finally?.invoke()
+                })
     }
 
     fun uploadDocument(scope: CoroutineScope, type: KYCDocument, file: File, country: String,
@@ -73,7 +97,7 @@ class KYCRepository {
     }
 
     fun uploadDocuments(scope: CoroutineScope, fileMap: Map<File, KYCDocument>, country: String,
-                        success: () -> Unit, error: (String) -> Unit, finally: () -> Unit) {
+                        success: () -> Unit, error: (String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
             var result: Response<KYCResponse> = Response.success(null)
             fileMap.forEach {
@@ -96,7 +120,18 @@ class KYCRepository {
         doRequest(scope, {
             service.status(BequantPreference.getKYCToken())
         }, { response ->
-            BequantPreference.setKYCStatus(response?.message?.global ?: KYCStatus.NONE)
+            val oldStatus = BequantPreference.getKYCStatus()
+            val status = response?.message?.global ?: KYCStatus.NONE
+            BequantPreference.setKYCStatus(status)
+            BequantPreference.setKYCStatusMessage(response?.message?.message ?: "")
+            BequantPreference.setKYCSectionStatus(response?.message?.sections?.flatMap { it.map { it.key to it.value } })
+            BequantPreference.setKYCSubmitDate(response?.message?.submitDate ?: Date(0))
+            BequantPreference.setKYCSubmitted(response?.message?.submitted ?: false)
+
+            if ((oldStatus == KYCStatus.NONE && status == KYCStatus.PENDING) || (oldStatus != KYCStatus.NONE && status != oldStatus)) {
+                BequantUserEvent.KYC_STATUS_CHANGE.track()
+            }
+
             success(response?.message!!)
         }, { code, msg ->
             error?.invoke(code, msg)
@@ -146,11 +181,10 @@ class KYCRepository {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
                                     if (BequantPreference.getAccessToken().isNotEmpty()) {
-                                        header("x-access-token", "xyz")
+                                        header("x-access-token", BequantConstants.KYC_ACCESS_TOKEN)
                                     }
                                 }.build())
                             }
-                            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                             .build())
                     .addConverterFactory(NullOnEmptyConverterFactory())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))

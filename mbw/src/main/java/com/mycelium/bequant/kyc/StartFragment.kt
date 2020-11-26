@@ -20,6 +20,35 @@ import kotlinx.android.synthetic.main.fragment_bequant_kyc_start.*
 
 
 class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+        if (BequantPreference.getKYCToken().isNotEmpty()) {
+            loader(true)
+            Api.kycRepository.status(lifecycleScope, { statusMsg ->
+                when (statusMsg.global) {
+                    KYCStatus.PENDING, KYCStatus.APPROVED, KYCStatus.SIGNED_OFF ->
+                        findNavController().navigate(StartFragmentDirections.actionPending())
+                    KYCStatus.INCOMPLETE ->
+                        if (statusMsg.submitted == true) {
+                            findNavController().navigate(StartFragmentDirections.actionPending())
+                        } else {
+                            findNavController().navigate(StartFragmentDirections.actionIncomplete())
+                        }
+                    KYCStatus.VERIFIED ->
+                        findNavController().navigate(StartFragmentDirections.actionApproved())
+                    KYCStatus.REJECTED ->
+                        findNavController().navigate(StartFragmentDirections.actionRejected())
+                }
+            }, { code, msg ->
+                ErrorHandler(requireContext()).handle(msg)
+            }, {
+                loader(false)
+            })
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.run {
@@ -35,29 +64,6 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
                 , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
         btnStart.setOnClickListener {
             findNavController().navigate(StartFragmentDirections.actionNext())
-        }
-        if (BequantPreference.getKYCToken().isNotEmpty()) {
-            loader(true)
-            Api.kycRepository.status(lifecycleScope, { statusMsg ->
-                when (statusMsg.global) {
-                    KYCStatus.PENDING ->
-                        if (statusMsg.sections.map { it.entries.first() }.firstOrNull { it.key == "phone" }?.value == false) {
-                            findNavController().navigate(StartFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
-                        } else {
-                            findNavController().navigate(StartFragmentDirections.actionPending())
-                        }
-                    KYCStatus.INCOMPLETE ->
-                        findNavController().navigate(StartFragmentDirections.actionPending())
-                    KYCStatus.APPROVED ->
-                        findNavController().navigate(StartFragmentDirections.actionApproved())
-                    KYCStatus.REJECTED ->
-                        findNavController().navigate(StartFragmentDirections.actionRejected())
-                }
-            }, { code, msg ->
-                ErrorHandler(requireContext()).handle(msg)
-            }, {
-                loader(false)
-            })
         }
     }
 

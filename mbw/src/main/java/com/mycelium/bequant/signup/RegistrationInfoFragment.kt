@@ -18,17 +18,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
-import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
+import com.mycelium.bequant.BequantConstants.ACTION_BEQUANT_EMAIL_CONFIRMED
+import com.mycelium.bequant.BequantConstants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.bequant.remote.client.models.AccountEmailConfirmResend
+import com.mycelium.bequant.remote.model.BequantUserEvent
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBindingImpl
+import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBinding
 import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
 
@@ -41,8 +42,10 @@ class RegistrationInfoFragment : Fragment() {
             loader(true)
             val request = AccountAuthRequest(args.register.email, args.register.password)
             Api.signRepository.authorize(lifecycleScope, request, success = {
-                startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+                startActivity(Intent(requireContext(), BequantMarketActivity::class.java)
+                        .putExtra("from", "registration"))
                 requireActivity().finish()
+                BequantUserEvent.EMAIL_CONFIRMED.track()
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
             }, finally = {
@@ -59,7 +62,7 @@ class RegistrationInfoFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantRegistrationInfoBindingImpl>(inflater, R.layout.fragment_bequant_registration_info, container, false)
+            DataBindingUtil.inflate<FragmentBequantRegistrationInfoBinding>(inflater, R.layout.fragment_bequant_registration_info, container, false)
                     .apply {
                         viewModel = this@RegistrationInfoFragment.viewModel
                         lifecycleOwner = this@RegistrationInfoFragment

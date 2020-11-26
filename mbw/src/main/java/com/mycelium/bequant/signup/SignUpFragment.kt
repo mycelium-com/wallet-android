@@ -21,14 +21,15 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
-import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
-import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
-import com.mycelium.bequant.Constants.LINK_TERMS_OF_USE
+import com.mycelium.bequant.BequantConstants.ACTION_COUNTRY_SELECTED
+import com.mycelium.bequant.BequantConstants.COUNTRY_MODEL_KEY
+import com.mycelium.bequant.BequantConstants.LINK_SUPPORT_CENTER
+import com.mycelium.bequant.BequantConstants.LINK_TERMS_OF_USE
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.client.models.RegisterAccountRequest
+import com.mycelium.bequant.remote.model.BequantUserEvent
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
@@ -93,6 +94,7 @@ class SignUpFragment : Fragment() {
                 val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
                 Api.signRepository.signUp(lifecycleScope, registerAccountRequest, success = {
                     findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
+                    BequantUserEvent.REGISTRATION_COMPLETED.track()
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
                 }, finally = {

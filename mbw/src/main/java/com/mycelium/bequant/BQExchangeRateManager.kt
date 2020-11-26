@@ -23,7 +23,7 @@ object BQExchangeRateManager : ExchangeRateProvider {
         fun refreshingExchangeRatesFailed()
     }
 
-    private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(Constants.EXCHANGE_RATES, Activity.MODE_PRIVATE) }
+    private val preference by lazy { WalletApplication.getInstance().getSharedPreferences(BequantConstants.EXCHANGE_RATES, Activity.MODE_PRIVATE) }
     private var latestRates = mutableMapOf<String, MutableMap<String, BQExchangeRate>?>()
     private var latestRatesTime: Long = 0
 

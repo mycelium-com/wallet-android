@@ -2,13 +2,14 @@ package com.mycelium.bequant.common
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
-import com.mycelium.bequant.Constants.TYPE_ITEM
-import com.mycelium.bequant.Constants.TYPE_SEARCH
+import com.mycelium.bequant.BequantConstants.TYPE_ITEM
+import com.mycelium.bequant.BequantConstants.TYPE_SEARCH
 import com.mycelium.bequant.common.adapter.CoinAdapter
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.remote.repositories.Api
@@ -31,9 +32,17 @@ class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
                 .apply { setFromItem(1) })
         adapter.coinClickListener = {
-            when (args.action) {
-                "deposit" -> findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(it.symbol))
-                "withdraw" -> findNavController().navigate(ChoseCoinFragmentDirections.actionWithdraw(it.symbol))
+            when (it.symbol) {
+                "EURB", "USDB", "GBPB" -> {
+                    AlertDialog.Builder(requireContext())
+                            .setMessage(getString(R.string.bequant_fiat_tx_not_supported))
+                            .setPositiveButton(R.string.button_ok) { _, _ ->
+                            }.show()
+                }
+                else -> when (args.action) {
+                    "deposit" -> findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(it.symbol))
+                    "withdraw" -> findNavController().navigate(ChoseCoinFragmentDirections.actionWithdraw(it.symbol))
+                }
             }
         }
         adapter.searchChangeListener = {

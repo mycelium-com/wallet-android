@@ -10,6 +10,7 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
+import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_kyc_final_pending.*
 import java.text.SimpleDateFormat
@@ -34,10 +35,11 @@ class PendingFragment : Fragment(R.layout.fragment_bequant_kyc_final_pending) {
         }
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
-                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE)
-                , ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE_EDITABLE)))
+                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE),
+                ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE),
+                ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE),
+                ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE)))
+        subtitle3.text = getString(R.string.you_cant_change_info)
         stepAdapter.clickListener = {
             when (it) {
                 4 -> findNavController().navigate(PendingFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest().apply {

@@ -14,7 +14,6 @@ import java.math.BigDecimal
 import java.util.*
 import kotlin.math.pow
 import com.mycelium.bequant.remote.trading.model.Balance as BequantBalance
-import com.mycelium.bequant.remote.trading.model.Currency as BequantCurrency
 
 
 class InvestmentAccount : WalletAccount<BtcAddress> {
@@ -112,17 +111,16 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
                     continue
                 }
 
-                lateinit var currencyInfo: BequantCurrency
                 runBlocking {
-                    Api.publicRepository.publicCurrencyCurrencyGet(this, currency, { response ->
-                        currencyInfo = response!!
+                    Api.publicRepository.publicCurrencyCurrencyGet(this, currency, { currencyInfo ->
+                        currencyInfo?.let {
+                            val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
+                                    (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
+                            val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
+                            btcTotal += converted ?: BigDecimal.ZERO
+                        }
                     }, { _, _ -> }, {})
                 }
-
-                val currencySumValue = Value.valueOf(currencyInfo.assetInfoById(),
-                        (currencySum * 10.0.pow(currencyInfo.precisionPayout).toBigDecimal()).toBigInteger())
-                val converted = BQExchangeRateManager.get(currencySumValue, Utils.getBtcCoinType())?.valueAsBigDecimal
-                btcTotal += converted ?: BigDecimal.ZERO
             }
             val balance = Value.valueOf(Utils.getBtcCoinType(), (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger())
             BequantPreference.setLastKnownBalance(balance)

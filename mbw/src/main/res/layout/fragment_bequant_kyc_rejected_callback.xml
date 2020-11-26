@@ -6,10 +6,11 @@
     android:padding="16dp">
 
     <TextView
+        android:id="@+id/dear_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/exo2medium"
-        android:text="Dear USER,"
+        android:text="@string/dear_user_s_s"
         android:textColor="@color/white"
         android:textSize="20sp" />
 
@@ -36,7 +37,7 @@
         android:layout_weight="1" />
 
     <Button
-        android:id="@+id/backButton"
+        android:id="@+id/supportCenter"
         style="@style/Bequant.Button.Gray"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

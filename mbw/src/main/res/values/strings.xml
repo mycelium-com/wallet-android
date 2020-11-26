@@ -1523,4 +1523,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_kyc_verify_title">Verify your account</string>
     <string name="bequant_kyc_verify_button">Get verified</string>
     <string name="bequant_kyc_verify_message">Dear customer, please note that in order to use the platform, i.e. make deposits, withdraws and trading, you are required to be verified through our KYC procedure.\n\nAfter the verification is finished you will be granted with the equivalent of 100 BTC daily and unlimited monthly withdrawals.</string>
+    <string name="bequant_fiat_tx_not_supported">Fiat transactions are not yet supported directly in the mycelium app.\n\nIf you wish to deposit or withdraw fiat please go to <font color="#F2E868"><u>bequant.io</u></font> and follow the simple instructions on the platform.</string>
+    <string name="you_cant_change_info">You can’t change your application at this time. We will be in touch with an assessment shortly.</string>
+    <string name="dear_user_s_s">Dear %s %s,</string>
+    <string name="dear_user">Dear User,</string>
+    <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
+    <string name="settings_media_flow_title">Enable Media Flow</string>
+    <string name="cant_disable_active_account">You can\'t disable active account</string>
+    <string name="try_request_backup_again"><![CDATA[It might be an issue with your internet connection or an internal server issue.<br/>Please try to request Backup Code again or contact <font color="#F2E868">Support Center</font> for help.]]></string>
+    <string name="backup_not_generated">Backup Code was not generated</string>
 </resources>

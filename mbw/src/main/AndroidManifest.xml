@@ -272,7 +272,8 @@
             android:theme="@style/BequantSign"
             android:launchMode="singleInstance">
             <intent-filter
-                android:label="deeplink_to_email_confirm">
+                android:autoVerify="true"
+                android:label="Email confirmation">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -284,7 +285,8 @@
                     android:scheme="https" />
             </intent-filter>
             <intent-filter
-                android:label="deeplink_to_reset_password_confirm">
+                android:autoVerify="true"
+                android:label="Password reset confirmation">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
