@@ -37,6 +37,7 @@ class ManualAddressEntry : AppCompatActivity() {
     private var entered: String? = null
     private lateinit var mbwManager: MbwManager
     private lateinit var fioModule: FioModule
+    private lateinit var fioEndpoints: FioEndpoints
     private lateinit var fioNames: List<String>
     private lateinit var coinType: CryptoCurrency
     private val fioNameToNbpaMap = mutableMapOf<String, String>()
@@ -62,6 +63,7 @@ class ManualAddressEntry : AppCompatActivity() {
         statusViews = listOf(tvCheckingFioAddress, tvRecipientInvalid, tvRecipientValid,
                 tvNoConnection, tvEnterRecipientDescription, tvRecipientHasNoSuchAddress)
         mbwManager = MbwManager.getInstance(this)
+        fioEndpoints = mbwManager.fioEndpoints
         coinType = if (!isForFio) mbwManager.selectedAccount.coinType else Utils.getFIOCoinType()
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }
@@ -166,7 +168,7 @@ class ManualAddressEntry : AppCompatActivity() {
         val requestBody = """{"fio_address":"$address","chain_code":"$chainCode","token_code":"$tokenCode"}"""
 
         val request = Request.Builder()
-                .url("${FioEndpoints.getCurrentApiEndpoint().baseUrl}chain/get_pub_address")
+                .url("${fioEndpoints.getCurrentApiEndpoint().baseUrl}chain/get_pub_address")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {
@@ -194,7 +196,7 @@ class ManualAddressEntry : AppCompatActivity() {
     private fun queryAddressAvailability(address: String) {
         val requestBody = """{"fio_name":"$address"}"""
         val request = Request.Builder()
-                .url("${FioEndpoints.getCurrentApiEndpoint().baseUrl}chain/avail_check")
+                .url("${fioEndpoints.getCurrentApiEndpoint().baseUrl}chain/avail_check")
                 .post(RequestBody.create(MediaType.parse("application/json"), requestBody))
                 .build()
         client.newCall(request).enqueue(object : Callback {

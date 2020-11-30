@@ -39,10 +39,7 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioBlockchainService
-import com.mycelium.wapi.wallet.fio.FioModule
-import com.mycelium.wapi.wallet.fio.GetPubAddressResponse
+import com.mycelium.wapi.wallet.fio.*
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import kotlinx.android.synthetic.main.fio_send_request_buttons.*
@@ -156,7 +153,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
                 fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
-        GetPublicAddressTask(fioRequestViewModel.payeeName.value!!,
+        val fioEndpoints = MbwManager.getInstance(this).fioEndpoints
+        GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payeeName.value!!,
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode) { response ->
             if (response.message != null) {
@@ -166,7 +164,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
-        GetPublicAddressTask(fioRequestViewModel.payerName.value!!,
+        GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payerName.value!!,
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode) { response ->
             if (response.message != null) {
@@ -434,13 +432,14 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 //    }
 
     class GetPublicAddressTask(
+            private val fioEndpoints: FioEndpoints,
             private val fioName: String,
             private val chainCode: String,
             private val tokenCode: String,
             val listener: ((GetPubAddressResponse) -> Unit)) : AsyncTask<Void, Void, GetPubAddressResponse>() {
         override fun doInBackground(vararg args: Void): GetPubAddressResponse {
             return try {
-                FioBlockchainService.getPubkeyByFioAddress(fioName, chainCode, tokenCode)
+                FioBlockchainService.getPubkeyByFioAddress(fioEndpoints, fioName, chainCode, tokenCode)
             } catch (e: IOException) {
                 GetPubAddressResponse().also {
                     it.message = e.localizedMessage

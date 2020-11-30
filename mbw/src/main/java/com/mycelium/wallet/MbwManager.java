@@ -537,6 +537,11 @@ public class MbwManager {
         return contentResolver;
     }
 
+    public FioEndpoints getFioEndpoints() {
+        return new FioEndpoints(new FioApiEndpoints(configuration.getFioApiEndpoints()),
+                new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
+    }
+
     public Map<String, ERC20Token> getSupportedERC20Tokens() {
         return configuration.getSupportedERC20Tokens();
     }
@@ -857,11 +862,8 @@ public class MbwManager {
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
 
-        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFioSerializationProviderWrapper());
-        FioEndpoints.INSTANCE.init(new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
-        configuration.setFioServerListChangedListeners(FioEndpoints.INSTANCE, FioEndpoints.INSTANCE);
-        FioModule fioModule = new FioModule(fioBlockchainService, secureKeyValueStore,
-                new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
+        FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
+                secureKeyValueStore, new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
         walletManager.add(fioModule);
 
@@ -935,11 +937,8 @@ public class MbwManager {
         walletManager.add(ethModule);
 
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
-        FioBlockchainService fioBlockchainService = new FioBlockchainService(Utils.getFIOCoinType(), new AbiFioSerializationProviderWrapper());
-        FioEndpoints.INSTANCE.init(new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()));
-        configuration.setFioServerListChangedListeners(FioEndpoints.INSTANCE, FioEndpoints.INSTANCE);
-        FioModule fioModule = new FioModule(fioBlockchainService, secureKeyValueStore, fioGenericBacking,
-                db, networkParameters, getMetadataStorage(),
+        FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
+                secureKeyValueStore, fioGenericBacking, db, networkParameters, getMetadataStorage(),
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
         walletManager.add(fioModule);
         walletManager.disableTransactionHistorySynchronization();

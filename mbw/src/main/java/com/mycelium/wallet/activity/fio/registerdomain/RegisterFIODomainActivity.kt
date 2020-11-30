@@ -41,7 +41,7 @@ class RegisterFIODomainActivity : AppCompatActivity(R.layout.activity_register_f
                 viewModel.isFioDomainValid.value = domain.isFioDomain().also { domainValid ->
                     if (domainValid) {
                         Log.i("asdaf", "asdaf checking avail. for $domain")
-                        RegisterFioNameActivity.CheckAddressAvailabilityTask(domain) { isAvailable ->
+                        RegisterFioNameActivity.CheckAddressAvailabilityTask(MbwManager.getInstance(this).fioEndpoints, domain) { isAvailable ->
                             if (isAvailable != null) {
                                 viewModel.isFioDomainAvailable.value = isAvailable
                             } else {
@@ -62,7 +62,8 @@ class RegisterFIODomainActivity : AppCompatActivity(R.layout.activity_register_f
                 viewModel.domain.value = it
             }
         }
-        RegisterFioNameActivity.UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint) { feeInSUF ->
+        RegisterFioNameActivity.UpdateFeeTask(MbwManager.getInstance(this).fioEndpoints,
+                FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
                 Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")
