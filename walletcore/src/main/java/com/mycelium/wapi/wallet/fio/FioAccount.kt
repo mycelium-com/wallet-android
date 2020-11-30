@@ -30,6 +30,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 class FioAccount(private val fioBlockchainService: FioBlockchainService,
+                 private val fioEndpoints: FioEndpoints,
                  private val accountContext: FioAccountContext,
                  private val backing: FioAccountBacking,
                  private val accountListener: AccountListener?,
@@ -40,7 +41,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!
     private val balanceService by lazy {
-        FioBalanceService(receivingAddress.toString())
+        FioBalanceService(receivingAddress.toString(), fioEndpoints)
     }
 
     var registeredFIONames: MutableList<RegisteredFIOName> = accountContext.registeredFIONames?.toMutableList()
@@ -144,8 +145,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     private fun getFioNames(): List<RegisteredFIOName> = try {
-        FioBlockchainService.getFioNames(receivingAddress.toString())?.fio_addresses?.map {
-            val bundledTxsNum = FioBlockchainService.getBundledTxsNum(it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
+        FioBlockchainService.getFioNames(fioEndpoints, receivingAddress.toString())?.fio_addresses?.map {
+            val bundledTxsNum = FioBlockchainService.getBundledTxsNum(fioEndpoints, it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
             RegisteredFIOName(it.fio_address, convertToDate(it.expiration), bundledTxsNum)
         } ?: emptyList()
     } catch (e: Exception) {
@@ -153,7 +154,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     private fun getFioDomains(): List<FIODomain> = try {
-        FioBlockchainService.getFioNames(receivingAddress.toString())?.fio_domains?.map {
+        FioBlockchainService.getFioNames(fioEndpoints, receivingAddress.toString())?.fio_domains?.map {
             FIODomain(it.fio_domain, convertToDate(it.expiration), it.isPublic != 0)
         } ?: emptyList()
     } catch (e: Exception) {
@@ -262,6 +263,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
+        fioEndpoints.rotateEndpoints()
         syncFioRequests()
         syncFioOBT()
         syncFioAddresses()
@@ -288,7 +290,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     private fun updateMappings() {
          val fioNameMappings = accountContext.registeredFIONames?.map { fioName ->
              fioName.name to FioBlockchainService
-                     .getPubkeysByFioName(fioName.name).map {
+                     .getPubkeysByFioName(fioEndpoints, fioName.name).map {
                          "${it.chainCode}-${it.tokenCode}" to it.publicAddress
                      }.toMap()
          }?.toMap()

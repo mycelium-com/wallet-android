@@ -10,6 +10,7 @@ import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.*
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
+import com.mycelium.wapi.wallet.IServerEndpointChangeEventsPublisher
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import com.mycelium.wapi.wallet.fio.ServerFioApiListChangedListener
@@ -78,7 +79,7 @@ class UrlResponse(val url: String)
 class HttpsUrlResponse(val url: String, @SerializedName("cert-sha1") val cert: String)
 
 class WalletConfiguration(private val prefs: SharedPreferences,
-                          val network : NetworkParameters) {
+                          val network : NetworkParameters) : IServerEndpointChangeEventsPublisher {
 
     val gson = GsonBuilder().create()
 
@@ -185,10 +186,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
 
                     if (oldFioApi != fioApiServers) {
-                        serverFioApiListChangedListener?.apiServerListChanged(getFioApiEndpoints().toTypedArray())
+                        for (serverFioApiListChangedListener in serverFioApiListChangedListeners) {
+                            serverFioApiListChangedListener.apiServerListChanged(getFioApiEndpoints().toTypedArray())
+                        }
                     }
                     if (oldFioHistory != fioHistoryServers) {
-                        serverFioHistoryListChangedListener?.historyServerListChanged(getFioHistoryEndpoints().toTypedArray())
+                        for (serverFioHistoryListChangedListener in serverFioHistoryListChangedListeners) {
+                            serverFioHistoryListChangedListener.historyServerListChanged(getFioHistoryEndpoints().toTypedArray())
+                        }
                     }
                 }
             } catch (_: Exception) {}
@@ -246,8 +251,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
-    private var serverFioApiListChangedListener : ServerFioApiListChangedListener? = null
-    private var serverFioHistoryListChangedListener : ServerFioHistoryListChangedListener? = null
+    private var serverFioApiListChangedListeners : ArrayList<ServerFioApiListChangedListener> = arrayListOf()
+    private var serverFioHistoryListChangedListeners : ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
 
     fun getSupportedERC20Tokens(): Map<String, ERC20Token> = listOf(
             ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"),
@@ -341,10 +346,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         this.serverEthListChangedListeners.add(serverEthListChangedListener)
     }
 
-    fun setFioServerListChangedListeners(serverFioApiListChangedListener: ServerFioApiListChangedListener,
-                                        serverFioHistoryListChangedListener: ServerFioHistoryListChangedListener) {
-        this.serverFioApiListChangedListener = serverFioApiListChangedListener
-        this.serverFioHistoryListChangedListener = serverFioHistoryListChangedListener
+    override fun setFioServerListChangedListeners(serverFioApiListChangedListener: ServerFioApiListChangedListener,
+                                                  serverFioHistoryListChangedListener: ServerFioHistoryListChangedListener) {
+        this.serverFioApiListChangedListeners.add(serverFioApiListChangedListener)
+        this.serverFioHistoryListChangedListeners.add(serverFioHistoryListChangedListener)
     }
 
     companion object {

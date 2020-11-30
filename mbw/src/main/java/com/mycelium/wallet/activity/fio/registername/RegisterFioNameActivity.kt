@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -17,6 +16,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioBlockchainService
+import com.mycelium.wapi.wallet.fio.FioEndpoints
 import fiofoundation.io.fiosdk.isFioAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import java.util.*
@@ -35,13 +35,14 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
 
         viewModel = ViewModelProviders.of(this).get(RegisterFioNameViewModel::class.java)
 
+        val fioEndpoints = MbwManager.getInstance(this).fioEndpoints
         // set default fee at first, it will be updated in async task
         viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
         viewModel.addressWithDomain.observe(this, Observer { addressWithDomain ->
             if (viewModel.address.value!!.isNotEmpty()) {
                 viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
                     if (addressValid) {
-                        CheckAddressAvailabilityTask(addressWithDomain) { isAvailable ->
+                        CheckAddressAvailabilityTask(fioEndpoints, addressWithDomain) { isAvailable ->
                             if (isAvailable != null) {
                                 viewModel.isFioAddressAvailable.value = isAvailable
                             } else {
@@ -66,7 +67,8 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
                 viewModel.address.value = it.split("@")[0]
             }
         }
-        UpdateFeeTask(FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint) { feeInSUF ->
+
+        UpdateFeeTask(fioEndpoints, FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
             }
@@ -95,11 +97,13 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             }
 
     class UpdateFeeTask(
-            private val endpoint: String,
+            private val fioEndpoints: FioEndpoints,
+            private val endpointName: String,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
+
             return try {
-                FioBlockchainService.getFeeByEndpoint(endpoint).toString()
+                FioBlockchainService.getFeeByEndpoint(fioEndpoints, endpointName).toString()
             } catch (e: Exception) {
                 null
             }
@@ -111,11 +115,12 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
     }
 
     class CheckAddressAvailabilityTask(
+            private val fioEndpoints: FioEndpoints,
             private val addressWithDomain: String,
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                FioBlockchainService.isFioNameOrDomainAvailable(addressWithDomain)
+                FioBlockchainService.isFioNameOrDomainAvailable(fioEndpoints, addressWithDomain)
             } catch (e: Exception) {
                 null
             }

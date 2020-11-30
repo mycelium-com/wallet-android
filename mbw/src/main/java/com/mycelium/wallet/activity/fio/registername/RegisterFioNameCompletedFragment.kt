@@ -11,11 +11,13 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.Util.transformExpirationDate
 import com.mycelium.wapi.wallet.fio.FioBlockchainService
+import com.mycelium.wapi.wallet.fio.FioEndpoints
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
 
@@ -52,7 +54,7 @@ class RegisterFioNameCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         btConnectAccounts.setOnClickListener {
-            GetBundledTxsNumberTask(fioName) { bundledTxsNum ->
+            GetBundledTxsNumberTask(MbwManager.getInstance(requireContext()).fioEndpoints, fioName) { bundledTxsNum ->
                 startActivity(Intent(context, AccountMappingActivity::class.java)
                         .putExtra("fioName", RegisteredFIOName(fioName, convertToDate(expirationDate), bundledTxsNum)))
                 activity?.finish()
@@ -83,11 +85,12 @@ class RegisterFioNameCompletedFragment : Fragment() {
     }
 
     class GetBundledTxsNumberTask(
+            private val fioEndpoints: FioEndpoints,
             val fioName: String,
             val listener: ((Int) -> Unit)) : AsyncTask<Void, Void, Int>() {
         override fun doInBackground(vararg args: Void): Int {
             return try {
-                FioBlockchainService.getBundledTxsNum(fioName) ?: DEFAULT_BUNDLED_TXS_NUM
+                FioBlockchainService.getBundledTxsNum(fioEndpoints, fioName) ?: DEFAULT_BUNDLED_TXS_NUM
             } catch (e: Exception) {
                 Log.i("asdaf", "asdaf failed to get bundled txs num: ${e.localizedMessage}")
                 DEFAULT_BUNDLED_TXS_NUM
