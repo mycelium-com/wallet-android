@@ -39,7 +39,7 @@ class RecommendationsFragment : Fragment() {
             add(RecommendationHeader(SettingsPreference.getPartnersHeaderTitle(),
                     SettingsPreference.getPartnersHeaderText()))
             SettingsPreference.getPartners()
-                    ?.filter { it.isEnabled ?: true && SettingsPreference.isContentEnabled(it.id) }
+                    ?.filter { it.isActive() && SettingsPreference.isContentEnabled(it.id) }
                     ?.forEach {
                 add(getPartnerInfo(it))
             }

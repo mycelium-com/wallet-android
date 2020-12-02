@@ -9,5 +9,4 @@ data class MainMenuPage(val tabName: String,
                         val tabIndex: Int,
                         val imageUrl: String,
                         val link: String,
-                        val parentId:String,
-                        var isEnabled: Boolean = true) : Serializable
+                        val parentId: String) : CommonContent(), Serializable

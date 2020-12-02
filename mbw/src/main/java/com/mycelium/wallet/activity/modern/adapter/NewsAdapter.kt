@@ -79,7 +79,7 @@ class NewsAdapter(val preferences: SharedPreferences)
             }
             selectedCategory == ALL -> {
                 val banners = SettingsPreference.getMediaFlowContent()?.bannersInList?.filter {
-                    showBanner && it.isEnabled && SettingsPreference.isContentEnabled(it.parentId)
+                    showBanner && it.isActive() && SettingsPreference.isContentEnabled(it.parentId)
                 } ?: listOf()
                 NewsUtils.sort(dataMap.keys.toMutableList()).forEachIndexed { index, category ->
                 val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
