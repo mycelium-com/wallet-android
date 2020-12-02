@@ -148,7 +148,7 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
                         getTimestamp(it.blockTime),
                         getTransferred(ownerPublicKey, accountName, it.act.name, it.act.data, feeMap[it.trxId]
                                 ?: Value.zeroValue(coinType)),
-                        Value.valueOf(coinType, it.act.data.amount!!),
+                        it.act.data.amount?.let { amount -> Value.valueOf(coinType, amount) } ?: getQuantityValue(it.act.data.quantity!!),
                         feeMap[it.trxId] ?: Value.zeroValue(coinType)
                 ))
             }
