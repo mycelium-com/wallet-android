@@ -114,7 +114,7 @@ open class PinField : AppCompatEditText {
         limitCharsToNoOfFields()
         setWillNotDraw(false)
         maxLines = 1
-        isSingleLine = true
+        setSingleLine(true)
 
         fieldPaint.color = fieldColor
         fieldPaint.isAntiAlias = true
