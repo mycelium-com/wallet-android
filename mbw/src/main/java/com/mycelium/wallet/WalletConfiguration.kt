@@ -10,9 +10,10 @@ import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.*
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
-import com.mycelium.wapi.wallet.IServerEndpointChangeEventsPublisher
+import com.mycelium.wapi.wallet.IServerFioEventsPublisher
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
+import com.mycelium.wapi.wallet.fio.FioTpidChangedListener
 import com.mycelium.wapi.wallet.fio.ServerFioApiListChangedListener
 import com.mycelium.wapi.wallet.fio.ServerFioHistoryListChangedListener
 import kotlinx.coroutines.CoroutineStart
@@ -64,7 +65,8 @@ class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") v
 class ETHNetResponse(@SerializedName("blockbook-servers") val ethBBServers: EthServerResponse)
 
 class FIONetResponse(@SerializedName("api-servers") val fioApiServers: FioServerResponse,
-                     @SerializedName("history-servers") val fioHistoryServers: FioServerResponse)
+                     @SerializedName("history-servers") val fioHistoryServers: FioServerResponse,
+                     @SerializedName("tpid") val tpid: String)
 
 class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
 
@@ -79,8 +81,7 @@ class UrlResponse(val url: String)
 class HttpsUrlResponse(val url: String, @SerializedName("cert-sha1") val cert: String)
 
 class WalletConfiguration(private val prefs: SharedPreferences,
-                          val network : NetworkParameters) : IServerEndpointChangeEventsPublisher {
-
+                          val network : NetworkParameters) : IServerFioEventsPublisher {
     val gson = GsonBuilder().create()
 
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
@@ -132,6 +133,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         myceliumNodesResponse?.fioMainnet
                     }?.fioHistoryServers?.primary?.map { it.url }?.toSet()
 
+                    val fioTpid = if (network.isTestnet) {
+                        myceliumNodesResponse?.fioTestnet
+                    } else {
+                        myceliumNodesResponse?.fioMainnet
+                    }?.tpid
+
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
@@ -140,6 +147,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     val oldEth = ethBBServers
                     val oldFioApi = fioApiServers
                     val oldFioHistory = fioHistoryServers
+                    val oldFioTpid = tpid
 
                     ethServersFromResponse?.let {
                         prefEditor.putStringSet(PREFS_ETH_BB_SERVERS, ethServersFromResponse)
@@ -149,6 +157,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     fioHistoryServersFromResponse?.let {
                         prefEditor.putStringSet(PREFS_FIO_HISTORY_SERVERS, fioHistoryServersFromResponse)
+                    }
+                    fioTpid?.let {
+                        prefEditor.putString(PREFS_FIO_TPID, it)
                     }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
@@ -195,6 +206,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                             serverFioHistoryListChangedListener.historyServerListChanged(getFioHistoryEndpoints().toTypedArray())
                         }
                     }
+                    if (oldFioTpid != tpid) {
+                        for (fioTpidChangedListener in fioTpidChangedListeners) {
+                            fioTpidChangedListener.tpidChanged(tpid)
+                        }
+                    }
                 }
             } catch (_: Exception) {}
         }
@@ -217,6 +233,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     private val fioHistoryServers: Set<String>
         get() = prefs.getStringSet(PREFS_FIO_HISTORY_SERVERS, mutableSetOf(*BuildConfig.FioHistoryServers))!!
+
+    private val tpid: String
+        get() = prefs.getString(PREFS_FIO_TPID, BuildConfig.tpid)!!
     
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
@@ -248,11 +267,13 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     fun getFioApiEndpoints(): List<HttpsEndpoint> = fioApiServers.map { HttpsEndpoint(it) }
     fun getFioHistoryEndpoints(): List<HttpsEndpoint> = fioHistoryServers.map { HttpsEndpoint(it) }
+    fun getFioTpid(): String = tpid
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
     private var serverFioApiListChangedListeners : ArrayList<ServerFioApiListChangedListener> = arrayListOf()
     private var serverFioHistoryListChangedListeners : ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
+    private var fioTpidChangedListeners : ArrayList<FioTpidChangedListener> = arrayListOf()
 
     fun getSupportedERC20Tokens(): Map<String, ERC20Token> = listOf(
             ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"),
@@ -352,12 +373,17 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         this.serverFioHistoryListChangedListeners.add(serverFioHistoryListChangedListener)
     }
 
+    override fun setFioTpidChangedListener(fioTpidChangedListener: FioTpidChangedListener) {
+        this.fioTpidChangedListeners.add(fioTpidChangedListener)
+    }
+
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
         const val PREFS_FIO_API_SERVERS = "fio_api_servers"
         const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
+        const val PREFS_FIO_TPID = "fio_tpid"
         const val ONION_DOMAIN = ".onion"
         const val PREFS_FIO_END_DATE = "fio_end_date"
         const val PREFS_FIO_START_DATE = "fio_start_date"

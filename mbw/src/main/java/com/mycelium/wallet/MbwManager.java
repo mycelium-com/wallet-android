@@ -864,7 +864,7 @@ public class MbwManager {
 
         FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
                 secureKeyValueStore, new FioBacking(db, genericBacking), walletDB, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager, configuration.getFioTpid());
         walletManager.add(fioModule);
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
@@ -939,7 +939,7 @@ public class MbwManager {
         Backing<FioAccountContext> fioGenericBacking = new InMemoryAccountContextsBacking<>();
         FioModule fioModule = new FioModule(configuration, new AbiFioSerializationProviderWrapper(), new FioApiEndpoints(configuration.getFioApiEndpoints()), new FioHistoryEndpoints(configuration.getFioHistoryEndpoints()),
                 secureKeyValueStore, fioGenericBacking, db, networkParameters, getMetadataStorage(),
-                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager);
+                new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager, configuration.getFioTpid());
         walletManager.add(fioModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

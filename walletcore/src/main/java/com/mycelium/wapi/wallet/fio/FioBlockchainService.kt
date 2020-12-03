@@ -23,9 +23,10 @@ import java.util.*
 
 class FioBlockchainService(private val coinType: CryptoCurrency,
                            private val fioEndpoints: FioEndpoints,
-                           private val serializationProviderWrapper: IAbiFioSerializationProviderWrapper) {
-    fun getFioSdk(privkeyString: String) = FIOSDK.getInstance(privkeyString,
-            FIOSDK.derivedPublicKey(privkeyString), serializationProviderWrapper.getAbiFioSerializationProvider(), fioEndpoints.getCurrentApiEndpoint().baseUrl)
+                           private var tpid: String,
+                           private val serializationProviderWrapper: IAbiFioSerializationProviderWrapper) : FioTpidChangedListener {
+    fun getFioSdk(privkeyString: String) = FIOSDK.getInstance(privkeyString, FIOSDK.derivedPublicKey(privkeyString),
+            tpid, serializationProviderWrapper.getAbiFioSerializationProvider(), fioEndpoints.getCurrentApiEndpoint().baseUrl)
 
     fun getObtData(ownerPublicKey: String, privateKey: String, limit: Int? = null, offset: Int? = null): List<ObtDataRecord> {
         val requestBody = if (limit == null && offset == null) {
@@ -345,6 +346,10 @@ class FioBlockchainService(private val coinType: CryptoCurrency,
             return "0x" + HexUtils.toHex(reverseBytes)
         }
     }
+
+    override fun tpidChanged(tpid: String) {
+        this.tpid = tpid
+    }
 }
 
 data class Tx(val txid: String, val fromAddress: String, val toAddress: String, val memo: String,
@@ -500,4 +505,8 @@ class GetActionsResponse {
         """.trimMargin()
         }
     }
+}
+
+interface FioTpidChangedListener {
+    fun tpidChanged(tpid: String)
 }

@@ -19,7 +19,7 @@ import java.text.DateFormat
 import java.util.*
 
 class FioModule(
-        private val serverEndpointChangeEventsPublisher: IServerEndpointChangeEventsPublisher,
+        private val serverFioEventsPublisher: IServerFioEventsPublisher,
         private val serializationProviderWrapper: IAbiFioSerializationProviderWrapper,
         private val apiEndpoints: FioApiEndpoints,
         private val historyEndpoints: FioHistoryEndpoints,
@@ -30,7 +30,8 @@ class FioModule(
         metaDataStorage: IMetaDataStorage,
         private val fioKeyManager: FioKeyManager,
         private val accountListener: AccountListener?,
-        private val walletManager: WalletManager
+        private val walletManager: WalletManager,
+        private val tpid: String = ""
 ) : WalletModule(metaDataStorage) {
 
     private val coinType = if (networkParameters.isProdnet) FIOMain else FIOTest
@@ -176,8 +177,9 @@ class FioModule(
                               address: FioAddress? = null,
                               isRestore: Boolean): FioAccount {
         val fioEndpoints = FioEndpoints(apiEndpoints, historyEndpoints)
-        serverEndpointChangeEventsPublisher.setFioServerListChangedListeners(fioEndpoints, fioEndpoints)
-        val fioBlockchainService = FioBlockchainService(coinType, fioEndpoints, serializationProviderWrapper)
+        serverFioEventsPublisher.setFioServerListChangedListeners(fioEndpoints, fioEndpoints)
+        val fioBlockchainService = FioBlockchainService(coinType, fioEndpoints, tpid, serializationProviderWrapper)
+        serverFioEventsPublisher.setFioTpidChangedListener(fioBlockchainService)
         if (!isRestore) {
             backing.createAccountContext(accountContext)
         }
