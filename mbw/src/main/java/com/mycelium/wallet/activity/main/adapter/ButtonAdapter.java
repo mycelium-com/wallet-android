@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.main.adapter;
 
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.model.ActionButton;
+import com.mycelium.wallet.svg.GlideApp;
+import com.mycelium.wallet.svg.SvgSoftwareLayerSetter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,14 +69,27 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 button.setCompoundDrawablesWithIntrinsicBounds(actionButton.getIcon(), 0, 0, 0);
             } else if (actionButton.getIconUrl() != null) {
                 int size = button.getResources().getDimensionPixelSize(R.dimen.button_ads_icon_size);
-                Glide.with(button.getContext())
-                        .load(actionButton.getIconUrl())
-                        .into(new SimpleTarget<Drawable>(size, size) {
-                            @Override
-                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                button.setCompoundDrawablesWithIntrinsicBounds(resource, null, null, null);
-                            }
-                        });
+                if (actionButton.getIconUrl().endsWith(".svg")) {
+                    GlideApp.with(button)
+                            .as(PictureDrawable.class)
+                            .listener(new SvgSoftwareLayerSetter())
+                            .load(actionButton.getIconUrl())
+                            .into(new SimpleTarget<PictureDrawable>(size, size) {
+                                @Override
+                                public void onResourceReady(@NonNull PictureDrawable resource, @Nullable Transition<? super PictureDrawable> transition) {
+                                    button.setCompoundDrawablesWithIntrinsicBounds(resource, null, null, null);
+                                }
+                            });
+                } else {
+                    Glide.with(button.getContext())
+                            .load(actionButton.getIconUrl())
+                            .into(new SimpleTarget<Drawable>(size, size) {
+                                @Override
+                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                    button.setCompoundDrawablesWithIntrinsicBounds(resource, null, null, null);
+                                }
+                            });
+                }
             } else {
                 button.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             }

@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.main.adapter;
 
+import android.graphics.drawable.PictureDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,13 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.model.PartnerInfo;
 import com.mycelium.wallet.activity.main.model.RecommendationBanner;
 import com.mycelium.wallet.activity.main.model.RecommendationFooter;
 import com.mycelium.wallet.activity.main.model.RecommendationHeader;
 import com.mycelium.wallet.activity.main.model.RecommendationInfo;
+import com.mycelium.wallet.svg.GlideApp;
+import com.mycelium.wallet.svg.GlideRequest;
+import com.mycelium.wallet.svg.GlideRequests;
+import com.mycelium.wallet.svg.SvgSoftwareLayerSetter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,10 +62,13 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (bean.getIcon() != 0) {
                 partnerHolder.imgIcon.setImageResource(bean.getIcon());
             } else if (bean.getIconUrl() != null && !bean.getIconUrl().isEmpty()) {
-                Glide.with(partnerHolder.imgIcon)
-                        .load(bean.getIconUrl())
-                        .into(partnerHolder.imgIcon);
-            }else {
+                String icon = bean.getIconUrl();
+                GlideRequests glideRequests = GlideApp.with(partnerHolder.imgIcon);
+                GlideRequest glideRequest = icon.endsWith(".svg") ?
+                        glideRequests.as(PictureDrawable.class).listener(new SvgSoftwareLayerSetter()) :
+                        glideRequests.asBitmap();
+                glideRequest.load(icon).into(partnerHolder.imgIcon);
+            } else {
                 partnerHolder.imgIcon.setImageDrawable(null);
             }
 
