@@ -25,10 +25,12 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 
-interface  MyceliumNodesApi {
+interface MyceliumNodesApi {
     @GET("/nodes-b.json")
     fun getNodes(): Call<MyceliumNodesResponse>
 
@@ -56,7 +58,7 @@ data class PartnerInfo(@SerializedName("start-date") val startDate: Date?,
                        @SerializedName("end-date") val endDate: Date?,
                        val id: String? = null,
                        val name: String? = null) {
-    var isEnabled:Boolean? = true
+    var isEnabled: Boolean? = true
 }
 
 // BTCNetResponse is intended for parsing nodes-b.json file
@@ -68,20 +70,23 @@ class FIONetResponse(@SerializedName("api-servers") val fioApiServers: FioServer
                      @SerializedName("history-servers") val fioHistoryServers: FioServerResponse,
                      @SerializedName("tpid") val tpid: String)
 
-class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
+class WapiSectionResponse(val primary: Array<HttpsUrlResponse>)
 
-class ElectrumXResponse(val primary : Array<UrlResponse>)
+class ElectrumXResponse(val primary: Array<UrlResponse>)
 
-class EthServerResponse(val primary : Array<UrlResponse>)
+class EthServerResponse(val primary: Array<UrlResponse>)
 
-class FioServerResponse(val primary : Array<UrlResponse>)
+class FioServerResponse(val primary: Array<UrlResponse>)
 
 class UrlResponse(val url: String)
 
 class HttpsUrlResponse(val url: String, @SerializedName("cert-sha1") val cert: String)
 
 class WalletConfiguration(private val prefs: SharedPreferences,
-                          val network : NetworkParameters) : IServerFioEventsPublisher {
+                          val network: NetworkParameters) : IServerFioEventsPublisher {
+
+    private val logger = Logger.getLogger(WalletConfiguration::class.java.simpleName)
+
     val gson = GsonBuilder().create()
 
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
@@ -89,7 +94,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
-                val service  = Retrofit.Builder()
+                val service = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build()
@@ -212,7 +217,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         }
                     }
                 }
-            } catch (_: Exception) {}
+            } catch (ex: Exception) {
+                logger.log(Level.WARNING, "Error when read configuration: ${ex.localizedMessage}")
+            }
         }
     }
 
@@ -236,7 +243,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     private val tpid: String
         get() = prefs.getString(PREFS_FIO_TPID, BuildConfig.tpid)!!
-    
+
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
@@ -270,10 +277,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     fun getFioTpid(): String = tpid
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
-    private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
-    private var serverFioApiListChangedListeners : ArrayList<ServerFioApiListChangedListener> = arrayListOf()
-    private var serverFioHistoryListChangedListeners : ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
-    private var fioTpidChangedListeners : ArrayList<FioTpidChangedListener> = arrayListOf()
+    private var serverEthListChangedListeners: ArrayList<ServerEthListChangedListener> = arrayListOf()
+    private var serverFioApiListChangedListeners: ArrayList<ServerFioApiListChangedListener> = arrayListOf()
+    private var serverFioHistoryListChangedListeners: ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
+    private var fioTpidChangedListeners: ArrayList<FioTpidChangedListener> = arrayListOf()
 
     fun getSupportedERC20Tokens(): Map<String, ERC20Token> = listOf(
             ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"),
@@ -359,11 +366,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             })
             .associateBy { it.name }
 
-    fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
+    fun setElectrumServerListChangedListener(serverElectrumListChangedListener: ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener
     }
 
-    fun addEthServerListChangedListener(serverEthListChangedListener : ServerEthListChangedListener) {
+    fun addEthServerListChangedListener(serverEthListChangedListener: ServerEthListChangedListener) {
         this.serverEthListChangedListeners.add(serverEthListChangedListener)
     }
 
