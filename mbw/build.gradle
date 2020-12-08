@@ -383,6 +383,8 @@ android {
     aaptOptions {
         cruncherEnabled = false
     }
+
+    ndkVersion '20.0.5594570'
 }
 
 apply plugin: 'com.google.gms.google-services'
