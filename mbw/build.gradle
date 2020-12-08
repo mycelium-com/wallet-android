@@ -295,6 +295,7 @@ android {
                 EthBlockBook = '{"https://eth1.trezor.io", "https://eth2.trezor.io"}'
                 FioApiServers = '{"https://fio.greymass.com/v1/"}'
                 FioHistoryServers = '{"https://fio.greymass.com/v1/"}'
+                tpid = ""
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -332,6 +333,7 @@ android {
                 EthBlockBook = '{"https://ropsten1.trezor.io", "https://ropsten2.trezor.io"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
+                tpid = "megabit@mycelium"
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
@@ -363,6 +365,7 @@ android {
         variant.buildConfigField "String[]", "EthBlockBook", "${flavor.ext.EthBlockBook}"
         variant.buildConfigField "String[]", "FioApiServers", "${flavor.ext.FioApiServers}"
         variant.buildConfigField "String[]", "FioHistoryServers", "${flavor.ext.FioHistoryServers}"
+        variant.buildConfigField "String", "tpid", "\"${flavor.ext.tpid}\""
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
