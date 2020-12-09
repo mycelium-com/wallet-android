@@ -20,6 +20,8 @@ import com.mycelium.wapi.wallet.fio.FioEndpoints
 import fiofoundation.io.fiosdk.isFioAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_address) {
     private lateinit var viewModel: RegisterFioNameViewModel
@@ -116,12 +118,13 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
 
     class CheckAddressAvailabilityTask(
             private val fioEndpoints: FioEndpoints,
-            private val addressWithDomain: String,
+            private val addressWithDomainOrDomain: String,
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
-                FioBlockchainService.isFioNameOrDomainAvailable(fioEndpoints, addressWithDomain)
+                FioBlockchainService.isFioNameOrDomainAvailable(fioEndpoints, addressWithDomainOrDomain)
             } catch (e: Exception) {
+                Logger.getLogger(CheckAddressAvailabilityTask::class.simpleName).log(Level.WARNING, e.message)
                 null
             }
         }
