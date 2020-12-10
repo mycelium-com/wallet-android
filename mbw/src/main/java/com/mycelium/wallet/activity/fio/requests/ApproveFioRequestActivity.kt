@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -40,6 +39,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.*
+import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import kotlinx.android.synthetic.main.fio_send_request_buttons.*
@@ -47,9 +47,10 @@ import kotlinx.android.synthetic.main.fio_send_request_info.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
-import java.io.IOException
 import java.math.BigInteger
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
@@ -58,6 +59,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     private lateinit var binding: Any
     private lateinit var signedTransaction: Transaction
     private lateinit var mbwManager: MbwManager
+    private lateinit var fioModule: FioModule
     private var payerInited = false
     private var spinnerInited = false
     private var activityResultDialog: DialogFragment? = null
@@ -99,11 +101,10 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.payeeName.value = fioRequestContent.payeeFioAddress
         fioRequestViewModel.payerName.value = fioRequestContent.payerFioAddress
         fioRequestViewModel.requestDate.value = fioRequestContent.timeStamp
-        Log.i("asdaf", "asdaf payeeFioAddress: ${fioRequestContent.payeeFioAddress} payerFioAddress: ${fioRequestContent.payerFioAddress}")
 
         mbwManager = MbwManager.getInstance(this)
         val walletManager = mbwManager.getWalletManager(false)
-        val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+        fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
         val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent.deserializedContent!!.chainCode)
@@ -143,9 +144,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 initFeeLvlView()
                 sendViewModel.getAmount().value = fioRequestViewModel.amount.value
                 initReceivingAddress()
-                sendViewModel.getTransactionStatus().observe(this, Observer {
-                    Log.i("ApproveFioRequest", "sendViewModel.observer TransactionStatus: $it")
-                    btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
+                sendViewModel.getTransactionStatus().observe(this, Observer { status ->
+                    btSend.isEnabled = status == SendCoinsModel.TransactionStatus.OK
                 })
             }
         })
@@ -153,10 +153,10 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
                 fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
-        val fioEndpoints = MbwManager.getInstance(this).fioEndpoints
+        val fioEndpoints = mbwManager.fioEndpoints
         GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payeeName.value!!,
                 fioRequestContent.deserializedContent!!.chainCode,
-                fioRequestContent.deserializedContent!!.tokenCode) { response ->
+                fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
             if (response.message != null) {
                 Toaster(this).toast(response.message, false)
             } else {
@@ -166,7 +166,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
         GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payerName.value!!,
                 fioRequestContent.deserializedContent!!.chainCode,
-                fioRequestContent.deserializedContent!!.tokenCode) { response ->
+                fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
             if (response.message != null) {
                 Toaster(this).toast(response.message, false)
             } else {
@@ -177,8 +177,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.alternativeAmountFormatted.value = mbwManager.exchangeRateManager.get(fioRequestViewModel.amount.value,
                 mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type))?.toStringWithUnit()
 
-        sendViewModel.getTransactionStatus().observe(this, Observer { // TODO Why
-            Log.i("ApproveFioRequest", "sendViewModel.observer TransactionStatus: $it")
+        sendViewModel.getTransactionStatus().observe(this, Observer {
             btSend.isEnabled = it == SendCoinsModel.TransactionStatus.OK
         })
         fioRequestViewModel.payeeTokenPublicAddress.observe(this, Observer {
@@ -199,9 +198,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     private fun setUpSendViewModel(account: WalletAccount<*>, viewModelProvider: ViewModelProvider) {
         sendViewModel = provideSendViewModel(account, viewModelProvider)
         sendViewModel.init(account, intent)
-        Log.i("asdaf", "asdaf sendViewModel inited")
         initDatabinding(account)
-        Log.i("asdaf", "asdaf databinding inited")
         initFeeView()
         initFeeLvlView()
     }
@@ -266,8 +263,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete) { _, _ ->
                     RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
-                            fioRequestViewModel.request.value!!.fioRequestId) {
-                        Log.i("asdaf", "asdaf rejection status: ${it?.status}")
+                            fioRequestViewModel.request.value!!.fioRequestId, fioModule) {
                         finish()
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 }.create()
@@ -388,10 +384,9 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     override fun broadcastResult(broadcastResult: BroadcastResult) {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             val txid = HexUtils.toHex(signedTransaction.id)
-            Log.i("asdaf", "asdaf ihdi: $txid")
 
             if (fioRequestViewModel.memoTo.value?.isNotEmpty() == true) {
-                RecordObtTask(txid, fioRequestViewModel) { success ->
+                RecordObtTask(txid, fioRequestViewModel, fioModule) { success ->
                     if (!success) {
                         Toaster(this).toast("Failed to write memo", false)
                     }
@@ -418,29 +413,20 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         }
     }
 
-//    private fun getDateString(timestamp: Long): String {
-//        val date = Date(timestamp * 1000L)
-//        val locale = resources.configuration.locale
-//
-//        val dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale)
-//        val dateString = dayFormat.format(date)
-//
-//        val hourFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale)
-//        val timeString = hourFormat.format(date)
-//
-//        return "$dateString at $timeString"
-//    }
-
     class GetPublicAddressTask(
             private val fioEndpoints: FioEndpoints,
             private val fioName: String,
             private val chainCode: String,
             private val tokenCode: String,
+            private val fioModule: FioModule,
             val listener: ((GetPubAddressResponse) -> Unit)) : AsyncTask<Void, Void, GetPubAddressResponse>() {
         override fun doInBackground(vararg args: Void): GetPubAddressResponse {
             return try {
                 FioBlockchainService.getPubkeyByFioAddress(fioEndpoints, fioName, chainCode, tokenCode)
-            } catch (e: IOException) {
+            } catch (e: Exception) {
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
                 GetPubAddressResponse().also {
                     it.message = e.localizedMessage
                 }
@@ -455,6 +441,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     class RecordObtTask(
             private val txid: String,
             private val fioRequestViewModel: FioSendRequestViewModel,
+            private val fioModule: FioModule,
             val listener: ((Boolean) -> Unit)) : AsyncTask<Void, Void, Boolean>() {
         override fun doInBackground(vararg args: Void): Boolean {
             return try {
@@ -465,7 +452,10 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                         fioRequestViewModel.payeeTokenPublicAddress.value!!, amountInDouble, request.deserializedContent!!.chainCode,
                         request.deserializedContent!!.tokenCode, txid, fioRequestViewModel.memoTo.value!!)
             } catch (e: Exception) {
-                Log.i("asdaf", "asdaf failed to write memo: ${e.localizedMessage}")
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
+                Logger.getLogger(RecordObtTask::class.simpleName).log(Level.WARNING, "failed to write memo: ${e.localizedMessage}")
                 false
             }
         }
@@ -479,12 +469,16 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             private val fioAccount: FioAccount,
             private val fioName: String,
             private val requestId: BigInteger,
+            private val fioModule: FioModule,
             val listener: ((PushTransactionResponse.ActionTraceResponse?) -> Unit)) : AsyncTask<Void, Void, PushTransactionResponse.ActionTraceResponse?>() {
         override fun doInBackground(vararg args: Void): PushTransactionResponse.ActionTraceResponse? {
             return try {
                 fioAccount.rejectFundsRequest(requestId, fioName)
             } catch (e: Exception) {
-                Log.i("asdaf", "asdaf failed to reject: ${e.localizedMessage}")
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
+                Logger.getLogger(RejectRequestTask::class.simpleName).log(Level.WARNING, "failed to reject request: ${e.localizedMessage}")
                 null
             }
         }

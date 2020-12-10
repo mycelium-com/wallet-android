@@ -16,6 +16,7 @@ import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDoma
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.coins.isFioDomain
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import java.util.*
@@ -36,12 +37,13 @@ class RegisterFIODomainActivity : AppCompatActivity(R.layout.activity_register_f
 
         // set default fee at first, it will be updated in async task
         viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
+        val fioModule = MbwManager.getInstance(this).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         viewModel.domain.observe(this, Observer { domain ->
             if (viewModel.domain.value!!.isNotEmpty()) {
                 viewModel.isFioDomainValid.value = domain.isFioDomain().also { domainValid ->
                     if (domainValid) {
                         Log.i("asdaf", "asdaf checking avail. for $domain")
-                        RegisterFioNameActivity.CheckAddressAvailabilityTask(MbwManager.getInstance(this).fioEndpoints, domain) { isAvailable ->
+                        RegisterFioNameActivity.CheckAddressAvailabilityTask(MbwManager.getInstance(this).fioEndpoints, domain, fioModule) { isAvailable ->
                             if (isAvailable != null) {
                                 viewModel.isFioDomainAvailable.value = isAvailable
                             } else {
@@ -63,7 +65,7 @@ class RegisterFIODomainActivity : AppCompatActivity(R.layout.activity_register_f
             }
         }
         RegisterFioNameActivity.UpdateFeeTask(MbwManager.getInstance(this).fioEndpoints,
-                FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint) { feeInSUF ->
+                FIOApiEndPoints.FeeEndPoint.RegisterFioDomain.endpoint, fioModule) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
                 Log.i("asdaf", "asdaf updated fee: $feeInSUF, viewModel.registrationFee: ${viewModel.registrationFee.value}")

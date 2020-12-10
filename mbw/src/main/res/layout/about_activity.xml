@@ -243,5 +243,12 @@
             android:id="@+id/bt_show_server_info"
             android:layout_marginBottom="@dimen/buttonspacing" />
 
+        <Button
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
+            android:text="@string/fio_server_error_logs"
+            android:id="@+id/bt_fio_server_error_logs"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
     </LinearLayout>
 </ScrollView>

@@ -36,7 +36,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                  private val accountListener: AccountListener?,
                  private val privkeyString: String? = null, // null if it's read-only account
                  val walletManager: WalletManager,
-                 address: FioAddress? = null) : WalletAccount<FioAddress>, ExportableAccount {
+                 address: FioAddress? = null,
+                 private val fioServerLogsListWrapper: FioServerLogsListWrapper) : WalletAccount<FioAddress>, ExportableAccount {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!
@@ -121,6 +122,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             actionTraceResponse != null && actionTraceResponse.status == "OK"
         } catch (e: FIOError) {
             logger.log(Level.SEVERE, "Add pub address exception", e)
+            fioServerLogsListWrapper.addLog(e.toJson())
             false
         }
     }
@@ -150,6 +152,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             RegisteredFIOName(it.fio_address, convertToDate(it.expiration), bundledTxsNum)
         } ?: emptyList()
     } catch (e: Exception) {
+        if (e is FIOError) {
+            fioServerLogsListWrapper.addLog(e.toJson())
+        }
         emptyList()
     }
 
@@ -158,6 +163,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             FIODomain(it.fio_domain, convertToDate(it.expiration), it.isPublic != 0)
         } ?: emptyList()
     } catch (e: Exception) {
+        if (e is FIOError) {
+            fioServerLogsListWrapper.addLog(e.toJson())
+        }
         emptyList()
     }
 
@@ -199,7 +207,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             }
         } catch (e: FIOError) {
             e.printStackTrace()
-            BroadcastResult(e.toJson(), BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            fioServerLogsListWrapper.addLog(e.toJson())
+            BroadcastResult(e.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
         } catch (e: Exception) {
             e.printStackTrace()
             BroadcastResult(e.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
@@ -271,6 +280,12 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         updateBlockHeight()
         syncTransactions()
         updateMappings()
+        updateBalance()
+        syncing = false
+        return true
+    }
+
+    private fun updateBalance() {
         try {
             val fioBalance = balanceService.getBalance()
             val newBalance = Balance(Value.valueOf(coinType, fioBalance),
@@ -280,21 +295,28 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                 accountListener?.balanceUpdated(this)
             }
         } catch (e: Exception) {
+            if (e is FIOError) {
+                fioServerLogsListWrapper.addLog(e.toJson())
+            }
             e.printStackTrace()
             logger.log(Level.SEVERE, "update balance exception: ${e.message}")
         }
-        syncing = false
-        return true
     }
 
     private fun updateMappings() {
-         val fioNameMappings = accountContext.registeredFIONames?.map { fioName ->
-             fioName.name to FioBlockchainService
-                     .getPubkeysByFioName(fioEndpoints, fioName.name).map {
-                         "${it.chainCode}-${it.tokenCode}" to it.publicAddress
-                     }.toMap()
-         }?.toMap()
-                 ?: return
+        val fioNameMappings = try {
+            accountContext.registeredFIONames?.map { fioName ->
+                fioName.name to FioBlockchainService
+                        .getPubkeysByFioName(fioEndpoints, fioName.name).map {
+                            "${it.chainCode}-${it.tokenCode}" to it.publicAddress
+                        }.toMap()
+            }?.toMap()
+        } catch (e: Exception) {
+            if (e is FIOError) {
+                fioServerLogsListWrapper.addLog(e.toJson())
+            }
+            null
+        } ?: return
 
         walletManager.getAllActiveAccounts().forEach { account ->
             val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
@@ -337,6 +359,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                     renewPendingFioRequests(emptyList())
                 }
             } else {
+                fioServerLogsListWrapper.addLog(ex.toJson())
                 logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
             }
         }
@@ -353,10 +376,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                     renewSentFioRequests(emptyList())
                 }
             } else {
+                fioServerLogsListWrapper.addLog(ex.toJson())
                 logger.log(Level.SEVERE, "Update FIO requests exception: ${ex.message}", ex)
             }
         }
-
     }
 
     private fun syncFioOBT() {
@@ -368,6 +391,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: Exception) {
+            if (ex is FIOError) {
+                fioServerLogsListWrapper.addLog(ex.toJson())
+            }
             logger.log(Level.SEVERE, "Update OBT transactions exception: ${ex.message}", ex)
         }
     }
@@ -417,26 +443,34 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     private fun updateBlockHeight() {
-        accountContext.blockHeight = fioBlockchainService.getLatestBlock()?.toInt()
-                ?: accountContext.blockHeight
+        try {
+            accountContext.blockHeight = fioBlockchainService.getLatestBlock().toInt()
+        } catch (e: Exception) {
+            if (e is FIOError) {
+                fioServerLogsListWrapper.addLog(e.toJson())
+            }
+            logger.log(Level.SEVERE, "block height sync exception: ${e.message}")
+        }
     }
 
     private fun syncTransactions() {
-        fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger()).forEach {
-            try {
+        try {
+            fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger()).forEach {
                 backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
                         it.fromAddress, it.toAddress, it.sum,
                         kotlin.math.max(accountContext.blockHeight - it.blockNumber.toInt(), 0),
                         it.fee, it.transferred, it.memo)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                logger.log(Level.INFO, "asdaf syncTransactions exception: ${e.message}")
             }
-        }
 
-        accountContext.actionSequenceNumber =
-                fioBlockchainService.getAccountActionSeqNumber(Utils.generateActor(receivingAddress.toString()))
-                        ?: accountContext.actionSequenceNumber
+            accountContext.actionSequenceNumber =
+                    fioBlockchainService.getAccountActionSeqNumber(Utils.generateActor(receivingAddress.toString()))
+                            ?: accountContext.actionSequenceNumber
+        } catch (e: Exception) {
+            if (e is FIOError) {
+                fioServerLogsListWrapper.addLog(e.toJson())
+            }
+            logger.log(Level.SEVERE, "transactions or account action sequence number sync exception: ${e.message}")
+        }
     }
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight
