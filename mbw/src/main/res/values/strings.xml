@@ -1321,6 +1321,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="hd_eth_account">Add Ethereum Account</string>
     <string name="hd_fio_account">Add FIO Account</string>
     <string name="connection_logs">Logs</string>
+    <string name="fio_server_error_logs">FIO Server Error Logs</string>
+    <string name="no_logs">No logs</string>
     <string name="fio_requires_hd_account">Currently you can only link HD Bitcoin accounts to FIO labels. Please switch to another account.</string>
     <string name="confirm_fio_link">Do you want to register a FIO Name for your HD Bitcoin account %1$s?</string>
     <string name="partner_fiopresale">FIO Address Presale</string>

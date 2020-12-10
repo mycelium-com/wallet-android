@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.fio.registername
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,8 +17,12 @@ import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.Util.transformExpirationDate
 import com.mycelium.wapi.wallet.fio.FioBlockchainService
 import com.mycelium.wapi.wallet.fio.FioEndpoints
+import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
+import fiofoundation.io.fiosdk.errors.FIOError
 import kotlinx.android.synthetic.main.fragment_register_fio_name_completed.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class RegisterFioNameCompletedFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +57,8 @@ class RegisterFioNameCompletedFragment : Fragment() {
             requireActivity().finish()
         }
         btConnectAccounts.setOnClickListener {
-            GetBundledTxsNumberTask(MbwManager.getInstance(requireContext()).fioEndpoints, fioName) { bundledTxsNum ->
+            val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+            GetBundledTxsNumberTask(MbwManager.getInstance(requireContext()).fioEndpoints, fioName, fioModule) { bundledTxsNum ->
                 startActivity(Intent(context, AccountMappingActivity::class.java)
                         .putExtra("fioName", RegisteredFIOName(fioName, convertToDate(expirationDate), bundledTxsNum)))
                 activity?.finish()
@@ -87,12 +91,16 @@ class RegisterFioNameCompletedFragment : Fragment() {
     class GetBundledTxsNumberTask(
             private val fioEndpoints: FioEndpoints,
             val fioName: String,
+            private val fioModule: FioModule,
             val listener: ((Int) -> Unit)) : AsyncTask<Void, Void, Int>() {
         override fun doInBackground(vararg args: Void): Int {
             return try {
                 FioBlockchainService.getBundledTxsNum(fioEndpoints, fioName) ?: DEFAULT_BUNDLED_TXS_NUM
             } catch (e: Exception) {
-                Log.i("asdaf", "asdaf failed to get bundled txs num: ${e.localizedMessage}")
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
+                Logger.getLogger(GetBundledTxsNumberTask::class.simpleName).log(Level.WARNING, "failed to get bundled txs num: ${e.localizedMessage}")
                 DEFAULT_BUNDLED_TXS_NUM
             }
         }

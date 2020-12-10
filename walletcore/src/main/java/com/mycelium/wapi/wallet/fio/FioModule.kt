@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import fiofoundation.io.fiosdk.FIOSDK
+import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.TokenPublicAddress
 import java.text.DateFormat
 import java.util.*
@@ -36,10 +37,24 @@ class FioModule(
 
     private val coinType = if (networkParameters.isProdnet) FIOMain else FIOTest
     private val accounts = mutableMapOf<UUID, FioAccount>()
+    private var fioServerLogsList = Collections.synchronizedList(LinkedList<String>())
     override val id = ID
 
     init {
         assetsList.add(coinType)
+    }
+
+    fun addFioServerLog(log: String) {
+        fioServerLogsList.add(log)
+    }
+
+    fun getFioServerLogsListAndClear(): List<String> {
+        synchronized(fioServerLogsList) {
+            val result = LinkedList<String>()
+            result.addAll(fioServerLogsList)
+            fioServerLogsList.clear()
+            return result
+        }
     }
 
     fun getAllRegisteredFioNames() = accounts.values.map { it.registeredFIONames }.flatten()
@@ -180,13 +195,14 @@ class FioModule(
         serverFioEventsPublisher.setFioServerListChangedListeners(fioEndpoints, fioEndpoints)
         val fioBlockchainService = FioBlockchainService(coinType, fioEndpoints, tpid, serializationProviderWrapper)
         serverFioEventsPublisher.setFioTpidChangedListener(fioBlockchainService)
+        val fioServerLogsListWrapper = FioServerLogsListWrapper(fioServerLogsList)
         if (!isRestore) {
             backing.createAccountContext(accountContext)
         }
         val fioAccountBacking = FioAccountBacking(walletDB, accountContext.uuid, coinType)
         return FioAccount(fioBlockchainService, fioEndpoints, accountContext = accountContext, backing = fioAccountBacking,
                 accountListener = accountListener, privkeyString = privkeyString, address = address,
-                walletManager = walletManager)
+                walletManager = walletManager, fioServerLogsListWrapper = fioServerLogsListWrapper)
     }
 
     override fun createAccount(config: Config): WalletAccount<*> {
@@ -207,16 +223,25 @@ class FioModule(
                 result = createAccount(accountContext, privkeyString = getPrivkeyStringByHdNode(hdKeyNode), isRestore = false)
             }
             is FIOAddressConfig -> {
-                val pubkeyString = when (config.address.getSubType()) {
-                    FioAddressSubtype.ACTOR.toString() -> FioBlockchainService.getPubkeyByActor(
-                            FioEndpoints(apiEndpoints, historyEndpoints), config.address.toString())
-                    FioAddressSubtype.ADDRESS.toString() -> FioBlockchainService.getPubkeyByFioAddress(
-                            FioEndpoints(apiEndpoints, historyEndpoints), config.address.toString(),
-                            coinType.symbol, coinType.symbol).publicAddress
-                    else -> config.address.toString()
+                val pubkeyString = try {
+                     when (config.address.getSubType()) {
+                        FioAddressSubtype.ACTOR.toString() -> FioBlockchainService.getPubkeyByActor(
+                                FioEndpoints(apiEndpoints, historyEndpoints), config.address.toString())
+                        FioAddressSubtype.ADDRESS.toString() -> FioBlockchainService.getPubkeyByFioAddress(
+                                FioEndpoints(apiEndpoints, historyEndpoints), config.address.toString(),
+                                coinType.symbol, coinType.symbol).publicAddress
+                        else -> config.address.toString()
+                    }
+                } catch (e: Exception) {
+                    if (e is FIOError) {
+                        fioServerLogsList.add(e.toJson())
+                    }
+                    null
                 }
-                val fioAddress = FioAddress(coinType, FioAddressData(pubkeyString
-                        ?: throw IllegalStateException("Cannot find public key for: ${config.address}")))
+                if (pubkeyString.isNullOrEmpty()) {
+                    throw IllegalStateException("Cannot find public key for: ${config.address}")
+                }
+                val fioAddress = FioAddress(coinType, FioAddressData(pubkeyString))
                 val uuid = UUID.nameUUIDFromBytes(fioAddress.getBytes())
                 secureStore.storePlaintextValue(uuid.toString().toByteArray(),
                         fioAddress.toString().toByteArray())
@@ -322,5 +347,11 @@ fun WalletManager.getActiveFioAccounts() = getAccounts()
 fun WalletManager.getActiveFioAccount(fioName: String) = getActiveFioAccounts().firstOrNull { fioAccount ->
     fioAccount.registeredFIONames.any {
         it.name == fioName
+    }
+}
+
+class FioServerLogsListWrapper(private val fioServerLogsList: MutableList<String>) {
+    fun addLog(log: String) {
+        fioServerLogsList.add(log)
     }
 }

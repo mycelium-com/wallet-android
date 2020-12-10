@@ -13,10 +13,8 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fio.FIODomain
-import com.mycelium.wapi.wallet.fio.FioAccount
-import com.mycelium.wapi.wallet.fio.FioBlockchainService
-import com.mycelium.wapi.wallet.fio.FioEndpoints
+import com.mycelium.wapi.wallet.fio.*
+import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.isFioAddress
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import java.util.*
@@ -40,11 +38,12 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
         val fioEndpoints = MbwManager.getInstance(this).fioEndpoints
         // set default fee at first, it will be updated in async task
         viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), DEFAULT_FEE)
+        val fioModule = MbwManager.getInstance(this).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         viewModel.addressWithDomain.observe(this, Observer { addressWithDomain ->
             if (viewModel.address.value!!.isNotEmpty()) {
                 viewModel.isFioAddressValid.value = addressWithDomain.isFioAddress().also { addressValid ->
                     if (addressValid) {
-                        CheckAddressAvailabilityTask(fioEndpoints, addressWithDomain) { isAvailable ->
+                        CheckAddressAvailabilityTask(fioEndpoints, addressWithDomain, fioModule) { isAvailable ->
                             if (isAvailable != null) {
                                 viewModel.isFioAddressAvailable.value = isAvailable
                             } else {
@@ -70,7 +69,7 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
             }
         }
 
-        UpdateFeeTask(fioEndpoints, FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint) { feeInSUF ->
+        UpdateFeeTask(fioEndpoints, FIOApiEndPoints.FeeEndPoint.RegisterFioAddress.endpoint, fioModule) { feeInSUF ->
             if (feeInSUF != null) {
                 viewModel.registrationFee.value = Value.valueOf(Utils.getFIOCoinType(), feeInSUF)
             }
@@ -101,12 +100,16 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
     class UpdateFeeTask(
             private val fioEndpoints: FioEndpoints,
             private val endpointName: String,
+            private val fioModule: FioModule,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
-
             return try {
                 FioBlockchainService.getFeeByEndpoint(fioEndpoints, endpointName).toString()
             } catch (e: Exception) {
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
+                Logger.getLogger(UpdateFeeTask::class.simpleName).log(Level.WARNING, "failed to get fee: ${e.localizedMessage}")
                 null
             }
         }
@@ -119,12 +122,16 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
     class CheckAddressAvailabilityTask(
             private val fioEndpoints: FioEndpoints,
             private val addressWithDomainOrDomain: String,
+            private val fioModule: FioModule,
             val listener: ((Boolean?) -> Unit)) : AsyncTask<Void, Void, Boolean?>() {
         override fun doInBackground(vararg args: Void): Boolean? {
             return try {
                 FioBlockchainService.isFioNameOrDomainAvailable(fioEndpoints, addressWithDomainOrDomain)
             } catch (e: Exception) {
-                Logger.getLogger(CheckAddressAvailabilityTask::class.simpleName).log(Level.WARNING, e.message)
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
+                Logger.getLogger(CheckAddressAvailabilityTask::class.simpleName).log(Level.WARNING, "failed to check fio name availability: ${e.localizedMessage}")
                 null
             }
         }
