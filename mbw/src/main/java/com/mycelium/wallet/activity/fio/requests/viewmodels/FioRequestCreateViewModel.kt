@@ -24,6 +24,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
+import fiofoundation.io.fiosdk.errors.FIOError
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -113,6 +114,9 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
                     }
                 } catch (ex: Exception) {
                     withContext(Main) {
+                        if (ex is FIOError) {
+                            fioModule.addFioServerLog(ex.toJson())
+                        }
                         doOnError.invoke(ex)
                     }
                 }
