@@ -144,7 +144,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.7.1") {
         exclude group: "com.android.support"
     }
-    annotationProcessor "com.github.bumptech.glide:compiler:4.7.1"
+    kapt "com.github.bumptech.glide:compiler:4.7.1"
 
 
     androidTestImplementation 'androidx.test:core:1.2.0'
@@ -157,8 +157,8 @@ dependencies {
 }
 
 android {
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
     }
     configurations {
         all*.exclude module: 'jcip-annotations'
@@ -191,8 +191,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3080100
-        versionName '3.8.1.0'
+        versionCode 3080400
+        versionName '3.8.4.0'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
@@ -249,6 +249,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            ndk {
+                debugSymbolLevel 'full'
+            }
         }
         debug {
             applicationIdSuffix '.debug'
@@ -383,6 +386,8 @@ android {
     aaptOptions {
         cruncherEnabled = false
     }
+
+    ndkVersion '21.1.6352462'
 }
 
 apply plugin: 'com.google.gms.google-services'
