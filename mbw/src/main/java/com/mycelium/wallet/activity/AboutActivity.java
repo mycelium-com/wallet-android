@@ -43,6 +43,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -104,17 +105,20 @@ public class AboutActivity extends Activity {
 
         findViewById(R.id.bt_show_server_info).setOnClickListener(view -> ConnectionLogsActivity.callMe(this));
 
-        findViewById(R.id.bt_fio_server_error_logs).setOnClickListener(view -> {
-            FioModule fioModule = (FioModule) mbwManager.getWalletManager(false).getModuleById(FioModule.ID);
-            List<String> logs = fioModule.getFioServerLogsListAndClear();
-            if (logs.isEmpty()) {
-                Toast.makeText(this, getString(R.string.no_logs), Toast.LENGTH_SHORT).show();
-            } else {
-                String joined = TextUtils.join("\n", logs);
-                Utils.setClipboardString(joined, this);
-                Toast.makeText(this, getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
-            }
-        });
+        if (BuildConfig.BUILD_TYPE == "debug") {
+            findViewById(R.id.bt_fio_server_error_logs).setVisibility(View.VISIBLE);
+            findViewById(R.id.bt_fio_server_error_logs).setOnClickListener(view -> {
+                FioModule fioModule = (FioModule) mbwManager.getWalletManager(false).getModuleById(FioModule.ID);
+                List<String> logs = fioModule.getFioServerLogsListAndClear();
+                if (logs.isEmpty()) {
+                    Toast.makeText(this, getString(R.string.no_logs), Toast.LENGTH_SHORT).show();
+                } else {
+                    String joined = TextUtils.join("\n", logs);
+                    Utils.setClipboardString(joined, this);
+                    Toast.makeText(this, getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         setLinkTo(findViewById(R.id.tvSourceUrl), R.string.source_url);
         setLinkTo(findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
