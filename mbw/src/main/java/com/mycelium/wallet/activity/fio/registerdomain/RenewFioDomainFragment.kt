@@ -23,13 +23,16 @@ import com.mycelium.wapi.wallet.Util.getRenewTill
 import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
+import fiofoundation.io.fiosdk.errors.FIOError
 import kotlinx.android.synthetic.main.fragment_renew_fio_name.*
 import java.text.SimpleDateFormat
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class RenewFioDomainFragment : Fragment() {
     private val viewModel: RegisterFioDomainViewModel by activityViewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             DataBindingUtil.inflate<FragmentRenewFioDomainBinding>(inflater, R.layout.fragment_renew_fio_domain, container, false)
                     .apply {
                         viewModel = this@RenewFioDomainFragment.viewModel.apply {
@@ -67,7 +70,7 @@ class RenewFioDomainFragment : Fragment() {
         val fioDomain: FIODomain = fioModule.getAllRegisteredFioDomains().first { it.domain == viewModel.domain.value }
         tvRenewTill.text = SimpleDateFormat("LLLL dd, yyyy 'at' hh:mm a").format(getRenewTill(fioDomain.expireDate))
         btNextButton.setOnClickListener {
-            RenewDomainTask(viewModel.accountToPayFeeFrom.value!! as FioAccount, viewModel.domain.value!!) { expiration ->
+            RenewDomainTask(viewModel.accountToPayFeeFrom.value!! as FioAccount, viewModel.domain.value!!, fioModule) { expiration ->
                 if (expiration != null) {
                     Toaster(this).toast("FIO Domain has been renewed", true)
                 } else {
@@ -81,11 +84,16 @@ class RenewFioDomainFragment : Fragment() {
     class RenewDomainTask(
             val account: FioAccount,
             private val fioDomain: String,
+            private val fioModule: FioModule,
             val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
         override fun doInBackground(vararg args: Void): String? {
             return try {
                 account.renewFIODomain(fioDomain)
             } catch (e: Exception) {
+                Logger.getLogger(RenewDomainTask::class.simpleName).log(Level.WARNING, "failed to renew fio domain: ${e.localizedMessage}")
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
                 null
             }
         }

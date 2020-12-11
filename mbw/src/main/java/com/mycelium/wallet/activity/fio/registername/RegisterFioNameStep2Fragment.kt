@@ -21,7 +21,10 @@ import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.*
+import fiofoundation.io.fiosdk.errors.FIOError
 import kotlinx.android.synthetic.main.fragment_register_fio_name_step2.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class RegisterFioNameStep2Fragment : Fragment() {
@@ -92,7 +95,8 @@ class RegisterFioNameStep2Fragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         tvNotEnoughFundsError.visibility = View.GONE
         btNextButton.setOnClickListener {
-            RegisterAddressTask(viewModel.fioAccountToRegisterName.value!!, viewModel.addressWithDomain.value!!) { expiration ->
+            val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+            RegisterAddressTask(viewModel.fioAccountToRegisterName.value!!, viewModel.addressWithDomain.value!!, fioModule) { expiration ->
                 if (expiration != null) {
                     requireActivity().supportFragmentManager
                             .beginTransaction()
@@ -136,11 +140,16 @@ class RegisterFioNameStep2Fragment : Fragment() {
 class RegisterAddressTask(
         val account: FioAccount,
         private val fioAddress: String,
+        private val fioModule: FioModule,
         val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
     override fun doInBackground(vararg args: Void): String? {
         return try {
             account.registerFIOAddress(fioAddress)
         } catch (e: Exception) {
+            Logger.getLogger(RegisterAddressTask::class.simpleName).log(Level.WARNING, "failed to register fio name: ${e.localizedMessage}")
+            if (e is FIOError) {
+                fioModule.addFioServerLog(e.toJson())
+            }
             null
         }
     }

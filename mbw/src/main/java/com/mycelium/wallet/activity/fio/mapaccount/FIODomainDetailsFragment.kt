@@ -26,6 +26,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.coins.FIOToken
+import fiofoundation.io.fiosdk.errors.FIOError
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIOApiEndPoints
 import kotlinx.android.synthetic.main.fragment_fio_account_mapping.list
 import kotlinx.android.synthetic.main.fragment_fio_domain_details.*
@@ -57,7 +58,7 @@ class FIODomainDetailsFragment : Fragment() {
         super.onResume()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         setHasOptionsMenu(true)
         return DataBindingUtil.inflate<FragmentFioDomainDetailsBinding>(inflater, R.layout.fragment_fio_domain_details, container, false)
                 .apply {
@@ -165,6 +166,9 @@ class FIODomainDetailsFragment : Fragment() {
                     "Something went wrong $status"
                 }
             } catch (e: Exception) {
+                if (e is FIOError) {
+                    fioModule.addFioServerLog(e.toJson())
+                }
                 e.localizedMessage
             }
         }

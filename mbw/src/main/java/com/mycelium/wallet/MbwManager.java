@@ -169,7 +169,6 @@ import com.mycelium.wapi.wallet.fio.FioAccountContext;
 import com.mycelium.wapi.wallet.fio.FioAddress;
 import com.mycelium.wapi.wallet.fio.FioApiEndpoints;
 import com.mycelium.wapi.wallet.fio.FioBacking;
-import com.mycelium.wapi.wallet.fio.FioBlockchainService;
 import com.mycelium.wapi.wallet.fio.FioEndpoints;
 import com.mycelium.wapi.wallet.fio.FioHistoryEndpoints;
 import com.mycelium.wapi.wallet.fio.FioKeyManager;
@@ -215,7 +214,7 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import fiofoundation.io.androidfioserializationprovider.AbiFIOSerializationProvider;
+import fiofoundation.io.fiosdk.errors.FIOError;
 import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -1658,6 +1657,10 @@ public class MbwManager {
                 } catch(Exception e) {
                     // TODO: 10/8/20 Actually handle the failure to send the obt record.
                     logger.log(Level.WARNING, "Sending fio obt record failed!", e);
+                    FioModule fioModule = (FioModule) getWalletManager(false).getModuleById(FioModule.ID);
+                    if (e instanceof FIOError) {
+                        fioModule.addFioServerLog(((FIOError) e).toJson());
+                    }
                 }
             }).start();
         }
