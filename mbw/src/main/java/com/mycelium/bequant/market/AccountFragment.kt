@@ -16,8 +16,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants.HIDE_VALUE
-import com.mycelium.bequant.Constants.TYPE_ITEM
+import com.mycelium.bequant.BequantConstants.HIDE_VALUE
+import com.mycelium.bequant.BequantConstants.TYPE_ITEM
 import com.mycelium.bequant.common.ModalDialog
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.AccountItem

@@ -58,7 +58,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.bequant.BequantPreference;
-import com.mycelium.bequant.Constants;
+import com.mycelium.bequant.BequantConstants;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -492,7 +492,7 @@ public class AddAccountActivity extends AppCompatActivity {
         super.onResume();
 
         findViewById(R.id.btInvestmentCreate).setVisibility(
-                BequantPreference.isLogged() || !SettingsPreference.isContentEnabled(Constants.PARTNER_ID) ?
+                BequantPreference.isLogged() || !SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID) ?
                         View.GONE : View.VISIBLE);
     }
 

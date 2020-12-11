@@ -16,7 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
@@ -33,7 +33,6 @@ import com.mycelium.wallet.databinding.FragmentBequantSteps2Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_2.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
-import java.util.*
 
 class Step2Fragment : Fragment() {
     lateinit var viewModel: Step2ViewModel
@@ -44,7 +43,7 @@ class Step2Fragment : Fragment() {
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
-            intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.let {
+            intent?.getParcelableExtra<CountryModel>(BequantConstants.COUNTRY_MODEL_KEY)?.let {
                 viewModel.country.value = it.name
                 viewModel.countryAcronym.value = it.acronym3
             }
@@ -58,7 +57,7 @@ class Step2Fragment : Fragment() {
         viewModel = ViewModelProviders.of(this).get(Step2ViewModel::class.java)
         viewModel.fromModel(kycRequest)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_COUNTRY_SELECTED))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
