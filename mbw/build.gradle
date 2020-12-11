@@ -387,7 +387,7 @@ android {
         cruncherEnabled = false
     }
 
-    ndkVersion '20.0.5594570'
+    ndkVersion '21.1.6352462'
 }
 
 apply plugin: 'com.google.gms.google-services'
