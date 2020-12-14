@@ -23,14 +23,14 @@ import com.mycelium.wallet.activity.modern.model.ViewAccountModel
 import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
 import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
 import kotlin.collections.ArrayList
 
 class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
-    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback(fragment.context!!)) {
-    private val context = fragment.context!!
+    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback(fragment.requireContext())) {
+    private val context = fragment.requireContext()
 
     private var focusedAccountId: UUID? = null
     private var selectedAccountId: UUID? = mbwManager.selectedAccount.id
@@ -42,7 +42,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
     private val walletManager = mbwManager.getWalletManager(false)
 
-    val focusedAccount: WalletAccount<out GenericAddress>?
+    val focusedAccount: WalletAccount<out Address>?
         get() = focusedAccountId?.let { walletManager.getAccount(it) }
 
     init {
@@ -258,7 +258,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     override fun getItemViewType(position: Int) = getItem(position).getType().typeId
 
     interface ItemClickListener {
-        fun onItemClick(account: WalletAccount<out GenericAddress>)
+        fun onItemClick(account: WalletAccount<out Address>)
     }
 
     class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {

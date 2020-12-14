@@ -23,7 +23,6 @@
     <string name="send">Wyślij</string>
     <string name="receive">Otrzymaj</string>
     <string name="private_key_deleted">Klucz prywatny został usunięty.</string>
-    <string name="enter_recipient_title">Wprowadz adres odbiorcy BTC </string>
     <string name="recipient_title">Adres odbiorcy</string>
     <string name="amount_label">Kwota:</string>
     <string name="amount_title">Kwota</string>
@@ -36,7 +35,7 @@
     <string name="insufficient_funds_for_fee">Niewystarczające środki do uiszczenia opłaty</string>
     <string name="amount_too_small">Kwota, którą wysyłasz jest zbyt mala</string>
     <string name="amount_too_small_short">Kwota za mała</string>
-    <string name="miner_fee_label">Opłata dla górników:</string>
+    <string name="miner_fee_label">Opłata dla górników</string>
     <string name="miner_fee_title">Opłata dla górników</string>
     <string name="synchronizing">Synchronizuje</string>
     <string name="transaction_not_sent">Transakcja nie zrealizowana</string>
@@ -121,8 +120,6 @@
     <string name="slow_network">Twoje połączenie sieciowe wydaje się bardzo wolne.\n Z odrobiną cierpliwości może się uda&#8230;</string>
     <string name="broadcasting_transaction">Nadawanie transakcji</string>
     <string name="enter_bitcoin_address">Wprowadź adres BTC</string>
-    <string name="bitcoin_address_invalid">Nieprawidłowy adres BTC</string>
-    <string name="bitcoin_address_valid">Poprawny adres BTC</string>
     <string name="enter_local_currency">Wprowadź lokalną  walutę</string>
     <string name="using_address_from_clipboard">Używam adres ze schowka</string>
     <string name="confirm_delete_pk_title">Czy na pewno?</string>

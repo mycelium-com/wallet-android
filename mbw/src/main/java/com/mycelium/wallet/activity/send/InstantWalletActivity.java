@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity.send;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentActivity;
@@ -59,8 +60,8 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.InstantKeepKeyActivity;
 import com.mycelium.wallet.extsig.trezor.activity.InstantTrezorActivity;
-import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.content.AssetUri;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 
@@ -161,14 +162,30 @@ public class InstantWalletActivity extends FragmentActivity {
             switch (type) {
                case PRIVATE_KEY:
                   InMemoryPrivateKey key = getPrivateKey(intent);
-                  sendWithAccount(mbwManager.createOnTheFlyAccount(key));
+                  // ask user what WIF privkey he/she scanned as there are options
+                  final int[] selectedItem = new int[1];
+                  CharSequence[] choices = new CharSequence[2];
+                  choices[0] = "BTC";
+                  choices[1] = "FIO";
+                  new AlertDialog.Builder(this)
+                          .setTitle("Choose blockchain")
+                          .setSingleChoiceItems(choices, 0, (dialogInterface, i) -> selectedItem[0] = i)
+                          .setPositiveButton(this.getString(R.string.ok), (dialogInterface, i) -> {
+                             if (selectedItem[0] == 0) {
+                                sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getBtcCoinType()));
+                             } else {
+                                sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getFIOCoinType()));
+                             }
+                          })
+                          .setNegativeButton(this.getString(R.string.cancel), null)
+                          .show();
                   break;
                case ADDRESS:
-                  GenericAddress address = getAddress(intent);
+                  Address address = getAddress(intent);
                   sendWithAccount(mbwManager.createOnTheFlyAccount(address));
                   break;
                case ASSET_URI:
-                  GenericAssetUri uri = getAssetUri(intent);
+                  AssetUri uri = getAssetUri(intent);
                   sendWithAccount(mbwManager.createOnTheFlyAccount(uri.getAddress()));
                   break;
                case HD_NODE:

@@ -75,7 +75,7 @@ public class ScriptOutputP2PKH extends ScriptOutput implements Serializable {
    }
 
    @Override
-   public Address getAddress(NetworkParameters network) {
-      return Address.fromStandardBytes(getAddressBytes(), network);
+   public BitcoinAddress getAddress(NetworkParameters network) {
+      return BitcoinAddress.fromStandardBytes(getAddressBytes(), network);
    }
 }

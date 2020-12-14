@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.text.DateFormat
@@ -25,7 +24,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
                                  internal var walletManager: WalletManager,
                                  metaDataStorage: IMetaDataStorage,
                                  internal val loadingProgressUpdater: LoadingProgressUpdater?,
-                                 internal val eventHandler: AbstractBtcAccount.EventHandler?) : GenericModule(metaDataStorage), WalletModule {
+                                 internal val eventHandler: AbstractBtcAccount.EventHandler?) : WalletModule(metaDataStorage) {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())

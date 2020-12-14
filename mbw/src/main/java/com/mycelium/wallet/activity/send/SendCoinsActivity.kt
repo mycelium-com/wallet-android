@@ -10,16 +10,19 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -29,18 +32,16 @@ import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
+import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
-import com.mycelium.wallet.activity.send.model.SendBtcViewModel
-import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
-import com.mycelium.wallet.activity.send.model.SendColuViewModel
-import com.mycelium.wallet.activity.send.model.SendEthViewModel
+import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.AnimationUtils
 import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
-import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
-import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wallet.databinding.SendCoinsActivityFioBinding
+import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.wallet.*
@@ -51,15 +52,20 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioModule
+import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
+import kotlinx.android.synthetic.main.send_coins_sender_fio.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
+class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountListener {
     private lateinit var viewModel: SendCoinsViewModel
     private lateinit var mbwManager: MbwManager
+    private lateinit var senderFioNamesMenu: PopupMenu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +73,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         mbwManager = MbwManager.getInstance(application)
         val accountId = checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
         val rawPaymentRequest = intent.getByteArrayExtra(RAW_PAYMENT_REQUEST)
-        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was " + accountId + ")"
+        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was $accountId)"
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
                 ?: throw IllegalStateException(crashHint)
@@ -78,6 +84,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             is ColuAccount -> viewModelProvider.get(SendColuViewModel::class.java)
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
             is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
+            is FioAccount -> viewModelProvider.get(SendFioViewModel::class.java)
             else -> throw NotImplementedError()
         }
         viewModel.activity = this
@@ -117,7 +124,43 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
         initFeeView()
         initFeeLvlView()
+        supportActionBar?.run {
+            title = getString(R.string.send_cointype, viewModel.getAccount().coinType.symbol)
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
+        createSenderFioNamesMenu()
+        viewModel.payerFioName.observe(this) {
+            updateMemoVisibility()
+        }
+        viewModel.payeeFioName.observe(this) {
+            updateMemoVisibility()
+        }
+        updateMemoVisibility()
+        et_fio_memo.setOnFocusChangeListener { view, b ->
+            if(b) {
+                root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
+            }
+        }
     }
+
+    private fun updateMemoVisibility() {
+        ll_fio_memo.visibility = if (viewModel.payeeFioName.value?.isNotEmpty() == true
+                && viewModel.payerFioName.value?.isNotEmpty() == true)
+            View.VISIBLE
+        else
+            View.GONE
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 
     override fun onResume() {
         super.onResume()
@@ -134,7 +177,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
     private fun chooseSpendingAccount(rawPaymentRequest: ByteArray?) {
         //we need the user to pick a spending account - the activity will then init sendmain correctly
-        val uri: GenericAssetUri = intent.getSerializableExtra(ASSET_URI) as GenericAssetUri?
+        val uri: AssetUri = intent.getSerializableExtra(ASSET_URI) as AssetUri?
                 ?: BitcoinUri.from(viewModel.getReceivingAddress().value, viewModel.getAmount().value,
                         viewModel.getTransactionLabel().value, null)
 
@@ -156,14 +199,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     private fun initDatabinding(account: WalletAccount<*>) {
         //Data binding, should be called after everything else
         val sendCoinsActivityBinding = when (account) {
-            is ColuAccount -> {
-                DataBindingUtil.setContentView<SendCoinsActivityColuBinding>(this,
-                        R.layout.send_coins_activity_colu)
-                        .also {
-                            it.viewModel = viewModel
-                            it.activity = this
-                        }
-            }
             is HDAccount, is SingleAddressAccount -> {
                 DataBindingUtil.setContentView<SendCoinsActivityBtcBinding>(this, R.layout.send_coins_activity_btc)
                         .also {
@@ -183,6 +218,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                             it.activity = this
                         }
             }
+            is FioAccount -> {
+                DataBindingUtil.setContentView<SendCoinsActivityFioBinding>(this, R.layout.send_coins_activity_fio)
+                        .also {
+                            it.viewModel = viewModel as SendFioViewModel
+                            it.activity = this
+                        }
+            }
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
@@ -196,7 +238,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                     }
 
     private fun initFeeView() {
-        feeValueList.setHasFixedSize(true)
+        feeValueList?.setHasFixedSize(true)
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
@@ -205,18 +247,18 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val feeViewAdapter = FeeViewAdapter(feeFirstItemWidth)
         feeViewAdapter.setFormatter(viewModel.getFeeFormatter())
 
-        feeValueList.adapter = feeViewAdapter
+        feeValueList?.adapter = feeViewAdapter
         feeViewAdapter.setDataset(viewModel.getFeeDataset().value)
         viewModel.getFeeDataset().observe(this, Observer { feeItems ->
             feeViewAdapter.setDataset(feeItems)
             val selectedFee = viewModel.getSelectedFee().value!!
             if (feeViewAdapter.selectedItem >= feeViewAdapter.itemCount ||
                     feeViewAdapter.getItem(feeViewAdapter.selectedItem).feePerKb != selectedFee.valueAsLong) {
-                feeValueList.setSelectedItem(selectedFee)
+                feeValueList?.setSelectedItem(selectedFee)
             }
         })
 
-        feeValueList.setSelectListener { adapter, position ->
+        feeValueList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeViewAdapter).getItem(position)
             viewModel.getSelectedFee().value = Value.valueOf(item.value.type, item.feePerKb)
 
@@ -228,19 +270,19 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     private fun initFeeLvlView() {
-        feeLvlList.setHasFixedSize(true)
+        feeLvlList?.setHasFixedSize(true)
         val feeLvlItems = viewModel.getFeeLvlItems()
 
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
         val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
-        feeLvlList.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
-        feeLvlList.setSelectListener { adapter, position ->
+        feeLvlList?.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
+        feeLvlList?.setSelectListener { adapter, position ->
             val item = (adapter as FeeLvlViewAdapter).getItem(position)
             viewModel.getFeeLvl().value = item.minerFee
-            feeValueList.setSelectedItem(viewModel.getSelectedFee().value)
+            feeValueList?.setSelectedItem(viewModel.getSelectedFee().value)
         }
-        feeLvlList.setSelectedItem(viewModel.getFeeLvl().value)
+        feeLvlList?.setSelectedItem(viewModel.getFeeLvl().value)
     }
 
     fun onClickUnconfirmedWarning() {
@@ -260,7 +302,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 .show()
     }
 
-    fun onClickAmount() {
+    override fun onClickAmount() {
         val account = viewModel.getAccount()
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, account.id,
                 viewModel.getAmount().value, viewModel.getSelectedFee().value,
@@ -284,7 +326,41 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE)
     }
 
+    fun onClickSenderFioNames() {
+        senderFioNamesMenu.show()
+    }
+
+    private fun createSenderFioNamesMenu() {
+        val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+        val now = Date()
+        val fioNames = fioModule.getFIONames(viewModel.getAccount()).filter { it.expireDate.after(now) }
+        if (fioNames.isEmpty()) {
+            sender.visibility = View.GONE
+        } else {
+            senderFioNamesMenu = PopupMenu(this, iv_from_fio_name).apply {
+                fioNames.forEach {
+                    menu.add(it.name)
+                }
+                setOnMenuItemClickListener { item ->
+                    // btcViewModel.setAddressType(AddressType.values()[item.itemId])
+                    tv_from.text = item.title
+                    getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+                            .edit()
+                            .putString(Constants.LAST_FIO_SENDER, "${item.title}")
+                            .apply()
+                    false
+                }
+                val fioSender = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+                        .getString(Constants.LAST_FIO_SENDER, fioNames.first().name)
+                if (menu.children.any { it.title == fioSender }) {
+                    viewModel.payerFioName.postValue(fioSender)
+                }
+            }
+        }
+    }
+
     fun onClickSend() {
+        viewModel.fioMemo.value = et_fio_memo.text.toString()
         if (isPossibleDuplicateSending()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.possible_duplicate_warning_title)
@@ -333,7 +409,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         // we could have used getTransactionsSince here instead of getTransactionSummaries
         // but for accounts with large number of transactions (>500) it would introduce quite delay
         // so we take last 25 transactions as a sort of heuristic
-        val summaries: List<GenericTransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
+        val summaries: List<TransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
         if (summaries.isEmpty()) {
             return false // user has no transactions
         }
@@ -341,7 +417,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             return false // latest transaction is too old
         }
         // find latest outgoing transaction
-        var outgoingTx: GenericTransactionSummary? = null
+        var outgoingTx: TransactionSummary? = null
         for (summary in summaries) {
             if (!summary.isIncoming) {
                 outgoingTx = summary
@@ -417,43 +493,38 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         const val TRANSACTION_FIAT_VALUE = "transaction_fiat_value"
 
         @JvmStatic
-        fun getIntent(currentActivity: Activity, account: UUID, isColdStorage: Boolean): Intent {
-            return Intent(currentActivity, SendCoinsActivity::class.java)
-                    .putExtra(ACCOUNT, account)
-                    .putExtra(IS_COLD_STORAGE, isColdStorage)
-        }
+        fun getIntent(currentActivity: Activity, account: UUID, isColdStorage: Boolean): Intent =
+                Intent(currentActivity, SendCoinsActivity::class.java)
+                        .putExtra(ACCOUNT, account)
+                        .putExtra(IS_COLD_STORAGE, isColdStorage)
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID,
-                      amountToSend: Long, receivingAddress: GenericAddress, isColdStorage: Boolean): Intent {
-            return getIntent(currentActivity, account, isColdStorage)
-                    .putExtra(AMOUNT, Value.valueOf(
-                            Utils.getBtcCoinType(),
-                            amountToSend))
-                    .putExtra(RECEIVING_ADDRESS, receivingAddress)
-        }
+                      amountToSend: Long, receivingAddress: Address, isColdStorage: Boolean): Intent =
+                getIntent(currentActivity, account, isColdStorage)
+                        .putExtra(AMOUNT, Value.valueOf(
+                                Utils.getBtcCoinType(),
+                                amountToSend))
+                        .putExtra(RECEIVING_ADDRESS, receivingAddress)
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID, rawPaymentRequest: ByteArray,
-                      isColdStorage: Boolean): Intent {
-            return getIntent(currentActivity, account, isColdStorage)
-                    .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest)
-        }
+                      isColdStorage: Boolean): Intent =
+                getIntent(currentActivity, account, isColdStorage)
+                        .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest)
 
         @JvmStatic
-        fun getIntent(currentActivity: Activity, account: UUID, uri: GenericAssetUri, isColdStorage: Boolean): Intent {
-            return getIntent(currentActivity, account, isColdStorage)
-                    .putExtra(AMOUNT, uri.value)
-                    .putExtra(RECEIVING_ADDRESS, uri.address)
-                    .putExtra(TRANSACTION_LABEL, uri.label)
-                    .putExtra(ASSET_URI, uri)
-        }
+        fun getIntent(currentActivity: Activity, account: UUID, uri: AssetUri, isColdStorage: Boolean): Intent =
+                getIntent(currentActivity, account, isColdStorage)
+                        .putExtra(AMOUNT, uri.value)
+                        .putExtra(RECEIVING_ADDRESS, uri.address)
+                        .putExtra(TRANSACTION_LABEL, uri.label)
+                        .putExtra(ASSET_URI, uri)
 
         @JvmStatic
-        fun getIntent(currentActivity: Activity, account: UUID, hdKey: HdKeyNode): Intent {
-            return getIntent(currentActivity, account, false)
-                    .putExtra(HD_KEY, hdKey)
-        }
+        fun getIntent(currentActivity: Activity, account: UUID, hdKey: HdKeyNode): Intent =
+                getIntent(currentActivity, account, false)
+                        .putExtra(HD_KEY, hdKey)
     }
 }
 
@@ -521,7 +592,7 @@ fun getSelectedItem(spinner: Spinner): SpinnerItem {
 
 interface SpinnerItem
 
-class TransactionItem(val tx: GenericTransactionSummary, private val dateString: String,
+class TransactionItem(val tx: TransactionSummary, private val dateString: String,
                       private val amountString: String) : SpinnerItem {
     override fun toString(): String {
         val idHex = HexUtils.toHex(tx.id)

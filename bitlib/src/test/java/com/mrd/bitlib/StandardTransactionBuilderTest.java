@@ -40,7 +40,7 @@ import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputP2PKH;
@@ -62,7 +62,6 @@ import java.util.List;
 
 import static com.megiontechnologies.Bitcoins.SATOSHIS_PER_BITCOIN;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
-import static com.mrd.bitlib.model.NetworkParameters.productionNetwork;
 import static com.mrd.bitlib.model.NetworkParameters.testNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -73,7 +72,7 @@ public class StandardTransactionBuilderTest {
     private static final int COUNT = 9;
     private static final InMemoryPrivateKey[] PRIVATE_KEYS = new InMemoryPrivateKey[COUNT];
     private static final PublicKey PUBLIC_KEYS[] = new PublicKey[COUNT];
-    private static final Address ADDRS[] = new Address[COUNT];
+    private static final BitcoinAddress ADDRS[] = new BitcoinAddress[COUNT];
     private static final UnspentTransactionOutput UTXOS[][] = new UnspentTransactionOutput[COUNT][2];
 
     static {
@@ -101,7 +100,7 @@ public class StandardTransactionBuilderTest {
 
     private static final IPublicKeyRing KEY_RING = new IPublicKeyRing() {
         @Override
-        public PublicKey findPublicKeyByAddress(Address address) {
+        public PublicKey findPublicKeyByAddress(BitcoinAddress address) {
             for (int i = 0; i < COUNT; i++) {
                 if (ADDRS[i].equals(address)) {
                     return PUBLIC_KEYS[i];
@@ -147,8 +146,8 @@ public class StandardTransactionBuilderTest {
         }
     }
 
-    private void testRichest(Collection<UnspentTransactionOutput> utxos, Address winner) {
-        Address address = testme.getRichest(utxos, testNetwork);
+    private void testRichest(Collection<UnspentTransactionOutput> utxos, BitcoinAddress winner) {
+        BitcoinAddress address = testme.getRichest(utxos, testNetwork);
         assertEquals(winner, address);
     }
 
@@ -220,7 +219,7 @@ public class StandardTransactionBuilderTest {
         assertEquals(ADDRS[1], outputs[0].script.getAddress(testNetwork));
     }
 
-    private static UnspentTransactionOutput getUtxo(Address address, long value) {
+    private static UnspentTransactionOutput getUtxo(BitcoinAddress address, long value) {
         return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
     }
 

@@ -12,20 +12,20 @@ import androidx.appcompat.app.AlertDialog
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 
 class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell, R.string.si_buy_sell_description, R.string.si_setting_show_button_summary, R.drawable.credit_card_buy) {
 
-    override fun getDescription(mbwManager: MbwManager, activeReceivingAddress: GenericAddress): Int =
+    override fun getDescription(mbwManager: MbwManager, activeReceivingAddress: Address): Int =
             if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
                 R.string.si_eth_buy_sell_description
             } else {
                 R.string.si_buy_sell_description
             }
 
-    override fun launchService(context: Activity, mbwManager: MbwManager, activeReceivingAddress: GenericAddress) {
+    override fun launchService(context: Activity, mbwManager: MbwManager, activeReceivingAddress: Address) {
         if (!mbwManager.selectedAccount.canSpend()) {
             Toast.makeText(context, R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show()
             return

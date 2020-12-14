@@ -15,14 +15,14 @@ import com.mycelium.bequant.common.holder.SpaceHolder
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.exchange.CoinAdapter
 import com.mycelium.wallet.R
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
 import kotlinx.android.synthetic.main.item_bequant_search.view.*
 
 
 class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
-    var coinClickListener: ((GenericAssetInfo) -> Unit)? = null
+    var coinClickListener: ((AssetInfo) -> Unit)? = null
     var searchChangeListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =

@@ -30,24 +30,24 @@ public class SourcedTransactionOutput implements Serializable {
 
    public OutPoint outPoint;
    public long value;
-   public Address address;
-   public Set<Address> senders;
+   public BitcoinAddress address;
+   public Set<BitcoinAddress> senders;
    public byte[] script;
 
    public SourcedTransactionOutput(ByteReader reader) throws InsufficientBytesException, ScriptParsingException {
       outPoint = new OutPoint(reader);
       value = reader.getLongLE();
-      address = new Address(reader.getBytes(Address.NUM_ADDRESS_BYTES));
+      address = new BitcoinAddress(reader.getBytes(BitcoinAddress.NUM_ADDRESS_BYTES));
       int numSenders = (int) reader.getIntLE();
-      senders = new HashSet<Address>();
+      senders = new HashSet<BitcoinAddress>();
       for (int i = 0; i < numSenders; i++) {
-         senders.add(new Address(reader.getBytes(Address.NUM_ADDRESS_BYTES)));
+         senders.add(new BitcoinAddress(reader.getBytes(BitcoinAddress.NUM_ADDRESS_BYTES)));
       }
       int scriptLength = (int) reader.getIntLE();
       script = reader.getBytes(scriptLength);
    }
 
-   public SourcedTransactionOutput(OutPoint outPoint, long value, Address address, Set<Address> senders, byte[] script) {
+   public SourcedTransactionOutput(OutPoint outPoint, long value, BitcoinAddress address, Set<BitcoinAddress> senders, byte[] script) {
       this.outPoint = outPoint;
       this.value = value;
       this.address = address;
@@ -66,7 +66,7 @@ public class SourcedTransactionOutput implements Serializable {
       writer.putLongLE(value);
       writer.putBytes(address.getAllAddressBytes());
       writer.putIntLE(senders.size());
-      for (Address sender : senders) {
+      for (BitcoinAddress sender : senders) {
          writer.putBytes(sender.getAllAddressBytes());
       }
       writer.putIntLE(script.length);

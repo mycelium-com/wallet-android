@@ -6,7 +6,7 @@ import com.mycelium.bequant.remote.trading.model.Symbol
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.model.ExchangeRate
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.parse
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider
@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit
 
 
 object BQExchangeRateManager : ExchangeRateProvider {
+
     interface Observer {
         fun refreshingExchangeRatesSucceeded()
         fun refreshingExchangeRatesFailed()
@@ -206,20 +207,23 @@ object BQExchangeRateManager : ExchangeRateProvider {
         return null
     }
 
-    fun get(value: Value, toCurrency: GenericAssetInfo): Value? {
+
+
+    fun get(value: Value, toCurrency: AssetInfo): Value? {
         val price = getExchangeRate(value.type.symbol, toCurrency.symbol)?.let {
             BigDecimal.valueOf(it.price)
         } ?: getExchangeRate(toCurrency.symbol, value.type.symbol)?.let {
             BigDecimal.valueOf(1 / it.price)
-        }
+            }
         return price
                 ?.multiply(BigDecimal(value.value))
                 ?.movePointLeft(value.type.unitExponent)
                 ?.round(MathContext.DECIMAL128)
                 ?.let {
                     parse(toCurrency, it)
-                }
-    }
+        }
+        }
+
 
     private val MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5)
     const val BTC = "BTC"

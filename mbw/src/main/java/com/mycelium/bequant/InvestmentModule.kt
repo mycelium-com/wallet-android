@@ -4,13 +4,12 @@ import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 
 
-class InvestmentModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+class InvestmentModule(metaDataStorage: IMetaDataStorage) : WalletModule(metaDataStorage) {
     override val id = ID
     val account = InvestmentAccount()
 

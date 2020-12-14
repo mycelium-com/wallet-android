@@ -1,9 +1,11 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 
 import java.math.BigInteger;
+
+import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -13,7 +15,7 @@ public class CryptoCurrency extends AbstractAsset {
     protected String id;
     protected Integer unitExponent;
     protected Integer friendlyDigits;
-    protected boolean isUtxosBased = true;
+    protected boolean isUtxosBased;
 
     public CryptoCurrency(String id, String name, String symbol, Integer unitExponent, Integer friendlyDigits, boolean isUtxosBased) {
         this.id = id;
@@ -24,11 +26,13 @@ public class CryptoCurrency extends AbstractAsset {
         this.isUtxosBased = isUtxosBased;
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return checkNotNull(name, "A coin failed to set a name");
     }
 
+    @Nonnull
     @Override
     public String getSymbol() {
         return checkNotNull(symbol, "A coin failed to set a symbol");
@@ -48,6 +52,7 @@ public class CryptoCurrency extends AbstractAsset {
         return str.getBytes(Charsets.UTF_8);
     }
 
+    @Nonnull
     @Override
     public Value oneCoin() {
         if (oneCoin == null) {
@@ -57,16 +62,18 @@ public class CryptoCurrency extends AbstractAsset {
         return oneCoin;
     }
 
+    @Nonnull
     @Override
-    public Value value(String string) {
+    public Value value(@Nonnull String string) {
         return Value.parse(this, string);
     }
 
     @Override
-    public GenericAddress parseAddress(String address) {
+    public Address parseAddress(String address) {
         return null;
     }
 
+    @Nonnull
     @Override
     public Value value(long units) {
         return Value.valueOf(this, units);
@@ -80,6 +87,7 @@ public class CryptoCurrency extends AbstractAsset {
                 '}';
     }
 
+    @Nonnull
     public String getId() {
         return id;
     }

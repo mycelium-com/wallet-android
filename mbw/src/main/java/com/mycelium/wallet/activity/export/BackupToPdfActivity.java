@@ -54,7 +54,7 @@ import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
@@ -352,8 +352,8 @@ public class BackupToPdfActivity extends Activity {
                      throw new RuntimeException(e);
                   }
                } else {
-                  Address address = a.getReceivingAddress().get();
-                  Map<AddressType, Address> addressMap = new HashMap<>();
+                  BitcoinAddress address = a.getReceivingAddress().get();
+                  Map<AddressType, BitcoinAddress> addressMap = new HashMap<>();
                   addressMap.put(address.getType(), address);
                   entry = new EntryToExport(addressMap, null, label, account instanceof SingleAddressBCHAccount);
                }
@@ -451,10 +451,10 @@ public class BackupToPdfActivity extends Activity {
       private static final long serialVersionUID = 1L;
       private String base58PrivateKey;
       private String label;
-      private final Map<AddressType, Address> addresses;
+      private final Map<AddressType, BitcoinAddress> addresses;
       private boolean isBch;
 
-      private EntryToExport(Map<AddressType, Address> addresses, String base58PrivateKey, String label, boolean isBch) {
+      private EntryToExport(Map<AddressType, BitcoinAddress> addresses, String base58PrivateKey, String label, boolean isBch) {
          this.base58PrivateKey = base58PrivateKey;
          this.label = label;
          this.addresses = addresses;

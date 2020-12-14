@@ -37,7 +37,7 @@ package com.mycelium.wallet.lt.api;
 import java.util.Collection;
 import java.util.UUID;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
@@ -48,9 +48,9 @@ public class SetTradeReceivingAddress extends Request {
    private static final long serialVersionUID = 1L;
 
    public UUID tradeSessionId;
-   public Address address;
+   public BitcoinAddress address;
 
-   public SetTradeReceivingAddress(UUID tradeSessionId, Address address) {
+   public SetTradeReceivingAddress(UUID tradeSessionId, BitcoinAddress address) {
       super(true, true);
       this.tradeSessionId = tradeSessionId;
       this.address = address;

@@ -14,7 +14,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
@@ -75,7 +75,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
 
         val ACCOUNT_KEY = "chooseAccount"
 
-        private fun getSpendableBalance(walletAccountList: List<WalletAccount<out GenericAddress>>): ValueSum {
+        private fun getSpendableBalance(walletAccountList: List<WalletAccount<out Address>>): ValueSum {
             val sum = ValueSum()
             for (account in walletAccountList) {
                 if (account.isActive) {

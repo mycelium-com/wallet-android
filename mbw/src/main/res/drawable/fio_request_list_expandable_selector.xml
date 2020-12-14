@@ -1,0 +1,15 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_checked="true">
+
+        <rotate
+            android:fromDegrees="180"
+            android:drawable="@drawable/ic_expand_more_white_24dp"/>
+    </item>
+
+    <item android:state_pressed="true"
+        android:drawable="@drawable/ic_expand_more_white_24dp" /> <!-- pressed -->
+
+    <item android:drawable="@drawable/ic_expand_more_white_24dp" /> <!-- default -->
+
+</selector>

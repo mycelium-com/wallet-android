@@ -18,7 +18,7 @@
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/exo2medium"
         android:background="@drawable/bg_bequant_search"
-        android:drawableStart="@drawable/ic_search"
+        app:drawableStartCompat="@drawable/ic_search"
         android:drawablePadding="8dp"
         android:hint="@string/search_markets"
         android:lines="1"

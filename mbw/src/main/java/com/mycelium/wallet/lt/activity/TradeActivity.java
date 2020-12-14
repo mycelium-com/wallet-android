@@ -70,7 +70,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.ChatMessageEncryptionKey.InvalidChatMessage;
@@ -94,7 +94,7 @@ import com.mycelium.wallet.lt.api.DeleteTradeHistory;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -871,9 +871,9 @@ public class TradeActivity extends Activity {
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION));
+            Transaction signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION));
             BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
-            Transaction tx = btcTransaction.getTx();
+            BitcoinTransaction tx = btcTransaction.getTx();
             if (tx == null) {
                Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
                return;

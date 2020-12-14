@@ -10,7 +10,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.view.Denomination;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -137,7 +137,7 @@ public class AccountAdapter extends SelectableRecyclerView.SRVAdapter<RecyclerVi
         }
     }
 
-    private boolean trySettingReceivingAddress(ViewHolder viewHolder, Address receivingAddress) {
+    private boolean trySettingReceivingAddress(ViewHolder viewHolder, BitcoinAddress receivingAddress) {
         if (receivingAddress != null) {
             viewHolder.valueTextView.setText(receivingAddress.toString());
             return true;

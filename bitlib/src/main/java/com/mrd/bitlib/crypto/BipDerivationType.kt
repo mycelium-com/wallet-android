@@ -1,6 +1,6 @@
 package com.mrd.bitlib.crypto
 
-import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.AddressType
 import java.io.Serializable
 
@@ -12,7 +12,7 @@ enum class BipDerivationType(val purpose: Byte, val addressType: AddressType) : 
     fun getHardenedPurpose() = purpose + 0x80000000.toInt()
 
     companion object {
-        fun getDerivationTypeByAddress(address: Address): BipDerivationType =
+        fun getDerivationTypeByAddress(address: BitcoinAddress): BipDerivationType =
                 getDerivationTypeByAddressType(address.type)
 
         fun getDerivationTypeByAddressType(addressType: AddressType): BipDerivationType =

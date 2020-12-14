@@ -45,7 +45,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
@@ -69,7 +69,7 @@ public class SetTradeAddress extends Activity {
    }
 
    private TradeSession _tradeSession;
-   private Address _address;
+   private BitcoinAddress _address;
 
    /**
     * Called when the activity is first created.

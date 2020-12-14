@@ -47,7 +47,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentBequantExchangeBinding
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.dialog_bequant_exchange_summary.*
@@ -517,7 +517,7 @@ class ExchangeFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE_EXCHANGE_COINS && resultCode == Activity.RESULT_OK) {
-            val youSendYouGetPair = data?.getSerializableExtra(YOU_SEND_YOU_GET_PAIR) as Pair<GenericAssetInfo, GenericAssetInfo>
+            val youSendYouGetPair = data?.getSerializableExtra(YOU_SEND_YOU_GET_PAIR) as Pair<AssetInfo, AssetInfo>
             viewModel.youSend.value = Value.zeroValue(youSendYouGetPair.first)
             viewModel.youGet.value = Value.zeroValue(youSendYouGetPair.second)
         }

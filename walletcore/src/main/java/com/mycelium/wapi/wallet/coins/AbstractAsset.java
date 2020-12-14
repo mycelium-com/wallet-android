@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
-public abstract class AbstractAsset implements GenericAssetInfo {
-
+public abstract class AbstractAsset implements AssetInfo {
     protected String name;
     protected String symbol;
 
@@ -17,10 +16,5 @@ public abstract class AbstractAsset implements GenericAssetInfo {
             return false;
         AbstractAsset other = (AbstractAsset) o;
         return getId().equals(other.getId());
-    }
-
-    @Override
-    public boolean isMineAddress(String address) {
-        return parseAddress(address) != null;
     }
 }

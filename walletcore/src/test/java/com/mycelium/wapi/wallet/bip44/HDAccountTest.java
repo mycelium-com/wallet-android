@@ -3,7 +3,7 @@ package com.mycelium.wapi.wallet.bip44;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.generated.wallet.database.WalletDB;
@@ -88,7 +88,7 @@ public class HDAccountTest {
      */
     @Test
     public void addressGenerationTest() {
-        assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS), account.getReceivingAddress().get());
-        assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS), account.getChangeAddress());
+        assertEquals(BitcoinAddress.fromString(MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS), account.getReceivingAddress().get());
+        assertEquals(BitcoinAddress.fromString(MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS), account.getChangeAddress());
     }
 }

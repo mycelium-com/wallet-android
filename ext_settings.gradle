@@ -1,7 +1,7 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaVersion = '23.0-android'
-    gradleVersion = '3.6.1'
+    gradleVersion = '4.1.1'
     androidCompileSdkVersion = 29
     androidSdkBuildVersion = '29.0.3'
     androidMinSdkVersion = 19
@@ -29,6 +29,8 @@ ext {
     // the solution got from https://github.com/FasterXML/jackson-module-kotlin/issues/218#issuecomment-470900330
     jacksonDatabindVersion = '2.9.6'
     nav_version = "2.3.0"
+    // latest version is 1.4.3 but that changes the api somehow
+    sqldelight_version = '1.2.1'
 
     projectRootDir = project.rootDir.getPath()
     commonDebugKeystore = project.file('debug.keystore')

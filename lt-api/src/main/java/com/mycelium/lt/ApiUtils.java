@@ -19,7 +19,7 @@ package com.mycelium.lt;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.crypto.WrongSignatureException;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -32,7 +32,7 @@ public class ApiUtils {
 
    private static final String SIGNATURE_PREFIX = "Mycelium Local Trader:";
 
-   public static boolean validateUuidHashSignature(Address address, UUID uuid, String signatureBase64) {
+   public static boolean validateUuidHashSignature(BitcoinAddress address, UUID uuid, String signatureBase64) {
       if (address == null || uuid == null || signatureBase64 == null) {
          return false;
       }

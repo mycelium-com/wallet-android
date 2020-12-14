@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
-import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
 import com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel
@@ -29,7 +29,7 @@ import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.send.SendInitializationActivity
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantReceiveFromMyceliumBinding
-import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -116,10 +116,10 @@ class FromMyceliumFragment : Fragment() {
             val account = adapter.getItem(accountList.currentItem)
 
             val addressString = parentViewModel?.address?.value ?: ""
-            val uri: GenericAssetUri = when (account) {
+            val uri: AssetUri = when (account) {
                 is AbstractBtcAccount -> {
                     val type = Utils.getBtcCoinType()
-                    BitcoinUri.from(BtcAddress(type, Address.fromString(addressString)),
+                    BitcoinUri.from(BtcAddress(type, BitcoinAddress.fromString(addressString)),
                             Value.parse(type, viewModel.amount.value!!),
                             null, null)
                 }

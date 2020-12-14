@@ -18,8 +18,8 @@ package com.mycelium.wapi.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.Transaction.TransactionParsingException;
+import com.mrd.bitlib.model.BitcoinTransaction;
+import com.mrd.bitlib.model.BitcoinTransaction.TransactionParsingException;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -73,17 +73,17 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
       return txid.equals(other.txid);
    }
 
-   public static TransactionEx fromUnconfirmedTransaction(Transaction t) {
+   public static TransactionEx fromUnconfirmedTransaction(BitcoinTransaction t) {
       int now = (int) (System.currentTimeMillis() / 1000);
       return new TransactionEx(t.getId(), t.getHash(), -1, now, t.toBytes());
    }
 
-   public static Transaction toTransaction(TransactionEx tex) {
+   public static BitcoinTransaction toTransaction(TransactionEx tex) {
       if (tex == null) {
          return null;
       }
       try {
-         return Transaction.fromByteReader(new ByteReader(tex.binary));
+         return BitcoinTransaction.fromByteReader(new ByteReader(tex.binary));
       } catch (TransactionParsingException e) {
          return null;
       }
@@ -93,7 +93,7 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
       if (index < 0) {
          return null;
       }
-      Transaction t = toTransaction(tex);
+      BitcoinTransaction t = toTransaction(tex);
       if (t == null) {
          return null;
       }

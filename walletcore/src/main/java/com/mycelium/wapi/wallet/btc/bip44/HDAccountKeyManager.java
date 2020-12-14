@@ -21,7 +21,7 @@ import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
@@ -175,7 +175,7 @@ public class HDAccountKeyManager {
       return publicLeafNode.getPublicKey();
    }
 
-   public Address getAddress(boolean isChangeChain, int index) {
+   public BitcoinAddress getAddress(boolean isChangeChain, int index) {
       // See if we have it in the store
       byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, false, derivationType);
       byte[] addressNodeBytes = _secureKeyValueStore.getPlaintextValue(id);
@@ -207,7 +207,7 @@ public class HDAccountKeyManager {
 
       // We don't have it, need to calculate it from the public key
       PublicKey publicKey = getPublicKey(isChangeChain, index);
-      Address address = publicKey.toAddress(_network, derivationType.getAddressType());
+      BitcoinAddress address = publicKey.toAddress(_network, derivationType.getAddressType());
       address.setBip32Path(path);
 
       // Store it for next time
@@ -253,7 +253,7 @@ public class HDAccountKeyManager {
    }
 
 
-   private static byte[] addressToBytes(Address address) {
+   private static byte[] addressToBytes(BitcoinAddress address) {
       ByteWriter writer = new ByteWriter(1024);
       // Add address as bytes
       writer.putBytes(address.getAllAddressBytes());
@@ -264,14 +264,14 @@ public class HDAccountKeyManager {
       return writer.toBytes();
    }
 
-   private static Address bytesToAddress(byte[] bytes, HdKeyPath path) {
+   private static BitcoinAddress bytesToAddress(byte[] bytes, HdKeyPath path) {
       try {
          ByteReader reader = new ByteReader(bytes);
          // Address bytes
          reader.getBytes(21);
          // Read length encoded string
          String addressString = new String(reader.getBytes((int) reader.get()));
-         Address address = Address.fromString(addressString);
+         BitcoinAddress address = BitcoinAddress.fromString(addressString);
          address.setBip32Path(path);
          return address;
       } catch (ByteReader.InsufficientBytesException e) {

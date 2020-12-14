@@ -1,0 +1,72 @@
+CREATE TABLE IF NOT EXISTS FioKnownNames(
+    name TEXT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS FioNameAccountMappings(
+    name TEXT NOT NULL,
+    pubAddress TEXT NOT NULL,
+    chainCode TEXT NOT NULL,
+    tokenCode TEXT NOT NULL,
+    accountUuid TEXT NOT NULL,
+    PRIMARY KEY (name, chainCode, tokenCode)
+);
+
+CREATE TABLE IF NOT EXISTS FioAccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT NOT NULL,
+    sender TEXT NOT NULL,
+    receiver TEXT NOT NULL,
+    transferred TEXT NOT NULL,
+    memo TEXT,
+    PRIMARY KEY (txid, uuid),
+    FOREIGN KEY (txid, uuid)
+            REFERENCES AccountBacking (txid, uuid)
+            ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS FioContext(
+    uuid TEXT PRIMARY KEY NOT NULL,
+    accountIndex INTEGER NOT NULL,
+    actionSequenceNumber TEXT NOT NULL,
+    registeredFIONames TEXT,
+    registeredFIODomains TEXT,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS FioRequestsReceivedBacking (
+    fio_request_id TEXT NOT NULL PRIMARY KEY,
+    payer_fio_address TEXT NOT NULL,
+    payee_fio_address TEXT NOT NULL,
+    payer_fio_public_key TEXT NOT NULL,
+    payee_fio_public_key TEXT NOT NULL,
+    content TEXT NOT NULL,
+    deserialized_content TEXT,
+    time_stamp TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS FioRequestsSentBacking (
+    fio_request_id TEXT NOT NULL PRIMARY KEY,
+    payer_fio_address TEXT NOT NULL,
+    payee_fio_address TEXT NOT NULL,
+    payer_fio_public_key TEXT NOT NULL,
+    payee_fio_public_key TEXT NOT NULL,
+    content TEXT NOT NULL,
+    deserialized_content TEXT,
+    time_stamp TEXT NOT NULL,
+    status TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS FioOtherBlockchainTransactions(
+  obtId TEXT NOT NULL PRIMARY KEY,
+  fioRequestId TEXT NOT NULL,
+  payerFioAddress TEXT NOT NULL,
+  payeeFioAddress TEXT NOT NULL,
+  payerFioPublicKey TEXT NOT NULL,
+  payeeFioPublicKey TEXT NOT NULL,
+  content TEXT NOT NULL,
+  status TEXT NOT NULL,
+  time_stamp TEXT NOT NULL,
+  deserializedContent TEXT
+);

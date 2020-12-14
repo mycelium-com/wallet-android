@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 public class PublicTraderInfo implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -28,7 +28,7 @@ public class PublicTraderInfo implements Serializable {
    @JsonProperty
    public String nickname;
    @JsonProperty
-   public final Address address;
+   public final BitcoinAddress address;
    @JsonProperty
    public final PublicKey publicKey;
    @JsonProperty
@@ -48,11 +48,11 @@ public class PublicTraderInfo implements Serializable {
    @JsonProperty
    public final Long tradeMedianMs;
 
-   public PublicTraderInfo(@JsonProperty("nickname") String nickname, @JsonProperty("address") Address address, @JsonProperty("publicKey") PublicKey publicKey,
-         @JsonProperty("traderAgeMs") long traderAgeMs, @JsonProperty("idleTime") long idleTime, @JsonProperty("lastChange") long lastChange,
-         @JsonProperty("successfulSales") int successfulSales, @JsonProperty("successfulBuys") int successfulBuys,
-         @JsonProperty("abortedSales") int abortedSales, @JsonProperty("abortedBuys") int abortedBuys,
-         @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
+   public PublicTraderInfo(@JsonProperty("nickname") String nickname, @JsonProperty("address") BitcoinAddress address, @JsonProperty("publicKey") PublicKey publicKey,
+                           @JsonProperty("traderAgeMs") long traderAgeMs, @JsonProperty("idleTime") long idleTime, @JsonProperty("lastChange") long lastChange,
+                           @JsonProperty("successfulSales") int successfulSales, @JsonProperty("successfulBuys") int successfulBuys,
+                           @JsonProperty("abortedSales") int abortedSales, @JsonProperty("abortedBuys") int abortedBuys,
+                           @JsonProperty("tradeMedianMs") Long tradeMedianMs) {
       this.nickname = nickname;
       this.address = address;
       this.publicKey = publicKey;

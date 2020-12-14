@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.exchange.SelectCoinFragment.Companion.SEND
 import com.mycelium.wallet.R
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
 import kotlinx.android.synthetic.main.item_bequant_search.view.*
 
 
 class CoinAdapter(private val role: String, private val listener: ClickListener,
-                  var youSendYouGetPair: MutableLiveData<Pair<GenericAssetInfo, GenericAssetInfo>>)
+                  var youSendYouGetPair: MutableLiveData<Pair<AssetInfo, AssetInfo>>)
     : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
     var searchChangeListener: ((String) -> Unit)? = null

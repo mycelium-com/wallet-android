@@ -47,7 +47,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.squareup.otto.Bus
@@ -68,7 +68,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         get() = currencySwitcher.getAsFiatValue(currentValue)
 
     private var isAddedToBus = false
-    var coinType: GenericAssetInfo? = null
+    var coinType: AssetInfo? = null
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init(context)
@@ -133,7 +133,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
 
             visibility = View.VISIBLE
-            val displayValue = currentValue?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
+            val displayValue = currentValue?.toString(currencySwitcher.getDenomination(coinType!!)!!)
             tvDisplayValue.text = if (currentValue?.type is EthCoin)
                 makeNDigitsAfterComma(displayValue, 4)
             else
@@ -165,7 +165,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
                 tvDisplayValue.text = value?.toPlainString()
             } else {
                 tvCurrency.text = currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
-                tvDisplayValue.text = value?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
+                tvDisplayValue.text = value?.toString(currencySwitcher.getDenomination(coinType!!)!!)
             }
             View.VISIBLE
         }
@@ -194,7 +194,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
     }
 
     fun setValue(sum: ValueSum, totalBalance: Boolean) {
-        val toCurrency: GenericAssetInfo = if (totalBalance) {
+        val toCurrency: AssetInfo = if (totalBalance) {
             currencySwitcher.currentTotalCurrency!!
         } else {
             currencySwitcher.currentCurrencyMap[coinType]!!

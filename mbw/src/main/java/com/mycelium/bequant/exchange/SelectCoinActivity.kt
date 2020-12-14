@@ -8,12 +8,12 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.market.ExchangeFragment
 import com.mycelium.bequant.market.adapter.SelectCoinFragmentAdapter
 import com.mycelium.wallet.R
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import kotlinx.android.synthetic.main.activity_bequant_exchange_select_coin.*
 
 
 class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_select_coin) {
-    val youSendYouGetPair = MutableLiveData<Pair<GenericAssetInfo, GenericAssetInfo>>()
+    val youSendYouGetPair = MutableLiveData<Pair<AssetInfo, AssetInfo>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +26,7 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
             }
         }.attach()
         pager.setCurrentItem(intent.getIntExtra(ExchangeFragment.PARENT, 0), true)
-        youSendYouGetPair.value = intent.getSerializableExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR) as Pair<GenericAssetInfo, GenericAssetInfo>
+        youSendYouGetPair.value = intent.getSerializableExtra(ExchangeFragment.YOU_SEND_YOU_GET_PAIR) as Pair<AssetInfo, AssetInfo>
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)

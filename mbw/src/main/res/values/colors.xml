@@ -13,7 +13,7 @@
     <color name="darkred">#99662f</color>
     <color name="brightred">#ef9d44</color>
     <color name="brightgreen">#44ef9d</color>
-    
+
     <color name="mycelium_midblue">#3e9bd3</color>
     <color name="mycelium_brightblue">#5fcbf2</color>
 
@@ -60,6 +60,17 @@
     <color name="preference_item_color">#2c2c2c</color>
     <color name="btn_text_color">#5aa7e6</color>
     <color name="media_flow_status_color">#881a1a1a</color>
+
+    <color name="fio_green">#51F129</color>
+    <color name="fio_red">#D21614</color>
+    <color name="fio_prm_btn_line">#2E6699</color>
+    <color name="fio_yellow">#FBD408</color>
+    <color name="fio_blue">#13C4FF</color>
+    <color name="fio_blue_banner">#3552B8</color>
+    <color name="fio_white_alpha_0_6">#99FFFFFF</color>
+    <color name="fio_white_alpha_0_8">#CCFFFFFF</color>
+    <color name="fio_white_alpha_0_9">#E5FFFFFF</color>
+    <color name="fio_record">#0C1011</color>
 
     <fraction name="background_alpha">50%</fraction>
 

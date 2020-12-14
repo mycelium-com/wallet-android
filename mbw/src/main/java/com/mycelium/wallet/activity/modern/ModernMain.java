@@ -38,7 +38,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableString;
@@ -59,7 +58,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
@@ -67,13 +66,16 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
-import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
+import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
+import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
+import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.news.NewsActivity;
+import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
@@ -88,12 +90,14 @@ import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.external.mediaflow.NewsConstants;
 import com.mycelium.wallet.external.partner.model.MainMenuContent;
 import com.mycelium.wallet.external.partner.model.MainMenuPage;
+import com.mycelium.wallet.fio.FioRequestNotificator;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.fio.FioModule;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 
@@ -119,6 +123,7 @@ public class ModernMain extends AppCompatActivity {
     private static final String TAB_ACCOUNTS = "tab_accounts";
     private static final String TAB_BALANCE = "tab_balance";
     private static final String TAB_HISTORY = "tab_history";
+    private static final String TAB_FIO_REQUESTS = "tab_fio_requests";
     private static final String TAB_ADS = "tab_ads";
     private static final String TAB_RECOMMENDATIONS = "tab_recommendations";
     private static final String TAB_ADDRESS_BOOK = "tab_address_book";
@@ -130,12 +135,13 @@ public class ModernMain extends AppCompatActivity {
     private static final String APP_START = "APP_START";
     private MbwManager _mbwManager;
 
-    ViewPager mViewPager;
-    TabsAdapter mTabsAdapter;
-    TabLayout.Tab mBalanceTab;
-    TabLayout.Tab mNewsTab;
-    TabLayout.Tab mAccountsTab;
-    TabLayout.Tab mRecommendationsTab;
+    private ViewPager mViewPager;
+    private TabsAdapter mTabsAdapter;
+    private TabLayout.Tab mBalanceTab;
+    private TabLayout.Tab mNewsTab;
+    private TabLayout.Tab mAccountsTab;
+    private TabLayout.Tab mRecommendationsTab;
+    private TabLayout.Tab mFioRequestsTab;
     private MenuItem refreshItem;
     private Toaster _toaster;
     private volatile long _lastSync = 0;
@@ -153,7 +159,6 @@ public class ModernMain extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.pager_tabs);
         mViewPager = findViewById(R.id.pager);
         tabLayout.setupWithViewPager(mViewPager);
-
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
@@ -182,6 +187,8 @@ public class ModernMain extends AppCompatActivity {
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);
+        mFioRequestsTab = tabLayout.newTab().setText(getString(R.string.tab_fio_requests));
+        mTabsAdapter.addTab(mFioRequestsTab, FioRequestsHistoryFragment.class, null, TAB_FIO_REQUESTS);
         final Bundle addressBookConfig = new Bundle();
         addressBookConfig.putBoolean(AddressBookFragment.OWN, false);
         addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
@@ -189,19 +196,8 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig, TAB_ADDRESS_BOOK);
         addAdsTabs(tabLayout);
-        if (SettingsPreference.getMediaFlowEnabled() &&
-                Objects.equals(getIntent().getAction(), "media_flow")) {
-            mNewsTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
-            if (getIntent().hasExtra(NewsConstants.NEWS)) {
-                Intent intent = new Intent(this, NewsActivity.class);
-                intent.putExtras(getIntent().getExtras());
-                startActivity(intent);
-            }
-        } else {
-            mBalanceTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
-        }
+        mBalanceTab.select();
+        mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
         _toaster = new Toaster(this);
 
         ChangeLog cl = new DarkThemeChangeLog(this);
@@ -223,6 +219,30 @@ public class ModernMain extends AppCompatActivity {
         }
 
         ModularisationVersionHelper.notifyWrongModuleVersion(this);
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (SettingsPreference.getMediaFlowEnabled() &&
+                Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
+            mNewsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
+            if (getIntent().hasExtra(NewsConstants.NEWS)) {
+                startActivity(new Intent(this, NewsActivity.class)
+                        .putExtras(getIntent().getExtras()));
+            }
+        } else if (Objects.equals(intent.getAction(), FioRequestNotificator.FIO_REQUEST_ACTION)) {
+            mFioRequestsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
+            startActivity(new Intent(this, ApproveFioRequestActivity.class)
+                    .putExtras(getIntent().getExtras()));
+        }
     }
 
     private void addAdsTabs(TabLayout tabLayout) {
@@ -252,7 +272,7 @@ public class ModernMain extends AppCompatActivity {
         final Set<Integer> gaps = module != null ? module.getGapsBug() : null;
         if (gaps != null && !gaps.isEmpty()) {
             checkNotNull(module);
-            final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
+            final List<BitcoinAddress> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
             final String gapsString = Joiner.on(", ").join(gapAddresses);
             Log.d("Gaps", gapsString);
 
@@ -398,13 +418,16 @@ public class ModernMain extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.record_options_menu_global, menu);
         inflater.inflate(R.menu.transaction_history_options_global, menu);
         inflater.inflate(R.menu.main_activity_options_menu, menu);
         addEnglishSetting(menu.findItem(R.id.miSettings));
         inflater.inflate(R.menu.refresh, menu);
-        inflater.inflate(R.menu.record_options_menu_global, menu);
         inflater.inflate(R.menu.addressbook_options_global, menu);
         inflater.inflate(R.menu.verify_message, menu);
+        if (!((FioModule) _mbwManager.getWalletManager(false).getModuleById(FioModule.ID)).getAllRegisteredFioNames().isEmpty()) {
+            inflater.inflate(R.menu.record_fio_options, menu);
+        }
         return true;
     }
 
@@ -438,8 +461,9 @@ public class ModernMain extends AppCompatActivity {
         // Refresh menu
         final boolean isBalanceTab = TAB_BALANCE.equals(tabTag);
         final boolean isHistoryTab = TAB_HISTORY.equals(tabTag);
+        final boolean isRequestsTab = TAB_FIO_REQUESTS.equals(tabTag);
         refreshItem = checkNotNull(menu.findItem(R.id.miRefresh));
-        refreshItem.setVisible(isBalanceTab || isHistoryTab || isAccountTab);
+        refreshItem.setVisible(isBalanceTab || isHistoryTab || isRequestsTab || isAccountTab);
         setRefreshAnimation();
 
         checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
@@ -448,6 +472,11 @@ public class ModernMain extends AppCompatActivity {
         checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
 
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    public void selectRequestTab(){
+        int item = mTabsAdapter.indexOf(TAB_FIO_REQUESTS);
+        mViewPager.setCurrentItem(item);
     }
 
     @SuppressWarnings("unused")
@@ -501,19 +530,18 @@ public class ModernMain extends AppCompatActivity {
 
                 showRefresh(); // without this call sometime user not see click feedback
                 return true;
-            case R.id.miHelp:
-                openMyceliumHelp();
-                break;
-            case R.id.miAbout:
-                intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
-                break;
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
                 startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
                 break;
             case R.id.miVerifyMessage:
                 startActivity(new Intent(this, MessageVerifyActivity.class));
+                break;
+            case R.id.miMyFIONames:
+                startActivity(new Intent(this, AccountMappingActivity.class));
+                break;
+            case R.id.miFIORequests:
+                selectRequestTab();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -541,12 +569,6 @@ public class ModernMain extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    private void openMyceliumHelp() {
-        Intent intent = new Intent(Intent.ACTION_SENDTO)
-                .setData(Uri.parse("mailto:support@mycelium.com"));
-        startActivity(Intent.createChooser(intent, getString(R.string.send_mail)));
     }
 
     public void setRefreshAnimation() {

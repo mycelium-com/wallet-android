@@ -8,11 +8,10 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.abi.FunctionEncoder
-import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.RawTransaction
@@ -29,7 +28,7 @@ import java.util.logging.Level
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
-                   private val ethAcc: EthAccount,
+                   val ethAcc: EthAccount,
                    credentials: Credentials,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
@@ -37,7 +36,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         backing, blockchainService, ERC20Account::class.simpleName) {
     private var removed = false
 
-    override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
+    override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
@@ -45,13 +44,13 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         val inputData = getInputData(address.toString(), amount.value)
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
-            throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
+            throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw GenericBuildTransactionException(Throwable("Gas limit must be at least 21000"))
+            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
         }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
-            throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
+            throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
         return EthTransaction(coinType, address.toString(), Value.zeroValue(basedOnCoinType),
@@ -61,12 +60,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private fun getInputData(address: String, value: BigInteger): String {
         val function = org.web3j.abi.datatypes.Function(
                 StandardToken.FUNC_TRANSFER,
-                listOf(Address(address),
+                listOf(org.web3j.abi.datatypes.Address(address),
                         Uint256(value)), emptyList())
         return FunctionEncoder.encode(function)
     }
 
-    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val ethTx = request as EthTransaction
         val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
                 token.contractAddress, ethTx.value.value, ethTx.inputData)
@@ -77,7 +76,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         request.txBinary = TransactionEncoder.encode(rawTransaction)!!
     }
 
-    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
             val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
             if (!result.success) {
@@ -207,19 +206,21 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private fun syncTransactions() {
         try {
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
-            remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
-                val transfer = tx.getTokenTransfer(token.contractAddress)!!
-                backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                        transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
-                        Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
-                                ?: typicalEstimatedTransactionSize.toBigInteger())),
-                        tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
+            remoteTransactions.forEach { tx ->
+                tx.getTokenTransfer(token.contractAddress)?.also { transfer ->
+                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
+                            transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                            Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
+                                    ?: typicalEstimatedTransactionSize.toBigInteger())),
+                            tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
+                }
             }
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore
             // this could happen if transaction was replaced by another e.g.
+            val remoteTransactionsIds = remoteTransactions.map { it.txid }
             val toRemove = localTxs.filter { localTx ->
-                !remoteTransactions.map { it.txid }.contains("0x" + HexUtils.toHex(localTx.id))
+                !remoteTransactionsIds.contains("0x" + HexUtils.toHex(localTx.id))
                         && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {

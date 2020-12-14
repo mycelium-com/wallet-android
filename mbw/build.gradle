@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: "androidx.navigation.safeargs"
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 repositories {
     google()
@@ -25,6 +25,14 @@ configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == "com.google.guava"
+                && details.requested.name == "guava") {
+            details.useTarget("com.google.guava:guava:$guavaVersion")
+        }
+    }
+}
 kapt {
     useBuildCache = true
     javacOptions {
@@ -33,8 +41,11 @@ kapt {
 }
 
 dependencies {
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation 'androidx.test:rules:1.3.0-alpha02'
+    androidTestImplementation 'androidx.test:rules:1.3.0'
 
     implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
@@ -47,6 +58,8 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
+    implementation project(includePrefix + ':fiosdk')
+    implementation project(includePrefix + ':androidfioserializationprovider')
 
     implementation "com.google.guava:guava:$guavaVersion"
     implementation "com.squareup.retrofit2:retrofit:2.6.1"
@@ -94,13 +107,12 @@ dependencies {
     implementation "commons-codec:commons-codec:1.10"
     implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-    //USED BY KYC only, have to be reviewed later
+      //USED BY KYC only, have to be reviewed later
     implementation "com.googlecode.libphonenumber:libphonenumber:8.12.2"
     implementation "com.nulab-inc:zxcvbn:1.3.0"
 
     implementation 'com.google.firebase:firebase-dynamic-links-ktx:19.1.0'
     implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
-
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
@@ -124,14 +136,13 @@ dependencies {
     }
     implementation 'org.web3j:core:4.2.1-android'
 
-    implementation "com.squareup.sqldelight:android-driver:1.2.1"
+    implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
 
     implementation("com.github.bumptech.glide:glide:4.7.1") {
         exclude group: "com.android.support"
     }
-    annotationProcessor "com.github.bumptech.glide:compiler:4.7.1"
+    kapt "com.github.bumptech.glide:compiler:4.7.1"
 
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:2.0-beta-3"
 
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
@@ -143,8 +154,8 @@ dependencies {
 }
 
 android {
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
     }
     configurations {
         all*.exclude module: 'jcip-annotations'
@@ -177,8 +188,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3070005
-        versionName '3.7.0.5'
+        versionCode 3080401
+        versionName '3.8.4.1'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
@@ -235,6 +246,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            ndk {
+                debugSymbolLevel 'full'
+            }
         }
         debug {
             applicationIdSuffix '.debug'
@@ -276,6 +290,9 @@ android {
                         '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
                         '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
                 EthBlockBook = '{"https://eth1.trezor.io", "https://eth2.trezor.io"}'
+                FioApiServers = '{"https://fio.greymass.com/v1/"}'
+                FioHistoryServers = '{"https://fio.greymass.com/v1/"}'
+                tpid = ""
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -311,6 +328,9 @@ android {
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
                 EthBlockBook = '{"https://ropsten1.trezor.io", "https://ropsten2.trezor.io"}'
+                FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
+                FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
+                tpid = "megabit@mycelium"
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
@@ -340,6 +360,9 @@ android {
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String[]", "EthBlockBook", "${flavor.ext.EthBlockBook}"
+        variant.buildConfigField "String[]", "FioApiServers", "${flavor.ext.FioApiServers}"
+        variant.buildConfigField "String[]", "FioHistoryServers", "${flavor.ext.FioHistoryServers}"
+        variant.buildConfigField "String", "tpid", "\"${flavor.ext.tpid}\""
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
@@ -360,6 +383,7 @@ android {
     aaptOptions {
         cruncherEnabled = false
     }
+    ndkVersion '21.1.6352462'
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -39,10 +39,9 @@ import android.text.TextUtils
 import com.google.common.base.Optional
 import com.google.common.base.Splitter
 import com.google.common.base.Strings
-import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AddressUtils
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
@@ -51,6 +50,8 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.fio.coins.FIOMain
+import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
@@ -58,10 +59,10 @@ import java.math.BigDecimal
 import java.util.*
 
 object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance()) {
-    val allAddressLabels: MutableMap<GenericAddress, String>
+    val allAddressLabels: MutableMap<Address, String>
         get() {
             val entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY)
-            val addresses = HashMap<GenericAddress, String>()
+            val addresses = HashMap<Address, String>()
             val addressesOfCointype = getKeysAndValuesByCategory(ADDRESSCOINTYPE_CATEGORY)
                     .filterKeys(entries::containsKey)
             var coinType: String
@@ -76,10 +77,10 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             return addresses
         }
 
-    val allGenericAddress: List<GenericAddress>
+    val allGenericAddress: List<Address>
         get() {
             val entries = getKeysAndValuesByCategory(ADDRESSCOINTYPE_CATEGORY)
-            val addresses = ArrayList<GenericAddress>()
+            val addresses = ArrayList<Address>()
             for (e in entries.entries) {
                 val value = coinTypeFromString(e.value)
                 val key = e.key
@@ -249,15 +250,17 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             "RMC Test" -> RMCCoinTest
             "Ethereum" -> EthMain
             "Ethereum test" -> EthTest
+            "FIO" -> FIOMain
+            "FIO test" -> FIOTest
             else -> null
         }
     }
 
-    fun getLabelByAddress(address: GenericAddress): String {
+    fun getLabelByAddress(address: Address): String {
         return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "")
     }
 
-    fun deleteAddressMetadata(address: GenericAddress) {
+    fun deleteAddressMetadata(address: Address) {
         // delete everything related to this address from metadata
         deleteAllByKey(address.toString())
     }

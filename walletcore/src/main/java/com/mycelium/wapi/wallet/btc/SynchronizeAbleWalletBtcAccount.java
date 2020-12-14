@@ -5,7 +5,7 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.BroadcastResult;
@@ -116,10 +116,10 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract boolean broadcastOutgoingTransactions();
 
    @Override
-   public abstract BroadcastResult broadcastTransaction(Transaction transaction);
+   public abstract BroadcastResult broadcastTransaction(BitcoinTransaction transaction);
 
    @Override
-   public abstract Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
+   public abstract BitcoinTransaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws KeyCipher.InvalidKeyCipher;
 
    @Override
@@ -146,10 +146,10 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    @Override
    public abstract UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
-         throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+         throws StandardTransactionBuilder.BtcOutputTooSmallException, StandardTransactionBuilder.InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override
-   public abstract UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+   public abstract UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.BtcOutputTooSmallException, StandardTransactionBuilder.InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override
    public abstract BalanceSatoshis getBalance();

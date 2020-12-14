@@ -244,6 +244,26 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:layout="@layout/preference_category_layout"
+        android:order="11">
+        <Preference
+            android:key="help"
+            android:layout="@layout/preference_layout_no_icon"
+            android:title="@string/help_menu"
+            android:widgetLayout="@layout/preference_arrow" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:layout="@layout/preference_category_layout"
+        android:order="12">
+        <Preference
+            android:key="about"
+            android:layout="@layout/preference_layout_no_icon"
+            android:title="@string/about"
+            android:widgetLayout="@layout/preference_arrow" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:order="100"
         android:key="space"
         android:layout="@layout/preference_category_end_space" />

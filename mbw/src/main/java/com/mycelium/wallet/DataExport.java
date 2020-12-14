@@ -36,11 +36,10 @@ package com.mycelium.wallet;
 
 
 import android.text.TextUtils;
-
 import com.mycelium.wallet.activity.FormattedLog;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.GenericOutputViewModel;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.OutputViewModel;
+import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import org.jetbrains.annotations.NotNull;
@@ -59,41 +58,42 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class DataExport {
-    private static final String CSV_HEADER = "Account,Transaction ID,Destination Address,Timestamp,Value,Currency,Transaction Label\n";
+    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
     private DataExport() {}
-
-    public static File getTxHistoryCsv(WalletAccount account, List<GenericTransactionSummary> history,
+    public static File getTxHistoryCsv(WalletAccount account, List<TransactionSummary> history,
                                        MetadataStorage storage, File file) throws IOException {
         try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file))) {
-            osw.write(CSV_HEADER);
-            String accountLabel = storage.getLabelByAccount(account.getId());
-            Collections.sort(history);
-            for (GenericTransactionSummary transaction : history) {
-                String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
+        osw.write(CSV_HEADER);
+        String accountLabel = storage.getLabelByAccount(account.getId());
+        Collections.sort(history);
+        for (TransactionSummary transaction : history) {
+            String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
                 List<String> destAddresses = new ArrayList<>();
-                for (GenericOutputViewModel output : transaction.getOutputs()) {
-                    if (!account.isMineAddress(output.getAddress())) {
+            for (OutputViewModel output : transaction.getOutputs()) {
+                if (!account.isMineAddress(output.getAddress())) {
                         destAddresses.add(output.getAddress().toString());
-                    }
                 }
-                osw.write(getTxLine(accountLabel, txLabel, TextUtils.join(" ", destAddresses), transaction));
             }
+                osw.write(getTxLine(accountLabel, txLabel, TextUtils.join(" ", destAddresses), transaction));
+        }
         }
         return file;
     }
 
     public static File getLogsExport(@NotNull List<FormattedLog> logs, File file) throws IOException {
         try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file))) {
-            for (FormattedLog formattedLog : logs) {
-                osw.write(formattedLog.toString());
-                osw.write("\n");
-            }
+
+        for (FormattedLog formattedLog : logs) {
+            osw.write(formattedLog.toString());
+            osw.write("\n");
+        }
+
         }
         return file;
     }
 
-    private static String getTxLine(String accountLabel, String txLabel, String destAddresses, GenericTransactionSummary transaction) {
+    private static String getTxLine(String accountLabel, String txLabel, String destAddresses, TransactionSummary transaction) {
         TimeZone tz = TimeZone.getDefault();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
         df.setTimeZone(tz);

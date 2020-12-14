@@ -93,7 +93,6 @@ object SettingsPreference {
 
     @JvmStatic
     fun getLanguage(): String? = sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().language)
-
     @JvmStatic
     fun getPartnerInfos(): List<PartnerInfo> = mutableListOf<PartnerInfo>().apply {
         sharedPreferences.all.filter { it.key.startsWith("${PARTNER_KEY}-") }.forEach {

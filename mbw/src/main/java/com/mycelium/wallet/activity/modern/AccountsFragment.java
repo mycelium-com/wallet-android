@@ -42,14 +42,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.view.ActionMode.Callback;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -61,9 +53,19 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.view.ActionMode.Callback;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.common.collect.Lists;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -71,9 +73,13 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
-import com.mycelium.wallet.activity.export.ExportFioKeyActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
+import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
+import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
+import com.mycelium.wallet.activity.main.FioProtocolBannerFragment;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
+import com.mycelium.wallet.activity.modern.helper.FioHelper;
+import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
@@ -93,10 +99,10 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -107,8 +113,8 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -119,6 +125,10 @@ import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
+import com.mycelium.wapi.wallet.fio.FioAccount;
+import com.mycelium.wapi.wallet.fio.FioModule;
+import com.mycelium.wapi.wallet.fio.FioModuleKt;
+import com.mycelium.wapi.wallet.fio.RegisteredFIOName;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -166,8 +176,11 @@ public class AccountsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (root == null) {
-            root = inflater.inflate(R.layout.records_activity, container, false);
+            root = inflater.inflate(R.layout.fragment_accounts, container, false);
         }
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.phFragmentFioBanner, FioProtocolBannerFragment.newInstance(true));
+        fragmentTransaction.commitAllowingStateLoss();
         return root;
     }
 
@@ -191,7 +204,7 @@ public class AccountsFragment extends Fragment {
         accountListAdapter.setItemClickListener(recordAddressClickListener);
         accountListAdapter.setInvestmentAccountClickListener(new AccountListAdapter.ItemClickListener() {
             @Override
-            public void onItemClick(@NotNull WalletAccount<? extends GenericAddress> account) {
+            public void onItemClick(@NotNull WalletAccount<? extends Address> account) {
                 startActivity(new Intent(requireContext(), BequantIntroActivity.class));
             }
         });
@@ -259,7 +272,7 @@ public class AccountsFragment extends Fragment {
                 eventBus.post(new ExtraAccountsChanged());
                 eventBus.post(new AccountChanged(accountid));
             }
-        } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
+        } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
                     .setPositiveButton(R.string.button_ok, null)
@@ -328,11 +341,11 @@ public class AccountsFragment extends Fragment {
                     // is money on archived accounts
                     String address;
                     if (accountToDelete instanceof SingleAddressAccount) {
-                        Map<AddressType, Address> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
+                        Map<AddressType, BitcoinAddress> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
                                 getAllSupportedAddresses(_mbwManager.getNetwork());
                         address = TextUtils.join("\n\n", addressMap.values());
                     } else {
-                        GenericAddress receivingAddress = accountToDelete.getReceiveAddress();
+                        Address receivingAddress = accountToDelete.getReceiveAddress();
                         if (receivingAddress != null) {
                             address = AddressUtils.toMultiLineString(receivingAddress.toString());
                         } else {
@@ -497,7 +510,7 @@ public class AccountsFragment extends Fragment {
         if (linkedAccounts.size() > 1) {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName);
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
+            String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
         } else {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName);
@@ -516,7 +529,7 @@ public class AccountsFragment extends Fragment {
             List<String> linkedAccountStrings = new ArrayList<>();
             for (WalletAccount linkedAccount : linkedAccounts) {
                 Balance linkedBalance = linkedAccount.getAccountBalance();
-                String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
                 String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
                 linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>");
             }
@@ -526,7 +539,7 @@ public class AccountsFragment extends Fragment {
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible() && !(accountToDelete instanceof ERC20Account)) {
             Balance linkedBalance = linkedAccounts.get(0).getAccountBalance();
             String linkedValueString = getBalanceString(linkedAccounts.get(0).getCoinType(), linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
+            String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
                     linkedAccountName, linkedValueString) + "\n" +
                     getString(R.string.both_rmc_will_deleted, accountName, linkedAccountName);
@@ -536,7 +549,7 @@ public class AccountsFragment extends Fragment {
         return dialogText;
     }
 
-    private String getBalanceString(GenericAssetInfo coinType, Balance balance) {
+    private String getBalanceString(AssetInfo coinType, Balance balance) {
         return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
     }
 
@@ -590,12 +603,27 @@ public class AccountsFragment extends Fragment {
                 || account instanceof Bip44BCHAccount;
 
         final List<Integer> menus = Lists.newArrayList();
-        if(!(account instanceof ColuAccount)
+        if (!(account instanceof ColuAccount)
                 && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
             menus.add(R.menu.record_options_menu);
         }
 
-        if (account instanceof SingleAddressAccount || account.isDerivedFromInternalMasterseed()) {
+        final List<RegisteredFIOName> fioNames = ((FioModule) walletManager.getModuleById(FioModule.ID)).getAllRegisteredFioNames();
+        if (account instanceof FioAccount) {
+            if (account.canSpend()) {
+                menus.add(R.menu.record_options_menu_add_fio_name);
+            }
+            if (fioNames.isEmpty()) {
+                menus.add(R.menu.record_options_menu_about_fio_protocol);
+            } else {
+                menus.add(R.menu.record_options_menu_my_fio_names);
+                menus.add(R.menu.record_options_menu_about_fio_protocol);
+                menus.add(R.menu.record_options_menu_fio_requests);
+            }
+        }
+
+        if (account instanceof SingleAddressAccount ||
+                (account.isDerivedFromInternalMasterseed() && !(account instanceof FioAccount))) {
             menus.add(R.menu.record_options_menu_backup);
         }
 
@@ -603,7 +631,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if(account instanceof ColuAccount) {
+        if (account instanceof ColuAccount) {
             //TODO: distinguish between ColuAccount in single address mode and HD mode
             menus.add(R.menu.record_options_menu_backup);
             menus.add(R.menu.record_options_menu_backup_verify);
@@ -621,7 +649,8 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_active);
         }
 
-        if (account.isActive() && !isBch && !(account instanceof AbstractEthERC20Account)) {
+        if (account.isActive() && !isBch && !(account instanceof AbstractEthERC20Account)
+                && !(account instanceof FioAccount)) {
             menus.add(R.menu.record_options_menu_outputs);
         }
 
@@ -635,8 +664,14 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
-        if(account.isDerivedFromInternalMasterseed() && account instanceof HDAccount) {
-            menus.add(R.menu.record_fio_pub_key_export);
+        final List<FioAccount> fioAccounts = FioModuleKt.getActiveSpendableFioAccounts(_mbwManager.getWalletManager(false));
+        if (!(account instanceof FioAccount) && !fioAccounts.isEmpty() && fioNames.isEmpty()) {
+            menus.add(R.menu.record_options_menu_add_fio_name);
+        }
+
+        if (!(account instanceof FioAccount) && !fioNames.isEmpty()) {
+            menus.add(R.menu.record_options_menu_my_fio_names);
+            menus.add(R.menu.record_options_menu_fio_requests);
         }
 
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
@@ -666,17 +701,37 @@ public class AccountsFragment extends Fragment {
 
             @Override
             public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                MenuItem item = menu.findItem(R.id.miMakeBackup);
+                if (item != null) {
+                    item.setShowAsAction(AccountViewModel.showBackupMissingWarning(_mbwManager.getSelectedAccount(), _mbwManager) ?
+                            MenuItem.SHOW_AS_ACTION_IF_ROOM : MenuItem.SHOW_AS_ACTION_NEVER);
+                }
                 return true;
             }
 
             @Override
             public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                switch (id) {
+                    case R.id.miMapFioAddress:
+                        RegisterFioNameActivity.start(requireContext(), account.getId());
+                        return true;
+                    case R.id.miMapToFio:
+                        FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
+                        return true;
+                    case R.id.miFIORequests:
+                        ((ModernMain)getActivity()).selectRequestTab();
+                        return true;
+                    case R.id.miAboutFIOProtocol:
+                        new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
+                        break;
+
+                }
                 // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
                 if (requireFocusedAccount().isSyncing()) {
                     _toaster.toast(R.string.synchronizing_please_wait, false);
                     return true;
                 }
-                int id = menuItem.getItemId();
                 switch (id) {
                     case R.id.miActivate:
                         activateSelected();
@@ -695,9 +750,6 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miExport:
                         exportSelectedPrivateKey();
-                        return true;
-                    case R.id.miExportFioPubKey:
-                        exportFioKey();
                         return true;
                     case R.id.miSignMessage:
                         signMessage();
@@ -755,7 +807,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
-        if(account instanceof ColuAccount) {
+        if (account instanceof ColuAccount) {
             //ColuAccount class can be single or HD
             //TODO: test if account is single address or HD and do wordlist backup instead
             //start legacy backup if a single key or watch only was selected
@@ -802,7 +854,7 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(getString(R.string.selected_hd_info), true);
         } else if (account instanceof SingleAddressAccount) {
             _toaster.toast(getString(R.string.selected_single_info), true);
-        } else if(account instanceof ColuAccount) {
+        } else if (account instanceof ColuAccount) {
             _toaster.toast(getString(R.string.selected_colu_info
                     , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())), true);
         }
@@ -813,7 +865,7 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return true;
         }
-        if (item.getItemId() == R.id.miAddRecord) {
+        if (item.getItemId() == R.id.miAddRecord || item.getItemId() == R.id.miAddRecordDuplicate) {
             AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
             return true;
         } else if (item.getItemId() == R.id.miLockKeys) {
@@ -862,10 +914,6 @@ public class AccountsFragment extends Fragment {
             return;
         }
         runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
-    }
-
-    private void exportFioKey() {
-        startActivity(new Intent(requireContext(), ExportFioKeyActivity.class));
     }
 
     private void detachFromLocalTrader() {
@@ -955,7 +1003,7 @@ public class AccountsFragment extends Fragment {
      */
     private boolean accountProtected(WalletAccount toRemove) {
         // accounts not derived from master seed and ethereum account are not protected
-        if (!toRemove.isDerivedFromInternalMasterseed() || toRemove instanceof EthAccount) {
+        if (!(toRemove.isDerivedFromInternalMasterseed() && toRemove instanceof HDAccount) || toRemove instanceof EthAccount) {
             return false;
         }
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
@@ -1070,7 +1118,7 @@ public class AccountsFragment extends Fragment {
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
             Balance linkedBalance = linkedAccounts.get(0).getAccountBalance();
             String linkedValueString = getBalanceString(linkedAccounts.get(0).getCoinType(), linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
+            String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                     linkedAccountName, linkedValueString);
         } else {
@@ -1167,7 +1215,8 @@ public class AccountsFragment extends Fragment {
 
     private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
         @Override
-        public void onLtError(int errorCode) { }
+        public void onLtError(int errorCode) {
+        }
 
         @Override
         public void onLtAccountDeleted(DeleteTrader request) {

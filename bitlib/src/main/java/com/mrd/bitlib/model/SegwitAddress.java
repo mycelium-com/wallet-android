@@ -31,7 +31,7 @@ import java.io.Serializable;
 /**
  * Most of the file logic was taken from here https://github.com/sipa/bech32/pull/40
  */
-public class SegwitAddress extends Address implements Serializable {
+public class SegwitAddress extends BitcoinAddress implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final byte version;

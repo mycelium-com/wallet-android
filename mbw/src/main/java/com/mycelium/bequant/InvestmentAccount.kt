@@ -33,7 +33,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?, data: GenericTransactionData?): GenericTransaction {
+    override fun createTx(address: Address?, amount: Value?, fee: Fee?, data: TransactionData?): Transaction {
         TODO("Not yet implemented")
     }
 
@@ -41,15 +41,15 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
+    override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
         TODO("Not yet implemented")
     }
 
-    override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
+    override fun broadcastTx(tx: Transaction?): BroadcastResult {
         TODO("Not yet implemented")
     }
 
-    override fun getReceiveAddress(): GenericAddress? = null
+    override fun getReceiveAddress(): Address? = null
 
     override fun getCoinType(): CryptoCurrency = Utils.getBtcCoinType()
 
@@ -57,25 +57,25 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun getAccountBalance(): Balance = cachedBalance
 
-    override fun isMineAddress(address: GenericAddress?): Boolean = false
+    override fun isMineAddress(address: Address?): Boolean = false
 
     override fun isExchangeable(): Boolean = true
 
-    override fun getTx(transactionId: ByteArray?): GenericTransaction {
+    override fun getTx(transactionId: ByteArray?): Transaction {
         TODO("Not yet implemented")
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary {
+    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary {
         TODO("Not yet implemented")
     }
 
-    override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<GenericTransactionSummary> =
+    override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<TransactionSummary> =
             mutableListOf()
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> =
+    override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummary> =
             mutableListOf()
 
-    override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> =
+    override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> =
             mutableListOf()
 
     override fun getLabel(): String = "Trading Account"
@@ -83,7 +83,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun setLabel(label: String?) {
     }
 
-    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean = false
+    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
@@ -181,9 +181,9 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun getDependentAccounts(): List<WalletAccount<GenericAddress>> = listOf()
+    override fun getDependentAccounts(): List<WalletAccount<Address>> = listOf()
 
-    override fun queueTransaction(transaction: GenericTransaction) {
+    override fun queueTransaction(transaction: Transaction) {
         TODO("Not yet implemented")
     }
 }

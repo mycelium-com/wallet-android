@@ -46,22 +46,29 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class TransactionDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_TXID = "transactionID";
-    protected static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
-    protected static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
+    public static final String ACCOUNT_ID = "accountId";
+    protected static final LayoutParams FPWC = new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1);
+    protected static final LayoutParams WCWC = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
     private boolean coluMode = false;
-    private GenericTransactionSummary tx;
+    private TransactionSummary tx;
 
     /**
      * Called when the activity is first created.
@@ -73,16 +80,20 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.transaction_details_activity);
 
         byte[] txid = getTransactionIdFromIntent();
-        WalletAccount account = MbwManager.getInstance(this.getApplication()).getSelectedAccount();
+        WalletManager walletManager = MbwManager.getInstance(this.getApplication()).getWalletManager(false);
+        UUID accountId = (UUID) getIntent().getSerializableExtra(ACCOUNT_ID);
+        WalletAccount account = walletManager.getAccount(accountId);
         tx = account.getTxSummary(txid);
         coluMode = account instanceof ColuAccount;
-        GenericDetailsFragment detailsFragment = (GenericDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
+        DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
         if (detailsFragment == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             if (account instanceof EthAccount || account instanceof ERC20Account) {
                 transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
+            } else if (account instanceof FioAccount) {
+                transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx));
             } else {
-                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode));
+                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode, accountId));
             }
             transaction.commit();
         }

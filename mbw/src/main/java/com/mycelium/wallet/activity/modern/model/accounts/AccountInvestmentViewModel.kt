@@ -1,10 +1,10 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 
 
-class AccountInvestmentViewModel(val account: WalletAccount<out GenericAddress>, val balance: String) : AccountListItem {
+class AccountInvestmentViewModel(val account: WalletAccount<out Address>, val balance: String) : AccountListItem {
     val accountId = account.id!!
     var label = "Trading Account"
 

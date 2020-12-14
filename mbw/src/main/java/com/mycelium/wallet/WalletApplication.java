@@ -60,6 +60,8 @@ import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
+import com.mycelium.wallet.fio.FioRequestNotificator;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
@@ -127,6 +129,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+        FioRequestNotificator.initialize(this);
 
         UpdateConfigWorker.start(this);
     }

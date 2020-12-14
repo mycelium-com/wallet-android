@@ -16,23 +16,22 @@
             type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
     </data>
 
-    <FrameLayout
-        android:layout_width="130dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="16dp"
-        android:padding="0dp">
+    <merge>
 
         <Button
             android:id="@+id/btSend"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            style="@style/MyceliumButton.FIO"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
+            android:layout_marginStart="@dimen/horizontal_page_margin"
+            android:layout_marginEnd="@dimen/horizontal_page_margin"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="60dp"
+            android:textSize="20sp"
             android:enabled="@{viewModel.getTransactionStatus == TransactionStatus.OK}"
-            android:text="@string/send"
             android:onClick="@{_ -> activity.onClickSend()}"
-            android:textSize="20sp" />
-    </FrameLayout>
+            android:text="@string/send"
+             />
+    </merge>
 </layout>

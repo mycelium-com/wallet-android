@@ -17,7 +17,6 @@
     <string name="confirmations">%d bekræftelser</string>
     <string name="receive">Modtag</string>
     <string name="private_key_deleted">Privat nøgle slettet.</string>
-    <string name="enter_recipient_title">Vælg modtageradresse</string>
     <string name="recipient_title">Modtageradresse</string>
     <string name="amount_label">Beløb:</string>
     <string name="amount_title">Beløb</string>
@@ -30,7 +29,7 @@
     <string name="insufficient_funds_for_fee">Utilstrækkelige midler til at betale gebyr</string>
     <string name="amount_too_small">Det beløb, du sender, er for lille</string>
     <string name="amount_too_small_short">Beløbet er for lille</string>
-    <string name="miner_fee_label">Gebyr:</string>
+    <string name="miner_fee_label">Gebyr</string>
     <string name="miner_fee_title">Transaktionsgebyr</string>
     <string name="synchronizing">Synkroniserer</string>
     <string name="transaction_not_sent">Transaktions publicering fejlede</string>
@@ -126,8 +125,6 @@
     <string name="broadcasting_transaction">Udsender transaktion</string>
     <string name="transaction_rejected_message">Transaktionen blev afvist af netværket. Dette indikerer, at din tegnebog ikke er synkroniseret</string>
     <string name="enter_bitcoin_address">Indtast Bitcoinadresse</string>
-    <string name="bitcoin_address_invalid">Ugyldig Bitcoinadresse</string>
-    <string name="bitcoin_address_valid">Bitcoinadressen er gyldig</string>
     <string name="enter_local_currency">Vælg din lokale valuta</string>
     <string name="using_address_from_clipboard">Brug adresse fra udklipsholderen</string>
     <string name="my_accounts">Mine konti</string>

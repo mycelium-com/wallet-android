@@ -13,9 +13,8 @@ import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
-import com.mycelium.wapi.wallet.genericdb.GenericBacking
+import com.mycelium.wapi.wallet.genericdb.Backing
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
@@ -24,13 +23,13 @@ import java.util.*
 
 class ERC20Module(
         private val secureStore: SecureKeyValueStore,
-        private val backing: GenericBacking<ERC20AccountContext>,
+        private val backing: Backing<ERC20AccountContext>,
         private val walletDB: WalletDB,
         private val blockchainService: EthBlockchainService,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?,
-        private val ethereumModule: EthereumModule) : GenericModule(metaDataStorage), WalletModule {
+        private val ethereumModule: EthereumModule) : WalletModule(metaDataStorage) {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
@@ -128,5 +127,5 @@ class ERC20Module(
     }
 }
 
-fun WalletManager.getERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible }
-fun WalletManager.getActiveERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible && it.isActive }
+fun WalletManager.getERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible }.map { it as ERC20Account }
+fun WalletManager.getActiveERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible && it.isActive }.map { it as ERC20Account }

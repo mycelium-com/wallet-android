@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
-import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
@@ -17,13 +17,13 @@ import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
-import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import com.squareup.otto.Subscribe
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -35,7 +35,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 abstract class SendCoinsModel(
-        val context: Application,
+        val context: Context,
         val account: WalletAccount<*>,
         intent: Intent
 ) {
@@ -45,9 +45,9 @@ abstract class SendCoinsModel(
     val receivingAddressAdditional: MutableLiveData<String> = MutableLiveData()
     val receivingLabel: MutableLiveData<String> = MutableLiveData()
     val feeDataset: MutableLiveData<List<FeeItem>> = MutableLiveData()
-    val clipboardUri: MutableLiveData<GenericAssetUri?> = MutableLiveData()
+    val clipboardUri: MutableLiveData<AssetUri?> = MutableLiveData()
     val errorText: MutableLiveData<String> = MutableLiveData()
-    val genericUri: MutableLiveData<GenericAssetUri?> = MutableLiveData()
+    val genericUri: MutableLiveData<AssetUri?> = MutableLiveData()
     val paymentFetched: MutableLiveData<Boolean> = MutableLiveData()
     val amountFormatted: MutableLiveData<String> = MutableLiveData()
     val alternativeAmountFormatted: MutableLiveData<String> = MutableLiveData()
@@ -55,10 +55,10 @@ abstract class SendCoinsModel(
     val feeWarning: MutableLiveData<CharSequence> = MutableLiveData()
     val showStaleWarning: MutableLiveData<Boolean> = MutableLiveData()
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
+    val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
 
-
-    val transactionData: MutableLiveData<GenericTransactionData?> = object : MutableLiveData<GenericTransactionData?>() {
-        override fun setValue(value: GenericTransactionData?) {
+    val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
+        override fun setValue(value: TransactionData?) {
             if (value != this.value) {
                 super.setValue(value)
                 txRebuildPublisher.onNext(Unit)
@@ -66,8 +66,22 @@ abstract class SendCoinsModel(
         }
     }
 
-    val receivingAddress: MutableLiveData<GenericAddress?> = object : MutableLiveData<GenericAddress?>() {
-        override fun setValue(value: GenericAddress?) {
+    val receivingAddress: MutableLiveData<Address?> = object : MutableLiveData<Address?>() {
+        override fun setValue(value: Address?) {
+            if (value != this.value) {
+                super.setValue(value)
+                receiverChanged.onNext(Unit)
+                txRebuildPublisher.onNext(Unit)
+            }
+        }
+    }
+
+    val fioMemo: MutableLiveData<String?> = MutableLiveData()
+
+    val payerFioName: MutableLiveData<String?> = MutableLiveData()
+
+    val payeeFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
+        override fun setValue(value: String?) {
             if (value != this.value) {
                 super.setValue(value)
                 receiverChanged.onNext(Unit)
@@ -132,8 +146,8 @@ abstract class SendCoinsModel(
         }
     }
 
-    var transaction: GenericTransaction? = null
-    var signedTransaction: GenericTransaction? = null
+    var transaction: Transaction? = null
+    var signedTransaction: Transaction? = null
 
     // This is the list of subscriptions that must be destroyed before exiting
     val listToDispose = ArrayList<Disposable>()
@@ -142,7 +156,7 @@ abstract class SendCoinsModel(
     var sendScrollDefault = true
 
     protected val mbwManager = MbwManager.getInstance(context)
-    private var feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+    protected var feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
 
     var paymentRequestHandlerUUID: String? = null
     private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.getFiatCurrency(account.coinType))
@@ -176,9 +190,7 @@ abstract class SendCoinsModel(
         alternativeAmountFormatted.value = ""
         feeWarning.value = ""
         heapWarning.value = ""
-        alternativeAmount.value = Value.zeroValue(mbwManager.getFiatCurrency(account.coinType))
-        amount.value = intent.getSerializableExtra(SendCoinsActivity.AMOUNT) as Value?
-                ?: Value.zeroValue(account.coinType)
+
         showStaleWarning.value = feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME
         MbwManager.getEventBus().register(eventListener)
 
@@ -245,22 +257,31 @@ abstract class SendCoinsModel(
                     updateAdditionalReceiverInfo(hasPaymentRequest)
 
                     val walletManager = mbwManager.getWalletManager(false)
-                    if (receivingAddress != null && walletManager.isMyAddress(receivingAddress)) {
+                    heapWarning.postValue(if (receivingAddress != null && walletManager.isMyAddress(receivingAddress)) {
                         val warning = context.getString(if (walletManager.hasPrivateKey(receivingAddress)) {
                             R.string.my_own_address_warning
                         } else {
                             R.string.read_only_warning
                         })
-                        heapWarning.postValue(Html.fromHtml(warning))
-                    }
+                        Html.fromHtml(warning)
+                    } else {
+                        ""
+                    })
+                    recipientRepresentation.postValue(when {
+                        payeeFioName.value != null -> SendCoinsViewModel.RecipientRepresentation.FIO
+                        receivingAddress != null || hasPaymentRequest -> SendCoinsViewModel.RecipientRepresentation.COIN
+                        else -> SendCoinsViewModel.RecipientRepresentation.ASK
+                    })
                     Completable.complete()
                 }
                 .subscribe())
 
-
+        alternativeAmount.value = Value.zeroValue(mbwManager.getFiatCurrency(account.coinType))
+        amount.value = intent.getSerializableExtra(SendCoinsActivity.AMOUNT) as Value?
+                ?: Value.zeroValue(account.coinType)
         transactionLabel.value = intent.getStringExtra(SendCoinsActivity.TRANSACTION_LABEL) ?: ""
-        receivingAddress.value = intent.getSerializableExtra(SendCoinsActivity.RECEIVING_ADDRESS) as GenericAddress?
-        genericUri.value = intent.getSerializableExtra(SendCoinsActivity.ASSET_URI) as GenericAssetUri?
+        receivingAddress.value = intent.getSerializableExtra(SendCoinsActivity.RECEIVING_ADDRESS) as Address?
+        genericUri.value = intent.getSerializableExtra(SendCoinsActivity.ASSET_URI) as AssetUri?
 
         this.feeDataset.value = updateFeeDataset()
     }
@@ -292,10 +313,10 @@ abstract class SendCoinsModel(
             }
 
             amount.value = getSerializable(SendCoinsActivity.AMOUNT) as Value
-            receivingAddress.value = getSerializable(SendCoinsActivity.RECEIVING_ADDRESS) as GenericAddress?
+            receivingAddress.value = getSerializable(SendCoinsActivity.RECEIVING_ADDRESS) as Address?
             transactionLabel.value = getString(SendCoinsActivity.TRANSACTION_LABEL)
-            genericUri.value = getSerializable(SendCoinsActivity.ASSET_URI) as GenericAssetUri?
-            signedTransaction = getSerializable(SendCoinsActivity.SIGNED_TRANSACTION) as GenericTransaction?
+            genericUri.value = getSerializable(SendCoinsActivity.ASSET_URI) as AssetUri?
+            signedTransaction = getSerializable(SendCoinsActivity.SIGNED_TRANSACTION) as Transaction?
         }
     }
 
@@ -341,8 +362,8 @@ abstract class SendCoinsModel(
             }
             receivingAddressText.postValue(addressText)
         } else {
-            if (this.receivingAddress.value != null) {
-                receivingAddressText.postValue(AddressUtils.toMultiLineString(
+            if (receivingAddress.value != null) {
+                receivingAddressText.postValue(AddressUtils.toDoubleLineString(
                         this.receivingAddress.value.toString()))
             }
         }
@@ -441,15 +462,13 @@ abstract class SendCoinsModel(
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
                     TransactionStatus.OK
                 }
-                else -> {
-                    TransactionStatus.MISSING_ARGUMENTS
-                }
+                else -> TransactionStatus.MISSING_ARGUMENTS
             }
-        } catch (ex: GenericBuildTransactionException) {
+        } catch (ex: BuildTransactionException) {
             return TransactionStatus.MISSING_ARGUMENTS
-        } catch (ex: GenericOutputTooSmallException) {
+        } catch (ex: OutputTooSmallException) {
             return TransactionStatus.OUTPUT_TO_SMALL
-        } catch (ex: GenericInsufficientFundsException) {
+        } catch (ex: InsufficientFundsException) {
             return TransactionStatus.INSUFFICIENT_FUNDS
         } catch (ex: IOException) {
             return TransactionStatus.BUILD_ERROR
@@ -470,9 +489,9 @@ abstract class SendCoinsModel(
     }
 
     private fun isInRange(feeItems: List<FeeItem>, fee: Value) =
-            (feeItems[0].feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems[feeItems.size - 1].feePerKb)
+            (feeItems.first().feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems.last().feePerKb)
 
-    private fun getAddressLabel(address: GenericAddress): String {
+    private fun getAddressLabel(address: Address): String {
         val accountId = mbwManager.getAccountId(address, account.coinType).orNull()
         return if (accountId != null) {
             // Get the name of the account

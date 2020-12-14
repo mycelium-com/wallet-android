@@ -7,6 +7,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
+import com.mycelium.wapi.wallet.fio.coins.FIOMain;
+import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,7 +62,7 @@ public class GetExchangeRate {
         sourceExchangeRate = null;
         targetExchangeRate = null;
 
-        if (isBtc(sourceCurrency) || isEth(sourceCurrency)
+        if (isBtc(sourceCurrency) || isEth(sourceCurrency) || isFio(sourceCurrency)
                 || (isERC20Token(walletManager, sourceCurrency) && !isEth(targetCurrency))) {
             sourcePrice = BigDecimal.ONE;
         } else {
@@ -70,7 +72,8 @@ public class GetExchangeRate {
             }
         }
 
-        if (isBtc(targetCurrency) || isEth(targetCurrency) || isERC20Token(walletManager, targetCurrency)) {
+        if (isBtc(targetCurrency) || isEth(targetCurrency) || isFio(targetCurrency)
+                || isERC20Token(walletManager, targetCurrency)) {
             targetPrice = BigDecimal.ONE;
         } else {
             targetExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency, targetCurrency);
@@ -87,5 +90,9 @@ public class GetExchangeRate {
 
     private boolean isEth(String currencySymbol) {
         return currencySymbol.equals(EthMain.INSTANCE.getSymbol()) || currencySymbol.equals(EthTest.INSTANCE.getSymbol());
+    }
+
+    private boolean isFio(String currencySymbol) {
+        return currencySymbol.equals(FIOMain.INSTANCE.getSymbol()) || currencySymbol.equals(FIOTest.INSTANCE.getSymbol());
     }
 }

@@ -7,6 +7,7 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel.RecipientRepresentation" />
 
         <variable
             name="activity"
@@ -18,27 +19,25 @@
     </data>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <include
-            layout="@layout/send_coins_heading_title"
-            bind:viewModel="@{viewModel}" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:gravity="start"
+            android:orientation="vertical">
 
         <!-- Enter Recipient -->
         <include
-            layout="@layout/send_coins_enter_recepient"
-            bind:viewModel="@{viewModel}"
-            bind:activity="@{activity}" />
+                layout="@layout/send_coins_enter_recepient"
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}"
+                android:visibility="@{(viewModel.getRecipientRepresentation() == RecipientRepresentation.ASK) ? View.VISIBLE : View.GONE}" />
 
         <!-- Recipient Address Box -->
         <include
-            layout="@layout/send_coins_recipient"
-            bind:viewModel="@{viewModel}"
-            bind:activity="@{activity}" />
+                layout="@layout/send_coins_recipient"
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}" />
+
     </LinearLayout>
 
 </layout>

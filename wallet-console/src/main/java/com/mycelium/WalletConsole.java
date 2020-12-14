@@ -114,8 +114,11 @@ class WalletConsole {
         SqlDriver driver = new JdbcSqliteDriver( "jdbc:sqlite::memory:", new Properties());
         WalletDB.Companion.getSchema().create(driver);
         WalletDB db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
-                AdaptersKt.getErc20ContextAdapter(),
-                AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
+                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
+                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
+                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
+                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
+                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
 
         WalletManager walletManager = new WalletManager(
                 network,
@@ -245,7 +248,7 @@ class WalletConsole {
     }
 
     private static void sendColuWithFundingAccount(PrivateColuAccount coluAccount, SingleAddressAccount coluSAAccount, HDAccount hdAccount1) {
-        GenericTransaction<ColuTransactionSummary> sendRequest = coluAccount.getSendToRequest(
+        Address<ColuTransactionSummary> sendRequest = coluAccount.getSendToRequest(
                 new BtcAddress(RMCCoin.INSTANCE
                         , Address.fromString("1MmgmNmKTzaNmQRi3DEmzULrxpPnxszh1c"))
                 , Value.valueOf(RMCCoin.INSTANCE, 1));

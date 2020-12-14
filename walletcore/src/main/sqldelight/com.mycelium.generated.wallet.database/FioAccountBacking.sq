@@ -1,0 +1,55 @@
+import com.mycelium.wapi.wallet.coins.Value;
+import java.util.UUID;
+
+-- Creates table for transactions
+
+CREATE TABLE IF NOT EXISTS FioAccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT AS UUID NOT NULL,
+    sender TEXT NOT NULL,
+    receiver TEXT NOT NULL,
+    transferred TEXT AS Value NOT NULL,
+    memo TEXT,
+    PRIMARY KEY (txid, uuid),
+    FOREIGN KEY (txid, uuid)
+            REFERENCES AccountBacking (txid, uuid)
+            ON DELETE CASCADE
+);
+
+
+selectFioTransactionSummaries:
+SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    fb.sender, fb.receiver, fb.transferred, fb.memo
+FROM FioAccountBacking AS fb
+    INNER JOIN AccountBacking AS b
+    ON fb.uuid = b.uuid AND fb.txid = b.txid
+        WHERE fb.uuid = (:uuid) ORDER BY b.blockNumber DESC, b.timestamp DESC
+        LIMIT (:limit) OFFSET (:offset);
+
+
+-- Selects transactions since time in seconds
+
+selectFioTransactionSummariesSince:
+SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    fb.sender, fb.receiver, fb.transferred, fb.memo
+FROM FioAccountBacking AS fb
+    INNER JOIN AccountBacking AS b
+    ON fb.uuid = b.uuid AND fb.txid = b.txid
+        WHERE fb.uuid = (:uuid) AND b.timestamp > (:timestamp)
+        ORDER BY b.blockNumber DESC, b.timestamp DESC;
+
+selectFioTransactionSummaryById:
+SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+     fb.sender, fb.receiver, fb.transferred, fb.memo
+FROM FioAccountBacking AS fb
+    INNER JOIN AccountBacking AS b
+    ON fb.uuid = b.uuid AND fb.txid = b.txid
+        WHERE fb.uuid = (?) AND fb.txid = (?);
+
+insertTransaction:
+INSERT OR REPLACE INTO FioAccountBacking(txid, uuid, sender, receiver, transferred, memo)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteTransaction:
+DELETE FROM FioAccountBacking
+WHERE uuid = (?) AND txid = (?);
