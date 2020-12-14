@@ -49,21 +49,27 @@ import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.RawRes;
+
 import com.google.common.base.Joiner;
 import com.google.common.io.ByteSource;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BuildConfig;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.VersionManager;
 import com.mycelium.wallet.activity.modern.DarkThemeChangeLog;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
 import com.mycelium.wapi.wallet.fio.FioModule;
 
-import de.cketti.library.changelog.ChangeLog;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import de.cketti.library.changelog.ChangeLog;
 
 import static java.util.Locale.US;
 
@@ -76,7 +82,7 @@ public class AboutActivity extends Activity {
 
         final MbwManager mbwManager = MbwManager.getInstance(this);
         final VersionManager versionManager = mbwManager.getVersionManager();
-        ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME);
+        ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME + (BuildConfig.DEBUG ? "\nDebug Build" : ""));
         ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format(US, "(%d)", BuildConfig.VERSION_CODE));
         setLicenseForButton(R.id.bt_tou_mycelium, R.raw.tou_mycelium);
         setLicenseForButton(R.id.bt_license_mycelium, R.raw.license_mycelium);
