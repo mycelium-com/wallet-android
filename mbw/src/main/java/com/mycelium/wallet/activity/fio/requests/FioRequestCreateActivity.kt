@@ -14,10 +14,12 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.event.AmountListener
+import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FioRequestCreateNameBinding
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
@@ -33,14 +35,12 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
         const val FIO_TOKEN_TO = "FIO_TOKEN_TO"
 
         @JvmStatic
-        fun start(context: Context, amount: Value?, fioAdrressTo: String, fioTokenTo: Address?, accountToSelect: UUID) {
-            val starter = Intent(context, FioRequestCreateActivity::class.java)
-                    .putExtra(SendCoinsActivity.AMOUNT, amount)
-                    .putExtra(FIO_ADDRESS_TO, fioAdrressTo)
-                    .putExtra(FIO_TOKEN_TO, fioTokenTo)
-                    .putExtra(SendCoinsActivity.ACCOUNT, accountToSelect)
-            context.startActivity(starter)
-        }
+        fun start(context: Context, amount: Value?, fioAdrressTo: String, fioTokenTo: Address?, accountToSelect: UUID) =
+                context.startActivity(Intent(context, FioRequestCreateActivity::class.java)
+                        .putExtra(SendCoinsActivity.AMOUNT, amount)
+                        .putExtra(FIO_ADDRESS_TO, fioAdrressTo)
+                        .putExtra(FIO_TOKEN_TO, fioTokenTo)
+                        .putExtra(SendCoinsActivity.ACCOUNT, accountToSelect))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,10 +85,14 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
                     with(this) {
                         btNextButton.setOnClickListener {
                             //show loader
+                            loader(true, getString(R.string.sending, "..."))
                             viewModel?.sendRequest(this@FioRequestCreateActivity, {
                                 //hide loader
+                                loader(false)
                             }, {
                                 //error
+                                loader(false)
+                                Toaster(this@FioRequestCreateActivity).toast("Something went wrong", true)
                             })
                         }
                         tvPayeeFio.setOnClickListener {
@@ -98,6 +102,11 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
                             val intent = Intent(this@FioRequestCreateActivity, ManualAddressEntry::class.java)
                                     .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
                             this@FioRequestCreateActivity.startActivityForResult(intent, ReceiveCoinsActivity.MANUAL_ENTRY_RESULT_CODE)
+                        }
+                        memo.setOnFocusChangeListener { view, b ->
+                            if(b) {
+                                scroll.postDelayed({ scroll.smoothScrollBy(0, scroll.maxScrollAmount) }, 500)
+                            }
                         }
                     }
                 }
