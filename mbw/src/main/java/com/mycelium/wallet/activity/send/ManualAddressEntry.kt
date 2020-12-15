@@ -77,7 +77,8 @@ class ManualAddressEntry : AppCompatActivity() {
         btOk.setOnClickListener { finishOk(coinAddress!!) }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
         etRecipient.hint = if (!isForFio) getString(R.string.enter_recipient_hint, coinType.name) else getString(R.string.fio_name)
-        tvEnterRecipientDescription.text = getString(R.string.enter_recipient_description, coinType.name)
+        tvEnterRecipientDescription.text = if(!isForFio) getString(R.string.enter_recipient_description, coinType.name) else getString(R.string.enter_fio_name)
+        tvRecipientInvalid.text = if(!isForFio) getString(R.string.recipient_invalid) else getString(R.string.fio_recipient_invalid)
         lvKnownFioNames.adapter = adapter
         lvKnownFioNames.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
         adapter.clickListener = { fioName ->

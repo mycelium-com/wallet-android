@@ -8,8 +8,8 @@ import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
-import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.ObtDataRecord
+import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import org.web3j.tx.Transfer
 import java.util.*
 
@@ -26,6 +26,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             list.forEach {
                 fioSentRequestQueries.insertRequest(
                         it.fioRequestId,
+                        uuid,
                         it.payerFioAddress,
                         it.payeeFioAddress,
                         it.payerFioAddress,
@@ -43,6 +44,7 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             list.forEach {
                 fioReceivedRequestQueries.insertRequest(
                         it.fioRequestId,
+                        uuid,
                         it.payerFioAddress,
                         it.payeeFioAddress,
                         it.payerFioAddress,
@@ -55,11 +57,11 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     }
 
     fun deleteSentRequests() {
-        fioSentRequestQueries.deleteAllRequests()
+        fioSentRequestQueries.deleteRequests(uuid)
     }
 
     fun deletePendingRequests() {
-        fioReceivedRequestQueries.deleteAllRequests()
+        fioReceivedRequestQueries.deleteRequests(uuid)
     }
 
     fun insertOrUpdateMapping(fioName: String, publicAddress: String, chainCode: String, tokenCode: String,
@@ -70,9 +72,9 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     fun getRequestsGroups(): List<FioGroup> {
         val fioSentGroup = FioGroup(FioGroup.Type.SENT, mutableListOf())
         val fioPendingGroup = FioGroup(FioGroup.Type.PENDING, mutableListOf())
-        fioSentRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
-                                              payer_fio_public_key, payee_fio_public_key, content,
-                                              deserialized_content, time_stamp, status ->
+        fioSentRequestQueries.selectAccountFioRequests(uuid) { fio_request_id, uuid, payer_fio_address, payee_fio_address,
+                                                               payer_fio_public_key, payee_fio_public_key, content,
+                                                               deserialized_content, time_stamp, status ->
             fioSentGroup.children.add(
                     SentFIORequestContent().apply {
                         fioRequestId = fio_request_id
@@ -86,9 +88,9 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         this.status = status?.status!!
                     })
         }.executeAsList()
-        fioReceivedRequestQueries.selectFioRequests { fio_request_id, payer_fio_address, payee_fio_address,
-                                                  payer_fio_public_key, payee_fio_public_key, content,
-                                                  deserialized_content, time_stamp ->
+        fioReceivedRequestQueries.selectAccountFioRequests(uuid) { fio_request_id, uuid, payer_fio_address, payee_fio_address,
+                                                                   payer_fio_public_key, payee_fio_public_key, content,
+                                                                   deserialized_content, time_stamp ->
             fioPendingGroup.children.add(
                     FIORequestContent().apply {
                         fioRequestId = fio_request_id

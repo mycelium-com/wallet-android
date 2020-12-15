@@ -1,11 +1,13 @@
 import com.mycelium.wapi.wallet.fio.FioRequestStatus;
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent;
 import java.math.BigInteger;
+import java.util.UUID;
 
 -- Creates table for sent requests
 
 CREATE TABLE IF NOT EXISTS FioRequestsSentBacking (
     fio_request_id TEXT AS BigInteger NOT NULL PRIMARY KEY,
+    uuid TEXT AS UUID NOT NULL,
     payer_fio_address TEXT NOT NULL,
     payee_fio_address TEXT NOT NULL,
     payer_fio_public_key TEXT NOT NULL,
@@ -17,9 +19,9 @@ CREATE TABLE IF NOT EXISTS FioRequestsSentBacking (
 );
 
 insertRequest:
-INSERT OR REPLACE INTO FioRequestsSentBacking(fio_request_id, payer_fio_address, payee_fio_address,
+INSERT OR REPLACE INTO FioRequestsSentBacking(fio_request_id, uuid, payer_fio_address, payee_fio_address,
     payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteAllRequests:
 DELETE FROM FioRequestsSentBacking;
@@ -28,6 +30,15 @@ deleteRequest:
 DELETE FROM FioRequestsSentBacking
 WHERE fio_request_id = (?) ;
 
+deleteRequests:
+DELETE FROM FioRequestsSentBacking
+WHERE uuid = (?) ;
+
 selectFioRequests:
-SELECT fio_request_id, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status
+SELECT fio_request_id, uuid, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status
 FROM FioRequestsSentBacking;
+
+selectAccountFioRequests:
+SELECT fio_request_id, uuid, payer_fio_address, payee_fio_address, payer_fio_public_key, payee_fio_public_key, content, deserialized_content, time_stamp, status
+FROM FioRequestsSentBacking
+WHERE uuid = (?) ;
