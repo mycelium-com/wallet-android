@@ -9,5 +9,4 @@ data class BuySellContent(@SerializedName("list-item") val listItem: List<BuySel
 data class BuySellItem(val title: String,
                        val description: String,
                        val iconUrl: String,
-                       val link: String,
-                       val parentId: String) : CommonContent()
+                       val link: String) : CommonContent()

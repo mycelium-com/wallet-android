@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder
 import com.mycelium.wallet.Constants
 import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
-import com.mycelium.wallet.WalletConfiguration
 import com.mycelium.wallet.external.partner.model.*
 import java.util.*
 
@@ -21,7 +20,6 @@ object SettingsPreference {
     private const val BALANCE_KEY = "balance"
     private const val PARTNER_ENABLED = "partner-enabled"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
-    private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
     private val gson by lazy {
         GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
     }
@@ -37,24 +35,12 @@ object SettingsPreference {
 
     @JvmStatic
     val fioActive
-        get() = isActive(FIO_ENABLE)
-
-    private fun isActive(id: String) = when (id) {
-        FIO_ENABLE -> PartnerInfo(getSharedDate(WalletConfiguration.PREFS_FIO_START_DATE),
-                getSharedDate(WalletConfiguration.PREFS_FIO_END_DATE))
-        else -> PartnerInfo(oldDate, oldDate)
-    }.isActive()
-
-    private fun getSharedDate(key: String, defaultDate: Date = oldDate): Date =
-            Date(sharedPreferences.getLong(key, defaultDate.time))
+        get() = isContentEnabled("fio-presale")
 
     private fun date(year: Int, month: Int, day: Int, hour: Int, minute: Int, timezone: String) = Calendar.getInstance().apply {
         timeZone = TimeZone.getTimeZone(timezone)
         set(year, month, day, hour, minute)
     }.time
-
-
-    private fun PartnerInfo.isActive() = Date().after(startDate) && Date().before(endDate)
 
     var mediaFLowNotificationEnabled
         get() = sharedPreferences.getBoolean(NEWS_NOTIFICATION_ENABLE, true)
@@ -114,5 +100,5 @@ object SettingsPreference {
 
     @JvmStatic
     fun isContentEnabled(id: String?): Boolean = id == null ||
-            getPartnerInfo(id).let { it?.isEnabled ?: true && it?.isActive() ?: true } && isEnabled(id)
+            getPartnerInfo(id)?.isActive() ?: true && isEnabled(id)
 }
