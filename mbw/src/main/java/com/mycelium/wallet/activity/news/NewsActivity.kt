@@ -4,7 +4,6 @@ import android.annotation.TargetApi
 import android.content.*
 import android.content.res.Resources
 import android.graphics.Color
-import android.graphics.drawable.PictureDrawable
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
@@ -36,9 +35,6 @@ import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
-import com.mycelium.wallet.svg.GlideApp
-import com.mycelium.wallet.svg.GlideRequests
-import com.mycelium.wallet.svg.SvgSoftwareLayerSetter
 import kotlinx.android.synthetic.main.activity_news.*
 import kotlin.math.abs
 import kotlin.math.exp
@@ -153,9 +149,9 @@ class NewsActivity : AppCompatActivity() {
                             && SettingsPreference.isContentEnabled(banner.parentId)
                 }?.let { banner ->
                     bottomButtonBanner.visibility = VISIBLE
-                    val glideRequests: GlideRequests = GlideApp.with(bottomButtonBanner)
-                    val glideRequest = if (banner.imageUrl.endsWith(".svg")) glideRequests.`as`(PictureDrawable::class.java).listener(SvgSoftwareLayerSetter()) else glideRequests.asBitmap()
-                    glideRequest.load(banner.imageUrl).into(bottomButtonBanner)
+                    Glide.with(bottomButtonBanner)
+                            .load(banner.imageUrl)
+                            .into(bottomButtonBanner)
                     bottomButtonBanner.setOnClickListener {
                         openLink(banner.link)
                     }

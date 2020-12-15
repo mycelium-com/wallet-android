@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.modern.adapter
 
 import android.content.SharedPreferences
-import android.graphics.drawable.PictureDrawable
 import android.view.LayoutInflater
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -11,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.holder.*
@@ -19,9 +19,6 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 import com.mycelium.wallet.external.partner.model.MediaFlowBannerInList
-import com.mycelium.wallet.svg.GlideApp
-import com.mycelium.wallet.svg.GlideRequests
-import com.mycelium.wallet.svg.SvgSoftwareLayerSetter
 import kotlinx.android.synthetic.main.item_mediaflow_banner.view.*
 import kotlinx.android.synthetic.main.item_mediaflow_turn_off.view.*
 
@@ -190,9 +187,8 @@ class NewsAdapter(val preferences: SharedPreferences)
                 }
             }
             TYPE_BIG_BANNER -> {
-                val glideRequests: GlideRequests = GlideApp.with(holder.itemView.image)
-                val glideRequest = if (item.banner?.imageUrl?.endsWith(".svg") == true) glideRequests.`as`(PictureDrawable::class.java).listener(SvgSoftwareLayerSetter()) else glideRequests.asBitmap()
-                glideRequest.load(item.banner?.imageUrl)
+                Glide.with(holder.itemView.image)
+                        .load(item.banner?.imageUrl)
                         .apply(RequestOptions()
                                 .placeholder(R.drawable.mediaflow_default_picture)
                                 .error(R.drawable.mediaflow_default_picture))
