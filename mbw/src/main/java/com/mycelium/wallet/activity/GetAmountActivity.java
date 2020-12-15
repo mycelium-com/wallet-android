@@ -459,8 +459,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       tvAmount.setText(amountText);
       // Set alternate amount if we can
       if (!_mbwManager.hasFiatCurrency()
-              || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType())
-              /*|| Value.isNullOrZero(_amount)*/) {
+              || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType())) {
          tvAlternateAmount.setText("");
       } else {
          Value convertedAmount;

@@ -1,0 +1,4 @@
+import java.util.UUID;
+
+ALTER TABLE FioRequestsReceivedBacking ADD COLUMN uuid TEXT AS UUID NOT NULL;
+ALTER TABLE FioRequestsSentBacking ADD COLUMN uuid TEXT AS UUID NOT NULL;
