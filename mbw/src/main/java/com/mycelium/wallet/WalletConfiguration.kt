@@ -54,12 +54,8 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("Balance") val balanceSettings: Map<String, BalanceContent>,
                             @SerializedName("Buy-Sell") val buySellSettings: Map<String, BuySellContent>)
 
-data class PartnerInfo(@SerializedName("start-date") val startDate: Date?,
-                       @SerializedName("end-date") val endDate: Date?,
-                       val id: String? = null,
-                       val name: String? = null) {
-    var isEnabled: Boolean? = true
-}
+data class PartnerInfo(val id: String? = null,
+                       val name: String? = null) :CommonContent()
 
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
@@ -165,12 +161,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     fioTpid?.let {
                         prefEditor.putString(PREFS_FIO_TPID, it)
-                    }
-                    myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
-                        prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
-                    }
-                    myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.startDate?.let {
-                        prefEditor.putLong(PREFS_FIO_START_DATE, it.time)
                     }
                     myceliumNodesResponse?.partnerInfos?.let {
                         it.entries.forEach {
@@ -392,8 +382,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
         const val PREFS_FIO_TPID = "fio_tpid"
         const val ONION_DOMAIN = ".onion"
-        const val PREFS_FIO_END_DATE = "fio_end_date"
-        const val PREFS_FIO_START_DATE = "fio_start_date"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
         const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
