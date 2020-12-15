@@ -141,10 +141,9 @@ dependencies {
 
     implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
 
-    implementation("com.github.bumptech.glide:glide:4.7.1") {
-        exclude group: "com.android.support"
-    }
-    kapt "com.github.bumptech.glide:compiler:4.7.1"
+    implementation "com.github.bumptech.glide:glide:4.11.0"
+    kapt "com.github.bumptech.glide:compiler:4.11.0"
+    implementation 'com.caverock:androidsvg:1.2.1'
 
 
     androidTestImplementation 'androidx.test:core:1.2.0'
