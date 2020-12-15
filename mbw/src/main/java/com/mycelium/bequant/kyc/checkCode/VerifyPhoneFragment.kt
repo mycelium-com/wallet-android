@@ -41,8 +41,7 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
 
     val args: VerifyPhoneFragmentArgs by navArgs()
 
-    var resendTimer = object : CountDownTimer(TimeUnit.MINUTES.toMillis(1), 1000) {
-
+    private var resendTimer = object : CountDownTimer(TimeUnit.MINUTES.toMillis(1), 1000) {
         override fun onTick(leftTime: Long) {
             resendTime?.text = "${TimeUnit.MILLISECONDS.toMinutes(leftTime)}:${TimeUnit.MILLISECONDS.toSeconds(leftTime % 60000)}"
         }

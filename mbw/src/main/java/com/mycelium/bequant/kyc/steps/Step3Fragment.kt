@@ -15,8 +15,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
-import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantConstants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
@@ -56,7 +56,7 @@ class Step3Fragment : Fragment() {
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
                 countrySelectedReceiver,
-                IntentFilter(Constants.ACTION_COUNTRY_SELECTED))
+                IntentFilter(BequantConstants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =

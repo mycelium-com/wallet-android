@@ -1,7 +1,7 @@
 package com.mycelium.bequant.remote.repositories
 
-import com.mycelium.bequant.Constants.EXCLUDE_COIN_LIST
-import com.mycelium.bequant.Constants.changeCoinToServer
+import com.mycelium.bequant.BequantConstants.EXCLUDE_COIN_LIST
+import com.mycelium.bequant.BequantConstants.changeCoinToServer
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.trading.api.AccountApi
 import com.mycelium.bequant.remote.trading.model.*

@@ -16,7 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.ModalDialog
 import com.mycelium.bequant.common.loader
@@ -52,7 +52,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         if (!BequantPreference.isDemo() && !BequantPreference.hasKeys()) {
             loader(true)
             Api.signRepository.getApiKeys(lifecycleScope, {
-                broadcastManager.sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
+                broadcastManager.sendBroadcast(Intent(BequantConstants.ACTION_BEQUANT_KEYS))
                 Handler().postDelayed({ requestBalances() }, 5000) // server has lag(3-5 seconds) in move keys from reg.bequant.io to api.bequant.io, е
             }, error = { code, message ->
                 if (code != 420) {
@@ -68,7 +68,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
             }
         }
         MbwManager.getEventBus().register(this)
-        broadcastManager.registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
+        broadcastManager.registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_EXCHANGE))
         Handler().postDelayed({
             when (arguments?.getString("from")) {
                 "registration" -> {
@@ -159,7 +159,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.supportCenter -> {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_SUPPORT_CENTER)))
                     true
                 }
                 R.id.kyc -> {

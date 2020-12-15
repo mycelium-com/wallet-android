@@ -21,10 +21,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
-import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
-import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
-import com.mycelium.bequant.Constants.LINK_TERMS_OF_USE
+import com.mycelium.bequant.BequantConstants.ACTION_COUNTRY_SELECTED
+import com.mycelium.bequant.BequantConstants.COUNTRY_MODEL_KEY
+import com.mycelium.bequant.BequantConstants.LINK_SUPPORT_CENTER
+import com.mycelium.bequant.BequantConstants.LINK_TERMS_OF_USE
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
