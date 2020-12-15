@@ -1,7 +1,6 @@
 package com.mycelium.wallet.external.adapter
 
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.PictureDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -10,14 +9,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.mycelium.wallet.R
-import com.mycelium.wallet.svg.GlideApp
-import com.mycelium.wallet.svg.GlideRequests
-import com.mycelium.wallet.svg.SvgSoftwareLayerSetter
 import kotlinx.android.synthetic.main.buy_sell_service_row.view.*
 
 data class BuySellSelectItem(val title: String, val description: String,
-                             val imageDrawable: Drawable? = null, val image: String? = null, val listener: (() -> Unit)? = null)
+                             val imageDrawable: Drawable? = null, val image: String? = null
+                             , val listener: (() -> Unit)? = null)
 
 
 class BuySellSelectAdapter : ListAdapter<BuySellSelectItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -32,9 +30,9 @@ class BuySellSelectAdapter : ListAdapter<BuySellSelectItem, RecyclerView.ViewHol
             viewHolder.itemView.ivIcon.setImageDrawable(item.imageDrawable)
             viewHolder.itemView.ivIcon.visibility = VISIBLE
         } else if (item.image != null) {
-            val glideRequests: GlideRequests = GlideApp.with(viewHolder.itemView.ivIcon)
-            val glideRequest = if (item.image.endsWith(".svg")) glideRequests.`as`(PictureDrawable::class.java).listener(SvgSoftwareLayerSetter()) else glideRequests.asBitmap()
-            glideRequest.load(item.image).into(viewHolder.itemView.ivIcon)
+            Glide.with(viewHolder.itemView.ivIcon)
+                    .load(item.image)
+                    .into(viewHolder.itemView.ivIcon)
             viewHolder.itemView.ivIcon.visibility = VISIBLE
         } else {
             viewHolder.itemView.ivIcon.visibility = INVISIBLE

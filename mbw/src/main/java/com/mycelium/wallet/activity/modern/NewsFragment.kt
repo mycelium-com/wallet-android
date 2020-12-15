@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.modern
 import android.content.*
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
-import android.graphics.drawable.PictureDrawable
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
@@ -32,9 +31,6 @@ import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.external.mediaflow.*
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
-import com.mycelium.wallet.svg.GlideApp
-import com.mycelium.wallet.svg.GlideRequests
-import com.mycelium.wallet.svg.SvgSoftwareLayerSetter
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_news.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
@@ -158,9 +154,9 @@ class NewsFragment : Fragment() {
                             && SettingsPreference.isContentEnabled(it.parentId)
                     }?.randomOrNull()?.let { banner ->
                         top_banner.visibility = VISIBLE
-                        val glideRequests: GlideRequests = GlideApp.with(banner_image)
-                        val glideRequest = if (banner.imageUrl.endsWith(".svg")) glideRequests.`as`(PictureDrawable::class.java).listener(SvgSoftwareLayerSetter()) else glideRequests.asBitmap()
-                        glideRequest.load(banner.imageUrl).into(banner_image)
+                        Glide.with(banner_image)
+                                .load(banner.imageUrl)
+                                .into(banner_image)
                         top_banner.setOnClickListener {
                             openLink(banner.link)
                         }
