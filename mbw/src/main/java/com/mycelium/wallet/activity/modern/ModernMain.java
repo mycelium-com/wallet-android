@@ -250,7 +250,7 @@ public class ModernMain extends AppCompatActivity {
         if (content != null) {
             Collections.sort(content.getPages(), (a1, a2) -> a1.getTabIndex() - a2.getTabIndex());
             for (MainMenuPage page : content.getPages()) {
-                if (page.isEnabled() && SettingsPreference.isContentEnabled(page.getParentId())) {
+                if (page.isActive() && SettingsPreference.isContentEnabled(page.getParentId())) {
                     Bundle adsBundle = new Bundle();
                     adsBundle.putSerializable("page", page);
                     int tabIndex = page.getTabIndex();

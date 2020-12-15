@@ -10,16 +10,13 @@ data class MediaFlowContent(@SerializedName("banner-in-list") val bannersInList:
 data class MediaFlowBannerInList(val imageUrl: String,
                                  val link: String,
                                  val index: Int,
-                                 val parentId: String,
-                                 val isEnabled: Boolean = true)
+                                 val parentId: String) : CommonContent()
 
 data class MediaFlowBannerBannerTop(val imageUrl: String,
                                     val link: String,
-                                    val parentId: String,
-                                    val isEnabled: Boolean = true)
+                                    val parentId: String) : CommonContent()
 
 data class MediaFlowDetailsBannerBottom(val imageUrl: String,
                                         val link: String,
                                         val tag: String,
-                                        val parentId: String,
-                                        val isEnabled: Boolean = true)
+                                        val parentId: String) : CommonContent()

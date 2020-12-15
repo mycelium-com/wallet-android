@@ -40,7 +40,7 @@ class BuySellSelectActivity : FragmentActivity() {
                         }
                     }
                 } +
-                (getBuySellContent()?.listItem?.filter { it.isEnabled && SettingsPreference.isContentEnabled(it.parentId) }?.map {
+                (getBuySellContent()?.listItem?.filter { it.isActive() && SettingsPreference.isContentEnabled(it.parentId) }?.map {
                     BuySellSelectItem(it.title, it.description, null, it.iconUrl) {
                         try {
                             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.link)))
