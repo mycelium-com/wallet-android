@@ -195,6 +195,13 @@
                 android:layout_marginBottom="30dp"
                 android:text="@string/generate_new_bch_key"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="@string/new_fio_legacy_presale_account_desc" />
+
         <Button
             android:id="@+id/btCreateFioLegacyAccount"
             android:layout_width="wrap_content"
