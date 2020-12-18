@@ -96,11 +96,14 @@ import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
+import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
 import com.mycelium.wapi.wallet.fio.FioAddress;
+import com.mycelium.wapi.wallet.fio.FioKeyManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -136,6 +139,9 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    @BindView(R.id.btGenerateNewBchSingleKey)
    View btGenerateNewBchSingleKey;
 
+   @BindView(R.id.btCreateFioLegacyAccount)
+   View btCreateFioLegacyAccount;
+
    @Override
    public void onCreate(Bundle savedInstanceState) {
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -165,6 +171,14 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
 
       findViewById(R.id.btBuyLedger).setOnClickListener(view -> Utils.openWebsite(activity, BUY_LEDGER_LINK));
       btGenerateNewBchSingleKey.setVisibility(View.GONE);
+
+      btCreateFioLegacyAccount.setOnClickListener(view -> {
+         FioKeyManager fioKeyManager = new FioKeyManager(_mbwManager.getMasterSeedManager());
+         HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
+         ArrayList<HdKeyNode> nodes= new ArrayList<HdKeyNode>(){{add(legacyFioNode);}};
+         List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes, true));
+         finishOk(account.get(0), false);
+      });
    }
 
    @Override

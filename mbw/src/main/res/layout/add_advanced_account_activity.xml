@@ -194,5 +194,16 @@
                 android:paddingEnd="30dp"
                 android:layout_marginBottom="30dp"
                 android:text="@string/generate_new_bch_key"/>
+
+        <Button
+            android:id="@+id/btCreateFioLegacyAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:layout_marginBottom="30dp"
+            android:text="@string/create_fio_legacy_presale_account"/>
     </LinearLayout>
 </ScrollView>
