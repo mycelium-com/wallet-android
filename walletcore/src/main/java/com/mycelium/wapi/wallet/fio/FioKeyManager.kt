@@ -25,7 +25,7 @@ class FioKeyManager(private val masterSeedManager: MasterSeedManager) {
     fun getLegacyFioNode(): HdKeyNode {
         val masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher())
         return HdKeyNode.fromSeed(masterSeed.bip32Seed, BipDerivationType.BIP44)
-                .createHardenedChildNode(235)
+                .createHardenedChildNode(235).createHardenedChildNode(0)
     }
 
 

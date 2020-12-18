@@ -190,7 +190,7 @@ class FioModule(
     private fun createAccount(accountContext: FioAccountContext,
                               privkeyString: String? = null,
                               address: FioAddress? = null,
-                              isRestore: Boolean, legacy: Boolean = false): FioAccount {
+                              isRestore: Boolean): FioAccount {
         val fioEndpoints = FioEndpoints(apiEndpoints, historyEndpoints)
         serverFioEventsPublisher.setFioServerListChangedListeners(fioEndpoints, fioEndpoints)
         val fioBlockchainService = FioBlockchainService(coinType, fioEndpoints, tpid, serializationProviderWrapper)
@@ -220,8 +220,7 @@ class FioModule(
                 val uuid = hdKeyNode.uuid
                 val accountContext = createAccountContext(uuid, isReadOnly = true)
                 baseLabel = accountContext.accountName
-                val legacy = config.legacy
-                result = createAccount(accountContext, privkeyString = getPrivkeyStringByHdNode(hdKeyNode), isRestore = false, legacy = legacy)
+                result = createAccount(accountContext, privkeyString = getPrivkeyStringByHdNode(hdKeyNode), isRestore = false)
             }
             is FIOAddressConfig -> {
                 val pubkeyString = try {

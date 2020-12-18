@@ -176,7 +176,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          FioKeyManager fioKeyManager = new FioKeyManager(_mbwManager.getMasterSeedManager());
          HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
          ArrayList<HdKeyNode> nodes= new ArrayList<HdKeyNode>(){{add(legacyFioNode);}};
-         List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes, true));
+         List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes));
          finishOk(account.get(0), false);
       });
    }
