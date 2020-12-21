@@ -1637,4 +1637,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_payment_request">FIO Payment Request</string>
     <string name="enter_fio_name">Enter FIO Name you are requesting funds from</string>
     <string name="fio_recipient_invalid">Invalid FIO Name</string>
+    <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
 </resources>

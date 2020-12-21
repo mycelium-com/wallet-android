@@ -219,7 +219,7 @@ class FioModule(
                 val hdKeyNode = config.hdKeyNodes[0]
                 val uuid = hdKeyNode.uuid
                 val accountContext = createAccountContext(uuid, isReadOnly = true)
-                baseLabel = accountContext.accountName
+                baseLabel = if (config.labelBase.isNotEmpty()) config.labelBase else accountContext.accountName
                 result = createAccount(accountContext, privkeyString = getPrivkeyStringByHdNode(hdKeyNode), isRestore = false)
             }
             is FIOAddressConfig -> {
