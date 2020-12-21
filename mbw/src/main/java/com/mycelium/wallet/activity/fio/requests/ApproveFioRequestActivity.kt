@@ -100,7 +100,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.memoFrom.value = fioRequestContent.deserializedContent?.memo ?: ""
         fioRequestViewModel.payeeName.value = fioRequestContent.payeeFioAddress
         fioRequestViewModel.payerName.value = fioRequestContent.payerFioAddress
-        fioRequestViewModel.requestDate.value = fioRequestContent.timeStamp
+        fioRequestViewModel.requestDate.value = Util.transformExpirationDate(fioRequestContent.timeStamp)
 
         mbwManager = MbwManager.getInstance(this)
         val walletManager = mbwManager.getWalletManager(false)

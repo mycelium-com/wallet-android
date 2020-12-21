@@ -59,12 +59,6 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
       return MbwManager.getInstance(this).getLedgerManager();
    }
 
-   @Override
-   protected void onStart() {
-      super.onStart();
-      updateUi();
-   }
-
    abstract protected AdapterView.OnItemClickListener accountClickListener();
 
    abstract protected void setView();
