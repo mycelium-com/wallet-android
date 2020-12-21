@@ -177,7 +177,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
          ArrayList<HdKeyNode> nodes= new ArrayList<HdKeyNode>(){{add(legacyFioNode);}};
          List<UUID> account = _mbwManager.getWalletManager(false)
-                 .createAccounts(new FIOUnrelatedHDConfig(nodes, "FIO Legacy Account"));
+                 .createAccounts(new FIOUnrelatedHDConfig(nodes, getString(R.string.base_label_fio_account_legacy)));
          finishOk(account.get(0), false);
       });
    }
