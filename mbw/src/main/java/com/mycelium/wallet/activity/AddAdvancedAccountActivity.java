@@ -43,9 +43,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,12 +51,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
@@ -76,9 +77,9 @@ import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -96,7 +97,9 @@ import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
+import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
 import com.mycelium.wapi.wallet.fio.FioAddress;
+import com.mycelium.wapi.wallet.fio.FioKeyManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -136,6 +139,9 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    @BindView(R.id.btGenerateNewBchSingleKey)
    View btGenerateNewBchSingleKey;
 
+   @BindView(R.id.btCreateFioLegacyAccount)
+   View btCreateFioLegacyAccount;
+
    @Override
    public void onCreate(Bundle savedInstanceState) {
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -165,6 +171,21 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
 
       findViewById(R.id.btBuyLedger).setOnClickListener(view -> Utils.openWebsite(activity, BUY_LEDGER_LINK));
       btGenerateNewBchSingleKey.setVisibility(View.GONE);
+
+      btCreateFioLegacyAccount.setOnClickListener(view -> {
+         FioKeyManager fioKeyManager = new FioKeyManager(_mbwManager.getMasterSeedManager());
+         HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
+         //since uuid is used for account creation we can check hdKeynode uuid for account existence
+         if (_mbwManager.getWalletManager(false).getAccount(legacyFioNode.getUuid()) == null) {
+            ArrayList<HdKeyNode> nodes = new ArrayList<HdKeyNode>() {{
+               add(legacyFioNode);
+            }};
+            List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes, getString(R.string.base_label_fio_account_legacy)));
+            finishOk(account.get(0), false);
+         } else {
+            new Toaster(this).toast(R.string.fio_legacy_already_created, false);
+         }
+      });
    }
 
    @Override
