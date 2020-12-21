@@ -175,9 +175,16 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       btCreateFioLegacyAccount.setOnClickListener(view -> {
          FioKeyManager fioKeyManager = new FioKeyManager(_mbwManager.getMasterSeedManager());
          HdKeyNode legacyFioNode = fioKeyManager.getLegacyFioNode();
-         ArrayList<HdKeyNode> nodes= new ArrayList<HdKeyNode>(){{add(legacyFioNode);}};
-         List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes));
-         finishOk(account.get(0), false);
+         //since uuid is used for account creation we can check hdKeynode uuid for account existence
+         if (_mbwManager.getWalletManager(false).getAccount(legacyFioNode.getUuid()) == null) {
+            ArrayList<HdKeyNode> nodes = new ArrayList<HdKeyNode>() {{
+               add(legacyFioNode);
+            }};
+            List<UUID> account = _mbwManager.getWalletManager(false).createAccounts(new FIOUnrelatedHDConfig(nodes));
+            finishOk(account.get(0), false);
+         } else {
+            new Toaster(this).toast(R.string.fio_legacy_already_created, false);
+         }
       });
    }
 
