@@ -22,6 +22,5 @@ class RegisterFioNameViewModel : ViewModel() {
 
     companion object {
         val DEFAULT_DOMAIN1 = FIODomain("mycelium", Date(), true)
-        val DEFAULT_DOMAIN2 = FIODomain("fiotestnet", Date(), true)
     }
 }
