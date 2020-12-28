@@ -221,7 +221,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    private void returnAccount(Address address) {
       // temporary solution: unrelated Ethereum accounts will be implemented later
       if (address.getCoinType() instanceof EthCoin) {
-         new Toaster(this).toast("Exporting unrelated Ethereum accounts still to be implemented.", false);
+         new Toaster(this).toast("Importing unrelated Ethereum accounts still to be implemented.", false);
          return;
       }
       new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
