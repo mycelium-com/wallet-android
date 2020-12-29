@@ -269,6 +269,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
+    private final WapiClientElectrumX _wapiV;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -329,7 +330,8 @@ public class MbwManager {
 
         migrationProgressTracker = getMigrationProgressTracker();
 
-        _wapi = initWapi();
+        _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
+        _wapiV = initWapi(configuration.getElectrumVEndpoints(), configuration.getWapiVEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
@@ -577,11 +579,9 @@ public class MbwManager {
         return new LtApiClient(_environment.getLtEndpoints());
     }
 
-    private WapiClientElectrumX initWapi() {
+    private WapiClientElectrumX initWapi(List<TcpEndpoint> tcpEndpoints, List<HttpEndpoint> wapiEndpoints) {
         String version = "" + BuildConfig.VERSION_CODE;
 
-        List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
-        List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
         WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
                 tcpEndpoints.toArray(new TcpEndpoint[0]), version, Build.VERSION.SDK_INT);
 
@@ -870,7 +870,7 @@ public class MbwManager {
         walletManager.add(fioModule);
 
         BitcoinVaultHDAccountBacking bitcoinVaultBacking = new BitcoinVaultHDAccountBacking(db, genericBacking);
-        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore, networkParameters, _wapi, getMetadataStorage(), accountListener));
+        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore, networkParameters, _wapiV, getMetadataStorage(), accountListener));
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();
@@ -1606,6 +1606,10 @@ public class MbwManager {
 
     public WapiClientElectrumX getWapi() {
         return _wapi;
+    }
+
+    public WapiClientElectrumX getWapiV() {
+        return _wapiV;
     }
 
     public TorManager getTorManager() {

@@ -47,6 +47,8 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("ETH-mainnet") val ethMainnet: ETHNetResponse?,
                             @SerializedName("FIO-mainnet") val fioMainnet: FIONetResponse?,
                             @SerializedName("FIO-testnet") val fioTestnet: FIONetResponse?,
+                            @SerializedName("BTCV-testnet") val btcVTestnet: BTCNetResponse,
+                            @SerializedName("BTCV-mainnet") val btcVMainnet: BTCNetResponse,
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?,
                             @SerializedName("Business") val partners: Map<String, PartnersLocalized>?,
                             @SerializedName("MediaFlow") val mediaFlowSettings: Map<String, MediaFlowContent>,
@@ -116,6 +118,18 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         myceliumNodesResponse?.btcMainnet
                     }?.wapi?.primary
 
+                    val electrumXVnodes = if (network.isTestnet) {
+                        myceliumNodesResponse?.btcVTestnet
+                    } else {
+                        myceliumNodesResponse?.btcVMainnet
+                    }?.electrumx?.primary?.map { it.url }?.toSet()
+
+                    val wapiVNodes = if (network.isTestnet) {
+                        myceliumNodesResponse?.btcVTestnet
+                    } else {
+                        myceliumNodesResponse?.btcVMainnet
+                    }?.wapi?.primary
+
                     val ethServersFromResponse = if (network.isTestnet) {
                         myceliumNodesResponse?.ethTestnet
                     } else {
@@ -142,7 +156,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
+                            .putStringSet(PREFS_ELECTRUMV_SERVERS, electrumXVnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
+                            .putString(PREFS_WAPIV_SERVERS, gson.toJson(wapiVNodes))
 
                     val oldElectrum = electrumServers
                     val oldEth = ethBBServers
@@ -221,6 +237,13 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private val wapiServers: String
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
+    private val electrumVServers: Set<String>
+        get() = prefs.getStringSet(PREFS_ELECTRUMV_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
+
+    // Returns the set of Wapi for BTCVault servers
+    private val wapiVServers: String
+        get() = prefs.getString(PREFS_WAPIV_SERVERS, BuildConfig.WapiServers)!!
+
     // Returns the set of ethereum blockbook servers
     private val ethBBServers: Set<String>
         get() = prefs.getStringSet(PREFS_ETH_BB_SERVERS, mutableSetOf(*BuildConfig.EthBlockBook))!!
@@ -236,6 +259,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
+        return getElectrumEndpoints(electrumServers)
+    }
+
+    fun getElectrumVEndpoints(): List<TcpEndpoint> {
+        return getElectrumEndpoints(electrumVServers)
+    }
+
+    private fun getElectrumEndpoints(electrumServers: Set<String>): ArrayList<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
         electrumServers.forEach {
             try {
@@ -249,6 +280,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     fun getWapiEndpoints(): List<HttpEndpoint> {
+        return getEndpoints(wapiServers)
+    }
+
+    fun getWapiVEndpoints(): List<HttpEndpoint> {
+        return getEndpoints(wapiVServers)
+    }
+
+    private fun getEndpoints(wapiServers: String): List<HttpsEndpoint> {
         val resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
         return resp.map {
             if (it.url.contains(ONION_DOMAIN)) {
@@ -377,6 +416,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
+        const val PREFS_ELECTRUMV_SERVERS = "electrumv_servers"
+        const val PREFS_WAPIV_SERVERS = "wapiv_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
         const val PREFS_FIO_API_SERVERS = "fio_api_servers"
         const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
