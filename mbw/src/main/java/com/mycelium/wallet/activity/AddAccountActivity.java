@@ -74,6 +74,8 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btcvault.hd.AdditionalMasterseedAccountConfig;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
 import com.mycelium.wapi.wallet.erc20.ERC20Config;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
 import com.mycelium.wapi.wallet.eth.EthAccount;
@@ -159,6 +161,23 @@ public class AddAccountActivity extends AppCompatActivity {
     @OnClick(R.id.btInvestmentCreate)
     void onAddInvestment() {
         startActivity(new Intent(this, BequantIntroActivity.class));
+    }
+
+    @OnClick(R.id.btBTCVHDCreate)
+    void onAddBTCV() {
+        final WalletManager wallet = _mbwManager.getWalletManager(false);
+        // at this point, we have to have a master seed, since we created one on startup
+        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+
+        boolean canCreateAccount = wallet.getModuleById(BitcoinVaultHDModule.ID)
+                .canCreateAccount(new AdditionalMasterseedAccountConfig());
+        if (!canCreateAccount) {
+            // TODO replace with string res
+            _toaster.toast("You can only have one unused Bitcoin Vault Account.", false);
+            return;
+        }
+
+        new BTCVHdCreationAsyncTask().execute();
     }
 
     @OnClick(R.id.btEthCreate)
@@ -347,6 +366,27 @@ public class AddAccountActivity extends AppCompatActivity {
         @Override
         protected UUID doInBackground(Void... params) {
             return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID account) {
+            _progress.dismiss();
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+            finishOk(account);
+        }
+    }
+
+    private class BTCVHdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(R.string.btcv_account_creation_started);
+        }
+
+        @Override
+        protected UUID doInBackground(Void... params) {
+            return _mbwManager.getWalletManager(false).createAccounts(new AdditionalMasterseedAccountConfig()).get(0);
         }
 
         @Override

@@ -1,0 +1,53 @@
+import com.mycelium.wapi.wallet.coins.Value;
+import java.util.UUID;
+
+-- Creates table for transactions
+
+CREATE TABLE IF NOT EXISTS BTCVAccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT AS UUID NOT NULL,
+    sender TEXT NOT NULL,
+    receiver TEXT NOT NULL,
+    PRIMARY KEY (txid, uuid),
+    FOREIGN KEY (txid, uuid)
+            REFERENCES AccountBacking (txid, uuid)
+            ON DELETE CASCADE
+);
+
+
+selectBTCVTransactionSummaries:
+SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    fb.sender, fb.receiver
+FROM BTCVAccountBacking AS fb
+    INNER JOIN AccountBacking AS b
+    ON fb.uuid = b.uuid AND fb.txid = b.txid
+        WHERE fb.uuid = (:uuid) ORDER BY b.blockNumber DESC, b.timestamp DESC
+        LIMIT (:limit) OFFSET (:offset);
+
+
+-- Selects transactions since time in seconds
+
+selectBTCVTransactionSummariesSince:
+SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    fb.sender, fb.receiver
+FROM BTCVAccountBacking AS fb
+    INNER JOIN AccountBacking AS b
+    ON fb.uuid = b.uuid AND fb.txid = b.txid
+        WHERE fb.uuid = (:uuid) AND b.timestamp > (:timestamp)
+        ORDER BY b.blockNumber DESC, b.timestamp DESC;
+
+selectBTCVTransactionSummaryById:
+SELECT fb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+     fb.sender, fb.receiver
+FROM BTCVAccountBacking AS fb
+    INNER JOIN AccountBacking AS b
+    ON fb.uuid = b.uuid AND fb.txid = b.txid
+        WHERE fb.uuid = (?) AND fb.txid = (?);
+
+insertTransaction:
+INSERT OR REPLACE INTO BTCVAccountBacking(txid, uuid, sender, receiver)
+VALUES (?, ?, ?, ?);
+
+deleteTransaction:
+DELETE FROM BTCVAccountBacking
+WHERE uuid = (?) AND txid = (?);

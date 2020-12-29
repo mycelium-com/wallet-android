@@ -183,6 +183,9 @@ val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigInt
 
 val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
 
+val BTCVAccountBackingAdapter = BTCVAccountBacking.Adapter(Adapters.uuidAdapter)
+val BTCVContextAdapter = BTCVContext.Adapter(Adapters.uuidAdapter)
+
 val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.registeredFioNameAdapter,
         Adapters.fioDomainAdapter)
 
