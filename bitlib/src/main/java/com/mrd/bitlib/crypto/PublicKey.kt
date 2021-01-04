@@ -121,7 +121,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         }
     }
 
-    // same as verifyStandardBitcoinSignature, but dont enforce the hash-type check
+    // same as verifyStandardBitcoinSignature, but don't enforce the hash-type check
     fun verifyDerEncodedSignature(data: Sha256Hash, signature: ByteArray): Boolean {
         // Decode parameters r and s
         val reader = ByteReader(signature)

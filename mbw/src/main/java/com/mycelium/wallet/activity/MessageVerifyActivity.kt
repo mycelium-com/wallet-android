@@ -74,7 +74,8 @@ class MessageVerifyActivity : Activity() {
             val msg = matcher.group(1)
             val data = HashUtils.doubleSha256(X509Utils.formatMessageForSigning(msg))
             try {
-                val signedMessage = SignedMessage.validate(address, msg, matcher.group(7))
+                val sig = matcher.group(7)
+                val signedMessage = SignedMessage.validate(address, msg, sig)
                 checkResult = signedMessage.publicKey.verifyDerEncodedSignature(data, signedMessage.derEncodedSignature)
             } catch (e: Exception) {
                 Log.e("MessageVerifyActivity", "WrongSignatureException", e)

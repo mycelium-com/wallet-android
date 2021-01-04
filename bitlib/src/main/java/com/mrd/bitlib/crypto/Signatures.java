@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.mrd.bitlib.crypto.ec.EcTools;
@@ -178,15 +179,11 @@ public class Signatures {
       }
    }
 
-   @VisibleForTesting
-   static byte[] formatMessageForSigning(String message) {
-      byte[] messageBytes;
-      try {
-         messageBytes = message.getBytes("UTF-8");
-      } catch (UnsupportedEncodingException e) {
-         throw new RuntimeException(e);
-      }
-      ByteWriter writer = new ByteWriter(messageBytes.length + SIGNING_HEADER.length + 1);
+   public static byte[] formatMessageForSigning(String message) {
+      byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+      // + 5 because why not. This makes sure we never have to grow the byte array. It's good for
+      // 4GB messages.
+      ByteWriter writer = new ByteWriter(messageBytes.length + SIGNING_HEADER.length + 5);
       writer.putBytes(SIGNING_HEADER);
       writer.putCompactInt(message.length());
       writer.putBytes(messageBytes);
