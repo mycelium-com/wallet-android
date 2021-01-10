@@ -202,12 +202,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             INVESTMENT_TYPE -> {
                 val investHolder = holder as InvestmentViewHolder
                 val investItem = item as AccountInvestmentViewModel
-                investHolder.label.text = investItem.label
                 investHolder.balance.text = investItem.balance
                 investHolder.itemView.setOnClickListener {
-//                    walletManager.getAccount(investItem.accountId)?.run {
                     investmentAccountClickListener?.onItemClick(item.account)
-//                    }
                 }
                 if (BequantPreference.isLogged()) {
                     investHolder.balance.visibility = View.VISIBLE
