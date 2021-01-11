@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -47,8 +48,8 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("ETH-mainnet") val ethMainnet: ETHNetResponse?,
                             @SerializedName("FIO-mainnet") val fioMainnet: FIONetResponse?,
                             @SerializedName("FIO-testnet") val fioTestnet: FIONetResponse?,
-                            @SerializedName("BTCV-testnet") val btcVTestnet: BTCNetResponse,
-                            @SerializedName("BTCV-mainnet") val btcVMainnet: BTCNetResponse,
+                            @SerializedName("BTCV-testnet") val btcVTestnet: BTCNetResponse?,
+                            @SerializedName("BTCV-mainnet") val btcVMainnet: BTCNetResponse?,
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?,
                             @SerializedName("Business") val partners: Map<String, PartnersLocalized>?,
                             @SerializedName("MediaFlow") val mediaFlowSettings: Map<String, MediaFlowContent>,
@@ -57,7 +58,7 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("Buy-Sell") val buySellSettings: Map<String, BuySellContent>)
 
 data class PartnerInfo(val id: String? = null,
-                       val name: String? = null) :CommonContent()
+                       val name: String? = null) : CommonContent()
 
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
@@ -92,7 +93,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
+                val interceptor = HttpLoggingInterceptor()
+                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+                val builder = okhttp3.OkHttpClient.Builder()
+                if (BuildConfig.DEBUG) {
+                    builder.addNetworkInterceptor(interceptor)
+                }
                 val service = Retrofit.Builder()
+                        .client(builder.build())
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build()
@@ -155,10 +163,21 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }?.tpid
 
                     val prefEditor = prefs.edit()
-                            .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
-                            .putStringSet(PREFS_ELECTRUMV_SERVERS, electrumXVnodes)
-                            .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
-                            .putString(PREFS_WAPIV_SERVERS, gson.toJson(wapiVNodes))
+                    electrumXnodes?.let {
+                        prefEditor.putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
+                    }
+
+                    wapiNodes?.let {
+                        prefEditor.putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
+                    }
+
+                    electrumXVnodes?.let {
+                        prefEditor.putStringSet(PREFS_ELECTRUMV_SERVERS, electrumXVnodes)
+                    }
+
+                    wapiVNodes?.let {
+                        prefEditor.putString(PREFS_WAPIV_SERVERS, gson.toJson(wapiVNodes))
+                    }
 
                     val oldElectrum = electrumServers
                     val oldEth = ethBBServers
