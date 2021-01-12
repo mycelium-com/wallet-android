@@ -93,14 +93,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
-                val interceptor = HttpLoggingInterceptor()
-                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-                val builder = okhttp3.OkHttpClient.Builder()
-                if (BuildConfig.DEBUG) {
-                    builder.addNetworkInterceptor(interceptor)
-                }
                 val service = Retrofit.Builder()
-                        .client(builder.build())
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build()
