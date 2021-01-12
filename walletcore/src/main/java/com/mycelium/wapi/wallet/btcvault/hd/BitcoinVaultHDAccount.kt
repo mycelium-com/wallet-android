@@ -2,6 +2,8 @@ package com.mycelium.wapi.wallet.btcvault.hd
 
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.WapiException
@@ -26,6 +28,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     var accountName = ""
     protected val _logger = Logger.getLogger(javaClass.simpleName)
     protected var syncTotalRetrievedTxs = 0
+    private var receivingAddressMap: MutableMap<AddressType, BtcvAddress> = mutableMapOf()
 
     private val derivePaths = accountContext.indexesMap.keys
 
@@ -139,7 +142,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         return true
     }
 
-    override fun getBlockChainHeight(): Int = 100
+    override fun getBlockChainHeight(): Int = accountContext.blockHeight
 
     override fun canSpend(): Boolean = true
 
@@ -201,7 +204,23 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
-        return ExportableAccount.Data(null, null)
+        val privateDataMap = if (canSpend()) {
+            try {
+                keyManagerMap.keys.map { derivationType ->
+                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher, derivationType)
+                            .serialize(network, derivationType))
+                }.toMap()
+            } catch (ignore: KeyCipher.InvalidKeyCipher) {
+                null
+            }
+        } else {
+            null
+        }
+        val publicDataMap = keyManagerMap.keys.map { derivationType ->
+            derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
+                    .serialize(network, derivationType))
+        }.toMap()
+        return ExportableAccount.Data(privateDataMap, publicDataMap)
     }
 
     protected fun checkNotArchived() {
