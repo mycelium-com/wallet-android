@@ -104,7 +104,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
     /**
      * Persist this context if it is marked as dirty
      */
-    fun persistIfNecessary(backing: BitcoinVaultHDAccountBacking) {
+    fun persistIfNecessary(backing: BitcoinVaultHDBacking) {
         if (isDirty) {
             persist(backing)
         }
@@ -113,7 +113,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
     /**
      * Persist this context
      */
-    fun persist(backing: BitcoinVaultHDAccountBacking) {
+    fun persist(backing: BitcoinVaultHDBacking) {
         backing.updateAccountContext(this)
         isDirty = false
     }

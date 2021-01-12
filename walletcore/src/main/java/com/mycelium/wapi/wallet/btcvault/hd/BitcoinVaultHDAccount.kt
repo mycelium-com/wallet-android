@@ -1,19 +1,33 @@
 package com.mycelium.wapi.wallet.btcvault.hd
 
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountContext,
-                            network: NetworkParameters,
-                            private val accountListener: AccountListener?) : WalletAccount<BtcvAddress> {
+                            protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
+                            val network: NetworkParameters,
+                            val backing: BitcoinVaultHDAccountBacking,
+                            private val accountListener: AccountListener?) : WalletAccount<BtcvAddress>, ExportableAccount {
+
     var accountName = ""
+    protected val _logger = Logger.getLogger(javaClass.simpleName)
+    protected var syncTotalRetrievedTxs = 0
+
+    private val derivePaths = accountContext.indexesMap.keys
 
     @Volatile
     protected var syncing = false
@@ -54,8 +68,9 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         TODO("Not yet implemented")
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary {
-        TODO("Not yet implemented")
+    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary? {
+        checkNotArchived()
+        return backing.getTransactionSummary(HexUtils.toHex(transactionId))
     }
 
     override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<TransactionSummary> = mutableListOf()
@@ -74,10 +89,53 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         TODO("Not yet implemented")
     }
 
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override fun synchronize(proposedMode: SyncMode): Boolean {
+        var mode = proposedMode
+        checkNotArchived()
         syncing = true
+        syncTotalRetrievedTxs = 0
+        if (needsDiscovery()) {
+            mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
+        }
+        try {
+            if (mode.mode == SyncMode.Mode.FULL_SYNC) {
+                // Discover new addresses once in a while
+                if (!discovery()) {
+                    return false
+                }
+            }
+
+            // Update unspent outputs
+//            return updateUnspentOutputs(mode)
+        } finally {
+            syncTotalRetrievedTxs = 0
+        }
+
         //TODO  need implementation
         syncing = false
+        return true
+    }
+
+    private fun needsDiscovery() = !isArchived &&
+            accountContext.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
+
+
+    private fun discovery(): Boolean {
+        try {
+            // discovered as in "discovered maybe something. further exploration is needed."
+            // thus, method is done once discovered is empty.
+            var discovered = derivePaths.toSet()
+            do {
+//                discovered = doDiscovery(discovered)
+            } while (discovered.isNotEmpty())
+        } catch (e: WapiException) {
+            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+//            accountListener?.postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
+            return false
+        }
+
+        accountContext.setLastDiscovery(System.currentTimeMillis())
+//        accountContext.persistIfNecessary(backing)
         return true
     }
 
@@ -107,7 +165,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isVisible(): Boolean = true
 
-    override fun isDerivedFromInternalMasterseed(): Boolean = true
+    override fun isDerivedFromInternalMasterseed(): Boolean = accountContext.accountType == BitcoinVaultHDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
     override fun getId(): UUID = accountContext.id
 
@@ -140,5 +198,27 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun queueTransaction(transaction: Transaction) {
         TODO("Not yet implemented")
+    }
+
+    override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
+        return ExportableAccount.Data(null, null)
+    }
+
+    protected fun checkNotArchived() {
+        val usingArchivedAccount = "Using archived account"
+        if (isArchived) {
+            _logger.log(Level.SEVERE, usingArchivedAccount)
+            throw RuntimeException(usingArchivedAccount)
+        }
+    }
+
+    companion object {
+        const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
+        const val INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
+        private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4
+        private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
+        private const val INTERNAL_MINIMAL_ADDRESS_LOOK_BACK_LENGTH = 2
+        private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_BACK_LENGTH = 3
+        private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
 }
