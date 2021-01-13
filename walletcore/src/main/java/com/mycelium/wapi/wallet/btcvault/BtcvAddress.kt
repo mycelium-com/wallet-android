@@ -1,10 +1,11 @@
 package com.mycelium.wapi.wallet.btcvault
 
+import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
-class BtcvAddress(override val coinType: CryptoCurrency, val address: String) : Address {
+class BtcvAddress @JvmOverloads constructor(override val coinType: CryptoCurrency, val address: String, val type: AddressType = AddressType.P2PKH) : Address {
     override fun toString(): String {
         return address
     }

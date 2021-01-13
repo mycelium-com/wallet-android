@@ -215,7 +215,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
     }
 
-    override fun getReceiveAddress(): Address = receivingAddress
+    override fun getReceiveAddress(): FioAddress = receivingAddress
 
     override fun getCoinType(): CryptoCurrency = accountContext.currency
 

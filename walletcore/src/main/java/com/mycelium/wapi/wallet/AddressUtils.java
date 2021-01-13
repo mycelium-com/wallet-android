@@ -34,7 +34,7 @@ public class AddressUtils {
     }
 
     //Use only for bitcoin address
-    public static Address fromAddress(BitcoinAddress address) {
+    public static BtcAddress fromAddress(BitcoinAddress address) {
         CryptoCurrency currency = address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
         return new BtcAddress(currency, address);
     }

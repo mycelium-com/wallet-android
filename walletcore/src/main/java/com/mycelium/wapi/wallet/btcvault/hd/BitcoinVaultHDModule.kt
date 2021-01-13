@@ -3,8 +3,6 @@ package com.mycelium.wapi.wallet.btcvault.hd
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.ByteWriter
-import com.mrd.bitlib.util.HashUtils
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
@@ -12,7 +10,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.Balance
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.Backing
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -38,7 +35,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
             backing.loadAccountContexts().associateBy({ it.uuid }, {
                 val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-                BitcoinVaultHDAccount(it, keyManagerMap, networkParameters,
+                BitcoinVaultHDAccount(it, keyManagerMap, networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, it.uuid, coinType), accountListener)
                         .apply { accounts[this.id] = this }
             })
@@ -52,22 +49,25 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
 
                 // Create the base keys for the account
-                val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+                val keyManagerMap = hashMapOf<BipDerivationType, HDAccountKeyManager>()
                 for (derivationType in BipDerivationType.values()) {
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
-                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
-                            secureStore, AesKeyCipher.defaultKeyCipher(), derivationType)
+
+                    keyManagerMap[derivationType] = root.createHDAccountKeyManager(
+                            networkParameters, accountIndex,
+                            secureStore, AesKeyCipher.defaultKeyCipher(), derivationType,
+                            PRODNET_COIN_TYPE //TODO add depends cointype from network
+                    )
                 }
 
                 // Generate the context for the account
-                val btcAccountId = keyManagerMap[BipDerivationType.BIP44]!!.accountId
-                val accountContext = BitcoinVaultHDAccountContext(btcAccountId.generateChild(coinType),
+                val accountContext = BitcoinVaultHDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId,
                         coinType, accountIndex, false, "Bitcoin Vault ${getCurrentBip44Index()}",
                         Balance.getZeroBalance(coinType), backing::updateAccountContext)
 
                 backing.createAccountContext(accountContext)
-                result = BitcoinVaultHDAccount(accountContext, keyManagerMap, networkParameters,
+                result = BitcoinVaultHDAccount(accountContext, keyManagerMap, networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, accountContext.uuid, coinType),
                         accountListener)
             }
@@ -96,16 +96,21 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     override fun getAccountById(id: UUID): WalletAccount<*>? = accounts[id]
 
     companion object {
-        const val ID: String = "BitcoinVaultHD"
-
-        fun UUID.generateChild(type: CryptoCurrency): UUID {
-            val byteWriter = ByteWriter(36)
-            byteWriter.putLongBE(mostSignificantBits)
-            byteWriter.putLongBE(leastSignificantBits)
-            byteWriter.putRawStringUtf8(type.id)
-            return UUID.nameUUIDFromBytes(HashUtils.sha256(byteWriter.toBytes()).bytes)
-        }
+        const val ID = "BitcoinVaultHD"
+        const val PRODNET_COIN_TYPE = 440
     }
+}
+
+@Throws(KeyCipher.InvalidKeyCipher::class)
+fun HdKeyNode.createHDAccountKeyManager(network: NetworkParameters, accountIndex: Int,
+                                        secureKeyValueStore: SecureKeyValueStore, cipher: KeyCipher,
+                                        derivationType: BipDerivationType, coinType: Int): HDAccountKeyManager {
+    val bip44Root = createChildNode(derivationType.getHardenedPurpose())
+    val coinTypeRoot = bip44Root.createChildNode(coinType or (0x80000000).toInt())
+
+    // Create the account root.
+    val accountRoot = coinTypeRoot.createChildNode(accountIndex or (0x80000000).toInt())
+    return HDAccountKeyManager.createFromAccountRoot(accountRoot, network, accountIndex, secureKeyValueStore, cipher, derivationType)
 }
 
 fun WalletManager.getBTCVHDAccounts() = getAccounts().filter { it is BitcoinVaultHDAccount && it.isVisible }

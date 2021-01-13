@@ -1825,7 +1825,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public Address getReceiveAddress(){
+   public BtcAddress getReceiveAddress(){
       if(getReceivingAddress().isPresent()) {
          return AddressUtils.fromAddress(getReceivingAddress().get());
       } else {
