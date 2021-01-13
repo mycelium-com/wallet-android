@@ -111,7 +111,7 @@ public class ChangellyActivity extends AppCompatActivity {
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
-            new Toaster(ChangellyActivity.this).toast("Error parsing double values", true);
+            toast("Error parsing double values");
             return;
         }
         changellyAPIService.getExchangeAmount(fromCurrency, toCurrency, dblAmount).enqueue(new GetOfferCallback(fromCurrency, toCurrency, dblAmount));
