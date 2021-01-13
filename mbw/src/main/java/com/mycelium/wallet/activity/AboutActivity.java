@@ -41,22 +41,35 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.RawRes;
+
 import com.google.common.base.Joiner;
 import com.google.common.io.ByteSource;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BuildConfig;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.VersionManager;
 import com.mycelium.wallet.activity.modern.DarkThemeChangeLog;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
-import de.cketti.library.changelog.ChangeLog;
+import com.mycelium.wapi.wallet.fio.FioModule;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import de.cketti.library.changelog.ChangeLog;
 
 import static java.util.Locale.US;
 
@@ -69,7 +82,7 @@ public class AboutActivity extends Activity {
 
         final MbwManager mbwManager = MbwManager.getInstance(this);
         final VersionManager versionManager = mbwManager.getVersionManager();
-        ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME);
+        ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME + (BuildConfig.DEBUG ? "\nDebug Build" : ""));
         ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format(US, "(%d)", BuildConfig.VERSION_CODE));
         setLicenseForButton(R.id.bt_tou_mycelium, R.raw.tou_mycelium);
         setLicenseForButton(R.id.bt_license_mycelium, R.raw.license_mycelium);
@@ -97,6 +110,21 @@ public class AboutActivity extends Activity {
         });
 
         findViewById(R.id.bt_show_server_info).setOnClickListener(view -> ConnectionLogsActivity.callMe(this));
+
+        if (BuildConfig.BUILD_TYPE == "debug") {
+            findViewById(R.id.bt_fio_server_error_logs).setVisibility(View.VISIBLE);
+            findViewById(R.id.bt_fio_server_error_logs).setOnClickListener(view -> {
+                FioModule fioModule = (FioModule) mbwManager.getWalletManager(false).getModuleById(FioModule.ID);
+                List<String> logs = fioModule.getFioServerLogsListAndClear();
+                if (logs.isEmpty()) {
+                    Toast.makeText(this, getString(R.string.no_logs), Toast.LENGTH_SHORT).show();
+                } else {
+                    String joined = TextUtils.join("\n", logs);
+                    Utils.setClipboardString(joined, this);
+                    Toast.makeText(this, getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
         setLinkTo(findViewById(R.id.tvSourceUrl), R.string.source_url);
         setLinkTo(findViewById(R.id.tvHomepageUrl), R.string.homepage_url);

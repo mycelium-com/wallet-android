@@ -55,8 +55,8 @@ public class ScriptOutputPubkey extends ScriptOutput implements Serializable {
    }
 
    @Override
-   public Address getAddress(NetworkParameters network) {
+   public BitcoinAddress getAddress(NetworkParameters network) {
       final byte[] addressBytes = getAddressBytes();
-      return Address.fromStandardBytes(addressBytes, network);
+      return BitcoinAddress.fromStandardBytes(addressBytes, network);
    }
 }

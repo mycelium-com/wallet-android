@@ -4,7 +4,7 @@ import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.crypto.RandomSource
-import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
@@ -20,7 +20,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYP
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
@@ -37,7 +36,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                       internal val signatureProviders: ExternalSignatureProviderProxy?,
                       internal val loadingProgressUpdater: LoadingProgressUpdater?,
                       internal val eventHandler: AbstractBtcAccount.EventHandler?) :
-        GenericModule(metadataStorage), WalletModule {
+        WalletModule(metadataStorage) {
 
     override fun getAccountById(id: UUID): WalletAccount<*>? {
         return accounts[id]
@@ -110,18 +109,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                     val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
                     keyManagerMap[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
                 }
-                ACCOUNT_TYPE_UNRELATED_X_PUB -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
+                ACCOUNT_TYPE_UNRELATED_X_PUB,
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR,
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER,
                 ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY -> {
                     val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
                     keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
@@ -344,7 +334,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         return allIndices.subtract(accountIndices)
     }
 
-    fun getGapAddresses(cipher: KeyCipher): List<Address> {
+    fun getGapAddresses(cipher: KeyCipher): List<BitcoinAddress> {
         val gaps: Set<Int> = getGapsBug()
         // Get the master seed
         val masterSeed: Bip39.MasterSeed = MasterSeedManager.getMasterSeed(secureStore, cipher)
@@ -354,7 +344,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             // randomness not needed for the temporary keystore
         })
 
-        val addresses: MutableList<Address> = mutableListOf()
+        val addresses: MutableList<BitcoinAddress> = mutableListOf()
         for (gapIndex in gaps.indices) {
             for (derivationType: BipDerivationType in BipDerivationType.values()) {
                 // Generate the root private key

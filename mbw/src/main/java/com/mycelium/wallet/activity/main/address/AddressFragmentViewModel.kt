@@ -28,6 +28,8 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun isCompressedKey() = model.isCompressedKey
     fun getType() = model.type
     fun getAccountAddressType() = model.accountAddressType
+    fun getAccount() = model.account
+    fun getRegisteredFIONames() = model.registeredFIONames
 
     fun getDrawableForAccount(resources: Resources): Drawable? =
             Utils.getDrawableForAccount(model.account, true, resources)
@@ -43,7 +45,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     fun getAddressString(): String = getAccountAddress().value!!.toString()
 
-    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString().equals(""))
+    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString() == "")
 
     abstract fun qrClickReaction(activity: FragmentActivity)
 

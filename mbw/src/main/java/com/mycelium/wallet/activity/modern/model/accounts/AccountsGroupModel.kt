@@ -9,10 +9,11 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
  */
 class AccountsGroupModel(val titleId: Int, private val groupType: AccountListItem.Type,
                          val sum: ValueSum? = null,
-                         val accountsList: List<AccountViewModel>, val coinType: CryptoCurrency) : AccountListItem {
+                         val accountsList: List<AccountListItem>, val coinType: CryptoCurrency,
+                         val isInvestmentAccount: Boolean) : AccountListItem {
 
     constructor(model: AccountsGroupModel) : this(model.titleId, model.groupType, model.sum,
-            model.accountsList, model.coinType)
+            model.accountsList, model.coinType, model.isInvestmentAccount)
 
     var isCollapsed = false // Is only used to handle state between updates.
 

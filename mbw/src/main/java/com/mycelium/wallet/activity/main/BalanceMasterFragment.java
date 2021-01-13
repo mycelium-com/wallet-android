@@ -69,6 +69,7 @@ public class BalanceMasterFragment extends Fragment {
         defineAddressAccountView(fragmentTransaction, account);
         fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
         fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
+        fragmentTransaction.replace(R.id.phFragmentFioBanner, FioProtocolBannerFragment.newInstance(false));
         fragmentTransaction.replace(R.id.phFragmentBuySell, new BuySellFragment());
         fragmentTransaction.commitAllowingStateLoss();
         return view;

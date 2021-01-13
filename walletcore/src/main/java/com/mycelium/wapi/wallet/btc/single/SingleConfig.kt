@@ -2,9 +2,7 @@ package com.mycelium.wapi.wallet.btc.single
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
-import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.manager.Config

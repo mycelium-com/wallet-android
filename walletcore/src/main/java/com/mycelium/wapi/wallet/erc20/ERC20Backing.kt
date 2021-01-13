@@ -4,12 +4,12 @@ import com.mycelium.generated.wallet.database.AccountContext
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.genericdb.GenericBacking
+import com.mycelium.wapi.wallet.genericdb.Backing
 import java.math.BigInteger
 import java.util.*
 
-open class ERC20Backing(walletDB: WalletDB, private val generalBacking: GenericBacking<AccountContext>)
-    : GenericBacking<ERC20AccountContext> {
+open class ERC20Backing(walletDB: WalletDB, private val generalBacking: Backing<AccountContext>)
+    : Backing<ERC20AccountContext> {
     private val erc20Queries = walletDB.eRC20ContextQueries
 
     override fun loadAccountContexts() = erc20Queries.selectAllERC20Contexts(

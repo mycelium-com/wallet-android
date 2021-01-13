@@ -6,7 +6,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
-class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewModel(application) {
+open class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     private lateinit var accountLabel: String
 
     override fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {

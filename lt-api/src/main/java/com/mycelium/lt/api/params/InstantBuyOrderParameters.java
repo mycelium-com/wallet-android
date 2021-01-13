@@ -19,7 +19,7 @@ package com.mycelium.lt.api.params;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 @Deprecated
 public class InstantBuyOrderParameters {
@@ -28,10 +28,10 @@ public class InstantBuyOrderParameters {
    @JsonProperty
    public int fiatOffered;
    @JsonProperty
-   public Address address;
+   public BitcoinAddress address;
 
    public InstantBuyOrderParameters(@JsonProperty("sellOrderId") UUID sellOrderId,
-         @JsonProperty("fiatOffered") int fiatOffered, @JsonProperty("address") Address address) {
+         @JsonProperty("fiatOffered") int fiatOffered, @JsonProperty("address") BitcoinAddress address) {
       this.sellOrderId = sellOrderId;
       this.address = address;
       this.fiatOffered = fiatOffered;

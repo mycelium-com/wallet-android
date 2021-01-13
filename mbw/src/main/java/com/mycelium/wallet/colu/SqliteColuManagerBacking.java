@@ -51,7 +51,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -148,7 +148,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
             if (addressStringsList != null) {
                for (String addressString : addressStringsList) {
-                  Address address = Address.fromString(addressString);
+                  BitcoinAddress address = BitcoinAddress.fromString(addressString);
                   addresses.put(address.getType(), new BtcAddress(coinType, address));
                }
             }
@@ -621,7 +621,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);
                   String addressString = cursor.getString(2);
-                  Address address = new Address(addressBytes, addressString);
+                  BitcoinAddress address = new BitcoinAddress(addressBytes, addressString);
                   UUID newId = ColuUtils.getGuidForAsset(coluUUIDs.get(id), address.getAllAddressBytes());
 
                   metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
@@ -653,7 +653,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             for (SingleAddressAccountContext saaContext : list) {
                statement.bindBlob(1, uuidToBytes(saaContext.getId()));
                List<String> addresses = new ArrayList<>();
-               for (Address address: saaContext.getAddresses().values()){
+               for (BitcoinAddress address: saaContext.getAddresses().values()){
                   addresses.add(address.toString());
                }
                statement.bindString(2, gson.toJson(addresses));
@@ -680,7 +680,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   }.getType();
                   Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
                   for (String addressString : addressStringsList) {
-                     Address address = Address.fromString(addressString);
+                     BitcoinAddress address = BitcoinAddress.fromString(addressString);
                      if (address.getType() == AddressType.P2PKH) {
                         listForRemove.remove(id);
                         break;
@@ -833,7 +833,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                                                        NetworkParameters networkParameters) {
          PublicKey key = new PublicKey(publicKeyBytes);
          List<String> addresses = new ArrayList<>();
-         for (Address address : key.getAllSupportedAddresses(networkParameters).values()) {
+         for (BitcoinAddress address : key.getAllSupportedAddresses(networkParameters).values()) {
             addresses.add(address.toString());
          }
          return gson.toJson(addresses);

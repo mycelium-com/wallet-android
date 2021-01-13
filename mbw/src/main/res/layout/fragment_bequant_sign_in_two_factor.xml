@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@null"
+        app:srcCompat="@drawable/ic_two_factor" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/exo2medium"
+        android:gravity="center"
+        android:text="@string/get_a_verification_code"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/exo2medium"
+        android:text="@string/google_authenticator_code" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:errorTextColor="@color/bequant_red"
+        app:hintEnabled="false">
+
+        <com.poovam.pinedittextfield.SquarePinField
+            android:id="@+id/pinCode"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:fontFamily="@font/exo2medium"
+            android:inputType="number"
+            android:textSelectHandle="@drawable/text_handle"
+            android:textSize="24sp"
+            app:cornerRadius="4dp"
+            app:noOfFields="6"
+            tools:text="2312" />
+        <!--        app:fieldBgColor="#23262A"-->
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/pasteFromClipboard"
+        style="@style/Bequant.Button.Gray"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="@string/paste_from_clipboard" />
+</LinearLayout>

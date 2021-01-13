@@ -4,10 +4,10 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,20 +16,20 @@ import java.util.List;
 import java.util.UUID;
 
 
-public interface WalletAccount<A extends GenericAddress> {
+public interface WalletAccount<A extends Address> {
     void setAllowZeroConfSpending(boolean b);
 
-    GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee, @Nullable GenericTransactionData data)
-            throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
+    Transaction createTx(Address address, Value amount, Fee fee, @Nullable TransactionData data)
+            throws BuildTransactionException, InsufficientFundsException, OutputTooSmallException;
 
-    void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
+    void signTx(Transaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
 
-    BroadcastResult broadcastTx(GenericTransaction tx) throws GenericTransactionBroadcastException;
+    BroadcastResult broadcastTx(Transaction tx) throws TransactionBroadcastException;
 
     /**
      * Get current receive address
      */
-    GenericAddress getReceiveAddress();
+    Address getReceiveAddress();
 
     CryptoCurrency getCoinType();
 
@@ -49,32 +49,32 @@ public interface WalletAccount<A extends GenericAddress> {
      * @param address the address to check
      * @return true iff this address is one of our own
      */
-    boolean isMineAddress(GenericAddress address);
+    boolean isMineAddress(Address address);
 
     boolean isExchangeable();
 
-    GenericTransaction getTx(byte[] transactionId);
+    Transaction getTx(byte[] transactionId);
 
-    GenericTransactionSummary getTxSummary(byte[] transactionId);
+    TransactionSummary getTxSummary(byte[] transactionId);
 
     /**
      * @return transactions in reversed order (last added goes first)
      */
-    List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit);
+    List<TransactionSummary> getTransactionSummaries(int offset, int limit);
 
     /**
      * Get the transaction history of this account since the stated timestamp in milliseconds
      * @param receivingSince only include tx younger than this
      */
-    List<GenericTransactionSummary> getTransactionsSince(long receivingSince);
+    List<TransactionSummary> getTransactionsSince(long receivingSince);
 
-    List<GenericOutputViewModel> getUnspentOutputViewModels();
+    List<OutputViewModel> getUnspentOutputViewModels();
 
     String getLabel();
 
     void setLabel(String label);
 
-    boolean isSpendingUnconfirmed(GenericTransaction tx);
+    boolean isSpendingUnconfirmed(Transaction tx);
 
     /**
      * Synchronize this account
@@ -213,5 +213,5 @@ public interface WalletAccount<A extends GenericAddress> {
      *
      * @param transaction     an transaction
      */
-    void queueTransaction(@NotNull GenericTransaction transaction);
+    void queueTransaction(@NotNull Transaction transaction);
 }

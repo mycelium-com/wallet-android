@@ -45,17 +45,17 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 
 import java.util.UUID;
 
@@ -109,25 +109,25 @@ public class ColdStorageSummaryActivity extends Activity {
 
       if (!(_account instanceof AbstractBtcAccount)) {
          // Address
-         GenericAddress receivingAddress = _account.getReceiveAddress();
+         Address receivingAddress = _account.getReceiveAddress();
          ((TextView) findViewById(R.id.tvAddress)).setText(AddressUtils.toMultiLineString(receivingAddress.toString()));
       } else {
          findViewById(R.id.tvAddress).setVisibility(View.GONE);
 
          AbstractBtcAccount account = (AbstractBtcAccount) _account;
-         Address p2pkhAddress = account.getReceivingAddress(AddressType.P2PKH);
+         BitcoinAddress p2pkhAddress = account.getReceivingAddress(AddressType.P2PKH);
          if (p2pkhAddress != null) {
             final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
             P2PKH.setVisibility(View.VISIBLE);
             P2PKH.setText(p2pkhAddress.toMultiLineString());
          }
-         Address p2shAddress = account.getReceivingAddress(AddressType.P2SH_P2WPKH);
+         BitcoinAddress p2shAddress = account.getReceivingAddress(AddressType.P2SH_P2WPKH);
          if (p2shAddress != null) {
             final TextView P2SH = findViewById(R.id.tvAddressP2SH);
             P2SH.setVisibility(View.VISIBLE);
             P2SH.setText(p2shAddress.toMultiLineString());
          }
-         Address p2wpkhAddress = account.getReceivingAddress(AddressType.P2WPKH);
+         BitcoinAddress p2wpkhAddress = account.getReceivingAddress(AddressType.P2WPKH);
          if (p2wpkhAddress != null) {
             final TextView P2WPKH = findViewById(R.id.tvAddressP2WPKH);
             P2WPKH.setVisibility(View.VISIBLE);
@@ -146,7 +146,7 @@ public class ColdStorageSummaryActivity extends Activity {
       if (!_mbwManager.hasFiatCurrency() || price == null) {
          tvFiat.setVisibility(View.INVISIBLE);
       } else {
-         GenericAssetInfo currency = _mbwManager.getFiatCurrency(_account.getCoinType());
+         AssetInfo currency = _mbwManager.getFiatCurrency(_account.getCoinType());
          String converted = _mbwManager.getExchangeRateManager().get(balance.getSpendable()
                  , currency).toFriendlyString();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency.getSymbol()

@@ -36,7 +36,7 @@ package com.mycelium.wallet.event;
 
 import android.os.Handler;
 import com.mycelium.wallet.ExchangeRateManager;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
@@ -82,7 +82,7 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             postEvent(new SyncFailed(accountId));
             break;
          case BROADCASTED_TRANSACTION_ACCEPTED:
-            postEvent(new TransactionBroadcasted());
+            postEvent(new TransactionBroadcasted(null));
             break;
          case BROADCASTED_TRANSACTION_DENIED:
             //One of the transactions was rejected by the network
@@ -94,7 +94,7 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             //Transaction history changed
             break;
          case RECEIVING_ADDRESS_CHANGED:
-            GenericAddress receivingAddress = wallet.getAccount(accountId).getReceiveAddress();
+            Address receivingAddress = wallet.getAccount(accountId).getReceiveAddress();
             postEvent(new ReceivingAddressChanged(receivingAddress));
             break;
          case SYNC_PROGRESS_UPDATED:

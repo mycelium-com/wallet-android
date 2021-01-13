@@ -9,7 +9,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 
@@ -20,7 +20,7 @@ public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
    }
 
    @Override
-   public void launchService(Activity activity, MbwManager mbwManager, GenericAddress activeReceivingAddress) {
+   public void launchService(Activity activity, MbwManager mbwManager, Address activeReceivingAddress) {
       if (!mbwManager.getSelectedAccount().canSpend()) {
          new Toaster(activity).toast(R.string.lt_warning_watch_only_account, false);
          return;

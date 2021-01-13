@@ -74,7 +74,7 @@ import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
@@ -96,7 +96,7 @@ public class AddressBookFragment extends Fragment {
     public static final String SELECT_ONLY = "selectOnly";
     public static final String ADDRESS_RESULT_LABEL = "address_result_label";
 
-    private GenericAddress mSelectedAddress;
+    private Address mSelectedAddress;
     private MbwManager mbwManager;
     private Dialog addDialog;
     private ActionMode currentActionMode;
@@ -189,9 +189,9 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void updateUiForeign() {
-        Map<GenericAddress, String> rawEntries = mbwManager.getMetadataStorage().getAllAddressLabels();
+        Map<Address, String> rawEntries = mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
-        for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
+        for (Map.Entry<Address, String> e : rawEntries.entrySet()) {
             entries.add(new Entry(e.getKey(), e.getValue()));
         }
         entries = Utils.sortAddressbookEntries(entries);
@@ -207,10 +207,10 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void updateUiSending() {
-        Map<GenericAddress, String> rawEntries = mbwManager.getMetadataStorage().getAllAddressLabels();
+        Map<Address, String> rawEntries = mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = mbwManager.getSelectedAccount();
-        for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
+        for (Map.Entry<Address, String> e : rawEntries.entrySet()) {
             if (e.getKey().getCoinType().equals(account.getBasedOnCoinType())) {
                 entries.add(new Entry(e.getKey(), e.getValue()));
             }
@@ -244,7 +244,7 @@ public class AddressBookFragment extends Fragment {
     private OnItemClickListener itemListClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-            mSelectedAddress = (GenericAddress) view.getTag();
+            mSelectedAddress = (Address) view.getTag();
             AppCompatActivity parent = (AppCompatActivity) requireActivity();
             currentActionMode = parent.startSupportActionMode(new ActionMode.Callback() {
                 @Override
@@ -330,7 +330,7 @@ public class AddressBookFragment extends Fragment {
                 AddDialog.this.dismiss();
             });
 
-            final List<GenericAddress> addresses = mbwManager.getWalletManager(false).parseAddress(Utils.getClipboardString(activity));
+            final List<Address> addresses = mbwManager.getWalletManager(false).parseAddress(Utils.getClipboardString(activity));
             findViewById(R.id.btClipboard).setEnabled(addresses.size() != 0);
             findViewById(R.id.btClipboard).setOnClickListener(v -> {
                 if (!addresses.isEmpty()) {
@@ -386,7 +386,7 @@ public class AddressBookFragment extends Fragment {
         }
     }
 
-    private void addFromAddress(GenericAddress address) {
+    private void addFromAddress(Address address) {
         EnterAddressLabelUtil.enterAddressLabel(requireContext(), mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
     }
 
@@ -411,7 +411,7 @@ public class AddressBookFragment extends Fragment {
     private class SelectItemListener implements OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            GenericAddress address = (GenericAddress) view.getTag();
+            Address address = (Address) view.getTag();
             Intent result = new Intent();
             result.putExtra(ADDRESS_RESULT_NAME, address);
 

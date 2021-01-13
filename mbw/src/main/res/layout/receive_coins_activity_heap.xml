@@ -12,43 +12,30 @@
     </data>
 
     <merge>
-
         <TextView
-            android:id="@+id/tvTitle"
-            android:layout_marginTop="10dp"
-            android:layout_width="wrap_content"
-            android:text="@{Value.isNullOrZero(viewModel.requestedAmount) ? @string/address_title(viewModel.currencyName) : @string/payment_request}"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textSize="30sp" />
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="10dp" />
-
-        <TextView
-            android:id="@+id/tvReceived"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/green"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:text="@{@string/incoming_payment(viewModel.currentlyReceivingFormatted)}"
-            android:textSize="20sp"
-            android:visibility="@{Value.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
-            tools:visibility="visible" />
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="10dp" />
+                android:id="@+id/tvReceived"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/fio_green"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                tools:text="@string/incoming_payment"
+                android:text="@{@string/incoming_payment(viewModel.currentlyReceivingFormatted)}"
+                android:textSize="18sp"
+                android:visibility="@{Value.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
+                tools:visibility="visible" />
 
         <TextView
             android:id="@+id/tvReceivedWarningAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_marginTop="2dp"
             android:text="@string/warning_amount_does_not_match"
-            android:textColor="@color/yellow"
+            android:textColor="@color/fio_red"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:textSize="14sp"
             android:visibility="@{viewModel.isReceivingAmountWrong() ? View.VISIBLE : View.GONE}"
             tools:visibility="visible" />
     </merge>

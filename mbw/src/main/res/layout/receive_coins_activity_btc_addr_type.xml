@@ -1,88 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:showIn="@layout/receive_coins_activity_btc" >
 
     <data>
-
         <import type="android.view.View" />
-
         <import type="com.mrd.bitlib.model.AddressType" />
-
         <variable
             name="activity"
             type="androidx.appcompat.app.AppCompatActivity" />
-
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.receive.ReceiveBtcViewModel" />
     </data>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:visibility="@{viewModel.availableAddressTypesCount > 1 ? View.VISIBLE : View.GONE}"
-        android:orientation="vertical">
-
-        <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
-            android:gravity="center">
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:visibility="@{viewModel.availableAddressTypesCount > 1 ? View.VISIBLE : View.GONE}">
 
-            <TextView
+        <ImageView
+                android:id="@+id/ic_info_address_type"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:onClick="@{() -> viewModel.showAddressTypesInfo(activity)}"
+                app:layout_constraintBottom_toBottomOf="@id/textView3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_info_icon"
+                app:tint="@color/dark_sky_blue" />
+
+        <TextView
+                android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="18sp"
-                android:text="@string/address_type" />
+                android:layout_marginEnd="8dp"
+                android:text="@string/address_type"
+                android:textColor="#BBB"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/ic_info_address_type"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/ic_info_address_type"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="8dp"
-                android:tint="@color/dark_sky_blue"
-                android:onClick="@{() -> viewModel.showAddressTypesInfo(activity)}"
-                app:srcCompat="@drawable/ic_info" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/addressDropdownLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="@dimen/margin_medium"
-            android:gravity="center">
-
-            <TextView
+        <TextView
                 android:id="@+id/selectedAddressText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:textColor="@color/lightgrey"
-                android:textSize="16sp" />
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/address_dropdown_image_view"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView3"
+                tools:text="SegWit compatible(P2SH)" />
 
-            <ImageView
+        <ImageView
                 android:id="@+id/address_dropdown_image_view"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                app:srcCompat="@drawable/ic_arrow_drop_down"
-                android:contentDescription="Arrow" />
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:contentDescription="Arrow"
+                app:layout_constraintBottom_toBottomOf="@id/selectedAddressText"
+                app:layout_constraintStart_toEndOf="@+id/selectedAddressText"
+                app:layout_constraintTop_toTopOf="@id/selectedAddressText"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
 
-        </LinearLayout>
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:visibility="@{viewModel.addressType != viewModel.getAccountDefaultAddressType() &amp;&amp; viewModel.addressType != AddressType.P2PKH ? View.VISIBLE : View.GONE}"
-            android:onClick="@{_ -> viewModel.setCurrentAddressTypeAsDefault()}"
-            android:text="@string/set_default" />
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:onClick="@{_ -> viewModel.setCurrentAddressTypeAsDefault()}"
+                android:text="@string/set_default"
+                android:visibility="@{viewModel.addressType != viewModel.getAccountDefaultAddressType() &amp;&amp; viewModel.addressType != AddressType.P2PKH ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/selectedAddressText" />
 
-    </LinearLayout>
+        <androidx.constraintlayout.widget.Group
+                android:id="@+id/addressDropdownLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="selectedAddressText,address_dropdown_image_view"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

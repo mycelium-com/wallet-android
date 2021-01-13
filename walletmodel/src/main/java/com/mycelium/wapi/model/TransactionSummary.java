@@ -17,7 +17,7 @@
 package com.mycelium.wapi.model;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -34,12 +34,12 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
    public final int confirmations;
    public final boolean isQueuedOutgoing;
    public final Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
-   public final Optional<Address> destinationAddress;
-   public final List<Address> toAddresses;
+   public final Optional<BitcoinAddress> destinationAddress;
+   public final List<BitcoinAddress> toAddresses;
 
    public TransactionSummary(Sha256Hash txid, CurrencyValue value, boolean isIncoming, long time, int height,
                              int confirmations, boolean isQueuedOutgoing, ConfirmationRiskProfileLocal confirmationRiskProfile,
-                             Optional<Address> destinationAddress, List<Address> toAddresses) {
+                             Optional<BitcoinAddress> destinationAddress, List<BitcoinAddress> toAddresses) {
       this.txid = txid;
       this.value = value;
       this.isIncoming = isIncoming;

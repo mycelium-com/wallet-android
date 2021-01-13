@@ -16,7 +16,7 @@
 
 package com.mycelium.wapi.model;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.Sha256Hash;
 
@@ -27,11 +27,11 @@ public class TransactionDetails implements Comparable<TransactionDetails>, Seria
 
    public static class Item implements Serializable {
       private static final long serialVersionUID = 1L;
-      public final Address address;
+      public final BitcoinAddress address;
       public final long value;
       public final boolean isCoinbase;
 
-      public Item(Address address, long value, boolean isCoinbase) {
+      public Item(BitcoinAddress address, long value, boolean isCoinbase) {
          this.address = address;
          this.value = value;
          this.isCoinbase = isCoinbase;

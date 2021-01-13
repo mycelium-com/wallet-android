@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="headerViewModel"
+            type="com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.kyc.steps.viewmodel.DocumentViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/stepHeader"
+            layout="@layout/part_bequant_step_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/bequant_gray_2"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/identity_document"
+                    android:textSize="20sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.5"
+                    android:text="Accepted document:\nTravelling Passport, National Identity Card, Driving Licence "
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/identityList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/uploadIdentity"
+                    style="@style/Bequant.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/upload_document"
+                    android:textColor="@color/bequant_yellow"
+                    android:visibility="@{viewModel.identityCount > 0 ? View.GONE : View.VISIBLE}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addIdentity"
+                    style="@style/Bequant.Button.Gray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/add_document"
+                    android:visibility="@{viewModel.identityCount > 0 ? View.VISIBLE : View.GONE}" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/bequant_gray_4" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/proof_of_address"
+                    android:textSize="20sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.5"
+                    android:text="Please upload one of the documents listed below:\n\n - Utility bill (we do not accept invoices for mobile phones) issued within the last 90 days.\n\n - Account statement or reference letter by a recognised credit/financial institution issued within the last 90 days."
+                    android:textColor="@color/white" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/proofAddressList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:textSize="14sp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/uploadProofAddress"
+                    style="@style/Bequant.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/upload_document"
+                    android:textColor="@color/bequant_yellow"
+                    android:visibility="@{viewModel.poaCount > 0 ? View.GONE : View.VISIBLE}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addProofAddress"
+                    style="@style/Bequant.Button.Gray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/add_document"
+                    android:visibility="@{viewModel.poaCount > 0 ? View.VISIBLE : View.GONE}" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/bequant_gray_4" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/selfie"
+                    android:textSize="20sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.5"
+                    android:text='Please submit a selfie in which you are holding your government-issued ID and a paper note. The ID should be the same you attached to this application. On the note you should handwrite your email address, the current date, and the words "for Bequant".'
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/selfieList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/uploadSelfie"
+                    style="@style/Bequant.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/upload_selfie"
+                    android:textColor="@color/bequant_yellow"
+                    android:visibility="@{viewModel.selfieCount > 0 ? View.GONE : View.VISIBLE}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addSelfie"
+                    style="@style/Bequant.Button.Gray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/add_selfie"
+                    android:visibility="@{viewModel.selfieCount > 0 ? View.VISIBLE : View.GONE}" />
+
+                <Button
+                    android:id="@+id/btFinish"
+                    style="@style/Bequant.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:enabled="@{viewModel.nextButton}"
+                    android:text="@string/finish" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </ScrollView>
+
+        <include
+            layout="@layout/part_bequant_stepper_body"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:headerViewModel="@{headerViewModel}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader"
+            tools:visibility="gone" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

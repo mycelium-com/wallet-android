@@ -58,6 +58,7 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.HandleUrlActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -83,9 +84,9 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -93,7 +94,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
@@ -325,7 +326,7 @@ public class BalanceFragment extends Fragment {
         }
     }
 
-    private void updateUiKnownBalance(Balance balance, GenericAssetInfo coinType) {
+    private void updateUiKnownBalance(Balance balance, AssetInfo coinType) {
         CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
         ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
@@ -395,19 +396,37 @@ public class BalanceFragment extends Fragment {
                 switch (type) {
                     case PRIVATE_KEY:
                         InMemoryPrivateKey key = getPrivateKey(data);
-                        UUID account = _mbwManager.createOnTheFlyAccount(key);
-                        //we dont know yet where at what to send
-                        SendInitializationActivity.callMeWithResult(getActivity(), account, true,
-                                StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                        // ask user what WIF privkey he/she scanned as there are options
+                        final int[] selectedItem = new int[1];
+                        CharSequence[] choices = new CharSequence[2];
+                        choices[0] = "BTC";
+                        choices[1] = "FIO";
+                        new AlertDialog.Builder(requireActivity())
+                                .setTitle("Choose blockchain")
+                                .setSingleChoiceItems(choices, 0, (dialogInterface, i) -> selectedItem[0] = i)
+                                .setPositiveButton(requireActivity().getString(R.string.ok), (dialogInterface, i) -> {
+                                    UUID account;
+                                    if (selectedItem[0] == 0) {
+                                        account = _mbwManager.createOnTheFlyAccount(key, Utils.getBtcCoinType());
+                                    } else {
+                                        account = _mbwManager.createOnTheFlyAccount(key, Utils.getFIOCoinType());
+                                    }
+
+                                    //we dont know yet where at what to send
+                                    SendInitializationActivity.callMeWithResult(getActivity(), account, true,
+                                            StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                                })
+                                .setNegativeButton(this.getString(R.string.cancel), null)
+                                .show();
                         break;
                     case ADDRESS:
-                        GenericAddress address = getAddress(data);
+                        Address address = getAddress(data);
                         startActivity(SendCoinsActivity.getIntent(getActivity(),
                                 _mbwManager.getSelectedAccount().getId(), 0, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {
-                        GenericAssetUri uri = getAssetUri(data);
+                        AssetUri uri = getAssetUri(data);
                         startActivity(SendCoinsActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;

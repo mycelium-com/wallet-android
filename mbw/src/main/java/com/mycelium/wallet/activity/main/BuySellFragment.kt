@@ -117,7 +117,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
                 ?: return
         val indexs = mutableSetOf<Int>()
         for (button in balanceContent.buttons) {
-            if (button.isEnabled && isContentEnabled(button.parentId ?: "")) {
+            if (button.isActive() && isContentEnabled(button.parentId ?: "")) {
                 val args = Bundle()
                 args.putSerializable("data", button)
                 button.index?.let {

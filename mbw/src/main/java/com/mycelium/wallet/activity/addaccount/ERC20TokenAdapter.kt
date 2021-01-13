@@ -25,11 +25,11 @@ class ERC20TokenAdapter(context: Context,
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
             (convertView ?: LayoutInflater.from(context).inflate(resource, parent, false))!!.apply {
                 val tvName = this.findViewById<CheckedTextView>(R.id.tvName)
-                val token = getItem(position)
-                tvName?.text = token?.name + if(alreadyAdded.contains(token)) " " + context.getString(R.string.account_added_part) else ""
+                val token = getItem(position)!!
+                tvName?.text = token.name + if(alreadyAdded.contains(token)) " " + context.getString(R.string.account_added_part) else ""
 
                 var icon: Drawable? = null
-                val symbol = token?.symbol
+                val symbol = token.symbol
                 try {
                     // get input stream
                     val ims: InputStream = context.resources.assets.open("token-logos/" + symbol?.toLowerCase() + "_logo.png")

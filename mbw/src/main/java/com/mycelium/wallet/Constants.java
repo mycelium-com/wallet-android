@@ -78,6 +78,7 @@ public interface Constants {
    String TOR_MODE = "tor_mode";
    String BLOCK_EXPLORERS = "BlockExplorers";
    String CHANGE_ADDRESS_MODE = "change_type";
+   String LAST_FIO_SENDER = "fio_sender";
 
    // Ledger preferences
    String LEDGER_SETTINGS_NAME = "ledger_settings";
@@ -130,4 +131,6 @@ public interface Constants {
    String SETTING_MINER_FEE = "miner_fee";
    long CONFIG_UPDATE_PERIOD_MINS = 20;
    int BTC_BLOCK_TIME_IN_SECONDS = 600;
+
+   String BAD_REQUEST_HTTP_CODE = "400";
 }

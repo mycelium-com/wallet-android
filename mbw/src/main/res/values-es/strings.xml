@@ -24,7 +24,6 @@
     <string name="send">Enviar</string>
     <string name="receive">Recibir</string>
     <string name="private_key_deleted">Clave Privada borrada.</string>
-    <string name="enter_recipient_title">Introduce la Dirección del Destinatario</string>
     <string name="recipient_title">Dirección del destinatario</string>
     <string name="amount_label">Importe:</string>
     <string name="amount_title">Importe</string>
@@ -38,7 +37,7 @@
     <string name="amount_too_small">La cantidad que vas a enviar es demasiado pequeña</string>
     <string name="unable_to_build_tx">No se puede generar la transacción</string>
     <string name="amount_too_small_short">Importe demasiado pequeño</string>
-    <string name="miner_fee_label">Coste de operación:</string>
+    <string name="miner_fee_label">Coste de operación</string>
     <string name="miner_fee_title">Coste de operación</string>
     <string name="synchronizing">Sincronizando</string>
     <string name="transaction_not_sent">No se pudo transmitir la transacción</string>
@@ -137,8 +136,6 @@
     <string name="broadcasting_transaction">Transmitiendo la transacción</string>
     <string name="transaction_rejected_message">La transacción fue rechazada por la red. Esto indica que tu monedero no está sincronizado</string>
     <string name="enter_bitcoin_address">Introduzca la dirección de Bitcoin</string>
-    <string name="bitcoin_address_invalid">Dirección Bitcoin no válida</string>
-    <string name="bitcoin_address_valid">Dirección Bitcoin válida</string>
     <string name="redirecting_to_block_explorer">Redirigiendo al explorador de bloques</string>
     <string name="enter_local_currency">Introduce tu moneda local</string>
     <string name="using_address_from_clipboard">Utilizando una dirección del portapapeles</string>

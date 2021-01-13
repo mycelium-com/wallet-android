@@ -1,7 +1,7 @@
 package com.mycelium.wallet.external.changelly.bch;
 
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 
 import java.util.Arrays;
@@ -157,12 +157,12 @@ public class BCHBechAddress {
             return humanReadablePart;
         }
 
-        public Address constructLegacyAddress(NetworkParameters networkParameters) {
+        public BitcoinAddress constructLegacyAddress(NetworkParameters networkParameters) {
             switch (type) {
                 case "P2PKH":
-                    return Address.fromStandardBytes(hash, networkParameters);
+                    return BitcoinAddress.fromStandardBytes(hash, networkParameters);
                 case "P2SH":
-                    return Address.fromP2SHBytes(hash, networkParameters);
+                    return BitcoinAddress.fromP2SHBytes(hash, networkParameters);
             }
             throw new IllegalStateException("Type not supported.");
         }

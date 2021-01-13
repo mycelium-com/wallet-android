@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:showIn="@layout/send_coins_recipient">
+    tools:showIn="@layout/send_coins_heading">
 
     <data>
 
@@ -16,17 +16,15 @@
 
         <TextView
             android:id="@+id/tvReceiver"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="0dp"
             android:text="@{viewModel.receivingAddressText}"
             android:visibility="@{viewModel.receivingAddressText.isEmpty() ? View.GONE : View.VISIBLE}"
             android:textColor="@color/white"
             android:textColorHint="@color/darkgrey"
             android:textSize="20sp"
-            android:layout_weight="1"
-            android:typeface="monospace"
-            tools:text="1Address1234\n567890abcdef\nghijklmnop" />
+            android:fontFamily="@font/roboto_mono_medium"
+            tools:text="1Address1234567890\nabcdefghijklmnop" />
 
         <TextView
             android:id="@+id/tvReceiverAddress"

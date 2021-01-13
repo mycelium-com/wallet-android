@@ -26,6 +26,10 @@ import java.security.KeyStoreException;
 import java.security.GeneralSecurityException;
 
 public class X509Utils {
+    private X509Utils() {
+        // should not be instantiated
+    }
+
     /**
      * Returns either a string that "sums up" the certificate for humans, in a similar manner to what you might see
      * in a web browser, or null if one cannot be extracted. This will typically be the common name (CN) field, but

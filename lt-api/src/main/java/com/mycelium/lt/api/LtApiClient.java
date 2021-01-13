@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.util.BitlibJsonModule;
 import com.mycelium.lt.api.LtConst.Function;
 import com.mycelium.lt.api.LtConst.Param;
@@ -446,7 +446,7 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<Long> waitForTraderChange(Address traderId, UUID token, long traderTimestamp) {
+   public LtResponse<Long> waitForTraderChange(BitcoinAddress traderId, UUID token, long traderTimestamp) {
       LtRequest r = new LtRequest(Function.WAIT_FOR_TRADER_CHANGE);
       r.addQueryParameter(Param.TRADER_ID, traderId.toString());
       r.addQueryParameter(Param.TOKEN, token.toString());
@@ -536,7 +536,7 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, Address traderIdentity) {
+   public LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, BitcoinAddress traderIdentity) {
       LtRequest r = new LtRequest(Function.GET_PUBLIC_TRADER_INFO);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.TRADER_ID, traderIdentity.toString());
@@ -562,7 +562,7 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<Long> getLastTradeSessionChange(Address traderIdentity) {
+   public LtResponse<Long> getLastTradeSessionChange(BitcoinAddress traderIdentity) {
       LtRequest r = new LtRequest(Function.GET_LAST_TRADE_SESSION_CHANGE);
       r.addQueryParameter(Param.TRADER_ID, traderIdentity.toString());
       return sendRequest(r, new TypeReference<LtResponse<Long>>() {

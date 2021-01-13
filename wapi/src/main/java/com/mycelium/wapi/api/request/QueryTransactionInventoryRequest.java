@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 public class QueryTransactionInventoryRequest implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -31,10 +31,10 @@ public class QueryTransactionInventoryRequest implements Serializable {
     * The list of addresses to query
     */
    @JsonProperty
-   public final List<Address> addresses;
+   public final List<BitcoinAddress> addresses;
 
    public QueryTransactionInventoryRequest(@JsonProperty("version") int version,
-         @JsonProperty("addresses") List<Address> addresses) {
+         @JsonProperty("addresses") List<BitcoinAddress> addresses) {
       this.version = version;
       this.addresses = addresses;
    }

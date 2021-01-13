@@ -46,7 +46,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    protected void updateUi() {
       super.updateUi();
 
-      final List<GenericAssetInfo> currencies = getAvailableCurrenciesList();
+      final List<AssetInfo> currencies = getAvailableCurrenciesList();
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -87,7 +87,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       });
 
       if (currencies.size() > 1) {
-         final Map<MenuItem, GenericAssetInfo> itemMap = new HashMap<>();
+         final Map<MenuItem, AssetInfo> itemMap = new HashMap<>();
          for (int i = 0; i < currencies.size(); i++) {
             String currency = currencies.get(i).getSymbol();
             MenuItem item = menu.getMenu().add(currency);
@@ -115,8 +115,8 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       setVisibility(currencies.size() == 0 ? View.INVISIBLE : View.VISIBLE);
    }
 
-   private List<GenericAssetInfo> getAvailableCurrenciesList() {
-      List<GenericAssetInfo> result = new ArrayList<>();
+   private List<AssetInfo> getAvailableCurrenciesList() {
+      List<AssetInfo> result = new ArrayList<>();
       MbwManager mbwManager = MbwManager.getInstance(getContext());
 
       if (!getFiatOnly()) {
@@ -124,9 +124,9 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       }
 
       // add such fiat currencies for which exchange rate is available
-      GenericAssetInfo baseCurrency = getFiatOnly() ?
+      AssetInfo baseCurrency = getFiatOnly() ?
               mbwManager.getSelectedAccount().getCoinType() : getCoinType();
-      for (GenericAssetInfo asset : getCurrencySwitcher().getCurrencyList()) {
+      for (AssetInfo asset : getCurrencySwitcher().getCurrencyList()) {
          ExchangeRate exchangeRate = mbwManager.getExchangeRateManager()
                  .getExchangeRate(baseCurrency.getSymbol(), asset.getSymbol());
          if (exchangeRate != null && exchangeRate.price != null) {

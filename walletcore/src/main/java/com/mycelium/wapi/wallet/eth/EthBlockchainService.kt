@@ -77,6 +77,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
                 .post(RequestBody.create(null, hex))
                 .build()
         val response = client.newCall(request).execute()
+
         val result = mapper.readValue(response.body()!!.string(), SendTxResponse::class.java)
         return SendResult(result.result != null, result.error)
     }
@@ -98,7 +99,6 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
         return mapper.readValue(URL(urlString), Tx::class.java)
     }
-
     fun getTransactions(address: String, contractAddress: String? = null): List<Tx> {
         return if (contractAddress != null) {
             fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress) != null }
@@ -116,7 +116,6 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
     override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
         endpoints = newEndpoints.toList()
     }
-
     class SendResult(val success: Boolean, val message: String?)
 }
 
@@ -156,7 +155,6 @@ private class EtherscanInternalTransactions {
         val value: BigInteger = BigInteger.ZERO
     }
 }
-
 class Tx {
     val txid: String = ""
 
@@ -197,7 +195,6 @@ class Tx {
 
     val success: Boolean
         get() = ethereumSpecific!!.status
-
     val tokenTransfers: List<TokenTransfer> = emptyList()
 
     fun getTokenTransfer(contractAddress: String): TokenTransfer? =

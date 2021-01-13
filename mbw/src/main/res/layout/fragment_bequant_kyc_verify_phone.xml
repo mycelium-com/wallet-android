@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="headerViewModel"
+            type="com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.kyc.checkCode.VerifyPhoneViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bequant_gray_2">
+
+        <include
+            android:id="@+id/stepHeader"
+            layout="@layout/part_bequant_step_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTitle"
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Verify your phone number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSubtitle"
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@null"
+                android:text="Enter the verification code from\nthe text message"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/otp_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:errorTextColor="@color/bequant_red"
+                app:layout_constraintEnd_toEndOf="@+id/tvSubtitle"
+                app:layout_constraintStart_toStartOf="@+id/tvSubtitle"
+                app:layout_constraintTop_toBottomOf="@+id/tvSubtitle">
+
+                <com.poovam.pinedittextfield.SquarePinField
+                    android:id="@+id/pinCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:fontFamily="@font/exo2medium"
+                    android:inputType="number"
+                    android:text="@={viewModel.code}"
+                    android:textSelectHandle="@drawable/text_handle"
+                    android:textSize="24sp"
+                    app:cornerRadius="4dp"
+                    app:noOfFields="6" />
+                <!--        app:fieldBgColor="#23262A"-->
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/resendTimerLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/resendVerificationCode"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/resend_verification_code"
+                    android:textColor="@color/bequant_gray_6"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/resendTime"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:textColor="@color/bequant_gray_6"
+                    android:textSize="14sp"
+                    tools:text="00:04" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tryAgainLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvTryAgainCaption"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:text="@string/nothing_happened"
+                    android:textColor="@color/bequant_gray_6" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvTryAgain"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:textSize="14sp"
+                    android:text="@string/try_again"
+                    android:textColor="@color/bequant_yellow" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <include
+            layout="@layout/part_bequant_stepper_body"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:headerViewModel="@{headerViewModel}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader"
+            tools:visibility="gone" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

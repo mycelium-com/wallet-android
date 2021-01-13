@@ -1,119 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
-            android:layout_width="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:layout_marginTop="24dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:title="@string/add_account_title"
+            app:titleMarginStart="0dp" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/add_account_title"
-                android:textSize="24sp"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif"
+            android:gravity="start"
+            android:text="@string/add_account_desc"
+            android:textColor="#FFFFFF" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="@string/add_account_desc"/>
+            android:id="@+id/tvInfoBackup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif"
+            android:gravity="start"
+            android:text="@string/info_add_account_keep_backup_secure"
+            android:textColor="#FFFFFF" />
 
         <TextView
-                android:id="@+id/tvInfoBackup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="16dp"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="@string/info_add_account_keep_backup_secure"/>
-
-        <TextView
-                android:id="@+id/tvWarningNoBackup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="16dp"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:textColor="@color/red"
-                android:text="@string/warning_add_account_no_backup" />
+            android:id="@+id/tvWarningNoBackup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif"
+            android:gravity="start"
+            android:text="@string/warning_add_account_no_backup"
+            android:textColor="@color/red" />
 
         <Button
-                android:id="@+id/btHdCreate"
+            android:id="@+id/btHdCreate"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            app:drawableStartCompat="@drawable/ic_bitcoin"
+            android:drawablePadding="12dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingStart="14dp"
+            android:paddingEnd="16dp"
+            android:text="@string/hd_account"
+            android:textColor="@color/button_text_color"
+            android:textSize="14sp"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btFIOCreate"
+            style="@style/MyceliumButton.FIO"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/btFIOCreateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/hd_account"
-                android:layout_marginTop="24dp"/>
+                app:drawableStartCompat="@drawable/ic_fiopresale_icon_small"
+                android:textStyle="bold"
+                android:drawablePadding="13dp"
+                android:fontFamily="sans-serif"
+                android:gravity="start|center_vertical"
+                android:text="@string/hd_fio_account"
+                android:textColor="@color/button_text_color"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_fio_new_bubble"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="8dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="7dp"
+                android:paddingBottom="2dp"
+                android:text="NEW"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textSize="9sp"
+                app:layout_constraintLeft_toRightOf="@id/btFIOCreateText"
+                tools:ignore="SmallSp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button
-                android:id="@+id/btEthCreate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/hd_eth_account"
-                android:layout_marginTop="24dp"/>
+            android:id="@+id/btInvestmentCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            app:drawableStartCompat="@drawable/ic_bequant"
+            android:drawablePadding="5dp"
+            android:textSize="14sp"
+            android:textColor="@color/button_text_color"
+            android:text="@string/activate_trading_custodial_account" />
+
+        <Button
+            android:id="@+id/btEthCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            app:drawableStartCompat="@drawable/ic_ethereum"
+            android:drawablePadding="12dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textSize="14sp"
+            android:textColor="@color/button_text_color"
+            android:text="@string/hd_eth_account" />
 
         <Button
             android:id="@+id/btErc20Create"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:text="@string/add_erc20_account"/>
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            app:drawableStartCompat="@drawable/ic_erc"
+            android:drawablePadding="10dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:textSize="14sp"
+            android:textColor="@color/button_text_color"
+            android:text="@string/add_erc20_account" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:layout_marginTop="24dp"
-                android:text="@string/colu_account_notes"
-                android:id="@+id/textView2"/>
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="33dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start"
+            android:text="@string/colu_account_notes" />
 
         <Button
-                android:id="@+id/btColuCreate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/colu_add_cc_account"
-                android:layout_marginTop="16dp"/>
+            android:id="@+id/btColuCreate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            app:drawableStartCompat="@drawable/ic_add_24px"
+            android:drawablePadding="5dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingStart="11dp"
+            android:paddingEnd="14dp"
+            android:textColor="@color/button_text_color"
+            android:textSize="14sp"
+            android:text="@string/colu_add_cc_account" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="@string/add_single_acc_info"
-                android:layout_marginTop="24dp"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="29dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start"
+            android:text="@string/single_address_account" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif"
+            android:gravity="start"
+            android:text="@string/add_single_acc_info" />
 
         <Button
-                android:id="@+id/btAdvanced"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:layout_marginTop="16dp"
-                android:text="@string/advanced"/>
+            android:id="@+id/btAdvanced"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:layout_marginBottom="60dp"
+            app:drawableStartCompat="@drawable/ic_add_24px"
+            android:drawablePadding="5dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingStart="11dp"
+            android:paddingEnd="14dp"
+            android:textSize="14sp"
+            android:textColor="@color/button_text_color"
+            android:text="@string/advanced" />
 
     </LinearLayout>
 </ScrollView>

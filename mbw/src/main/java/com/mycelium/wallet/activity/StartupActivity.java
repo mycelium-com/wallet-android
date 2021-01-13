@@ -53,8 +53,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -80,8 +78,11 @@ import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.actions.HdNodeAction;
 import com.mycelium.wallet.content.actions.PrivateKeyAction;
 import com.mycelium.wallet.event.AccountCreated;
+import com.mycelium.wallet.event.MigrationPercentChanged;
+import com.mycelium.wallet.event.MigrationStatusChanged;
+import com.mycelium.wallet.fio.FioRequestNotificator;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.PrivateKeyUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -89,8 +90,6 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
-import com.mycelium.wallet.event.MigrationStatusChanged;
-import com.mycelium.wallet.event.MigrationPercentChanged;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -102,6 +101,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -409,6 +411,11 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
            if(getIntent().getExtras() != null) {
               intent.putExtras(getIntent().getExtras());
            }
+       } else if (Objects.equals(getIntent().getAction(), FioRequestNotificator.FIO_REQUEST_ACTION)) {
+          intent.setAction(FioRequestNotificator.FIO_REQUEST_ACTION);
+          if (getIntent().getExtras() != null) {
+             intent.putExtras(getIntent().getExtras());
+          }
        }
        startActivity(intent);
        finish();
@@ -511,7 +518,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private void handleUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(getApplication());
-      GenericAssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
+      AssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
       if (uri == null) {
          // Invalid Bitcoin URI
          new Toaster(this).toast(R.string.invalid_bitcoin_uri, false);
@@ -568,7 +575,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             String content = data.getStringExtra("base58Key");
             if (content != null) {
                InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
-               UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(key);
+               UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(key, Utils.getBtcCoinType());
                SendInitializationActivity.callMe(this, onTheFlyAccount, true);
                finish();
                return;

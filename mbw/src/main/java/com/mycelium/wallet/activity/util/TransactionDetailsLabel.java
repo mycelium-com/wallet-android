@@ -42,13 +42,13 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
-public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
-   private GenericTransactionSummary transaction;
+public class TransactionDetailsLabel extends BlockExplorerLabel {
+   private TransactionSummary transaction;
    private boolean coluMode;
 
    public TransactionDetailsLabel(Context context) {
@@ -82,7 +82,7 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(transaction, MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
-   public void setTransaction(final GenericTransactionSummary tx) {
+   public void setTransaction(final TransactionSummary tx) {
       this.transaction = tx;
       update_ui();
       NetworkParameters networkParameters = MbwManager.getInstance(getContext()).getNetwork();

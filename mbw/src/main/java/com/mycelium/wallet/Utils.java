@@ -83,7 +83,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
@@ -94,12 +94,12 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.CurrencyCode;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -115,7 +115,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
@@ -127,7 +127,12 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.fio.coins.FIOMain;
+import com.mycelium.wapi.wallet.fio.coins.FIOTest;
+import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -542,7 +547,7 @@ public class Utils {
       }
    }
 
-   public static Optional<GenericAddress> addressFromString(String someString, NetworkParameters network) {
+   public static Optional<Address> addressFromString(String someString, NetworkParameters network) {
       if (someString == null) {
          return Optional.absent();
       }
@@ -551,7 +556,7 @@ public class Utils {
          // Raw format
          return Optional.fromNullable(AddressUtils.from(getBtcCoinType(), someString));
       } else {
-         GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
+         AssetUri b = (new BitcoinUriParser(network)).parse(someString);
          if (b != null && b.getAddress() != null) {
             // On URI format
             return Optional.of(b.getAddress());
@@ -932,7 +937,7 @@ public class Utils {
       return type.compound(index).compound(linked).compound(name).sortedCopy(accounts);
    }
 
-   public static List<Address> sortAddresses(List<Address> addresses) {
+   public static List<BitcoinAddress> sortAddresses(List<BitcoinAddress> addresses) {
       return Ordering.usingToString().sortedCopy(addresses);
    }
 
@@ -945,7 +950,7 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(AccountViewModel accountView, boolean isSelectedAccount, Resources resources) {
-      Class<? extends WalletAccount<? extends GenericAddress>> accountType = accountView.getAccountType();
+      Class<? extends WalletAccount<? extends Address>> accountType = accountView.getAccountType();
       if (ColuAccount.class.isAssignableFrom(accountType)) {
          CryptoCurrency coinType = accountView.getCoinType();
          if (coinType == MTCoin.INSTANCE || coinType == MTCoinTest.INSTANCE) {
@@ -1058,6 +1063,10 @@ public class Utils {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
    }
 
+   public static CryptoCurrency getEthCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? EthMain.INSTANCE : EthTest.INSTANCE;
+   }
+
    public static CryptoCurrency getMtCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? MTCoin.INSTANCE : MTCoinTest.INSTANCE;
    }
@@ -1068,6 +1077,10 @@ public class Utils {
 
    public static CryptoCurrency getRmcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
+   }
+
+   public static FIOToken getFIOCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? FIOMain.INSTANCE : FIOTest.INSTANCE;
    }
 
    public static boolean isValidEmailAddress(String value) {
@@ -1120,8 +1133,17 @@ public class Utils {
       return hasPermission;
    }
 
+   public static boolean hasOrRequestAccess(androidx.fragment.app.Fragment fragment, String permission, int requestCode){
+      boolean hasPermission = (ContextCompat.checkSelfPermission(fragment.getActivity(), permission)
+              == PackageManager.PERMISSION_GRANTED);
+      if (!hasPermission) {
+         fragment.requestPermissions(new String[]{permission}, requestCode);
+      }
+      return hasPermission;
+   }
+
    @Nullable
-   public static GenericAssetInfo getTypeByName(String name) {
+   public static AssetInfo getTypeByName(String name) {
       for (CurrencyCode currencyCode : CurrencyCode.values()) {
          if (name.equals(currencyCode.getShortString())) {
             // then it's a fiat type

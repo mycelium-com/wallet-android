@@ -44,7 +44,7 @@ import android.util.Log;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.R;
 import java.io.FileNotFoundException;
@@ -75,9 +75,9 @@ public class ExportDistiller {
         public String encryptedMasterSeed;
         public String label;
         public boolean isBch;
-        public Map<AddressType, Address> addresses;
+        public Map<AddressType, BitcoinAddress> addresses;
 
-        public ExportEntry(Map<AddressType, Address> addresses, String encryptedKey, String encryptedMasterSeed, String label, boolean isBch){
+        public ExportEntry(Map<AddressType, BitcoinAddress> addresses, String encryptedKey, String encryptedMasterSeed, String label, boolean isBch){
             this.encryptedKey = encryptedKey;
             this.encryptedMasterSeed = encryptedMasterSeed;
             this.label = label;
@@ -99,7 +99,7 @@ public class ExportDistiller {
             // Sum up all the work to do
             _totalWork = WATER_MARK_WORK;
             for (ExportEntry entry : entries) {
-                for(Address address: entry.addresses.values()){
+                for(BitcoinAddress address: entry.addresses.values()){
                     if(address != null) {
                         _totalWork += ADDRESS_WORK;
                     }
@@ -445,7 +445,7 @@ public class ExportDistiller {
         writer.setMonoFont();
 
         //Addresses QR-codes
-        for (Address address : entry.addresses.values()) {
+        for (BitcoinAddress address : entry.addresses.values()) {
 
             String a1 = address.toString().substring(0, address.toString().length() / 2);
             String a2 = address.toString().substring(address.toString().length() / 2);

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusable="true"
+    android:focusedByDefault="true"
+    android:focusableInTouchMode="true"
+    android:background="@color/bequant_gray_2"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/exo2medium"
+        android:background="@drawable/bg_bequant_search"
+        app:drawableStartCompat="@drawable/ic_search"
+        android:drawablePadding="8dp"
+        android:hint="@string/search_markets"
+        android:lines="1"
+        android:maxLines="1"
+        android:imeOptions="actionSearch"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:textSize="16sp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:singleLine="true"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search"
+        tools:listitem="@layout/item_bequant_market"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

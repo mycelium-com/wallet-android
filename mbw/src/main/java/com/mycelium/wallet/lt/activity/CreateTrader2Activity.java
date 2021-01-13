@@ -46,7 +46,7 @@ import android.widget.Spinner;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -153,7 +153,7 @@ public class CreateTrader2Activity extends Activity {
 
    private String createDefaultName(WalletAccount account) {
       if (account instanceof SingleAddressAccount) {
-         Address address = ((SingleAddressAccount) account).getAddress();
+         BitcoinAddress address = ((SingleAddressAccount) account).getAddress();
          String addressString = address.toString();
          return addressString.substring(0, 6) +
                  "..." +

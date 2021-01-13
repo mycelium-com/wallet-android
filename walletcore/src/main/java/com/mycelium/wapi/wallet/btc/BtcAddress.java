@@ -1,18 +1,18 @@
 package com.mycelium.wapi.wallet.btc;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class BtcAddress implements GenericAddress {
-    private Address address;
+public class BtcAddress implements Address {
+    private BitcoinAddress address;
     private CryptoCurrency currencyType;
 
-    public BtcAddress(CryptoCurrency currencyType, Address address) {
+    public BtcAddress(CryptoCurrency currencyType, BitcoinAddress address) {
         this.address = address;
         this.currencyType = currencyType;
     }
@@ -23,7 +23,7 @@ public class BtcAddress implements GenericAddress {
     }
 
     @NotNull
-    public Address getAddress() {
+    public BitcoinAddress getAddress() {
         return address;
     }
 

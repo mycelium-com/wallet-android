@@ -1,18 +1,13 @@
 package com.mycelium.wapi.wallet.btc.coins;
 
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mrd.bitlib.model.BitcoinAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 
-public class BitcoinTest extends BitcoinBasedCryptoCurrency {
+public class BitcoinTest extends CryptoCurrency {
     private BitcoinTest() {
-        id = "bitcoin.test";
-
-        name = "Bitcoin Test";
-        symbol = "tBTC";
-        unitExponent = 8;
+        super("bitcoin.test", "Bitcoin Test", "tBTC", 8, 2, true);
     }
 
     private static BitcoinTest instance = new BitcoinTest();
@@ -21,8 +16,8 @@ public class BitcoinTest extends BitcoinBasedCryptoCurrency {
     }
 
     @Override
-    public GenericAddress parseAddress(String addressString) {
-        Address address = Address.fromString(addressString);
+    public Address parseAddress(String addressString) {
+        BitcoinAddress address = BitcoinAddress.fromString(addressString);
         if (address == null) {
             return null;
         }

@@ -40,11 +40,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 
 import java.util.Collection;
-import java.util.List;
 
 public class SpinnerImportTest {
    @Test
@@ -53,8 +52,8 @@ public class SpinnerImportTest {
       PublicKey pubKey = spinnerImport.key.getPublicKey();
       // Bitcoin Spinner was using uncompressed keys. No SegWit here.
       assertFalse(pubKey.isCompressed());
-      Collection<Address> addressList = pubKey.getAllSupportedAddresses(NetworkParameters.productionNetwork).values();
+      Collection<BitcoinAddress> addressList = pubKey.getAllSupportedAddresses(NetworkParameters.productionNetwork).values();
       assertEquals(1, addressList.size());
-      assertTrue(addressList.contains(Address.fromString("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL")));
+      assertTrue(addressList.contains(BitcoinAddress.fromString("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL")));
    }
 }

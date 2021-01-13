@@ -150,7 +150,7 @@ class NewsFragment : Fragment() {
     private fun initTopBanner() {
         if (currentNews == null) {
             SettingsPreference.getMediaFlowContent()?.bannersTop
-                    ?.filter { it.isEnabled && preference.getBoolean(it.parentId, true)
+                    ?.filter { it.isActive() && preference.getBoolean(it.parentId, true)
                             && SettingsPreference.isContentEnabled(it.parentId)
                     }?.randomOrNull()?.let { banner ->
                         top_banner.visibility = VISIBLE

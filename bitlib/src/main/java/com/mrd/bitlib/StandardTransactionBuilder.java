@@ -40,27 +40,27 @@ public class StandardTransactionBuilder {
    private NetworkParameters _network;
    private List<TransactionOutput> _outputs;
 
-   public static class InsufficientFundsException extends Exception {
+   public static class InsufficientBtcException extends Exception {
       //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
       private static final long serialVersionUID = 1L;
 
       public long sending;
       public long fee;
 
-      public InsufficientFundsException(long sending, long fee) {
+      public InsufficientBtcException(long sending, long fee) {
          super("Insufficient funds to send " + sending + " satoshis with fee " + fee);
          this.sending = sending;
          this.fee = fee;
       }
    }
 
-   public static class OutputTooSmallException extends Exception {
+   public static class BtcOutputTooSmallException extends Exception {
       //todo consider refactoring this into a composite return value instead of an exception. it is not really "exceptional"
       private static final long serialVersionUID = 1L;
 
       public long value;
 
-      public OutputTooSmallException(long value) {
+      public BtcOutputTooSmallException(long value) {
          super("An output was added with a value of " + value
              + " satoshis, which is smaller than the minimum accepted by the Bitcoin network");
       }
@@ -79,18 +79,18 @@ public class StandardTransactionBuilder {
       _outputs = new LinkedList<>();
    }
 
-   public void addOutput(Address sendTo, long value) throws OutputTooSmallException {
+   public void addOutput(BitcoinAddress sendTo, long value) throws BtcOutputTooSmallException {
       addOutput(createOutput(sendTo, value, _network));
    }
 
-   public void addOutput(TransactionOutput output) throws OutputTooSmallException {
+   public void addOutput(TransactionOutput output) throws BtcOutputTooSmallException {
       if (output.value < MINIMUM_OUTPUT_VALUE) {
-         throw new OutputTooSmallException(output.value);
+         throw new BtcOutputTooSmallException(output.value);
       }
       _outputs.add(output);
    }
 
-   public void addOutputs(OutputList outputs) throws OutputTooSmallException {
+   public void addOutputs(OutputList outputs) throws BtcOutputTooSmallException {
       for (TransactionOutput output : outputs) {
          if (output.value > 0) {
             addOutput(output);
@@ -98,7 +98,7 @@ public class StandardTransactionBuilder {
       }
    }
 
-   public static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {
+   public static TransactionOutput createOutput(BitcoinAddress sendTo, long value, NetworkParameters network) {
       ScriptOutput script;
       switch (sendTo.getType()) {
          case P2SH_P2WPKH:
@@ -147,9 +147,9 @@ public class StandardTransactionBuilder {
     * @return An unsigned transaction or null if not enough funds were available
     */
    public UnsignedTransaction createUnsignedTransaction(Collection<UnspentTransactionOutput> inventory,
-                                                        @Nonnull Address changeAddress, IPublicKeyRing keyRing,
+                                                        @Nonnull BitcoinAddress changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
-       throws InsufficientFundsException, UnableToBuildTransactionException {
+       throws InsufficientBtcException, UnableToBuildTransactionException {
 
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<>(inventory);
@@ -199,7 +199,7 @@ public class StandardTransactionBuilder {
       float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
 
       // set a limit of MAX_MINER_FEE_PER_KB as absolute limit - it is very likely a bug in the fee estimator or transaction composer
-      if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
+      if (estimatedFeePerKb > BitcoinTransaction.MAX_MINER_FEE_PER_KB) {
          throw new UnableToBuildTransactionException(
              String.format(Locale.getDefault(),
                  "Unreasonable high transaction fee of %s sat/1000Byte on a %d Bytes tx. Fee: %d sat, Suggested fee: %d sat",
@@ -269,23 +269,23 @@ public class StandardTransactionBuilder {
    }
 
    @VisibleForTesting
-   Address getRichest(Collection<UnspentTransactionOutput> unspent, final NetworkParameters network) {
+   BitcoinAddress getRichest(Collection<UnspentTransactionOutput> unspent, final NetworkParameters network) {
       Preconditions.checkArgument(!unspent.isEmpty());
-      Function<UnspentTransactionOutput, Address> txout2Address = new Function<UnspentTransactionOutput, Address>() {
+      Function<UnspentTransactionOutput, BitcoinAddress> txout2Address = new Function<UnspentTransactionOutput, BitcoinAddress>() {
          @Override
-         public Address apply(UnspentTransactionOutput input) {
+         public BitcoinAddress apply(UnspentTransactionOutput input) {
             return input.script.getAddress(network);
          }
       };
-      Multimap<Address, UnspentTransactionOutput> index = Multimaps.index(unspent, txout2Address);
-      Address ret = getRichest(index);
+      Multimap<BitcoinAddress, UnspentTransactionOutput> index = Multimaps.index(unspent, txout2Address);
+      BitcoinAddress ret = getRichest(index);
       return Preconditions.checkNotNull(ret);
    }
 
-   private Address getRichest(Multimap<Address, UnspentTransactionOutput> index) {
-      Address ret = null;
+   private BitcoinAddress getRichest(Multimap<BitcoinAddress, UnspentTransactionOutput> index) {
+      BitcoinAddress ret = null;
       long maxSum = 0;
-      for (Address address : index.keys()) {
+      for (BitcoinAddress address : index.keys()) {
          Collection<UnspentTransactionOutput> unspentTransactionOutputs = index.get(address);
          long newSum = sum(unspentTransactionOutputs);
          if (newSum > maxSum) {
@@ -304,7 +304,7 @@ public class StandardTransactionBuilder {
       return sum;
    }
 
-   public static Transaction finalizeTransaction(UnsignedTransaction unsigned, List<byte[]> signatures) {
+   public static BitcoinTransaction finalizeTransaction(UnsignedTransaction unsigned, List<byte[]> signatures) {
       // Create finalized transaction inputs
       final UnspentTransactionOutput[] funding = unsigned.getFundingOutputs();
       TransactionInput[] inputs = new TransactionInput[funding.length];
@@ -327,7 +327,7 @@ public class StandardTransactionBuilder {
       }
 
       // Create transaction with valid outputs and empty inputs
-      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime());
+      return new BitcoinTransaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime());
    }
 
    private static boolean isScriptInputSegWit(UnsignedTransaction unsigned, int i) {
@@ -354,7 +354,7 @@ public class StandardTransactionBuilder {
       private long outputSum;
 
       FifoCoinSelector(long feeSatPerKb, List<UnspentTransactionOutput> unspent, AddressType changeType)
-          throws InsufficientFundsException {
+          throws InsufficientBtcException {
          // Find the funding for this transaction
          allFunding = new LinkedList<>();
          FeeEstimatorBuilder feeEstimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(unspent)
@@ -369,7 +369,7 @@ public class StandardTransactionBuilder {
             UnspentTransactionOutput unspentTransactionOutput = extractOldest(unspent);
             if (unspentTransactionOutput == null) {
                // We do not have enough funds
-               throw new InsufficientFundsException(outputSum, feeSat);
+               throw new InsufficientBtcException(outputSum, feeSat);
             }
             foundSat += unspentTransactionOutput.value;
             allFunding.add(unspentTransactionOutput);
@@ -378,7 +378,7 @@ public class StandardTransactionBuilder {
                     .setArrayOfOutputs(_outputs)
                     .setMinerFeePerKb(feeSatPerKb);
             if (needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)) {
-               estimatorBuilder.addOutput(Address.getNullAddress(_network, changeType).getType());
+               estimatorBuilder.addOutput(BitcoinAddress.getNullAddress(_network, changeType).getType());
             }
             feeSat = estimatorBuilder.createFeeEstimator().estimateFee();
          }

@@ -25,7 +25,6 @@
     <string name="send">Skicka</string>
     <string name="receive">Ta emot</string>
     <string name="private_key_deleted">Privat nyckel borttagen.</string>
-    <string name="enter_recipient_title">Ange mottagaradress</string>
     <string name="recipient_title">Mottagaradress</string>
     <string name="amount_label">Belopp:</string>
     <string name="amount_title">Belopp</string>
@@ -38,7 +37,7 @@
     <string name="insufficient_funds_for_fee">Otillräckliga tillgångar för att betala avgift</string>
     <string name="amount_too_small">Beloppet du skickar är för litet</string>
     <string name="amount_too_small_short">För litet belopp</string>
-    <string name="miner_fee_label">Transaktionsavgift:</string>
+    <string name="miner_fee_label">Transaktionsavgift</string>
     <string name="miner_fee_title">Transaktionsavgift</string>
     <string name="synchronizing">Synkroniserar</string>
     <string name="transaction_not_sent">Misslyckades med att sända transaktion</string>
@@ -136,8 +135,6 @@
     <string name="broadcasting_transaction">Sänder transaktion</string>
     <string name="transaction_rejected_message">Transaktionen förkastades av nätverket. Detta tyder på att din plånbok är i osynk</string>
     <string name="enter_bitcoin_address">Ange bitcoin-adress</string>
-    <string name="bitcoin_address_invalid">Ogiltig bitcoin-adress</string>
-    <string name="bitcoin_address_valid">Bitcoin-adress giltig</string>
     <string name="redirecting_to_block_explorer">Omdirigerar till en block-utforskare</string>
     <string name="enter_local_currency">Ange din lokala valuta</string>
     <string name="using_address_from_clipboard">Använder adress från urklipp</string>

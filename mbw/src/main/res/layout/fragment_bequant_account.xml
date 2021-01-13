@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.market.viewmodel.AccountViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/estTotalBalanceLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_bequant_text"
+            android:padding="16dp"
+            android:visibility="@{viewModel.searchMode ? View.GONE : View.VISIBLE}"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/estTotalBalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:text="@string/est_total_balance"
+                android:textColor="#49505C"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/privateModeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="4dp"
+                app:layout_constraintBottom_toBottomOf="@id/estTotalBalance"
+                app:layout_constraintLeft_toRightOf="@id/estTotalBalance"
+                app:layout_constraintTop_toTopOf="@id/estTotalBalance"
+                app:srcCompat="@drawable/ic_text_visibility_off" />
+
+            <TextView
+                android:id="@+id/estBalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:text="@{viewModel.totalBalance}"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/estTotalBalance"
+                tools:text="52 343.67876" />
+
+            <TextView
+                android:id="@+id/estBalanceCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/exo2medium"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/estBalance"
+                app:layout_constraintLeft_toRightOf="@id/estBalance"
+                tools:text="BTC" />
+
+            <TextView
+                android:id="@+id/estTotalBalanceFiat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:textColor="#49505C"
+                android:textSize="12sp"
+                android:text="@{viewModel.totalBalanceFiat}"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/estBalance"
+                tools:text="6.3122 BTC" />
+
+            <Button
+                android:id="@+id/deposit"
+                style="@style/Bequant.Button.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Deposit"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/withdraw"
+                app:layout_constraintTop_toBottomOf="@id/estTotalBalanceFiat" />
+
+            <Button
+                android:id="@+id/withdraw"
+                style="@style/Bequant.Button.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="Withdraw"
+                app:layout_constraintLeft_toRightOf="@id/deposit"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/estTotalBalanceFiat" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <CheckBox
+            android:id="@+id/hideZeroBalance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/hide_zero_balances"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:visibility="@{viewModel.searchMode ? View.GONE : View.VISIBLE}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/searchButton"
+            app:layout_constraintTop_toBottomOf="@id/estTotalBalanceLayout" />
+
+        <ImageView
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="@null"
+            android:padding="8dp"
+            android:visibility="@{viewModel.searchMode ? View.GONE : View.VISIBLE}"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/hideZeroBalance"
+            app:srcCompat="@drawable/ic_search" />
+
+        <include
+            android:id="@+id/searchBar"
+            layout="@layout/item_bequant_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.searchMode ? View.VISIBLE : View.GONE}"
+            app:layout_constraintTop_toBottomOf="@id/hideZeroBalance" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/searchBar"
+            tools:listitem="@layout/item_bequant_account" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

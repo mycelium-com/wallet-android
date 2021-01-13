@@ -53,6 +53,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
 import com.mycelium.wallet.activity.view.ButtonPreference;
@@ -61,7 +62,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -100,6 +101,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private PreferenceCategory ledger;
     private Preference ltNotificationEmail;
     private PreferenceCategory localTraderPrefs;
+    private Preference aboutPrefs;
+    private Preference helpPrefs;
 
     private DisplayPreferenceDialogHandler displayPreferenceDialogHandler;
 
@@ -241,6 +244,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ledger = findPreference("ledger");
         ltNotificationEmail = findPreference("ltNotificationEmail2");
         localTraderPrefs = findPreference("localtraderPrefs");
+        aboutPrefs = findPreference("about");
+        helpPrefs = findPreference("help");
 
         // sub screens and sub prefs
         backupPreferenceScreen = findPreference("backup");
@@ -496,6 +501,25 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             .addToBackStack("version")
                             .commitAllowingStateLoss();
                     return true;
+                }
+            });
+        }
+        if (aboutPrefs != null) {
+            aboutPrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startActivity(new Intent(requireContext(), AboutActivity.class));
+                    return false;
+                }
+            });
+        }
+        if (helpPrefs != null) {
+            helpPrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startActivity(Intent.createChooser(new Intent(Intent.ACTION_SENDTO)
+                            .setData(Uri.parse("mailto:support@mycelium.com")), getString(R.string.send_mail)));
+                    return false;
                 }
             });
         }
@@ -882,9 +906,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String localCurrencySummary() {
         if (mbwManager.hasFiatCurrency()) {
-            GenericAssetInfo currentCurrency = mbwManager.getCurrencySwitcher().getCurrentTotalCurrency();
+            AssetInfo currentCurrency = mbwManager.getCurrencySwitcher().getCurrentTotalCurrency();
             String currencies = currentCurrency.getSymbol();
-            List<GenericAssetInfo> currencyList = mbwManager.getCurrencyList();
+            List<AssetInfo> currencyList = mbwManager.getCurrencyList();
             currencyList.remove(currentCurrency);
             for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
                 //noinspection StringConcatenationInLoop

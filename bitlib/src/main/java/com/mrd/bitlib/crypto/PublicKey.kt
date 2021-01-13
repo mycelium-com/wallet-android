@@ -43,7 +43,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
      * to the user.
      */
     @JvmOverloads
-    fun toAddress(networkParameters: NetworkParameters, addressType: AddressType, ignoreCompression: Boolean = false): Address {
+    fun toAddress(networkParameters: NetworkParameters, addressType: AddressType, ignoreCompression: Boolean = false): BitcoinAddress {
         return when (addressType) {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
             AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters, ignoreCompression)
@@ -60,11 +60,11 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     /**
      * @return [AddressType.P2SH_P2WPKH] address
      */
-    private fun toNestedP2WPKH(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): Address {
+    private fun toNestedP2WPKH(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): BitcoinAddress {
         if (ignoreCompression || isCompressed) {
             val hashedPublicKey = pubKeyHashCompressed
             val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
-            return Address.fromP2SHBytes(HashUtils.addressHash(
+            return BitcoinAddress.fromP2SHBytes(HashUtils.addressHash(
                     BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
         }
         throw IllegalStateException("Can't create segwit address from uncompressed key")
@@ -83,8 +83,8 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     /**
      * @return [AddressType.P2PKH] address
      */
-    private fun toP2PKHAddress(networkParameters: NetworkParameters): Address =
-            Address.fromStandardBytes(publicKeyHash, networkParameters)
+    private fun toP2PKHAddress(networkParameters: NetworkParameters): BitcoinAddress =
+            BitcoinAddress.fromStandardBytes(publicKeyHash, networkParameters)
 
     override fun hashCode(): Int {
         val bytes = publicKeyHash
@@ -121,7 +121,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         }
     }
 
-    // same as verifyStandardBitcoinSignature, but dont enforce the hash-type check
+    // same as verifyStandardBitcoinSignature, but don't enforce the hash-type check
     fun verifyDerEncodedSignature(data: Sha256Hash, signature: ByteArray): Boolean {
         // Decode parameters r and s
         val reader = ByteReader(signature)

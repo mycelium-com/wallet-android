@@ -16,7 +16,7 @@
 
 package com.mrd.bitlib.model;
 
-import com.mrd.bitlib.model.Transaction.TransactionParsingException;
+import com.mrd.bitlib.model.BitcoinTransaction.TransactionParsingException;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
@@ -47,7 +47,7 @@ public class Block {
    public int difficultyTarget;
    public int nonce;
    // Transactions
-   public Transaction[] transactions;
+   public BitcoinTransaction[] transactions;
 
    private Sha256Hash _hash;
 
@@ -62,10 +62,10 @@ public class Block {
          int nonce = reader.getIntLE();
          // Parse transactions
          int numTransactions = (int) reader.getCompactInt();
-         Transaction[] transactions = new Transaction[numTransactions];
+         BitcoinTransaction[] transactions = new BitcoinTransaction[numTransactions];
          for (int i = 0; i < numTransactions; i++) {
             try {
-               transactions[i] = Transaction.fromByteReader(reader);
+               transactions[i] = BitcoinTransaction.fromByteReader(reader);
             } catch (TransactionParsingException e) {
                throw new BlockParsingException("Unable to parse transaction at index " + i + ": " + e.getMessage());
             }
@@ -77,7 +77,7 @@ public class Block {
    }
 
    public Block(int version, Sha256Hash prevBlockHash, Sha256Hash merkleRoot, int time, int difficultyTargetm,
-         int nonce, Transaction[] transactions) {
+         int nonce, BitcoinTransaction[] transactions) {
       this.version = version;
       this.prevBlockHash = prevBlockHash;
       this.merkleRoot = merkleRoot;
@@ -103,7 +103,7 @@ public class Block {
 
    public void transactionsToByteWriter(ByteWriter writer) {
       writer.putCompactInt(transactions.length);
-      for (Transaction t : transactions) {
+      for (BitcoinTransaction t : transactions) {
          t.toByteWriter(writer);
       }
    }

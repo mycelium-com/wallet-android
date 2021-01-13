@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.model.OutPoint
-import com.mrd.bitlib.model.Transaction
+import com.mrd.bitlib.model.BitcoinTransaction
 import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
@@ -287,7 +287,7 @@ class WapiClientElectrumX(
                     it.getResult(TransactionX::class.java).apply {
                         // Since our electrumX does not send vin's anymore, parse transaction hex
                         // by ourselves and extract inputs information
-                        val tx = Transaction.fromBytes(HexUtils.toBytes(this!!.hex))
+                        val tx = BitcoinTransaction.fromBytes(HexUtils.toBytes(this!!.hex))
                         this.vin = tx.inputs
                     }
                 }

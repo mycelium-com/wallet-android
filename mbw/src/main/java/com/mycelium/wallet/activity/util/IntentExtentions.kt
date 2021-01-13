@@ -13,8 +13,8 @@ import com.mycelium.wallet.activity.modern.adapter.SelectAssetDialog
 import com.mycelium.wallet.bitid.BitIDSignRequest
 import com.mycelium.wallet.content.ResultType
 import com.mycelium.wallet.pop.PopRequest
-import com.mycelium.wapi.content.GenericAssetUri
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.content.AssetUri
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletManager
 import java.util.*
 
@@ -36,14 +36,14 @@ fun Intent.getAddress(walletManager: WalletManager, fragmentManager: FragmentMan
     SelectAssetDialog.getInstance(addresses).show(fragmentManager, "dialog")
 }
 
-fun Intent.getAddress(): GenericAddress {
+fun Intent.getAddress(): Address {
     checkType(ResultType.ADDRESS)
-    return getSerializableExtra(RESULT_ADDRESS_KEY) as GenericAddress
+    return getSerializableExtra(RESULT_ADDRESS_KEY) as Address
 }
 
-fun Intent.getAssetUri(): GenericAssetUri {
+fun Intent.getAssetUri(): AssetUri {
     checkType(ResultType.ASSET_URI)
-    return getSerializableExtra(RESULT_URI_KEY) as GenericAssetUri
+    return getSerializableExtra(RESULT_URI_KEY) as AssetUri
 }
 
 fun Intent.getUri(): Uri {

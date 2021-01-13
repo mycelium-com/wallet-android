@@ -9,8 +9,8 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.max
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.*
 
@@ -53,8 +53,8 @@ class EthAccount(private val accountContext: EthAccountContext,
     fun hasHadActivity(): Boolean =
             accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 
-    @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
-    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
+    @Throws(InsufficientFundsException::class, BuildTransactionException::class)
+    override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = data as? EthTransactionData
         val nonce = ethTxData?.nonce ?: getNewNonce()
@@ -63,23 +63,22 @@ class EthAccount(private val accountContext: EthAccountContext,
         val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
 
         if (gasPriceValue.value <= BigInteger.ZERO) {
-            throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
+            throw BuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
         if (value.value < BigInteger.ZERO) {
-            throw GenericBuildTransactionException(Throwable("Value should be positive"))
+            throw BuildTransactionException(Throwable("Value should be positive"))
         }
         if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw GenericBuildTransactionException(Throwable("Gas limit must be at least 21000"))
+            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
-            throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
+            throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
-
         return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
     }
 
-    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher?) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher?) {
         val rawTransaction = (request as EthTransaction).run {
             RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
                     inputData)
@@ -93,7 +92,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
             val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
             if (!result.success) {
@@ -188,8 +187,9 @@ class EthAccount(private val accountContext: EthAccountContext,
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore
             // this could happen if transaction was replaced by another e.g.
+            val remoteTransactionsIds = remoteTransactions.map { it.txid }
             val toRemove = localTxs.filter { localTx ->
-                !remoteTransactions.map { it.txid }.contains("0x" + HexUtils.toHex(localTx.id))
+                !remoteTransactionsIds.contains("0x" + HexUtils.toHex(localTx.id))
                         && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {

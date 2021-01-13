@@ -6,7 +6,7 @@ import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
@@ -38,14 +38,14 @@ public class FeeItemsBuilder {
     private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
     private ExchangeRateManager exchangeRateManager;
-    private GenericAssetInfo fiatType;
+    private AssetInfo fiatType;
 
-    public FeeItemsBuilder(ExchangeRateManager exchangeRateManager, GenericAssetInfo fiatType) {
+    public FeeItemsBuilder(ExchangeRateManager exchangeRateManager, AssetInfo fiatType) {
         this.exchangeRateManager = exchangeRateManager;
         this.fiatType = fiatType;
     }
 
-    public List<FeeItem> getFeeItemList(GenericAssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
+    public List<FeeItem> getFeeItemList(AssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
         long min = asset instanceof EthCoin ? MIN_NON_ZERO_GAS_PER_KB : MIN_NON_ZERO_FEE_PER_KB;
         long current = 0;
         long previous = 0;
@@ -97,7 +97,7 @@ public class FeeItemsBuilder {
         return feeItems;
     }
 
-    private void addItemsInRange(GenericAssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
+    private void addItemsInRange(AssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
             FeeItem currFeeItem = createFeeItem(asset, txSize, algorithm.computeValue(i));
             FeeItem prevFeeItem = !feeItems.isEmpty() ? feeItems.get(feeItems.size() - 1) : null;
@@ -119,7 +119,7 @@ public class FeeItemsBuilder {
     }
 
     @NonNull
-    private FeeItem createFeeItem(GenericAssetInfo asset, int txSize, long feePerKb) {
+    private FeeItem createFeeItem(AssetInfo asset, int txSize, long feePerKb) {
         Value fee = Value.valueOf(asset, txSize * feePerKb / 1000);
         Value fiatFee = exchangeRateManager.get(fee, fiatType);
         return new FeeItem(feePerKb, fee, fiatFee, VIEW_TYPE_ITEM);

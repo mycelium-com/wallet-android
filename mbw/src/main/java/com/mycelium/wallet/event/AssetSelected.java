@@ -1,11 +1,11 @@
 package com.mycelium.wallet.event;
 
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 
 public class AssetSelected {
-    public final GenericAddress address;
+    public final Address address;
 
-    public AssetSelected(GenericAddress address){
+    public AssetSelected(Address address){
         this.address = address;
     }
 }

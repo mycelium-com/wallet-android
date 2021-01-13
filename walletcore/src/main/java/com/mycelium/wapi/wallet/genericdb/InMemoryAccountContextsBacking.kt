@@ -1,11 +1,9 @@
 package com.mycelium.wapi.wallet.genericdb
 
 import com.mycelium.generated.wallet.database.AccountContext
-import com.mycelium.generated.wallet.database.AccountContextQueries
-import com.mycelium.generated.wallet.database.WalletDB
 import java.util.*
 
-class InMemoryAccountContextsBacking<T: AccountContext> : GenericBacking<T> {
+class InMemoryAccountContextsBacking<T: AccountContext> : Backing<T> {
     private val accountContexts = hashMapOf<UUID, T>()
     override fun loadAccountContexts(): List<T> = accountContexts.values.toList()
 

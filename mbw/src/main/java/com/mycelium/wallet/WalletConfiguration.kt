@@ -10,8 +10,12 @@ import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.*
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
+import com.mycelium.wapi.wallet.IServerFioEventsPublisher
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
+import com.mycelium.wapi.wallet.fio.FioTpidChangedListener
+import com.mycelium.wapi.wallet.fio.ServerFioApiListChangedListener
+import com.mycelium.wapi.wallet.fio.ServerFioHistoryListChangedListener
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -21,10 +25,12 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 
-interface  MyceliumNodesApi {
+interface MyceliumNodesApi {
     @GET("/nodes-b.json")
     fun getNodes(): Call<MyceliumNodesResponse>
 
@@ -39,6 +45,8 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
                             @SerializedName("ETH-testnet") val ethTestnet: ETHNetResponse?,
                             @SerializedName("ETH-mainnet") val ethMainnet: ETHNetResponse?,
+                            @SerializedName("FIO-mainnet") val fioMainnet: FIONetResponse?,
+                            @SerializedName("FIO-testnet") val fioTestnet: FIONetResponse?,
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?,
                             @SerializedName("Business") val partners: Map<String, PartnersLocalized>?,
                             @SerializedName("MediaFlow") val mediaFlowSettings: Map<String, MediaFlowContent>,
@@ -46,30 +54,34 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("Balance") val balanceSettings: Map<String, BalanceContent>,
                             @SerializedName("Buy-Sell") val buySellSettings: Map<String, BuySellContent>)
 
-data class PartnerInfo(@SerializedName("start-date") val startDate: Date?,
-                       @SerializedName("end-date") val endDate: Date?,
-                       val id: String? = null,
-                       val name: String? = null) {
-    var isEnabled:Boolean? = true
-}
+data class PartnerInfo(val id: String? = null,
+                       val name: String? = null) :CommonContent()
 
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
 class ETHNetResponse(@SerializedName("blockbook-servers") val ethBBServers: EthServerResponse)
 
-class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
+class FIONetResponse(@SerializedName("api-servers") val fioApiServers: FioServerResponse,
+                     @SerializedName("history-servers") val fioHistoryServers: FioServerResponse,
+                     @SerializedName("tpid") val tpid: String)
 
-class ElectrumXResponse(val primary : Array<UrlResponse>)
+class WapiSectionResponse(val primary: Array<HttpsUrlResponse>)
 
-class EthServerResponse(val primary : Array<UrlResponse>)
+class ElectrumXResponse(val primary: Array<UrlResponse>)
+
+class EthServerResponse(val primary: Array<UrlResponse>)
+
+class FioServerResponse(val primary: Array<UrlResponse>)
 
 class UrlResponse(val url: String)
 
 class HttpsUrlResponse(val url: String, @SerializedName("cert-sha1") val cert: String)
 
 class WalletConfiguration(private val prefs: SharedPreferences,
-                          val network : NetworkParameters) {
+                          val network: NetworkParameters) : IServerFioEventsPublisher {
+
+    private val logger = Logger.getLogger(WalletConfiguration::class.java.simpleName)
 
     val gson = GsonBuilder().create()
 
@@ -78,7 +90,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
-                val service  = Retrofit.Builder()
+                val service = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build()
@@ -110,20 +122,45 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         myceliumNodesResponse?.ethMainnet
                     }?.ethBBServers?.primary?.map { it.url }?.toSet()
 
+                    val fioApiServersFromResponse = if (network.isTestnet) {
+                        myceliumNodesResponse?.fioTestnet
+                    } else {
+                        myceliumNodesResponse?.fioMainnet
+                    }?.fioApiServers?.primary?.map { it.url }?.toSet()
+
+                    val fioHistoryServersFromResponse = if (network.isTestnet) {
+                        myceliumNodesResponse?.fioTestnet
+                    } else {
+                        myceliumNodesResponse?.fioMainnet
+                    }?.fioHistoryServers?.primary?.map { it.url }?.toSet()
+
+                    val fioTpid = if (network.isTestnet) {
+                        myceliumNodesResponse?.fioTestnet
+                    } else {
+                        myceliumNodesResponse?.fioMainnet
+                    }?.tpid
+
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
 
                     val oldElectrum = electrumServers
                     val oldEth = ethBBServers
+                    val oldFioApi = fioApiServers
+                    val oldFioHistory = fioHistoryServers
+                    val oldFioTpid = tpid
+
                     ethServersFromResponse?.let {
                         prefEditor.putStringSet(PREFS_ETH_BB_SERVERS, ethServersFromResponse)
                     }
-                    myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
-                        prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
+                    fioApiServersFromResponse?.let {
+                        prefEditor.putStringSet(PREFS_FIO_API_SERVERS, fioApiServersFromResponse)
                     }
-                    myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.startDate?.let {
-                        prefEditor.putLong(PREFS_FIO_START_DATE, it.time)
+                    fioHistoryServersFromResponse?.let {
+                        prefEditor.putStringSet(PREFS_FIO_HISTORY_SERVERS, fioHistoryServersFromResponse)
+                    }
+                    fioTpid?.let {
+                        prefEditor.putString(PREFS_FIO_TPID, it)
                     }
                     myceliumNodesResponse?.partnerInfos?.let {
                         it.entries.forEach {
@@ -153,8 +190,26 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                             serverEthListChangedListener.serverListChanged(getBlockBookEndpoints().toTypedArray())
                         }
                     }
+
+                    if (oldFioApi != fioApiServers) {
+                        for (serverFioApiListChangedListener in serverFioApiListChangedListeners) {
+                            serverFioApiListChangedListener.apiServerListChanged(getFioApiEndpoints().toTypedArray())
+                        }
+                    }
+                    if (oldFioHistory != fioHistoryServers) {
+                        for (serverFioHistoryListChangedListener in serverFioHistoryListChangedListeners) {
+                            serverFioHistoryListChangedListener.historyServerListChanged(getFioHistoryEndpoints().toTypedArray())
+                        }
+                    }
+                    if (oldFioTpid != tpid) {
+                        for (fioTpidChangedListener in fioTpidChangedListeners) {
+                            fioTpidChangedListener.tpidChanged(tpid)
+                        }
+                    }
                 }
-            } catch (_: Exception) {}
+            } catch (ex: Exception) {
+                logger.log(Level.WARNING, "Error when read configuration: ${ex.localizedMessage}")
+            }
         }
     }
 
@@ -169,6 +224,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     // Returns the set of ethereum blockbook servers
     private val ethBBServers: Set<String>
         get() = prefs.getStringSet(PREFS_ETH_BB_SERVERS, mutableSetOf(*BuildConfig.EthBlockBook))!!
+
+    private val fioApiServers: Set<String>
+        get() = prefs.getStringSet(PREFS_FIO_API_SERVERS, mutableSetOf(*BuildConfig.FioApiServers))!!
+
+    private val fioHistoryServers: Set<String>
+        get() = prefs.getStringSet(PREFS_FIO_HISTORY_SERVERS, mutableSetOf(*BuildConfig.FioHistoryServers))!!
+
+    private val tpid: String
+        get() = prefs.getString(PREFS_FIO_TPID, BuildConfig.tpid)!!
 
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
@@ -198,8 +262,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
     fun getBlockBookEndpoints(): List<HttpsEndpoint> = ethBBServers.map { HttpsEndpoint(it) }
 
+    fun getFioApiEndpoints(): List<HttpsEndpoint> = fioApiServers.map { HttpsEndpoint(it) }
+    fun getFioHistoryEndpoints(): List<HttpsEndpoint> = fioHistoryServers.map { HttpsEndpoint(it) }
+    fun getFioTpid(): String = tpid
+
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
-    private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
+    private var serverEthListChangedListeners: ArrayList<ServerEthListChangedListener> = arrayListOf()
+    private var serverFioApiListChangedListeners: ArrayList<ServerFioApiListChangedListener> = arrayListOf()
+    private var serverFioHistoryListChangedListeners: ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
+    private var fioTpidChangedListeners: ArrayList<FioTpidChangedListener> = arrayListOf()
 
     fun getSupportedERC20Tokens(): Map<String, ERC20Token> = listOf(
             ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"),
@@ -285,21 +356,32 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             })
             .associateBy { it.name }
 
-    fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
+    fun setElectrumServerListChangedListener(serverElectrumListChangedListener: ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener
     }
 
-    fun addEthServerListChangedListener(servereEthListChangedListener : ServerEthListChangedListener) {
-        this.serverEthListChangedListeners.add(servereEthListChangedListener)
+    fun addEthServerListChangedListener(serverEthListChangedListener: ServerEthListChangedListener) {
+        this.serverEthListChangedListeners.add(serverEthListChangedListener)
+    }
+
+    override fun setFioServerListChangedListeners(serverFioApiListChangedListener: ServerFioApiListChangedListener,
+                                                  serverFioHistoryListChangedListener: ServerFioHistoryListChangedListener) {
+        this.serverFioApiListChangedListeners.add(serverFioApiListChangedListener)
+        this.serverFioHistoryListChangedListeners.add(serverFioHistoryListChangedListener)
+    }
+
+    override fun setFioTpidChangedListener(fioTpidChangedListener: FioTpidChangedListener) {
+        this.fioTpidChangedListeners.add(fioTpidChangedListener)
     }
 
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
+        const val PREFS_FIO_API_SERVERS = "fio_api_servers"
+        const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
+        const val PREFS_FIO_TPID = "fio_tpid"
         const val ONION_DOMAIN = ".onion"
-        const val PREFS_FIO_END_DATE = "fio_end_date"
-        const val PREFS_FIO_START_DATE = "fio_start_date"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
         const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"

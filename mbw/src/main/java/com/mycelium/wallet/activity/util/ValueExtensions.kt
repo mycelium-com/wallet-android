@@ -3,7 +3,7 @@ package com.mycelium.wallet.activity.util
 import com.mycelium.view.Denomination
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import java.text.DecimalFormat
@@ -32,7 +32,7 @@ fun Value.toString(denomination: Denomination = Denomination.UNIT): String {
     return CoinFormat.format(result)
 }
 
-fun GenericAssetInfo.isBtc(): Boolean {
+fun AssetInfo.isBtc(): Boolean {
     return this == BitcoinMain.get() || this == BitcoinTest.get()
 }
 

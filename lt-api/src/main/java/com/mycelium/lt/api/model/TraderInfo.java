@@ -21,7 +21,7 @@ import java.util.LinkedList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 public class TraderInfo extends PublicTraderInfo implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -38,7 +38,7 @@ public class TraderInfo extends PublicTraderInfo implements Serializable {
    @JsonProperty
    public final String notificationEmail;
 
-   public TraderInfo(@JsonProperty("nickname") String nickname, @JsonProperty("address") Address address,
+   public TraderInfo(@JsonProperty("nickname") String nickname, @JsonProperty("address") BitcoinAddress address,
          @JsonProperty("publicKey") PublicKey publicKey, @JsonProperty("traderAgeMs") long traderAgeMs,
          @JsonProperty("idleTime") long idleTime, @JsonProperty("lastChange") long lastChange,
          @JsonProperty("localTraderPremium") double localTraderPremium,

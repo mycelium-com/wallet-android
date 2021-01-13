@@ -42,6 +42,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -52,14 +53,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.bequant.BequantPreference;
+import com.mycelium.bequant.BequantConstants;
+import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
 import com.mycelium.wallet.activity.addaccount.ERC20TokenAdapter;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
@@ -74,6 +80,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
+import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,7 +93,7 @@ import butterknife.OnClick;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
-public class AddAccountActivity extends Activity {
+public class AddAccountActivity extends AppCompatActivity {
     private ETHCreationAsyncTask ethCreationAsyncTask;
 
     public static void callMe(Fragment fragment, int requestCode) {
@@ -109,12 +116,17 @@ public class AddAccountActivity extends Activity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_account_activity);
+
+        setSupportActionBar(findViewById(R.id.toolbar));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         ButterKnife.bind(this);
         _mbwManager = MbwManager.getInstance(this);
         _toaster = new Toaster(this);
 
         findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
         findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
+        findViewById(R.id.btFIOCreate).setOnClickListener(createFioAccount);
         if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
             findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
         } else {
@@ -142,6 +154,11 @@ public class AddAccountActivity extends Activity {
             }
         }
         return result;
+    }
+
+    @OnClick(R.id.btInvestmentCreate)
+    void onAddInvestment() {
+        startActivity(new Intent(this, BequantIntroActivity.class));
     }
 
     @OnClick(R.id.btEthCreate)
@@ -286,6 +303,17 @@ public class AddAccountActivity extends Activity {
         }
     };
 
+    View.OnClickListener createFioAccount = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+                @Override
+                public void run() {
+                    createFIOAccount();
+                }
+            });
+        }
+    };
     View.OnClickListener createColuAccount = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -310,10 +338,30 @@ public class AddAccountActivity extends Activity {
         new HdCreationAsyncTask().execute();
     }
 
+    private void createFIOAccount() {
+        showProgress(R.string.fio_account_creation_started);
+        new FIOCreationAsyncTask().execute();
+    }
+
     private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         @Override
         protected UUID doInBackground(Void... params) {
             return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID account) {
+            _progress.dismiss();
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+            finishOk(account);
+        }
+    }
+
+    private class FIOCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        @Override
+        protected UUID doInBackground(Void... params) {
+            return _mbwManager.getWalletManager(false).createAccounts(new FIOMasterseedConfig()).get(0);
         }
 
         @Override
@@ -442,6 +490,10 @@ public class AddAccountActivity extends Activity {
     public void onResume() {
         MbwManager.getEventBus().register(this);
         super.onResume();
+
+        findViewById(R.id.btInvestmentCreate).setVisibility(
+                BequantPreference.isLogged() || !SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID) ?
+                        View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -450,5 +502,14 @@ public class AddAccountActivity extends Activity {
         MbwManager.getEventBus().unregister(this);
         _mbwManager.getVersionManager().closeDialog();
         super.onPause();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

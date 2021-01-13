@@ -36,6 +36,7 @@ package com.mycelium.wallet;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -60,6 +61,8 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
+import com.mycelium.wallet.fio.FioRequestNotificator;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
@@ -128,6 +131,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+        FioRequestNotificator.initialize(this);
 
         UpdateConfigWorker.start(this);
     }
@@ -137,10 +141,13 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         int pid = android.os.Process.myPid();
         ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
         if (manager != null) {
-            for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
-                if (processInfo.pid == pid) {
-                    currentProcName = processInfo.processName;
-                    break;
+            List<RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
+            if (runningAppProcesses != null) {
+                for (RunningAppProcessInfo processInfo : runningAppProcesses) {
+                    if (processInfo.pid == pid) {
+                        currentProcName = processInfo.processName;
+                        break;
+                    }
                 }
             }
         }

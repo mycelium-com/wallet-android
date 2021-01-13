@@ -1,17 +1,17 @@
 package com.mycelium.wapi.content.btc
 
-import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
 import java.lang.StringBuilder
 
 
-class BitcoinUri(address: GenericAddress?, value: Value?, label: String?, override val callbackURL: String? = null, scheme: String = "bitcoin")
-    : GenericAssetUri(address, value, label, scheme), WithCallback {
+class BitcoinUri(address: Address?, value: Value?, label: String?, override val callbackURL: String? = null, scheme: String = "bitcoin")
+    : AssetUri(address, value, label, scheme), WithCallback {
     companion object {
         @JvmStatic
-        fun from(address: GenericAddress?, value: Value?, label: String?, callbackURL: String? = null): BitcoinUri {
+        fun from(address: Address?, value: Value?, label: String?, callbackURL: String? = null): BitcoinUri {
             return BitcoinUri(address, value, label, callbackURL)
         }
     }
