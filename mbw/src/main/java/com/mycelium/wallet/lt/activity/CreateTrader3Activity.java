@@ -54,6 +54,7 @@ import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
@@ -164,12 +165,12 @@ public class CreateTrader3Activity extends Activity {
       public void onLtError(int errorCode) {
          if (errorCode == LtApi.ERROR_CODE_TRADER_NICKNAME_NOT_UNIQUE) {
             // The name was not available, let the user choose another name
-            Toast.makeText(CreateTrader3Activity.this, R.string.lt_error_account_name_taken, Toast.LENGTH_LONG).show();
+            new Toaster(CreateTrader3Activity.this).toast(R.string.lt_error_account_name_taken, false);
             enableUi(true);
             findViewById(R.id.pbWait).setVisibility(View.GONE);
         } else {
             // Some other error
-            Toast.makeText(CreateTrader3Activity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+            new Toaster(CreateTrader3Activity.this).toast(R.string.lt_error_api_occurred, false);
             finish();
          }
       }

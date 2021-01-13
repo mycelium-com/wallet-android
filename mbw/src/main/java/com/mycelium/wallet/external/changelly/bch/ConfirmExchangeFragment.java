@@ -28,6 +28,7 @@ import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
@@ -415,7 +416,7 @@ public class ConfirmExchangeFragment extends Fragment {
         @Override
         public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
                               @NonNull Throwable t) {
-            Toast.makeText(getActivity(), "Service unavailable", Toast.LENGTH_SHORT).show();
+            new Toaster(getActivity()).toast("Service unavailable", true);
         }
     }
 

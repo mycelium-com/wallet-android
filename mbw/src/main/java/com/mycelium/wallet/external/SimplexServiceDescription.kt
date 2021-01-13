@@ -7,11 +7,11 @@ import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
@@ -27,7 +27,7 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
 
     override fun launchService(context: Activity, mbwManager: MbwManager, activeReceivingAddress: Address) {
         if (!mbwManager.selectedAccount.canSpend()) {
-            Toast.makeText(context, R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show()
+            Toaster(context).toast(R.string.lt_warning_watch_only_account, false)
             return
         }
         val receivingAddress = mbwManager.selectedAccount.receiveAddress
@@ -54,7 +54,7 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
                     }
                     .create().show()
         } else {
-            Toast.makeText(context, "Simplex cannot start - no available address.", Toast.LENGTH_LONG).show()
+            Toaster(context).toast("Simplex cannot start - no available address.", false)
         }
     }
 

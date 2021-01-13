@@ -426,7 +426,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 .createAccounts(UnrelatedHDAccountConfig(listOf(hdKeyNode)))[0]
         xpubSyncing = true
         if (!mbwManager.getWalletManager(true).startSynchronization(receivingAcc!!)) {
-            MbwManager.getEventBus().post(SyncFailed())
+            MbwManager.getEventBus().post(SyncFailed(receivingAcc))
         }
     }
 }

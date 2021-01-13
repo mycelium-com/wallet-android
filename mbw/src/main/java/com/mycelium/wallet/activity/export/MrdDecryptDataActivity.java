@@ -49,7 +49,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
-import androidx.fragment.app.Fragment;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
@@ -64,6 +63,7 @@ import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.TextNormalizer;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.squareup.otto.Subscribe;
 
 import java.util.Locale;
@@ -108,7 +108,7 @@ public class MrdDecryptDataActivity extends Activity {
       try {
          header = MrdExport.V1.extractHeader(encryptedData);
       } catch (DecodingException e) {
-         Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+         new Toaster(this).toast(R.string.unrecognized_format, true);
          finish();
          return;
       }
@@ -232,7 +232,7 @@ public class MrdDecryptDataActivity extends Activity {
       } else if (header.type == MrdExport.V1.Header.Type.MASTER_SEED) {
          tryDecryptMasterSeed(parameters);
       } else {
-         Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+         new Toaster(this).toast(R.string.unrecognized_format, true);
          finish();
       }
    }
@@ -250,7 +250,7 @@ public class MrdDecryptDataActivity extends Activity {
          // Invalid password, ask the user if he wishes to retry
          showRetryDialog();
       } catch (DecodingException e) {
-         Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+         new Toaster(this).toast(R.string.unrecognized_format, true);
          finish();
       }
    }
@@ -268,7 +268,7 @@ public class MrdDecryptDataActivity extends Activity {
          // Invalid password, ask the user if he wishes to retry
          showRetryDialog();
       } catch (DecodingException e) {
-         Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+         new Toaster(this).toast(R.string.unrecognized_format, true);
          finish();
       }
    }

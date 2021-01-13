@@ -40,17 +40,19 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Strings;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -144,7 +146,7 @@ public class BitIDAuthenticationActivity extends AppCompatActivity {
 
       DialogInterface.OnClickListener noListen = new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int which) {
-            Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_aborted, Toast.LENGTH_LONG).show();
+            new Toaster(BitIDAuthenticationActivity.this).toast(R.string.bitid_aborted, false);
             dialog.dismiss();
          }
       };
@@ -159,11 +161,11 @@ public class BitIDAuthenticationActivity extends AppCompatActivity {
    public void onTaskCompleted(BitIdResponse response) {
       progress.dismiss();
       if (BitIdResponse.ResponseStatus.NOCONNECTION == response.status) {
-         Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_noconnection, Toast.LENGTH_LONG).show();
+         new Toaster(BitIDAuthenticationActivity.this).toast(R.string.bitid_noconnection, false);
       } else if (BitIdResponse.ResponseStatus.TIMEOUT == response.status) {
-         Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_timeout, Toast.LENGTH_LONG).show();
+         new Toaster(BitIDAuthenticationActivity.this).toast(R.string.bitid_timeout, false);
       } else if (BitIdResponse.ResponseStatus.REFUSED == response.status) {
-         Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_refused, Toast.LENGTH_LONG).show();
+         new Toaster(BitIDAuthenticationActivity.this).toast(R.string.bitid_refused, false);
       } else if (BitIdResponse.ResponseStatus.SSLPROBLEM == response.status) {
          showDialog(response.message);
       } else if (BitIdResponse.ResponseStatus.SUCCESS == response.status) {
@@ -224,7 +226,7 @@ public class BitIDAuthenticationActivity extends AppCompatActivity {
 
    private void showLoggedIn() {
       //Success - we have been logged in
-      Toast.makeText(BitIDAuthenticationActivity.this, R.string.bitid_loggedin, Toast.LENGTH_LONG).show();
+      new Toaster(BitIDAuthenticationActivity.this).toast(R.string.bitid_loggedin, false);
       signInButton.setVisibility(View.GONE);
       question.setText(getString(R.string.bitid_success, request.getHost()));
    }

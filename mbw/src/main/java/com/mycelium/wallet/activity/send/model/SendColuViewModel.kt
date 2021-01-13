@@ -4,11 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.app.ProgressDialog
 import android.util.Log
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
-import android.widget.Toast.makeText
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.api.response.Feature
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.SyncMode
@@ -32,7 +30,7 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
                 // if we have a payment request, check if it is expired
                 val sendBtcModel = model as SendBtcModel
                 if (sendBtcModel.hasPaymentRequestHandler() && sendBtcModel.paymentRequestExpired()) {
-                    makeText(activity, activity.getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show()
+                    Toaster(activity).toast(R.string.payment_request_not_sent_expired, false)
                     return@runPinProtectedFunction
                 }
 
@@ -67,13 +65,13 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
                     progressDialog?.dismiss()
                     mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL,
                             (model.transaction as ColuTransaction).fundingAccounts + model.account)
-                    makeText(activity, R.string.transaction_sent, Toast.LENGTH_SHORT).show()
+                    Toaster(activity).toast(R.string.transaction_sent, true)
                     activity.finish()
                 }
                 .doOnError {
                     progressDialog?.dismiss()
-                    makeText(activity, context.getString(R.string.asset_failed_to_broadcast,
-                            model.account.coinType.symbol), Toast.LENGTH_SHORT).show()
+                    Toaster(activity).toast(context.getString(R.string.asset_failed_to_broadcast,
+                            model.account.coinType.symbol), true)
                 }
                 .subscribe()
     }

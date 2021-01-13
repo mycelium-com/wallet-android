@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
@@ -62,7 +63,7 @@ open class DetailsFragment : Fragment() {
             this.tag = tag
             setOnLongClickListener {
                 Utils.setClipboardString(value.toString(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.basedOnCoinType)), requireContext())
-                Toast.makeText(requireContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                Toaster(requireContext()).toast(R.string.copied_to_clipboard, true)
                 true
             }
         }

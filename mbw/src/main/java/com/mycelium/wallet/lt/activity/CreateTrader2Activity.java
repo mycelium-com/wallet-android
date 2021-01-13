@@ -43,7 +43,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.Toast;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.BitcoinAddress;
@@ -51,10 +51,13 @@ import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
@@ -214,7 +217,7 @@ public class CreateTrader2Activity extends Activity {
 
       @Override
       public void onLtError(int errorCode) {
-         Toast.makeText(CreateTrader2Activity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+         new Toaster(CreateTrader2Activity.this).toast(R.string.lt_error_api_occurred, false);
          finish();
       }
 

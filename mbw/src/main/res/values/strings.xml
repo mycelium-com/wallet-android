@@ -83,7 +83,7 @@
     <string name="private_key">Private Key</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="approximate_fiat_value">%2$s %1$s</string>
-    <string name="no_server_connection">No Server Connection</string>
+    <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
@@ -1639,4 +1639,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_recipient_invalid">Invalid FIO Name</string>
     <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
     <string name="activate_trading_custodial_account">Activate Trading Custodial Account</string>
+    <string name="service_unavailable">Service unavailable</string>
+    <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
 </resources>

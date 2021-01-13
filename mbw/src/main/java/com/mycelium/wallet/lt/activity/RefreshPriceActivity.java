@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet.lt.activity;
 
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -46,7 +44,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.TradeSession;
@@ -55,9 +52,12 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.AssessBtcSellPrice;
+
+import java.util.Locale;
 
 public class RefreshPriceActivity extends Activity {
 
@@ -216,7 +216,7 @@ public class RefreshPriceActivity extends Activity {
 
       @Override
       public void onLtError(int errorCode) {
-         Toast.makeText(RefreshPriceActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+         new Toaster(RefreshPriceActivity.this).toast(R.string.lt_error_api_occurred, false);
          finish();
       }
 

@@ -19,6 +19,7 @@ import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity.Companion.MANUAL_ENTRY_RESULT_CODE
 import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
@@ -137,7 +138,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
             getPaymentUri()
         }
         Utils.setClipboardString(text, context)
-        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+        Toaster(context).toast(R.string.copied_to_clipboard, true)
     }
 
     fun copyFioNameToClipboard() {
