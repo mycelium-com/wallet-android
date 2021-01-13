@@ -269,6 +269,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
+    private final WapiClientElectrumX _wapiV;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -330,6 +331,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
+        _wapiV = initWapi(configuration.getElectrumVEndpoints(), Collections.emptyList());
         configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
@@ -868,7 +870,7 @@ public class MbwManager {
         walletManager.add(fioModule);
 
         BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
-        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore, networkParameters, walletDB, _wapi, getMetadataStorage(), accountListener));
+        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore, networkParameters, walletDB, _wapiV, getMetadataStorage(), accountListener));
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();
