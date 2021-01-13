@@ -125,12 +125,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         myceliumNodesResponse?.btcVMainnet
                     }?.electrumx?.primary?.map { it.url }?.toSet()
 
-                    val wapiVNodes = if (network.isTestnet) {
-                        myceliumNodesResponse?.btcVTestnet
-                    } else {
-                        myceliumNodesResponse?.btcVMainnet
-                    }?.wapi?.primary
-
                     val ethServersFromResponse = if (network.isTestnet) {
                         myceliumNodesResponse?.ethTestnet
                     } else {
