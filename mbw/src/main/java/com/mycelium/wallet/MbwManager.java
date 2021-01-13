@@ -269,7 +269,6 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
-    private final WapiClientElectrumX _wapiV;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -331,7 +330,6 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
-        _wapiV = initWapi(configuration.getElectrumVEndpoints(), configuration.getWapiVEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
@@ -1606,10 +1604,6 @@ public class MbwManager {
 
     public WapiClientElectrumX getWapi() {
         return _wapi;
-    }
-
-    public WapiClientElectrumX getWapiV() {
-        return _wapiV;
     }
 
     public TorManager getTorManager() {

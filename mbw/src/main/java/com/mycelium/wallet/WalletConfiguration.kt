@@ -168,10 +168,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         prefEditor.putStringSet(PREFS_ELECTRUMV_SERVERS, electrumXVnodes)
                     }
 
-                    wapiVNodes?.let {
-                        prefEditor.putString(PREFS_WAPIV_SERVERS, gson.toJson(wapiVNodes))
-                    }
-
                     val oldElectrum = electrumServers
                     val oldEth = ethBBServers
                     val oldFioApi = fioApiServers
@@ -252,10 +248,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private val electrumVServers: Set<String>
         get() = prefs.getStringSet(PREFS_ELECTRUMV_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
 
-    // Returns the set of Wapi for BTCVault servers
-    private val wapiVServers: String
-        get() = prefs.getString(PREFS_WAPIV_SERVERS, BuildConfig.WapiServers)!!
-
     // Returns the set of ethereum blockbook servers
     private val ethBBServers: Set<String>
         get() = prefs.getStringSet(PREFS_ETH_BB_SERVERS, mutableSetOf(*BuildConfig.EthBlockBook))!!
@@ -293,10 +285,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     fun getWapiEndpoints(): List<HttpEndpoint> {
         return getEndpoints(wapiServers)
-    }
-
-    fun getWapiVEndpoints(): List<HttpEndpoint> {
-        return getEndpoints(wapiVServers)
     }
 
     private fun getEndpoints(wapiServers: String): List<HttpsEndpoint> {
@@ -429,7 +417,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
         const val PREFS_ELECTRUMV_SERVERS = "electrumv_servers"
-        const val PREFS_WAPIV_SERVERS = "wapiv_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
         const val PREFS_FIO_API_SERVERS = "fio_api_servers"
         const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
