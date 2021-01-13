@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.btcvault.hd
 
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
@@ -38,7 +39,8 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
         private var lastDiscovery: Long = 0,
         val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
-        val accountSubId: Int = 0
+        val accountSubId: Int = 0,
+        val defaultAddressType: AddressType = AddressType.P2PKH
 ) : AccountContextImpl<BitcoinVaultHDAccountContext>(id, currency, accountName, balance, listener, isArchived, blockHeight) {
     private var isDirty: Boolean = false
 
@@ -104,7 +106,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
     /**
      * Persist this context if it is marked as dirty
      */
-    fun persistIfNecessary(backing: BitcoinVaultHDBacking) {
+    fun persistIfNecessary(backing: BitcoinVaultHDAccountBacking) {
         if (isDirty) {
             persist(backing)
         }
@@ -113,7 +115,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
     /**
      * Persist this context
      */
-    fun persist(backing: BitcoinVaultHDBacking) {
+    fun persist(backing: BitcoinVaultHDAccountBacking) {
         backing.updateAccountContext(this)
         isDirty = false
     }

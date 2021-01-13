@@ -35,7 +35,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
             backing.loadAccountContexts().associateBy({ it.uuid }, {
                 val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-                BitcoinVaultHDAccount(it, keyManagerMap, networkParameters,
+                BitcoinVaultHDAccount(it, keyManagerMap, networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, it.uuid, coinType), accountListener)
                         .apply { accounts[this.id] = this }
             })
@@ -49,7 +49,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
 
                 // Create the base keys for the account
-                val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+                val keyManagerMap = hashMapOf<BipDerivationType, HDAccountKeyManager>()
                 for (derivationType in BipDerivationType.values()) {
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
@@ -67,7 +67,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                         Balance.getZeroBalance(coinType), backing::updateAccountContext)
 
                 backing.createAccountContext(accountContext)
-                result = BitcoinVaultHDAccount(accountContext, keyManagerMap, networkParameters,
+                result = BitcoinVaultHDAccount(accountContext, keyManagerMap, networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, accountContext.uuid, coinType),
                         accountListener)
             }
