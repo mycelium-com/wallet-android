@@ -245,7 +245,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
     private val electrumVServers: Set<String>
-        get() = prefs.getStringSet(PREFS_ELECTRUMV_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
+        get() = prefs.getStringSet(PREFS_ELECTRUMV_SERVERS, mutableSetOf(*BuildConfig.ElectrumServersV))!!
 
     // Returns the set of ethereum blockbook servers
     private val ethBBServers: Set<String>

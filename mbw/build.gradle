@@ -365,6 +365,7 @@ android {
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
+        variant.buildConfigField "String[]", "ElectrumServersV", "${flavor.ext.ElectrumServersV}"
         variant.buildConfigField "String[]", "EthBlockBook", "${flavor.ext.EthBlockBook}"
         variant.buildConfigField "String[]", "FioApiServers", "${flavor.ext.FioApiServers}"
         variant.buildConfigField "String[]", "FioHistoryServers", "${flavor.ext.FioHistoryServers}"
