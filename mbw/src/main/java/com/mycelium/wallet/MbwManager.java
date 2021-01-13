@@ -333,6 +333,7 @@ public class MbwManager {
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
         _wapiV = initWapi(configuration.getElectrumVEndpoints(), configuration.getWapiEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
+        configuration.setElectrumVServerListChangedListener(_wapiV);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();

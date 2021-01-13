@@ -163,6 +163,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
 
                     val oldElectrum = electrumServers
+                    val oldVElectrum = electrumVServers
                     val oldEth = ethBBServers
                     val oldFioApi = fioApiServers
                     val oldFioHistory = fioHistoryServers
@@ -201,6 +202,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
                     if (oldElectrum != electrumServers) {
                         serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    }
+
+                    if (oldVElectrum != electrumVServers) {
+                        serverElectrumVListChangedListener?.serverListChanged(getElectrumVEndpoints().toTypedArray())
                     }
 
                     if (oldEth != ethBBServers) {
@@ -300,6 +305,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     fun getFioTpid(): String = tpid
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
+    private var serverElectrumVListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners: ArrayList<ServerEthListChangedListener> = arrayListOf()
     private var serverFioApiListChangedListeners: ArrayList<ServerFioApiListChangedListener> = arrayListOf()
     private var serverFioHistoryListChangedListeners: ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
@@ -391,6 +397,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     fun setElectrumServerListChangedListener(serverElectrumListChangedListener: ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener
+    }
+
+    fun setElectrumVServerListChangedListener(serverElectrumVListChangedListener: ServerElectrumListChangedListener) {
+        this.serverElectrumVListChangedListener = serverElectrumVListChangedListener
     }
 
     fun addEthServerListChangedListener(serverEthListChangedListener: ServerEthListChangedListener) {
