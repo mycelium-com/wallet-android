@@ -331,7 +331,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
-        _wapiV = initWapi(configuration.getElectrumVEndpoints(), Collections.emptyList());
+        _wapiV = initWapi(configuration.getElectrumVEndpoints(), configuration.getWapiEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
