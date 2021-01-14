@@ -2,17 +2,17 @@ package com.mycelium.wapi.wallet.providers
 
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 
-open class BtcFeeProvider(testnet: Boolean, wapi: Wapi, feeBacking: FeeEstimationsBacking) :
+class BtcvFeeProvider(testnet: Boolean, wapi: Wapi, feeBacking: FeeEstimationsBacking) :
         WapiFeeProvider(wapi, feeBacking) {
-    final override val coinType = if (testnet) {
-        BitcoinTest.get()!!
+    override val coinType = if (testnet) {
+        BitcoinVaultTest
     } else {
-        BitcoinMain.get()!!
+        BitcoinVaultMain
     }
 
     override var estimation = feeBacking.getEstimationForCurrency(coinType)
