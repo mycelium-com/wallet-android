@@ -19,6 +19,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.fio.FioModule
@@ -86,6 +87,13 @@ class AddressFragmentModel(
             is FioAccount -> {
                 val module = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
                 bip32Path.value = module.getBip44Path(account)
+            }
+            is AbstractBtcvAccount -> {
+                account.receiveAddress?.let { address ->
+                    bip32Path.value = address.address.bip32Path
+                    type.value = address.address.type
+                    accountAddressType.value = context.getString(address.address.type.asStringRes())
+                }
             }
         }
         accountAddress.value = account.receiveAddress

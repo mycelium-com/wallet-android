@@ -1,17 +1,20 @@
 package com.mycelium.wapi.wallet.btcvault
 
 import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
-class BtcvAddress @JvmOverloads constructor(override val coinType: CryptoCurrency, val address: String, val type: AddressType = AddressType.P2PKH) : Address {
+class BtcvAddress(override val coinType: CryptoCurrency,
+                  val address: BitcoinAddress) : Address {
+
     override fun toString(): String {
-        return address
+        return address.toString()
     }
 
     override fun getBytes(): ByteArray {
-        return address.toByteArray()
+        return address.allAddressBytes
     }
 
     override fun equals(o: Any?): Boolean {
@@ -25,5 +28,7 @@ class BtcvAddress @JvmOverloads constructor(override val coinType: CryptoCurrenc
         return Objects.hash(address)
     }
 
-    override fun getSubType(): String = "default"
+    override fun getSubType(): String = address.type.name
+
+    fun getType(): AddressType = address.getType();
 }

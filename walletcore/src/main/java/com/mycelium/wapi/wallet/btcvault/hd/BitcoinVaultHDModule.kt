@@ -6,6 +6,8 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BTCSettings
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
@@ -23,6 +25,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                            internal val networkParameters: NetworkParameters,
                            private val walletDB: WalletDB,
                            internal var _wapi: Wapi,
+                           internal var settings: BTCSettings,
                            metadataStorage: IMetaDataStorage,
                            private val accountListener: AccountListener?) : WalletModule(metadataStorage) {
 
@@ -34,9 +37,9 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
             backing.loadAccountContexts().associateBy({ it.uuid }, {
-                val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-                BitcoinVaultHDAccount(it, keyManagerMap, networkParameters, _wapi,
-                        BitcoinVaultHDAccountBacking(walletDB, it.uuid, coinType), accountListener)
+                BitcoinVaultHDAccount(it, loadKeyManagers(it), networkParameters, _wapi,
+                        BitcoinVaultHDAccountBacking(walletDB, it.uuid, coinType), accountListener,
+                        settings.changeAddressModeReference)
                         .apply { accounts[this.id] = this }
             })
 
@@ -69,7 +72,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                 backing.createAccountContext(accountContext)
                 result = BitcoinVaultHDAccount(accountContext, keyManagerMap, networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, accountContext.uuid, coinType),
-                        accountListener)
+                        accountListener, settings.changeAddressModeReference)
             }
             else -> throw IllegalStateException("Account can't be created")
         }
@@ -77,6 +80,14 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
         return result
     }
 
+    private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): HashMap<BipDerivationType, HDAccountKeyManager> =
+            hashMapOf<BipDerivationType, HDAccountKeyManager>().apply {
+                for (entry in context.indexesMap) {
+                    when (context.accountType) {
+                        HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED -> this[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, secureStore, entry.key)
+                    }
+                }
+            }
 
     private fun getCurrentBip44Index() = accounts.values
             .filter { it.isDerivedFromInternalMasterseed }

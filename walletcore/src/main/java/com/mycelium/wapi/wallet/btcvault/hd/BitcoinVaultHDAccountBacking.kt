@@ -43,9 +43,9 @@ class BitcoinVaultHDAccountBacking(walletDB: WalletDB,
         TODO("Not yet implemented")
     }
 
-    override fun getAllUnspentOutputs(): MutableCollection<TransactionOutputEx> {
-        TODO("Not yet implemented")
-    }
+    override fun getAllUnspentOutputs(): Collection<TransactionOutputEx> =
+            listOf()
+
 
     override fun getUnspentOutput(outPoint: OutPoint?): TransactionOutputEx {
         TODO("Not yet implemented")
@@ -99,13 +99,12 @@ class BitcoinVaultHDAccountBacking(walletDB: WalletDB,
         TODO("Not yet implemented")
     }
 
-    override fun getUnconfirmedTransactions(): MutableCollection<TransactionEx> {
-        TODO("Not yet implemented")
-    }
+    override fun getUnconfirmedTransactions(): Collection<TransactionEx> =
+            listOf()
 
-    override fun getYoungTransactions(maxConfirmations: Int, blockChainHeight: Int): MutableCollection<TransactionEx> {
-        TODO("Not yet implemented")
-    }
+
+    override fun getYoungTransactions(maxConfirmations: Int, blockChainHeight: Int): Collection<TransactionEx> =
+            listOf()
 
     override fun hasTransaction(txid: Sha256Hash?): Boolean {
         TODO("Not yet implemented")
@@ -128,7 +127,6 @@ class BitcoinVaultHDAccountBacking(walletDB: WalletDB,
     }
 
     override fun deleteTxRefersParentTransaction(txId: Sha256Hash?) {
-        TODO("Not yet implemented")
     }
 
     override fun getTransactionsReferencingOutPoint(outPoint: OutPoint?): MutableCollection<Sha256Hash> {

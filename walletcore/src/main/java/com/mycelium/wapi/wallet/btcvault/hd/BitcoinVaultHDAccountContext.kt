@@ -40,7 +40,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
         val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
-        val defaultAddressType: AddressType = AddressType.P2PKH
+        var defaultAddressType: AddressType = AddressType.P2PKH
 ) : AccountContextImpl<BitcoinVaultHDAccountContext>(id, currency, accountName, balance, listener, isArchived, blockHeight) {
     private var isDirty: Boolean = false
 
