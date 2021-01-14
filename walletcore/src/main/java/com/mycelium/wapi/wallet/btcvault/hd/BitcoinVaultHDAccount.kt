@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.btcvault.hd
 
+import com.google.common.base.Preconditions
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.mrd.bitlib.crypto.BipDerivationType
@@ -12,6 +13,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
@@ -19,7 +21,6 @@ import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -59,12 +60,9 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isActive(): Boolean = !accountContext.isArchived()
 
-    override fun setAllowZeroConfSpending(b: Boolean) {
-        TODO("Not yet implemented")
-    }
-
-    override fun broadcastTx(tx: Transaction?): BroadcastResult {
-        TODO("Not yet implemented")
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
+        val btcTx: BtcTransaction = tx as BtcTransaction
+        return broadcastTransaction(btcTx.tx!!)
     }
 
     override fun getReceiveAddress(): BtcvAddress = receivingAddressMap[accountContext.defaultAddressType]!!
@@ -145,7 +143,6 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun canSign(): Boolean = true
 
-
     override fun archiveAccount() {
         accountContext.setArchived(true)
     }
@@ -167,10 +164,6 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun removeAllQueuedTransactions() {
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: BtcvAddress?): Value {
-        TODO("Not yet implemented")
-    }
-
     override fun getTypicalEstimatedTransactionSize(): Int = 0
     override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
         for (address in publicKey.getAllSupportedAddresses(network).values) {
@@ -188,7 +181,6 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun queueTransaction(transaction: Transaction) {
         TODO("Not yet implemented")
     }
-
 
     override fun onNewTransaction(t: BitcoinTransaction?) {
         TODO("Not yet implemented")
@@ -229,11 +221,52 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     }
 
     override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
-        TODO("Not yet implemented")
+        val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
+        if (!getAvailableAddressTypes().contains(address.type)) {
+            return null
+        }
+        val indexLookUp = getIndexLookup(toBtcvAddress(address), derivationType)
+        return if (indexLookUp == null) {
+            // still not found? give up...
+            null
+        } else {
+            keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
+        }
     }
 
-    override val availableAddressTypes: List<AddressType?>?
-        get() = derivePaths.asSequence().map { it.addressType }.toList()
+    private fun getIndexLookup(address: BtcvAddress, derivationType: BipDerivationType): IndexLookUp? {
+        var indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!, internalAddresses[derivationType]!!)
+        if (indexLookUp == null) {
+            // we did not find it - to be sure, generate all addresses and search again
+            ensureAddressIndexes()
+            indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!, internalAddresses[derivationType]!!)
+        }
+        return indexLookUp
+    }
+
+    // Helper class to find the mapping for a Address in the internal or external chain
+    private class IndexLookUp private constructor(val isChange: Boolean, val index: Int?) {
+        companion object {
+            fun forAddress(address: BtcvAddress, external: Map<BtcvAddress, Int>, internal: Map<BtcvAddress, Int>): IndexLookUp? {
+                var index: Int? = external[address]
+                return if (index == null) {
+                    index = internal[address]
+                    if (index == null) {
+                        null
+                    } else {
+                        // found it in the internal(=change)-chain
+                        IndexLookUp(true, index)
+                    }
+                } else {
+                    // found it in the external chain
+                    IndexLookUp(false, index)
+                }
+            }
+        }
+    }
+
+    override fun getAvailableAddressTypes(): List<AddressType> =
+            derivePaths.asSequence().map { it.addressType }.toList()
 
 
     override fun setDefaultAddressType(addressType: AddressType) {
@@ -241,17 +274,26 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         accountContext.persistIfNecessary(backing)
     }
 
-    override fun getPublicKeyForAddress(address: BitcoinAddress?): PublicKey {
-        TODO("Not yet implemented")
+    override fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey? {
+        val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
+        if (!getAvailableAddressTypes().contains(address.type)) {
+            return null
+        }
+        val indexLookUp = getIndexLookup(toBtcvAddress(address), derivationType)
+        return if (indexLookUp == null) {
+            // still not found? give up...
+            null
+        } else {
+            Preconditions.checkNotNull(keyManagerMap[derivationType]!!.getPublicKey(indexLookUp.isChange, indexLookUp
+                    .index!!))
+        }
     }
 
     override fun isOwnExternalAddress(address: BitcoinAddress?): Boolean {
         TODO("Not yet implemented")
     }
 
-    override fun isValidEncryptionKey(cipher: KeyCipher?): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun isValidEncryptionKey(cipher: KeyCipher?): Boolean = keyManagerMap.values.any { it.isValidEncryptionKey(cipher) }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         val privateDataMap = if (canSpend()) {
@@ -352,8 +394,6 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         const val INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
         private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
-        private const val INTERNAL_MINIMAL_ADDRESS_LOOK_BACK_LENGTH = 2
-        private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_BACK_LENGTH = 3
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
 }

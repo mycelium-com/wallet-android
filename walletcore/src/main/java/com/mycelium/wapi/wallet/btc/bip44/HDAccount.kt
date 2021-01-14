@@ -755,7 +755,7 @@ open class HDAccount(
         if (tx != null) btcSendRequest.setTransaction(tx)
     }
 
-    override fun broadcastTx(tx: Transaction) :BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         val btcTx = tx as BtcTransaction
         return broadcastTransaction(btcTx.tx)
     }
