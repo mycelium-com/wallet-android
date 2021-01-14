@@ -20,7 +20,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -119,7 +118,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         myceliumNodesResponse?.btcMainnet
                     }?.wapi?.primary
 
-                    val electrumXVnodes = if (network.isTestnet) {
+                    val electrumXBTCVnodes = if (network.isTestnet) {
                         myceliumNodesResponse?.btcVTestnet
                     } else {
                         myceliumNodesResponse?.btcVMainnet
@@ -158,8 +157,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         prefEditor.putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
                     }
 
-                    electrumXVnodes?.let {
-                        prefEditor.putStringSet(PREFS_ELECTRUMV_SERVERS, electrumXVnodes)
+                    electrumXBTCVnodes?.let {
+                        prefEditor.putStringSet(PREFS_ELECTRUM_BTCV_SERVERS, electrumXBTCVnodes)
                     }
 
                     val oldElectrum = electrumServers
@@ -245,7 +244,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
     private val electrumVServers: Set<String>
-        get() = prefs.getStringSet(PREFS_ELECTRUMV_SERVERS, mutableSetOf(*BuildConfig.ElectrumServersV))!!
+        get() = prefs.getStringSet(PREFS_ELECTRUM_BTCV_SERVERS, mutableSetOf(*BuildConfig.ElectrumServersV))!!
 
     // Returns the set of ethereum blockbook servers
     private val ethBBServers: Set<String>
@@ -420,7 +419,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
-        const val PREFS_ELECTRUMV_SERVERS = "electrumv_servers"
+        const val PREFS_ELECTRUM_BTCV_SERVERS = "electrum_btcv_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
         const val PREFS_FIO_API_SERVERS = "fio_api_servers"
         const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
