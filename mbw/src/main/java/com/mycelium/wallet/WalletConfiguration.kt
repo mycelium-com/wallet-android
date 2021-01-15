@@ -162,7 +162,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
 
                     val oldElectrum = electrumServers
-                    val oldVElectrum = electrumVServers
+                    val oldElectrumBTCV = electrumBTCVServers
                     val oldEth = ethBBServers
                     val oldFioApi = fioApiServers
                     val oldFioHistory = fioHistoryServers
@@ -203,7 +203,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
                     }
 
-                    if (oldVElectrum != electrumVServers) {
+                    if (oldElectrumBTCV != electrumBTCVServers) {
                         serverElectrumVListChangedListener?.serverListChanged(getElectrumVEndpoints().toTypedArray())
                     }
 
@@ -243,8 +243,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private val wapiServers: String
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
-    private val electrumVServers: Set<String>
-        get() = prefs.getStringSet(PREFS_ELECTRUM_BTCV_SERVERS, mutableSetOf(*BuildConfig.ElectrumServersV))!!
+    private val electrumBTCVServers: Set<String>
+        get() = prefs.getStringSet(PREFS_ELECTRUM_BTCV_SERVERS, mutableSetOf(*BuildConfig.ElectrumBTCVServers))!!
 
     // Returns the set of ethereum blockbook servers
     private val ethBBServers: Set<String>
@@ -265,7 +265,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     fun getElectrumVEndpoints(): List<TcpEndpoint> {
-        return getElectrumEndpoints(electrumVServers)
+        return getElectrumEndpoints(electrumBTCVServers)
     }
 
     private fun getElectrumEndpoints(electrumServers: Set<String>): ArrayList<TcpEndpoint> {
