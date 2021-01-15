@@ -51,7 +51,6 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
-import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -78,7 +77,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val btcFee = fee as FeePerKbFee
-        val btcTransaction = BtcTransaction(coinType, address as BtcAddress, amount, btcFee.feePerKb)
+        val btcTransaction = BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb)
         val receivers = ArrayList<BtcReceiver>()
         receivers.add(BtcReceiver(btcTransaction.destination!!.address, btcTransaction.amount!!.valueAsLong))
         return try {
@@ -95,7 +94,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
-        val btcSendRequest = request as BtcTransaction
+        val btcSendRequest = request as BtcvTransaction
         btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx!!, AesKeyCipher.defaultKeyCipher()))
     }
 
@@ -1517,7 +1516,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean {
-        val btcTx = tx as BtcTransaction
+        val btcTx = tx as BtcvTransaction
         val unsignedTransaction = btcTx.unsignedTx
         for (out in unsignedTransaction!!.fundingOutputs) {
             val address = out.script.getAddress(network)

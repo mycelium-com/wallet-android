@@ -5,13 +5,17 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.crypto.PrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.BitcoinTransaction
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
+import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest
+import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
@@ -19,6 +23,7 @@ import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
+import com.mycelium.wapi.wallet.btcvault.BtcvTransaction
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
@@ -61,7 +66,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun isActive(): Boolean = !accountContext.isArchived()
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
-        val btcTx: BtcTransaction = tx as BtcTransaction
+        val btcTx: BtcvTransaction = tx as BtcvTransaction
         return broadcastTransaction(btcTx.tx!!)
     }
 

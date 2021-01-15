@@ -30,5 +30,5 @@ class BtcvAddress(override val coinType: CryptoCurrency,
 
     override fun getSubType(): String = address.type.name
 
-    fun getType(): AddressType = address.getType();
+    fun getType(): AddressType = address.type
 }
