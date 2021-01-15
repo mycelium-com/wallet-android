@@ -38,9 +38,8 @@ import com.mycelium.wapi.model.*
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.*
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -587,7 +586,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     protected fun toBtcvAddress(bitcoinAddress: BitcoinAddress): BtcvAddress {
-        return BtcvAddress(coinType, bitcoinAddress.toString())
+        return BtcvAddress(coinType, bitcoinAddress)
     }
 
     private fun transform(parent: TransactionOutputEx): TransactionOutput {
@@ -692,7 +691,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
     protected abstract fun onNewTransaction(t: BitcoinTransaction?)
     protected fun onTransactionsBroadcasted(txids: List<Sha256Hash>?) {}
-    abstract override fun canSpend(): Boolean
+
     fun getTransactionHistory(offset: Int, limit: Int): List<TransactionSummary> {
         // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
         // accounts. That should be ok as we write to the DB in a sane order.
@@ -708,7 +707,6 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         return history
     }
 
-    abstract override fun getBlockChainHeight(): Int
     protected abstract fun setBlockChainHeight(blockHeight: Int)
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
@@ -889,22 +887,23 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             // we remove all outputs that don't cover their costs (dust)
             // coinbase outputs are not spendable and this should not be overridden
             // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
-            if (!skipDustCheck && output.value < satDustOutput || output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS || !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
+            if (!skipDustCheck && output.value < satDustOutput || output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS
+                    || !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
                 it.remove()
             }
         }
         return allUnspentOutputs
     }
 
-    protected abstract fun getChangeAddress(destinationAddress: BitcoinAddress?): BitcoinAddress?
     abstract val changeAddress: BitcoinAddress
-    protected abstract fun getChangeAddress(destinationAddresses: List<BitcoinAddress>?): BitcoinAddress
+
+    protected abstract fun getChangeAddress(vararg destinationAddresses: BtcvAddress): BtcvAddress
 
     @Synchronized
-    fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcAddress?): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value?, destinationAddress: BtcvAddress?): Value? {
         val destAddress = destinationAddress?.address
         checkNotArchived()
-        val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.valueAsLong))
+        val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse!!.valueAsLong))
         var satoshis: Long = 0
 
         // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
@@ -923,14 +922,13 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         val feeToUse = estimator.estimateFee()
         satoshis -= feeToUse
         if (satoshis <= 0) {
-            return zeroValue(if (network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+            return zeroValue(coinType)
         }
 
         // Create transaction builder
         val stb = StandardTransactionBuilder(network)
-        val destinationAddressType: AddressType
-        destinationAddressType = if (destinationAddress != null) {
-            destinationAddress.type
+        val destinationAddressType: AddressType = if (destinationAddress != null) {
+            destinationAddress.address.type
         } else {
             AddressType.P2PKH
         }
@@ -940,19 +938,20 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             stb.addOutput(BitcoinAddress.getNullAddress(network, destinationAddressType), satoshis)
         } catch (e1: StandardTransactionBuilder.BtcOutputTooSmallException) {
             // The amount we try to send is lower than what the network allows
-            return zeroValue(if (network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+            return zeroValue(coinType)
         }
 
         // Try to create an unsigned transaction
         return try {
-            stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(BitcoinAddress.getNullAddress(network, destinationAddressType))!!,
+            stb.createUnsignedTransaction(spendableOutputs,
+                    getChangeAddress(toBtcvAddress(BitcoinAddress.getNullAddress(network, destinationAddressType))).address,
                     PublicKeyRing(), network, minerFeePerKbToUse.valueAsLong)
             // We have enough to pay the fees, return the amount as the maximum
-            valueOf(if (network.isProdnet) BitcoinMain.get() else BitcoinTest.get(), satoshis)
+            valueOf(coinType, satoshis)
         } catch (e: StandardTransactionBuilder.InsufficientBtcException) {
-            zeroValue(if (network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+            zeroValue(coinType)
         } catch (e: StandardTransactionBuilder.UnableToBuildTransactionException) {
-            zeroValue(if (network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+            zeroValue(coinType)
         }
     }
 
@@ -962,13 +961,13 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
-    protected abstract fun getPrivateKey(publicKey: PublicKey?, cipher: KeyCipher?): InMemoryPrivateKey?
+    protected abstract fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey?
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
-    protected abstract fun getPrivateKeyForAddress(address: BitcoinAddress?, cipher: KeyCipher?): InMemoryPrivateKey?
-    abstract val availableAddressTypes: List<AddressType?>?
-    abstract fun setDefaultAddressType(addressType: AddressType?)
-    protected abstract fun getPublicKeyForAddress(address: BitcoinAddress?): PublicKey?
+    protected abstract fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey?
+    abstract fun getAvailableAddressTypes(): List<AddressType>
+    abstract fun setDefaultAddressType(addressType: AddressType)
+    protected abstract fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey?
 
     @Synchronized
     @Throws(StandardTransactionBuilder.BtcOutputTooSmallException::class, StandardTransactionBuilder.InsufficientBtcException::class, StandardTransactionBuilder.UnableToBuildTransactionException::class)
@@ -980,13 +979,13 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
         // Create the unsigned transaction
         val stb = StandardTransactionBuilder(network)
-        val addressList: MutableList<BitcoinAddress> = ArrayList()
+        val addressList: MutableList<BtcvAddress> = mutableListOf()
         for (receiver in receivers) {
             stb.addOutput(receiver.address, receiver.amount)
-            addressList.add(receiver.address)
+            addressList.add(toBtcvAddress(receiver.address))
         }
-        val changeAddress = getChangeAddress(addressList)
-        return stb.createUnsignedTransaction(spendable, changeAddress, PublicKeyRing(),
+        val changeAddress = getChangeAddress(*addressList.toTypedArray())
+        return stb.createUnsignedTransaction(spendable, changeAddress.address, PublicKeyRing(),
                 network, minerFeeToUse)
     }
 
@@ -1326,8 +1325,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
     inner class PrivateKeyRing(var _cipher: KeyCipher) : PublicKeyRing(), IPublicKeyRing, IPrivateKeyRing {
         override fun findSignerByPublicKey(publicKey: PublicKey): BitcoinSigner {
-            val privateKey: InMemoryPrivateKey?
-            privateKey = try {
+            val privateKey: InMemoryPrivateKey? = try {
                 getPrivateKey(publicKey, _cipher)
             } catch (e: KeyCipher.InvalidKeyCipher) {
                 throw RuntimeException("Unable to decrypt private key for public key $publicKey")
@@ -1389,29 +1387,6 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 inputs.toTypedArray(), outputs,
                 tx.vsize()
         )
-    }
-
-    fun createUnsignedPop(txid: Sha256Hash, nonce: ByteArray?): UnsignedTransaction {
-        checkNotArchived()
-        return try {
-            val txExToProve = accountBacking.getTransaction(txid)
-            val txToProve = BitcoinTransaction.fromByteReader(ByteReader(txExToProve.binary))
-            val funding: MutableList<UnspentTransactionOutput> = ArrayList(txToProve.inputs.size)
-            for (input in txToProve.inputs) {
-                val inTxEx = accountBacking.getTransaction(input.outPoint.txid)
-                val inTx = BitcoinTransaction.fromByteReader(ByteReader(inTxEx.binary))
-                val unspentOutput = UnspentTransactionOutput(input.outPoint, inTxEx.height,
-                        inTx.outputs[input.outPoint.index].value,
-                        inTx.outputs[input.outPoint.index].script)
-                funding.add(unspentOutput)
-            }
-            val popOutput = createPopOutput(txid, nonce)
-            val popBuilder = PopBuilder(network)
-            popBuilder.createUnsignedPop(listOf(popOutput), funding,
-                    PublicKeyRing(), network)
-        } catch (e: BitcoinTransaction.TransactionParsingException) {
-            throw RuntimeException("Cannot parse transaction: " + e.message, e)
-        }
     }
 
     override fun getTransactionsSince(receivingSince: Long): List<com.mycelium.wapi.wallet.TransactionSummary> {
@@ -1498,24 +1473,10 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 tx.vsize(), valueOf(coinType, Math.abs(satoshisReceived - satoshisSent)))
     }
 
-    private fun createPopOutput(txidToProve: Sha256Hash, nonce: ByteArray?): TransactionOutput {
-        val byteBuffer = ByteBuffer.allocate(41)
-        byteBuffer.put(Script.OP_RETURN.toByte())
-        byteBuffer.put(1.toByte()).put(0.toByte()) // version 1, little endian
-        byteBuffer.put(txidToProve.bytes) // txid
-        require(!(nonce == null || nonce.size != 6)) { "Invalid nonce. Expected 6 bytes." }
-        byteBuffer.put(nonce) // nonce
-        val scriptOutput = ScriptOutput.fromScriptBytes(byteBuffer.array())
-        return TransactionOutput(0L, scriptOutput)
-    }
+    override fun getCoinType(): CryptoCurrency =
+            if (network.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
-    override fun getCoinType(): CryptoCurrency {
-        return if (network.isProdnet) BitcoinMain.get() else BitcoinTest.get()
-    }
-
-    override fun getBasedOnCoinType(): CryptoCurrency {
-        return coinType
-    }
+    override fun getBasedOnCoinType(): CryptoCurrency = coinType
 
     override fun getAccountBalance(): Balance {
         val coinType = coinType
@@ -1539,14 +1500,11 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         return estimator.estimateTransactionSize()
     }
 
-    override fun getDummyAddress(): BtcvAddress {
-        return BtcvAddress(coinType, BitcoinAddress.getNullAddress(network).toString())
-    }
+    override fun getDummyAddress(): BtcvAddress =
+            BtcvAddress(coinType, BitcoinAddress.getNullAddress(network))
 
-    override fun getDummyAddress(subType: String): BtcvAddress {
-        val address = BitcoinAddress.getNullAddress(network, AddressType.valueOf(subType))
-        return BtcvAddress(coinType, address.toString())
-    }
+    override fun getDummyAddress(subType: String): BtcvAddress =
+            BtcvAddress(coinType, BitcoinAddress.getNullAddress(network, AddressType.valueOf(subType)))
 
     override fun getUnspentOutputViewModels(): List<OutputViewModel> {
         val outputSummaryList = unspentTransactionOutputSummary

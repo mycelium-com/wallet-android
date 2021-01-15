@@ -553,12 +553,18 @@ public class MbwManager {
 
     private void initPerCurrencySettings() {
         initBTCSettings();
+        initBTCVSettings();
     }
 
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
         currenciesSettingsMap.put(BitcoinSingleAddressModule.ID, btcSettings);
+    }
+
+    private void initBTCVSettings() {
+        BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
+        currenciesSettingsMap.put(BitcoinVaultHDModule.ID, btcSettings);
     }
 
     private void createTempWalletManager() {
@@ -871,7 +877,9 @@ public class MbwManager {
         walletManager.add(fioModule);
 
         BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
-        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore, networkParameters, walletDB, _wapiV, getMetadataStorage(), accountListener));
+        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore, networkParameters,
+                walletDB, _wapiV, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
+                getMetadataStorage(), accountListener));
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();

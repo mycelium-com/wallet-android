@@ -8,10 +8,7 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import com.mycelium.wapi.wallet.manager.*
-import com.mycelium.wapi.wallet.providers.BtcFeeProvider
-import com.mycelium.wapi.wallet.providers.ColuFeeProvider
-import com.mycelium.wapi.wallet.providers.EthFeeProvider
-import com.mycelium.wapi.wallet.providers.FioFeeProvider
+import com.mycelium.wapi.wallet.providers.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
@@ -72,6 +69,8 @@ constructor(val network: NetworkParameters,
         feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
         feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
+        // TODO replace bitcoin wapi with bitcoinvault wapi (wapiV)
+        feeEstimations.addProvider(BtcvFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(FioFeeProvider(network.isTestnet))
     }
 
