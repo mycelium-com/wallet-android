@@ -18,11 +18,13 @@ import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 
 
-class BitcoinVaultHDAccountBacking(walletDB: WalletDB,
+class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
                                    private val uuid: UUID,
                                    private val currency: CryptoCurrency) : BtcAccountBacking {
 
     private val accountQueries = walletDB.bTCVAccountBackingQueries
+    private val txQueries = walletDB.bTCVTransactionQueries
+    private val utxoQueries = walletDB.bTCVUtxoQueries
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
             accountQueries.selectBTCVTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
@@ -34,8 +36,8 @@ class BitcoinVaultHDAccountBacking(walletDB: WalletDB,
                                                                                           confirmations: Int,
                                                                                           sender: String,
                                                                                           receiver: String ->
-                val fromAddress = BtcvAddress(currency, BitcoinAddress.fromString(sender))
-                val toAddress = BtcvAddress(currency, BitcoinAddress.fromString(receiver))
+                val fromAddress = BtcvAddress(currency, BitcoinAddress.fromString(sender).allAddressBytes)
+                val toAddress = BtcvAddress(currency, BitcoinAddress.fromString(receiver).allAddressBytes)
                 BTCVTransactionSummary(
                         currency, HexUtils.toBytes(txid), HexUtils.toBytes(txid), null, timestamp, blockNumber,
                         confirmations, false,
@@ -72,16 +74,22 @@ class BitcoinVaultHDAccountBacking(walletDB: WalletDB,
             listOf()
 
 
-    override fun getUnspentOutput(outPoint: OutPoint?): TransactionOutputEx {
-        TODO("Not yet implemented")
-    }
+    override fun getUnspentOutput(outPoint: OutPoint?): TransactionOutputEx? =
+            utxoQueries.selectUtxoById(outPoint, uuid, mapper = { outpoint: OutPoint?,
+                                                                  accountId: UUID?,
+                                                                  height: Int,
+                                                                  value: Long,
+                                                                  isCoinbase: Boolean,
+                                                                  script: ByteArray? ->
+                TransactionOutputEx(outPoint, height, value, script, isCoinbase)
+            }).executeAsOne()
 
     override fun deleteUnspentOutput(outPoint: OutPoint?) {
-        TODO("Not yet implemented")
+        utxoQueries.deleteUtxo(outPoint, uuid)
     }
 
-    override fun putUnspentOutput(output: TransactionOutputEx?) {
-        TODO("Not yet implemented")
+    override fun putUnspentOutput(output: TransactionOutputEx) {
+        utxoQueries.insertUtxo(output.outPoint, uuid, output.height, output.value, output.isCoinBase, output.script)
     }
 
     override fun putParentTransactionOuputs(outputsList: MutableList<TransactionOutputEx>?) {
@@ -100,28 +108,55 @@ class BitcoinVaultHDAccountBacking(walletDB: WalletDB,
         TODO("Not yet implemented")
     }
 
-    override fun putTransaction(transaction: TransactionEx?) {
-        TODO("Not yet implemented")
+    override fun putTransaction(transaction: TransactionEx) {
+        txQueries.insertTransaction(transaction.txid, transaction.hash, uuid, transaction.height, transaction.time, transaction.binary)
     }
 
     override fun putTransactions(transactions: MutableCollection<out TransactionEx>?) {
-        TODO("Not yet implemented")
+        txQueries.transaction {
+            transactions?.forEach {
+                putTransaction(it)
+            }
+        }
     }
 
-    override fun getTransaction(hash: Sha256Hash?): TransactionEx {
-        TODO("Not yet implemented")
+    override fun getTransaction(hash: Sha256Hash): TransactionEx? =
+            txQueries.selectBTCVTransactionById(hash, uuid, mapper = { id: Sha256Hash?,
+                                                                       hash: Sha256Hash,
+                                                                       blockNumber: Int,
+                                                                       timestamp: Int,
+                                                                       binary: ByteArray ->
+                TransactionEx(id, hash, blockNumber, timestamp, binary)
+            }).executeAsOne()
+
+    override fun deleteTransaction(hash: Sha256Hash) {
+        val tex = getTransaction(hash)
+        val tx = TransactionEx.toTransaction(tex)
+        walletDB.transaction {
+            // See if any of the outputs are stored locally and remove them
+            for (i in tx.outputs.indices) {
+                val outPoint = OutPoint(tx.id, i)
+                getUnspentOutput(outPoint)?.let {
+                    deleteUnspentOutput(outPoint)
+                }
+            }
+            // remove it from the accountBacking
+            txQueries.deleteTransaction(hash, uuid)
+        }
     }
 
-    override fun deleteTransaction(hash: Sha256Hash?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getTransactionHistory(offset: Int, limit: Int): MutableList<TransactionEx> {
-        TODO("Not yet implemented")
-    }
+    override fun getTransactionHistory(offset: Int, limit: Int): List<TransactionEx> =
+            txQueries.selectBTCVTransactions(uuid, limit.toLong(), offset.toLong(), mapper = { id: Sha256Hash?,
+                                                                                               hash: Sha256Hash,
+                                                                                               blockNumber: Int,
+                                                                                               timestamp: Int,
+                                                                                               binary: ByteArray ->
+                TransactionEx(id, hash, blockNumber, timestamp, binary)
+            }).executeAsList()
 
     override fun getTransactionsSince(since: Long): MutableList<TransactionEx> {
         TODO("Not yet implemented")
+//        txQueries.selectBTCVTransactionsSince()
     }
 
     override fun getUnconfirmedTransactions(): Collection<TransactionEx> =

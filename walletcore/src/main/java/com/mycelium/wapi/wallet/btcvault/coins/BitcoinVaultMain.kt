@@ -17,6 +17,6 @@ object BitcoinVaultMain : CryptoCurrency("bitcoinvault.main", "BitcoinVault", "B
         } catch (e: IllegalStateException) {
             return null
         }
-        return BtcvAddress(this, address)
+        return BtcvAddress(this, address.allAddressBytes)
     }
 }

@@ -22,6 +22,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.model.BtcvSegwitAddress
 import com.mrd.bitlib.model.Script
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.BitUtils
@@ -32,6 +33,8 @@ import com.mycelium.wapi.wallet.CommonNetworkParameters
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.SecureSubKeyValueStore
+import com.mycelium.wapi.wallet.btcvault.BtcvAddress
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import java.util.*
 
 /**
@@ -148,7 +151,7 @@ class HDAccountKeyManager(val accountIndex: Int,
         }
     }
 
-    fun getAddress(isChangeChain: Boolean, index: Int): BitcoinAddress {
+    fun getAddress(isChangeChain: Boolean, index: Int): BtcvAddress? {
         // See if we have it in the store
         val id = getLeafNodeId(network, accountIndex, isChangeChain, index, false, derivationType)
         val addressNodeBytes = secureKeyValueStore.getPlaintextValue(id)
@@ -179,26 +182,25 @@ class HDAccountKeyManager(val accountIndex: Int,
 
     companion object {
 
-        fun PublicKey.toAddress(networkParameters: CommonNetworkParameters, addressType: AddressType, ignoreCompression: Boolean = false): BitcoinAddress? {
+        fun PublicKey.toAddress(networkParameters: CommonNetworkParameters, addressType: AddressType, ignoreCompression: Boolean = false): BtcvAddress? {
             return when (addressType) {
                 AddressType.P2PKH -> toP2PKHAddress(networkParameters)
                 AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters, ignoreCompression)
-//                AddressType.P2WPKH -> toP2WPKH(networkParameters, ignoreCompression)
-                else -> TODO("segwit handle")
+                AddressType.P2WPKH -> toP2WPKH(networkParameters, ignoreCompression)
             }
         }
 
-        private fun PublicKey.toP2PKHAddress(network: CommonNetworkParameters): BitcoinAddress? {
+        private fun PublicKey.toP2PKHAddress(network: CommonNetworkParameters): BtcvAddress? {
             if (publicKeyHash.size != 20) {
                 return null
             }
             val all = ByteArray(BitcoinAddress.NUM_ADDRESS_BYTES)
             all[0] = (network.getStandardAddressHeader() and 0xFF).toByte()
             System.arraycopy(publicKeyHash, 0, all, 1, 20)
-            return BitcoinAddress(all)
+            return BtcvAddress(BitcoinVaultTest, all)
         }
 
-        private fun PublicKey.toNestedP2WPKH(networkParameters: CommonNetworkParameters, ignoreCompression: Boolean = false): BitcoinAddress? {
+        private fun PublicKey.toNestedP2WPKH(networkParameters: CommonNetworkParameters, ignoreCompression: Boolean = false): BtcvAddress? {
             if (ignoreCompression || isCompressed) {
                 val hashedPublicKey = pubKeyHashCompressed
                 val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
@@ -208,22 +210,22 @@ class HDAccountKeyManager(val accountIndex: Int,
             throw IllegalStateException("Can't create segwit address from uncompressed key")
         }
 
-        fun fromP2SHBytes(bytes: ByteArray, network: CommonNetworkParameters): BitcoinAddress? {
+        fun fromP2SHBytes(bytes: ByteArray, network: CommonNetworkParameters): BtcvAddress? {
             if (bytes.size != 20) {
                 return null
             }
             val all = ByteArray(BitcoinAddress.NUM_ADDRESS_BYTES)
             all[0] = (network.getMultisigAddressHeader() and 0xFF).toByte()
             System.arraycopy(bytes, 0, all, 1, 20)
-            return BitcoinAddress(all)
+            return BtcvAddress(BitcoinVaultTest, all)
         }
 
-//        private fun PublicKey.toP2WPKH(networkParameters: CommonNetworkParameters, ignoreCompression: Boolean = false): SegwitAddress =
-//                if (ignoreCompression || isCompressed) {
-//                    SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
-//                } else {
-//                    throw IllegalStateException("Can't create segwit address from uncompressed key")
-//                }
+        fun PublicKey.toP2WPKH(networkParameters: CommonNetworkParameters, ignoreCompression: Boolean = false): BtcvSegwitAddress =
+                if (ignoreCompression || isCompressed) {
+                    BtcvSegwitAddress(BitcoinVaultTest, networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
+                } else {
+                    throw IllegalStateException("Can't create segwit address from uncompressed key")
+                }
 
 
         @Throws(KeyCipher.InvalidKeyCipher::class)
@@ -309,15 +311,15 @@ class HDAccountKeyManager(val accountIndex: Int,
             return writer.toBytes()
         }
 
-        private fun bytesToAddress(bytes: ByteArray, path: HdKeyPath): BitcoinAddress {
+        private fun bytesToAddress(bytes: ByteArray, path: HdKeyPath): BtcvAddress? {
             return try {
                 val reader = ByteReader(bytes)
                 // Address bytes
                 reader.getBytes(21)
                 // Read length encoded string
                 val addressString = String(reader.getBytes(reader.get().toInt()))
-                val address = BitcoinAddress.fromString(addressString)
-                address.bip32Path = path
+                val address = BtcvAddress.fromString(BitcoinVaultTest, addressString)
+                address?.bip32Path = path
                 address
             } catch (e: ByteReader.InsufficientBytesException) {
                 throw RuntimeException(e)

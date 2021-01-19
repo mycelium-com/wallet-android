@@ -56,6 +56,7 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.annotation.Nonnull
+import kotlin.math.min
 
 abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBacking, val network: NetworkParameters, wapi: Wapi) : SynchronizeAbleWalletBtcAccount<BtcvAddress?>() {
     interface EventHandler {
@@ -357,7 +358,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     @Throws(WapiException::class)
-    protected abstract fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>?): Set<BipDerivationType?>?
+    protected abstract fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType>
 
     // HACK: skipping local handling of known transactions breaks the sync process. This should
     // be fixed somewhere else to make allKnown obsolete.
@@ -366,7 +367,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         val all = ArrayList(transactions)
         var i = 0
         while (i < all.size) {
-            val endIndex = Math.min(all.size, i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY)
+            val endIndex = min(all.size, i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY)
             val sub: Collection<TransactionEx> = all.subList(i, endIndex)
             handleNewExternalTransactionsInt(sub, allKnown)
             updateSyncProgress()
@@ -442,7 +443,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         }
 
         // Fetch missing parent transactions
-        if (toFetch.size > 0) {
+        if (toFetch.isNotEmpty()) {
             val result = getTransactionsBatched(toFetch).result
             for (tx in result.transactions) {
                 // Verify transaction hash. This is important as we don't want to
@@ -585,7 +586,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     protected fun toBtcvAddress(bitcoinAddress: BitcoinAddress): BtcvAddress {
-        return BtcvAddress(coinType, bitcoinAddress)
+        return BtcvAddress(coinType, bitcoinAddress.allAddressBytes)
     }
 
     private fun transform(parent: TransactionOutputEx): TransactionOutput {
@@ -1499,10 +1500,10 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     override fun getDummyAddress(): BtcvAddress =
-            BtcvAddress(coinType, BitcoinAddress.getNullAddress(network))
+            BtcvAddress(coinType, BitcoinAddress.getNullAddress(network).allAddressBytes)
 
     override fun getDummyAddress(subType: String): BtcvAddress =
-            BtcvAddress(coinType, BitcoinAddress.getNullAddress(network, AddressType.valueOf(subType)))
+            BtcvAddress(coinType, BitcoinAddress.getNullAddress(network, AddressType.valueOf(subType)).allAddressBytes)
 
     override fun getUnspentOutputViewModels(): List<OutputViewModel> {
         val outputSummaryList = unspentTransactionOutputSummary

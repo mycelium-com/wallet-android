@@ -2,7 +2,10 @@ package com.mycelium.wapi.wallet.genericdb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.google.common.base.Preconditions
 import com.google.gson.GsonBuilder
+import com.mrd.bitlib.model.OutPoint
+import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.generated.wallet.database.*
 import com.mycelium.generated.wallet.database.EthAccountBacking
 import com.mycelium.wapi.wallet.coins.*
@@ -167,6 +170,28 @@ object Adapters {
 
         override fun encode(value: RecordObtDataContent): String = value.toJson()
     }
+
+    val sha256Adapter = object : ColumnAdapter<Sha256Hash, ByteArray> {
+        override fun decode(databaseValue: ByteArray): Sha256Hash = Sha256Hash(databaseValue)
+
+        override fun encode(value: Sha256Hash): ByteArray = value.bytes
+    }
+    val outPointAdapter = object : ColumnAdapter<OutPoint, ByteArray> {
+        override fun decode(databaseValue: ByteArray): OutPoint {
+            Preconditions.checkArgument(databaseValue.size == 34)
+            val hash = Sha256Hash.copyOf(databaseValue, 0)
+            val index: Int = (databaseValue[32].toInt() and 0xFF) or ((databaseValue[33].toInt() and 0xFF) shl 8)
+            return OutPoint(hash, index)
+        }
+
+        override fun encode(value: OutPoint): ByteArray {
+            val bytes = ByteArray(34)
+            System.arraycopy(value.txid.bytes, 0, bytes, 0, Sha256Hash.HASH_LENGTH)
+            bytes[32] = (value.index and 0xFF).toByte()
+            bytes[33] = ((value.index shr 8) and 0xFF).toByte()
+            return bytes
+        }
+    }
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
@@ -185,6 +210,8 @@ val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bi
 
 val BTCVAccountBackingAdapter = BTCVAccountBacking.Adapter(Adapters.uuidAdapter)
 val BTCVContextAdapter = BTCVContext.Adapter(Adapters.uuidAdapter)
+val BTCVTransactionAdapter = BTCVTransaction.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter, Adapters.sha256Adapter)
+val BTCVUtxoAdapter = BTCVUtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter)
 
 val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.registeredFioNameAdapter,
         Adapters.fioDomainAdapter)

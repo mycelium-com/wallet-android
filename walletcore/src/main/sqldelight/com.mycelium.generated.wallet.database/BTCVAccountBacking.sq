@@ -44,10 +44,10 @@ FROM BTCVAccountBacking AS fb
     ON fb.uuid = b.uuid AND fb.txid = b.txid
         WHERE fb.uuid = (?) AND fb.txid = (?);
 
-insertTransaction:
-INSERT OR REPLACE INTO BTCVAccountBacking(txid, uuid, sender, receiver)
-VALUES (?, ?, ?, ?);
-
-deleteTransaction:
-DELETE FROM BTCVAccountBacking
-WHERE uuid = (?) AND txid = (?);
+-- insertTransaction:
+-- INSERT OR REPLACE INTO BTCVAccountBacking(txid, uuid, sender, receiver)
+-- VALUES (?, ?, ?, ?);
+--
+-- deleteTransaction:
+-- DELETE FROM BTCVAccountBacking
+-- WHERE uuid = (?) AND txid = (?);

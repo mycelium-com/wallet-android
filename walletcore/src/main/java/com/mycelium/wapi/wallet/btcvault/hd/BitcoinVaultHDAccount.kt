@@ -11,12 +11,15 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.BitcoinTransaction
-import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
+import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
@@ -27,6 +30,7 @@ import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
+import kotlin.math.min
 
 
 class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountContext,
@@ -81,8 +85,43 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isExchangeable(): Boolean = true
 
-    override fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>?): Set<BipDerivationType?>? {
-        TODO("Not yet implemented")
+    override fun doDiscoveryForAddresses(addresses: List<BitcoinAddress>): Set<BipDerivationType> {
+        // Do look ahead query
+        val result = _wapi.queryTransactionInventory(
+                QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
+        blockChainHeight = result.height
+        val ids = result.txIds
+        if (ids.isEmpty()) {
+            // nothing found
+            return emptySet()
+        }
+
+        val lastExternalIndexesBefore = derivePaths.map { it to accountContext.getLastExternalIndexWithActivity(it) }.toMap()
+        val lastInternalIndexesBefore = derivePaths.map { it to accountContext.getLastInternalIndexWithActivity(it) }.toMap()
+        // query DB only once to sort TXIDs into new and old ones. Unconfirmed transactions are
+        // "new" in this sense until we know which block they fell into.
+        val newIds = mutableSetOf<Sha256Hash>()
+        val knownTransactions = mutableSetOf<TransactionEx>()
+        ids.forEach {
+            val dbTransaction = backing.getTransaction(it)
+            if (dbTransaction?.height ?: 0 > 0) {
+                // we have it and know its block
+                knownTransactions.add(dbTransaction!!)
+            } else {
+                // we have to query for details
+                newIds.add(it)
+            }
+        }
+        newIds.chunked(50).forEach { fewIds ->
+            val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
+            handleNewExternalTransactions(transactions)
+        }
+        handleNewExternalTransactions(knownTransactions, true)
+        return derivePaths.filter { derivationType ->
+            // only include if the last external or internal index has changed
+            (lastExternalIndexesBefore[derivationType] != accountContext.getLastExternalIndexWithActivity(derivationType)
+                    || lastInternalIndexesBefore[derivationType] != accountContext.getLastInternalIndexWithActivity(derivationType))
+        }.toSet()
     }
 
     override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<TransactionSummary> = mutableListOf()
@@ -220,7 +259,9 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
         val ret = ArrayList<BitcoinAddress>(toIndex - clippedFromIndex + 1)
         for (i in clippedFromIndex..toIndex) {
-            ret.add(keyManagerMap[derivationType]!!.getAddress(isChangeChain, i))
+            keyManagerMap[derivationType]!!.getAddress(isChangeChain, i)?.let{
+                ret.add(it)
+            }
         }
         return ret
     }
@@ -237,8 +278,25 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     private fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
-//        return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
-        return setOf()
+        return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
+    }
+
+    private fun getAddressesToDiscover(derivationType: BipDerivationType): List<BitcoinAddress> {
+        // getAddressesToDiscover has to progress covering all addresses while last address with
+        // activity might advance in jumps from sending to oneself from an old UTXO address to one
+        // 30 later.
+        // Make look ahead address list
+        val lastExternalIndex = min(accountContext.getLastExternalIndexWithActivity(derivationType), safeLastExternalIndex[derivationType]
+                ?: 0)
+        val lastInternalIndex = min(accountContext.getLastInternalIndexWithActivity(derivationType), safeLastInternalIndex[derivationType]
+                ?: 0)
+        safeLastExternalIndex[derivationType] = lastExternalIndex + HDAccount.EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        safeLastInternalIndex[derivationType] = lastInternalIndex + HDAccount.INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        return (externalAddresses[derivationType]!!.filter {
+            lastExternalIndex <= it.value && it.value <= lastExternalIndex + HDAccount.EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        } + internalAddresses[derivationType]!!.filter {
+            lastInternalIndex <= it.value && it.value <= lastInternalIndex + HDAccount.INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        }).map { it.key }
     }
 
     override fun getBlockChainHeight(): Int = accountContext.blockHeight
@@ -444,7 +502,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
             // the last
             // external address with activity
             val receivingAddress = externalAddresses[derivationType]!!.inverse()[accountContext.getLastExternalIndexWithActivity(derivationType) + 1]
-            if (receivingAddress != null && receivingAddress != receivingAddressMap[receivingAddress.getType()]) {
+            if (receivingAddress != null && receivingAddress != receivingAddressMap[receivingAddress.type]) {
                 receivingAddressMap[receivingAddress.getType()] = receivingAddress
 //                postEvent(WalletManager.Event.RECEIVING_ADDRESS_CHANGED)
             }
@@ -476,7 +534,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
             if (addressMap.inverse().containsKey(index)) {
                 return
             }
-            addressMap[BtcvAddress(coinType, keyManagerMap[derivationType]!!.getAddress(isChangeChain, index))] = index
+            addressMap[keyManagerMap[derivationType]!!.getAddress(isChangeChain, index)] = index
             index--
         }
     }
