@@ -83,7 +83,7 @@
     <string name="private_key">Private Key</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="approximate_fiat_value">%2$s %1$s</string>
-    <string name="no_server_connection">No Server Connection</string>
+    <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
@@ -1487,7 +1487,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_choose_service">Choose service</string>
     <string name="bequant_mycelium_wallet">Mycelium Wallet</string>
     <string name="we_offer_extensive_support">We offer extensive support with maximum\n24 hour response time so you can be at\npeace that your issues are prioritized.</string>
-    <string name="bequant_account_description_accounts_list">Store and exchange over 25+ coins\nincluding leading stablecoins and fiat\ncurrencies with lowest spreads.</string>
+    <string name="bequant_account_description_accounts_list">Buy, sell, trade over 25+\ncoins with lowest spreads</string>
     <string name="bequant_account_description_add_account">Gain secure access to over 20 major digital\ncoins and instantly and safely exchange,\nwithdraw and deposit coins to any address\nof your choice. Powered by Bequant, an\ninstitutional-grade exchange platform with\ntop liquidity and top-of-the-line security.</string>
     <string name="search_markets">Search markets</string>
     <string name="support_center">Support Center</string>
@@ -1561,7 +1561,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
     <string name="bequant_deposit">Deposit</string>
     <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
-    <string name="bequant_trading_account">Trading Account</string>
+    <string name="bequant_trading_account">Trading Custodial Account</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="step_n">Step %d</string>
     <string name="phone_number">Phone Number</string>
@@ -1638,4 +1638,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="enter_fio_name">Enter FIO Name you are requesting funds from</string>
     <string name="fio_recipient_invalid">Invalid FIO Name</string>
     <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
+    <string name="activate_trading_custodial_account">Activate Trading Custodial Account</string>
+    <string name="service_unavailable">Service unavailable</string>
+    <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
 </resources>

@@ -3,12 +3,12 @@ package com.mycelium.wallet.activity.main.address
 import android.app.Application
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)
@@ -40,7 +40,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     fun addressClick() {
         Utils.setClipboardString(getAddressString(), context)
-        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+        Toaster(context).toast(R.string.copied_to_clipboard, true)
     }
 
     fun getAddressString(): String = getAccountAddress().value!!.toString()

@@ -53,6 +53,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -91,7 +92,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity {
       // Decode the BIP38 key
       Bip38PrivateKey bip38Privatekey = Bip38.parseBip38PrivateKey(encryptedPrivateKey);
       if (bip38Privatekey == null) {
-         Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+         new Toaster(this).toast(R.string.unrecognized_format, true);
          finish();
          return;
       }

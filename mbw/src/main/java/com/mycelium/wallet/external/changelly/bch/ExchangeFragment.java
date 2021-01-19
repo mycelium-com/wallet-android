@@ -6,9 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.util.TypedValue;
@@ -20,10 +17,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.megiontechnologies.BitcoinCash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -402,7 +404,7 @@ public class ExchangeFragment extends Fragment {
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
-            Toast.makeText(getActivity(), "Error parsing double values", Toast.LENGTH_SHORT).show();
+            new Toaster(getActivity()).toast("Error parsing double values", true);
             return;
         }
         changellyAPIService.getExchangeAmount(BCH, BTC, dblAmount).enqueue(new GetOfferCallback(dblAmount));
@@ -413,11 +415,11 @@ public class ExchangeFragment extends Fragment {
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
-            Toast.makeText(getActivity(), "Error parsing double values", Toast.LENGTH_SHORT).show();
+            new Toaster(getActivity()).toast("Error parsing double values", true);
             return 0;
         }
         if (bchToBtcRate == 0) {
-            Toast.makeText(getActivity(), "Please wait while loading exchange rate", Toast.LENGTH_SHORT).show();
+            new Toaster(getActivity()).toast("Please wait while loading exchange rate", true);
             return 0;
         }
         return dblAmount / bchToBtcRate;
@@ -509,7 +511,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void toast(String msg) {
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        new Toaster(getActivity()).toast(msg, true);
     }
 
     @Subscribe
@@ -523,9 +525,7 @@ public class ExchangeFragment extends Fragment {
             ChangellyAnswerDouble result = response.body();
             if(result == null || result.result == NOT_LOADED) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
-                Toast.makeText(getActivity(),
-                        "Service unavailable",
-                        Toast.LENGTH_LONG).show();
+                new Toaster(getActivity()).toast("Service unavailable", false);
                 return;
             }
             double min = result.result;

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class OrbotHelper {
                 if (isIntentSafe) {
                     activity.startActivity(intent);
                 } else {
-                    Toast.makeText(activity, R.string.no_google_play_installed, Toast.LENGTH_LONG).show();
+                    new Toaster(activity).toast(R.string.no_google_play_installed, false);
                 }
             }
         });
@@ -106,7 +107,7 @@ public class OrbotHelper {
                 if (isIntentSafe) {
                     activity.startActivityForResult(intent, 1);
                 } else {
-                    Toast.makeText(activity, R.string.no_orbot, Toast.LENGTH_LONG).show();
+                    new Toaster(activity).toast(R.string.no_orbot, false);
                 }
             }
         });

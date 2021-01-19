@@ -1,11 +1,16 @@
 package com.mrd.bitlib.crypto
 
 import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.HexUtils.toBytes
+import com.mrd.bitlib.util.X509Utils
 import org.junit.Test
+import com.mycelium.testhelper.SignatureTestVectors
 
 import org.junit.Assert.*
+import java.lang.Exception
 
 class PublicKeyTest {
     // we found problems spending from a SA account derived from 91tVaPm7poHgaNx2vYKtim84ykVzoB8opPv1dgieHvoAAHSmyX1
@@ -30,5 +35,22 @@ class PublicKeyTest {
     @Test(expected = IllegalStateException::class)
     fun P2WPKHFromUncompressedYieldsNull() {
         assertNull(pk.toAddress(NetworkParameters.testNetwork, AddressType.P2WPKH))
+    }
+
+    @Test
+    fun testVerifyDerEncodedSignature() {
+        for (tv in SignatureTestVectors.bitcoinMessageTestVectors) {
+            val address = BitcoinAddress.fromString(tv.address)
+            val msg = tv.message
+            val data = HashUtils.doubleSha256(X509Utils.formatMessageForSigning(msg))
+            val sig = tv.signature
+            val sigValid = try {
+                val signedMessage = SignedMessage.validate(address, msg, sig)
+                signedMessage.publicKey.verifyDerEncodedSignature(data, signedMessage.derEncodedSignature)
+            } catch (e: Exception) {
+                false
+            }
+            assertTrue("Test Vector ${tv.name}:\n${tv.message}\nshould verify\n", sigValid)
+        }
     }
 }

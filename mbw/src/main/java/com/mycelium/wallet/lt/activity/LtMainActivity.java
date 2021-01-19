@@ -43,14 +43,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.ActionBar.Tab;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBar.Tab;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -66,6 +66,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
@@ -283,7 +284,7 @@ public class LtMainActivity extends AppCompatActivity {
 
       // can happen if the account was deleted
       if(account == null) {
-         Toast.makeText(getApplicationContext(), getResources().getString(R.string.lt_cant_backup), Toast.LENGTH_SHORT).show();
+         new Toaster(getApplicationContext()).toast(R.string.lt_cant_backup, true);
          return;
       }
       final InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
@@ -326,7 +327,7 @@ public class LtMainActivity extends AppCompatActivity {
       Intent intent = new Intent(Intent.ACTION_VIEW);
       intent.setData(Uri.parse(Constants.LOCAL_TRADER_HELP_URL));
       startActivity(intent);
-      Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
+      new Toaster(this).toast(R.string.going_to_mycelium_com_help, false);
    }
 
    /**
@@ -365,9 +366,9 @@ public class LtMainActivity extends AppCompatActivity {
       @Override
       public void onLtError(int errorCode) {
          if (errorCode == LtApi.ERROR_CODE_INCOMPATIBLE_API_VERSION) {
-            Toast.makeText(LtMainActivity.this, R.string.lt_error_incompatible_version, Toast.LENGTH_LONG).show();
+            new Toaster(LtMainActivity.this).toast(R.string.lt_error_incompatible_version, false);
          } else {
-            Toast.makeText(LtMainActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+            new Toaster(LtMainActivity.this).toast(R.string.lt_error_api_occurred, false);
          }
       }
 

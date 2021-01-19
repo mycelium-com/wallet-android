@@ -3,11 +3,11 @@ package com.mycelium.wallet.external;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.widget.Toast;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.Address;
 
 public class CreditCardBuyServiceDescription extends BuySellServiceDescriptor {
@@ -31,7 +31,7 @@ public class CreditCardBuyServiceDescription extends BuySellServiceDescriptor {
                  })
                  .setNegativeButton(R.string.no, null)
                  .show();
-         Toast.makeText(activity, R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
+         new Toaster(activity).toast(R.string.lt_warning_watch_only_account, false);
       } else {
          launchWebservice(activity, activeReceivingAddress);
       }
