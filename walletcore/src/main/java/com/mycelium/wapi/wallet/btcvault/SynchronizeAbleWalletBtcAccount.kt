@@ -80,7 +80,7 @@ abstract class SynchronizeAbleWalletBtcAccount<ADDRESS : Address?> : WalletAccou
      * @param mode SyncMode
      * @return true if sync was successful
      */
-    protected abstract fun doSynchronization(mode: SyncMode?): Boolean
+    protected abstract fun doSynchronization(mode: SyncMode): Boolean
 
     override fun getDependentAccounts(): List<WalletAccount<*>> = listOf()
 

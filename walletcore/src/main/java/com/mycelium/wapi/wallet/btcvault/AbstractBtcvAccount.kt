@@ -79,7 +79,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         val btcFee = fee as FeePerKbFee
         val btcTransaction = BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb)
         val receivers = ArrayList<BtcReceiver>()
-        receivers.add(BtcReceiver(btcTransaction.destination!!.address, btcTransaction.amount!!.valueAsLong))
+        receivers.add(BtcReceiver(btcTransaction.destination!!, btcTransaction.amount!!.valueAsLong))
         return try {
             btcTransaction.unsignedTx = createUnsignedTransaction(receivers, btcTransaction.feePerKb!!.valueAsLong)
             btcTransaction
@@ -900,7 +900,6 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
     @Synchronized
     override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value?, destinationAddress: BtcvAddress?): Value? {
-        val destAddress = destinationAddress?.address
         checkNotArchived()
         val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse!!.valueAsLong))
         var satoshis: Long = 0
@@ -916,7 +915,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         // output into its estimate - so add one here too to arrive at the same tx fee
         val estimatorBuilder = FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
                 .setMinerFeePerKb(minerFeePerKbToUse.valueAsLong)
-        addOutputToEstimation(destAddress, estimatorBuilder)
+        addOutputToEstimation(destinationAddress, estimatorBuilder)
         val estimator = estimatorBuilder.createFeeEstimator()
         val feeToUse = estimator.estimateFee()
         satoshis -= feeToUse
@@ -927,7 +926,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         // Create transaction builder
         val stb = StandardTransactionBuilder(network)
         val destinationAddressType: AddressType = if (destinationAddress != null) {
-            destinationAddress.address.type
+            destinationAddress.type
         } else {
             AddressType.P2PKH
         }
@@ -943,7 +942,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         // Try to create an unsigned transaction
         return try {
             stb.createUnsignedTransaction(spendableOutputs,
-                    getChangeAddress(toBtcvAddress(BitcoinAddress.getNullAddress(network, destinationAddressType))).address,
+                    getChangeAddress(toBtcvAddress(BitcoinAddress.getNullAddress(network, destinationAddressType))),
                     PublicKeyRing(), network, minerFeePerKbToUse.valueAsLong)
             // We have enough to pay the fees, return the amount as the maximum
             valueOf(coinType, satoshis)
@@ -984,7 +983,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             addressList.add(toBtcvAddress(receiver.address))
         }
         val changeAddress = getChangeAddress(*addressList.toTypedArray())
-        return stb.createUnsignedTransaction(spendable, changeAddress.address, PublicKeyRing(),
+        return stb.createUnsignedTransaction(spendable, changeAddress, PublicKeyRing(),
                 network, minerFeeToUse)
     }
 

@@ -90,9 +90,9 @@ class AddressFragmentModel(
             }
             is AbstractBtcvAccount -> {
                 account.receiveAddress?.let { address ->
-                    bip32Path.value = address.address.bip32Path
-                    type.value = address.address.type
-                    accountAddressType.value = context.getString(address.address.type.asStringRes())
+                    bip32Path.value = address.bip32Path
+                    type.value = address.type
+                    accountAddressType.value = context.getString(address.type.asStringRes())
                 }
             }
         }

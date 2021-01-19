@@ -128,7 +128,10 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
         private fun createNewIndexesContexts(derivationTypes: Iterable<BipDerivationType>) =
                 derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }
                         .toMap()
-                        .toMutableMap()
+                        .toMutableMap().apply {
+                            remove(BipDerivationType.BIP84)
+                        }
+
     }
 }
 

@@ -3,29 +3,27 @@ package com.mycelium.wapi.wallet.btcvault.hd
 import com.google.common.base.Preconditions
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.Lists
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.crypto.PrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.BitcoinTransaction
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
-import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest
-import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
+import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.btcvault.BtcvTransaction
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -33,12 +31,12 @@ import java.util.logging.Level
 
 class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountContext,
                             protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
-                            network: NetworkParameters,
+                            networkParameters: BTCVNetworkParameters,
                             wapi: Wapi,
                             val backing: BitcoinVaultHDAccountBacking,
                             private val accountListener: AccountListener?,
                             protected val changeAddressModeReference: Reference<ChangeAddressMode>)
-    : AbstractBtcvAccount(backing, network, wapi), ExportableAccount {
+    : AbstractBtcvAccount(backing, networkParameters, wapi), ExportableAccount {
 
     private val derivePaths = accountContext.indexesMap.keys
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = initAddressesMap()
@@ -99,8 +97,27 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         accountContext.accountName = label
     }
 
-    override fun doSynchronization(mode: SyncMode?): Boolean {
-        TODO("Not yet implemented")
+    override fun doSynchronization(proposedMode: SyncMode): Boolean {
+        var mode = proposedMode
+        checkNotArchived()
+        syncTotalRetrievedTxs = 0
+        _logger.log(Level.INFO, "Starting sync: $mode")
+        if (needsDiscovery()) {
+            mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
+        }
+        try {
+            if (mode.mode == SyncMode.Mode.FULL_SYNC) {
+                // Discover new addresses once in a while
+                if (!discovery()) {
+                    return false
+                }
+            }
+
+            // Update unspent outputs
+            return updateUnspentOutputs(mode)
+        } finally {
+            syncTotalRetrievedTxs = 0
+        }
     }
 
     private fun needsDiscovery() = !isArchived &&
@@ -124,6 +141,88 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         accountContext.setLastDiscovery(System.currentTimeMillis())
         accountContext.persistIfNecessary(backing)
         return true
+    }
+
+    private fun updateUnspentOutputs(mode: SyncMode): Boolean {
+        var checkAddresses = getAddressesToSync(mode)
+
+        val newUtxos = synchronizeUnspentOutputs(checkAddresses)
+
+        if (newUtxos == -1) {
+            return false
+        }
+
+        if (newUtxos > 0 && mode.mode != SyncMode.Mode.FULL_SYNC) {
+            // we got new UTXOs but did not made a full sync. The UTXO might be coming
+            // from change outputs spending from addresses we are currently not checking
+            // -> rerun the synchronizeUnspentOutputs for a FULL_SYNC
+            checkAddresses = getAddressesToSync(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED)
+            if (synchronizeUnspentOutputs(checkAddresses) == -1) {
+                return false
+            }
+        }
+
+        // update state of recent received transaction to update their confirmation state
+        if (mode.mode != SyncMode.Mode.ONE_ADDRESS) {
+            // Monitor young transactions
+            if (!monitorYoungTransactions()) {
+                return false
+            }
+        }
+
+        updateLocalBalance()
+
+        accountContext.persistIfNecessary(backing)
+        return true
+    }
+
+    private fun getAddressesToSync(mode: SyncMode): List<BitcoinAddress> {
+        var addresses = mutableListOf<BitcoinAddress>()
+        derivePaths.forEach { derivationType ->
+            val currentInternalAddressId = accountContext.getLastInternalIndexWithActivity(derivationType) + 1
+            val currentExternalAddressId = accountContext.getLastExternalIndexWithActivity(derivationType) + 1
+            if (mode.mode == SyncMode.Mode.FULL_SYNC) {
+                // check the full change-chain and external-chain
+                addresses.addAll(getAddressRange(true, 0,
+                        currentInternalAddressId + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+                addresses.addAll(getAddressRange(false, 0,
+                        currentExternalAddressId + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+            } else if (mode.mode == SyncMode.Mode.NORMAL_SYNC) {
+                // check the current change address plus small lookahead;
+                // plus the current external address plus a small range before and after it
+                addresses.addAll(getAddressRange(true, currentInternalAddressId,
+                        currentInternalAddressId + INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+                addresses.addAll(getAddressRange(false, currentExternalAddressId - 3,
+                        currentExternalAddressId + EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+            } else if (mode.mode == SyncMode.Mode.FAST_SYNC) {
+                // check only the current change address
+                // plus the current external plus small lookahead
+                addresses.add(keyManagerMap[derivationType]!!
+                        .getAddress(true, currentInternalAddressId + 1) as BitcoinAddress)
+                addresses.addAll(getAddressRange(false, currentExternalAddressId,
+                        currentExternalAddressId + 2, derivationType))
+            } else if (mode.mode == SyncMode.Mode.ONE_ADDRESS && mode.addressToSync != null) {
+                // only check for the supplied address
+                addresses = if (isMineAddress(mode.addressToSync)) {
+                    Lists.newArrayList(BitcoinAddress.fromString(mode.addressToSync.toString()))
+                } else {
+                    throw IllegalArgumentException("Address " + mode.addressToSync + " is not part of my account addresses")
+                }
+            } else {
+                throw IllegalArgumentException("Unexpected SyncMode")
+            }
+        }
+        return ImmutableList.copyOf(addresses)
+    }
+
+    protected fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
+                                  derivationType: BipDerivationType): List<BitcoinAddress> {
+        val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
+        val ret = ArrayList<BitcoinAddress>(toIndex - clippedFromIndex + 1)
+        for (i in clippedFromIndex..toIndex) {
+            ret.add(keyManagerMap[derivationType]!!.getAddress(isChangeChain, i))
+        }
+        return ret
     }
 
     /**
@@ -205,7 +304,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
                 ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
                 ChangeAddressMode.PRIVACY -> {
                     val mostCommonOutputType = destinationAddresses.groupingBy {
-                        BipDerivationType.getDerivationTypeByAddress(it.address)
+                        BipDerivationType.getDerivationTypeByAddress(it)
                     }.eachCount().maxBy { it.value }!!.key
                     getChangeAddress(mostCommonOutputType)
                 }

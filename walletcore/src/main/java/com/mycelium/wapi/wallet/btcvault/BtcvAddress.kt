@@ -1,34 +1,45 @@
 package com.mycelium.wapi.wallet.btcvault
 
-import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
 class BtcvAddress(override val coinType: CryptoCurrency,
-                  val address: BitcoinAddress) : Address {
+                  address: BitcoinAddress) : BitcoinAddress(address.allAddressBytes), Address {
 
-    override fun toString(): String {
-        return address.toString()
-    }
 
     override fun getBytes(): ByteArray {
-        return address.allAddressBytes
+        return allAddressBytes
     }
 
     override fun equals(o: Any?): Boolean {
         if (this === o) return true
         if (o == null || javaClass != o.javaClass) return false
         val that = o as BtcvAddress
-        return address == that.address
+        return allAddressBytes.contentEquals(that.allAddressBytes)
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(address)
+        return Objects.hash(allAddressBytes)
     }
 
-    override fun getSubType(): String = address.type.name
+    override fun getSubType(): String = type.name
 
-    fun getType(): AddressType = address.type
+    override fun getNetwork(): NetworkParameters? {
+        if (matchesNetwork(BTCVNetworkParameters.productionNetwork, version)) {
+            return NetworkParameters.productionNetwork
+        }
+        if (matchesNetwork(BTCVNetworkParameters.testNetwork, version)) {
+            return NetworkParameters.testNetwork
+        }
+        throw IllegalStateException("unknown network")
+    }
+
+    private fun matchesNetwork(network: NetworkParameters, version: Byte): Boolean {
+        return (network.standardAddressHeader and 0xFF).toByte() == version || (network.multisigAddressHeader and 0xFF).toByte() == version
+    }
+
+
 }

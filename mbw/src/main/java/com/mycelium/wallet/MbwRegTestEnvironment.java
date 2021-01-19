@@ -39,6 +39,7 @@ import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wallet.activity.util.BlockExplorer;
+import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
@@ -57,6 +58,11 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;
+   }
+
+   @Override
+   public BTCVNetworkParameters getBTCVNetwork() {
+      return BTCVNetworkParameters.getRegtestNetwork();
    }
 
    /**

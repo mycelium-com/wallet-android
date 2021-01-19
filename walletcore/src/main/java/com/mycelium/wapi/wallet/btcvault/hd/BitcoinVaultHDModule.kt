@@ -2,18 +2,18 @@ package com.mycelium.wapi.wallet.btcvault.hd
 
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
-import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BTCSettings
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
+import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.genericdb.Backing
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
@@ -22,7 +22,7 @@ import java.util.*
 
 class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountContext>,
                            internal val secureStore: SecureKeyValueStore,
-                           internal val networkParameters: NetworkParameters,
+                           internal val networkParameters: BTCVNetworkParameters,
                            private val walletDB: WalletDB,
                            internal var _wapi: Wapi,
                            internal var settings: BTCSettings,
@@ -31,7 +31,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     private val accounts = mutableMapOf<UUID, BitcoinVaultHDAccount>()
 
-    private val coinType = if (networkParameters.isProdnet) BitcoinVaultMain else BitcoinVaultTest
+    private val coinType = if (networkParameters.isProdnet()) BitcoinVaultMain else BitcoinVaultTest
 
     override val id: String = ID
 
@@ -57,10 +57,9 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
 
-                    keyManagerMap[derivationType] = root.createHDAccountKeyManager(
-                            networkParameters, accountIndex,
-                            secureStore, AesKeyCipher.defaultKeyCipher(), derivationType,
-                            PRODNET_COIN_TYPE //TODO add depends cointype from network
+                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root,
+                            networkParameters, accountIndex, secureStore,
+                            AesKeyCipher.defaultKeyCipher(), derivationType
                     )
                 }
 
@@ -108,20 +107,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     companion object {
         const val ID = "BitcoinVaultHD"
-        const val PRODNET_COIN_TYPE = 440
     }
-}
-
-@Throws(KeyCipher.InvalidKeyCipher::class)
-fun HdKeyNode.createHDAccountKeyManager(network: NetworkParameters, accountIndex: Int,
-                                        secureKeyValueStore: SecureKeyValueStore, cipher: KeyCipher,
-                                        derivationType: BipDerivationType, coinType: Int): HDAccountKeyManager {
-    val bip44Root = createChildNode(derivationType.getHardenedPurpose())
-    val coinTypeRoot = bip44Root.createChildNode(coinType or (0x80000000).toInt())
-
-    // Create the account root.
-    val accountRoot = coinTypeRoot.createChildNode(accountIndex or (0x80000000).toInt())
-    return HDAccountKeyManager.createFromAccountRoot(accountRoot, network, accountIndex, secureKeyValueStore, cipher, derivationType)
 }
 
 fun WalletManager.getBTCVHDAccounts() = getAccounts().filter { it is BitcoinVaultHDAccount && it.isVisible }

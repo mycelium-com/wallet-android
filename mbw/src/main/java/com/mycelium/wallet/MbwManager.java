@@ -877,7 +877,8 @@ public class MbwManager {
         walletManager.add(fioModule);
 
         BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
-        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore, networkParameters,
+        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore,
+                environment.getBTCVNetwork(),
                 walletDB, _wapiV, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
                 getMetadataStorage(), accountListener));
 
