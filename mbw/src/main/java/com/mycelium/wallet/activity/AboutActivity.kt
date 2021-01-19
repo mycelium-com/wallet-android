@@ -15,10 +15,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RawRes
 import com.google.common.base.Joiner
-import de.cketti.library.changelog.ChangeLog
 import com.mycelium.wallet.activity.modern.DarkThemeChangeLog
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.util.QrImageView
 import com.google.common.io.ByteSource
 import com.mycelium.wallet.*
 import com.mycelium.wapi.api.WapiException
@@ -44,9 +42,8 @@ class AboutActivity : Activity() {
         setLicenseForButton(bt_license_zxing, R.raw.license_zxing)
         setLicenseForButton(bt_license_pdfwriter, R.raw.license_pdfwriter)
         setLicenseForButton(bt_special_thanks, R.raw.special_thanks)
-        bt_show_changelog.setOnClickListener { view: View? ->
-            val cl: ChangeLog = DarkThemeChangeLog(this)
-            cl.fullLogDialog.show()
+        bt_show_changelog.setOnClickListener {
+            DarkThemeChangeLog(this).fullLogDialog.show()
         }
         bt_check_update.setOnClickListener { v: View? ->
             val progress = ProgressDialog.show(this, getString(R.string.update_check),
@@ -64,7 +61,7 @@ class AboutActivity : Activity() {
         bt_show_server_info.setOnClickListener { ConnectionLogsActivity.callMe(this) }
         if (BuildConfig.BUILD_TYPE === "debug") {
             bt_fio_server_error_logs.visibility = View.VISIBLE
-            bt_fio_server_error_logs.setOnClickListener { view: View? ->
+            bt_fio_server_error_logs.setOnClickListener {
                 val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule?
                 val logs: List<String?> = fioModule!!.getFioServerLogsListAndClear()
                 if (logs.isEmpty()) {
@@ -83,23 +80,25 @@ class AboutActivity : Activity() {
         //set playstore link to qr code
         val packageName = applicationContext.packageName
         val playstoreUrl = Constants.PLAYSTORE_BASE_URL + packageName
-        val playstoreQr: QrImageView = ivPlaystoreQR
-        playstoreQr.qrCode = playstoreUrl
-        playstoreQr.tapToCycleBrightness = false
-        playstoreQr.setOnClickListener { v: View? ->
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(playstoreUrl)
-            startActivity(intent)
+        ivPlaystoreQR.apply {
+            qrCode = playstoreUrl
+            tapToCycleBrightness = false
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse(playstoreUrl)
+                })
+            }
         }
 
         // show direct apk link for the - very unlikely - case that google blocks our playstore entry
-        val directApkQr: QrImageView = ivDirectApkQR
-        directApkQr.qrCode = Constants.DIRECT_APK_URL
-        directApkQr.tapToCycleBrightness = false
-        directApkQr.setOnClickListener { v: View? ->
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(Constants.DIRECT_APK_URL)
-            startActivity(intent)
+        ivDirectApkQR.apply {
+            qrCode = Constants.DIRECT_APK_URL
+            tapToCycleBrightness = false
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse(Constants.DIRECT_APK_URL)
+                })
+            }
         }
     }
 
@@ -115,8 +114,8 @@ class AboutActivity : Activity() {
     }
 
     private fun setLinkTo(textView: TextView, res: Int) {
-        val httplink = Uri.parse(resources.getString(res))
-        textView.text = Html.fromHtml(hrefLink(httplink))
+        val httpLink = Uri.parse(resources.getString(res))
+        textView.text = Html.fromHtml(hrefLink(httpLink))
         textView.movementMethod = LinkMovementMethod.getInstance()
     }
 
@@ -126,9 +125,7 @@ class AboutActivity : Activity() {
         textView.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    private fun hrefLink(githubLink: Uri): String {
-        return "<a href=\"$githubLink\">$githubLink</a>"
-    }
+    private fun hrefLink(githubLink: Uri) = """<a href="$githubLink">$githubLink</a>"""
 
     private fun setLicenseForButton(button: View, @RawRes fileId: Int) {
         button.setOnClickListener { v: View? ->
