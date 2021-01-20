@@ -20,21 +20,17 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.model.BtcvSegwitAddress
-import com.mrd.bitlib.model.Script
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.ByteWriter
-import com.mrd.bitlib.util.HashUtils
 import com.mycelium.wapi.wallet.CommonNetworkParameters
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.SecureSubKeyValueStore
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
-import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
 /**
@@ -57,7 +53,8 @@ import java.util.*
 class HDAccountKeyManager(val accountIndex: Int,
                           val network: CommonNetworkParameters,
                           val secureKeyValueStore: SecureKeyValueStore,
-                          val derivationType: BipDerivationType) {
+                          val derivationType: BipDerivationType,
+                          val addressFactory: AddressFactory) {
     var publicAccountRoot: HdKeyNode = HdKeyNode.fromCustomByteformat(
             secureKeyValueStore.getPlaintextValue(getAccountNodeId(network, accountIndex, derivationType)))
 
@@ -162,88 +159,39 @@ class HDAccountKeyManager(val accountIndex: Int,
             else -> throw NotImplementedError()
         }
         val path = purpose
-                .getCoinTypeBitcoin(network.isTestnet())
+                .getHardenedChild(network.getBip44CoinType())
                 .getAccount(accountIndex)
                 .getChain(!isChangeChain)
                 .getAddress(index)
         if (addressNodeBytes != null) {
             // We have it already, no need to calculate it
-            return bytesToAddress(addressNodeBytes, path)
+            return addressFactory.bytesToAddress(addressNodeBytes, path)
         }
-
-        // We don't have it, need to calculate it from the public key
-        val publicKey = getPublicKey(isChangeChain, index)
-        return publicKey.toAddress(network, derivationType.addressType)?.apply {
+        return addressFactory.getAddress(getPublicKey(isChangeChain, index), derivationType.addressType)?.apply {
             this.bip32Path = path
             // Store it for next time
-            secureKeyValueStore.storePlaintextValue(id, addressToBytes(this))
-        }!!
+//            secureKeyValueStore.storePlaintextValue(id, addressToBytes(this))
+        }
     }
 
     companion object {
 
-        fun PublicKey.toAddress(networkParameters: CommonNetworkParameters, addressType: AddressType, ignoreCompression: Boolean = false): BtcvAddress? {
-            return when (addressType) {
-                AddressType.P2PKH -> toP2PKHAddress(networkParameters)
-                AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters, ignoreCompression)
-                AddressType.P2WPKH -> toP2WPKH(networkParameters, ignoreCompression)
-            }
-        }
-
-        private fun PublicKey.toP2PKHAddress(network: CommonNetworkParameters): BtcvAddress? {
-            if (publicKeyHash.size != 20) {
-                return null
-            }
-            val all = ByteArray(BitcoinAddress.NUM_ADDRESS_BYTES)
-            all[0] = (network.getStandardAddressHeader() and 0xFF).toByte()
-            System.arraycopy(publicKeyHash, 0, all, 1, 20)
-            return BtcvAddress(BitcoinVaultTest, all)
-        }
-
-        private fun PublicKey.toNestedP2WPKH(networkParameters: CommonNetworkParameters, ignoreCompression: Boolean = false): BtcvAddress? {
-            if (ignoreCompression || isCompressed) {
-                val hashedPublicKey = pubKeyHashCompressed
-                val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
-                return fromP2SHBytes(HashUtils.addressHash(
-                        BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
-            }
-            throw IllegalStateException("Can't create segwit address from uncompressed key")
-        }
-
-        fun fromP2SHBytes(bytes: ByteArray, network: CommonNetworkParameters): BtcvAddress? {
-            if (bytes.size != 20) {
-                return null
-            }
-            val all = ByteArray(BitcoinAddress.NUM_ADDRESS_BYTES)
-            all[0] = (network.getMultisigAddressHeader() and 0xFF).toByte()
-            System.arraycopy(bytes, 0, all, 1, 20)
-            return BtcvAddress(BitcoinVaultTest, all)
-        }
-
-        fun PublicKey.toP2WPKH(networkParameters: CommonNetworkParameters, ignoreCompression: Boolean = false): BtcvSegwitAddress =
-                if (ignoreCompression || isCompressed) {
-                    BtcvSegwitAddress(BitcoinVaultTest, networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
-                } else {
-                    throw IllegalStateException("Can't create segwit address from uncompressed key")
-                }
-
-
         @Throws(KeyCipher.InvalidKeyCipher::class)
-        fun createNew(bip32Root: HdKeyNode, network: CommonNetworkParameters, accountIndex: Int,
+        fun createNew(bip32Root: HdKeyNode, coinType: CryptoCurrency, network: CommonNetworkParameters, accountIndex: Int,
                       secureKeyValueStore: SecureKeyValueStore, cipher: KeyCipher?,
-                      derivationType: BipDerivationType): HDAccountKeyManager {
+                      derivationType: BipDerivationType, addressFactory: AddressFactory): HDAccountKeyManager {
             val bip44Root = bip32Root.createChildNode(derivationType.getHardenedPurpose())
             val coinTypeRoot = bip44Root.createChildNode(network.getBip44CoinType() or -0x80000000)
 
             // Create the account root.
             val accountRoot = coinTypeRoot.createChildNode(accountIndex or -0x80000000)
-            return createFromAccountRoot(accountRoot, network, accountIndex, secureKeyValueStore, cipher, derivationType)
+            return createFromAccountRoot(accountRoot, coinType, network, accountIndex, secureKeyValueStore, cipher, derivationType, addressFactory)
         }
 
         @Throws(KeyCipher.InvalidKeyCipher::class)
-        fun createFromAccountRoot(accountRoot: HdKeyNode, network: CommonNetworkParameters,
+        fun createFromAccountRoot(accountRoot: HdKeyNode, coinType: CryptoCurrency, network: CommonNetworkParameters,
                                   accountIndex: Int, secureKeyValueStore: SecureKeyValueStore,
-                                  cipher: KeyCipher?, derivationType: BipDerivationType): HDAccountKeyManager {
+                                  cipher: KeyCipher?, derivationType: BipDerivationType, addressFactory: AddressFactory): HDAccountKeyManager {
 
             // Store the account root (xPub and xPriv) key
             secureKeyValueStore.encryptAndStoreValue(getAccountNodeId(network, accountIndex, derivationType),
@@ -264,35 +212,35 @@ class HDAccountKeyManager(val accountIndex: Int,
                     changeChainRoot.toCustomByteFormat(), cipher)
             secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, true, derivationType),
                     changeChainRoot.publicNode.toCustomByteFormat())
-            return HDAccountKeyManager(accountIndex, network, secureKeyValueStore, derivationType)
+            return HDAccountKeyManager(accountIndex, network, secureKeyValueStore, derivationType, addressFactory)
         }
 
-        protected fun getAccountNodeId(network: CommonNetworkParameters?, accountIndex: Int, derivationType: BipDerivationType): ByteArray {
+        protected fun getAccountNodeId(network: CommonNetworkParameters, accountIndex: Int, derivationType: BipDerivationType): ByteArray {
             // Create a compact unique account ID
             val id = ByteArray(1 + 1 + 4)
             id[0] = derivationType.purpose
-            id[1] = (if (network!!.isProdnet()) 0 else 1).toByte() // network
+            id[1] = (network.getBip44CoinType()).toByte() // network
             BitUtils.uint32ToByteArrayLE(accountIndex.toLong(), id, 2) // account index
             return id
         }
 
-        protected fun getChainNodeId(network: CommonNetworkParameters?, accountIndex: Int, isChangeChain: Boolean,
+        protected fun getChainNodeId(network: CommonNetworkParameters, accountIndex: Int, isChangeChain: Boolean,
                                      derivationType: BipDerivationType): ByteArray {
             // Create a compact unique chain node ID
             val id = ByteArray(1 + 1 + 4 + 1)
             id[0] = derivationType.purpose
-            id[1] = (if (network!!.isProdnet()) 0 else 1).toByte() // network
+            id[1] = (network.getBip44CoinType()).toByte() // network
             BitUtils.uint32ToByteArrayLE(accountIndex.toLong(), id, 2) // account index
             id[6] = (if (isChangeChain) 1 else 0).toByte() // external chain or change chain
             return id
         }
 
-        private fun getLeafNodeId(network: CommonNetworkParameters?, accountIndex: Int, isChangeChain: Boolean, index: Int,
+        private fun getLeafNodeId(network: CommonNetworkParameters, accountIndex: Int, isChangeChain: Boolean, index: Int,
                                   isHdNode: Boolean, derivationType: BipDerivationType): ByteArray {
             // Create a compact unique address or HD node ID
             val id = ByteArray(1 + 1 + 4 + 1 + 4 + 1)
             id[0] = derivationType.purpose
-            id[1] = (if (network!!.isProdnet()) 0 else 1).toByte() // network
+            id[1] = (network.getBip44CoinType()).toByte() // network
             BitUtils.uint32ToByteArrayLE(accountIndex.toLong(), id, 2) // account index
             id[6] = (if (isChangeChain) 1 else 0).toByte() // external chain or change chain
             BitUtils.uint32ToByteArrayLE(index.toLong(), id, 7) // address index
@@ -311,19 +259,5 @@ class HDAccountKeyManager(val accountIndex: Int,
             return writer.toBytes()
         }
 
-        private fun bytesToAddress(bytes: ByteArray, path: HdKeyPath): BtcvAddress? {
-            return try {
-                val reader = ByteReader(bytes)
-                // Address bytes
-                reader.getBytes(21)
-                // Read length encoded string
-                val addressString = String(reader.getBytes(reader.get().toInt()))
-                val address = BtcvAddress.fromString(BitcoinVaultTest, addressString)
-                address?.bip32Path = path
-                address
-            } catch (e: ByteReader.InsufficientBytesException) {
-                throw RuntimeException(e)
-            }
-        }
     }
 }

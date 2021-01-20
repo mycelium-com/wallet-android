@@ -174,16 +174,12 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
         TODO("Not yet implemented")
     }
 
-    override fun getOutgoingTransactions(): MutableMap<Sha256Hash, ByteArray> {
-        TODO("Not yet implemented")
-    }
+    override fun getOutgoingTransactions(): Map<Sha256Hash, ByteArray> =
+            mapOf()
 
-    override fun isOutgoingTransaction(txid: Sha256Hash?): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun isOutgoingTransaction(txid: Sha256Hash?): Boolean = false
 
     override fun removeOutgoingTransaction(txid: Sha256Hash?) {
-        TODO("Not yet implemented")
     }
 
     override fun deleteTxRefersParentTransaction(txId: Sha256Hash?) {

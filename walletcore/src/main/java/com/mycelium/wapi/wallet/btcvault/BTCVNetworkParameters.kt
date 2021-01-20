@@ -76,13 +76,13 @@ class BTCVNetworkParameters(networkType: NetworkType) : NetworkParameters(networ
                 bip44_coin_type = 440
             }
             NetworkType.TESTNET -> {
-                _standardAddressHeader = 0x4E
-                _multisigAddressHeader = 0x3C
+                _standardAddressHeader = 0x6F
+                _multisigAddressHeader = 0xC4
                 _genesisBlock = TESTNET_GENESIS_BLOCK
                 _port = 18333
                 _packetMagic = 0x0b110907
                 _packetMagicBytes = byteArrayOf(0x0b.toByte(), 0x11.toByte(), 0x09.toByte(), 0x07.toByte())
-                bip44_coin_type = 440
+                bip44_coin_type = 441
             }
             NetworkType.REGTEST -> {
                 _standardAddressHeader = 0x6F

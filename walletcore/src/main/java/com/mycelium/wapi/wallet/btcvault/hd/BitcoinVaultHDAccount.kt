@@ -321,8 +321,6 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun isDerivedFromInternalMasterseed(): Boolean = accountContext.accountType == BitcoinVaultHDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
 
-    override fun broadcastOutgoingTransactions(): Boolean = false
-
     override fun removeAllQueuedTransactions() {
     }
 
@@ -384,7 +382,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
         val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
-        if (!getAvailableAddressTypes().contains(address.type)) {
+        if (!availableAddressTypes.contains(address.type)) {
             return null
         }
         val indexLookUp = getIndexLookup(toBtcvAddress(address), derivationType)
@@ -427,8 +425,10 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         }
     }
 
-    override fun getAvailableAddressTypes(): List<AddressType> =
-            derivePaths.asSequence().map { it.addressType }.toList()
+    override val availableAddressTypes: List<AddressType>
+        get() {
+            return derivePaths.asSequence().map { it.addressType }.toList()
+        }
 
 
     override fun setDefaultAddressType(addressType: AddressType) {
@@ -438,7 +438,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey? {
         val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
-        if (!getAvailableAddressTypes().contains(address.type)) {
+        if (!availableAddressTypes.contains(address.type)) {
             return null
         }
         val indexLookUp = getIndexLookup(toBtcvAddress(address), derivationType)

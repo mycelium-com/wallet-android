@@ -24,10 +24,9 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import java.util.*
+import java.io.InputStreamReader
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.collections.ArrayList
 
 
 interface MyceliumNodesApi {
@@ -104,7 +103,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                             service.getNodesTest()
                         }.execute()
                 if (resp.isSuccessful) {
-                    val myceliumNodesResponse = resp.body()
+                    val myceliumNodesResponse = //resp.body()
+                            gson.fromJson(InputStreamReader(WalletApplication.getInstance().assets
+                                            .open("nodes-b-test.json"), "UTF-8"), MyceliumNodesResponse::class.java)
 
                     val electrumXnodes = if (network.isTestnet) {
                         myceliumNodesResponse?.btcTestnet

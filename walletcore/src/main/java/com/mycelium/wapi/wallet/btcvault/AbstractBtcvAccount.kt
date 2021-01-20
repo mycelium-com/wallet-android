@@ -17,7 +17,10 @@ package com.mycelium.wapi.wallet.btcvault
 
 import com.google.common.base.Optional
 import com.google.common.collect.Lists
-import com.mrd.bitlib.*
+import com.mrd.bitlib.FeeEstimatorBuilder
+import com.mrd.bitlib.StandardTransactionBuilder
+import com.mrd.bitlib.TransactionUtils
+import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.*
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.ByteReader
@@ -58,7 +61,8 @@ import java.util.logging.Logger
 import javax.annotation.Nonnull
 import kotlin.math.min
 
-abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBacking, val network: NetworkParameters, wapi: Wapi) : SynchronizeAbleWalletBtcAccount<BtcvAddress?>() {
+abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBacking, val network: NetworkParameters, wapi: Wapi)
+    : SynchronizeAbleWalletBtcAccount<BtcvAddress?>(), AddressContainer {
     interface EventHandler {
         fun onEvent(accountId: UUID?, event: WalletManager.Event?)
     }
@@ -964,8 +968,6 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
     protected abstract fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey?
-    abstract fun getAvailableAddressTypes(): List<AddressType>
-    abstract fun setDefaultAddressType(addressType: AddressType)
     protected abstract fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey?
 
     @Synchronized

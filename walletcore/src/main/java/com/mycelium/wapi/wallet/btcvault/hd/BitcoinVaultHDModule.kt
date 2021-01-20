@@ -12,6 +12,7 @@ import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.genericdb.Backing
+import com.mycelium.wapi.wallet.manager.AddressFactory
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -31,7 +32,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     private val accounts = mutableMapOf<UUID, BitcoinVaultHDAccount>()
 
-    private val coinType = if (networkParameters.isProdnet()) BitcoinVaultMain else BitcoinVaultTest
+    private val coinType = if (networkParameters.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
     override val id: String = ID
 
@@ -57,15 +58,15 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
 
-                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root,
+                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, coinType,
                             networkParameters, accountIndex, secureStore,
-                            AesKeyCipher.defaultKeyCipher(), derivationType
+                            AesKeyCipher.defaultKeyCipher(), derivationType, AddressFactory(coinType, networkParameters)
                     )
                 }
 
                 // Generate the context for the account
                 val accountContext = BitcoinVaultHDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId,
-                        coinType, accountIndex, false, "Bitcoin Vault ${getCurrentBip44Index()}",
+                        coinType, accountIndex, false, "Bitcoin Vault ${accountIndex + 1}",
                         Balance.getZeroBalance(coinType), backing::updateAccountContext)
 
                 backing.createAccountContext(accountContext)
@@ -83,7 +84,9 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             hashMapOf<BipDerivationType, HDAccountKeyManager>().apply {
                 for (entry in context.indexesMap) {
                     when (context.accountType) {
-                        HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED -> this[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, secureStore, entry.key)
+                        HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED ->
+                            this[entry.key] = HDAccountKeyManager(context.accountIndex,
+                                    networkParameters, secureStore, entry.key, AddressFactory(coinType, networkParameters))
                     }
                 }
             }

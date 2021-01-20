@@ -19,7 +19,6 @@ import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -149,8 +148,9 @@ open class HDAccount(
             safeLastInternalIndex[it] = if (reset) 0 else context.getLastInternalIndexWithActivity(it)
         }
     }
-    override fun getAvailableAddressTypes(): List<AddressType> =
-        derivePaths.asSequence().map { it.addressType }.toList()
+
+    override val availableAddressTypes: List<AddressType>
+        get() { return derivePaths.asSequence().map { it.addressType }.toList()}
 
 
     override fun setDefaultAddressType(addressType: AddressType) {

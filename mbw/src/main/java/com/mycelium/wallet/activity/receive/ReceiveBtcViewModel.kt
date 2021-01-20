@@ -10,6 +10,7 @@ import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wapi.wallet.AddressContainer
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -46,7 +47,9 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     }
 
     fun setCurrentAddressTypeAsDefault() {
-        (account as AbstractBtcAccount).setDefaultAddressType(addressType.value)
+        addressType.value?.let {
+            (account as AddressContainer).setDefaultAddressType(it)
+        }
         this.addressType.value = addressType.value // this is required to update UI
     }
 

@@ -26,6 +26,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
+import com.mycelium.wapi.wallet.AddressContainer
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
@@ -74,8 +75,8 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         initWithBindings(binding)
 
         if (viewModel is ReceiveBtcViewModel &&
-                (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
-            createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
+                (account as? AddressContainer)?.availableAddressTypes?.size ?: 0 > 1) {
+            createAddressDropdown((account as AddressContainer).availableAddressTypes)
         }
         fioNameSpinner.adapter = ArrayAdapter<String>(this,
                 R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value!!).apply {
@@ -120,7 +121,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
     }
 
-    private fun createAddressDropdown(addressTypes: MutableList<AddressType>) {
+    private fun createAddressDropdown(addressTypes: List<AddressType>) {
         val btcViewModel = viewModel as ReceiveBtcViewModel
         // setting initial text based on current address type
         selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType().asStringRes())
