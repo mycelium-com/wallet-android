@@ -21,7 +21,7 @@ class BequantIntroActivity : AppCompatActivity(R.layout.activity_bequant_intro) 
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         }
         pager.adapter = IntroPagerAdapter(this)
-        TabLayoutMediator(tabs, pager) { tab, _ ->
+        TabLayoutMediator(tabs, pager) { _, _ ->
         }.attach()
 
         create.setOnClickListener {

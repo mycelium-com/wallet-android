@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 import com.mycelium.wapi.wallet.Address;
@@ -21,11 +22,11 @@ public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
    @Override
    public void launchService(Activity activity, MbwManager mbwManager, Address activeReceivingAddress) {
       if (!mbwManager.getSelectedAccount().canSpend()) {
-         Toast.makeText(activity, R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
+         new Toaster(activity).toast(R.string.lt_warning_watch_only_account, false);
          return;
       }
       if (!Utils.isAllowedForLocalTrader(mbwManager.getSelectedAccount())) {
-         Toast.makeText(activity, R.string.lt_warning_wrong_account_type, Toast.LENGTH_LONG).show();
+         new Toaster(activity).toast(R.string.lt_warning_wrong_account_type, false);
          return;
       }
 

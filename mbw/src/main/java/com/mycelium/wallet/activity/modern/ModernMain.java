@@ -164,7 +164,7 @@ public class ModernMain extends AppCompatActivity {
         findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
         findViewById(R.id.logoMenu).setOnClickListener(new LogoMenuClick());
         View investmentWallet = findViewById(R.id.investmentWallet);
-        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(com.mycelium.bequant.Constants.PARTNER_ID) ?
+        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(com.mycelium.bequant.BequantConstants.PARTNER_ID) ?
                 VISIBLE : GONE);
         investmentWallet.setOnClickListener(view -> {
             findViewById(R.id.logoMenu).performClick(); // to hide menu
@@ -552,7 +552,7 @@ public class ModernMain extends AppCompatActivity {
         boolean started = _mbwManager.getWalletManager(false)
                 .startSynchronization(syncMode, Collections.singletonList(account));
         if (!started) {
-            MbwManager.getEventBus().post(new SyncFailed());
+            MbwManager.getEventBus().post(new SyncFailed(account.getId()));
         }
         return started;
     }
@@ -634,7 +634,12 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void synchronizationFailed(SyncFailed event) {
         hideRefresh();
-        _toaster.toastConnectionError();
+        String type = "";
+        WalletAccount account = _mbwManager.getWalletManager(false).getAccount(event.accountId);
+        if(account != null) {
+            type = account.getCoinType().getName();
+        }
+        _toaster.toastConnectionError(type);
     }
 
     @Subscribe

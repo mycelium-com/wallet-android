@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBuySellContent
 import com.mycelium.wallet.external.adapter.BuySellSelectAdapter
@@ -36,7 +37,7 @@ class BuySellSelectActivity : FragmentActivity() {
                         if (mbwManager.selectedAccount is WalletBtcAccount || mbwManager.selectedAccount is EthAccount) {
                             buySellService.launchService(this@BuySellSelectActivity, mbwManager, mbwManager.selectedAccount.receiveAddress)
                         } else {
-                            Toast.makeText(this@BuySellSelectActivity, R.string.buy_sell_select_activity_warning, Toast.LENGTH_SHORT).show()
+                            Toaster(this@BuySellSelectActivity).toast(R.string.buy_sell_select_activity_warning, true)
                         }
                     }
                 } +

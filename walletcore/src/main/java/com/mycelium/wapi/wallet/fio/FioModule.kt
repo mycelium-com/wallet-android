@@ -7,6 +7,9 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
+import com.mycelium.wapi.wallet.fio.FioAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
+import com.mycelium.wapi.wallet.fio.FioAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
+import com.mycelium.wapi.wallet.fio.FioAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
 import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import com.mycelium.wapi.wallet.genericdb.Backing
@@ -170,17 +173,17 @@ class FioModule(
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
             backing.loadAccountContexts()
-                    .associateBy({ it.uuid }, { accountFromUUID(it.uuid) })
+                    .associateBy({ it.uuid }, { accountFromUUID(it) })
 
-    private fun accountFromUUID(uuid: UUID): WalletAccount<*> {
-        return if (secureStore.getPlaintextValue(uuid.toString().toByteArray()) != null) {
-            val fioAddress = FioAddress(coinType, FioAddressData(String(secureStore.getPlaintextValue(uuid.toString().toByteArray()))))
-            val accountContext = createAccountContext(uuid)
+    private fun accountFromUUID(context: FioAccountContext): WalletAccount<*> {
+        return if (secureStore.getPlaintextValue(context.uuid.toString().toByteArray()) != null) {
+            val fioAddress = FioAddress(coinType, FioAddressData(String(secureStore.getPlaintextValue(context.uuid.toString().toByteArray()))))
+            val accountContext = createAccountContext(context.uuid, context.accountType)
             val account = createAccount(accountContext, address = fioAddress, isRestore = true)
             accounts[account.id] = account
             account
         } else {
-            val accountContext = createAccountContext(uuid)
+            val accountContext = createAccountContext(context.uuid, context.accountType)
             val account = createAccount(accountContext, privkeyString = getPrivkeyStringByIndex(accountContext.accountIndex), isRestore = true)
             accounts[account.id] = account
             account
@@ -211,20 +214,22 @@ class FioModule(
         when (config) {
             is FIOMasterseedConfig -> {
                 val newIndex = getCurrentBip44Index() + 1
-                val accountContext = createAccountContext(fioKeyManager.getUUID(newIndex))
+                val accountContext = createAccountContext(fioKeyManager.getUUID(newIndex),
+                        accountType = ACCOUNT_TYPE_FROM_MASTERSEED)
                 baseLabel = accountContext.accountName
                 result = createAccount(accountContext, privkeyString = getPrivkeyStringByIndex(accountContext.accountIndex), isRestore = false)
             }
             is FIOUnrelatedHDConfig -> {
                 val hdKeyNode = config.hdKeyNodes[0]
                 val uuid = hdKeyNode.uuid
-                val accountContext = createAccountContext(uuid, isReadOnly = true)
-                baseLabel = accountContext.accountName
+                val accountContext = createAccountContext(uuid, isReadOnly = true,
+                        accountType = ACCOUNT_TYPE_UNRELATED_X_PRIV)
+                baseLabel = if (config.labelBase.isNotEmpty()) config.labelBase else accountContext.accountName
                 result = createAccount(accountContext, privkeyString = getPrivkeyStringByHdNode(hdKeyNode), isRestore = false)
             }
             is FIOAddressConfig -> {
                 val pubkeyString = try {
-                     when (config.address.getSubType()) {
+                    when (config.address.getSubType()) {
                         FioAddressSubtype.ACTOR.toString() -> FioBlockchainService.getPubkeyByActor(
                                 FioEndpoints(apiEndpoints, historyEndpoints), config.address.toString())
                         FioAddressSubtype.ADDRESS.toString() -> FioBlockchainService.getPubkeyByFioAddress(
@@ -245,7 +250,8 @@ class FioModule(
                 val uuid = UUID.nameUUIDFromBytes(fioAddress.getBytes())
                 secureStore.storePlaintextValue(uuid.toString().toByteArray(),
                         fioAddress.toString().toByteArray())
-                val accountContext = createAccountContext(uuid, isReadOnly = true)
+                val accountContext = createAccountContext(uuid, isReadOnly = true,
+                        accountType = ACCOUNT_TYPE_UNRELATED_X_PUB)
                 baseLabel = accountContext.accountName
                 result = createAccount(accountContext, address = fioAddress, isRestore = false)
             }
@@ -253,7 +259,8 @@ class FioModule(
                 val uuid = UUID.nameUUIDFromBytes(getFioAddressByPrivkey(config.privkey).getBytes())
                 secureStore.encryptAndStoreValue(uuid.toString().toByteArray(),
                         config.privkey.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
-                val accountContext = createAccountContext(uuid, isReadOnly = true)
+                val accountContext = createAccountContext(uuid, isReadOnly = true,
+                        accountType = ACCOUNT_TYPE_UNRELATED_X_PRIV)
                 baseLabel = accountContext.accountName
                 result = createAccount(accountContext, privkeyString = getPrivkeyString(config.privkey), isRestore = false)
             }
@@ -299,7 +306,7 @@ class FioModule(
         return accounts[id]
     }
 
-    private fun createAccountContext(uuid: UUID, isReadOnly: Boolean = false): FioAccountContext {
+    private fun createAccountContext(uuid: UUID, accountType: Int, isReadOnly: Boolean = false): FioAccountContext {
         val accountContextInDB = backing.loadAccountContext(uuid)
         return if (accountContextInDB != null) {
             FioAccountContext(accountContextInDB.uuid,
@@ -312,6 +319,7 @@ class FioModule(
                     accountContextInDB.registeredFIODomains,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
+                    accountContextInDB.accountType,
                     accountContextInDB.actionSequenceNumber)
         } else {
             FioAccountContext(
@@ -321,7 +329,8 @@ class FioModule(
                     else "FIO ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
                     backing::updateAccountContext,
-                    if (isReadOnly) 0 else getCurrentBip44Index() + 1)
+                    if (isReadOnly) 0 else getCurrentBip44Index() + 1,
+                    accountType = accountType)
         }
     }
 

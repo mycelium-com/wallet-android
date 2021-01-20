@@ -133,7 +133,7 @@
             android:drawablePadding="5dp"
             android:textSize="14sp"
             android:textColor="@color/button_text_color"
-            android:text="Activate Trading Account" />
+            android:text="@string/activate_trading_custodial_account" />
 
         <Button
             android:id="@+id/btEthCreate"

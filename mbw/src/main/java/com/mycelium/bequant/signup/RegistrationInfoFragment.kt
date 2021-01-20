@@ -18,8 +18,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
-import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
+import com.mycelium.bequant.BequantConstants.ACTION_BEQUANT_EMAIL_CONFIRMED
+import com.mycelium.bequant.BequantConstants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.BequantMarketActivity

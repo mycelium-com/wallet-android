@@ -20,11 +20,12 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
                        balance: Balance,
                        blockHeight: Int,
                        accountIndex: Int,
+                       accountType: Int,
                        actionSequenceNumber: BigInteger,
                        registeredFIONames: List<RegisteredFIOName>?,
                        registeredFIODomains: List<FIODomain>? ->
                 FioAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, registeredFIONames, registeredFIODomains, archived, blockHeight, actionSequenceNumber)
+                        accountIndex, registeredFIONames, registeredFIODomains, archived, blockHeight, accountType, actionSequenceNumber)
             })
             .executeAsList()
 
@@ -36,17 +37,18 @@ open class FioBacking(walletDB: WalletDB, private val generalBacking: Backing<Ac
                        balance: Balance,
                        blockHeight: Int,
                        accountIndex: Int,
+                       accountType: Int,
                        actionSequenceNumber: BigInteger,
                        registeredFIONames: List<RegisteredFIOName>?,
                        registeredFIODomains: List<FIODomain>? ->
                 FioAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, registeredFIONames, registeredFIODomains, archived, blockHeight, actionSequenceNumber)
+                        accountIndex, registeredFIONames, registeredFIODomains, archived, blockHeight, accountType, actionSequenceNumber)
             })
             .executeAsOneOrNull()
 
     override fun createAccountContext(context: FioAccountContext) {
         generalBacking.createAccountContext(context)
-        fioQueries.insert(context.uuid, context.accountIndex, context.actionSequenceNumber, context.registeredFIONames,
+        fioQueries.insert(context.uuid, context.accountIndex, context.accountType, context.actionSequenceNumber, context.registeredFIONames,
                 context.registeredFIODomains)
     }
 

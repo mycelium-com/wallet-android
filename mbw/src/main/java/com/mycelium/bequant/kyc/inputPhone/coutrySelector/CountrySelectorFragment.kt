@@ -15,8 +15,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
-import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
+import com.mycelium.bequant.BequantConstants.ACTION_COUNTRY_SELECTED
+import com.mycelium.bequant.BequantConstants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycCountryOfResidenceBinding

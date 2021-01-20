@@ -83,7 +83,7 @@
     <string name="private_key">Private Key</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="approximate_fiat_value">%2$s %1$s</string>
-    <string name="no_server_connection">No Server Connection</string>
+    <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
@@ -1134,6 +1134,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bitcoin_cash"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
     <string name="generate_new_bch_key">Generate BCH SA Account</string>
+    <string name="create_fio_legacy_presale_account">Create FIO Legacy Account</string>
+    <string name="new_fio_legacy_presale_account_desc">Create FIO Legacy Account ONLY if you have purchased FIO domain during FIO Presale.</string>
+    <string name="fio_legacy_account">FIO Legacy Account</string>
+    <string name="fio_legacy_already_created">FIO Legacy Account created already</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
     <string name="bch_technology_preview"><![CDATA[Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your Bitcoin <font color="#f08c18">Cash</font> to BTC right in Mycelium so far. Fully functional Bitcoin <font color="#f08c18">Cash</font> module will be available soon. Special thanks to all our contributors and beta testers!]]></string>
     <string name="install">Install</string>
@@ -1483,7 +1487,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_choose_service">Choose service</string>
     <string name="bequant_mycelium_wallet">Mycelium Wallet</string>
     <string name="we_offer_extensive_support">We offer extensive support with maximum\n24 hour response time so you can be at\npeace that your issues are prioritized.</string>
-    <string name="bequant_account_description_accounts_list">Store and exchange over 25+ coins\nincluding leading stablecoins and fiat\ncurrencies with lowest spreads.</string>
+    <string name="bequant_account_description_accounts_list">Buy, sell, trade over 25+\ncoins with lowest spreads</string>
     <string name="bequant_account_description_add_account">Gain secure access to over 20 major digital\ncoins and instantly and safely exchange,\nwithdraw and deposit coins to any address\nof your choice. Powered by Bequant, an\ninstitutional-grade exchange platform with\ntop liquidity and top-of-the-line security.</string>
     <string name="search_markets">Search markets</string>
     <string name="support_center">Support Center</string>
@@ -1557,7 +1561,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
     <string name="bequant_deposit">Deposit</string>
     <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
-    <string name="bequant_trading_account">Trading Account</string>
+    <string name="bequant_trading_account">Trading Custodial Account</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="step_n">Step %d</string>
     <string name="phone_number">Phone Number</string>
@@ -1633,4 +1637,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_payment_request">FIO Payment Request</string>
     <string name="enter_fio_name">Enter FIO Name you are requesting funds from</string>
     <string name="fio_recipient_invalid">Invalid FIO Name</string>
+    <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
+    <string name="activate_trading_custodial_account">Activate Trading Custodial Account</string>
+    <string name="service_unavailable">Service unavailable</string>
+    <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
 </resources>
