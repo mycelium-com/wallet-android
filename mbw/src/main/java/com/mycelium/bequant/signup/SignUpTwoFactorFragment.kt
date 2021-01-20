@@ -8,7 +8,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.Constants.LINK_GOOGLE_AUTHENTICATOR
+import com.mycelium.bequant.BequantConstants.LINK_GOOGLE_AUTHENTICATOR
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_sign_up_two_factor.*
 

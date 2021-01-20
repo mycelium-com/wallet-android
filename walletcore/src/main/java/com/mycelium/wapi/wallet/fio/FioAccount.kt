@@ -502,7 +502,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isVisible(): Boolean = true
 
-    override fun isDerivedFromInternalMasterseed(): Boolean = privkeyString != null
+    override fun isDerivedFromInternalMasterseed(): Boolean = accountContext.accountType == FioAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
     override fun getId(): UUID = accountContext.uuid
 

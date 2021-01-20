@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.text.Html
-import android.widget.Toast.LENGTH_LONG
-import android.widget.Toast.makeText
 import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.BitcoinAddress
@@ -13,6 +11,7 @@ import com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.BitcoinBasedTransaction
@@ -138,7 +137,7 @@ class SendBtcModel(context: Context,
     override fun signTransaction(activity: Activity) {
         // if we have a payment request, check if it is expired
         if (hasPaymentRequestHandler() && paymentRequestExpired()) {
-            makeText(activity, activity.getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show()
+            Toaster(activity).toast(R.string.payment_request_not_sent_expired, false)
             return
         }
 

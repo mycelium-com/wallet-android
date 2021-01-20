@@ -8,8 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.dynamiclinks.ktx.dynamicLinks
 import com.google.firebase.ktx.Firebase
-import com.mycelium.bequant.Constants
-import com.mycelium.bequant.Constants.ACTION_BEQUANT_TOTP_CONFIRMED
+import com.mycelium.bequant.BequantConstants.ACTION_BEQUANT_TOTP_CONFIRMED
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.repositories.Api

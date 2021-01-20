@@ -98,7 +98,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         .build()
                         .create(MyceliumNodesApi::class.java)
                 val resp =
-                        if (BuildConfig.FLAVOR == "prodnet") {
+                        if (!BuildConfig.DEBUG) {
                             service.getNodes()
                         } else {
                             service.getNodesTest()

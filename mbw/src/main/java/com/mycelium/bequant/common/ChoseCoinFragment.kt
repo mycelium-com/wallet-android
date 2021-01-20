@@ -8,8 +8,8 @@ import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
-import com.mycelium.bequant.Constants.TYPE_ITEM
-import com.mycelium.bequant.Constants.TYPE_SEARCH
+import com.mycelium.bequant.BequantConstants.TYPE_ITEM
+import com.mycelium.bequant.BequantConstants.TYPE_SEARCH
 import com.mycelium.bequant.common.adapter.CoinAdapter
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.bequant.remote.repositories.Api

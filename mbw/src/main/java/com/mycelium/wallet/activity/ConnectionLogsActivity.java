@@ -53,7 +53,6 @@ import androidx.core.content.FileProvider;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.mycelium.generated.wallet.database.Logs;
 import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
@@ -99,7 +98,7 @@ public class ConnectionLogsActivity extends Activity {
 
         tvLogDisplay.setOnLongClickListener(view -> {
             Utils.setClipboardString(logsForPrintString, ConnectionLogsActivity.this);
-            Toast.makeText(ConnectionLogsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+            new Toaster(ConnectionLogsActivity.this).toast(R.string.copied_to_clipboard, true);
             return true;
         });
         findViewById(R.id.btShare).setOnClickListener(v -> shareLogs());

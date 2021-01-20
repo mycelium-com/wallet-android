@@ -11,7 +11,7 @@ import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants as Constants
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.layout_loading.*
 
