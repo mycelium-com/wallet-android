@@ -36,7 +36,6 @@ import com.mycelium.wapi.api.request.GetTransactionsRequest
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest
 import com.mycelium.wapi.api.response.CheckTransactionsResponse
 import com.mycelium.wapi.api.response.GetTransactionsResponse
-import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse
 import com.mycelium.wapi.model.*
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.*
@@ -48,9 +47,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
@@ -59,6 +56,7 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.annotation.Nonnull
+import kotlin.math.max
 import kotlin.math.min
 
 abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBacking, val network: NetworkParameters, wapi: Wapi)
@@ -175,10 +173,10 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 continue
             }
             val fundingScript = ScriptOutput.fromScriptBytes(funding.script)
-            val fundingAddress = fundingScript.getAddress(network)
-            //            if (isMine(fundingAddress)) {
-//                return true;
-//            }
+            val fundingAddress = toBtcvAddress(fundingScript.getAddress(network))
+            if (isMineAddress(fundingAddress)) {
+                return true;
+            }
         }
         return false
     }
@@ -191,8 +189,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
      * @return true iff the putput was sent from one of our own addresses
      */
     protected fun isMine(output: TransactionOutputEx): Boolean {
-        val script = ScriptOutput.fromScriptBytes(output.script)
-        return isMine(script)
+        return isMine(ScriptOutput.fromScriptBytes(output.script))
     }
 
     /**
@@ -202,8 +199,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
      * @return true iff the script was created by one of our own addresses
      */
     protected fun isMine(script: ScriptOutput): Boolean {
-        val address = script.getAddress(network)
-        return isMineAddress(toBtcvAddress(address))
+        return isMineAddress(toBtcvAddress(script.getAddress(network)))
     }
     //    public boolean isMineAddress(String address) {
     //        Address addr = AddressUtils.from(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), address);
@@ -220,10 +216,8 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
      */
     protected fun synchronizeUnspentOutputs(addresses: Collection<BtcvAddress?>): Int {
         // Get the current unspent outputs as dictated by the block chain
-        val unspentOutputResponse: QueryUnspentOutputsResponse
-        unspentOutputResponse = try {
-            _wapi.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
-                    .result
+        val unspentOutputResponse = try {
+            _wapi.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, addresses)).result
         } catch (e: WapiException) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
@@ -315,7 +309,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         }
 
         // Fetch updated or added transactions
-        if (!transactionsToAddOrUpdate.isEmpty()) {
+        if (transactionsToAddOrUpdate.isNotEmpty()) {
             val response: GetTransactionsResponse
             try {
                 response = getTransactionsBatched(transactionsToAddOrUpdate).result
@@ -356,10 +350,8 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         return newUtxos
     }
 
-    protected fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> {
-        val fullRequest = GetTransactionsRequest(Wapi.VERSION, txids)
-        return _wapi.getTransactions(fullRequest)
-    }
+    protected fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> =
+            _wapi.getTransactions(GetTransactionsRequest(Wapi.VERSION, txids))
 
     @Throws(WapiException::class)
     protected abstract fun doDiscoveryForAddresses(lookAhead: List<BtcvAddress>): Set<BipDerivationType>
@@ -372,7 +364,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         var i = 0
         while (i < all.size) {
             val endIndex = min(all.size, i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY)
-            val sub: Collection<TransactionEx> = all.subList(i, endIndex)
+            val sub = all.subList(i, endIndex)
             handleNewExternalTransactionsInt(sub, allKnown)
             updateSyncProgress()
             i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY
@@ -407,11 +399,11 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
     @Throws(WapiException::class)
     fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
-        val parentTransactions: MutableMap<Sha256Hash, TransactionEx> = HashMap()
-        val parentOutputs: MutableMap<OutPoint, TransactionOutputEx> = HashMap()
+        val parentTransactions = hashMapOf<Sha256Hash, TransactionEx>()
+        val parentOutputs = hashMapOf<OutPoint, TransactionOutputEx>()
 
         // Find list of parent outputs to fetch
-        val toFetch: MutableCollection<Sha256Hash> = HashSet()
+        val toFetch = hashSetOf<Sha256Hash>()
         for (t in transactions) {
             for (`in` in t.inputs) {
                 if (`in`.outPoint.txid == OutPoint.COINBASE_OUTPOINT.txid) {
@@ -510,7 +502,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     protected fun calculateLocalBalance(): BalanceSatoshis {
-        val unspentOutputs: Collection<TransactionOutputEx> = HashSet(accountBacking.allUnspentOutputs)
+        val unspentOutputs = accountBacking.allUnspentOutputs
         var confirmed: Long = 0
         var pendingChange: Long = 0
         var pendingSending: Long = 0
@@ -519,7 +511,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         //
         // Determine the value we are receiving and create a set of outpoints for fast lookup
         //
-        val unspentOutPoints: MutableSet<OutPoint> = HashSet()
+        val unspentOutPoints = hashSetOf<OutPoint>()
         for (output in unspentOutputs) {
             if (output.height == -1) {
                 if (isFromMe(output.outPoint.txid)) {
@@ -693,7 +685,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         }
     }
 
-    protected abstract fun onNewTransaction(t: BitcoinTransaction?)
+    protected abstract fun onNewTransaction(t: BitcoinTransaction)
     protected fun onTransactionsBroadcasted(txids: List<Sha256Hash>?) {}
 
     fun getTransactionHistory(offset: Int, limit: Int): List<TransactionSummary> {
@@ -1075,24 +1067,6 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             return if (b != null) BalanceSatoshis(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
                     b.blockHeight, isSyncing, b.allowsZeroConfSpending) else BalanceSatoshis(0, 0, 0, 0, 0, 0, isSyncing, false)
         }
-    val currencyBasedBalance: CurrencyBasedBalance
-        get() {
-            val balance = balance
-            val spendableBalance = balance.spendableBalance
-            var sendingBalance = balance.sendingBalance
-            var receivingBalance = balance.receivingBalance
-            require(spendableBalance >= 0) { String.format(Locale.getDefault(), "spendableBalance < 0: %d; account: %s", spendableBalance, this.javaClass.toString()) }
-            if (sendingBalance < 0) {
-                sendingBalance = 0
-            }
-            if (receivingBalance < 0) {
-                receivingBalance = 0
-            }
-            val confirmed: ExactCurrencyValue = ExactBitcoinValue.from(spendableBalance)
-            val sending: ExactCurrencyValue = ExactBitcoinValue.from(sendingBalance)
-            val receiving: ExactCurrencyValue = ExactBitcoinValue.from(receivingBalance)
-            return CurrencyBasedBalance(confirmed, sending, receiving)
-        }
 
     /**
      * Update the balance by summing up the unspent outputs in local persistence.
@@ -1158,7 +1132,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         confirmations = if (tex.height == -1) {
             0
         } else {
-            Math.max(0, blockChainHeight - tex.height + 1)
+            max(0, blockChainHeight - tex.height + 1)
         }
 
         // only track a destinationAddress if it is an outgoing transaction (i.e. send money to someone)
@@ -1391,31 +1365,21 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     override fun getTransactionsSince(receivingSince: Long): List<com.mycelium.wapi.wallet.TransactionSummary> {
-        val history: MutableList<com.mycelium.wapi.wallet.TransactionSummary> = ArrayList()
         checkNotArchived()
-        val list = accountBacking.getTransactionsSince(receivingSince)
-        for (tex in list) {
-            val tx = getTxSummary(tex.txid.bytes)
-            if (tx != null) {
-                history.add(tx)
-            }
-        }
-        return history
+        return accountBacking.getTransactionsSince(receivingSince)
+                .mapNotNull {
+                    getTxSummary(it.txid.bytes)
+                }
     }
 
     override fun getTransactionSummaries(offset: Int, limit: Int): List<com.mycelium.wapi.wallet.TransactionSummary> {
         // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
         // accounts. That should be ok as we write to the DB in a sane order.
         checkNotArchived()
-        val list = accountBacking.getTransactionHistory(offset, limit)
-        val history: MutableList<com.mycelium.wapi.wallet.TransactionSummary> = ArrayList()
-        for (tex in list) {
-            val tx = getTxSummary(tex.txid.bytes)
-            if (tx != null) {
-                history.add(tx)
-            }
-        }
-        return history
+        return accountBacking.getTransactionHistory(offset, limit)
+                .mapNotNull {
+                    getTxSummary(it.txid.bytes)
+                }
     }
 
     override fun getTxSummary(transactionId: ByteArray): com.mycelium.wapi.wallet.TransactionSummary? {
@@ -1466,7 +1430,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         confirmations = if (tex.height == -1) {
             0
         } else {
-            Math.max(0, blockChainHeight - tex.height + 1)
+            max(0, blockChainHeight - tex.height + 1)
         }
         val isQueuedOutgoing = accountBacking.isOutgoingTransaction(tx.id)
         return com.mycelium.wapi.wallet.TransactionSummary(coinType, tx.id.bytes, tx.hash.bytes, valueOf(coinType, satoshisTransferred), tex.time.toLong(), tex.height,
@@ -1479,13 +1443,11 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
 
     override fun getBasedOnCoinType(): CryptoCurrency = coinType
 
-    override fun getAccountBalance(): Balance {
-        val coinType = coinType
-        return Balance(valueOf(coinType, _cachedBalance!!.confirmed),
-                valueOf(coinType, _cachedBalance!!.pendingReceiving),
-                valueOf(coinType, _cachedBalance!!.pendingSending),
-                valueOf(coinType, _cachedBalance!!.pendingChange))
-    }
+    override fun getAccountBalance(): Balance = Balance(
+            valueOf(coinType, _cachedBalance!!.confirmed),
+            valueOf(coinType, _cachedBalance!!.pendingReceiving),
+            valueOf(coinType, _cachedBalance!!.pendingSending),
+            valueOf(coinType, _cachedBalance!!.pendingChange))
 
     override fun getSyncTotalRetrievedTransactions(): Int = syncTotalRetrievedTxs
 
@@ -1507,15 +1469,10 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     override fun getDummyAddress(subType: String): BtcvAddress =
             BtcvAddress(coinType, BitcoinAddress.getNullAddress(network, AddressType.valueOf(subType)).allAddressBytes)
 
-    override fun getUnspentOutputViewModels(): List<OutputViewModel> {
-        val outputSummaryList = unspentTransactionOutputSummary
-        val result: MutableList<OutputViewModel> = ArrayList()
-        for (output in outputSummaryList) {
-            val addr: Address = BtcAddress(coinType, output.address)
-            result.add(OutputViewModel(addr, valueOf(coinType, output.value), false))
-        }
-        return result
-    }
+    override fun getUnspentOutputViewModels(): List<OutputViewModel> =
+            unspentTransactionOutputSummary.map {
+                OutputViewModel(BtcAddress(coinType, it.address), valueOf(coinType, it.value), false)
+            }
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean {
         val btcTx = tx as BtcvTransaction

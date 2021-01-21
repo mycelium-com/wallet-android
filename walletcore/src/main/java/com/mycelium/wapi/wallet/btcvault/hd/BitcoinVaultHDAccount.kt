@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet.btcvault.hd
 import com.google.common.base.Preconditions
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
@@ -24,12 +23,12 @@ import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.btcvault.BtcvTransaction
-import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
+import kotlin.math.max
 import kotlin.math.min
 
 
@@ -74,14 +73,24 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun getReceiveAddress(): BtcvAddress = receivingAddressMap[accountContext.defaultAddressType]!!
 
-
     override fun getCoinType(): CryptoCurrency = accountContext.currency
 
     override fun getBasedOnCoinType(): CryptoCurrency = accountContext.currency
 
-    override fun getAccountBalance(): Balance = Balance.getZeroBalance(accountContext.currency)
-
-    override fun isMineAddress(address: Address?): Boolean = false
+    override fun isMineAddress(address: Address?): Boolean {
+        return try {
+            if (address !is BtcvAddress) {
+                false
+            } else {
+                val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
+                internalAddresses[derivationType]?.containsKey(address) ?: false ||
+                        externalAddresses[derivationType]?.containsKey(address) ?: false
+            }
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+            false
+        }
+    }
 
     override fun isExchangeable(): Boolean = true
 
@@ -113,7 +122,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
             }
         }
         newIds.chunked(50).forEach { fewIds ->
-            val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
+            val transactions = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
         handleNewExternalTransactions(knownTransactions, true)
@@ -123,10 +132,6 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
                     || lastInternalIndexesBefore[derivationType] != accountContext.getLastInternalIndexWithActivity(derivationType))
         }.toSet()
     }
-
-    override fun getTransactionSummaries(offset: Int, limit: Int): MutableList<TransactionSummary> = mutableListOf()
-
-    override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummary> = mutableListOf()
 
     override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> = mutableListOf()
 
@@ -154,6 +159,9 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
             // Update unspent outputs
             return updateUnspentOutputs(mode)
+        } catch (e: RuntimeException) {
+            _logger.log(Level.SEVERE, "doSynchronization: $mode", e)
+            return true
         } finally {
             syncTotalRetrievedTxs = 0
         }
@@ -216,7 +224,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     }
 
     private fun getAddressesToSync(mode: SyncMode): List<BtcvAddress> {
-        var addresses = mutableListOf<BitcoinAddress>()
+        var addresses = mutableListOf<BtcvAddress>()
         derivePaths.forEach { derivationType ->
             val currentInternalAddressId = accountContext.getLastInternalIndexWithActivity(derivationType) + 1
             val currentExternalAddressId = accountContext.getLastExternalIndexWithActivity(derivationType) + 1
@@ -236,14 +244,15 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
             } else if (mode.mode == SyncMode.Mode.FAST_SYNC) {
                 // check only the current change address
                 // plus the current external plus small lookahead
-                addresses.add(keyManagerMap[derivationType]!!
-                        .getAddress(true, currentInternalAddressId + 1) as BitcoinAddress)
+                keyManagerMap[derivationType]?.getAddress(true, currentInternalAddressId + 1)?.let {
+                    addresses.add(it)
+                }
                 addresses.addAll(getAddressRange(false, currentExternalAddressId,
                         currentExternalAddressId + 2, derivationType))
             } else if (mode.mode == SyncMode.Mode.ONE_ADDRESS && mode.addressToSync != null) {
                 // only check for the supplied address
                 addresses = if (isMineAddress(mode.addressToSync)) {
-                    Lists.newArrayList(BitcoinAddress.fromString(mode.addressToSync.toString()))
+                    Lists.newArrayList(BtcvAddress.fromString(coinType, mode.addressToSync.toString()))
                 } else {
                     throw IllegalArgumentException("Address " + mode.addressToSync + " is not part of my account addresses")
                 }
@@ -251,15 +260,15 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
                 throw IllegalArgumentException("Unexpected SyncMode")
             }
         }
-        return addresses.map { toBtcvAddress(it) }
+        return addresses
     }
 
     protected fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
-                                  derivationType: BipDerivationType): List<BitcoinAddress> {
-        val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
-        val ret = ArrayList<BitcoinAddress>(toIndex - clippedFromIndex + 1)
+                                  derivationType: BipDerivationType): List<BtcvAddress> {
+        val clippedFromIndex = max(0, fromIndex) // clip at zero
+        val ret = ArrayList<BtcvAddress>(toIndex - clippedFromIndex + 1)
         for (i in clippedFromIndex..toIndex) {
-            keyManagerMap[derivationType]!!.getAddress(isChangeChain, i)?.let{
+            keyManagerMap[derivationType]!!.getAddress(isChangeChain, i)?.let {
                 ret.add(it)
             }
         }
@@ -342,8 +351,50 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         TODO("Not yet implemented")
     }
 
-    override fun onNewTransaction(t: BitcoinTransaction?) {
-        TODO("Not yet implemented")
+    override fun onNewTransaction(t: BitcoinTransaction) = updateLastIndexWithActivity(t)
+
+    /**
+     * Update the index for the last external and internal address with activity.
+     *
+     * @param t transaction
+     */
+    private fun updateLastIndexWithActivity(t: BitcoinTransaction) {
+        // Investigate whether the transaction sends us any coins
+        for (out in t.outputs) {
+            val receivingAddress = out.script.getAddress(network)
+            val derivationType = BipDerivationType.getDerivationTypeByAddress(receivingAddress)
+            updateLastExternalIndex(receivingAddress, derivationType)
+            updateLastInternalIndex(receivingAddress, derivationType)
+        }
+        ensureAddressIndexes()
+    }
+
+    /**
+     * Update the new last external address with activity
+     *
+     * @param externalIndex new index
+     */
+    protected fun updateLastExternalIndex(receivingAddress: BitcoinAddress, derivationType: BipDerivationType) {
+        externalAddresses[derivationType]?.get(receivingAddress)?.also { externalIndex ->
+            // Sends coins to an external address, update internal max index if necessary
+            if (accountContext.getLastExternalIndexWithActivity(derivationType) < externalIndex) {
+                accountContext.setLastExternalIndexWithActivity(derivationType, externalIndex)
+            }
+        }
+    }
+
+    /**
+     * Update the new last internal address with activity.
+     *
+     * @param receivingAddress
+     */
+    protected fun updateLastInternalIndex(receivingAddress: BitcoinAddress, derivationType: BipDerivationType) {
+        internalAddresses[derivationType]?.get(receivingAddress)?.also { internalIndex ->
+            // Sends coins to an internal address, update internal max index if necessary
+            if (accountContext.getLastInternalIndexWithActivity(derivationType) < internalIndex) {
+                accountContext.setLastInternalIndexWithActivity(derivationType, internalIndex)
+            }
+        }
     }
 
     override fun setBlockChainHeight(blockHeight: Int) {

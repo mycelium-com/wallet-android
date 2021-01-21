@@ -22,20 +22,23 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
                                    private val uuid: UUID,
                                    private val currency: CryptoCurrency) : BtcAccountBacking {
 
-    private val accountQueries = walletDB.bTCVAccountBackingQueries
+    private val contextQueries = walletDB.accountContextQueries
+    private val btcvContextQueries = walletDB.bTCVContextQueries
+    private val accountBackingQueries = walletDB.bTCVAccountBackingQueries
     private val txQueries = walletDB.bTCVTransactionQueries
     private val utxoQueries = walletDB.bTCVUtxoQueries
+    private val ptxoQueries = walletDB.bTCVPtxoQueries
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
-            accountQueries.selectBTCVTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
-                                                                                          currency: CryptoCurrency,
-                                                                                          blockNumber: Int,
-                                                                                          timestamp: Long,
-                                                                                          value: Value,
-                                                                                          fee: Value,
-                                                                                          confirmations: Int,
-                                                                                          sender: String,
-                                                                                          receiver: String ->
+            accountBackingQueries.selectBTCVTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
+                                                                                                 currency: CryptoCurrency,
+                                                                                                 blockNumber: Int,
+                                                                                                 timestamp: Long,
+                                                                                                 value: Value,
+                                                                                                 fee: Value,
+                                                                                                 confirmations: Int,
+                                                                                                 sender: String,
+                                                                                                 receiver: String ->
                 val fromAddress = BtcvAddress(currency, BitcoinAddress.fromString(sender).allAddressBytes)
                 val toAddress = BtcvAddress(currency, BitcoinAddress.fromString(receiver).allAddressBytes)
                 BTCVTransactionSummary(
@@ -51,19 +54,22 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
     }
 
     fun updateAccountContext(context: BitcoinVaultHDAccountContext) {
-
+        contextQueries.update(context.accountName, context.balance, context.isArchived(), context.blockHeight, context.id)
+//        _updateBip44Account.bindString(3, gson.toJson(context.getIndexesMap()));
+//        _updateBip44Account.bindLong(4, context.getLastDiscovery());
+//        _updateBip44Account.bindLong(5, context.getAccountType());
+//        _updateBip44Account.bindLong(6, context.getAccountSubId());
+//        _updateBip44Account.bindString(7, gson.toJson(context.getDefaultAddressType()));
     }
 
     override fun beginTransaction() {
-        TODO("Not yet implemented")
     }
 
     override fun setTransactionSuccessful() {
-        TODO("Not yet implemented")
+
     }
 
     override fun endTransaction() {
-        TODO("Not yet implemented")
     }
 
     override fun clear() {
@@ -71,7 +77,14 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
     }
 
     override fun getAllUnspentOutputs(): Collection<TransactionOutputEx> =
-            listOf()
+            utxoQueries.selectUtxos(uuid, mapper = { outPoint: OutPoint?,
+                                                     accountId: UUID?,
+                                                     height: Int,
+                                                     value: Long,
+                                                     isCoinbase: Boolean,
+                                                     script: ByteArray? ->
+                TransactionOutputEx(outPoint, height, value, script, isCoinbase)
+            }).executeAsList()
 
 
     override fun getUnspentOutput(outPoint: OutPoint?): TransactionOutputEx? =
@@ -82,7 +95,7 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
                                                                   isCoinbase: Boolean,
                                                                   script: ByteArray? ->
                 TransactionOutputEx(outPoint, height, value, script, isCoinbase)
-            }).executeAsOne()
+            }).executeAsOneOrNull()
 
     override fun deleteUnspentOutput(outPoint: OutPoint?) {
         utxoQueries.deleteUtxo(outPoint, uuid)
@@ -93,20 +106,30 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
     }
 
     override fun putParentTransactionOuputs(outputsList: MutableList<TransactionOutputEx>?) {
-        TODO("Not yet implemented")
+        ptxoQueries.transaction {
+            outputsList?.forEach {
+                putParentTransactionOutput(it)
+            }
+        }
     }
 
-    override fun putParentTransactionOutput(output: TransactionOutputEx?) {
-        TODO("Not yet implemented")
+    override fun putParentTransactionOutput(output: TransactionOutputEx) {
+        ptxoQueries.insertPtxo(output.outPoint, uuid, output.height, output.value, output.isCoinBase, output.script)
     }
 
-    override fun getParentTransactionOutput(outPoint: OutPoint?): TransactionOutputEx {
-        TODO("Not yet implemented")
-    }
+    override fun getParentTransactionOutput(outPoint: OutPoint?): TransactionOutputEx? =
+            ptxoQueries.selectPtxoById(outPoint, uuid, mapper = { outpoint: OutPoint?,
+                                                                  accountId: UUID?,
+                                                                  height: Int,
+                                                                  value: Long,
+                                                                  isCoinbase: Boolean,
+                                                                  script: ByteArray? ->
+                TransactionOutputEx(outPoint, height, value, script, isCoinbase)
+            }).executeAsOneOrNull()
 
-    override fun hasParentTransactionOutput(outPoint: OutPoint?): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun hasParentTransactionOutput(outPoint: OutPoint?): Boolean =
+            ptxoQueries.selectPtxoById(outPoint, uuid).executeAsOneOrNull() != null
+
 
     override fun putTransaction(transaction: TransactionEx) {
         txQueries.insertTransaction(transaction.txid, transaction.hash, uuid, transaction.height, transaction.time, transaction.binary)
@@ -127,7 +150,7 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
                                                                        timestamp: Int,
                                                                        binary: ByteArray ->
                 TransactionEx(id, hash, blockNumber, timestamp, binary)
-            }).executeAsOne()
+            }).executeAsOneOrNull()
 
     override fun deleteTransaction(hash: Sha256Hash) {
         val tex = getTransaction(hash)

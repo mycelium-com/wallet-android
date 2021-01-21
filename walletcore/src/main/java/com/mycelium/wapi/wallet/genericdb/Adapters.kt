@@ -212,6 +212,7 @@ val BTCVAccountBackingAdapter = BTCVAccountBacking.Adapter(Adapters.uuidAdapter)
 val BTCVContextAdapter = BTCVContext.Adapter(Adapters.uuidAdapter)
 val BTCVTransactionAdapter = BTCVTransaction.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter, Adapters.sha256Adapter)
 val BTCVUtxoAdapter = BTCVUtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter)
+val BTCVPtxoAdapter = BTCVPtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter)
 
 val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.registeredFioNameAdapter,
         Adapters.fioDomainAdapter)

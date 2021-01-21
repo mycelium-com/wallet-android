@@ -21,12 +21,10 @@ open class BtcvAddress(override val coinType: CryptoCurrency,
         if (this === o) return true
         if (o == null || javaClass != o.javaClass) return false
         val that = o as BtcvAddress
-        return allAddressBytes.contentEquals(that.allAddressBytes)
+        return Arrays.equals(allAddressBytes, that.allAddressBytes)
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(allAddressBytes)
-    }
+    override fun hashCode(): Int = Arrays.hashCode(allAddressBytes)
 
     override fun getSubType(): String = type.name
 
