@@ -270,7 +270,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
-    private final WapiClientElectrumX _wapiV;
+    private final WapiClientElectrumX wapiBTCV;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -332,9 +332,13 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
-        _wapiV = initWapi(configuration.getElectrumVEndpoints(), configuration.getWapiEndpoints());
+        List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
+        for (TcpEndpoint btcvEndpoint : btcvEndpoints) {
+            btcvEndpoint.setUseSsl(getNetwork().isProdnet());
+        }
+        wapiBTCV = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
-        configuration.setElectrumVServerListChangedListener(_wapiV);
+        configuration.setElectrumVServerListChangedListener(wapiBTCV);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -882,7 +886,7 @@ public class MbwManager {
         BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
         walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore,
                 environment.getBTCVNetwork(),
-                walletDB, _wapiV, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
+                walletDB, wapiBTCV, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
                 getMetadataStorage(), accountListener));
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
