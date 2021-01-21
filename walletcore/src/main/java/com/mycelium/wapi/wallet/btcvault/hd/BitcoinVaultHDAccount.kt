@@ -34,7 +34,7 @@ import kotlin.math.min
 
 
 class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountContext,
-                            protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
+                            protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
                             networkParameters: BTCVNetworkParameters,
                             wapi: Wapi,
                             val backing: BitcoinVaultHDAccountBacking,
@@ -85,7 +85,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isExchangeable(): Boolean = true
 
-    override fun doDiscoveryForAddresses(addresses: List<BitcoinAddress>): Set<BipDerivationType> {
+    override fun doDiscoveryForAddresses(addresses: List<BtcvAddress>): Set<BipDerivationType> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
@@ -215,7 +215,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         return true
     }
 
-    private fun getAddressesToSync(mode: SyncMode): List<BitcoinAddress> {
+    private fun getAddressesToSync(mode: SyncMode): List<BtcvAddress> {
         var addresses = mutableListOf<BitcoinAddress>()
         derivePaths.forEach { derivationType ->
             val currentInternalAddressId = accountContext.getLastInternalIndexWithActivity(derivationType) + 1
@@ -251,7 +251,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
                 throw IllegalArgumentException("Unexpected SyncMode")
             }
         }
-        return ImmutableList.copyOf(addresses)
+        return addresses.map { toBtcvAddress(it) }
     }
 
     protected fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
@@ -281,7 +281,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
     }
 
-    private fun getAddressesToDiscover(derivationType: BipDerivationType): List<BitcoinAddress> {
+    private fun getAddressesToDiscover(derivationType: BipDerivationType): List<BtcvAddress> {
         // getAddressesToDiscover has to progress covering all addresses while last address with
         // activity might advance in jumps from sending to oneself from an old UTXO address to one
         // 30 later.

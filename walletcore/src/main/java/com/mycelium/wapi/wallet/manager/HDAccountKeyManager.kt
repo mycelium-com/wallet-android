@@ -25,11 +25,7 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.ByteWriter
-import com.mycelium.wapi.wallet.CommonNetworkParameters
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.SecureKeyValueStore
-import com.mycelium.wapi.wallet.SecureSubKeyValueStore
-import com.mycelium.wapi.wallet.btcvault.BtcvAddress
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
@@ -50,11 +46,12 @@ import java.util.*
  * Addresses are calculated from the appropriate public key on demand once, and then stored in plain text for fast
  * retrieval next time they are requested.
  */
-class HDAccountKeyManager(val accountIndex: Int,
-                          val network: CommonNetworkParameters,
-                          val secureKeyValueStore: SecureKeyValueStore,
-                          val derivationType: BipDerivationType,
-                          val addressFactory: AddressFactory) {
+class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
+                                   val network: CommonNetworkParameters,
+                                   val secureKeyValueStore: SecureKeyValueStore,
+                                   val derivationType: BipDerivationType,
+                                   val addressFactory: AddressFactory<ADDRESS>)
+        where ADDRESS : Address {
     var publicAccountRoot: HdKeyNode = HdKeyNode.fromCustomByteformat(
             secureKeyValueStore.getPlaintextValue(getAccountNodeId(network, accountIndex, derivationType)))
 
@@ -148,7 +145,7 @@ class HDAccountKeyManager(val accountIndex: Int,
         }
     }
 
-    fun getAddress(isChangeChain: Boolean, index: Int): BtcvAddress? {
+    fun getAddress(isChangeChain: Boolean, index: Int): ADDRESS? {
         // See if we have it in the store
         val id = getLeafNodeId(network, accountIndex, isChangeChain, index, false, derivationType)
         val addressNodeBytes = secureKeyValueStore.getPlaintextValue(id)
@@ -168,7 +165,7 @@ class HDAccountKeyManager(val accountIndex: Int,
             return addressFactory.bytesToAddress(addressNodeBytes, path)
         }
         return addressFactory.getAddress(getPublicKey(isChangeChain, index), derivationType.addressType)?.apply {
-            this.bip32Path = path
+            this.setBip32Path(path)
             // Store it for next time
 //            secureKeyValueStore.storePlaintextValue(id, addressToBytes(this))
         }
@@ -177,9 +174,10 @@ class HDAccountKeyManager(val accountIndex: Int,
     companion object {
 
         @Throws(KeyCipher.InvalidKeyCipher::class)
-        fun createNew(bip32Root: HdKeyNode, coinType: CryptoCurrency, network: CommonNetworkParameters, accountIndex: Int,
-                      secureKeyValueStore: SecureKeyValueStore, cipher: KeyCipher?,
-                      derivationType: BipDerivationType, addressFactory: AddressFactory): HDAccountKeyManager {
+        fun <ADDRESS> createNew(bip32Root: HdKeyNode, coinType: CryptoCurrency, network: CommonNetworkParameters, accountIndex: Int,
+                                secureKeyValueStore: SecureKeyValueStore, cipher: KeyCipher?,
+                                derivationType: BipDerivationType, addressFactory: AddressFactory<ADDRESS>): HDAccountKeyManager<ADDRESS>
+                where ADDRESS : Address {
             val bip44Root = bip32Root.createChildNode(derivationType.getHardenedPurpose())
             val coinTypeRoot = bip44Root.createChildNode(network.getBip44CoinType() or -0x80000000)
 
@@ -189,9 +187,10 @@ class HDAccountKeyManager(val accountIndex: Int,
         }
 
         @Throws(KeyCipher.InvalidKeyCipher::class)
-        fun createFromAccountRoot(accountRoot: HdKeyNode, coinType: CryptoCurrency, network: CommonNetworkParameters,
-                                  accountIndex: Int, secureKeyValueStore: SecureKeyValueStore,
-                                  cipher: KeyCipher?, derivationType: BipDerivationType, addressFactory: AddressFactory): HDAccountKeyManager {
+        fun <ADDRESS> createFromAccountRoot(accountRoot: HdKeyNode, coinType: CryptoCurrency, network: CommonNetworkParameters,
+                                            accountIndex: Int, secureKeyValueStore: SecureKeyValueStore,
+                                            cipher: KeyCipher?, derivationType: BipDerivationType, addressFactory: AddressFactory<ADDRESS>): HDAccountKeyManager<ADDRESS>
+                where ADDRESS : Address {
 
             // Store the account root (xPub and xPriv) key
             secureKeyValueStore.encryptAndStoreValue(getAccountNodeId(network, accountIndex, derivationType),
@@ -247,17 +246,5 @@ class HDAccountKeyManager(val accountIndex: Int,
             id[11] = (if (isHdNode) 1 else 0).toByte() // is HD node or address
             return id
         }
-
-        private fun addressToBytes(address: BitcoinAddress): ByteArray {
-            val writer = ByteWriter(1024)
-            // Add address as bytes
-            writer.putBytes(address.allAddressBytes)
-            // Add address as string
-            val addressString = address.toString()
-            writer.put(addressString.length.toByte())
-            writer.putBytes(addressString.toByteArray())
-            return writer.toBytes()
-        }
-
     }
 }

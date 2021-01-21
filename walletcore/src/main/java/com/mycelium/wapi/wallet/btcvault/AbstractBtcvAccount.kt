@@ -62,7 +62,7 @@ import javax.annotation.Nonnull
 import kotlin.math.min
 
 abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBacking, val network: NetworkParameters, wapi: Wapi)
-    : SynchronizeAbleWalletBtcAccount<BtcvAddress?>(), AddressContainer {
+    : SynchronizeAbleWalletAccount<BtcvAddress?>(), AddressContainer {
     interface EventHandler {
         fun onEvent(accountId: UUID?, event: WalletManager.Event?)
     }
@@ -218,7 +218,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
      * returns -1 if something went wrong or otherwise the number of new UTXOs added to the local
      * database
      */
-    protected fun synchronizeUnspentOutputs(addresses: Collection<BitcoinAddress?>): Int {
+    protected fun synchronizeUnspentOutputs(addresses: Collection<BtcvAddress?>): Int {
         // Get the current unspent outputs as dictated by the block chain
         val unspentOutputResponse: QueryUnspentOutputsResponse
         unspentOutputResponse = try {
@@ -240,7 +240,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         // Make a map for fast lookup
         val localMap = toMap(localUnspent)
         val transactionsToAddOrUpdate: MutableSet<Sha256Hash> = HashSet()
-        val addressesToDiscover: MutableSet<BitcoinAddress> = HashSet()
+        val addressesToDiscover: MutableSet<BtcvAddress> = HashSet()
 
         // Find remotely removed unspent outputs
         for (l in localUnspent) {
@@ -274,7 +274,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                         // this means it got probably spent via another wallet
                         // scan this address for all associated transaction to keep the history in sync
                         if (address != BitcoinAddress.getNullAddress(network)) {
-                            addressesToDiscover.add(address)
+                            addressesToDiscover.add(toBtcvAddress(address))
                         }
                     } else {
                         removeLocally = false
@@ -362,7 +362,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     @Throws(WapiException::class)
-    protected abstract fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType>
+    protected abstract fun doDiscoveryForAddresses(lookAhead: List<BtcvAddress>): Set<BipDerivationType>
 
     // HACK: skipping local handling of known transactions breaks the sync process. This should
     // be fixed somewhere else to make allKnown obsolete.

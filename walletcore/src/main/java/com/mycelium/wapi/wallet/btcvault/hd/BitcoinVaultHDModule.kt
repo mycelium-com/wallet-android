@@ -8,11 +8,12 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BTCSettings
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
+import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.genericdb.Backing
-import com.mycelium.wapi.wallet.manager.AddressFactory
+import com.mycelium.wapi.wallet.btcvault.BtcvAddressFactory
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -53,14 +54,14 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
 
                 // Create the base keys for the account
-                val keyManagerMap = hashMapOf<BipDerivationType, HDAccountKeyManager>()
+                val keyManagerMap = hashMapOf<BipDerivationType, HDAccountKeyManager<BtcvAddress>>()
                 for (derivationType in BipDerivationType.values()) {
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
 
                     keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, coinType,
                             networkParameters, accountIndex, secureStore,
-                            AesKeyCipher.defaultKeyCipher(), derivationType, AddressFactory(coinType, networkParameters)
+                            AesKeyCipher.defaultKeyCipher(), derivationType, BtcvAddressFactory(coinType, networkParameters)
                     )
                 }
 
@@ -80,13 +81,13 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
         return result
     }
 
-    private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): HashMap<BipDerivationType, HDAccountKeyManager> =
-            hashMapOf<BipDerivationType, HDAccountKeyManager>().apply {
+    private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): HashMap<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =
+            hashMapOf<BipDerivationType, HDAccountKeyManager<BtcvAddress>>().apply {
                 for (entry in context.indexesMap) {
                     when (context.accountType) {
                         HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED ->
                             this[entry.key] = HDAccountKeyManager(context.accountIndex,
-                                    networkParameters, secureStore, entry.key, AddressFactory(coinType, networkParameters))
+                                    networkParameters, secureStore, entry.key, BtcvAddressFactory(coinType, networkParameters))
                     }
                 }
             }

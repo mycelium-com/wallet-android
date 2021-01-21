@@ -112,6 +112,7 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
+import com.mycelium.wapi.content.BitcoinVaultUriParser;
 import com.mycelium.wapi.content.ContentResolver;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
@@ -536,6 +537,7 @@ public class MbwManager {
         result.add(new RMCUriParser(network));
         result.add(new EthUriParser(network, getSupportedERC20Tokens()));
         result.add(new FIOUriParser(network));
+        result.add(new BitcoinVaultUriParser(network));
         return result;
     }
 

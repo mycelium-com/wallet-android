@@ -6,7 +6,7 @@ import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
 
-abstract class SynchronizeAbleWalletBtcAccount<ADDRESS : Address?> : WalletAccount<ADDRESS> {
+abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<ADDRESS> {
     private val lastSync = hashMapOf<SyncMode.Mode, Date>()
 
     @Volatile
