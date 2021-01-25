@@ -26,8 +26,7 @@ FROM BTCVTransaction AS b
 selectBTCVTransactionsSince:
 SELECT b.id, b.hash, b.blockNumber, b.timestamp, b.binary
 FROM BTCVTransaction AS b
-    WHERE b.accountId = (?) AND b.timestamp >= (?) ORDER BY b.blockNumber DESC, b.timestamp DESC
-    LIMIT (:limit) OFFSET (:offset);
+    WHERE b.accountId = (?) AND b.timestamp >= (?) ORDER BY b.blockNumber DESC, b.timestamp DESC;
 
 insertTransaction:
 INSERT OR REPLACE INTO BTCVTransaction(id, hash, accountId, blockNumber, timestamp, binary)

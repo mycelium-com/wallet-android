@@ -177,10 +177,14 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
                 TransactionEx(id, hash, blockNumber, timestamp, binary)
             }).executeAsList()
 
-    override fun getTransactionsSince(since: Long): MutableList<TransactionEx> {
-        TODO("Not yet implemented")
-//        txQueries.selectBTCVTransactionsSince()
-    }
+    override fun getTransactionsSince(since: Long): List<TransactionEx> =
+            txQueries.selectBTCVTransactionsSince(uuid, since.toInt(), mapper = { id: Sha256Hash?,
+                                                                                  hash: Sha256Hash,
+                                                                                  blockNumber: Int,
+                                                                                  timestamp: Int,
+                                                                                  binary: ByteArray ->
+                TransactionEx(id, hash, blockNumber, timestamp, binary)
+            }).executeAsList()
 
     override fun getUnconfirmedTransactions(): Collection<TransactionEx> =
             listOf()

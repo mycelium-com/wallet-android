@@ -45,6 +45,15 @@ class BtcvSegwitAddress(coinType: CryptoCurrency, networkParameters: CommonNetwo
 
     override fun getNetwork(): NetworkParameters? = getNetwork(humanReadablePart)
 
+    override fun toString(): String {
+        return try {
+            SegwitAddress.encode(humanReadablePart, version, program)
+        } catch (e: SegwitAddress.SegwitAddressException) {
+            throw IllegalStateException(e.message)
+        }
+    }
+
+
     companion object {
 
         fun getPrefix(isProdnet: Boolean) = if (isProdnet) "royale" else "troyale"
@@ -116,11 +125,10 @@ class BtcvSegwitAddress(coinType: CryptoCurrency, networkParameters: CommonNetwo
                 throw SegwitAddressException(String.format(
                         "Human-readable part expected '%s' but found '%s'", hrp, dec.hrp))
             }
-            if (dec.values.size < 1) throw SegwitAddressException("Zero data found")
+            if (dec.values.isEmpty()) throw SegwitAddressException("Zero data found")
             // Skip the version byte and convert the rest of the decoded bytes
             val conv = convertBits(dec.values, 1, dec.values.size - 1, 5, 8, false)
-            val network = if (dec.hrp.equals("royale", ignoreCase = true)) BTCVNetworkParameters.productionNetwork else BTCVNetworkParameters.testNetwork
-            return BtcvSegwitAddress(coinType, network, dec.values[0].toInt(), conv)
+            return BtcvSegwitAddress(coinType, getNetwork(dec.hrp), dec.values[0].toInt(), conv)
         }
 
         fun getScriptBytes(data: BtcvSegwitAddress): ByteArray {
