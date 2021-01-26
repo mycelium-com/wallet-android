@@ -18,9 +18,11 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btcvault.*
+import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
+import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
+import com.mycelium.wapi.wallet.btcvault.BtcvAddress
+import com.mycelium.wapi.wallet.btcvault.BtcvTransaction
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.manager.AddressFactory
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -70,7 +72,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun getReceiveAddress(): BtcvAddress = receivingAddressMap[accountContext.defaultAddressType]!!
 
-    fun getReceiveAddress(addressType:AddressType): BtcvAddress = receivingAddressMap[addressType]!!
+    fun getReceiveAddress(addressType: AddressType): BtcvAddress = receivingAddressMap[addressType]!!
 
     override fun getCoinType(): CryptoCurrency = accountContext.currency
 
@@ -333,17 +335,17 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     }
 
     override fun dropCachedData() {
+        if (accountContext.isArchived()) {
+            return
+        }
+        clearInternalStateInt()
+        accountContext.persistIfNecessary(backing)
     }
 
     override fun isVisible(): Boolean = true
 
     override fun isDerivedFromInternalMasterseed(): Boolean = accountContext.accountType == BitcoinVaultHDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
-
-    override fun removeAllQueuedTransactions() {
-    }
-
-    override fun getTypicalEstimatedTransactionSize(): Int = 0
     override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
         for (address in publicKey.getAllSupportedAddresses(network).values) {
             return getPrivateKeyForAddress(address, cipher)
@@ -378,7 +380,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
             val index = internalAddresses[derivationType]!![address]
                     ?: continue
             val minInternalIndex = minInternalIndexesMap[derivationType]!!
-            minInternalIndexesMap[derivationType] = Math.min(minInternalIndex, index)
+            minInternalIndexesMap[derivationType] = min(minInternalIndex, index)
         }
 
         // XXX also, from all the outgoing unconfirmed transactions we have, check
@@ -405,7 +407,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
     private fun updateLastIndexWithActivity(t: BitcoinTransaction) {
         // Investigate whether the transaction sends us any coins
         for (out in t.outputs) {
-            val receivingAddress = out.script.getAddress(network)
+            val receivingAddress = toBtcvAddress(out.script.getAddress(network))
             val derivationType = BipDerivationType.getDerivationTypeByAddress(receivingAddress)
             updateLastExternalIndex(receivingAddress, derivationType)
             updateLastInternalIndex(receivingAddress, derivationType)
@@ -418,7 +420,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
      *
      * @param externalIndex new index
      */
-    protected fun updateLastExternalIndex(receivingAddress: BitcoinAddress, derivationType: BipDerivationType) {
+    protected fun updateLastExternalIndex(receivingAddress: BtcvAddress, derivationType: BipDerivationType) {
         externalAddresses[derivationType]?.get(receivingAddress)?.also { externalIndex ->
             // Sends coins to an external address, update internal max index if necessary
             if (accountContext.getLastExternalIndexWithActivity(derivationType) < externalIndex) {
@@ -432,7 +434,7 @@ class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountC
      *
      * @param receivingAddress
      */
-    protected fun updateLastInternalIndex(receivingAddress: BitcoinAddress, derivationType: BipDerivationType) {
+    protected fun updateLastInternalIndex(receivingAddress: BtcvAddress, derivationType: BipDerivationType) {
         internalAddresses[derivationType]?.get(receivingAddress)?.also { internalIndex ->
             // Sends coins to an internal address, update internal max index if necessary
             if (accountContext.getLastInternalIndexWithActivity(derivationType) < internalIndex) {

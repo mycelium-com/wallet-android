@@ -1446,13 +1446,10 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         postEvent(WalletManager.Event.SYNC_PROGRESS_UPDATED)
     }
 
-    override fun getTypicalEstimatedTransactionSize(): Int {
-        val estimatorBuilder = FeeEstimatorBuilder()
-        val estimator = estimatorBuilder.setLegacyInputs(1)
-                .setLegacyOutputs(2)
-                .createFeeEstimator()
-        return estimator.estimateTransactionSize()
-    }
+    override fun getTypicalEstimatedTransactionSize(): Int =
+            FeeEstimatorBuilder().setLegacyInputs(1)
+                    .setLegacyOutputs(2)
+                    .createFeeEstimator().estimateTransactionSize()
 
 
     override fun getUnspentOutputViewModels(): List<OutputViewModel> =
