@@ -1383,15 +1383,15 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         val destinationAddresses: MutableList<Address> = ArrayList()
         val outputs = ArrayList<OutputViewModel>()
         for (output in tx.outputs) {
-            val address = output.script.getAddress(network)
+            val address = toBtcvAddress(output.script.getAddress(network))
             if (isMine(output.script)) {
                 satoshisTransferred += output.value
             } else {
-                destinationAddresses.add(AddressUtils.fromAddress(address))
+                destinationAddresses.add(address)
             }
             satoshisReceived += output.value
             if (address != null && address != BitcoinAddress.getNullAddress(network)) {
-                outputs.add(OutputViewModel(AddressUtils.fromAddress(address), valueOf(coinType, output.value), false))
+                outputs.add(OutputViewModel(address, valueOf(coinType, output.value), false))
             }
         }
         val inputs = ArrayList<InputViewModel>() //need to create list of outputs
@@ -1413,8 +1413,8 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                     satoshisTransferred -= funding.value
                 }
                 satoshisSent += funding.value
-                val address = ScriptOutput.fromScriptBytes(funding.script).getAddress(network)
-                inputs.add(InputViewModel(AddressUtils.fromAddress(address), valueOf(coinType, funding.value), false))
+                val address = toBtcvAddress(ScriptOutput.fromScriptBytes(funding.script).getAddress(network))
+                inputs.add(InputViewModel(address, valueOf(coinType, funding.value), false))
             }
         }
         val confirmations: Int

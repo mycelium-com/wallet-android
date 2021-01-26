@@ -1,5 +1,7 @@
 package com.mrd.bitlib.model
 
+import com.mrd.bitlib.util.HashUtils
+import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.CommonNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
@@ -40,6 +42,9 @@ class BtcvSegwitAddress(coinType: CryptoCurrency, networkParameters: CommonNetwo
         pubkey.write(program, 0, program.size)
         return pubkey.toByteArray()
     }
+
+    override fun getScriptHash(): Sha256Hash? =
+            HashUtils.sha256(getScriptBytes(this)).reverse()
 
     override fun getTypeSpecificBytes(): ByteArray = getScriptBytes(this)
 
