@@ -46,10 +46,13 @@ import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +115,9 @@ public class MbwTestEnvironment extends MbwEnvironment {
             add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio-test.bloks.io/account/", "https://fio-test.bloks.io/transaction/", null, null));
             add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.testnet.fioprotocol.io/account/", "https://explorer.testnet.fioprotocol.io/transaction/", null, null));
          }});
+         put(BitcoinVaultTest.INSTANCE.getName(), Arrays.asList(
+                 new BlockExplorer("BVE", "explorer.bitcoinvault.global", "https://explorer.bitcoinvault.global/address/", "https://explorer.bitcoinvault.global/tx/", null, null)
+         ));
       }
    };
 

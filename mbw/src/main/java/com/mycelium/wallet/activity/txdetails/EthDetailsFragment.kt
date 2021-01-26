@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity
+package com.mycelium.wallet.activity.txdetails
 
 import android.os.Bundle
 import android.util.TypedValue

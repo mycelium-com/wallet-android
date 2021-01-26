@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity
+package com.mycelium.wallet.activity.txdetails
 
 import android.os.AsyncTask
 import android.os.Bundle
@@ -15,25 +15,20 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.OutputViewModel
 import com.mycelium.wapi.wallet.TransactionSummary
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDAccount
+import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.transaction_details_btc.*
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
 
-class BtcDetailsFragment : DetailsFragment() {
+class BtcvDetailsFragment : DetailsFragment() {
     private var tx: TransactionSummary? = null
 
-    private val coluMode: Boolean by lazy {
-        arguments!!.getBoolean("coluMode")
-    }
-    private val account: AbstractBtcAccount by lazy {
+    private val account: BitcoinVaultHDAccount by lazy {
         mbwManager!!.getWalletManager(false)
-                .getAccount(arguments!!.getSerializable("accountId") as UUID) as AbstractBtcAccount
+                .getAccount(arguments!!.getSerializable("accountId") as UUID) as BitcoinVaultHDAccount
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -61,7 +56,7 @@ class BtcDetailsFragment : DetailsFragment() {
         // Set Inputs
         llInputs.removeAllViews()
         if (tx!!.inputs != null) {
-            var sum = zeroValue(tx!!.type)
+            var sum = Value.zeroValue(tx!!.type)
             for (input in tx!!.inputs) {
                 sum = sum.plus(input.value)
             }
@@ -136,7 +131,6 @@ class BtcDetailsFragment : DetailsFragment() {
                 val address = item.address.toString()
                 addView(getValue(item.value, address))
                 val adrLabel = AddressLabel(requireContext())
-                adrLabel.setColuMode(coluMode)
                 adrLabel.address = item.address
                 addView(adrLabel)
             }
@@ -180,12 +174,11 @@ class BtcDetailsFragment : DetailsFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(tx: TransactionSummary, coluMode: Boolean, accountId: UUID): BtcDetailsFragment {
-            val f = BtcDetailsFragment()
+        fun newInstance(tx: TransactionSummary, accountId: UUID): BtcvDetailsFragment {
+            val f = BtcvDetailsFragment()
             val args = Bundle()
 
             args.putSerializable("tx", tx)
-            args.putBoolean("coluMode", coluMode)
             args.putSerializable("accountId", accountId)
             f.arguments = args
             return f

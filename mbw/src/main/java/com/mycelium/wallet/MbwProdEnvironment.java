@@ -41,16 +41,18 @@ import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.net.TorHttpsEndpoint;
 import com.mycelium.wallet.activity.util.BlockExplorer;
-import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,6 +153,9 @@ public class MbwProdEnvironment extends MbwEnvironment {
          add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio.bloks.io/account/", "https://fio.bloks.io/transaction/", null, null));
          add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.fioprotocol.io/account/", "https://explorer.fioprotocol.io/transaction/", null, null));
       }});
+      put(BitcoinVaultMain.INSTANCE.getName(), Arrays.asList(
+              new BlockExplorer("BVE", "explorer.bitcoinvault.global", "https://explorer.bitcoinvault.global/address/", "https://explorer.bitcoinvault.global/tx/", null, null)
+      ));
    }};
 
    public Map<String, List<BlockExplorer>> getBlockExplorerMap() {
