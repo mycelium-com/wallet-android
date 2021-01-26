@@ -21,3 +21,47 @@ CREATE TABLE IF NOT EXISTS BTCVContext(
         REFERENCES AccountContext (uuid)
         ON DELETE CASCADE
 );
+
+
+CREATE TABLE IF NOT EXISTS BTCVOutgoingTx(
+    id BLOB PRIMARY KEY,
+    accountId TEXT,
+    raw BLOB
+);
+
+CREATE TABLE IF NOT EXISTS BTCVPtxo(
+        outpoint BLOB,
+        accountId TEXT,
+        height INTEGER NOT NULL,
+        value INTEGER NOT NULL,
+        isCoinbase INTEGER NOT NULL DEFAULT 0,
+        script BLOB,
+        PRIMARY KEY (outpoint, accountId)
+);
+
+CREATE TABLE IF NOT EXISTS BTCVRefersPtxo(
+        txid BLOB,
+        accountId TEXT,
+        input BLOB,
+        PRIMARY KEY (txid, accountId, input)
+);
+
+CREATE TABLE IF NOT EXISTS BTCVTransaction(
+        id BLOB,
+        accountId TEXT,
+        hash BLOB NOT NULL,
+        blockNumber INTEGER NOT NULL,
+        timestamp INTEGER NOT NULL,
+        binary BLOB NOT NULL,
+        PRIMARY KEY (id, accountId)
+);
+
+CREATE TABLE IF NOT EXISTS BTCVUtxo(
+        outpoint BLOB,
+        accountId TEXT,
+        height INTEGER NOT NULL,
+        value INTEGER NOT NULL,
+        isCoinbase INTEGER NOT NULL DEFAULT 0,
+        script BLOB,
+        PRIMARY KEY (outpoint, accountId)
+);

@@ -2,9 +2,9 @@ import com.mrd.bitlib.model.OutPoint;
 import java.util.UUID;
 
 CREATE TABLE IF NOT EXISTS BTCVPtxo(
-        outpoint BLOB as OutPoint,
+        outpoint BLOB AS OutPoint,
         accountId TEXT AS UUID,
-        height INTEGER as Int NOT NULL,
+        height INTEGER AS Int NOT NULL,
         value INTEGER NOT NULL,
         isCoinbase INTEGER AS Boolean NOT NULL DEFAULT 0,
         script BLOB,
