@@ -1,11 +1,11 @@
 package com.mycelium.wapi.wallet.btcvault
 
 import com.mrd.bitlib.bitcoinj.Base58
-import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.model.BtcvSegwitAddress
-import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.*
 import com.mrd.bitlib.model.hdpath.HdKeyPath
+import com.mrd.bitlib.util.BitUtils
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.CommonNetworkParameters
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
@@ -38,9 +38,8 @@ open class BtcvAddress(override val coinType: CryptoCurrency,
         throw IllegalStateException("unknown network")
     }
 
-    private fun matchesNetwork(network: NetworkParameters, version: Byte): Boolean {
-        return (network.standardAddressHeader and 0xFF).toByte() == version || (network.multisigAddressHeader and 0xFF).toByte() == version
-    }
+    private fun matchesNetwork(network: NetworkParameters, version: Byte): Boolean =
+            (network.standardAddressHeader and 0xFF).toByte() == version || (network.multisigAddressHeader and 0xFF).toByte() == version
 
     private var _bip32Path: HdKeyPath? = null
 
@@ -49,6 +48,7 @@ open class BtcvAddress(override val coinType: CryptoCurrency,
     override fun setBip32Path(bip32Path: HdKeyPath?) {
         _bip32Path = bip32Path
     }
+
 
     companion object {
         /**
@@ -72,6 +72,19 @@ open class BtcvAddress(override val coinType: CryptoCurrency,
             return if (bytes == null || bytes.size != NUM_ADDRESS_BYTES) {
                 null
             } else BtcvAddress(coinType, bytes)
+        }
+
+        fun getNullAddress(coinType: CryptoCurrency, network: CommonNetworkParameters, addressType: AddressType? = AddressType.P2PKH): BtcvAddress {
+            val bytes = ByteArray(NUM_ADDRESS_BYTES)
+            when (addressType) {
+                AddressType.P2WPKH -> try {
+                    return BtcvSegwitAddress(coinType, network, 0x00, BitUtils.copyOf(bytes, 20))
+                } catch (ignore: SegwitAddress.SegwitAddressException) {
+                }
+                AddressType.P2SH_P2WPKH -> bytes[0] = (network.getMultisigAddressHeader() and 0xFF).toByte()
+                else -> bytes[0] = (network.getStandardAddressHeader() and 0xFF).toByte()
+            }
+            return BtcvAddress(coinType, bytes)
         }
     }
 }

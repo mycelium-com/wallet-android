@@ -97,6 +97,7 @@ import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
@@ -189,6 +190,8 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -380,8 +383,9 @@ public class MbwManager {
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
-                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
-                AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
+                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
+                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
+                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
                 AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
@@ -793,6 +797,26 @@ public class MbwManager {
     }
 
     private AccountListener accountListener = new AccountListener() {
+        @Override
+        public void receivingAddressChanged(@NotNull WalletAccount<?> walletAccount, @NotNull Address receivingAddress) {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new ReceivingAddressChanged(receivingAddress));
+                }
+            });
+        }
+
+        @Override
+        public void serverConnectionError(WalletAccount<?> walletAccount, @NotNull String s) {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new SyncFailed(walletAccount.getId()));
+                }
+            });
+        }
+
         @Override
         public void balanceUpdated(final WalletAccount<?> walletAccount) {
             mainLoopHandler.post(new Runnable() {
@@ -1488,7 +1512,7 @@ public class MbwManager {
         if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
             return _walletManager.getAccount(uuid);
         } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            for (WalletAccount activeAccount :_walletManager.getAllActiveAccounts()) {
+            for (WalletAccount activeAccount : _walletManager.getAllActiveAccounts()) {
                 if (!(activeAccount instanceof InvestmentAccount)) {
                     uuid = activeAccount.getId();
                     break;
@@ -1662,7 +1686,7 @@ public class MbwManager {
 
     @Subscribe
     public void onTransactionBroadcast(TransactionBroadcasted tbe) {
-        if(tbe.getTxid() != null && obtDataRecordCache != null) {
+        if (tbe.getTxid() != null && obtDataRecordCache != null) {
             FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
             new Thread(() -> {
                 try {
@@ -1677,7 +1701,7 @@ public class MbwManager {
                             obtDataRecordCache.getTokenCode(),
                             tbe.getTxid(),
                             obtDataRecordCache.getMemo());
-                } catch(Exception e) {
+                } catch (Exception e) {
                     // TODO: 10/8/20 Actually handle the failure to send the obt record.
                     logger.log(Level.WARNING, "Sending fio obt record failed!", e);
                     FioModule fioModule = (FioModule) getWalletManager(false).getModuleById(FioModule.ID);

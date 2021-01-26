@@ -526,6 +526,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
                _mbwManager.reportIgnoredException("MinerFeeException", e);
                return AmountValidation.Invalid;
             } catch (Exception e) {
+               e.printStackTrace();
                return AmountValidation.Invalid;
             }
             return AmountValidation.Ok;

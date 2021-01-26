@@ -1,0 +1,27 @@
+import com.mrd.bitlib.util.Sha256Hash;
+import java.util.UUID;
+
+CREATE TABLE IF NOT EXISTS BTCVOutgoingTx(
+    id BLOB AS Sha256Hash PRIMARY KEY,
+    accountId TEXT AS UUID,
+    raw BLOB
+);
+
+insertTransaction:
+INSERT OR REPLACE INTO BTCVOutgoingTx(id, accountId, raw)
+VALUES (?, ?, ?);
+
+
+selectBTCVOutgoingTxAll:
+SELECT b.id, b.raw
+FROM BTCVOutgoingTx AS b
+WHERE b.accountId = (?);
+
+selectBTCVOutgoingTxById:
+SELECT b.id, b.raw
+FROM BTCVOutgoingTx AS b
+WHERE b.accountId = (?) AND b.id = (?);
+
+delete:
+DELETE FROM BTCVOutgoingTx
+WHERE id = (?) AND accountId = (?);

@@ -20,7 +20,7 @@ class BtcvAddressFactory(val coinType: CryptoCurrency, val networkParameters: Co
     override fun getAddress(publicKey: PublicKey, addressType: AddressType): BtcvAddress? =
             publicKey.toAddress(coinType, networkParameters, addressType)
 
-    override fun bytesToAddress(bytes: ByteArray, path: HdKeyPath): BtcvAddress? {
+    override fun bytesToAddress(bytes: ByteArray, path: HdKeyPath?): BtcvAddress? {
         return try {
             val reader = ByteReader(bytes)
             // Address bytes

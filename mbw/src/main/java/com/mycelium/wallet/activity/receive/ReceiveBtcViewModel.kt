@@ -12,11 +12,11 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wapi.wallet.AddressContainer
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDAccount
 import com.mycelium.wapi.wallet.coins.Value
 
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
@@ -24,8 +24,17 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     override fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
-        model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, showIncomingUtxo)
-        addressType.value = (account as WalletBtcAccount).receivingAddress.get().type
+        when (account) {
+            is WalletBtcAccount -> {
+                model = ReceiveCoinsModel(getApplication(), account, BTC_ACCOUNT_LABEL, showIncomingUtxo)
+                addressType.value = account.receivingAddress.get().type
+            }
+            is BitcoinVaultHDAccount -> {
+                model = ReceiveCoinsModel(getApplication(), account, BTCV_ACCOUNT_LABEL, showIncomingUtxo)
+                addressType.value = account.receiveAddress.type
+            }
+            else -> throw IllegalStateException()
+        }
     }
 
     fun setAddressType(addressType: AddressType) {
@@ -33,6 +42,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         model.receivingAddress.value = when (account) {
             is HDAccount -> BtcAddress(Utils.getBtcCoinType(), (account as HDAccount).getReceivingAddress(addressType)!!)
             is SingleAddressAccount -> BtcAddress(Utils.getBtcCoinType(), (account as SingleAddressAccount).getAddress(addressType))
+            is BitcoinVaultHDAccount -> (account as BitcoinVaultHDAccount).getReceiveAddress(addressType)
             else -> throw IllegalStateException()
         }
         model.updateObservingAddress()
@@ -42,6 +52,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         return when (account) {
             is HDAccount -> (account as HDAccount).receivingAddress.get().type
             is SingleAddressAccount -> (account as SingleAddressAccount).address.type
+            is BitcoinVaultHDAccount -> (account as BitcoinVaultHDAccount).receiveAddress.type
             else -> throw IllegalStateException()
         }
     }
@@ -53,7 +64,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         this.addressType.value = addressType.value // this is required to update UI
     }
 
-    fun getAvailableAddressTypesCount() = (account as AbstractBtcAccount).availableAddressTypes.size
+    fun getAvailableAddressTypesCount() = (account as AddressContainer).availableAddressTypes.size
 
 
     override fun getCurrencyName(): String = context.getString(R.string.bitcoin_name)
@@ -95,7 +106,8 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     }
 
     companion object {
-        private const val ACCOUNT_LABEL = "bitcoin"
+        private const val BTC_ACCOUNT_LABEL = "bitcoin"
+        private const val BTCV_ACCOUNT_LABEL = "bitcoinvault"
         private const val ADDRESS_TYPE = "addressType"
     }
 }

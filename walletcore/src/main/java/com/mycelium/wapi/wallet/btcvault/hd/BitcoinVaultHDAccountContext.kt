@@ -18,10 +18,10 @@ package com.mycelium.wapi.wallet.btcvault.hd
 
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.AddressType
+import com.mycelium.wapi.wallet.AccountIndexesContext
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
-import java.io.Serializable
 import java.util.*
 
 /**
@@ -37,10 +37,10 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
         listener: (BitcoinVaultHDAccountContext) -> Unit,
         blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
-        val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
+        val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
-        var defaultAddressType: AddressType = AddressType.P2PKH
+        var defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
 ) : AccountContextImpl<BitcoinVaultHDAccountContext>(id, currency, accountName, balance, listener, isArchived, blockHeight) {
     private var isDirty: Boolean = false
 
@@ -129,12 +129,5 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
                 derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }
                         .toMap()
                         .toMutableMap()
-    }
-}
-
-data class AccountIndexesContext(var lastExternalIndexWithActivity: Int, var lastInternalIndexWithActivity: Int,
-                                 var firstMonitoredInternalIndex: Int) : Serializable {
-    companion object {
-        private const val serialVersionUid = 1L
     }
 }

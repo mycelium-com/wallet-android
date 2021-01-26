@@ -167,7 +167,7 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
         return addressFactory.getAddress(getPublicKey(isChangeChain, index), derivationType.addressType)?.apply {
             this.setBip32Path(path)
             // Store it for next time
-//            secureKeyValueStore.storePlaintextValue(id, addressToBytes(this))
+            secureKeyValueStore.storePlaintextValue(id, addressFactory.addressToBytes(this))
         }
     }
 

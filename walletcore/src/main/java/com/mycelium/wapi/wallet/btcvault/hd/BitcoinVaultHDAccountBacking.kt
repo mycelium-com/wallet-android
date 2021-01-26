@@ -28,6 +28,8 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
     private val txQueries = walletDB.bTCVTransactionQueries
     private val utxoQueries = walletDB.bTCVUtxoQueries
     private val ptxoQueries = walletDB.bTCVPtxoQueries
+    private val refersPtxoQueries = walletDB.bTCVRefersPtxoQueries
+    private val outTxoQueries = walletDB.bTCVOutgoingTxQueries
 
     fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
             accountBackingQueries.selectBTCVTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
@@ -54,12 +56,12 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
     }
 
     fun updateAccountContext(context: BitcoinVaultHDAccountContext) {
-        contextQueries.update(context.accountName, context.balance, context.isArchived(), context.blockHeight, context.id)
-//        _updateBip44Account.bindString(3, gson.toJson(context.getIndexesMap()));
-//        _updateBip44Account.bindLong(4, context.getLastDiscovery());
-//        _updateBip44Account.bindLong(5, context.getAccountType());
-//        _updateBip44Account.bindLong(6, context.getAccountSubId());
-//        _updateBip44Account.bindString(7, gson.toJson(context.getDefaultAddressType()));
+        walletDB.transaction {
+            contextQueries.update(context.accountName, context.balance, context.isArchived(), context.blockHeight, context.id)
+            btcvContextQueries.update(context.indexesMap, context.getLastDiscovery(),
+                    context.accountType, context.accountSubId, context.defaultAddressType,
+                    context.id)
+        }
     }
 
     override fun beginTransaction() {
@@ -135,7 +137,7 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
         txQueries.insertTransaction(transaction.txid, transaction.hash, uuid, transaction.height, transaction.time, transaction.binary)
     }
 
-    override fun putTransactions(transactions: MutableCollection<out TransactionEx>?) {
+    override fun putTransactions(transactions: Collection<out TransactionEx>?) {
         txQueries.transaction {
             transactions?.forEach {
                 putTransaction(it)
@@ -187,36 +189,58 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
             }).executeAsList()
 
     override fun getUnconfirmedTransactions(): Collection<TransactionEx> =
-            listOf()
+            txQueries.selectBTCVUnconfirmedTransactions(uuid, mapper = { id: Sha256Hash?,
+                                                                         hash: Sha256Hash,
+                                                                         blockNumber: Int,
+                                                                         timestamp: Int,
+                                                                         binary: ByteArray ->
+                TransactionEx(id, hash, blockNumber, timestamp, binary)
+            }).executeAsList()
 
-
-    override fun getYoungTransactions(maxConfirmations: Int, blockChainHeight: Int): Collection<TransactionEx> =
-            listOf()
-
-    override fun hasTransaction(txid: Sha256Hash?): Boolean {
-        TODO("Not yet implemented")
+    override fun getYoungTransactions(maxConfirmations: Int, blockChainHeight: Int): Collection<TransactionEx> {
+        val maxHeight = blockChainHeight - maxConfirmations + 1
+        return txQueries.selectBTCVYoungTransactions(uuid, maxHeight, mapper = { id: Sha256Hash?,
+                                                                                 hash: Sha256Hash,
+                                                                                 blockNumber: Int,
+                                                                                 timestamp: Int,
+                                                                                 binary: ByteArray ->
+            TransactionEx(id, hash, blockNumber, timestamp, binary)
+        }).executeAsList()
     }
 
-    override fun putOutgoingTransaction(txid: Sha256Hash?, rawTransaction: ByteArray?) {
-        TODO("Not yet implemented")
+    override fun hasTransaction(txid: Sha256Hash?): Boolean =
+            txQueries.selectBTCVTransactionById(txid, uuid).executeAsOneOrNull() != null
+
+    override fun putOutgoingTransaction(txid: Sha256Hash, rawTransaction: ByteArray?) {
+        outTxoQueries.insertTransaction(txid, uuid, rawTransaction)
     }
 
-    override fun getOutgoingTransactions(): Map<Sha256Hash, ByteArray> =
-            mapOf()
+    override fun getOutgoingTransactions(): Map<Sha256Hash, ByteArray?> =
+            outTxoQueries.selectBTCVOutgoingTxAll(uuid, mapper = { id: Sha256Hash, raw: ByteArray? ->
+                id to raw
+            }).executeAsList().toMap()
 
-    override fun isOutgoingTransaction(txid: Sha256Hash?): Boolean = false
+    override fun isOutgoingTransaction(txid: Sha256Hash): Boolean =
+            outTxoQueries.selectBTCVOutgoingTxById(uuid, txid).executeAsOneOrNull() != null
 
-    override fun removeOutgoingTransaction(txid: Sha256Hash?) {
+    override fun removeOutgoingTransaction(txid: Sha256Hash) {
+        outTxoQueries.delete(txid, uuid)
     }
 
-    override fun deleteTxRefersParentTransaction(txId: Sha256Hash?) {
+    override fun deleteTxRefersParentTransaction(txId: Sha256Hash) {
+        refersPtxoQueries.delete(txId, uuid)
     }
 
-    override fun getTransactionsReferencingOutPoint(outPoint: OutPoint?): MutableCollection<Sha256Hash> {
-        TODO("Not yet implemented")
-    }
+    override fun getTransactionsReferencingOutPoint(outPoint: OutPoint?): Collection<Sha256Hash> =
+            refersPtxoQueries.selectRefersPtxo(outPoint, uuid, mapper = { txid: Sha256Hash?,
+                                                                          accountId: UUID?,
+                                                                          input: OutPoint? ->
+                txid!!
+            }).executeAsList()
 
-    override fun putTxRefersParentTransaction(txId: Sha256Hash?, refersOutputs: MutableList<OutPoint>?) {
-        TODO("Not yet implemented")
+    override fun putTxRefersParentTransaction(txId: Sha256Hash?, refersOutputs: List<OutPoint>) {
+        refersOutputs.forEach {
+            refersPtxoQueries.insert(txId, uuid, it)
+        }
     }
 }
