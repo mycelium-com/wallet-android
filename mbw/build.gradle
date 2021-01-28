@@ -158,6 +158,7 @@ dependencies {
 android {
     buildFeatures {
         dataBinding true
+        viewBinding true
     }
     configurations {
         all*.exclude module: 'jcip-annotations'
