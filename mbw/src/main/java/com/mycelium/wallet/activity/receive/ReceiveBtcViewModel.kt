@@ -16,7 +16,7 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDAccount
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.coins.Value
 
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
@@ -29,7 +29,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
                 model = ReceiveCoinsModel(getApplication(), account, BTC_ACCOUNT_LABEL, showIncomingUtxo)
                 addressType.value = account.receivingAddress.get().type
             }
-            is BitcoinVaultHDAccount -> {
+            is BitcoinVaultHdAccount -> {
                 model = ReceiveCoinsModel(getApplication(), account, BTCV_ACCOUNT_LABEL, showIncomingUtxo)
                 addressType.value = account.receiveAddress.type
             }
@@ -42,7 +42,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         model.receivingAddress.value = when (account) {
             is HDAccount -> BtcAddress(Utils.getBtcCoinType(), (account as HDAccount).getReceivingAddress(addressType)!!)
             is SingleAddressAccount -> BtcAddress(Utils.getBtcCoinType(), (account as SingleAddressAccount).getAddress(addressType))
-            is BitcoinVaultHDAccount -> (account as BitcoinVaultHDAccount).getReceiveAddress(addressType)
+            is BitcoinVaultHdAccount -> (account as BitcoinVaultHdAccount).getReceiveAddress(addressType)
             else -> throw IllegalStateException()
         }
         model.updateObservingAddress()
@@ -52,7 +52,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         return when (account) {
             is HDAccount -> (account as HDAccount).receivingAddress.get().type
             is SingleAddressAccount -> (account as SingleAddressAccount).address.type
-            is BitcoinVaultHDAccount -> (account as BitcoinVaultHDAccount).receiveAddress.type
+            is BitcoinVaultHdAccount -> (account as BitcoinVaultHdAccount).receiveAddress.type
             else -> throw IllegalStateException()
         }
     }

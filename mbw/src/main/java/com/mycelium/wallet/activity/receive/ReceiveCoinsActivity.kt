@@ -33,7 +33,7 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDAccount
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
@@ -58,7 +58,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
-            is BitcoinVaultHDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
+            is BitcoinVaultHdAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             is EthAccount -> viewModelProvider.get(ReceiveEthViewModel::class.java)
             is ERC20Account -> viewModelProvider.get(ReceiveERC20ViewModel::class.java)
             is FioAccount -> viewModelProvider.get(ReceiveFIOViewModel::class.java)
@@ -177,7 +177,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                             getDefaultBinding()
                         }
                     }
-                    is BitcoinVaultHDAccount -> {
+                    is BitcoinVaultHdAccount -> {
                         // This is only actual if account contains multiple address types inside
                         if (account.availableAddressTypes.size > 1) {
                             val contentView =

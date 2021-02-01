@@ -49,7 +49,7 @@ import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDAccount;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
@@ -93,7 +93,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
                 transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
             } else if (account instanceof FioAccount) {
                 transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx));
-            } else if(account instanceof BitcoinVaultHDAccount) {
+            } else if(account instanceof BitcoinVaultHdAccount) {
                 transaction.add(R.id.spec_details_fragment, BtcvDetailsFragment.newInstance(tx, accountId));
             } else {
                 transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode, accountId));

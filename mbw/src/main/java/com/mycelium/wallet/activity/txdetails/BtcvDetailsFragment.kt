@@ -15,7 +15,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.OutputViewModel
 import com.mycelium.wapi.wallet.TransactionSummary
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDAccount
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.transaction_details_btc.*
 import java.util.*
@@ -26,9 +26,9 @@ import java.util.logging.Logger
 class BtcvDetailsFragment : DetailsFragment() {
     private var tx: TransactionSummary? = null
 
-    private val account: BitcoinVaultHDAccount by lazy {
+    private val account: BitcoinVaultHdAccount by lazy {
         mbwManager!!.getWalletManager(false)
-                .getAccount(arguments!!.getSerializable("accountId") as UUID) as BitcoinVaultHDAccount
+                .getAccount(arguments!!.getSerializable("accountId") as UUID) as BitcoinVaultHdAccount
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =

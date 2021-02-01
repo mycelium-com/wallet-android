@@ -31,7 +31,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                            metadataStorage: IMetaDataStorage,
                            private val accountListener: AccountListener?) : WalletModule(metadataStorage) {
 
-    private val accounts = mutableMapOf<UUID, BitcoinVaultHDAccount>()
+    private val accounts = mutableMapOf<UUID, BitcoinVaultHdAccount>()
 
     private val coinType = if (networkParameters.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
@@ -39,7 +39,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
             backing.loadAccountContexts().associateBy({ it.uuid }, {
-                BitcoinVaultHDAccount(it, loadKeyManagers(it), networkParameters, _wapi,
+                BitcoinVaultHdAccount(it, loadKeyManagers(it), networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, it.uuid, coinType), accountListener,
                         settings.changeAddressModeReference)
                         .apply { accounts[this.id] = this }
@@ -71,7 +71,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                         Balance.getZeroBalance(coinType), backing::updateAccountContext)
 
                 backing.createAccountContext(accountContext)
-                result = BitcoinVaultHDAccount(accountContext, keyManagerMap, networkParameters, _wapi,
+                result = BitcoinVaultHdAccount(accountContext, keyManagerMap, networkParameters, _wapi,
                         BitcoinVaultHDAccountBacking(walletDB, accountContext.uuid, coinType),
                         accountListener, settings.changeAddressModeReference)
             }
@@ -115,4 +115,4 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 }
 
 fun WalletManager.getBtcvHdAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible }
-fun WalletManager.getActiveBtcvAccounts() = getAccounts().filter { it is BitcoinVaultHDAccount && it.isVisible && it.isActive }
+fun WalletManager.getActiveBtcvAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible && it.isActive }

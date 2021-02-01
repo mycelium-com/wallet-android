@@ -31,7 +31,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-class BitcoinVaultHDAccount(protected var accountContext: BitcoinVaultHDAccountContext,
+class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountContext,
                             protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
                             val networkParameters: BTCVNetworkParameters,
                             wapi: Wapi,
