@@ -114,5 +114,5 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     }
 }
 
-fun WalletManager.getBTCVHDAccounts() = getAccounts().filter { it is BitcoinVaultHDAccount && it.isVisible }
-fun WalletManager.getActiveBTCVAccounts() = getAccounts().filter { it is BitcoinVaultHDAccount && it.isVisible && it.isActive }
+fun WalletManager.getBtcvHdAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible }
+fun WalletManager.getActiveBtcvAccounts() = getAccounts().filter { it is BitcoinVaultHDAccount && it.isVisible && it.isActive }
