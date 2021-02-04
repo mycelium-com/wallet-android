@@ -158,7 +158,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
             if (response.message != null) {
-                Toaster(this).toast(response.message, false)
+                Toaster(this).toast(response.message!!, false)
             } else {
                 fioRequestViewModel.payeeTokenPublicAddress.value = response.publicAddress!!
             }
@@ -168,7 +168,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
             if (response.message != null) {
-                Toaster(this).toast(response.message, false)
+                Toaster(this).toast(response.message!!, false)
             } else {
                 fioRequestViewModel.payerTokenPublicAddress.value = response.publicAddress!!
             }

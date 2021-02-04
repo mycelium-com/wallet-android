@@ -775,7 +775,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             _logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
             return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
          } else if(errorCode == Wapi.ElectrumxError.REJECT_MALFORMED.getErrorCode()) {
-            return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_MALFORMED);
+            if (response.getErrorMessage().contains("min relay fee not met")) {
+               return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_INSUFFICIENT_FEE);
+            } else {
+               return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_MALFORMED);
+            }
          } else if(errorCode == Wapi.ElectrumxError.REJECT_DUPLICATE.getErrorCode()) {
             return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_DUPLICATE);
          } else if(errorCode == Wapi.ElectrumxError.REJECT_NONSTANDARD.getErrorCode()) {
