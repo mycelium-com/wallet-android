@@ -9,11 +9,11 @@ import com.mycelium.wapi.wallet.btc.BTCSettings
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
+import com.mycelium.wapi.wallet.btcvault.BtcvAddressFactory
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.genericdb.Backing
-import com.mycelium.wapi.wallet.btcvault.BtcvAddressFactory
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -98,7 +98,16 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             ?.accountIndex
             ?: -1
 
-    override fun canCreateAccount(config: Config): Boolean = config is AdditionalMasterseedAccountConfig
+    override fun canCreateAccount(config: Config): Boolean =
+            config is AdditionalMasterseedAccountConfig && canCreateAdditionalBip44Account()
+
+    /**
+     * To create an additional HD account from the master seed, the master seed must be present and
+     * all existing master seed accounts must have had transactions (no gap accounts)
+     */
+    fun canCreateAdditionalBip44Account(): Boolean =
+            accounts.values.filter { it.isDerivedFromInternalMasterseed }
+                    .all { it.hasHadActivity() }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         accounts.remove(walletAccount.id)

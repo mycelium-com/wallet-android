@@ -668,6 +668,20 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }
     }
 
+    /**
+     * Figure out whether this account has ever had any activity.
+     *
+     *
+     * An account has had activity if it has one or more external addresses with
+     * transaction history.
+     *
+     * @return true if this account has ever had any activity, false otherwise
+     */
+    fun hasHadActivity(): Boolean {
+        // public method that needs no synchronization
+        return derivePaths.any { accountContext.getLastExternalIndexWithActivity(it) != -1 }
+    }
+
     override fun getDummyAddress(): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters)
 
     override fun getDummyAddress(subType: String): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters, AddressType.valueOf(subType))
