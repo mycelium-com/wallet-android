@@ -60,26 +60,23 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBacking,
+abstract class AbstractBtcvAccount protected constructor(val accountBacking: BtcAccountBacking,
                                                          val network: NetworkParameters,
-                                                         wapi: Wapi,
-
+                                                         protected val wapi: Wapi,
                                                          val accountListener: AccountListener?)
     : SynchronizeAbleWalletAccount<BtcvAddress>(), AddressContainer {
     interface EventHandler {
         fun onEvent(accountId: UUID?, event: WalletManager.Event?)
     }
 
-    protected val _wapi: Wapi
-    protected val _logger: Logger
-    protected var _allowZeroConfSpending = true //on per default, we warn users if they use it
-    protected var _cachedBalance: BalanceSatoshis? = null
-    private var _eventHandler: EventHandler? = null
-    val accountBacking: BtcAccountBacking
+    protected val logger: Logger = Logger.getLogger(AbstractBtcvAccount::class.java.simpleName)
+    private var allowZeroConfSpending = true //on per default, we warn users if they use it
+    protected var cachedBalance: BalanceSatoshis? = null
+    private var eventHandler: EventHandler? = null
     protected var syncTotalRetrievedTxs = 0
 
     override fun setAllowZeroConfSpending(allowZeroConfSpending: Boolean) {
-        _allowZeroConfSpending = allowZeroConfSpending
+        this.allowZeroConfSpending = allowZeroConfSpending
     }
 
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
@@ -134,12 +131,12 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
      * @param eventHandler the event handler for this account
      */
     fun setEventHandler(eventHandler: EventHandler?) {
-        _eventHandler = eventHandler
+        this.eventHandler = eventHandler
     }
 
     protected fun postEvent(event: WalletManager.Event?) {
-        if (_eventHandler != null) {
-            _eventHandler!!.onEvent(this.id, event)
+        if (eventHandler != null) {
+            eventHandler!!.onEvent(this.id, event)
         }
     }
 
@@ -221,9 +218,9 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     protected fun synchronizeUnspentOutputs(addresses: Collection<BtcvAddress?>): Int {
         // Get the current unspent outputs as dictated by the block chain
         val unspentOutputResponse = try {
-            _wapi.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, addresses)).result
+            wapi.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, addresses)).result
         } catch (e: WapiException) {
-            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
             return -1
         }
@@ -320,7 +317,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 val txs: List<TransactionEx> = Lists.newLinkedList<TransactionEx>(response.transactions)
                 handleNewExternalTransactions(txs)
             } catch (e: WapiException) {
-                _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+                logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
                 postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
                 return -1
             }
@@ -334,7 +331,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                     if (isMine(output)) {
                         accountBacking.putUnspentOutput(output)
                     } else {
-                        _logger.log(Level.SEVERE, "We got an UTXO that does not belong to us: $output")
+                        logger.log(Level.SEVERE, "We got an UTXO that does not belong to us: $output")
                     }
                 }
                 accountBacking.setTransactionSuccessful()
@@ -355,7 +352,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     }
 
     protected fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> =
-            _wapi.getTransactions(GetTransactionsRequest(Wapi.VERSION, txids))
+            wapi.getTransactions(GetTransactionsRequest(Wapi.VERSION, txids))
 
     @Throws(WapiException::class)
     protected abstract fun doDiscoveryForAddresses(lookAhead: List<BtcvAddress>): Set<BipDerivationType>
@@ -384,7 +381,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 txArray.add(BitcoinTransaction.fromByteReader(ByteReader(tex.binary)))
             } catch (e: BitcoinTransaction.TransactionParsingException) {
                 // We hit a transaction that we cannot parse. Log but otherwise ignore it
-                _logger.log(Level.SEVERE, "Received transaction that we cannot parse: " + tex.txid.toString())
+                logger.log(Level.SEVERE, "Received transaction that we cannot parse: " + tex.txid.toString())
             }
         }
 
@@ -554,7 +551,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 }
                 val parent = accountBacking.getParentTransactionOutput(input.outPoint)
                 if (parent == null) {
-                    _logger.log(Level.SEVERE, "Unable to find parent transaction output: " + input.outPoint)
+                    logger.log(Level.SEVERE, "Unable to find parent transaction output: " + input.outPoint)
                     continue
                 }
                 val parentOutput = transform(parent)
@@ -582,7 +579,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             }
         }
         return BalanceSatoshis(confirmed, pendingReceiving, pendingSending, pendingChange, System.currentTimeMillis(),
-                blockChainHeight, true, _allowZeroConfSpending)
+                blockChainHeight, true, allowZeroConfSpending)
     }
 
     abstract fun toBtcvAddress(bitcoinAddress: BitcoinAddress): BtcvAddress
@@ -612,7 +609,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             transaction = try {
                 BitcoinTransaction.fromBytes(rawTransaction)
             } catch (e: BitcoinTransaction.TransactionParsingException) {
-                _logger.log(Level.SEVERE, "Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e)
+                logger.log(Level.SEVERE, "Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e)
                 return false
             }
             val result = broadcastTransaction(transaction)
@@ -640,7 +637,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     fun broadcastTransaction(transaction: BitcoinTransaction): BroadcastResult {
         checkNotArchived()
         return try {
-            val response = _wapi.broadcastTransaction(
+            val response = wapi.broadcastTransaction(
                     BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes()))
             val errorCode = response.errorCode
             if (errorCode == Wapi.ERROR_CODE_SUCCESS) {
@@ -651,13 +648,13 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 } else {
                     // This transaction was rejected must be double spend or
                     // malleability, delete it locally.
-                    _logger.log(Level.SEVERE, "Failed to broadcast transaction due to a double spend or malleability issue")
+                    logger.log(Level.SEVERE, "Failed to broadcast transaction due to a double spend or malleability issue")
                     postEvent(WalletManager.Event.BROADCASTED_TRANSACTION_DENIED)
                     BroadcastResult(BroadcastResultType.REJECT_DUPLICATE)
                 }
             } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
                 postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
-                _logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION")
+                logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION")
                 BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
             } else if (errorCode == Wapi.ElectrumxError.REJECT_MALFORMED.errorCode) {
                 BroadcastResult(response.errorMessage, BroadcastResultType.REJECT_MALFORMED)
@@ -669,12 +666,12 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 BroadcastResult(response.errorMessage, BroadcastResultType.REJECT_INSUFFICIENT_FEE)
             } else {
                 postEvent(WalletManager.Event.BROADCASTED_TRANSACTION_DENIED)
-                _logger.log(Level.SEVERE, "Server connection failed with error: $errorCode")
+                logger.log(Level.SEVERE, "Server connection failed with error: $errorCode")
                 BroadcastResult(BroadcastResultType.REJECTED)
             }
         } catch (e: WapiException) {
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
-            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
     }
@@ -682,7 +679,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     protected fun checkNotArchived() {
         val usingArchivedAccount = "Using archived account"
         if (isArchived) {
-            _logger.log(Level.SEVERE, usingArchivedAccount)
+            logger.log(Level.SEVERE, usingArchivedAccount)
             throw RuntimeException(usingArchivedAccount)
         }
     }
@@ -814,7 +811,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             val tex = TransactionEx(btcTx.id, btcTx.hash, -1, now, txBytes)
             queueTransaction(tex)
         } catch (e: BitcoinTransaction.TransactionParsingException) {
-            _logger.log(Level.INFO, String.format("Unable to parse transaction %s: %s", HexUtils.toHex(transaction.id), e.message))
+            logger.log(Level.INFO, String.format("Unable to parse transaction %s: %s", HexUtils.toHex(transaction.id), e.message))
         }
     }
 
@@ -824,7 +821,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         parsedTransaction = try {
             BitcoinTransaction.fromBytes(transaction.binary)
         } catch (e: BitcoinTransaction.TransactionParsingException) {
-            _logger.log(Level.INFO, String.format("Unable to parse transaction %s: %s", transaction.txid, e.message))
+            logger.log(Level.INFO, String.format("Unable to parse transaction %s: %s", transaction.txid, e.message))
             return
         }
         try {
@@ -887,7 +884,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             // coinbase outputs are not spendable and this should not be overridden
             // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
             if (!skipDustCheck && output.value < satDustOutput || output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS
-                    || !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
+                    || !allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
                 it.remove()
             }
         }
@@ -1066,7 +1063,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             checkNotArchived()
             // We make a copy of the reference for a reason. Otherwise the balance
             // might change right when we make a copy
-            val b = _cachedBalance
+            val b = cachedBalance
             return if (b != null) BalanceSatoshis(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
                     b.blockHeight, isSyncing, b.allowsZeroConfSpending) else BalanceSatoshis(0, 0, 0, 0, 0, 0, isSyncing, false)
         }
@@ -1078,8 +1075,8 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
      */
     protected fun updateLocalBalance(): Boolean {
         val balance = calculateLocalBalance()
-        if (balance != _cachedBalance) {
-            _cachedBalance = balance
+        if (balance != cachedBalance) {
+            cachedBalance = balance
             accountListener?.balanceUpdated(this)
             return true
         }
@@ -1091,7 +1088,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             BitcoinTransaction.fromByteReader(ByteReader(tex.binary))
         } catch (e: BitcoinTransaction.TransactionParsingException) {
             // Should not happen as we have parsed the transaction earlier
-            _logger.log(Level.SEVERE, "Unable to parse ")
+            logger.log(Level.SEVERE, "Unable to parse ")
             return null
         }
 
@@ -1197,10 +1194,10 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
         }
         val result: CheckTransactionsResponse
         result = try {
-            _wapi.checkTransactions(CheckTransactionsRequest(txids)).result
+            wapi.checkTransactions(CheckTransactionsRequest(txids)).result
         } catch (e: WapiException) {
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
-            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             // We failed to check transactions
             return false
         }
@@ -1262,7 +1259,7 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
                 // The transaction got a new height. There could be
                 // several reasons for that. It confirmed, or might also be a reorg.
                 val newTex = TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, localTransactionEx.time, localTransactionEx.binary)
-                _logger.log(Level.INFO, String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()))
+                logger.log(Level.INFO, String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()))
                 accountBacking.putTransaction(newTex)
                 postEvent(WalletManager.Event.TRANSACTION_HISTORY_CHANGED)
             }
@@ -1435,10 +1432,10 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
     override fun getBasedOnCoinType(): CryptoCurrency = coinType
 
     override fun getAccountBalance(): Balance = Balance(
-            valueOf(coinType, _cachedBalance!!.confirmed),
-            valueOf(coinType, _cachedBalance!!.pendingReceiving),
-            valueOf(coinType, _cachedBalance!!.pendingSending),
-            valueOf(coinType, _cachedBalance!!.pendingChange))
+            valueOf(coinType, cachedBalance!!.confirmed),
+            valueOf(coinType, cachedBalance!!.pendingReceiving),
+            valueOf(coinType, cachedBalance!!.pendingSending),
+            valueOf(coinType, cachedBalance!!.pendingChange))
 
     override fun getSyncTotalRetrievedTransactions(): Int = syncTotalRetrievedTxs
 
@@ -1501,11 +1498,5 @@ abstract class AbstractBtcvAccount protected constructor(backing: BtcAccountBack
             }
             return outputs
         }
-    }
-
-    init {
-        _logger = Logger.getLogger(AbstractBtcvAccount::class.java.simpleName)
-        _wapi = wapi
-        accountBacking = backing
     }
 }

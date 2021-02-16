@@ -23,6 +23,9 @@ import android.util.AttributeSet;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import com.google.android.material.resources.TextAppearance;
+import com.mycelium.wallet.R;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;

@@ -54,7 +54,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     init {
         if (!isArchived) {
             ensureAddressIndexes()
-            _cachedBalance = calculateLocalBalance()
+            cachedBalance = calculateLocalBalance()
         }
         initSafeLastIndexes(false)
     }
@@ -97,7 +97,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun doDiscoveryForAddresses(addresses: List<BtcvAddress>): Set<BipDerivationType> {
         // Do look ahead query
-        val result = _wapi.queryTransactionInventory(
+        val result = wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
         blockChainHeight = result.height
         val ids = result.txIds
@@ -146,7 +146,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTxs = 0
-        _logger.log(Level.INFO, "Starting sync: $mode")
+        logger.log(Level.INFO, "Starting sync: $mode")
         if (needsDiscovery()) {
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
         }
@@ -161,7 +161,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } catch (e: RuntimeException) {
-            _logger.log(Level.SEVERE, "doSynchronization: $mode", e)
+            logger.log(Level.SEVERE, "doSynchronization: $mode", e)
             return true
         } finally {
             syncTotalRetrievedTxs = 0
@@ -188,7 +188,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                 discovered = doDiscovery(discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
-            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             accountListener?.serverConnectionError(this, "Bitcoin Vault")
             return false
         }
@@ -600,11 +600,11 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         externalAddresses = initAddressesMap()
         internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
-        _cachedBalance = null
+        cachedBalance = null
         initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
-            _cachedBalance = calculateLocalBalance()
+            cachedBalance = calculateLocalBalance()
         }
     }
 
