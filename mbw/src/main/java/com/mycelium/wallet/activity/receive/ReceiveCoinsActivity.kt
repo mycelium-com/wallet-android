@@ -126,7 +126,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     private fun createAddressDropdown(addressTypes: List<AddressType>) {
         val btcViewModel = viewModel as ReceiveBtcViewModel
         // setting initial text based on current address type
-        selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType().asStringRes())
+        selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType()?.asStringRes() ?: 0)
 
         address_dropdown_image_view.visibility = if (addressTypes.size > 1) {
             val addressTypesMenu = PopupMenu(this, address_dropdown_image_view)

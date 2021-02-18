@@ -70,9 +70,9 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         return broadcastTransaction(btcTx.tx!!)
     }
 
-    override fun getReceiveAddress(): BtcvAddress = receivingAddressMap[accountContext.defaultAddressType]!!
+    override fun getReceiveAddress(): BtcvAddress? = receivingAddressMap[accountContext.defaultAddressType]
 
-    fun getReceiveAddress(addressType: AddressType): BtcvAddress = receivingAddressMap[addressType]!!
+    fun getReceiveAddress(addressType: AddressType): BtcvAddress? = receivingAddressMap[addressType]
 
     override fun getCoinType(): CryptoCurrency = accountContext.currency
 

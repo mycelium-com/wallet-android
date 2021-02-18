@@ -31,7 +31,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
             }
             is BitcoinVaultHdAccount -> {
                 model = ReceiveCoinsModel(getApplication(), account, BTCV_ACCOUNT_LABEL, showIncomingUtxo)
-                addressType.value = account.receiveAddress.type
+                addressType.value = account.receiveAddress?.type
             }
             else -> throw IllegalStateException()
         }
@@ -48,11 +48,11 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         model.updateObservingAddress()
     }
 
-    fun getAccountDefaultAddressType(): AddressType {
+    fun getAccountDefaultAddressType(): AddressType? {
         return when (account) {
             is HDAccount -> (account as HDAccount).receivingAddress.get().type
             is SingleAddressAccount -> (account as SingleAddressAccount).address.type
-            is BitcoinVaultHdAccount -> (account as BitcoinVaultHdAccount).receiveAddress.type
+            is BitcoinVaultHdAccount -> (account as BitcoinVaultHdAccount).receiveAddress?.type
             else -> throw IllegalStateException()
         }
     }
