@@ -146,13 +146,7 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
     }
 
     override fun getTransaction(hash: Sha256Hash): TransactionEx? =
-            txQueries.selectBTCVTransactionById(hash, uuid, mapper = { id: Sha256Hash?,
-                                                                       hash: Sha256Hash,
-                                                                       blockNumber: Int,
-                                                                       timestamp: Int,
-                                                                       binary: ByteArray ->
-                TransactionEx(id, hash, blockNumber, timestamp, binary)
-            }).executeAsOneOrNull()
+            txQueries.selectBTCVTransactionById(hash, uuid, mapper = ::TransactionEx).executeAsOneOrNull()
 
     override fun deleteTransaction(hash: Sha256Hash) {
         val tex = getTransaction(hash)
