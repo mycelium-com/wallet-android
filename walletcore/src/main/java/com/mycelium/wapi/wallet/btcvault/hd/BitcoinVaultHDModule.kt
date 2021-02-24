@@ -40,7 +40,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
             backing.loadAccountContexts().associateBy({ it.uuid }, {
                 BitcoinVaultHdAccount(it, loadKeyManagers(it), networkParameters, _wapi,
-                        BitcoinVaultHDAccountBacking(walletDB, it.uuid, coinType), accountListener,
+                        BitcoinVaultHDAccountBacking(walletDB, it.uuid), accountListener,
                         settings.changeAddressModeReference)
                         .apply { accounts[this.id] = this }
             })
@@ -72,7 +72,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
                 backing.createAccountContext(accountContext)
                 result = BitcoinVaultHdAccount(accountContext, keyManagerMap, networkParameters, _wapi,
-                        BitcoinVaultHDAccountBacking(walletDB, accountContext.uuid, coinType),
+                        BitcoinVaultHDAccountBacking(walletDB, accountContext.uuid),
                         accountListener, settings.changeAddressModeReference)
             }
             else -> throw IllegalStateException("Account can't be created")

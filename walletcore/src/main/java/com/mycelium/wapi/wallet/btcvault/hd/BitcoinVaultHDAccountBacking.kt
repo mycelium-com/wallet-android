@@ -18,9 +18,8 @@ import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 
 
-class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
-                                   private val uuid: UUID,
-                                   private val currency: CryptoCurrency) : BtcAccountBacking {
+class BitcoinVaultHDAccountBacking(private val walletDB: WalletDB,
+                                   private val uuid: UUID) : BtcAccountBacking {
 
     private val contextQueries = walletDB.accountContextQueries
     private val btcvContextQueries = walletDB.bTCVContextQueries
@@ -51,9 +50,25 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
                         null, 0, fee)
             }).executeAsList()
 
-    fun getTransactionSummary(txidParameter: String): TransactionSummary? {
-        return null
-    }
+    fun getTransactionSummary(txidParameter: String): TransactionSummary? =
+            accountBackingQueries.selectBTCVTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
+                                                                                                   currency: CryptoCurrency,
+                                                                                                   blockNumber: Int,
+                                                                                                   timestamp: Long,
+                                                                                                   value: Value,
+                                                                                                   fee: Value,
+                                                                                                   confirmations: Int,
+                                                                                                   sender: String,
+                                                                                                   receiver: String ->
+                val fromAddress = BtcvAddress(currency, BitcoinAddress.fromString(sender).allAddressBytes)
+                val toAddress = BtcvAddress(currency, BitcoinAddress.fromString(receiver).allAddressBytes)
+                BTCVTransactionSummary(
+                        currency, HexUtils.toBytes(txid), HexUtils.toBytes(txid), null, timestamp, blockNumber,
+                        confirmations, false,
+                        listOf(InputViewModel(fromAddress, value, false)),
+                        listOf(OutputViewModel(toAddress, value, false)), null,
+                        null, 0, fee)
+            }).executeAsOneOrNull()
 
     fun updateAccountContext(context: BitcoinVaultHDAccountContext) {
         walletDB.transaction {
@@ -75,7 +90,11 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
     }
 
     override fun clear() {
-        TODO("Not yet implemented")
+        utxoQueries.deleteUtxos(uuid)
+        ptxoQueries.deletePtxos(uuid)
+        txQueries.deleteTransactions(uuid)
+        outTxoQueries.deleteAll(uuid)
+        refersPtxoQueries.deleteAll(uuid)
     }
 
     override fun getAllUnspentOutputs(): Collection<TransactionOutputEx> =

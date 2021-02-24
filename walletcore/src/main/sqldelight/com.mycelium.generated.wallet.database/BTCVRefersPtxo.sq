@@ -21,3 +21,7 @@ VALUES (?, ?, ?);
 delete:
 DELETE FROM BTCVRefersPtxo
 WHERE txid = (?) AND accountId = (?);
+
+deleteAll:
+DELETE FROM BTCVRefersPtxo
+WHERE accountId = (?);

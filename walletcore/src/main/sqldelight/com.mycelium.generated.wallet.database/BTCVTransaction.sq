@@ -44,3 +44,7 @@ VALUES (?, ?, ?, ?, ?, ?);
 deleteTransaction:
 DELETE FROM BTCVTransaction
 WHERE hash = (?) AND accountId = (?);
+
+deleteTransactions:
+DELETE FROM BTCVTransaction
+WHERE accountId = (?);

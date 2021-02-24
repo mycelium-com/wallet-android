@@ -25,3 +25,7 @@ WHERE b.accountId = (?) AND b.id = (?);
 delete:
 DELETE FROM BTCVOutgoingTx
 WHERE id = (?) AND accountId = (?);
+
+deleteAll:
+DELETE FROM BTCVOutgoingTx
+WHERE accountId = (?);
