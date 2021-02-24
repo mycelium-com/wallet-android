@@ -198,8 +198,8 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
             }).executeAsList()
 
     override fun getYoungTransactions(maxConfirmations: Int, blockChainHeight: Int): Collection<TransactionEx> {
-        val maxHeight = blockChainHeight - maxConfirmations + 1
-        return txQueries.selectBTCVYoungTransactions(uuid, maxHeight, mapper = { id: Sha256Hash?,
+        val minHeight = blockChainHeight - maxConfirmations + 1
+        return txQueries.selectBTCVYoungTransactions(uuid, minHeight, mapper = { id: Sha256Hash?,
                                                                                  hash: Sha256Hash,
                                                                                  blockNumber: Int,
                                                                                  timestamp: Int,
