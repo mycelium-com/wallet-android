@@ -138,26 +138,21 @@ public class AddAccountActivity extends AppCompatActivity {
         _progress = new ProgressDialog(this);
         binding.btInvestmentCreate.setOnClickListener(v ->
                 startActivity(new Intent(AddAccountActivity.this, BequantIntroActivity.class)));
-        binding.btBTCVHDCreate.setOnClickListener(v -> {
-            _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
-                @Override
-                public void run() {
-                    final WalletManager wallet = _mbwManager.getWalletManager(false);
-                    // at this point, we have to have a master seed, since we created one on startup
-                    Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+        binding.btBTCVHDCreate.setOnClickListener(v -> _mbwManager.runPinProtectedFunction(this, () -> {
+            final WalletManager wallet = _mbwManager.getWalletManager(false);
+            // at this point, we have to have a master seed, since we created one on startup
+            Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
 
-                    boolean canCreateAccount = wallet.getModuleById(BitcoinVaultHDModule.ID)
-                            .canCreateAccount(new AdditionalMasterseedAccountConfig());
-                    if (!canCreateAccount) {
-                        // TODO replace with string res
-                        _toaster.toast("You can only have one unused Bitcoin Vault Account.", false);
-                        return;
-                    }
+            boolean canCreateAccount = wallet.getModuleById(BitcoinVaultHDModule.ID)
+                    .canCreateAccount(new AdditionalMasterseedAccountConfig());
+            if (!canCreateAccount) {
+                // TODO replace with string res
+                _toaster.toast("You can only have one unused Bitcoin Vault Account.", false);
+                return;
+            }
 
-                    new BTCVHdCreationAsyncTask().execute();
-                }
-            });
-        });
+            new BTCVHdCreationAsyncTask().execute();
+        }));
         binding.btEthCreate.setOnClickListener(v -> {
             _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
                 @Override
