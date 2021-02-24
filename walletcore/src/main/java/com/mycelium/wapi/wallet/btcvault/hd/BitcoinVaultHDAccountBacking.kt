@@ -90,8 +90,8 @@ class BitcoinVaultHDAccountBacking(val walletDB: WalletDB,
 
 
     override fun getUnspentOutput(outPoint: OutPoint?): TransactionOutputEx? =
-            utxoQueries.selectUtxoById(outPoint, uuid, mapper = { outpoint: OutPoint?,
-                                                                  accountId: UUID?,
+            utxoQueries.selectUtxoById(outPoint, uuid, mapper = { _: OutPoint?,
+                                                                  _: UUID?,
                                                                   height: Int,
                                                                   value: Long,
                                                                   isCoinbase: Boolean,
