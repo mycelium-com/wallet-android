@@ -184,41 +184,17 @@ class BitcoinVaultHDAccountBacking(private val walletDB: WalletDB,
     }
 
     override fun getTransactionHistory(offset: Int, limit: Int): List<TransactionEx> =
-            txQueries.selectBTCVTransactions(uuid, limit.toLong(), offset.toLong(), mapper = { id: Sha256Hash?,
-                                                                                               hash: Sha256Hash,
-                                                                                               blockNumber: Int,
-                                                                                               timestamp: Int,
-                                                                                               binary: ByteArray ->
-                TransactionEx(id, hash, blockNumber, timestamp, binary)
-            }).executeAsList()
+            txQueries.selectBTCVTransactions(uuid, limit.toLong(), offset.toLong(), mapper = ::TransactionEx).executeAsList()
 
     override fun getTransactionsSince(since: Long): List<TransactionEx> =
-            txQueries.selectBTCVTransactionsSince(uuid, since.toInt(), mapper = { id: Sha256Hash?,
-                                                                                  hash: Sha256Hash,
-                                                                                  blockNumber: Int,
-                                                                                  timestamp: Int,
-                                                                                  binary: ByteArray ->
-                TransactionEx(id, hash, blockNumber, timestamp, binary)
-            }).executeAsList()
+            txQueries.selectBTCVTransactionsSince(uuid, since.toInt(), mapper = ::TransactionEx).executeAsList()
 
     override fun getUnconfirmedTransactions(): Collection<TransactionEx> =
-            txQueries.selectBTCVUnconfirmedTransactions(uuid, mapper = { id: Sha256Hash?,
-                                                                         hash: Sha256Hash,
-                                                                         blockNumber: Int,
-                                                                         timestamp: Int,
-                                                                         binary: ByteArray ->
-                TransactionEx(id, hash, blockNumber, timestamp, binary)
-            }).executeAsList()
+            txQueries.selectBTCVUnconfirmedTransactions(uuid, mapper = ::TransactionEx).executeAsList()
 
     override fun getYoungTransactions(maxConfirmations: Int, blockChainHeight: Int): Collection<TransactionEx> {
         val minHeight = blockChainHeight - maxConfirmations + 1
-        return txQueries.selectBTCVYoungTransactions(uuid, minHeight, mapper = { id: Sha256Hash?,
-                                                                                 hash: Sha256Hash,
-                                                                                 blockNumber: Int,
-                                                                                 timestamp: Int,
-                                                                                 binary: ByteArray ->
-            TransactionEx(id, hash, blockNumber, timestamp, binary)
-        }).executeAsList()
+        return txQueries.selectBTCVYoungTransactions(uuid, minHeight, mapper = ::TransactionEx).executeAsList()
     }
 
     override fun hasTransaction(txid: Sha256Hash?): Boolean =
