@@ -239,6 +239,13 @@
         <Button
             android:layout_width="@dimen/about_buttonsize"
             android:layout_height="wrap_content"
+            android:text="@string/boost_look_ahead_button_label"
+            android:id="@+id/bt_boost_look_ahead"
+            android:layout_marginBottom="@dimen/buttonspacing" />
+
+        <Button
+            android:layout_width="@dimen/about_buttonsize"
+            android:layout_height="wrap_content"
             android:text="@string/connection_logs"
             android:id="@+id/bt_show_server_info"
             android:layout_marginBottom="@dimen/buttonspacing" />
