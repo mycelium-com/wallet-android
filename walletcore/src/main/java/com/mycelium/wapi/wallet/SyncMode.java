@@ -5,19 +5,21 @@ import com.google.common.base.Strings;
 
 public class SyncMode {
    // sync all accounts, all known addresses
-   public final static SyncMode FULL_SYNC_ALL_ACCOUNTS = new SyncMode(Mode.FULL_SYNC, false, false, false, false);
+   public static final SyncMode BOOSTED = new SyncMode(Mode.BOOSTED, false, false, true, true);
+   // sync all accounts, all known addresses
+   public static final SyncMode FULL_SYNC_ALL_ACCOUNTS = new SyncMode(Mode.FULL_SYNC, false, false, false, false);
    // full sync current account, all known addresses
-   public final static SyncMode FULL_SYNC_CURRENT_ACCOUNT_FORCED = new SyncMode(Mode.FULL_SYNC, false, true, false, true);
+   public static final SyncMode FULL_SYNC_CURRENT_ACCOUNT_FORCED = new SyncMode(Mode.FULL_SYNC, false, true, false, true);
    // onlyActiveAccount
-   public final static SyncMode NORMAL = new SyncMode(Mode.NORMAL_SYNC, false, true, false, false);
+   public static final SyncMode NORMAL = new SyncMode(Mode.NORMAL_SYNC, false, true, false, false);
    // onlyActiveAccount, ignoreSyncInterval
-   public final static SyncMode NORMAL_FORCED = new SyncMode(Mode.NORMAL_SYNC, false, true, false, true);
+   public static final SyncMode NORMAL_FORCED = new SyncMode(Mode.NORMAL_SYNC, false, true, false, true);
    // onlyActiveAccount, ignoreSyncInterval
-   public final static SyncMode NORMAL_ALL_ACCOUNTS_FORCED = new SyncMode(Mode.NORMAL_SYNC, false, false, false, true);
+   public static final SyncMode NORMAL_ALL_ACCOUNTS_FORCED = new SyncMode(Mode.NORMAL_SYNC, false, false, false, true);
    // ignoreTransactionHistory, onlyActiveAccount
-   public final static SyncMode NORMAL_WITHOUT_TX_LOOKUP = new SyncMode(Mode.NORMAL_SYNC, true, true, false, false);
+   public static final SyncMode NORMAL_WITHOUT_TX_LOOKUP = new SyncMode(Mode.NORMAL_SYNC, true, true, false, false);
    // fast sync, check for incoming tx
-   public final static SyncMode FAST_SYNC_CURRENT_ACCOUNT = new SyncMode(Mode.FAST_SYNC, true, true, true, false);
+   public static final SyncMode FAST_SYNC_CURRENT_ACCOUNT = new SyncMode(Mode.FAST_SYNC, true, true, true, false);
 
    public final Mode mode;
 
@@ -61,6 +63,11 @@ public class SyncMode {
    }
 
    public enum Mode {
+      // Synchronizes using an extended lookahead without checking old addresses
+      // This might be needed if the xpub was used in non-standard-compliant applications like
+      // BTC Pay Server that create many invoices without address reuse.
+      BOOSTED(0, 200),
+
       // Synchronizes all addresses (all old, external/internal and lookahead)
       FULL_SYNC(Integer.MAX_VALUE, 20),
 
