@@ -157,9 +157,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payeeName.value!!,
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
-            val msg = response.message
-            if (msg != null) {
-                Toaster(this).toast(msg, false)
+            if (response.message != null) {
+                Toaster(this).toast(response.message!!, false)
             } else {
                 fioRequestViewModel.payeeTokenPublicAddress.value = response.publicAddress!!
             }
@@ -168,9 +167,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payerName.value!!,
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
-            val msg = response.message
-            if (msg != null) {
-                Toaster(this).toast(msg, false)
+            if (response.message != null) {
+                Toaster(this).toast(response.message!!, false)
             } else {
                 fioRequestViewModel.payerTokenPublicAddress.value = response.publicAddress!!
             }
