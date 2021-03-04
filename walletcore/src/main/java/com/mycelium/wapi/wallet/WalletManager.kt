@@ -19,6 +19,7 @@ class WalletManager
 @JvmOverloads
 constructor(val network: NetworkParameters,
             val wapi: Wapi,
+            val btcvWapi: Wapi,
             private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
             var accountScanManager: AccountScanManager? = null,
@@ -69,8 +70,7 @@ constructor(val network: NetworkParameters,
         feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
         feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
-        // TODO replace bitcoin wapi with bitcoinvault wapi (wapiV)
-        feeEstimations.addProvider(BtcvFeeProvider(network.isTestnet, wapi, backing))
+        feeEstimations.addProvider(BtcvFeeProvider(network.isTestnet, btcvWapi, backing))
         feeEstimations.addProvider(FioFeeProvider(network.isTestnet))
     }
 

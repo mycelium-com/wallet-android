@@ -273,7 +273,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
-    private final WapiClientElectrumX wapiBTCV;
+    private final WapiClientElectrumX btcvWapi;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -339,9 +339,9 @@ public class MbwManager {
         for (TcpEndpoint btcvEndpoint : btcvEndpoints) {
             btcvEndpoint.setUseSsl(getNetwork().isProdnet());
         }
-        wapiBTCV = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
+        btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
-        configuration.setElectrumVServerListChangedListener(wapiBTCV);
+        configuration.setElectrumVServerListChangedListener(btcvWapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -845,7 +845,8 @@ public class MbwManager {
                 new AndroidRandomSource());
 
         masterSeedManager = new MasterSeedManager(secureKeyValueStore);
-        final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi,
+        final WalletManager walletManager = new WalletManager(environment.getNetwork(),
+                _wapi, btcvWapi,
                 currenciesSettingsMap, walletDB);
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
@@ -910,7 +911,7 @@ public class MbwManager {
         BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
         walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore,
                 environment.getBTCVNetwork(),
-                walletDB, wapiBTCV, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
+                walletDB, btcvWapi, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
                 getMetadataStorage(), accountListener));
 
         walletManager.add(new InvestmentModule(getMetadataStorage()));
@@ -961,7 +962,7 @@ public class MbwManager {
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap, db);
+        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, btcvWapi, currenciesSettingsMap, db);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
         walletManager.setWalletListener(new SyncEventsListener());
 
