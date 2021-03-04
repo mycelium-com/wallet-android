@@ -82,11 +82,11 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val btcFee = fee as FeePerKbFee
-        val btcTransaction = BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb)
-        val receivers = listOf(BtcvReceiver(btcTransaction.destination!!, btcTransaction.amount!!.valueAsLong))
+        val btcvTransaction = BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb)
+        val receivers = listOf(BtcvReceiver(btcvTransaction.destination!!, btcvTransaction.amount!!.valueAsLong))
         return try {
-            btcTransaction.unsignedTx = createUnsignedTransaction(receivers, btcTransaction.feePerKb!!.valueAsLong)
-            btcTransaction
+            btcvTransaction.unsignedTx = createUnsignedTransaction(receivers, btcvTransaction.feePerKb!!.valueAsLong)
+            btcvTransaction
         } catch (ex: StandardTransactionBuilder.BtcOutputTooSmallException) {
             throw OutputTooSmallException(ex)
         } catch (ex: StandardTransactionBuilder.InsufficientBtcException) {
@@ -102,19 +102,6 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx!!, AesKeyCipher.defaultKeyCipher()))
     }
 
-    @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
-    fun createTxFromOutputList(outputs: OutputList?, minerFeePerKbToUse: Long): BtcTransaction {
-        return try {
-            BtcTransaction(coinType, createUnsignedTransaction(outputs, minerFeePerKbToUse))
-        } catch (ex: StandardTransactionBuilder.BtcOutputTooSmallException) {
-            throw OutputTooSmallException(ex)
-        } catch (ex: StandardTransactionBuilder.InsufficientBtcException) {
-            throw InsufficientFundsException(ex)
-        } catch (ex: StandardTransactionBuilder.UnableToBuildTransactionException) {
-            throw BuildTransactionException(ex)
-        }
-    }
-
     override fun isExchangeable(): Boolean {
         return true
     }
@@ -122,7 +109,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     override fun getTx(transactionId: ByteArray): Transaction? {
         val tex = accountBacking.getTransaction(Sha256Hash.of(transactionId))
         val tx = TransactionEx.toTransaction(tex) ?: return null
-        return BtcTransaction(coinType, tx)
+        return BtcvTransaction(coinType, tx)
     }
 
     /**

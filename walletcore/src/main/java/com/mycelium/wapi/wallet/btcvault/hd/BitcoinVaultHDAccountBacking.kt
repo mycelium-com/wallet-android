@@ -1,20 +1,11 @@
 package com.mycelium.wapi.wallet.btcvault.hd
 
-import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.OutPoint
-import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.model.TransactionOutputEx
-import com.mycelium.wapi.wallet.InputViewModel
-import com.mycelium.wapi.wallet.OutputViewModel
-import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btc.BtcAccountBacking
-import com.mycelium.wapi.wallet.btcvault.BTCVTransactionSummary
-import com.mycelium.wapi.wallet.btcvault.BtcvAddress
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 
 
@@ -23,52 +14,11 @@ class BitcoinVaultHDAccountBacking(private val walletDB: WalletDB,
 
     private val contextQueries = walletDB.accountContextQueries
     private val btcvContextQueries = walletDB.bTCVContextQueries
-    private val accountBackingQueries = walletDB.bTCVAccountBackingQueries
     private val txQueries = walletDB.bTCVTransactionQueries
     private val utxoQueries = walletDB.bTCVUtxoQueries
     private val ptxoQueries = walletDB.bTCVPtxoQueries
     private val refersPtxoQueries = walletDB.bTCVRefersPtxoQueries
     private val outTxoQueries = walletDB.bTCVOutgoingTxQueries
-
-    fun getTransactionSummaries(offset: Long, limit: Long): List<TransactionSummary> =
-            accountBackingQueries.selectBTCVTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
-                                                                                                 currency: CryptoCurrency,
-                                                                                                 blockNumber: Int,
-                                                                                                 timestamp: Long,
-                                                                                                 value: Value,
-                                                                                                 fee: Value,
-                                                                                                 confirmations: Int,
-                                                                                                 sender: String,
-                                                                                                 receiver: String ->
-                val fromAddress = BtcvAddress(currency, BitcoinAddress.fromString(sender).allAddressBytes)
-                val toAddress = BtcvAddress(currency, BitcoinAddress.fromString(receiver).allAddressBytes)
-                BTCVTransactionSummary(
-                        currency, HexUtils.toBytes(txid), HexUtils.toBytes(txid), null, timestamp, blockNumber,
-                        confirmations, false,
-                        listOf(InputViewModel(fromAddress, value, false)),
-                        listOf(OutputViewModel(toAddress, value, false)), null,
-                        null, 0, fee)
-            }).executeAsList()
-
-    fun getTransactionSummary(txidParameter: String): TransactionSummary? =
-            accountBackingQueries.selectBTCVTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
-                                                                                                   currency: CryptoCurrency,
-                                                                                                   blockNumber: Int,
-                                                                                                   timestamp: Long,
-                                                                                                   value: Value,
-                                                                                                   fee: Value,
-                                                                                                   confirmations: Int,
-                                                                                                   sender: String,
-                                                                                                   receiver: String ->
-                val fromAddress = BtcvAddress(currency, BitcoinAddress.fromString(sender).allAddressBytes)
-                val toAddress = BtcvAddress(currency, BitcoinAddress.fromString(receiver).allAddressBytes)
-                BTCVTransactionSummary(
-                        currency, HexUtils.toBytes(txid), HexUtils.toBytes(txid), null, timestamp, blockNumber,
-                        confirmations, false,
-                        listOf(InputViewModel(fromAddress, value, false)),
-                        listOf(OutputViewModel(toAddress, value, false)), null,
-                        null, 0, fee)
-            }).executeAsOneOrNull()
 
     fun updateAccountContext(context: BitcoinVaultHDAccountContext) {
         walletDB.transaction {
