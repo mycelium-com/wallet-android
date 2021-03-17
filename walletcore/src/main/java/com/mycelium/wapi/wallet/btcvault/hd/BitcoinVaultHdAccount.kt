@@ -22,6 +22,7 @@ import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.btcvault.BtcvTransaction
+import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import java.util.*
@@ -325,13 +326,11 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun archiveAccount() {
         accountContext.setArchived(true)
         clearInternalStateInt()
-        accountContext.persistIfNecessary(backing)
     }
 
     override fun activateAccount() {
         accountContext.setArchived(false)
         clearInternalStateInt()
-        accountContext.persistIfNecessary(backing)
     }
 
     override fun dropCachedData() {
@@ -340,6 +339,15 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }
         clearInternalStateInt()
         accountContext.persistIfNecessary(backing)
+    }
+
+    protected fun initContext() {
+        accountContext = BitcoinVaultHDAccountContext(accountContext.id, accountContext.currency,
+                accountContext.accountIndex, accountContext.isArchived(), accountContext.accountName,
+                Balance.getZeroBalance(accountContext.currency), backing::updateAccountContext,
+                accountType = accountContext.accountType, accountSubId = accountContext.accountSubId,
+                defaultAddressType = accountContext.defaultAddressType)
+        accountContext.persist(backing)
     }
 
     override fun isVisible(): Boolean = true
@@ -601,6 +609,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
         cachedBalance = null
+        initContext()
         initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
