@@ -64,7 +64,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
@@ -83,8 +82,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
@@ -96,10 +95,10 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -113,9 +112,11 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
@@ -1061,6 +1062,10 @@ public class Utils {
 
    public static CryptoCurrency getBtcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+   }
+
+   public static CryptoCurrency getBtcvCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinVaultMain.INSTANCE : BitcoinVaultTest.INSTANCE;
    }
 
    public static CryptoCurrency getEthCoinType() {

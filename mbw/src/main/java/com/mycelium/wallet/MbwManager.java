@@ -113,7 +113,7 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
-import com.mycelium.wapi.content.BitcoinVaultUriParser;
+import com.mycelium.wapi.content.btcv.BitcoinVaultUriParser;
 import com.mycelium.wapi.content.ContentResolver;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
