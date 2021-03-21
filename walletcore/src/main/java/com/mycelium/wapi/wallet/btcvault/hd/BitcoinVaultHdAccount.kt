@@ -565,20 +565,20 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isOwnExternalAddress(address: BtcvAddress): Boolean {
         val addressId = getAddressId(address)
-        return addressId.isPresent && addressId.get()[0] == 0
+        return addressId?.get(0) == 0
     }
 
-    private fun getAddressId(address: BtcvAddress): Optional<Array<Int>> {
+    private fun getAddressId(address: BtcvAddress): Array<Int>? {
         if (address.type !in availableAddressTypes) {
-            return Optional.absent()
+            return null
         }
         val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
         val (changeIndex, addressMap) = when (address) {
             in externalAddresses[derivationType]!!.keys -> Pair(0, externalAddresses)
             in internalAddresses[derivationType]!!.keys -> Pair(1, internalAddresses)
-            else -> return Optional.absent()
+            else -> return null
         }
-        return Optional.of(arrayOf(changeIndex, addressMap[derivationType]!![address]!!))
+        return arrayOf(changeIndex, addressMap[derivationType]!![address]!!)
     }
 
     override fun isValidEncryptionKey(cipher: KeyCipher?): Boolean = keyManagerMap.values.any { it.isValidEncryptionKey(cipher) }
