@@ -30,7 +30,7 @@ FROM BTCVTransaction AS b
 selectBTCVYoungTransactions:
 SELECT b.id, b.hash, b.blockNumber, b.timestamp, b.binary
 FROM BTCVTransaction AS b
-WHERE b.accountId = (?) AND b.blockNumber >= (?) OR b.blockNumber = -1;
+WHERE b.accountId = (?) AND b.blockNumber >= (:minBlockNumber) OR b.blockNumber = -1;
 
 selectBTCVUnconfirmedTransactions:
 SELECT b.id, b.hash, b.blockNumber, b.timestamp, b.binary
