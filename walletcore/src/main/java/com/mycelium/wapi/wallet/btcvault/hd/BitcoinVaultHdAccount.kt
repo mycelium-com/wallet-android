@@ -378,8 +378,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     private fun tightenInternalAddressScanRange() {
         // Find the lowest internal index at which we have an unspent output
         val unspent = backing.allUnspentOutputs
-        val minInternalIndexesMap = mutableMapOf<BipDerivationType, Int>()
-        derivePaths.associateByTo(minInternalIndexesMap, { it }, { Int.MAX_VALUE })
+        val minInternalIndexesMap = derivePaths.associateWith { Int.MAX_VALUE }.toMutableMap()
         for (output in unspent) {
             val outputScript = ScriptOutput.fromScriptBytes(output.script)
                     ?: continue // never happens, we have parsed it before
