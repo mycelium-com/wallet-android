@@ -48,7 +48,7 @@ import java.util.*
  */
 class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
                                    val network: CommonNetworkParameters,
-                                   val secureKeyValueStore: SecureKeyValueStore,
+                                   private val secureKeyValueStore: SecureKeyValueStore,
                                    val derivationType: BipDerivationType,
                                    val addressFactory: AddressFactory<ADDRESS>)
         where ADDRESS : Address {
