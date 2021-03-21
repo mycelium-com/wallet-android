@@ -586,20 +586,18 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         val privateDataMap = if (canSpend()) {
             try {
-                keyManagerMap.keys.map { derivationType ->
-                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher, derivationType)
-                            .serialize(network, derivationType))
-                }.toMap()
+                keyManagerMap.mapValues {
+                    it.value.getPrivateAccountRoot(cipher, it.key).serialize(network, it.key)
+                }
             } catch (ignore: KeyCipher.InvalidKeyCipher) {
                 null
             }
         } else {
             null
         }
-        val publicDataMap = keyManagerMap.keys.map { derivationType ->
-            derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
-                    .serialize(network, derivationType))
-        }.toMap()
+        val publicDataMap = keyManagerMap.mapValues {
+            it.value.publicAccountRoot.serialize(network, it.key)
+        }
         return ExportableAccount.Data(privateDataMap, publicDataMap)
     }
 
