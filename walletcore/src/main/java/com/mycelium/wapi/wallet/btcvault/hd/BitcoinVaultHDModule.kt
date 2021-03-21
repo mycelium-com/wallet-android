@@ -81,15 +81,14 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
         return result
     }
 
-    private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): HashMap<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =
-            hashMapOf<BipDerivationType, HDAccountKeyManager<BtcvAddress>>().apply {
-                for (entry in context.indexesMap) {
-                    when (context.accountType) {
-                        HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED ->
-                            this[entry.key] = HDAccountKeyManager(context.accountIndex,
-                                    networkParameters, secureStore, entry.key, BtcvAddressFactory(coinType, networkParameters))
-                    }
+    private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =
+            if (context.accountType == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+                context.indexesMap.keys.associateWith { derivationType ->
+                    HDAccountKeyManager(context.accountIndex, networkParameters, secureStore,
+                            derivationType, BtcvAddressFactory(coinType, networkParameters))
                 }
+            } else {
+                emptyMap()
             }
 
     private fun getCurrentBip44Index() = accounts.values
