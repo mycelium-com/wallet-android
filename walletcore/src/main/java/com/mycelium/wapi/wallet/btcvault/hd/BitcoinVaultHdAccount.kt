@@ -666,7 +666,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     }
 
     protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = derivePaths
-            .map { it to HashBiMap.create<BtcvAddress, Int>() }.toMap().toMutableMap()
+            .associateWith { HashBiMap.create<BtcvAddress, Int>() }.toMutableMap()
 
     private fun initSafeLastIndexes(reset: Boolean) {
         listOf(BipDerivationType.BIP44,
