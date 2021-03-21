@@ -179,7 +179,7 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
                                 derivationType: BipDerivationType, addressFactory: AddressFactory<ADDRESS>): HDAccountKeyManager<ADDRESS>
                 where ADDRESS : Address {
             val bip44Root = bip32Root.createChildNode(derivationType.getHardenedPurpose())
-            val coinTypeRoot = bip44Root.createChildNode(network.getBip44CoinType() or -0x80000000)
+            val coinTypeRoot = bip44Root.createHardenedChildNode(network.getBip44CoinType())
 
             // Create the account root.
             val accountRoot = coinTypeRoot.createChildNode(accountIndex or -0x80000000)
