@@ -498,12 +498,8 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             return null
         }
         val indexLookUp = getIndexLookup(toBtcvAddress(address), derivationType)
-        return if (indexLookUp == null) {
-            // still not found? give up...
-            null
-        } else {
-            keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
-        }
+                ?: return null
+        return keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
     }
 
     private fun getIndexLookup(address: BtcvAddress, derivationType: BipDerivationType): IndexLookUp? {
