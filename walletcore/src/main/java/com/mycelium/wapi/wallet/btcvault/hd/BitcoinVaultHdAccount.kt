@@ -33,7 +33,7 @@ import kotlin.math.min
 
 
 class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountContext,
-                            protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
+                            protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
                             val networkParameters: BTCVNetworkParameters,
                             wapi: Wapi,
                             val backing: BitcoinVaultHDAccountBacking,
