@@ -137,13 +137,8 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
         }
     }
 
-    fun deleteSubKeyStore() {
-        if (secureKeyValueStore is SecureSubKeyValueStore) {
-            secureKeyValueStore.deleteAllData()
-        } else {
-            throw RuntimeException("this is not a SubKeyValueStore")
-        }
-    }
+    fun deleteSubKeyStore() = (secureKeyValueStore as? SecureSubKeyValueStore)?.deleteAllData()
+            ?: throw RuntimeException("this is not a SubKeyValueStore")
 
     fun getAddress(isChangeChain: Boolean, index: Int): ADDRESS? {
         // See if we have it in the store
