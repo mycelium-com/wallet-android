@@ -23,7 +23,7 @@ import java.util.*
 
 
 class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountContext>,
-                           internal val secureStore: SecureKeyValueStore,
+                           private val secureStore: SecureKeyValueStore,
                            internal val networkParameters: BTCVNetworkParameters,
                            private val walletDB: WalletDB,
                            internal var _wapi: Wapi,
