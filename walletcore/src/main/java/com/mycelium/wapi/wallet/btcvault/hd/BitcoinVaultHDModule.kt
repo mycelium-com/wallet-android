@@ -54,12 +54,9 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
 
                 // Create the base keys for the account
-                val keyManagerMap = hashMapOf<BipDerivationType, HDAccountKeyManager<BtcvAddress>>()
-                for (derivationType in BipDerivationType.values()) {
-                    // Generate the root private key
+                val keyManagerMap = BipDerivationType.values().associate { derivationType ->
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
-
-                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, coinType,
+                    derivationType to HDAccountKeyManager.createNew(root, coinType,
                             networkParameters, accountIndex, secureStore,
                             AesKeyCipher.defaultKeyCipher(), derivationType, BtcvAddressFactory(coinType, networkParameters)
                     )
