@@ -5,8 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.Toast
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
@@ -19,12 +18,13 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.buy_sell_service_selector.*
 
-class BuySellSelectActivity : FragmentActivity() {
+class BuySellSelectActivity : AppCompatActivity() {
     private val adapter = BuySellSelectAdapter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.buy_sell_service_selector)
-        actionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.buysell_bitcoin_title)
 
         val mbwManager = MbwManager.getInstance(this)
         lvServices.adapter = adapter

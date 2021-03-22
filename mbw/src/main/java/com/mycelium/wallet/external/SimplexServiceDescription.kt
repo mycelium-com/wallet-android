@@ -3,12 +3,9 @@ package com.mycelium.wallet.external
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AlertDialog
-import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -32,30 +29,35 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
         }
         val receivingAddress = mbwManager.selectedAccount.receiveAddress
         if (receivingAddress != null) {
-            val regions = if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
-                mapOf<String, Boolean>(context.getString(R.string.europe) to true, context.getString(R.string.asia) to true,
-                        context.getString(R.string.united_states) to true, context.getString(R.string.australia) to true)
-            } else {
-                mapOf(context.getString(R.string.europe) to true, context.getString(R.string.asia) to true,
-                        context.getString(R.string.united_states) to true, context.getString(R.string.australia) to true)
-            }
-            val adapter = Adapter(context).apply {
-                this.setData(regions)
-            }
-            AlertDialog.Builder(context, R.style.BuySell_Dialog)
-                    .setTitle(R.string.select_you_region)
-                    .setAdapter(adapter) { _, i ->
-                        if (regions[adapter.getItem(i)] == true) {
-                            context.startActivity(Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(BuildConfig.SIMPLEX +
-                                            "?crypto=${activeReceivingAddress.coinType.symbol}" +
-                                            "&address=$activeReceivingAddress")))
-                        }
-                    }
-                    .create().show()
+            context.startActivity(Intent(context, BuySellSelectCountryActivity::class.java)
+                    .putExtra("address", activeReceivingAddress))
         } else {
-            Toaster(context).toast("Simplex cannot start - no available address.", false)
+            Toaster(context).toast("Сannot start - no available address.", false)
         }
+
+//        val receivingAddress = mbwManager.selectedAccount.receiveAddress
+//        if (receivingAddress != null) {
+//            val regions = if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
+//                mapOf<String, Boolean>(context.getString(R.string.europe) to true, context.getString(R.string.asia) to true,
+//                        context.getString(R.string.united_states) to true, context.getString(R.string.australia) to true)
+//            } else {
+//                mapOf(context.getString(R.string.europe) to true, context.getString(R.string.asia) to true,
+//                        context.getString(R.string.united_states) to true, context.getString(R.string.australia) to true)
+//            }
+//            val adapter = Adapter(context).apply {
+//                this.setData(regions)
+//            }
+//            AlertDialog.Builder(context, R.style.BuySell_Dialog)
+//                    .setTitle(R.string.select_you_region)
+//                    .setAdapter(adapter) { _, i ->
+//                        if (regions[adapter.getItem(i)] == true) {
+//                            context.startActivity(Intent(Intent.ACTION_VIEW,
+//                                    Uri.parse(BuildConfig.SIMPLEX +
+//                                            "?crypto=${activeReceivingAddress.coinType.symbol}" +
+//                                            "&address=$activeReceivingAddress")))
+//                        }
+//                    }
+//                    .create().show()
     }
 
     override fun isEnabled(mbwManager: MbwManager): Boolean =
