@@ -24,7 +24,8 @@ class BuySellSelectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.buy_sell_service_selector)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.buysell_bitcoin_title)
+        supportActionBar?.title = getString(R.string.buysell_bitcoin_title,
+                MbwManager.getInstance(this).selectedAccount.coinType.name)
 
         val mbwManager = MbwManager.getInstance(this)
         lvServices.adapter = adapter
