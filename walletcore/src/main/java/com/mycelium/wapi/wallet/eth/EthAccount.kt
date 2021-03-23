@@ -88,7 +88,7 @@ class EthAccount(private val chainId: Byte,
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
-            txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+            txHash = TransactionUtils.generateTransactionHash(rawTransaction, chainId, credentials)
             txBinary = TransactionEncoder.encode(rawTransaction)!!
         }
     }
