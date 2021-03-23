@@ -19,6 +19,7 @@ import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
+import org.web3j.tx.ChainId
 import java.util.*
 
 
@@ -35,6 +36,7 @@ class EthereumModule(
     val password = ""
     fun getBip44Path(accountIndex: Int): HdKeyPath = HdKeyPath.valueOf("m/44'/60'/$accountIndex'/0/0")
     private val coinType = if (networkParameters.isProdnet) EthMain else EthTest
+    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else ChainId.ROPSTEN
 
     private val accounts = mutableMapOf<UUID, EthAccount>()
     override val id = ID
@@ -71,7 +73,7 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
+                result = EthAccount(chainId, accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
             }
             is EthAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -81,7 +83,7 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking,
+                result = EthAccount(chainId, accountContext, address = config.address, backing = ethAccountBacking,
                         accountListener = accountListener, blockchainService = blockchainService)
             }
             else -> {
@@ -100,14 +102,14 @@ class EthereumModule(
                     secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
             val accountContext = createAccountContext(uuid)
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
+            val ethAccount = EthAccount(chainId, accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         } else {
             val accountContext = createAccountContext(uuid)
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking,
+            val ethAccount = EthAccount(chainId, accountContext, address = ethAddress, backing = ethAccountBacking,
                     accountListener = accountListener, blockchainService = blockchainService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
