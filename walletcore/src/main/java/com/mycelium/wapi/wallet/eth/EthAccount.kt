@@ -23,7 +23,8 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
-class EthAccount(private val accountContext: EthAccountContext,
+class EthAccount(private val chainId: Byte,
+                 private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
                  backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
@@ -83,7 +84,7 @@ class EthAccount(private val accountContext: EthAccountContext,
             RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
                     inputData)
         }
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
+        val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
             signedHex = hexValue
