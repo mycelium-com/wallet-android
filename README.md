@@ -3,7 +3,7 @@ Beta channel
 
 In order to receive updates quicker than others, you need to do two things:
 
-1. Join [the G+ group](https://plus.google.com/communities/102264813364583686576)
+1. Go onto [the Mycelium Website](https://wallet.mycelium.com/)
 so you are eligible for testing
 2. Then explicitly enable beta versions of the software in
 [Google Play](https://play.google.com/apps/testing/com.mycelium.wallet)
