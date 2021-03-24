@@ -6,6 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.adapter.BuySellSelectCountryAdapter
 import kotlinx.android.synthetic.main.activity_buysell_select_country.*
 
@@ -14,6 +15,9 @@ class BuySellSelectCountryActivity : AppCompatActivity(R.layout.activity_buysell
 
 
     private val adapter = BuySellSelectCountryAdapter()
+    private val availableCounties = SettingsPreference.getBuySellContent()?.exchangeList
+            ?.filter { it.isActive() && SettingsPreference.isContentEnabled(it.parentId) }
+            ?.flatMap { it.counties }?.toSet()?.sorted()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,12 +30,11 @@ class BuySellSelectCountryActivity : AppCompatActivity(R.layout.activity_buysell
                     .putExtras(intent)
                     .putExtra("country", it))
         }
-        adapter.submitList((countriesMercuryo + countrySimplex).toSet().sorted())
-
+        adapter.submitList(availableCounties)
         search.doOnTextChanged { text, _, _, _ ->
-            adapter.submitList((countriesMercuryo + countrySimplex).toSet().filter { country ->
-                text?.split(" ")?.all { country.contains(it ?: "", true) } ?: false
-            }.sorted())
+            adapter.submitList(availableCounties?.filter { country ->
+                text?.split(" ")?.all { country.contains(it, true) } ?: false
+            })
         }
     }
 
@@ -43,22 +46,4 @@ class BuySellSelectCountryActivity : AppCompatActivity(R.layout.activity_buysell
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
-    companion object {
-        val countriesMercuryo = listOf("Bangladesh", "Bolivia", "Burundi", "Central African Republic",
-                "China", "Colombia", "Cuba", "the Democratic Republic of the Congo", "Ecuador", "Iran",
-                "Iraq", "Kyrgyzstan", "Lebanon", "Libya", "Mali", "Morocco", "Nepal", "Nicaragua",
-                "North Korea", "Pakistan", "Saudi Arabia", "Somalia", "Sudan and Darfur", "South Sudan",
-                "Syria", "Vietnam", "Venezuela", "Yemen", "Zimbabwe")
-
-        val countrySimplex = listOf("Australia", "Azerbaijan", "Brazil", "United Kingdom", "Bulgaria",
-                "Canada", "Chile", "Colombia", "Costa Rica", "Czech Republic", "Denmark",
-                "Dominican Republic", "Europe", "Georgia", "Hong Kong", "Hungary", "India",
-                "Indonesia", "Israel", "Japan", "Kazakhstan", "Malaysia", "Mexico", "Moldova",
-                "Morocco", "Namibia", "Taiwan", "New Zealand", "Nigeria", "Norway", "Peru",
-                "Uruguay", "Philippines", "Poland", "Qatar", "Romania",
-                "Russia", "Saudi Arabia", "Singapore", "South Africa", "South Korea",
-                "Sweden", "Switzerland", "Turkey", "Ukraine", "United Arab Emirates",
-                "United States", "Uzbekistan", "Vietnam")
-    }
 }
