@@ -8,6 +8,7 @@ import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.coins.Value
+import com.sumsub.sns.core.data.model.SNSSDKState
 import java.util.*
 
 
@@ -125,4 +126,14 @@ object BequantPreference {
     }
 
     fun getKYCSectionStatus(section: String) = preference.getBoolean("section_$section", true)
+
+    fun setSumSubLastState(lastState : String){
+        preference.edit().apply {
+                putString( "sub_sum_last_state", lastState)
+        }.apply()
+    }
+
+    fun getSumSubLastState() : String {
+       return preference.getString("sub_sum_last_state", "initial") ?: "initial"
+    }
 }

@@ -12,20 +12,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.steps.adapter.*
 import com.mycelium.bequant.kyc.steps.viewmodel.DocumentViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.remote.model.KYCDocument
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.news.NewsImageActivity
 import com.mycelium.wallet.databinding.FragmentBequantSteps4Binding
+import com.sumsub.sns.core.SNSMobileSDK
+import com.sumsub.sns.core.data.listener.TokenExpirationHandler
+import com.sumsub.sns.core.data.model.SNSCompletionResult
+import com.sumsub.sns.core.data.model.SNSException
+import com.sumsub.sns.core.data.model.SNSSDKState
+import com.sumsub.sns.prooface.SNSProoface
 import kotlinx.android.synthetic.main.fragment_bequant_steps_4.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
+import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -66,15 +76,14 @@ class Step4Fragment : Fragment() {
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        step.text = getString(R.string.step_n, 4)
-        stepProgress.progress = 4
+        step.text = getString(R.string.step_n, 3)
+        stepProgress.progress = 3
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
-                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE)
-                , ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.CURRENT)))
+                ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE),
+                ItemStep(2, getString(R.string.phone_number), StepState.COMPLETE),
+                ItemStep(3, getString(R.string.doc_selfie), StepState.CURRENT)))
 
         identityList.adapter = identityAdapter
         identityAdapter.listChangeListener = {
@@ -127,6 +136,7 @@ class Step4Fragment : Fragment() {
                 setTargetFragment(this@Step4Fragment, requestCode)
             }.show(parentFragmentManager, "upload_document")
         }
+
         val identityClick = uploadClick(REQUEST_CODE_IDENTITY)
         uploadIdentity.setOnClickListener(identityClick)
         addIdentity.setOnClickListener(identityClick)

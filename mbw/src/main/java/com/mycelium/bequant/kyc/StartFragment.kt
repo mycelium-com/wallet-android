@@ -23,6 +23,8 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //BequantPreference.setKYCToken("f99e9b6176a1cdaae88c3f3dc7c96ad7740af0e2ed55aa")
+        BequantPreference.setKYCSectionStatus(mutableListOf(Pair("personal_information", true)))
         setHasOptionsMenu(true)
         if (BequantPreference.getKYCToken().isNotEmpty()) {
             loader(true)
@@ -31,11 +33,7 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
                     KYCStatus.PENDING, KYCStatus.APPROVED, KYCStatus.SIGNED_OFF ->
                         findNavController().navigate(StartFragmentDirections.actionPending())
                     KYCStatus.INCOMPLETE ->
-                        if (statusMsg.submitted == true) {
-                            findNavController().navigate(StartFragmentDirections.actionPending())
-                        } else {
-                            findNavController().navigate(StartFragmentDirections.actionIncomplete())
-                        }
+                        findNavController().navigate(StartFragmentDirections.actionIncomplete())
                     KYCStatus.VERIFIED ->
                         findNavController().navigate(StartFragmentDirections.actionApproved())
                     KYCStatus.REJECTED ->
@@ -58,10 +56,7 @@ class StartFragment : Fragment(R.layout.fragment_bequant_kyc_start) {
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
-                ItemStep(1, getString(R.string.personal_info), StepState.FUTURE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.FUTURE)
-                , ItemStep(3, getString(R.string.phone_number), StepState.FUTURE)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
+                ItemStep(1, getString(R.string.personal_info), StepState.FUTURE), ItemStep(2, getString(R.string.phone_number), StepState.FUTURE), ItemStep(3, getString(R.string.doc_selfie), StepState.FUTURE)))
         btnStart.setOnClickListener {
             findNavController().navigate(StartFragmentDirections.actionNext())
         }

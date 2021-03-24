@@ -31,9 +31,8 @@ class CallbackApprovedFragment : Fragment(R.layout.fragment_bequant_kyc_approved
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE)
-                , ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE)))
+                , ItemStep(2, getString(R.string.phone_number), StepState.COMPLETE)
+                , ItemStep(3, getString(R.string.doc_selfie), StepState.COMPLETE)))
 
         confirmButton.setOnClickListener {
             requireActivity().finish()

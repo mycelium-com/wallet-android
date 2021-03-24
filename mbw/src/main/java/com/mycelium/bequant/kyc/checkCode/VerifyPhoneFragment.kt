@@ -74,20 +74,18 @@ class VerifyPhoneFragment : Fragment(R.layout.fragment_bequant_kyc_verify_phone)
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         }
-        step.text = getString(R.string.step_n, 3)
-        stepProgress.progress = 3
+        step.text = getString(R.string.step_n, 2)
+        stepProgress.progress = 2
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE_EDITABLE)
-                , ItemStep(3, getString(R.string.phone_number), StepState.CURRENT)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
+                , ItemStep(2, getString(R.string.phone_number), StepState.CURRENT)
+                , ItemStep(3, getString(R.string.doc_selfie), StepState.FUTURE)))
 
         stepAdapter.clickListener = {
             when (it) {
                 1 -> findNavController().navigate(Step3FragmentDirections.actionEditStep1(kycRequest))
-                2 -> findNavController().navigate(Step3FragmentDirections.actionEditStep2(kycRequest))
             }
         }
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {

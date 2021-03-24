@@ -89,4 +89,8 @@
 
     <color name="bequant_red">#CE3C4E</color>
     <color name="bequant_red_a1">#1ACE3C4E</color>
+
+    <color name="sns_yellow" tools:override="true">#23262A</color>
+    <color name="sns_orange" tools:override="true">#5EBA89</color>
+
 </resources>

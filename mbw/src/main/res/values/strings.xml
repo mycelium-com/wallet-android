@@ -1641,4 +1641,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="activate_trading_custodial_account">Activate Trading Custodial Account</string>
     <string name="service_unavailable">Service unavailable</string>
     <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
+    <string name="submit">Submit</string>
+    <string name="update_info">Update info</string>
 </resources>

@@ -65,14 +65,7 @@
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
         </action>
-        <action
-            android:id="@+id/actionEditStep2"
-            app:destination="@id/kycStep2"
-            app:popUpTo="@id/kycStep1">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        </action>
+
         <action
             android:id="@+id/actionChooseCountry"
             app:destination="@id/chooseCountry" />
@@ -90,7 +83,7 @@
             app:nullable="true" />
         <action
             android:id="@+id/actionEditStep4"
-            app:destination="@id/kycStep4">
+            app:destination="@id/kycStep4SumSub">
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
@@ -99,10 +92,7 @@
             android:id="@+id/actionEditStep1"
             app:destination="@id/kycStep1"
             app:popUpTo="@id/startFragment" />
-        <action
-            android:id="@+id/actionEditStep2"
-            app:destination="@id/kycStep2"
-            app:popUpTo="@id/kycStep1" />
+
         <action
             android:id="@+id/actionPending"
             app:destination="@id/pendingFragment"
@@ -129,13 +119,6 @@
             app:argType="com.mycelium.bequant.remote.model.KYCRequest"
             app:nullable="true" />
         <action
-            android:id="@+id/actionEditStep2"
-            app:destination="@id/kycStep2">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        </action>
-        <action
             android:id="@+id/actionSelectCountry"
             app:destination="@id/chooseCountry">
             <argument
@@ -160,7 +143,7 @@
         </action>
         <action
             android:id="@+id/actionEditStep4"
-            app:destination="@id/kycStep4">
+            app:destination="@id/kycStep4SumSub">
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
@@ -173,51 +156,35 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <fragment
-        android:id="@+id/kycStep2"
-        android:name="com.mycelium.bequant.kyc.steps.Step2Fragment"
-        android:label="Step2Fragment"
-        tools:layout="@layout/fragment_bequant_steps_2">
+    <fragment android:id="@+id/kycStep4SumSub"
+        android:label="Step4SumAndSubFragment"
+        android:name="com.mycelium.bequant.kyc.steps.Step4SumAndSubFragment"
+        tools:layout="@layout/fragment_bequant_steps_4_sum_sub"
+        >
         <argument
             android:name="kycRequest"
             app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        <action
-            android:id="@+id/actionEditStep3"
-            app:destination="@id/kycStep3">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
 
-        </action>
         <action
-            android:id="@+id/actionEditStep1"
-            app:destination="@id/kycStep1"
-            app:popUpTo="@id/startFragment">
+            android:id="@+id/actionNext"
+            app:destination="@id/finalPresubmit">
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
 
-        </action>
         <action
-            android:id="@+id/actionSelectCountry"
-            app:destination="@id/chooseCountry">
-            <argument
-                android:name="showPhoneCode"
-                android:defaultValue="false"
-                app:argType="boolean" />
-        </action>
-        <action
-            android:id="@+id/actionEditStep4"
-            app:destination="@id/kycStep4">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        </action>
-        <action
-            android:id="@+id/actionPending"
+            android:id="@+id/actionFinish"
             app:destination="@id/pendingFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/toStartFragment"
+            app:destination="@+id/startFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+
     </fragment>
 
     <fragment
@@ -241,16 +208,8 @@
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-
         </action>
-        <action
-            android:id="@+id/actionEditStep2"
-            app:destination="@id/kycStep2">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
 
-        </action>
         <action
             android:id="@+id/actionEditStep3"
             app:destination="@id/kycStep3">
@@ -281,7 +240,7 @@
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/actionEditDocs"
-            app:destination="@id/kycStep4"
+            app:destination="@id/kycStep4SumSub"
             app:popUpTo="@id/phoneVerify">
             <argument
                 android:name="kycRequest"
@@ -305,19 +264,13 @@
         tools:layout="@layout/fragment_bequant_kyc_incomplete_callback">
         <action
             android:id="@+id/actionEditDocs"
-            app:destination="@id/kycStep4"
+            app:destination="@id/kycStep4SumSub"
             app:popUpTo="@id/phoneVerify">
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
         </action>
-        <action
-            android:id="@+id/actionEditStep2"
-            app:destination="@id/kycStep2">
-            <argument
-                android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
-        </action>
+
         <action
             android:id="@+id/actionEditStep3"
             app:destination="@id/kycStep3">
@@ -340,11 +293,35 @@
         tools:layout="@layout/fragment_bequant_kyc_final_pending">
         <action
             android:id="@+id/actionEditDocs"
-            app:destination="@id/kycStep4"
+            app:destination="@id/kycStep4SumSub"
             app:popUpTo="@id/phoneVerify">
             <argument
                 android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
         </action>
+
+        <action
+            android:id="@+id/actionPhoneVerification"
+            app:destination="@id/kycStep3"
+            app:popUpTo="@id/kycStep1">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+
+        <action
+            android:id="@+id/actionEmailVerification"
+            app:destination="@id/kycStep1"
+            app:popUpTo="@id/kycStep1">
+            <argument
+                android:name="kycRequest"
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+
+        <action
+            android:id="@+id/actionFinish"
+            app:destination="@id/pendingFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

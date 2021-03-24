@@ -39,7 +39,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <!--<androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvTitle"
                     style="@style/Bequant.TextView"
                     android:layout_width="wrap_content"
@@ -55,7 +55,7 @@
                     android:alpha="0.5"
                     android:text="Please fill in your personal information as it appears on the proof of identity document."
                     android:textColor="@color/white"
-                    android:textSize="16sp" />
+                    android:textSize="16sp" />-->
 
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -63,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="@string/first_name"
+                    android:text="@string/email"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
 
@@ -74,69 +74,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:singleLine="true"
-                    android:text="@={viewModel.firstName}"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:text="@={viewModel.email}"
                     tools:text="Name Name" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Bequant.TextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/last_name"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/edLastname"
-                    style="@style/Bequant.EditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:singleLine="true"
-                    android:text="@={viewModel.lastName}"
-                    tools:text="Name Name" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Bequant.TextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/date_of_birth"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvDateOfBirth"
-                    style="@style/Bequant.EditText"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_vertical"
-                    android:hint="@string/mm_dd_yyyy"
-                    android:text="@{viewModel.birthday != null ? @string/format(viewModel.birthday) : null}"
-                    app:drawableRightCompat="@drawable/ic_date_of_birth"
-                    tools:text="11/02/1999" />
-
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/Bequant.TextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/nationality"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvNationality"
-                    style="@style/Bequant.EditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    app:drawableEndCompat="@drawable/ic_arrow_drop_down"
-                    android:gravity="center_vertical"
-                    android:text="@{viewModel.nationality}"
-                    tools:text="American" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/Bequant.TextView"

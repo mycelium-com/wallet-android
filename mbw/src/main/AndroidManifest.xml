@@ -296,7 +296,8 @@
             android:theme="@style/Bequant"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity android:name="com.mycelium.bequant.kyc.BequantKycActivity"
-                android:theme="@style/Bequant"/>
+            android:theme="@style/Bequant">
+        </activity>
         <activity
             android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
             android:theme="@style/BequantSign"

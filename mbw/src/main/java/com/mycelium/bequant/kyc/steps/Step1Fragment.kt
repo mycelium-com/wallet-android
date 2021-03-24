@@ -39,7 +39,6 @@ import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
 import java.util.*
 
-
 class Step1Fragment : Fragment() {
     lateinit var viewModel: Step1ViewModel
     lateinit var headerViewModel: HeaderViewModel
@@ -47,23 +46,14 @@ class Step1Fragment : Fragment() {
 
     val args: Step1FragmentArgs by navArgs()
 
-    val receiver = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, intent: Intent?) {
-            intent?.getParcelableExtra<CountryModel>(BequantConstants.COUNTRY_MODEL_KEY)?.let {
-                viewModel.nationality.value = it.nationality
-                viewModel.nationalityAcronum.value = it.acronym3
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setHasOptionsMenu(true)
-        kycRequest = args.kycRequest ?: KYCRequest()
+        kycRequest = args.kycRequest ?: KYCRequest(BequantPreference.getEmail())
         viewModel = ViewModelProviders.of(this).get(Step1ViewModel::class.java)
         viewModel.fromModel(kycRequest)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -76,6 +66,9 @@ class Step1Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.email.value = BequantPreference.getEmail()
+        edFirstname.setOnKeyListener(null)
+
         (activity as AppCompatActivity?)?.supportActionBar?.run {
             title = getString(R.string.identity_auth)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
@@ -85,18 +78,9 @@ class Step1Fragment : Fragment() {
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
-                ItemStep(1, getString(R.string.personal_info), StepState.CURRENT), ItemStep(2, getString(R.string.residential_address), StepState.FUTURE), ItemStep(3, getString(R.string.phone_number), StepState.FUTURE), ItemStep(4, getString(R.string.doc_selfie), StepState.FUTURE)))
-
-        tvDateOfBirth.setOnClickListener {
-            BQDatePickerDialog { year, month, day ->
-                val calendar = Calendar.getInstance()
-                calendar.set(year, month, day)
-                viewModel.birthday.value = calendar.time
-            }.show(childFragmentManager, "picker_dialog")
-        }
-        tvNationality.setOnClickListener {
-            findNavController().navigate(Step1FragmentDirections.actionSelectCountry())
-        }
+                ItemStep(1, getString(R.string.personal_info), StepState.CURRENT),
+                ItemStep(2, getString(R.string.phone_number), StepState.FUTURE),
+                ItemStep(3, getString(R.string.doc_selfie), StepState.FUTURE)))
 
         btNext.setOnClickListener {
             if (underFatca.isChecked) {
@@ -111,16 +95,7 @@ class Step1Fragment : Fragment() {
         termsOfUse.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_TERMS_OF_USE)))
         }
-        viewModel.firstName.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.lastName.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.birthday.observe(viewLifecycleOwner, Observer {
-            viewModel.nextButton.value = viewModel.isValid()
-        })
-        viewModel.nationality.observe(viewLifecycleOwner, Observer {
+        viewModel.email.observe(viewLifecycleOwner, Observer {
             viewModel.nextButton.value = viewModel.isValid()
         })
     }
@@ -145,7 +120,6 @@ class Step1Fragment : Fragment() {
             }
 
     override fun onDestroy() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
         super.onDestroy()
     }
 
@@ -157,6 +131,7 @@ class Step1Fragment : Fragment() {
                 applicant.userId = onceToken
                 BequantPreference.setKYCRequest(kycRequest)
                 Api.kycRepository.create(viewModel.viewModelScope, kycRequest.toModel(applicant), {
+                    loader(false)
                     nextPage()
                 }, { _, msg ->
                     loader(false)
@@ -171,9 +146,6 @@ class Step1Fragment : Fragment() {
 
     private fun nextPage() {
         when {
-            BequantPreference.getKYCSectionStatus("residential_address") -> {
-                findNavController().navigate(Step1FragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
-            }
             BequantPreference.getKYCSectionStatus("phone") -> {
                 findNavController().navigate(Step1FragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
             }

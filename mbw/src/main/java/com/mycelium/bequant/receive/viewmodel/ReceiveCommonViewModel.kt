@@ -16,7 +16,7 @@ class ReceiveCommonViewModel : ViewModel(), Serializable {
                     currencySymbol,
                     {
                         address.value = it?.address
-                        tag.value = it?.paymentId
+                        tag.value = it?.paymentId ?: ""
                     },
                     { _, message ->
                         error.value = message

@@ -6,6 +6,9 @@ import com.mycelium.bequant.remote.client.apis.ApiKeyApi
 import com.mycelium.bequant.remote.client.models.*
 import com.mycelium.bequant.remote.doRequest
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SignRepository {
     private val accountApi = AccountApi.create()
@@ -57,10 +60,10 @@ class SignRepository {
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun accountOnceToken(scope: CoroutineScope, success: (OnceTokenResponse?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)?= null) {
+    fun accountOnceToken(scope: CoroutineScope, success: (OnceTokenResponse?) -> Unit, error: (Int, String) -> Unit, finally: (() -> Unit)? = null) {
         doRequest(scope, {
-            accountApi.getAccountOnceToken()
-        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+                accountApi.getAccountOnceToken()
+            }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
     fun accountTotpConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {

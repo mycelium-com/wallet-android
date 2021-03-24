@@ -1,23 +1,25 @@
 package com.mycelium.bequant.remote.repositories
 
-import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.BequantConstants.KYC_ENDPOINT
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.BequantKYCApiService
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
 import com.mycelium.bequant.remote.client.RetrofitFactory.objectMapper
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.bequant.remote.model.*
+import com.mycelium.wallet.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.File
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class KYCRepository {
@@ -60,7 +62,7 @@ class KYCRepository {
         }, {})
     }
 
-    fun submit(scope: CoroutineScope, success: (() -> Unit),
+    fun submit(scope: CoroutineScope, success: ((response : SubmitResponse?) -> Unit),
                error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
         Api.signRepository.accountOnceToken(scope,
                 success = { onceTokenResponse ->
@@ -68,7 +70,7 @@ class KYCRepository {
                         doRequest(scope, {
                             service.submit(OnceToken(onceToken))
                         }, {
-                            success()
+                            success(it)
                         }, { code, msg ->
                             error?.invoke(code, msg)
                         }, finally)
@@ -146,6 +148,7 @@ class KYCRepository {
                         doRequest(scope,
                                 request = {
                                     service.kycToken(onceToken)
+                                   // service.kycToken("bf32a7f0-e4af-4ea7-b53a-a01df9001e38")
                                 },
                                 successBlock = {
                                     it?.message?.uuid?.let { uuid ->
@@ -165,6 +168,30 @@ class KYCRepository {
                 })
     }
 
+    fun sumSubToken(scope: CoroutineScope, success: ((SumSubTokenResponse) -> Unit),
+                    error: ((Int, String) -> Unit)? = null, finally: (() -> Unit)? = null) {
+        Api.signRepository.accountOnceToken(scope,
+                success = { onceTokenResponse ->
+                    onceTokenResponse?.token?.let { onceToken ->
+                        doRequest(scope,
+                                request = {
+                                    service.generateSumSubToken(SumSubTokenBody("basic", onceToken))
+                                    //service.generateSumSubToken(SumSubTokenBody("basic", "bf32a7f0-e4af-4ea7-b53a-a01df9001e38"))
+                                },
+                                successBlock = {
+                                    it?.let(success)
+                                },
+                                errorBlock = { code, msg ->
+                                    error?.invoke(code, msg)
+                                },
+                                finallyBlock = finally)
+                    }
+                }, error = { code, msg ->
+            error?.invoke(code, msg)
+            finally?.invoke()
+        })
+    }
+
     companion object {
         val retrofitBuilder by lazy { getBuilder() }
         val service by lazy {
@@ -180,7 +207,15 @@ class KYCRepository {
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
+                                    header("x-access-token", "xyz")
                                 }.build())
+                            }
+                            .apply {
+                                if (BuildConfig.DEBUG) {
+                                    addInterceptor(HttpLoggingInterceptor().apply {
+                                        level = HttpLoggingInterceptor.Level.BODY
+                                    })
+                                }
                             }
                             .build())
                     .addConverterFactory(NullOnEmptyConverterFactory())

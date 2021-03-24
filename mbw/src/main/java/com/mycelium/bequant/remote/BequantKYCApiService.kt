@@ -22,7 +22,7 @@ interface BequantKYCApiService {
                                         @Query("code") code: String): Response<KYCResponse>
 
     @POST("eapi/applicant/submit")
-    suspend fun submit(@Body onceToken: OnceToken): Response<KYCResponse>
+    suspend fun submit(@Body onceToken: OnceToken): Response<SubmitResponse>
 
     @Multipart
     @POST("eapi/applicant/fileupload")
@@ -36,4 +36,7 @@ interface BequantKYCApiService {
 
     @GET("eapi/applicant/getuuid")
     suspend fun kycToken(@Query("once-token") onceToken: String): Response<KYCTokenResponse>
+
+    @POST ("eapi/applicant/generate_sum_sub_token")
+    suspend fun generateSumSubToken(@Body request : SumSubTokenBody) : Response<SumSubTokenResponse>
 }

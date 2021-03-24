@@ -7,7 +7,7 @@ ext {
     androidMinSdkVersion = 19
     androidTargetSdkVersion = 29
     junitVersion = '4.12'
-    kotlin_version = '1.3.61'
+    kotlin_version = '1.4.31'
     coroutines_version = "1.3.0-M2"
     lifecycle_version = "2.1.0"
     gsonVersion = '2.8.5'

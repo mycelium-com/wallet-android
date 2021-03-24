@@ -38,19 +38,16 @@ class CallbackIncompleteFragment : Fragment(R.layout.fragment_bequant_kyc_incomp
             stepAdapter.submitList(listOf(
                     ItemStep(1, getString(R.string.personal_info),
                             if (BequantPreference.getKYCSectionStatus("personal_information")) StepState.ERROR else StepState.COMPLETE),
-                    ItemStep(2, getString(R.string.residential_address),
-                            if (BequantPreference.getKYCSectionStatus("residential_address")) StepState.ERROR else StepState.COMPLETE),
-                    ItemStep(3, getString(R.string.phone_number),
+                    ItemStep(2, getString(R.string.phone_number),
                             if (BequantPreference.getKYCSectionStatus("phone")) StepState.ERROR else StepState.COMPLETE),
-                    ItemStep(4, getString(R.string.doc_selfie),
+                    ItemStep(3, getString(R.string.doc_selfie),
                             if (BequantPreference.getKYCSectionStatus("documents")) StepState.ERROR else StepState.COMPLETE)))
         })
         stepAdapter.clickListener = {
             when (it) {
                 1 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
-                2 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
-                3 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
-                4 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
+                2 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))
+                3 -> findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditDocs(BequantPreference.getKYCRequest()))
             }
         }
         val kycStatusMsg = BequantPreference.getKYCStatusMessage()
@@ -64,9 +61,6 @@ class CallbackIncompleteFragment : Fragment(R.layout.fragment_bequant_kyc_incomp
             when {
                 BequantPreference.getKYCSectionStatus("personal_information") -> {
                     findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep1(BequantPreference.getKYCRequest()))
-                }
-                BequantPreference.getKYCSectionStatus("residential_address") -> {
-                    findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep2(BequantPreference.getKYCRequest()))
                 }
                 BequantPreference.getKYCSectionStatus("phone") -> {
                     findNavController().navigate(CallbackIncompleteFragmentDirections.actionEditStep3(BequantPreference.getKYCRequest()))

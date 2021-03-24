@@ -46,9 +46,8 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_bequant_kyc_final_pres
         stepper.adapter = stepAdapter
         stepAdapter.submitList(listOf(
                 ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE)
-                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE)
-                , ItemStep(3, getString(R.string.phone_number), StepState.COMPLETE)
-                , ItemStep(4, getString(R.string.doc_selfie), StepState.COMPLETE_EDITABLE)))
+                , ItemStep(2, getString(R.string.phone_number), StepState.COMPLETE)
+                , ItemStep(3, getString(R.string.doc_selfie), StepState.COMPLETE)))
         stepAdapter.clickListener = {
             when (it) {
                 4 -> findNavController().navigate(FinalPresubmitFragmentDirections.actionEditDocs(kycRequest))

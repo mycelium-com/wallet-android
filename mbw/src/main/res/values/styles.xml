@@ -640,4 +640,5 @@
         <item name="colorControlNormal">@color/bequant_yellow</item>
         <item name="android:colorControlNormal" tools:targetApi="lollipop">@color/bequant_yellow</item>
     </style>
+
 </resources>

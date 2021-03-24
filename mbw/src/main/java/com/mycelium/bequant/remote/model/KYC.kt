@@ -9,6 +9,7 @@ import java.util.*
 
 @Parcelize
 data class KYCRequest(
+        var email : String? = null,
         var phone: String? = null,
         var address_1: String? = null,
         var address_2: String? = null,
@@ -26,6 +27,7 @@ data class KYCRequest(
         @Transient var isResubmit: Boolean = false
 ) : Parcelable {
     fun toModel(applicant: KYCApplicant): KYCApplicant {
+        applicant.email = this.email ?: ""
         applicant.firstName = this.first_name
         applicant.lastName = this.last_name
         applicant.nationality = this.nationality
@@ -104,3 +106,12 @@ enum class KYCStatus {
     @JsonProperty("SIGNED-OFF")
     SIGNED_OFF
 }
+
+data class SumSubTokenBody(@JsonProperty("type") var type: String,
+                           @JsonProperty("once-token") var onceToken: String)
+
+data class SumSubTokenResponse(var token: String,
+                               var flowName : String,
+                               var url : String)
+
+data class SubmitResponse(var submitted : Boolean?)

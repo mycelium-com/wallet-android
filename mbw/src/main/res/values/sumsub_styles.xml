@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.SNSCore" parent="Theme.MaterialComponents.DayNight.NoActionBar" tools:override="true">
+        <item name="colorPrimaryDark">#17191B</item>
+        <item name="colorAccent">#49505C</item>
+        <item name="android:windowBackground">#17191B</item>
+        <item name="android:colorBackground">#17191B</item>
+        <item name="android:textViewStyle">@style/Widget.SNSTextView</item>
+        <item name="materialButtonStyle">@style/Widget.SNSButton</item>
+        <item name="sns_applicantDataFieldViewStyle">@style/SNSApplicantFieldStyle</item>
+        <item name="sns_applicantDataFieldLabelStyle">@style/Widget.SNSScreen.General.EditLabel</item>
+        <item name="sns_applicantDataFieldEditStyle">@style/Widget.SNSScreen.General.EditValue</item>
+        <item name="editTextStyle">@style/Widget.SNSScreen.General.EditValue</item>
+    </style>
+
+    <style name="Widget.SNSButton" parent="Widget.MaterialComponents.Button.UnelevatedButton" tools:override="true">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/bequant_gray_2</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="backgroundTint">@color/bequant_yellow</item>
+    </style>
+
+    <style name="Widget.SNSButton.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton" tools:override="true">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/bequant_yellow</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="strokeColor">@color/bequant_yellow</item>
+    </style>
+
+    <style name="Widget.SNSButton.Text" parent="Widget.MaterialComponents.Button.TextButton" tools:override="true">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/bequant_yellow</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.SNSBottomSheet.Modal" parent="@style/Widget.Design.BottomSheet.Modal" tools:override="true">
+        <item name="android:background">@drawable/sns_bg_bottom_sheet_dialog_fragment</item>
+    </style>
+
+    <style name="Widget.SNSBottomSheetDialog" parent="@style/Theme.Design.Light.BottomSheetDialog" tools:override="true">
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/Widget.SNSBottomSheet.Modal</item>
+    </style>
+
+    <style name="Widget.SNSScreen.General.Subtitle" parent="Widget.SNSTextView" tools:override="true">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="Widget.SNSScreen.General.Title" parent="Widget.SNSTextView" tools:override="true">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.SNSScreen.General.Powered" parent="Widget.SNSTextView" tools:override="true">
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textSize">8sp</item>
+    </style>
+
+
+    <style name="Widget.SNSScreen.Helper.Text" parent="Widget.SNSTextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">start</item>
+        <item name="android:textColor">#49505C</item>
+    </style>
+
+    <style name="Widget.SNSOverlay.Progress.Root" parent="Widget.SNSTextView">
+        <item name="android:background">@color/transparent</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="SNSApplicantFieldStyle">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+
+    <style name="Widget.SNSScreen.General.EditLabel" parent="Widget.SNSTextView" tools:override="true">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">@dimen/sns_margin_small</item>
+        <item name="android:paddingBottom">@dimen/sns_margin_small</item>
+    </style>
+
+    <style name="Widget.SNSScreen.General.EditValue" parent="Widget.AppCompat.EditText" tools:override="true">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textColorHint">#49505C</item>
+        <item name="android:background">#23262A</item>
+        <item name="android:paddingTop">@dimen/sns_margin_small</item>
+        <item name="android:paddingBottom">@dimen/sns_margin_small</item>
+        <item name="android:paddingStart">@dimen/sns_margin_small</item>
+        <item name="errorTextAppearance">@style/ErrorTextAppearance</item>
+    </style>
+
+    <style name="Widget.SNSScreen.Selector.Country.Label" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <item name="endIconTint">@color/sns_grey</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxBackgroundColor">@color/sns_grey_8</item>
+        <item name="boxStrokeColor">@color/sns_edit_text_box_color</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">1dp</item>
+        <item name="boxCornerRadiusBottomEnd">4dp</item>
+        <item name="boxCornerRadiusBottomStart">4dp</item>
+        <item name="boxCornerRadiusTopEnd">4dp</item>
+        <item name="boxCornerRadiusTopStart">4dp</item>
+        <item name="expandedHintEnabled">false</item>
+    </style>
+
+    <style name="Widget.SNSScreen.Selector.Title" parent="Widget.SNSScreen.General.Title">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:gravity">start</item>
+    </style>
+
+</resources>

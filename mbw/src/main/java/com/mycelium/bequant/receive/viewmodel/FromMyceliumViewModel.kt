@@ -25,7 +25,7 @@ class FromMyceliumViewModel : ViewModel() {
     fun loadBalance(currency:String, finally: () -> Unit) {
         Api.accountRepository.accountBalanceGet(viewModelScope, success = {
             val find = it?.find { it.currency == currency }
-            custodialBalance.value = find?.available
+            custodialBalance.value = find?.available ?: ""
         }, error = { _, message->
 
         }, finally = finally)
