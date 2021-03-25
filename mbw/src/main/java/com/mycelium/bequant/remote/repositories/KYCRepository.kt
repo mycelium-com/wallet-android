@@ -148,7 +148,6 @@ class KYCRepository {
                         doRequest(scope,
                                 request = {
                                     service.kycToken(onceToken)
-                                   // service.kycToken("bf32a7f0-e4af-4ea7-b53a-a01df9001e38")
                                 },
                                 successBlock = {
                                     it?.message?.uuid?.let { uuid ->
@@ -176,7 +175,6 @@ class KYCRepository {
                         doRequest(scope,
                                 request = {
                                     service.generateSumSubToken(SumSubTokenBody("basic", onceToken))
-                                    //service.generateSumSubToken(SumSubTokenBody("basic", "bf32a7f0-e4af-4ea7-b53a-a01df9001e38"))
                                 },
                                 successBlock = {
                                     it?.let(success)
