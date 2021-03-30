@@ -43,9 +43,11 @@ import androidx.fragment.app.Fragment
 import com.mycelium.view.ItemCentralizer
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter
 import com.mycelium.wallet.activity.main.adapter.ButtonClickListener
 import com.mycelium.wallet.activity.main.model.ActionButton
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBalanceContent
 import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
@@ -58,13 +60,14 @@ import com.mycelium.wallet.external.changelly.bch.ExchangeActivity
 import com.mycelium.wallet.external.partner.model.BuySellButton
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.main_buy_sell_fragment.*
 
 class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickListener {
     enum class ACTION {
-        BCH, ALT_COIN, BTC, FIO, ETH, ADS
+        BCH, ALT_COIN, BTC, FIO, ETH, ADS, BUY_SELL_ERC20
     }
 
     private lateinit var mbwManager: MbwManager
@@ -90,9 +93,15 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
 
     private fun recreateActions() {
         val actions = mutableListOf<ActionButton>()
-        if (mbwManager.selectedAccount is EthAccount) {
+        if (mbwManager.selectedAccount is AbstractEthERC20Account) {
             actions.add(ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)))
-            actions.add(ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)))
+            if (mbwManager.selectedAccount is ERC20Account &&
+                    SettingsPreference.getBuySellContent()?.exchangeList?.any { it.isActive() && isContentEnabled(it.parentId) && it.cryptoCurrencies.contains(mbwManager.selectedAccount.coinType.symbol) } == true) {
+                actions.add(ActionButton(ACTION.BUY_SELL_ERC20,
+                        getString(R.string.buy_sell_s_button, mbwManager.selectedAccount.coinType.symbol)))
+            } else {
+                actions.add(ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)))
+            }
             addAdsContent(actions)
         } else {
             val showButton = mbwManager.environmentSettings.buySellServices.any { input -> input!!.isEnabled(mbwManager) }
@@ -156,7 +165,12 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
         when (actionButton.id) {
             ACTION.BCH -> startActivity(Intent(activity, ExchangeActivity::class.java))
             ACTION.ALT_COIN -> startActivity(Intent(activity, ChangellyActivity::class.java))
-            ACTION.ETH, ACTION.BTC -> startActivity(Intent(activity, BuySellSelectActivity::class.java))
+            ACTION.ETH -> startActivity(Intent(activity, BuySellSelectActivity::class.java)
+                    .putExtra("currency", Utils.getEthCoinType()))
+            ACTION.BTC -> startActivity(Intent(activity, BuySellSelectActivity::class.java)
+                    .putExtra("currency", Utils.getBtcCoinType()))
+            ACTION.BUY_SELL_ERC20 -> startActivity(Intent(activity, BuySellSelectActivity::class.java)
+                    .putExtra("currency", mbwManager.selectedAccount.coinType))
             ACTION.FIO -> openFio(requireContext())
             ACTION.ADS -> if (actionButton.args.containsKey("data")) {
                 (actionButton.args.getSerializable("data") as BuySellButton?)?.let { data ->

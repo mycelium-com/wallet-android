@@ -15,5 +15,6 @@ data class BuySellItem(val title: String,
 data class BuySellBackCardItem(val title: String,
                                val description: String,
                                val iconUrl: String,
+                               @SerializedName("crypto-currencies") val cryptoCurrencies: List<String>,
                                val counties: List<String>,
                                val link: String) : CommonContent()

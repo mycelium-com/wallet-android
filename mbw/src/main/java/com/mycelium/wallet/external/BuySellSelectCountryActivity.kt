@@ -8,6 +8,8 @@ import androidx.core.widget.doOnTextChanged
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.adapter.BuySellSelectCountryAdapter
+import com.mycelium.wapi.wallet.Util
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import kotlinx.android.synthetic.main.activity_buysell_select_country.*
 
 
@@ -15,21 +17,23 @@ class BuySellSelectCountryActivity : AppCompatActivity(R.layout.activity_buysell
 
 
     private val adapter = BuySellSelectCountryAdapter()
-    private val availableCounties = SettingsPreference.getBuySellContent()?.exchangeList
-            ?.filter { it.isActive() && SettingsPreference.isContentEnabled(it.parentId) }
-            ?.flatMap { it.counties }?.toSet()?.sorted()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val currency = intent.getSerializableExtra("currency") as CryptoCurrency
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.select_your_country)
         list.adapter = adapter
         adapter.clickListener = {
-            finish()
-            startActivity(Intent(this, BuySellBackCardActivity::class.java)
+            startActivity(Intent(this, BuySellBankCardActivity::class.java)
                     .putExtras(intent)
                     .putExtra("country", it))
         }
+        val availableCounties = SettingsPreference.getBuySellContent()?.exchangeList
+                ?.filter { it.isActive() && SettingsPreference.isContentEnabled(it.parentId) &&
+                        it.cryptoCurrencies.contains(Util.trimTestnetSymbolDecoration(currency.symbol))
+                }
+                ?.flatMap { it.counties }?.toSet()?.sorted()
         adapter.submitList(availableCounties)
         search.doOnTextChanged { text, _, _, _ ->
             adapter.submitList(availableCounties?.filter { country ->

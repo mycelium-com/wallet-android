@@ -10,6 +10,8 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 import com.mycelium.wapi.wallet.Address;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 
@@ -20,7 +22,7 @@ public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
    }
 
    @Override
-   public void launchService(Activity activity, MbwManager mbwManager, Address activeReceivingAddress) {
+   public void launchService(Activity activity, MbwManager mbwManager, Address activeReceivingAddress, CryptoCurrency cryptoCurrency) {
       if (!mbwManager.getSelectedAccount().canSpend()) {
          new Toaster(activity).toast(R.string.lt_warning_watch_only_account, false);
          return;
@@ -46,7 +48,8 @@ public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
    public boolean isEnabled(MbwManager mbwManager) {
       return mbwManager.getLocalTraderManager().isLocalTraderEnabled()
               && mbwManager.getSelectedAccount().getCoinType() != EthMain.INSTANCE
-              && mbwManager.getSelectedAccount().getCoinType() != EthTest.INSTANCE;
+              && mbwManager.getSelectedAccount().getCoinType() != EthTest.INSTANCE
+              && !(mbwManager.getSelectedAccount() instanceof ERC20Account);
    }
 
    @Override

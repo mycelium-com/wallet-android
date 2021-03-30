@@ -15,6 +15,8 @@ import com.mycelium.wallet.activity.settings.SettingsPreference.getBuySellConten
 import com.mycelium.wallet.external.adapter.BuySellSelectAdapter
 import com.mycelium.wallet.external.adapter.BuySellSelectItem
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.buy_sell_service_selector.*
 
@@ -23,20 +25,20 @@ class BuySellSelectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.buy_sell_service_selector)
+        val currency = intent.getSerializableExtra("currency") as CryptoCurrency
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.buysell_bitcoin_title,
-                MbwManager.getInstance(this).selectedAccount.coinType.name)
-
+        supportActionBar?.title = getString(R.string.buysell_bitcoin_title, currency.name)
         val mbwManager = MbwManager.getInstance(this)
         lvServices.adapter = adapter
         val items: List<BuySellSelectItem> = mbwManager.environmentSettings.buySellServices.filter { it.isEnabled(mbwManager) }
                 .map { buySellService ->
+                    val account = mbwManager.selectedAccount
                     BuySellSelectItem(getString(buySellService.title),
-                            getString(buySellService.getDescription(mbwManager, mbwManager.selectedAccount.receiveAddress)),
+                            getString(buySellService.getDescription(mbwManager, account.receiveAddress), currency.name),
                             buySellService.getIcon(this),
                             null) {
-                        if (mbwManager.selectedAccount is WalletBtcAccount || mbwManager.selectedAccount is EthAccount) {
-                            buySellService.launchService(this@BuySellSelectActivity, mbwManager, mbwManager.selectedAccount.receiveAddress)
+                        if (account is WalletBtcAccount || account is EthAccount || account is ERC20Account) {
+                            buySellService.launchService(this@BuySellSelectActivity, mbwManager, account.receiveAddress, currency)
                         } else {
                             Toaster(this@BuySellSelectActivity).toast(R.string.buy_sell_select_activity_warning, true)
                         }
@@ -50,11 +52,6 @@ class BuySellSelectActivity : AppCompatActivity() {
                         }
                     }
                 } ?: listOf())
-
-        // if there is just one option, auto-click through
-        if (items.size == 1) {
-            items.first().listener?.invoke()
-        }
         adapter.submitList(items)
     }
 
