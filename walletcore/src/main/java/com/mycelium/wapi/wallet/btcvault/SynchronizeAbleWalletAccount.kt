@@ -41,7 +41,7 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<
      * @param syncMode the Mode to get the interval for
      * @return the interval in milliseconds
      */
-    private fun getSyncInterval(syncMode: SyncMode): Int? = MIN_SYNC_INTERVAL[syncMode.mode]
+    private fun getSyncInterval(syncMode: SyncMode): Int = MIN_SYNC_INTERVAL[syncMode.mode]!!
 
     /**
      * Synchronize this account
