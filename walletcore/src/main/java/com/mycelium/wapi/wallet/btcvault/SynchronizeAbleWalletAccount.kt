@@ -23,15 +23,12 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<
             return true
         }
 
+        val modeLastSync = lastSync[syncMode.mode]
+        // never synced for this mode before - just do it. now.
+                ?: return true
         // check how long ago the last sync for this mode
-        var lastSync: Date
-        return if (this.lastSync[syncMode.mode].also { lastSync = it!! } != null) {
-            val lastSyncAge = Date().time - lastSync.time
-            lastSyncAge > getSyncInterval(syncMode)!!
-        } else {
-            // never synced for this mode before - just do it. now.
-            true
-        }
+        val lastSyncAge = Date().time - modeLastSync.time
+        return lastSyncAge > getSyncInterval(syncMode)
     }
 
     /**
