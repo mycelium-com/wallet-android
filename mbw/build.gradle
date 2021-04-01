@@ -307,7 +307,6 @@ android {
                 sepaEth = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
                 sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
                 sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
-                mercurio = "https://exchange.mercuryo.io/?widget_id=839fe469-0088-485a-98c5-e1cd762059c9&utm_source=Mycelium&utm_medium=referral"
                 mediaFlowURL = "https://media.mycelium.com/wp-json/wp/v2/"
             }
             logger.info("Signing config is ", signingConfig)
@@ -346,7 +345,6 @@ android {
                 sepaEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
                 sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
                 sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
-                mercurio = "https://exchange.mercuryo.io/?widget_id=839fe469-0088-485a-98c5-e1cd762059c9&utm_source=Mycelium&utm_medium=referral"
                 mediaFlowURL = "http://media-dev.mycelium.com/wp-json/wp/v2/"
             }
             logger.info("Signing config is ", signingConfig)
@@ -377,7 +375,6 @@ android {
         variant.buildConfigField "String", "SEPA_ETH", "\"${flavor.ext.sepaEth}\""
         variant.buildConfigField "String", "SEPA_BUY_BITS_OF_GOLD", "\"${flavor.ext.sepaBuyBitsOfGold}\""
         variant.buildConfigField "String", "SEPA_SELL_BITS_OF_GOLD", "\"${flavor.ext.sepaSellBitsOfGold}\""
-        variant.buildConfigField "String", "MERCURIO", "\"${flavor.ext.mercurio}\""
         variant.buildConfigField "String", "MEDIA_FLOW_URL", "\"${flavor.ext.mediaFlowURL}\""
     }
 
