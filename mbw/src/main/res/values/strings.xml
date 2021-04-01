@@ -801,7 +801,7 @@
     <string name="lt_warning_watch_only_account">Current account is watch-only - select different account.</string>
 
 
-    <string name="refresh">refresh</string>
+    <string name="refresh">Refresh</string>
     <string name="xpriv_title">Extended private key</string>
     <string name="share_xpriv">Share extended private key</string>
     <string name="export_share_warning">Warning: You are about to share your private account data. Whoever gets hold of it can access all current and future funds in your account. Do you want to continue?</string>
@@ -1648,4 +1648,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="trusted_providers">Trusted providers</string>
     <string name="buy_crypto_safely">Buy and sell %s safely and easily using your debit/credit card.</string>
     <string name="buy_sell_s_button">BUY / SELL %s</string>
+    <string name="boost_look_ahead_button_label">Missing Transactions?</string>
 </resources>
