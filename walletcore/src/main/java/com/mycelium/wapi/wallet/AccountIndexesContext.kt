@@ -9,6 +9,6 @@ data class AccountIndexesContext(@JsonProperty("lastExternalIndexWithActivity") 
                                  @JsonProperty("firstMonitoredInternalIndex") var firstMonitoredInternalIndex: Int = 0)
     : Serializable {
     companion object {
-        private const val serialVersionUid = 1L
+        private const val serialVersionUID = 1L
     }
 }
