@@ -28,14 +28,10 @@ open class BtcvAddress(override val coinType: CryptoCurrency,
 
     override fun getSubType(): String = type.name
 
-    override fun getNetwork(): NetworkParameters? {
-        if (matchesNetwork(BTCVNetworkParameters.productionNetwork, version)) {
-            return BTCVNetworkParameters.productionNetwork
-        }
-        if (matchesNetwork(BTCVNetworkParameters.testNetwork, version)) {
-            return BTCVNetworkParameters.testNetwork
-        }
-        throw IllegalStateException("unknown network")
+    override fun getNetwork(): NetworkParameters? = when {
+        matchesNetwork(BTCVNetworkParameters.productionNetwork, version) -> BTCVNetworkParameters.productionNetwork
+        matchesNetwork(BTCVNetworkParameters.testNetwork, version) -> BTCVNetworkParameters.testNetwork
+        else -> throw IllegalStateException("unknown network")
     }
 
     private fun matchesNetwork(network: NetworkParameters, version: Byte): Boolean =
