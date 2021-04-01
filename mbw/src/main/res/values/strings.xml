@@ -1561,7 +1561,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
     <string name="bequant_deposit">Deposit</string>
     <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
-    <string name="bequant_trading_account">Trading Custodial Account</string>
+    <string name="bequant_trading_account">Trading Account</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
     <string name="step_n">Step %d</string>
     <string name="phone_number">Phone Number</string>
@@ -1638,7 +1638,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="enter_fio_name">Enter FIO Name you are requesting funds from</string>
     <string name="fio_recipient_invalid">Invalid FIO Name</string>
     <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
-    <string name="activate_trading_custodial_account">Activate Trading Custodial Account</string>
+    <string name="activate_trading_custodial_account">Activate Trading Account</string>
     <string name="service_unavailable">Service unavailable</string>
     <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
 </resources>
