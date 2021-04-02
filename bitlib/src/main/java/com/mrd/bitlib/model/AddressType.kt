@@ -12,6 +12,6 @@ enum class AddressType : Serializable {
     //P2SH_P2WSH // Not supported
 
     companion object {
-        private const val serialVersionUid = 1L
+        private const val serialVersionUID = 1L
     }
 }
