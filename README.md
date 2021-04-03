@@ -54,7 +54,7 @@ Windows type:
 Alternatively you can install the latest version from the [Play Store](https://play.google.com/store/apps/details?id=com.mycelium.wallet).
 
 If you cannot access the Play store, you can obtain the apk directly from the Mycelium Bitcoin
-Wallet [download page](https://wallet.mycelium.com/contact.html).
+Wallet [download page](https://mycelium-wallet.s3.amazonaws.com/apks/mbw-prodnet-release.apk).
 
 Deterministic builds
 ====================
