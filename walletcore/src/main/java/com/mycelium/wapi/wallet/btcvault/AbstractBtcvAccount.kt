@@ -1277,7 +1277,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return transform(tx, tx.height)
     }
 
-    fun getTransactionDetails(txid: Sha256Hash?): TransactionDetails {
+    fun getTransactionDetails(txid: Sha256Hash): TransactionDetails {
         // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
         // accounts. That should be ok as we write to the DB in a sane order.
         val tex = accountBacking.getTransaction(txid)
