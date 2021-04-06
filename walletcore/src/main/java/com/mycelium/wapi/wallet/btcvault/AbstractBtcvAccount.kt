@@ -82,11 +82,11 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val btcFee = fee as FeePerKbFee
-        val btcvTransaction = BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb)
-        val receivers = listOf(BtcvReceiver(btcvTransaction.destination!!, btcvTransaction.amount!!.valueAsLong))
         return try {
-            btcvTransaction.unsignedTx = createUnsignedTransaction(receivers, btcvTransaction.feePerKb!!.valueAsLong)
-            btcvTransaction
+            BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb).apply {
+                val receivers = listOf(BtcvReceiver(destination!!, amount.valueAsLong))
+                unsignedTx = createUnsignedTransaction(receivers, feePerKb!!.valueAsLong)
+            }
         } catch (ex: StandardTransactionBuilder.BtcOutputTooSmallException) {
             throw OutputTooSmallException(ex)
         } catch (ex: StandardTransactionBuilder.InsufficientBtcException) {
@@ -122,9 +122,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     protected fun postEvent(event: WalletManager.Event?) {
-        if (eventHandler != null) {
-            eventHandler!!.onEvent(this.id, event)
-        }
+        eventHandler?.onEvent(this.id, event)
     }
 
     /**
@@ -616,9 +614,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return true
     }
 
-    fun getTransaction(txid: Sha256Hash?): TransactionEx {
-        return accountBacking.getTransaction(txid)
-    }
+    fun getTransaction(txid: Sha256Hash): TransactionEx = accountBacking.getTransaction(txid)
 
     @Synchronized
     fun broadcastTransaction(transaction: BitcoinTransaction): BroadcastResult {
@@ -717,7 +713,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Synchronized
-    fun deleteTransaction(transactionId: Sha256Hash?): Boolean {
+    fun deleteTransaction(transactionId: Sha256Hash): Boolean {
         val tex = accountBacking.getTransaction(transactionId) ?: return false
         val tx = TransactionEx.toTransaction(tex)
         accountBacking.beginTransaction()

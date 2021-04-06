@@ -187,25 +187,24 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
                                             cipher: KeyCipher?, derivationType: BipDerivationType, addressFactory: AddressFactory<ADDRESS>): HDAccountKeyManager<ADDRESS>
                 where ADDRESS : Address {
 
+            fun storePlainAndEncrypted(id: ByteArray, plainBytes: ByteArray, secretBytes: ByteArray) {
+                secureKeyValueStore.encryptAndStoreValue(id, secretBytes, cipher)
+                secureKeyValueStore.storePlaintextValue(id, plainBytes)
+            }
+
             // Store the account root (xPub and xPriv) key
-            secureKeyValueStore.encryptAndStoreValue(getAccountNodeId(network, accountIndex, derivationType),
-                    accountRoot.toCustomByteFormat(), cipher)
-            secureKeyValueStore.storePlaintextValue(getAccountNodeId(network, accountIndex, derivationType),
-                    accountRoot.publicNode.toCustomByteFormat())
+            storePlainAndEncrypted(getAccountNodeId(network, accountIndex, derivationType),
+                    accountRoot.publicNode.toCustomByteFormat(), accountRoot.toCustomByteFormat())
 
             // Create the external chain root. Store the private node encrypted and the public node in plain text
             val externalChainRoot = accountRoot.createChildNode(0)
-            secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, false, derivationType),
-                    externalChainRoot.toCustomByteFormat(), cipher)
-            secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, false, derivationType),
-                    externalChainRoot.publicNode.toCustomByteFormat())
+            storePlainAndEncrypted(getChainNodeId(network, accountIndex, false, derivationType),
+                    externalChainRoot.publicNode.toCustomByteFormat(), externalChainRoot.toCustomByteFormat())
 
             // Create the change chain root. Store the private node encrypted and the public node in plain text
             val changeChainRoot = accountRoot.createChildNode(1)
-            secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, true, derivationType),
-                    changeChainRoot.toCustomByteFormat(), cipher)
-            secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, true, derivationType),
-                    changeChainRoot.publicNode.toCustomByteFormat())
+            storePlainAndEncrypted(getChainNodeId(network, accountIndex, true, derivationType),
+                    changeChainRoot.publicNode.toCustomByteFormat(), changeChainRoot.toCustomByteFormat())
             return HDAccountKeyManager(accountIndex, network, secureKeyValueStore, derivationType, addressFactory)
         }
 
