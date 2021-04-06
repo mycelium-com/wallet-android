@@ -879,9 +879,9 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     protected abstract fun getChangeAddress(vararg destinationAddresses: BtcvAddress): BtcvAddress
 
     @Synchronized
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value?, destinationAddress: BtcvAddress?): Value? {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcvAddress?): Value? {
         checkNotArchived()
-        val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse!!.valueAsLong))
+        val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.valueAsLong))
         var satoshis: Long = 0
 
         // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
