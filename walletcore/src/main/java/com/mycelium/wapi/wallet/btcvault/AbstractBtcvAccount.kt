@@ -1258,17 +1258,14 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         }
     }
 
-    inner class PrivateKeyRing(var _cipher: KeyCipher) : PublicKeyRing(), IPublicKeyRing, IPrivateKeyRing {
+    inner class PrivateKeyRing(private var cipher: KeyCipher) : PublicKeyRing(), IPublicKeyRing, IPrivateKeyRing {
         override fun findSignerByPublicKey(publicKey: PublicKey): BitcoinSigner {
             val privateKey: InMemoryPrivateKey? = try {
-                getPrivateKey(publicKey, _cipher)
+                getPrivateKey(publicKey, cipher)
             } catch (e: KeyCipher.InvalidKeyCipher) {
                 throw RuntimeException("Unable to decrypt private key for public key $publicKey")
             }
-            if (privateKey != null) {
-                return privateKey
-            }
-            throw RuntimeException("Unable to find private key for public key $publicKey")
+            return privateKey ?: throw RuntimeException("Unable to find private key for public key $publicKey")
         }
     }
 
