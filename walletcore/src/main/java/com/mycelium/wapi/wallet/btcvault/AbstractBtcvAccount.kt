@@ -1140,27 +1140,20 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     // Get all unspent outputs for this account
     val unspentTransactionOutputSummary: List<TransactionOutputSummary>
         // Transform it to a list of summaries
-        get() {
-            // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
-            // accounts. That should be ok as we write to the DB in a sane order.
-
-            // Get all unspent outputs for this account
-            return accountBacking.allUnspentOutputs
-                    .map {
-                        val script = ScriptOutput.fromScriptBytes(it.script)
-                        TransactionOutputSummary(it.outPoint, it.value, it.height,
-                                if (it.height == -1) {
-                                    0
-                                } else {
-                                    max(0, blockChainHeight - it.height + 1)
-                                },
-                                if (script == null) {
-                                    dummyAddress
-                                } else {
-                                    script.getAddress(network)
-                                })
-                    }.sorted()
-        }
+        // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+        // accounts. That should be ok as we write to the DB in a sane order.
+        // Get all unspent outputs for this account
+        get() = accountBacking.allUnspentOutputs
+                .map {
+                    val script = ScriptOutput.fromScriptBytes(it.script)
+                    TransactionOutputSummary(it.outPoint, it.value, it.height,
+                            if (it.height == -1) {
+                                0
+                            } else {
+                                max(0, blockChainHeight - it.height + 1)
+                            },
+                            script?.getAddress(network) ?: dummyAddress)
+                }.sorted()
 
     protected fun monitorYoungTransactions(): Boolean {
         val list = accountBacking.getYoungTransactions(5, blockChainHeight)
