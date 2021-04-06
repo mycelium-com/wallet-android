@@ -1272,7 +1272,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         }
     }
 
-    fun getTransactionSummary(txid: Sha256Hash?): TransactionSummary? {
+    fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
         val tx = accountBacking.getTransaction(txid)
         return transform(tx, tx.height)
     }
