@@ -905,11 +905,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
         // Create transaction builder
         val stb = StandardTransactionBuilder(network)
-        val destinationAddressType: AddressType = if (destinationAddress != null) {
-            destinationAddress.type
-        } else {
-            AddressType.P2PKH
-        }
+        val destinationAddressType: AddressType = destinationAddress?.type ?: AddressType.P2PKH
         // Try and add the output
         try {
             // Note, null address used here, we just use it for measuring the transaction size
