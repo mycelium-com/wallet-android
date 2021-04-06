@@ -962,7 +962,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(StandardTransactionBuilder.BtcOutputTooSmallException::class, StandardTransactionBuilder.InsufficientBtcException::class, StandardTransactionBuilder.UnableToBuildTransactionException::class)
-    fun createUnsignedTransaction(outputs: OutputList?, minerFeeToUse: Long): UnsignedTransaction {
+    fun createUnsignedTransaction(outputs: OutputList, minerFeeToUse: Long): UnsignedTransaction {
         checkNotArchived()
 
         // Determine the list of spendable outputs
