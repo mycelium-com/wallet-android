@@ -17,11 +17,11 @@ open class BtcvAddress(override val coinType: CryptoCurrency,
         return allAddressBytes
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as BtcvAddress
-        return Arrays.equals(allAddressBytes, that.allAddressBytes)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        other as BtcvAddress
+        return Arrays.equals(allAddressBytes, other.allAddressBytes)
     }
 
     override fun hashCode(): Int = Arrays.hashCode(allAddressBytes)
