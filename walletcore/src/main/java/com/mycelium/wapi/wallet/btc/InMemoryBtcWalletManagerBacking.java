@@ -27,7 +27,7 @@ import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 
 import java.util.*;
 
@@ -373,16 +373,6 @@ public class InMemoryBtcWalletManagerBacking implements BtcWalletManagerBacking<
          for (OutPoint outpoint : refersOutputs) {
             _txRefersParentTxOpus.put(txId, outpoint);
          }
-      }
-
-      @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-
-      }
-
-      @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         return null;
       }
 
       @Override

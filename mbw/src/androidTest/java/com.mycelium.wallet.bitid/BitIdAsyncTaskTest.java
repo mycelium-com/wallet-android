@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.squareup.otto.Subscribe;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
@@ -34,7 +34,7 @@ public class BitIdAsyncTaskTest {
    @Test
    public void testBitcoinblueExpiredNonce() throws Exception {
       InMemoryPrivateKey privateKey = new InMemoryPrivateKey("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
-      Address address = Address.fromString("1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj");
+      BitcoinAddress address = BitcoinAddress.fromString("1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj");
       BitIDSignRequest bitid = BitIDSignRequest.parse(Uri.parse("bitid://bitid.bitcoin.blue/callback?x=e7befd6d54c306ef&u=1")).get();
       new BitIdAsyncTask(new BitIdAuthenticator(bitid, true, privateKey, address), bus).execute();
 
@@ -47,7 +47,7 @@ public class BitIdAsyncTaskTest {
    @Test
    public void testBitcoinblueInvalidSignature() throws Exception {
       InMemoryPrivateKey privateKey = new InMemoryPrivateKey("5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF", NetworkParameters.productionNetwork);
-      Address address = Address.fromString("17Dwg2Xx4RVaQgg8crbkvrT8WxNSQYuqLz"); //does not match the priv key
+      BitcoinAddress address = BitcoinAddress.fromString("17Dwg2Xx4RVaQgg8crbkvrT8WxNSQYuqLz"); //does not match the priv key
       BitIDSignRequest bitid = BitIDSignRequest.parse(Uri.parse("bitid://bitid.bitcoin.blue/callback?x=e7befd6d54c306ef&u=1")).get();
       new BitIdAsyncTask(new BitIdAuthenticator(bitid, true, privateKey, address), bus).execute();
 

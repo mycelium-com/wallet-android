@@ -20,9 +20,9 @@ class NewsV2Holder(itemView: View, val preferences: SharedPreferences) : Recycle
     var openClickListener: ((News) -> Unit)? = null
 
     fun bind(news: News) {
-        itemView.title.text = Html.fromHtml(news.title)
+        itemView.title.text = Html.fromHtml(news.title.rendered)
         itemView.date.text = NewsUtils.getDateString(itemView.date.context, news)
-        itemView.author.text = news.author?.name
+        itemView.tvAuthor.text = news.author?.name
 
         itemView.setOnClickListener {
             openClickListener?.invoke(news)
@@ -31,13 +31,13 @@ class NewsV2Holder(itemView: View, val preferences: SharedPreferences) : Recycle
         itemView.favoriteButton.visibility = if (news.isFavorite(preferences)) View.VISIBLE else View.GONE
 
         val requestOptions = RequestOptions()
-                .transforms(CenterCrop(), RoundedCorners(itemView.image.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))
-        Glide.with(itemView.image)
-                .load(news.getFitImage(itemView.image.resources.displayMetrics.widthPixels))
-                .error(Glide.with(itemView.image)
+                .transforms(CenterCrop(), RoundedCorners(itemView.ivImage.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))
+        Glide.with(itemView.ivImage)
+                .load(news.getFitImage(itemView.ivImage.resources.displayMetrics.widthPixels))
+                .error(Glide.with(itemView.ivImage)
                         .load(R.drawable.mediaflow_default_picture)
                         .apply(requestOptions))
                 .apply(requestOptions)
-                .into(itemView.image)
+                .into(itemView.ivImage)
     }
 }

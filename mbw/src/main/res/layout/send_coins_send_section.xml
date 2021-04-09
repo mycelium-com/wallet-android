@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_activity">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.send.model.SendCoinsModel.TransactionStatus" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+    <merge>
+
+        <Button
+            android:id="@+id/btSend"
+            style="@style/MyceliumButton.FIO"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/horizontal_page_margin"
+            android:layout_marginEnd="@dimen/horizontal_page_margin"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="60dp"
+            android:textSize="20sp"
+            android:enabled="@{viewModel.getTransactionStatus == TransactionStatus.OK}"
+            android:onClick="@{_ -> activity.onClickSend()}"
+            android:text="@string/send"
+             />
+    </merge>
+</layout>

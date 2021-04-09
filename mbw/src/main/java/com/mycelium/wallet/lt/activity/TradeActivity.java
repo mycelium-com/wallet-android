@@ -69,10 +69,12 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.ChatMessageEncryptionKey.InvalidChatMessage;
@@ -83,7 +85,8 @@ import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -96,7 +99,7 @@ import com.mycelium.wallet.lt.api.DeleteTradeHistory;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -114,8 +117,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
 
 public class TradeActivity extends AppCompatActivity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
@@ -373,10 +376,13 @@ public class TradeActivity extends AppCompatActivity {
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
       checkNotNull(ts.buyerAddress);
       WalletAccount acc = mbwManager.getSelectedAccount();
-
+      long feeEstimation = mbwManager.getFeeProvider(acc.getCoinType())
+              .getEstimation()
+              .getNormal()
+              .getValueAsLong();
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
+            ts.buyerAddress, ts.feeAddress, acc, feeEstimation);
       CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
       BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
       Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
@@ -494,7 +500,7 @@ public class TradeActivity extends AppCompatActivity {
                   intent.setData(uri);
                   startActivity(intent);
                   String toast = getString(R.string.lt_going_to_website, uri.getHost());
-                  Toast.makeText(TradeActivity.this, toast, Toast.LENGTH_LONG).show();
+                  new Toaster(TradeActivity.this).toast(toast, false);
                }
             }
          }
@@ -539,8 +545,7 @@ public class TradeActivity extends AppCompatActivity {
                String text = tvMessage.getText().toString();
                //set the message to clipboard
                Utils.setClipboardString(text, TradeActivity.this);
-               String toast = getString(R.string.lt_copied_to_clipboard);
-               Toast.makeText(TradeActivity.this, toast, Toast.LENGTH_LONG).show();
+               new Toaster(TradeActivity.this).toast(R.string.lt_copied_to_clipboard, false);
                return true;
             }
          }
@@ -871,11 +876,11 @@ public class TradeActivity extends AppCompatActivity {
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendMainActivity.SIGNED_TRANSACTION));
+            Transaction signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION));
             BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
-            Transaction tx = btcTransaction.getTx();
+            BitcoinTransaction tx = btcTransaction.getTx();
             if (tx == null) {
-               Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
+               new Toaster(TradeActivity.this).toast(R.string.lt_cannot_affort_trade, false);
                return;
             }
             disableButtons();
@@ -889,7 +894,7 @@ public class TradeActivity extends AppCompatActivity {
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
       @Override
       public void onLtError(int errorCode) {
-         Toast.makeText(TradeActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+         new Toaster(TradeActivity.this).toast(R.string.lt_error_api_occurred, false);
          finish();
       }
 

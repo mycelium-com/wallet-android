@@ -35,28 +35,41 @@
 package com.mycelium.wallet;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.StrictMode;
-import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
-import androidx.appcompat.app.AppCompatDelegate;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.multidex.MultiDexApplication;
+
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
+import com.mycelium.wallet.fio.FioRequestNotificator;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -76,11 +89,17 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     @Override
     public void onCreate() {
-        int loadedBouncy = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+
+        // Android registers its own BC provider. As it might be outdated and might not include
+        // all needed ciphers, we substitute it with a known BC bundled in the app.
+        // Android's BC has its package rewritten to "com.android.org.bouncycastle" and because
+        // of that it's possible to have another BC implementation loaded in VM.
+        Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
+        int loadedBouncy = Security.insertProviderAt(new BouncyCastleProvider(), 1);
         if(loadedBouncy == -1) {
-            Log.e("WalletApplication", "Failed to insert spongy castle provider");
+            Log.e("WalletApplication", "Failed to insert security provider");
         } else {
-            Log.d("WalletApplication", "Inserted spongy castle provider");
+            Log.d("WalletApplication", "Inserted security provider");
         }
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
@@ -90,27 +109,54 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                     .build());
         }
         super.onCreate();
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Prompt the user to install/update/enable Google Play services.
+            GoogleApiAvailability.getInstance().showErrorNotification(this, e.getConnectionStatusCode());
+        } catch (GooglePlayServicesNotAvailableException ignore) {
+        }
         CommunicationManager.init(this);
         moduleMessageReceiver = new MbwMessageReceiver(this);
-        applyLanguageChange(getBaseContext(), getLanguage());
+        applyLanguageChange(getBaseContext(), SettingsPreference.getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
         PackageRemovedReceiver.register(getApplicationContext());
-        NewsDatabase.INSTANCE.initialize(this);
-        NewsSyncUtils.startNewsUpdateRepeating(this);
+        if(isMainProcess()) {
+            NewsDatabase.INSTANCE.initialize(this);
+            if(SettingsPreference.getMediaFlowEnabled()) {
+                NewsSyncUtils.startNewsUpdateRepeating(this);
+            }
+        }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+        FioRequestNotificator.initialize(this);
+
+        UpdateConfigWorker.start(this);
+    }
+
+    private boolean isMainProcess() {
+        String currentProcName = "";
+        int pid = android.os.Process.myPid();
+        ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager != null) {
+            List<RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
+            if (runningAppProcesses != null) {
+                for (RunningAppProcessInfo processInfo : runningAppProcesses) {
+                    if (processInfo.pid == pid) {
+                        currentProcName = processInfo.processName;
+                        break;
+                    }
+                }
+            }
+        }
+        return getPackageName().equals(currentProcName);
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
         networkChangedReceiver = new NetworkChangedReceiver();
         registerReceiver(networkChangedReceiver, connectivityChangeFilter);
-    }
-
-    private String getLanguage() {
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
-        return sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
@@ -164,6 +210,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);
+        UpdateConfigWorker.end(this);
     }
 
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {
@@ -182,7 +229,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             if (numStarted == 0 && isBackground) {
                 // app returned from background
                 MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
-                mbwManager.getWapi().setAppInForeground(true);
+                mbwManager.setAppInForeground(true);
                 // as monitoring the connection state doesn't work in background, establish the
                 // right connection state here.
                 boolean connected = Utils.isConnected(getApplicationContext());
@@ -208,9 +255,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
-                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(false);
+                MbwManager.getInstance(getApplicationContext()).setAppInForeground(false);
                 isBackground = true;
             }
+            Toaster.onStop();
         }
 
         @Override

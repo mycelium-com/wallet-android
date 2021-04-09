@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/supportCenter" android:title="@string/support_center" />
+    <item
+        android:id="@+id/kyc"
+        android:title="@string/kyc" />
+    <item android:title="@string/about" />
+    <item android:title="@string/legal_information" />
+    <item
+        android:id="@+id/logIn"
+        android:title="@string/log_in" />
+    <item
+        android:id="@+id/logOut"
+        android:title="@string/log_out" />
+</menu>

@@ -1,0 +1,22 @@
+import com.mycelium.wapi.wallet.coins.AssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
+import java.util.UUID;
+
+-- Creates table for generic account context storage
+
+CREATE TABLE IF NOT EXISTS FeeEstimation (
+    currency TEXT AS AssetInfo PRIMARY KEY,
+    low TEXT AS Value NOT NULL,
+    economy TEXT AS Value NOT NULL,
+    normal TEXT AS Value NOT NULL,
+    high TEXT AS Value NOT NULL,
+    lastCheck INTEGER AS Long NOT NULL
+);
+
+selectByCurrency:
+SELECT * FROM FeeEstimation
+WHERE currency = (?);
+
+insertFullObject:
+INSERT OR REPLACE INTO FeeEstimation(currency, low, economy, normal, high, lastCheck)
+VALUES ?;

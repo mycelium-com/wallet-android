@@ -46,7 +46,8 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 
 public class HandleUrlActivity extends Activity {
@@ -94,7 +95,7 @@ public class HandleUrlActivity extends Activity {
                // handle the payment request
                MbwManager mbw = MbwManager.getInstance(HandleUrlActivity.this);
 
-               Intent intent = SendMainActivity.getIntent(
+               Intent intent = SendCoinsActivity.getIntent(
                      HandleUrlActivity.this,
                      mbw.getSelectedAccount().getId(),
                      paymentRequestAsyncTaskResult.paymentRequest.getRawPaymentRequest(),
@@ -105,10 +106,10 @@ public class HandleUrlActivity extends Activity {
                // if its not a payment request, open the url in the browser...
                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
                if (browserIntent.resolveActivity(HandleUrlActivity.this.getPackageManager()) != null) {
-                  Toast.makeText(HandleUrlActivity.this, R.string.opening_url_in_browser, Toast.LENGTH_LONG).show();
+                  new Toaster(HandleUrlActivity.this).toast(R.string.opening_url_in_browser, false);
                   HandleUrlActivity.this.startActivity(browserIntent);
                } else {
-                  Toast.makeText(HandleUrlActivity.this, R.string.error_no_browser, Toast.LENGTH_LONG).show();
+                  new Toaster(HandleUrlActivity.this).toast(R.string.error_no_browser, false);
                }
             }
             HandleUrlActivity.this.finish();

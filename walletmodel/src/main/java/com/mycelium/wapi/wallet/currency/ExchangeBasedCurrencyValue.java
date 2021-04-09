@@ -196,7 +196,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
          targetExchangeRate = null;
 
          if (!sourceCurrency.equals(BTC)) {
-            sourceExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency);
+            sourceExchangeRate = exchangeRateManager.getExchangeRate(targetCurrency, sourceCurrency);
             if (sourceExchangeRate != null && sourceExchangeRate.price != null) {
                sourcePrice = BigDecimal.valueOf(sourceExchangeRate.price);
             }
@@ -205,7 +205,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
          }
 
          if (!targetCurrency.equals(BTC)) {
-            targetExchangeRate = exchangeRateManager.getExchangeRate(targetCurrency);
+            targetExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency, targetCurrency);
             if (targetExchangeRate != null && targetExchangeRate.price != null) {
                targetPrice = BigDecimal.valueOf(targetExchangeRate.price);
             }

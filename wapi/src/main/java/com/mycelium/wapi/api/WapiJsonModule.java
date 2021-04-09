@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -54,7 +54,7 @@ public class WapiJsonModule extends SimpleModule {
    static {
       DESERIALIZERS = new HashMap<Class<?>, JsonDeserializer<?>>();
       DESERIALIZERS.put(Bitcoins.class, new BitcoinDeserializer());
-      DESERIALIZERS.put(Address.class, new AddressDeserializer());
+      DESERIALIZERS.put(BitcoinAddress.class, new AddressDeserializer());
       DESERIALIZERS.put(PublicKey.class, new PublicKeyDeserializer());
       DESERIALIZERS.put(Sha256Hash.class, new Sha256HashDeserializer());
       DESERIALIZERS.put(OutPoint.class, new OutPointDeserializer());
@@ -82,14 +82,14 @@ public class WapiJsonModule extends SimpleModule {
       }
    }
 
-   private static class AddressDeserializer extends JsonDeserializer<Address> {
+   private static class AddressDeserializer extends JsonDeserializer<BitcoinAddress> {
 
       @Override
-      public Address deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
+      public BitcoinAddress deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
             JsonProcessingException {
          ObjectCodec oc = jp.getCodec();
          JsonNode node = oc.readTree(jp);
-         Address address = Address.fromString(node.asText());
+         BitcoinAddress address = BitcoinAddress.fromString(node.asText());
          if (address == null) {
             throw new JsonParseException("Failed to convert string '" + node.asText() + "' into an address",
                   JsonLocation.NA);
@@ -114,17 +114,17 @@ public class WapiJsonModule extends SimpleModule {
 
    }
 
-   private static class AddressSerializer extends JsonSerializer<Address> {
+   private static class AddressSerializer extends JsonSerializer<BitcoinAddress> {
 
       @Override
-      public void serialize(Address value, JsonGenerator jgen, SerializerProvider provider) throws IOException,
+      public void serialize(BitcoinAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException,
             JsonProcessingException {
          jgen.writeString(value.toString());
       }
 
       @Override
-      public Class<Address> handledType() {
-         return Address.class;
+      public Class<BitcoinAddress> handledType() {
+         return BitcoinAddress.class;
       }
 
    }

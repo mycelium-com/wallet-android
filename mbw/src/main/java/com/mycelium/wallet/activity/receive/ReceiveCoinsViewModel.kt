@@ -1,26 +1,38 @@
 package com.mycelium.wallet.activity.receive
 
+import android.app.Activity
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.Transformations
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
+import com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity
+import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity.Companion.MANUAL_ENTRY_RESULT_CODE
+import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fio.FioModule
 
-abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewModel(context) {
-    protected val mbwManager = MbwManager.getInstance(context)!!
+abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewModel(application) {
+    protected val mbwManager = MbwManager.getInstance(application)
     protected lateinit var model: ReceiveCoinsModel
     protected lateinit var account: WalletAccount<*>
+    protected val context: Context = application
     var hasPrivateKey: Boolean = false
+    val isNfcAvailable = MutableLiveData<Boolean>()
 
     open fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
         if (::model.isInitialized) {
@@ -38,14 +50,16 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         model.saveInstance(outState)
     }
 
-    open fun getHint() = context.getString(R.string.amount_hint_denomination,
-            mbwManager.denomination.getUnicodeString(account.coinType.symbol))
+    open fun getHint(): String = context.getString(R.string.amount_hint_denomination,
+            mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
 
     abstract fun getFormattedValue(sum: Value): String
 
     abstract fun getTitle(): String
 
     abstract fun getCurrencyName(): String
+
+    fun getCurrencySymbol():String = account.coinType.symbol
 
     override fun onCleared() = model.onCleared()
 
@@ -63,9 +77,11 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getReceivingAddress() = model.receivingAddress
 
+    fun getFioNameList() = model.fioNameList
+
     fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
         if (!Value.isNullOrZero(it)) {
-            it?.toStringWithUnit(mbwManager.denomination)
+            it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
             ""
         }
@@ -75,13 +91,15 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
         if (!Value.isNullOrZero(it)) {
-            "~ " + it?.toStringWithUnit(mbwManager.denomination)
+            "~ " + it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
             ""
         }
     }
 
-    fun isNfcAvailable() = model.nfc?.isNdefPushEnabled == true
+    fun checkNfcAvailable() {
+        isNfcAvailable.value = model.nfc?.isNdefPushEnabled == true
+    }
 
     fun getNfc() = model.nfc
 
@@ -103,6 +121,16 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         }
     }
 
+    fun shareFioNameRequest() {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+
+        intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.fio_name))
+        intent.putExtra(Intent.EXTRA_TEXT, model.receivingFioName.value.toString())
+        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_fio_name))
+                .addFlags(FLAG_ACTIVITY_NEW_TASK))
+    }
+
     fun copyToClipboard() {
         val text = if (Value.isNullOrZero(model.amount.value)) {
             model.receivingAddress.value.toString()
@@ -110,13 +138,24 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
             getPaymentUri()
         }
         Utils.setClipboardString(text, context)
+        Toaster(context).toast(R.string.copied_to_clipboard, true)
+    }
+
+    fun copyFioNameToClipboard() {
+        val text = model.receivingFioName.value.toString()
+        Utils.setClipboardString(text, context)
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
+    fun onFioNameSelected(value: Any?) {
+        model.receivingFioName.value = value?.toString()
+    }
+
     fun setAmount(amount: Value) {
-        if(amount.type == account.coinType) {
+        if (amount.type == account.coinType) {
             model.setAmount(amount)
-            val value = mbwManager.exchangeRateManager.get(amount, mbwManager.fiatCurrency)
+            val value = mbwManager.exchangeRateManager.get(amount,
+                    mbwManager.getFiatCurrency(account.coinType))
                     ?: Value.zeroValue(account.coinType)
             model.setAlternativeAmount(value)
         } else {
@@ -136,6 +175,45 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
             GetAmountActivity.callMeToReceive(activity, amount.value,
                     GET_AMOUNT_RESULT_CODE, model.account.coinType)
         }
+    }
+
+    var fioAddressForRequest = ""
+    var addressResult: Address? = null
+
+    private val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+
+    val hasFioAccounts = fioModule.getAccounts().isNotEmpty()
+
+    open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GET_AMOUNT_RESULT_CODE) {
+                // Get result from address chooser (may be null)
+                val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
+                amount?.let {
+                    setAmount(amount)
+                }
+            } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && !data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO).isNullOrBlank()) {
+                fioAddressForRequest = data?.getStringExtra(ManualAddressEntry.ADDRESS_RESULT_FIO)!!
+                addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
+                val value = getRequestedAmount().value
+                if (fioModule.getFIONames(account).isNotEmpty()) {
+                    FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
+                    activity.finish()
+                } else {
+                    AccountMappingActivity.startForMapping(activity, account, ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING)
+                }
+            } else if (requestCode == ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING) {
+                if (fioModule.getFIONames(account).isNotEmpty()) {
+                    FioRequestCreateActivity.start(activity, getRequestedAmount().value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
+                }
+            }
+        }
+    }
+
+    fun createFioRequest(activity: Activity) {
+        val intent = Intent(activity, ManualAddressEntry::class.java)
+                .putExtra(ManualAddressEntry.FOR_FIO_REQUEST, true)
+        activity.startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE)
     }
 
     companion object {

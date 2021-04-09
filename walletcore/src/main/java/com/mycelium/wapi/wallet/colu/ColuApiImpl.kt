@@ -1,8 +1,8 @@
 package com.mycelium.wapi.wallet.colu
 
-import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.model.Transaction
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.model.BitcoinTransaction
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
@@ -15,27 +15,27 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
 
     @Throws(IOException::class)
     override fun prepareTransaction(toAddress: BtcAddress, fromBtcAddress: List<BtcAddress>, amount: Value, txFee: Value): ColuBroadcastTxHex.Json? {
-        val fromAddress = mutableListOf<Address>()
+        val fromAddress = mutableListOf<BitcoinAddress>()
         fromBtcAddress.forEach {
             fromAddress.add(it.address)
         }
-        return coluClient.prepareTransaction(toAddress.address, fromAddress, amount, txFee.value)
+        return coluClient.prepareTransaction(toAddress.address, fromAddress, amount, txFee.valueAsLong)
 
     }
 
     @Throws(IOException::class)
-    override fun broadcastTx(coluSignedTransaction: Transaction): String? {
+    override fun broadcastTx(coluSignedTransaction: BitcoinTransaction): String? {
         val result = coluClient.broadcastTransaction(coluSignedTransaction)
         return result.txid
     }
 
     @Throws(IOException::class)
-    override fun getAddressTransactions(address: GenericAddress): AddressTransactionsInfo.Json {
+    override fun getAddressTransactions(address: Address): AddressTransactionsInfo.Json {
         return coluClient.getAddressTransactions(address.toString())
     }
 
     @Throws(IOException::class)
-    override fun getCoinTypes(address: Address): List<ColuMain> {
+    override fun getCoinTypes(address: BitcoinAddress): List<ColuMain> {
         val assetsList = mutableListOf<ColuMain>()
         try {
             val addressInfo = coluClient.getBalance(address)

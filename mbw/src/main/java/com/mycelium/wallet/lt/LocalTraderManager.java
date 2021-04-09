@@ -42,10 +42,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.lt.ApiUtils;
 import com.mycelium.lt.ChatMessageEncryptionKey;
 import com.mycelium.lt.api.LtApi;
@@ -63,7 +62,6 @@ import com.mycelium.wallet.lt.api.CreateTrade;
 import com.mycelium.wallet.lt.api.Request;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 
-import java.io.IOException;
 import java.util.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -83,7 +81,7 @@ public class LocalTraderManager {
     private LtSession session;
     final private List<Request> requestList;
     private boolean isLoggedIn;
-    private Address localTraderAddress;
+    private BitcoinAddress localTraderAddress;
     private long lastTraderSynchronization;
     private long lastTraderNotification;
     private GpsLocationEx currentLocation;
@@ -119,7 +117,7 @@ public class LocalTraderManager {
         // Address
         String addressString = preferences.getString(Constants.LOCAL_TRADER_ADDRESS_SETTING, null);
         if (addressString != null) {
-            localTraderAddress = Address.fromString(addressString, this.mbwManager.getNetwork());
+            localTraderAddress = BitcoinAddress.fromString(addressString, this.mbwManager.getNetwork());
             // May be null
         }
         // Private key, may be null even if we have an address. This happens in the upgrade scenario where it is set later
@@ -270,7 +268,7 @@ public class LocalTraderManager {
             try {
                 // Get new session
                 session = api.createSession(LtApi.VERSION, mbwManager.getLanguage(),
-                                            mbwManager.getDenomination().getAsciiString(Utils.getBtcCoinType().getSymbol())).getResult();
+                        mbwManager.getDenomination(Utils.getBtcCoinType()).getAsciiString(Utils.getBtcCoinType().getSymbol())).getResult();
                 isLoggedIn = false;
                 return true;
             } catch (LtApiException e) {
@@ -538,7 +536,7 @@ public class LocalTraderManager {
         return nickname;
     }
 
-    public Address getLocalTraderAddress() {
+    public BitcoinAddress getLocalTraderAddress() {
         return localTraderAddress;
     }
 
@@ -574,7 +572,7 @@ public class LocalTraderManager {
         .apply();
     }
 
-    public void setLocalTraderData(UUID accountId, InMemoryPrivateKey privateKey, Address address, String nickname) {
+    public void setLocalTraderData(UUID accountId, InMemoryPrivateKey privateKey, BitcoinAddress address, String nickname) {
         session = null;
         localTraderAddress = checkNotNull(address);
         localTraderAccountId = checkNotNull(accountId);

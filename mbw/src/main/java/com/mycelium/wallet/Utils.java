@@ -52,10 +52,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import androidx.annotation.StringRes;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,6 +66,11 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -82,22 +83,25 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.api.lib.CurrencyCode;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -109,7 +113,9 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
@@ -117,13 +123,28 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.erc20.ERC20Account;
+import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
+import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.fio.coins.FIOMain;
+import com.mycelium.wapi.wallet.fio.coins.FIOTest;
+import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
+import org.ocpsoft.prettytime.units.Minute;
+import org.ocpsoft.prettytime.units.Second;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -134,6 +155,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;
@@ -234,8 +256,7 @@ public class Utils {
    }
 
    public static void toastConnectionError(Context context) {
-      int resId = isConnected(context) ? R.string.no_server_connection : R.string.no_network_connection;
-      Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
+      new Toaster(context).toastConnectionError();
    }
 
    public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
@@ -263,46 +284,69 @@ public class Utils {
     * for ru locale Duration should be not in past and not in future
     * otherwise library add "через" or "назад"
     */
-   public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
-      MbwManager mbwManager = MbwManager.getInstance(context);
+   public static String formatBlockcountAsApproxDuration(MbwManager mbwManager, final int blocks, final int blockTimeInSeconds) {
       PrettyTime p = new PrettyTime(mbwManager.getLocale());
-      Date date = new Date((new Date()).getTime() + Math.max((long) blocks, 1L) * 10 * 60 * 1000);
-      final Duration duration = p.approximateDuration(date);
-      if (mbwManager.getLocale().getLanguage().equals("ru")) {
-         Duration duration1 = new Duration(){
-            @Override
-            public long getQuantity() {
-               return duration.getQuantity();
-            }
-
-            @Override
-            public long getQuantityRounded(int tolerance) {
-               return duration.getQuantityRounded(tolerance);
-            }
-
-            @Override
-            public TimeUnit getUnit() {
-               return duration.getUnit();
-            }
-
-            @Override
-            public long getDelta() {
-               return duration.getDelta();
-            }
-
-            @Override
-            public boolean isInPast() {
-               return false;
-            }
-
-            @Override
-            public boolean isInFuture() {
-               return false;
-            }
-         };
-         return p.getFormat(duration1.getUnit()).decorate(duration1, p.formatDuration(duration1));
-      } else {
+      long confirmationTime = Math.max((long) blocks, 1L) * blockTimeInSeconds * 1000;
+      Date ref = new Date();
+      Date then = new Date(ref.getTime() + confirmationTime);
+      long absoluteDifference = Math.abs(then.getTime() - ref.getTime());
+      Duration duration = p.approximateDuration(then);
+      // for time differences less than 5 minutes (300000 millisecs) PrettyTime lib functionality
+      // is not satisfactory for our purposes, so we are using custom duration otherwise
+      if (absoluteDifference > 300000 && !mbwManager.getLocale().getLanguage().equals("ru")) {
          return p.formatDuration(duration);
+      }
+      Duration customDuration = new Duration() {
+         @Override
+         public long getQuantity() {
+            if (absoluteDifference <= 300000) {
+               return absoluteDifference / getUnit().getMillisPerUnit();
+            }
+            return duration.getQuantity();
+         }
+
+         @Override
+         public long getQuantityRounded(int tolerance) {
+            if (absoluteDifference <= 300000) {
+               return getQuantity();
+            }
+            return duration.getQuantityRounded(tolerance);
+         }
+
+         @Override
+         public TimeUnit getUnit() {
+            if (absoluteDifference <= 300000) {
+               if (absoluteDifference > 60000) {
+                  return p.getUnit(Minute.class);
+               } else {
+                  return p.getUnit(Second.class);
+               }
+            }
+            return duration.getUnit();
+         }
+
+         @Override
+         public long getDelta() {
+            if (absoluteDifference <= 300000) {
+               return 0;
+            }
+            return duration.getDelta();
+         }
+
+         @Override
+         public boolean isInPast() {
+            return false;
+         }
+
+         @Override
+         public boolean isInFuture() {
+            return false;
+         }
+      };
+      if (mbwManager.getLocale().getLanguage().equals("ru")) {
+         return p.getFormat(customDuration.getUnit()).decorate(customDuration, p.formatDuration(customDuration));
+      } else {
+         return p.formatDuration(customDuration);
       }
    }
 
@@ -462,7 +506,7 @@ public class Utils {
          clipboard.setPrimaryClip(ClipData.newPlainText("Mycelium", string));
       } catch (NullPointerException ex) {
          MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(context, context.getString(R.string.unable_to_set_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_set_clipboard, false);
       }
    }
 
@@ -481,11 +525,11 @@ public class Utils {
          //some devices reported java.lang.SecurityException: Permission Denial:
          // reading com.android.providers.media.MediaProvider uri content://media/external/file/6595
          // it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
-         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_get_clipboard, false);
          return "";
       } catch (NullPointerException ex) {
          MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_get_clipboard, false);
          return "";
       }
    }
@@ -499,11 +543,11 @@ public class Utils {
          }
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity, activity.getString(R.string.unable_to_clear_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(activity).toast(R.string.unable_to_clear_clipboard, false);
       }
    }
 
-   public static Optional<GenericAddress> addressFromString(String someString, NetworkParameters network) {
+   public static Optional<Address> addressFromString(String someString, NetworkParameters network) {
       if (someString == null) {
          return Optional.absent();
       }
@@ -512,7 +556,7 @@ public class Utils {
          // Raw format
          return Optional.fromNullable(AddressUtils.from(getBtcCoinType(), someString));
       } else {
-         GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
+         AssetUri b = (new BitcoinUriParser(network)).parse(someString);
          if (b != null && b.getAddress() != null) {
             // On URI format
             return Optional.of(b.getAddress());
@@ -763,6 +807,15 @@ public class Utils {
       return getLinkedAccount(account, accounts) != null;
    }
 
+   public static boolean isERC20Token(WalletManager walletManager, String symbol) {
+      for (WalletAccount account : ERC20ModuleKt.getERC20Accounts(walletManager)) {
+         if (account.getCoinType().getSymbol().equals(symbol)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
          if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
@@ -770,6 +823,25 @@ public class Utils {
          }
       }
       return null;
+   }
+
+   public static EthAccount getLinkedEthAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof EthAccount && !walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            return (EthAccount) walletAccount;
+         }
+      }
+      return null;
+   }
+
+   public static List<WalletAccount> getLinkedAccounts(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      List<WalletAccount> result = new ArrayList<>();
+      for (WalletAccount walletAccount : accounts) {
+         if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            result.add(walletAccount);
+         }
+      }
+      return result;
    }
 
    public static Collection<WalletAccount> getUniqueAccounts(final Collection<WalletAccount> accounts) {
@@ -788,14 +860,18 @@ public class Utils {
             // "anything else"????
             // PrivateColuAccount and their linked SingleAddressAccount
             // PublicColuAccount (never has anything linked)
-            if(input instanceof HDAccount) { // also covers Bip44BCHAccount
+            // EthAccount and ERC20
+            if (input instanceof HDAccount) { // also covers Bip44BCHAccount
                return 0;
             }
-            if(input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
+            if (input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
                return checkIsLinked(input, accounts) ? 5 : 1;
             }
-            if(input instanceof ColuAccount) {
+            if (input instanceof ColuAccount) {
                return 5;
+            }
+            if (input instanceof EthAccount || input instanceof ERC20Account) {
+               return 6;
             }
             return 4;
          }
@@ -826,9 +902,28 @@ public class Utils {
                   return 0;
                }
                return linkedAccount.getId().equals(w1.getId()) ? 1 : 0;
+            } else if (w1 instanceof EthAccount && w2 instanceof EthAccount) {
+               return Integer.compare(((EthAccount) w1).getAccountIndex(), ((EthAccount) w2).getAccountIndex());
+            } else if (w1 instanceof EthAccount && w2 instanceof ERC20Account) {
+               EthAccount linkedEthAccount = getLinkedEthAccount(w2, accounts);
+               if (linkedEthAccount.equals(w1)) {
+                  return -1;
+               } else {
+                  return Integer.compare(((EthAccount) w1).getAccountIndex(), linkedEthAccount.getAccountIndex());
+               }
+            } else if (w1 instanceof ERC20Account && w2 instanceof EthAccount) {
+               EthAccount linkedEthAccount = getLinkedEthAccount(w1, accounts);
+               if (linkedEthAccount.equals(w2)) {
+                  return 1;
+               } else {
+                  return Integer.compare(linkedEthAccount.getAccountIndex(), ((EthAccount) w2).getAccountIndex());
+               }
+            } else if (w1 instanceof ERC20Account && w2 instanceof ERC20Account) {
+               EthAccount linkedEthAccount1 = getLinkedEthAccount(w1, accounts);
+               EthAccount linkedEthAccount2 = getLinkedEthAccount(w2, accounts);
+               return Integer.compare(linkedEthAccount1.getAccountIndex(), linkedEthAccount2.getAccountIndex());
             }
             return 0;
-
          }
       };
 
@@ -842,7 +937,7 @@ public class Utils {
       return type.compound(index).compound(linked).compound(name).sortedCopy(accounts);
    }
 
-   public static List<Address> sortAddresses(List<Address> addresses) {
+   public static List<BitcoinAddress> sortAddresses(List<BitcoinAddress> addresses) {
       return Ordering.usingToString().sortedCopy(addresses);
    }
 
@@ -855,7 +950,7 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(AccountViewModel accountView, boolean isSelectedAccount, Resources resources) {
-      Class<? extends WalletAccount<? extends GenericAddress>> accountType = accountView.getAccountType();
+      Class<? extends WalletAccount<? extends Address>> accountType = accountView.getAccountType();
       if (ColuAccount.class.isAssignableFrom(accountType)) {
          CryptoCurrency coinType = accountView.getCoinType();
          if (coinType == MTCoin.INSTANCE || coinType == MTCoinTest.INSTANCE) {
@@ -885,6 +980,21 @@ public class Utils {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
       }
+
+      if (ERC20Account.class.isAssignableFrom(accountType)) {
+         Drawable drawable = null;
+         String symbol = accountView.getCoinType().getSymbol();
+         try {
+            // get input stream
+            InputStream ims = resources.getAssets().open("token-logos/" + symbol.toLowerCase() + "_logo.png");
+            // load image as Drawable
+            drawable = Drawable.createFromStream(ims, null);
+         } catch (IOException e) {
+            e.printStackTrace();
+         }
+         return drawable;
+      }
+
       //regular HD account
       if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);
@@ -918,7 +1028,8 @@ public class Utils {
    public static boolean isAllowedForLocalTrader(WalletAccount account) {
       if (account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
-              || account instanceof ColuAccount) {
+              || account instanceof ColuAccount
+              || account instanceof AbstractEthERC20Account) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
@@ -950,6 +1061,26 @@ public class Utils {
 
    public static CryptoCurrency getBtcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+   }
+
+   public static CryptoCurrency getEthCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? EthMain.INSTANCE : EthTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getMtCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? MTCoin.INSTANCE : MTCoinTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getMassCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? MASSCoin.INSTANCE : MASSCoinTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getRmcCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
+   }
+
+   public static FIOToken getFIOCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? FIOMain.INSTANCE : FIOTest.INSTANCE;
    }
 
    public static boolean isValidEmailAddress(String value) {
@@ -1000,5 +1131,30 @@ public class Utils {
          ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
       }
       return hasPermission;
+   }
+
+   public static boolean hasOrRequestAccess(androidx.fragment.app.Fragment fragment, String permission, int requestCode){
+      boolean hasPermission = (ContextCompat.checkSelfPermission(fragment.getActivity(), permission)
+              == PackageManager.PERMISSION_GRANTED);
+      if (!hasPermission) {
+         fragment.requestPermissions(new String[]{permission}, requestCode);
+      }
+      return hasPermission;
+   }
+
+   @Nullable
+   public static AssetInfo getTypeByName(String name) {
+      for (CurrencyCode currencyCode : CurrencyCode.values()) {
+         if (name.equals(currencyCode.getShortString())) {
+            // then it's a fiat type
+            return new FiatType(name);
+         }
+      }
+      for (CryptoCurrency coin : CoinsKt.getCOINS().values()) {
+         if (coin.getName().equals(name)) {
+            return coin;
+         }
+      }
+      return null;
    }
 }

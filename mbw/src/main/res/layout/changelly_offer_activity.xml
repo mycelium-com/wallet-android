@@ -3,6 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="@dimen/margin_medium">
 
@@ -10,18 +11,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_marginBottom="4dp"
         android:layout_marginTop="@dimen/margin_medium"
         android:gravity="center"
         android:text="@string/changelly_offer_title"
         android:textColor="@color/white"
         android:textSize="20sp" />
+    <TextView
+        android:id="@+id/transaction_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_marginTop="4dp"
+        app:drawableEndCompat="@drawable/ic_content_copy_white_selector"
+        android:drawablePadding="12dp"
+        android:gravity="center"
+        tools:text="@string/exchange_operation_id_s"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_marginBottom="@dimen/margin_small"
         android:text="@string/exchange_in_order_to_complete"
         android:textColor="@color/white"
         android:textSize="@dimen/exchange_offer_text_size" />
@@ -40,7 +54,7 @@
         android:paddingBottom="@dimen/margin_small"
         tools:text="test"
         android:background="@drawable/background_sell_order_card"
-        android:drawableEnd="@drawable/ic_content_copy_white_selector"
+        app:drawableEndCompat="@drawable/ic_content_copy_white_selector"
         android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -48,7 +62,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_to_do_so"
         android:textColor="@color/white"
@@ -61,26 +74,90 @@
         android:fontFamily="sans-serif-medium"
         android:lineSpacingExtra="11sp"
         android:paddingStart="12dp"
+        android:textAllCaps="true"
         android:paddingEnd="@dimen/margin_medium"
         android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_small"
         android:background="@drawable/background_sell_order_card"
         tools:text="100 btc"
         android:textColor="@color/white"
-        android:drawableEnd="@drawable/ic_content_copy_white_selector"
+        app:drawableEndCompat="@drawable/ic_content_copy_white_selector"
         android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="normal" />
+
+    <LinearLayout
+        android:id="@+id/extra_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:text="@string/exchange_to_do_so_memo"
+            android:textColor="@color/white"
+            android:textSize="@dimen/exchange_offer_text_size" />
+
+        <TextView
+            android:id="@+id/payInExtraId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="11sp"
+            android:paddingStart="12dp"
+            android:paddingEnd="@dimen/margin_medium"
+            android:paddingTop="@dimen/margin_small"
+            android:paddingBottom="@dimen/margin_small"
+            android:background="@drawable/background_sell_order_card"
+            tools:text="48388349348"
+            android:textColor="@color/white"
+            app:drawableEndCompat="@drawable/ic_content_copy_white_selector"
+            android:drawablePadding="12dp"
+            android:textSize="18sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/extraIdText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="@dimen/margin_medium"
+            tools:text="@string/changelly_indicate_extra"
+            android:textColor="@color/status_red"
+            android:textSize="@dimen/exchange_offer_text_size" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_small"
+        android:text="@string/exchange_to_do_so_end"
+        android:textColor="@color/white"
+        android:textSize="@dimen/exchange_offer_text_size" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/margin_medium"
-        android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_after_transaction"
         android:textColor="@color/white"
         android:textSize="@dimen/exchange_offer_text_size" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:text="@string/you_have_36_hours_to_send_funds"
+        android:alpha="0.8"
+        android:textColor="@color/white"
+        android:textSize="12dp" />
 
     <Button
         android:id="@+id/exchange_more"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:showIn="@layout/send_coins_heading">
+
+    <merge>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recipient_title"
+                android:textColor="@color/fio_white_alpha_0_6"
+                android:layout_marginBottom="4dp"
+                android:textSize="14sp" />
+    </merge>
+</layout>

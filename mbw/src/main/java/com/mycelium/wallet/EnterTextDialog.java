@@ -50,7 +50,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.mycelium.wallet.activity.modern.Toaster;
 
 public class EnterTextDialog {
 
@@ -158,7 +159,7 @@ public class EnterTextDialog {
                }
                String toasText = enterNameHandler.getToastTextOnInvalidOk(text, currentText);
                if (toasText != null) {
-                  Toast.makeText(context, toasText, Toast.LENGTH_LONG).show();
+                  new Toaster(context).toast(toasText, false);
                }
             }
          }

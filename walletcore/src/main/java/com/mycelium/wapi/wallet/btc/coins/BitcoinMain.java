@@ -1,32 +1,13 @@
 package com.mycelium.wapi.wallet.btc.coins;
 
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mrd.bitlib.model.BitcoinAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.SoftDustPolicy;
-import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 
-public class BitcoinMain extends BitcoinBasedCryptoCurrency {
+public class BitcoinMain extends CryptoCurrency {
     private BitcoinMain() {
-        id = "bitcoin.main";
-
-        addressHeader = 0;
-        p2shHeader = 5;
-        acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
-        spendableCoinbaseDepth = 100;
-        dumpedPrivateKeyHeader = 128;
-
-        name = "Bitcoin";
-        symbol = "BTC";
-        uriScheme = "bitcoin";
-        bip44Index = 0;
-        unitExponent = 8;
-        feeValue = value(12000);
-        minNonDust = value(5460);
-        softDustLimit = value(1000000); // 0.01 BTC
-        softDustPolicy = SoftDustPolicy.AT_LEAST_BASE_FEE_IF_SOFT_DUST_TXO_PRESENT;
-        signedMessageHeader = toBytes("Bitcoin Signed Message:\n");
+        super("bitcoin.main", "Bitcoin", "BTC", 8, 2, true);
     }
 
     private static BitcoinMain instance = new BitcoinMain();
@@ -35,8 +16,8 @@ public class BitcoinMain extends BitcoinBasedCryptoCurrency {
     }
 
     @Override
-    public GenericAddress parseAddress(String addressString) {
-        Address address = Address.fromString(addressString);
+    public Address parseAddress(String addressString) {
+        BitcoinAddress address = BitcoinAddress.fromString(addressString);
         if (address == null) {
             return null;
         }

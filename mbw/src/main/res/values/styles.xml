@@ -60,7 +60,14 @@
     <style name="MyceliumActionBar" parent="MyceliumModern">
         <!-- Load it later in code with a lower pixel format, to save some memory
         <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
+
+        <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
+
 
     <style name="MyceliumSettings" parent="MyceliumModern">
         <item name="colorAccent">@color/lightgrey</item>
@@ -68,8 +75,7 @@
         <item name="android:colorControlActivated" tools:ignore="NewApi">@color/common_blue</item>
         <item name="android:actionBarStyle">@style/MyceliumSettings.ActionBar</item>
         <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
-        <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
-        </item>
+        <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay</item>
         <item name="preference_module_item_color">@color/preference_item_color</item>
         <item name="preference_module_divider_color">@color/preference_background</item>
     </style>
@@ -106,6 +112,7 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
     </style>
+
     <style name="MyceliumSettingsPreferenceThemeOverlay" parent="PreferenceThemeOverlay.v14.Material">
         <item name="preferenceFragmentCompatStyle">@style/MyceliumSettingsPreferenceFragment</item>
         <item name="preferenceFragmentStyle">@style/MyceliumSettingsPreferenceFragment</item>
@@ -141,7 +148,12 @@
         <item name="android:backgroundDimAmount">0.9</item>
     </style>
 
-    <style name="MyceliumModern.Dialog.Transparent" >
+    <style name="MyceliumModern.Dialog.BlueButtons">
+        <item name="android:buttonStyle">@style/MyceliumButton.Blue</item>
+        <item name="android:windowTitleStyle">@style/BlueDialogTitle</item>
+    </style>
+
+    <style name="MyceliumModern.Dialog.Transparent">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -157,9 +169,7 @@
 
     <style name="MyceliumModern" parent="AppBaseTheme">
         <!--<item name="android:windowFullscreen">true</item>-->
-        <!--   <item name="android:windowActionBar">false</item>
-           <item name="windowActionBar">false</item>-->
-        <!--<item name="android:windowNoTitle">true</item>-->
+
         <item name="android:popupBackground">@drawable/semi_black</item>
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
@@ -192,6 +202,7 @@
     <style name="MyceliumTabStyle" parent="Widget.AppCompat.Light.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_material</item>
     </style>
+
     <style name="MyceliumTabBarStyle" parent="Widget.AppCompat.Light.ActionBar.TabBar">
         <item name="android:background">@drawable/action_bar_tab_bar_bg</item>
         <item name="android:paddingStart">20dp</item>
@@ -273,16 +284,25 @@
         <item name="android:textColor">@color/button_text_color</item>
     </style>
 
+    <style name="FioNameRegistrationButton" parent="MyceliumButton">
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:paddingTop">14dp</item>
+    </style>
+
+    <style name="MyceliumButton.Blue">
+        <item name="android:textColor">@color/button_blue_text_color</item>
+    </style>
+
     <style name="MyceliumText" parent="android:TextAppearance">
         <item name="android:textColor">#fff</item>
     </style>
 
     <style name="ActionButtonStyle" parent="Widget.AppCompat.Light.ActionButton">
         <item name="android:minWidth">1dip</item>
-<!--
-        <item name="android:paddingLeft">0dip</item>
-        <item name="android:paddingRight">0dip</item>
--->
+        <!--
+                <item name="android:paddingLeft">0dip</item>
+                <item name="android:paddingRight">0dip</item>
+        -->
     </style>
 
     <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
@@ -296,7 +316,9 @@
     <style name="RmcActiveProgressBar">
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/rmc_bg_active_progress_bar_state</item>
-        <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
+        <item name="android:indeterminateDrawable">
+            @android:drawable/progress_indeterminate_horizontal
+        </item>
     </style>
 
     <style name="AccountProgressBar" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
@@ -317,6 +339,7 @@
         <item name="android:ellipsize">end</item>
 
     </style>
+
     <style name="MyceliumDroppyMenuSeparator">
         <item name="android:background">@color/lightgrey</item>
         <item name="android:layout_height">0.5dp</item>
@@ -339,6 +362,7 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
+
     <style name="MyceliumButtonModern" parent="android:style/Widget.Button">
         <item name="android:layout_marginStart">3dp</item>
         <item name="android:layout_marginEnd">3dp</item>
@@ -372,14 +396,249 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-
-
-    <style name="BuySell.Dialog" parent="MyceliumModern.Dialog">
-        <item name="android:windowTitleStyle">@style/BuySellDialogTitle</item>
+    <style name="MyceliumFIO" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="BuySellDialogTitle">
+    <style name="BuySell.Dialog" parent="MyceliumModern.Dialog">
+        <item name="android:windowTitleStyle">@style/BlueDialogTitle</item>
+    </style>
+
+    <style name="BlueDialogTitle">
         <item name="android:textColor">@color/common_blue</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MyceliumFIOMapping" parent="MyceliumModern">
+        <item name="colorAccent">@color/lightgrey</item>
+        <item name="colorControlActivated">@color/common_blue</item>
+        <item name="android:colorControlActivated" tools:ignore="NewApi">@color/common_blue</item>
+        <item name="android:actionBarStyle">@style/MyceliumFIOMapping.ActionBar</item>
+        <item name="actionBarStyle">@style/MyceliumFIOMapping.ActionBar</item>
+    </style>
+
+    <style name="MyceliumFIOMapping.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="background">@color/black</item>
+        <item name="android:height">56dp</item>
+        <item name="height">56dp</item>
+        <item name="titleTextStyle">@style/MyceliumFIOMapping.ActionBar.Title</item>
+        <item name="android:titleTextStyle">@style/MyceliumFIOMapping.ActionBar.Title</item>
+    </style>
+
+    <style name="MyceliumFIOMapping.ActionBar.Title">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="myfiowallet">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="fio_account">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="FIOAccountSubGroup">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#99FFFFFF</item>
+    </style>
+
+    <style name="FIOAccountGroup">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="MyceliumButton.FIO">
+        <item name="android:minHeight">44dp</item>
+    </style>
+
+    <style name="MyceliumButton.FIO.Gray">
+        <item name="android:background">@drawable/btn_gray</item>
+    </style>
+    <style name="CustomDialog" parent="AppBaseTheme" >
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
+
+    <style name="Bequant" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/bequant_gray_2</item>
+        <item name="android:radioButtonStyle">@style/Bequant.Button.Small.RadioButton</item>
+    </style>
+    <style name="BequantSign" parent="Bequant">
+        <item name="android:toolbarStyle" tools:ignore="NewApi">@style/BequantSignToolBarStyle</item>
+        <item name="toolbarStyle">@style/BequantSignToolBarStyle</item>
+    </style>
+    <style name="BequantSignToolBarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@color/transparent</item>
+        <item name="titleTextAppearance">@style/BequantSignTitleTextAppearance</item>
+        <item name="android:titleTextAppearance" tools:ignore="NewApi">@style/BequantSignTitleTextAppearance</item>
+<!--        <item name="subtitleTextAppearance">@style/MySubTitleTextAppearance</item>-->
+    </style>
+    <style name="BequantSignTitleTextAppearance">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Bequant.TextView">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Bequant.Button">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:background">@drawable/bg_bequant_button</item>
+        <item name="android:textColor">@color/bequant_gray_2</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Bequant.Button.PrimarySmall">
+        <item name="android:buttonStyle">@style/MyceliumButton</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:background">@drawable/bg_bequant_button_primary_small</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Bequant.Button.PrimarySmall.Ghost">
+        <item name="android:textColor">@color/bequant_yellow</item>
+        <item name="android:background">@drawable/bg_bequant_button_primary_small_ghost</item>
+    </style>
+
+    <style name="Bequant.Button.Green">
+        <item name="android:background">@drawable/bg_bequant_button_green</item>
+    </style>
+    <style name="Bequant.Button.Small">
+        <item name="android:background">@drawable/bg_bequant_button_small</item>
+        <item name="android:textColor">@color/bequant_yellow</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="Bequant.Tabs">
+        <item name="android:background">@color/bequant_gray_3</item>
+        <item name="tabIndicatorColor">@color/bequant_yellow</item>
+        <item name="tabIndicatorHeight">2dp</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabTextAppearance">@style/BequantTabText</item>
+    </style>
+
+    <style name="Bequant.EditText">
+        <item name="android:background">@drawable/bg_bequant_input_text</item>
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:padding">8dp</item>
+        <item name="textSize">16sp</item>
+        <item name="hintTextColor">@color/bequant_gray_6</item>
+    </style>
+
+    <style name="BequantTabText" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="fontFamily">@font/exo2medium</item>
+    </style>
+
+    <style name="Bequant.TextInputLayout">
+        <item name="boxBackgroundColor">@color/bg_bequant_text_input_layout</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxCornerRadiusBottomEnd">4dp</item>
+        <item name="boxCornerRadiusBottomStart">4dp</item>
+        <item name="boxCornerRadiusTopEnd">4dp</item>
+        <item name="boxCornerRadiusTopStart">4dp</item>
+        <item name="boxStrokeColor">@color/outline_bequant_text_input_layout</item>
+        <item name="errorTextColor">@color/bequant_red</item>
+        <item name="hintEnabled">false</item>
+    </style>
+
+    <style name="Bequant.TabLayout">
+        <item name="tabBackground">@drawable/bequant_intro_dot_inactive</item>
+        <item name="tabGravity">center</item>
+        <item name="tabIndicator">@drawable/bequant_intro_dot_active</item>
+        <item name="tabIndicatorColor">@color/bequant_yellow</item>
+        <item name="tabIndicatorGravity">center</item>
+        <item name="tabMinWidth">12dp</item>
+        <item name="tabMaxWidth">12dp</item>
+        <item name="tabIndicatorHeight">8dp</item>
+    </style>
+
+    <style name="BequantErrorTextAppearance"></style>
+
+    <style name="Bequant.Button.Gray">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/bg_bequant_gray_btn</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+
+
+    <style name="Bequant.Button.Small.RadioButton">
+        <item name="android:background">@drawable/bg_bequant_radio_button</item>
+        <item name="android:textColor">@color/bequant_radio_button</item>
+    </style>
+
+    <style name="Bequant.TextTiny">
+        <item name="android:fontFamily">@font/exo2regular</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">8sp</item>
+        <item name="android:alpha">0.5</item>
+    </style>
+
+    <style name="Bequant.TextSmall">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/bequant_yellow</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Bequant.TextMiddle">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/bequant_gray_6</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Bequant.TextNormal">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Bequant.TextLarge">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Theme.D1NoTitleDim" parent="android:style/Theme.Translucent">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="DatePickerDialog" parent="android:style/Theme.Holo.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="colorControlNormal">@color/bequant_yellow</item>
+        <item name="android:colorControlNormal" tools:ignore="NewApi">@color/bequant_yellow</item>
+    </style>
+
+    <style name="Bequant.DatePickerStyle" >
+        <item name="android:datePickerMode" tools:targetApi="lollipop">spinner</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="NumberPickerStyle">
+        <item name="colorControlNormal">@color/bequant_yellow</item>
+        <item name="android:colorControlNormal" tools:targetApi="lollipop">@color/bequant_yellow</item>
     </style>
 </resources>

@@ -41,31 +41,30 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.StringRes;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.Transaction;
+import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -113,14 +112,14 @@ public class PopActivity extends AppCompatActivity {
       }
 
       Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
-      GenericTransactionSummary txToProve;
+      TransactionSummary txToProve;
       if (userSelectedTransaction != null) {
          txidToProve = userSelectedTransaction;
          txToProve = null;
       } else {
          // Get history ordered by block height descending
-         List<GenericTransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionSummaries(0, 10000);
-         GenericTransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
+         List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionSummaries(0, 10000);
+         TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
          if (matchingTransaction == null) {
             launchSelectTransactionActivity();
             return;
@@ -139,9 +138,9 @@ public class PopActivity extends AppCompatActivity {
       finish();
    }
 
-   private GenericTransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<GenericTransactionSummary> transactions) {
+   private TransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<TransactionSummary> transactions) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
-      for (GenericTransactionSummary transaction: transactions) {
+      for (TransactionSummary transaction: transactions) {
          if (PopUtils.matches(popRequest, metadataStorage, transaction)) {
             return transaction;
          }
@@ -154,19 +153,7 @@ public class PopActivity extends AppCompatActivity {
       textView.setText(value);
    }
 
-   private long getFee(TransactionDetails tx) {
-      return sum(tx.inputs) - sum(tx.outputs);
-   }
-
-   private long sum(TransactionDetails.Item[] items) {
-      long sum = 0;
-      for (TransactionDetails.Item item : items) {
-         sum += item.value;
-      }
-      return sum;
-   }
-
-   private void updateUi(GenericTransactionSummary transaction) {
+   private void updateUi(TransactionSummary transaction) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
 
       // Set Date
@@ -191,7 +178,7 @@ public class PopActivity extends AppCompatActivity {
 
       URL url = getUrl(popRequest.getP());
       if (url == null) {
-         Toast.makeText(this, "Invalid URL:" + popRequest.getP(), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("Invalid URL:" + popRequest.getP(), false);
          finish();
          return;
       }
@@ -204,7 +191,7 @@ public class PopActivity extends AppCompatActivity {
       } else if ("http".equals(protocol)) {
          textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
       } else {
-         Toast.makeText(this, "Unsupported protocol:" + url.getProtocol(), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("Unsupported protocol:" + url.getProtocol(), false);
          finish();
       }
    }
@@ -214,18 +201,18 @@ public class PopActivity extends AppCompatActivity {
       try {
          url = new URL(pParam);
       } catch (MalformedURLException e) {
-         Toast.makeText(this, "Not a proper destination URL:" + pParam, Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("Not a proper destination URL:" + pParam, false);
          finish();
          return null;
       }
       return url;
    }
 
-   private long getPaymentAmountSatoshis(GenericTransactionSummary transaction) {
+   private long getPaymentAmountSatoshis(TransactionSummary transaction) {
       if (transaction.getType() != BitcoinMain.get()) {
          return 0;
       }
-      return transaction.getTransferred().abs().value;
+      return transaction.getTransferred().abs().getValueAsLong();
    }
 
    @Override
@@ -238,7 +225,7 @@ public class PopActivity extends AppCompatActivity {
    public void sendPop(View view) {
       try {
          if (txidToProve == null) {
-            Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG).show();
+            new Toaster(this).toast(R.string.pop_no_transaction_selected, false);
          }
          WalletAccount account = _mbwManager.getSelectedAccount();
 
@@ -255,7 +242,7 @@ public class PopActivity extends AppCompatActivity {
             }
          });
       } catch (Exception e) {
-         Toast.makeText(this, "An internal error occurred:" + e.getMessage(), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast("An internal error occurred:" + e.getMessage(), false);
       }
    }
 
@@ -271,16 +258,16 @@ public class PopActivity extends AppCompatActivity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));
+            Transaction signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));
             BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
-            Transaction pop = btcTransaction.getTx();
+            BitcoinTransaction pop = btcTransaction.getTx();
             ConnectivityManager connMgr = (ConnectivityManager)
                   getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isConnected()) {
                new SendPopTask().execute(pop);
             } else {
-               Toast.makeText(this, "No network available", Toast.LENGTH_LONG).show();
+               new Toaster(this).toast("No network available", false);
             }
          }
       } else {
@@ -288,14 +275,14 @@ public class PopActivity extends AppCompatActivity {
       }
    }
 
-   private class SendPopTask extends AsyncTask<Transaction, Void, String> {
+   private class SendPopTask extends AsyncTask<BitcoinTransaction, Void, String> {
       @Override
-      protected String doInBackground(Transaction... pop) {
+      protected String doInBackground(BitcoinTransaction... pop) {
          // params comes from the execute() call: params[0] is the url.
          return sendPop(pop[0]);
       }
 
-      private String sendPop(Transaction tx) {
+      private String sendPop(BitcoinTransaction tx) {
          RequestBody requestBody = RequestBody.create(MediaType.parse("application/bitcoin-pop"), tx.toBytes());
 
          URL url;
@@ -332,7 +319,7 @@ public class PopActivity extends AppCompatActivity {
       @Override
       protected void onPostExecute(String result) {
          if (result.equals("valid")) {
-            Toast.makeText(PopActivity.this, R.string.pop_success, Toast.LENGTH_LONG).show();
+            new Toaster(PopActivity.this).toast(R.string.pop_success, false);
             finish();
          } else {
             String serverMessage = result;

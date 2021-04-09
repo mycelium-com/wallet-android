@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
+
 public class Balance {
     /**
      * The sum of the unspent outputs which are confirmed and currently not spent
@@ -40,5 +41,10 @@ public class Balance {
 
     public Value getSpendable() {
         return confirmed.plus(pendingReceiving).plus(pendingChange);
+    }
+
+    public static Balance getZeroBalance(AssetInfo assetInfo) {
+        return new Balance(Value.zeroValue(assetInfo), Value.zeroValue(assetInfo),
+                Value.zeroValue(assetInfo), Value.zeroValue(assetInfo));
     }
 }

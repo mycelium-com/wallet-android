@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.util.BitlibJsonModule;
 import com.mycelium.lt.api.LtConst.Function;
 import com.mycelium.lt.api.LtConst.Param;
@@ -56,11 +58,6 @@ import com.squareup.okhttp.*;
 public class LtApiClient implements LtApi {
    private static final long TIMEOUT_MS = TimeUnit.MINUTES.toMillis(2);
 
-   public interface Logger {
-      void logError(String message, Exception e);
-      void logError(String message);
-      void logInfo(String message);
-   }
 
    protected static byte[] uuidToBytes(UUID uuid) {
       ByteArrayOutputStream ba = new ByteArrayOutputStream(16);
@@ -76,9 +73,9 @@ public class LtApiClient implements LtApi {
 
    private ServerEndpoints _serverEndpoints;
    private ObjectMapper _objectMapper;
-   private Logger _logger;
+   private Logger _logger = Logger.getLogger(LtApiClient.class.getSimpleName());
 
-   public LtApiClient(ServerEndpoints serverEndpoints, Logger logger) {
+   public LtApiClient(ServerEndpoints serverEndpoints) {
       _serverEndpoints = serverEndpoints;
 
       _objectMapper = new ObjectMapper();
@@ -86,7 +83,6 @@ public class LtApiClient implements LtApi {
       // deserialize
       _objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       _objectMapper.registerModule(new BitlibJsonModule());
-      _logger = logger;
    }
 
    private HttpEndpoint getEndpoint() {
@@ -114,15 +110,11 @@ public class LtApiClient implements LtApi {
    }
 
    private void logError(String message) {
-      if (_logger != null) {
-         _logger.logError(message);
-      }
+      _logger.log(Level.SEVERE,message);
    }
 
    private void logError(String message, Exception e) {
-      if (_logger != null) {
-         _logger.logError(message, e);
-      }
+      _logger.log(Level.SEVERE,message,e);
    }
 
    private Response getConnectionAndSendRequest(LtRequest request, long timeout) {
@@ -132,7 +124,7 @@ public class LtApiClient implements LtApi {
          HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
             OkHttpClient client = serverEndpoint.getClient();
-            _logger.logInfo("LT connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
+            _logger.log(Level.INFO, "LT connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
 
             // configure TimeOuts
             client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
@@ -150,7 +142,7 @@ public class LtApiClient implements LtApi {
             // execute request
             Response response = client.newCall(rq).execute();
             callDuration.stop();
-            _logger.logInfo(String.format(Locale.US, "LtApi %s finished (%dms)", request.toString(), callDuration.elapsed(TimeUnit.MILLISECONDS)));
+            _logger.log(Level.INFO, String.format(Locale.US, "LtApi %s finished (%dms)", request.toString(), callDuration.elapsed(TimeUnit.MILLISECONDS)));
 
 
             // Check for status code 2XX
@@ -167,7 +159,7 @@ public class LtApiClient implements LtApi {
          } catch (IOException e) {
             logError("getConnectionAndSendRequest failed IO exception.");
             if (serverEndpoint instanceof FeedbackEndpoint){
-               _logger.logInfo("Resetting tor");
+               _logger.log(Level.INFO, "Resetting tor");
                ((FeedbackEndpoint) serverEndpoint).onError();
             }
          }
@@ -454,7 +446,7 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<Long> waitForTraderChange(Address traderId, UUID token, long traderTimestamp) {
+   public LtResponse<Long> waitForTraderChange(BitcoinAddress traderId, UUID token, long traderTimestamp) {
       LtRequest r = new LtRequest(Function.WAIT_FOR_TRADER_CHANGE);
       r.addQueryParameter(Param.TRADER_ID, traderId.toString());
       r.addQueryParameter(Param.TOKEN, token.toString());
@@ -544,7 +536,7 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, Address traderIdentity) {
+   public LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, BitcoinAddress traderIdentity) {
       LtRequest r = new LtRequest(Function.GET_PUBLIC_TRADER_INFO);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.TRADER_ID, traderIdentity.toString());
@@ -570,7 +562,7 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<Long> getLastTradeSessionChange(Address traderIdentity) {
+   public LtResponse<Long> getLastTradeSessionChange(BitcoinAddress traderIdentity) {
       LtRequest r = new LtRequest(Function.GET_LAST_TRADE_SESSION_CHANGE);
       r.addQueryParameter(Param.TRADER_ID, traderIdentity.toString());
       return sendRequest(r, new TypeReference<LtResponse<Long>>() {

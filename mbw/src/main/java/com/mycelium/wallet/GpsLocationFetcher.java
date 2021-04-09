@@ -34,10 +34,6 @@
 
 package com.mycelium.wallet;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -46,13 +42,17 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
-import android.widget.Toast;
 
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.lt.location.Geocode;
 import com.mycelium.lt.location.GeocodeResponse;
 import com.mycelium.lt.location.RemoteGeocodeException;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.BackendGeocoder;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class GpsLocationFetcher {
    private BackendGeocoder backendGeocoder;
@@ -117,7 +117,6 @@ public class GpsLocationFetcher {
 
    public void getNetworkLocation(final Callback callback) {
       Thread t = new Thread(new Runnable() {
-
          @Override
          public void run() {
             final GpsLocationEx location;
@@ -130,7 +129,6 @@ public class GpsLocationFetcher {
                   }
                }
             });
-
          }
       });
       t.setDaemon(true);
@@ -141,15 +139,31 @@ public class GpsLocationFetcher {
       if (!canObtainGpsPosition(context)) {
          return null;
       }
-      LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
       @SuppressLint("MissingPermission")
-      Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+      Location lastKnownLocation = getLastKnownLocation(context);
       if (lastKnownLocation == null) {
          return null;
       }
 
       Address address = getAddress(context, lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
       return GpsLocationEx.fromAddress(address);
+   }
+
+   private Location getLastKnownLocation(Context context) {
+      LocationManager locationManager = (LocationManager)context.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+      List<String> providers = locationManager.getProviders(true);
+      Location bestLocation = null;
+      for (String provider : providers) {
+         @SuppressLint("MissingPermission")
+         Location location = locationManager.getLastKnownLocation(provider);
+         if (location == null) {
+            continue;
+         }
+         if (bestLocation == null || location.getAccuracy() < bestLocation.getAccuracy()) {
+            bestLocation = location;
+         }
+      }
+      return bestLocation;
    }
 
    private static boolean canObtainGpsPosition(Context context) {
@@ -175,7 +189,7 @@ public class GpsLocationFetcher {
             new Handler(context.getMainLooper()).post(new Runnable() {
                @Override
                public void run() {
-                  Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                  new Toaster(context).toast(e.getMessage(), false);
                }
             });
          }
@@ -200,7 +214,7 @@ public class GpsLocationFetcher {
          new Handler(context.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-               Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+               new Toaster(context).toast(e.getLocalizedMessage(), true);
             }
          });
       }

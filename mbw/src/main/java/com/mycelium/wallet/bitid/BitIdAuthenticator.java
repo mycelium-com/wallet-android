@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.util.SslUtils;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.bitid.json.BitIdError;
@@ -58,9 +58,9 @@ public class BitIdAuthenticator {
    private boolean enforceSslCorrectness;
    private BitIDSignRequest request;
    private InMemoryPrivateKey privateKey;
-   private Address address;
+   private BitcoinAddress address;
 
-   public BitIdAuthenticator(BitIDSignRequest request, boolean enforceSslCorrectness, InMemoryPrivateKey privateKey, Address address) {
+   public BitIdAuthenticator(BitIDSignRequest request, boolean enforceSslCorrectness, InMemoryPrivateKey privateKey, BitcoinAddress address) {
       this.enforceSslCorrectness = enforceSslCorrectness;
       this.request = request;
       this.privateKey = privateKey;

@@ -48,7 +48,7 @@ import com.mycelium.wallet.extsig.keepkey.activity.KeepKeySignTransactionActivit
 import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -60,15 +60,15 @@ public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
    protected WalletAccount<?> _account;
    protected boolean _isColdStorage;
-   protected GenericTransaction _transaction;
-   private AsyncTask<Void, Integer, GenericTransaction> signingTask;
+   protected Transaction _transaction;
+   private AsyncTask<Void, Integer, Transaction> signingTask;
    private static final String TRANSACTION = "transaction";
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, GenericTransaction transaction, int requestCode) {
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, Transaction transaction, int requestCode) {
       currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, transaction), requestCode);
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, GenericTransaction transaction) {
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, Transaction transaction) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Class targetClass;
@@ -93,8 +93,8 @@ public class SignTransactionActivity extends Activity {
       Preconditions.checkNotNull(account);
 
       return new Intent(currentActivity, targetClass)
-              .putExtra(SendMainActivity.ACCOUNT, account)
-              .putExtra(SendMainActivity.IS_COLD_STORAGE, isColdStorage)
+              .putExtra(SendCoinsActivity.ACCOUNT, account)
+              .putExtra(SendCoinsActivity.IS_COLD_STORAGE, isColdStorage)
               .putExtra(TRANSACTION, transaction);
    }
 
@@ -105,15 +105,15 @@ public class SignTransactionActivity extends Activity {
       setView();
       _mbwManager = MbwManager.getInstance(getApplication());
       // Get intent parameters
-      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT));
-      _isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(SendCoinsActivity.ACCOUNT));
+      _isColdStorage = getIntent().getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _transaction = Preconditions.checkNotNull((GenericTransaction) getIntent().getSerializableExtra(TRANSACTION));
+      _transaction = Preconditions.checkNotNull((Transaction) getIntent().getSerializableExtra(TRANSACTION));
 
       // Load state
       if (savedInstanceState != null) {
          // May be null
-          _transaction = (GenericTransaction) savedInstanceState.getSerializable(TRANSACTION);
+          _transaction = (Transaction) savedInstanceState.getSerializable(TRANSACTION);
       }
    }
 
@@ -138,12 +138,12 @@ public class SignTransactionActivity extends Activity {
    }
 
    @SuppressLint("StaticFieldLeak")
-   protected AsyncTask<Void, Integer, GenericTransaction> startSigningTask() {
+   protected AsyncTask<Void, Integer, Transaction> startSigningTask() {
       cancelSigningTask();
       // Sign transaction in the background
-      signingTask = new AsyncTask<Void, Integer, GenericTransaction>() {
+      signingTask = new AsyncTask<Void, Integer, Transaction>() {
          @Override
-         protected GenericTransaction doInBackground(Void... args) {
+         protected Transaction doInBackground(Void... args) {
             try {
                _account.signTx(_transaction, AesKeyCipher.defaultKeyCipher());
                return _transaction.txBytes() != null ? _transaction : null;
@@ -154,15 +154,15 @@ public class SignTransactionActivity extends Activity {
          }
 
          @Override
-         protected void onPostExecute(GenericTransaction signedTransaction) {
+         protected void onPostExecute(Transaction signedTransaction) {
             if (signedTransaction != null) {
                Intent ret = new Intent();
-               ret.putExtra(SendMainActivity.SIGNED_TRANSACTION, signedTransaction);
+               ret.putExtra(SendCoinsActivity.SIGNED_TRANSACTION, signedTransaction);
                setResult(RESULT_OK, ret);
-               SignTransactionActivity.this.finish();
             } else {
                setResult(RESULT_CANCELED);
             }
+            SignTransactionActivity.this.finish();
          }
       };
       signingTask.execute();
@@ -173,11 +173,6 @@ public class SignTransactionActivity extends Activity {
       if (signingTask != null){
          signingTask.cancel(true);
       }
-   }
-
-   @Override
-   protected void onPause() {
-      super.onPause();
    }
 
    @Override

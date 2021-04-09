@@ -43,7 +43,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
@@ -57,7 +58,7 @@ public class EnterAddressLabelUtil {
         void OnTransactionLabelChanged(Sha256Hash txid, String label);
     }
 
-    public static void enterAddressLabel(Context context, MetadataStorage storage, GenericAddress address,
+    public static void enterAddressLabel(Context context, MetadataStorage storage, Address address,
                                          String defaultName, AddressLabelChangedHandler changeHandler) {
         String hintText = context.getResources().getString(R.string.name);
         String currentName = storage.getLabelByAddress(address);
@@ -75,11 +76,11 @@ public class EnterAddressLabelUtil {
 
     private static class EnterAddressLabelHandler extends EnterTextDialog.EnterTextHandler {
         private MetadataStorage _storage;
-        private GenericAddress _address;
+        private Address _address;
         private String _invalidOkToastMessage;
         private AddressLabelChangedHandler _changeHandler;
 
-        EnterAddressLabelHandler(MetadataStorage storage, GenericAddress address, String invalidOkToastMessage,
+        EnterAddressLabelHandler(MetadataStorage storage, Address address, String invalidOkToastMessage,
                                  AddressLabelChangedHandler changeHandler) {
             _storage = storage;
             _address = address;
@@ -117,6 +118,7 @@ public class EnterAddressLabelUtil {
             // existing entry with the same name. If the name is blank the
             // entry will get deleted
             _storage.storeAddressLabel(_address.toString(), newText);
+            _storage.storeAddressCoinType(_address.toString(), _address.getCoinType().getName());
             if (_changeHandler != null) {
                 _changeHandler.OnAddressLabelChanged(_address.toString(), newText);
             }
@@ -135,7 +137,7 @@ public class EnterAddressLabelUtil {
         }
         String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
         Bus bus = MbwManager.getEventBus();
-        EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {};
+        EnterAccountLabelHandler handler = new EnterAccountLabelHandler(context, account, invalidOkToastMessage, storage, bus) {};
         EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
     }
 
@@ -144,12 +146,14 @@ public class EnterAddressLabelUtil {
         private String invalidOkToastMessage;
         private MetadataStorage storage;
         private Bus bus;
+        private Context context;
 
-        EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
+        EnterAccountLabelHandler(final Context context, UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
             this.account = account;
             this.invalidOkToastMessage = invalidOkToastMessage;
             this.storage = storage;
             this.bus = bus;
+            this.context = context;
         }
 
         @Override
@@ -171,6 +175,10 @@ public class EnterAddressLabelUtil {
         @Override
         public void onNameEntered(String newText, String oldText) {
             storage.storeAccountLabel(account, newText);
+            WalletAccount walletAccount = MbwManager.getInstance(context).getWalletManager(false).getAccount(account);
+            if (walletAccount != null) {
+                walletAccount.setLabel(newText);
+            }
             bus.post(new AccountChanged(account));
         }
     }

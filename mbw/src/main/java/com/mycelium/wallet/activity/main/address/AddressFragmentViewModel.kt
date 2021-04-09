@@ -1,17 +1,17 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import androidx.fragment.app.FragmentActivity
-import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
-    protected val mbwManager = MbwManager.getInstance(context)!!
+    protected val mbwManager = MbwManager.getInstance(context)
     protected lateinit var model: AddressFragmentModel
     protected val showBip44Path: Boolean = mbwManager.metadataStorage.showBip44Path
 
@@ -28,6 +28,8 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun isCompressedKey() = model.isCompressedKey
     fun getType() = model.type
     fun getAccountAddressType() = model.accountAddressType
+    fun getAccount() = model.account
+    fun getRegisteredFIONames() = model.registeredFIONames
 
     fun getDrawableForAccount(resources: Resources): Drawable? =
             Utils.getDrawableForAccount(model.account, true, resources)
@@ -38,12 +40,12 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     fun addressClick() {
         Utils.setClipboardString(getAddressString(), context)
-        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+        Toaster(context).toast(R.string.copied_to_clipboard, true)
     }
 
     fun getAddressString(): String = getAccountAddress().value!!.toString()
 
-    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString().equals(""))
+    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString() == "")
 
     abstract fun qrClickReaction(activity: FragmentActivity)
 

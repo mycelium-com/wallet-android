@@ -57,19 +57,15 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
-import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
 
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -79,7 +75,6 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
    private static final String LOG_TAG = "SqliteBtcAccountBacking";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
-   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
    private Map<UUID, SqliteBtcAccountBacking> _backings;
@@ -95,7 +90,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
    private final SQLiteStatement _getMaxSubId;
 
 
-   SqliteBtcWalletManagerBacking(Context context) {
+   public SqliteBtcWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
@@ -297,9 +292,9 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
             Type type = new TypeToken<Collection<String>>(){}.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
-            Map<AddressType, Address> addresses = new ArrayMap<>(3);
+            Map<AddressType, BitcoinAddress> addresses = new ArrayMap<>(3);
             for (String addressString : addressStringsList) {
-               Address address = Address.fromString(addressString);
+               BitcoinAddress address = BitcoinAddress.fromString(addressString);
                addresses.put(address.getType(), address);
             }
             boolean isArchived = cursor.getInt(2) == 1;
@@ -331,7 +326,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
          List<String> addresses = new ArrayList<>();
-         for (Address address: context.getAddresses().values()){
+         for (BitcoinAddress address: context.getAddresses().values()){
             addresses.add(address.toString());
          }
          _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
@@ -352,7 +347,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
          List<String> addresses = new ArrayList<>();
-         for (Address address: context.getAddresses().values()){
+         for (BitcoinAddress address: context.getAddresses().values()){
             addresses.add(address.toString());
          }
          _updateSingleAddressAccount.bindString(3, gson.toJson(addresses));
@@ -546,22 +541,6 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
       private final SQLiteStatement _deleteTxRefersParentTx;
       private final SQLiteDatabase _db;
 
-      private class FeeEstimationSerialized implements Serializable {
-          private long low;
-          private long economy;
-          private long normal;
-          private long high;
-          private long lastCheck;
-
-          FeeEstimationSerialized(long low, long economy, long normal, long high, long lastCheck) {
-              this.low = low;
-              this.economy = economy;
-              this.normal = normal;
-              this.high = high;
-              this.lastCheck = lastCheck;
-          }
-      }
-
       private SqliteBtcAccountBacking(UUID id, SQLiteDatabase db) {
          _id = id;
          _db = db;
@@ -589,37 +568,6 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          _db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getOutgoingTxTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getTxRefersPtxoTableName(tableSuffix));
-      }
-
-      @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         Gson gson = new Gson();
-         String assetTypeName = assetType.getName();
-         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
-         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
-                                                                         feeEstimation.getEconomy().value,
-                                                                         feeEstimation.getNormal().value,
-                                                                         feeEstimation.getHigh().value,
-                                                                         feeEstimation.getLastCheck());
-         byte[] value = gson.toJson(feeValues).getBytes();
-         setValue(key, value);
-      }
-
-      @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         Gson gson = new Gson();
-         String key = assetType.getName() + LAST_FEE_ESTIMATE;
-          FeeEstimationSerialized feeValues;
-         try {
-             feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
-         }
-         catch(Exception ignore) { return null; }
-
-         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
-                 Value.valueOf(assetType, feeValues.economy),
-                 Value.valueOf(assetType, feeValues.normal),
-                 Value.valueOf(assetType, feeValues.high),
-                 feeValues.lastCheck);
       }
 
       @Override
@@ -837,13 +785,13 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       private void putReferencedOutputs(byte[] rawTx) {
          try {
-            final Transaction transaction = Transaction.fromBytes(rawTx);
+            final BitcoinTransaction transaction = BitcoinTransaction.fromBytes(rawTx);
             final List<OutPoint> refersOutpoint = new ArrayList<>();
             for (TransactionInput input : transaction.inputs) {
                refersOutpoint.add(input.outPoint);
             }
             putTxRefersParentTransaction(transaction.getId(), refersOutpoint);
-         } catch (Transaction.TransactionParsingException e) {
+         } catch (BitcoinTransaction.TransactionParsingException e) {
             Log.w(LOG_TAG, "Unable to decode transaction: " + e.getMessage());
          }
       }
@@ -981,7 +929,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
       public List<TransactionEx> getTransactionHistory(int offset, int limit) {
          List<TransactionEx> list = new LinkedList<>();
          try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                         + " ORDER BY height desc limit ? offset ?",
+                         + " ORDER BY height desc, time desc limit ? offset ?",
                  new String[]{Integer.toString(limit), Integer.toString(offset)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
@@ -999,7 +947,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          List<TransactionEx> list = new LinkedList<>();
          try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
                          + " WHERE time >= ?"
-                         + " ORDER BY height desc",
+                         + " ORDER BY height desc, time desc",
                  new String[]{Long.toString(since / 1000)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
@@ -1095,7 +1043,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);
                   String addressString = cursor.getString(2);
-                  Address address = new Address(addressBytes, addressString);
+                  BitcoinAddress address = new BitcoinAddress(addressBytes, addressString);
                   UUID newId = SingleAddressAccount.calculateId(address);
 
                   metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
@@ -1118,7 +1066,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
             for (SingleAddressAccountContext context : list) {
                statement.bindBlob(1, uuidToBytes(context.getId()));
                List<String> addresses = new ArrayList<>();
-               for (Address address: context.getAddresses().values()){
+               for (BitcoinAddress address: context.getAddresses().values()){
                   addresses.add(address.toString());
                }
                statement.bindString(2, gson.toJson(addresses));

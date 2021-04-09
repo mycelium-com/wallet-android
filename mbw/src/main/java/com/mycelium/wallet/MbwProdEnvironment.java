@@ -45,9 +45,14 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MbwProdEnvironment extends MbwEnvironment {
    /**
@@ -118,22 +123,35 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * <p>
     * The first is the default block explorer if the requested one is not available
     */
-   private static final ArrayList<BlockExplorer> prodnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-      add(new BlockExplorer("SBT", "smartbit", "https://www.smartbit.com.au/address/", "https://www.smartbit.com.au/tx/", null, null));
-      add(new BlockExplorer("BCI", "blockchain.info", "https://blockchain.info/address/", "https://blockchain.info/tx/", "https://blockchainbdgpzk.onion/address/", "https://blockchainbdgpzk.onion/tx/"));
-      add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/BTC/address/", "https://www.blocktrail.com/BTC/tx/", null, null));
-      add(new BlockExplorer("BPY", "BitPay", "https://insight.bitpay.com/address/", "https://insight.bitpay.com/tx/", null, null));
-      add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/address/", "http://blockexplorer.com/tx/", null, null));
-      add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc/address/", "https://live.blockcypher.com/btc/tx/", null, null));
-      add(new BlockExplorer("TBC", "TradeBlock", "https://tradeblock.com/blockchain/address/", "https://tradeblock.com/blockchain/tx/", null, null));
-      add(new BlockExplorer("BLC", "blockonomics.co", "https://www.blockonomics.co/#/search?q=", "https://www.blockonomics.co/api/tx?txid=", null, null));
+   private static final Map<String, List<BlockExplorer>> prodnetExplorerClearEndpoints = new HashMap<String, List<BlockExplorer>>() {{
+      put(BitcoinMain.get().getName(), new ArrayList<BlockExplorer>() {{
+         add(new BlockExplorer("SBT", "smartbit", "https://www.smartbit.com.au/address/", "https://www.smartbit.com.au/tx/", null, null));
+         add(new BlockExplorer("BCI", "blockchain.info", "https://blockchain.info/address/", "https://blockchain.info/tx/", "https://blockchainbdgpzk.onion/address/", "https://blockchainbdgpzk.onion/tx/"));
+         add(new BlockExplorer("BPY", "BitPay", "https://insight.bitpay.com/address/", "https://insight.bitpay.com/tx/", null, null));
+         add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/address/", "http://blockexplorer.com/tx/", null, null));
+         add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc/address/", "https://live.blockcypher.com/btc/tx/", null, null));
+         add(new BlockExplorer("TBC", "TradeBlock", "https://tradeblock.com/blockchain/address/", "https://tradeblock.com/blockchain/tx/", null, null));
+         add(new BlockExplorer("BLC", "blockonomics.co", "https://www.blockonomics.co/#/search?q=", "https://www.blockonomics.co/api/tx?txid=", null, null));
+      }});
+      put(EthMain.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+         add(new BlockExplorer("ETS", "etherscan.io", "https://etherscan.io/address/", "https://etherscan.io/tx/0x", null, null));
+         add(new BlockExplorer("ETC", "etherchain", "https://www.etherchain.org/account/", "https://www.etherchain.org/tx/0x", null, null));
+         add(new BlockExplorer("ETP", "ethplorer", "https://ethplorer.io/address/", "https://ethplorer.io/tx/0x", null, null));
+         add(new BlockExplorer("BLR", "blockchair", "https://blockchair.com/ethereum/address/", "https://blockchair.com/ethereum/transaction/0x", null, null));
+         add(new BlockExplorer("BCI", "blockchain.info", "https://www.blockchain.com/eth/address/", "https://www.blockchain.com/eth/tx/0x", null, null));
+         add(new BlockExplorer("ENJ", "enjinx", "https://enjinx.io/eth/address/", "https://enjinx.io/eth/transaction/0x", null, null));
+      }});
+      put(FIOMain.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+         add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio.bloks.io/account/", "https://fio.bloks.io/transaction/", null, null));
+         add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.fioprotocol.io/account/", "https://explorer.fioprotocol.io/transaction/", null, null));
+      }});
    }};
 
-   public List<BlockExplorer> getBlockExplorerList() {
-      return new ArrayList<>(prodnetExplorerClearEndpoints);
+   public Map<String, List<BlockExplorer>> getBlockExplorerMap() {
+      return new HashMap<>(prodnetExplorerClearEndpoints);
    }
 
-   public List<BuySellServiceDescriptor> getBuySellServices(){
+   public List<BuySellServiceDescriptor> getBuySellServices() {
       return new ArrayList<BuySellServiceDescriptor>() {{
          add(new SimplexServiceDescription());
          add(new SepaServiceDescription());

@@ -4,7 +4,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AddressUtils
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -17,15 +17,15 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 /**
  * Model for the account item on the accounts tab.
  */
-class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: MbwManager?) : AccountListItem {
+class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManager?) : AccountListItem {
     val accountId = account.id!!
     val accountType = account::class.java
     val coinType = account.coinType
     val isActive = account.isActive
     val balance: Balance? = if (isActive) account.accountBalance else null
     val syncTotalRetrievedTransactions = account.syncTotalRetrievedTransactions
-    val isRMCLinkedAccount = if (mbwManager != null) isRmcAccountLinked(account, mbwManager) else false
-    var showBackupMissingWarning = if (mbwManager != null) showBackupMissingWarning(account, mbwManager) else false
+    val isRMCLinkedAccount = mbwManager != null && isRmcAccountLinked(account, mbwManager)
+    var showBackupMissingWarning = mbwManager != null && showBackupMissingWarning(account, mbwManager)
     var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
     val isSyncing = account.isSyncing
@@ -36,6 +36,9 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
 
     init {
         val receivingAddress = account.receiveAddress
+        if (label.isBlank()) {
+            label = account.label ?: ""
+        }
         displayAddress = if (receivingAddress != null) {
             if (label.isEmpty()) {
                 // Display address in it's full glory, chopping it into three
@@ -90,12 +93,13 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
     }
 
     companion object {
-        private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {
+        private fun isRmcAccountLinked(walletAccount: WalletAccount<out Address>, mbwManager: MbwManager): Boolean {
             val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getAccounts())
             return linked is ColuAccount && (linked.coinType == RMCCoin || linked.coinType == RMCCoinTest)
         }
 
-        private fun showBackupMissingWarning(account: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {
+        @JvmStatic
+        fun showBackupMissingWarning(account: WalletAccount<out Address>, mbwManager: MbwManager): Boolean {
             if (account.isArchived) {
                 return false
             }

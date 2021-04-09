@@ -6,7 +6,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.CommonAccountBacking
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.colu.json.Tx
 import java.util.*
 
@@ -73,13 +73,6 @@ class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountCon
     }
 
     private class InMemoryColuAccountBacking : ColuAccountBacking {
-        override fun saveLastFeeEstimation(feeEstimation: FeeEstimationsGeneric?, assetType: GenericAssetInfo?) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun loadLastFeeEstimation(assetType: GenericAssetInfo?): FeeEstimationsGeneric {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
 
         private val _unspentOuputs = HashMap<OutPoint, TransactionOutputEx>()
         private val _transactions = HashMap<Sha256Hash, Tx.Json>()

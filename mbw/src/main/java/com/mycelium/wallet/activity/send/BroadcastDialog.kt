@@ -3,19 +3,23 @@ package com.mycelium.wallet.activity.send
 import android.app.AlertDialog
 import android.os.AsyncTask
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.DialogFragment
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
+import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
+import com.squareup.otto.Bus
 import java.util.*
 
 
@@ -28,7 +32,7 @@ class BroadcastDialog : DialogFragment() {
         @JvmOverloads
         @JvmStatic
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
-                   , transactionSummary: GenericTransactionSummary): BroadcastDialog? {
+                   , transactionSummary: TransactionSummary): BroadcastDialog? {
             val transaction = account.getTx(transactionSummary.id)
             return create(account, isColdStorage, transaction)
         }
@@ -36,7 +40,7 @@ class BroadcastDialog : DialogFragment() {
         @JvmOverloads
         @JvmStatic
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
-                              , transaction: GenericTransaction): BroadcastDialog? {
+                              , transaction: Transaction): BroadcastDialog? {
             val dialog = BroadcastDialog()
             val bundle = Bundle()
             bundle.putSerializable(accountId, account.id)
@@ -48,9 +52,10 @@ class BroadcastDialog : DialogFragment() {
     }
 
     lateinit var account: WalletAccount<*>
-    lateinit var transaction: GenericTransaction
+    lateinit var transaction: Transaction
     var isCold: Boolean = false
     private var task: BroadcastTask? = null
+    private val bus: Bus = MbwManager.getEventBus()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +63,7 @@ class BroadcastDialog : DialogFragment() {
             isCold = it.getBoolean(coldStorage, false)
             val manager = MbwManager.getInstance(activity)
             account = manager.getWalletManager(isCold).getAccount(it[accountId] as UUID) as WalletAccount<*>
-            transaction = it[tx] as GenericTransaction
+            transaction = it[tx] as Transaction
         }
         startBroadcastingTask()
     }
@@ -90,6 +95,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun returnResult(it: BroadcastResult) {
+        bus.post(TransactionBroadcasted(HexUtils.toHex(transaction.id)))
         if (targetFragment is BroadcastResultListener) {
             (targetFragment as BroadcastResultListener).broadcastResult(it)
         } else if (activity is BroadcastResultListener) {
@@ -99,12 +105,12 @@ class BroadcastDialog : DialogFragment() {
 
     class BroadcastTask(
             val account: WalletAccount<*>,
-            val transaction: GenericTransaction,
+            val transaction: Transaction,
             val listener: ((BroadcastResult) -> Unit)) : AsyncTask<Void, Int, BroadcastResult>() {
         override fun doInBackground(vararg args: Void): BroadcastResult {
             return try {
                 account.broadcastTx(transaction)
-            } catch (e: GenericTransactionBroadcastException) {
+            } catch (e: TransactionBroadcastException) {
                 Log.e("BroadcastDialog", "", e)
                 BroadcastResult(BroadcastResultType.REJECTED)
             }
@@ -125,15 +131,16 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_message) {
                     returnResult(broadcastResult)
                 }
-            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold) {
+            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount || account is ERC20Account) {
                 // When doing cold storage spending we do not offer to queue the transaction
+                // We also do not offer to queue the transaction for eth accounts just yet
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent) {
                     returnResult(broadcastResult)
                 }
             } else {
                 // Offer the user to queue the transaction
                 AlertDialog.Builder(activity)
-                        .setTitle(R.string.no_server_connection)
+                        .setTitle(activity!!.getString(R.string.no_server_connection, ""))
                         .setMessage(R.string.queue_transaction_message)
                         .setPositiveButton(R.string.yes) { textId, listener ->
                             account.queueTransaction(transaction)
@@ -162,10 +169,13 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent_small_fee) {
                     returnResult(broadcastResult)
                 }
+            BroadcastResultType.REJECT_INVALID_TX_PARAMS -> // Transaction rejected, display message and exit
+                Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_invalid_tx_params, broadcastResult.errorMessage)) {
+                    returnResult(broadcastResult)
+                }
             BroadcastResultType.SUCCESS -> {
                 // Toast success and finish
-                Toast.makeText(activity, resources.getString(R.string.transaction_sent),
-                        Toast.LENGTH_LONG).show()
+                activity?.let { Toaster(it).toast(R.string.transaction_sent, false) }
                 returnResult(broadcastResult)
             }
             else -> throw RuntimeException("Unknown broadcast result type ${broadcastResult.resultType}")

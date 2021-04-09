@@ -1,11 +1,7 @@
 Beta channel
 ============
 
-In order to receive updates quicker than others, you need to do two things:
-
-1. Join [the G+ group](https://plus.google.com/communities/102264813364583686576)
-so you are eligible for testing
-2. Then explicitly enable beta versions of the software in
+In order to receive updates quicker than others, you need to enable beta versions of the software in
 [Google Play](https://play.google.com/apps/testing/com.mycelium.wallet)
 
 As beta testers, please make sure you have a recent **backup of the masterseed** and all **private keys** inside Mycelium. Beta testers will experience many bugs.
@@ -16,28 +12,13 @@ Building
 
 To build everything from source, simply checkout the source and build using gradle on the build system you need:
 
- * JDK 1.7
+ * JDK 1.8
 
-Then you need to use the Android SDK manager to install the following components:
-
- * `ANDROID_HOME` environment variable pointing to the directory where the SDK is installed
- * Android SDK Tools 22.6.4
- * SDK Platform Tools 19.0.2
- * Android SDK build Tools 19.1.0
- * Android 4.4.2 (API 19) (at least SDK Platform Rev. 3)
- * Android Extras:
-    * Android Support Repository rev 5
-    * Android Support Library rev 19.1
-    * Google Play services for Froyo rev 12
-    * Google Play services rev 17
-    * Google Repository rev 8
-
-
-The project layout is designed to be used with a recent version of Android Studio (currently 1.1.0)
+The project layout is designed to be used with a recent version of Android Studio (currently 4.1.2)
 
 #### Build commands
 
-On the console type:
+To get the source code, type:
 
     git clone https://github.com/mycelium-com/wallet-android.git
     cd wallet-android
@@ -45,24 +26,58 @@ On the console type:
 
 Linux/Mac type:
 
-    ./gradlew clean test mbw::asProdRel mbw::asBtRel
+    ./gradlew clean test mbw::assembleProdnetRelease mbw::assembleBtctestnetRelease
 
 Windows type:
 
-    gradlew.bat clean test mbw::asProdRel mbw::asBtRel
+    gradlew.bat clean test mbw::assembleProdnetRelease mbw::assembleBtctestnetRelease
 
  - Voila, look into `mbw/build/outputs/apk/` to see the generated apk.
    There are versions for both prodnet and testnet.
 
 Alternatively you can install the latest version from the [Play Store](https://play.google.com/store/apps/details?id=com.mycelium.wallet).
 
-If you cannot access the Play store, you can obtain the apk directly from https://mycelium.com/bitcoinwallet
+If you cannot access the Play store, you can obtain the apk directly from the Mycelium Bitcoin
+Wallet [download page](https://wallet.mycelium.com/contact.html).
+
+App Download Verification
+-------------------------
+
+All versions released by Mycelium are signed with the same release keys. If you do not trust the apk
+you can check that signature with
+[apksigner](https://developer.android.com/studio/command-line/apksigner.html#options-verify):
+
+```
+apksigner verify --print-certs --verbose mycelium.apk
+```
+
+The output should look like:
+
+```
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): false
+Number of signers: 1
+Signer #1 certificate DN: CN=Mycelium Developers, O=Mycelium, L=Vienna, C=AT
+Signer #1 certificate SHA-256 digest: b8e59d4a60b65290efb2716319e50b94e298d7a72c76c2119eb7d8d3afac302e
+Signer #1 certificate SHA-1 digest: be575ec3b3b52e0b2392146cbdb245c91ef5a04f
+Signer #1 certificate MD5 digest: 7aec063675b0206aba3b6175b89abc7d
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 6d9c0cda9dcd3ec5efcdca41243829b1dcf1e9a91c6309bca167807282590a20
+Signer #1 public key SHA-1 digest: b34336038c7ca678285c14aebe78b7d5add90e4c
+Signer #1 public key MD5 digest: a78bdb2b6d074db4b1ff12eb9cddcfa3
+WARNING: ...
+```
 
 Deterministic builds
 ====================
 
-To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using Docker and compare both images following these steps:
+To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium
+wallet yourself using Docker and compare both images following these steps:
 
+* Get the source as above
 * Create your own Docker image from our simple Dockerfile
 
         $ docker build . --tag mycelium-wallet
@@ -71,27 +86,30 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
 
         $ docker images | grep mycelium-wallet
 
+* Use disorderfs to eliminate non-determinism caused by file ordering
+
+        $ mkdir /tmp/s
+        $ sudo disorderfs --sort-dirents=yes --reverse-dirents=no --multi-user=yes $PWD /tmp/s
+        $ cd /tmp/s
+
 * Build Mycelium using Docker
 
-        $ mv local.properties local.properties.bak \
-            ; docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet \
-            ./gradlew clean test :mbw:assProdRel \
-            && ./collectApks.sh
-            ; sudo chown -R $USER:$USER . \
-            ; mv local.properties.bak local.properties
+        $ docker run --rm --volume $(pwd):/project --workdir /project -it mycelium-wallet bash
+        # yes | /opt/android-sdk/tools/bin/sdkmanager "build-tools;28.0.3"
+        # ./gradlew clean :mbw:assProdRel
             
-  What this line does: `local.properties` can break docker compiles. Move it out of the way. Run the
-  mycelium-wallet docker with gradle test and compilation of mbw.
-  `collectApks.sh` copies all apks to `/tmp/release_mbw/` for easier handling. As docker
+  If you see errors about local paths not being found, remove/move away `local.properties`. Run the
+  mycelium-wallet docker with gradle compilation of mbw.
+  As docker
   might run as a different user, its generated files will also be "not yours". Make them yours using
-  `chown` as super user. Last, restore whatever you had as `local.properties`.
+  `chown` as super user.
+  
+  The app can now be found in `mbw/build/outputs/apk/prodnet/release/mbw-prodnet-release.apk`.
   
   As maintainer with release keys you want to run a slightly different command:
   Add these docker parameters: `--volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest`
   Build all these targets `:mbw:assBtctRel :mbw:assProdRel :mbw:assBtctDeb :mbw:assProdDeb`
-  and to turn the missing release keys into an error, add this gradle option `-PenforceReleaseSigning`
-  
-  After this step succeeds, all apks are in `/tmp/release_mbw/`.
+  and to get an error on missing release keys, add this gradle option `-PenforceReleaseSigning`
   
   Note: for those who use Docker Toolbox $(pwd) should be under your home user folder since this is the [only folder that is shared with VM](https://github.com/docker/kitematic/issues/2738).
 
@@ -110,7 +128,7 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
         java -jar ~/path/to/apktool.jar d mbw-prodnet-release.apk
         java -jar ~/path/to/apktool.jar d mycelium-signed.apk
 
-* Compare signed apk with unsigned locally built apk using a diff tool such as meld
+* Compare signed apk with unsigned locally built apk using a diff tool
 
         diff --brief --recursive  mbw-prodnet-release/ mycelium-signed/ | grep -v "META-INF/CERT.RSA\|META-INF/CERT.SF\|META-INF/MANIFEST.MF"
 
@@ -119,7 +137,7 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
   
   * `original/META-INF/CERT.RSA` 
   * `original/META-INF/CERT.SF` 
-  * `original/META-INF/MANIFEST.MF` 
+  * `original/META-INF/MANIFEST.MF`
 
 Features
 ========

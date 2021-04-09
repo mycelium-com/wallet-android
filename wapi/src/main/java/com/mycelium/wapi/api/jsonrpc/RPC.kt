@@ -43,11 +43,7 @@ object RPC {
 
     internal fun toJsonTree(any: Any): JsonElement = jsonParser.toJsonTree(any)
 
-    internal fun <T> fromJson(json: JsonElement, type: Class<T>) = jsonParser.fromJson(json, type)
-
-    fun <T> fromJson(json: BufferedReader, type: Class<T>): T = jsonParser.fromJson(JsonReader(json), type)
-
-    inline fun <reified T> fromJson(json: BufferedReader): T = jsonParser.fromJson(JsonReader(json), T::class.java)
+    fun <T> fromJson(json: String, type: Class<T>): T = jsonParser.fromJson(json, type)
 
     @JvmStatic
     fun registerTypeAdapter(type: Type, typeAdapter: Any) {

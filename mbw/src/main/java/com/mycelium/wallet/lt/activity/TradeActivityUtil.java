@@ -42,19 +42,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
-import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
+import com.mrd.bitlib.StandardTransactionBuilder.InsufficientBtcException;
+import com.mrd.bitlib.StandardTransactionBuilder.BtcOutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.lt.api.model.PriceFormula;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -65,20 +63,24 @@ public class TradeActivityUtil {
 
    public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
       WalletAccount account = mbwManager.getSelectedAccount();
-      LocalTraderManager lt = mbwManager.getLocalTraderManager();
 
       if (!account.canSpend()) {
          // this is a watch-only account
          return false;
       }
-      Address address = Address.getNullAddress(mbwManager.getNetwork());
+      BitcoinAddress address = BitcoinAddress.getNullAddress(mbwManager.getNetwork());
       BtcReceiver receiver = null;
       receiver = new BtcReceiver(address, ts.satoshisFromSeller);
       try {
-         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), account.getFeeEstimations().getNormal().value);
-      } catch (OutputTooSmallException e) {
+         long estimatedFee = mbwManager
+                 .getFeeProvider(account.getCoinType())
+                 .getEstimation()
+                 .getNormal()
+                 .getValueAsLong();
+         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), estimatedFee);
+      } catch (BtcOutputTooSmallException e) {
          throw new RuntimeException(e);
-      } catch (InsufficientFundsException e) {
+      } catch (InsufficientBtcException e) {
          return false;
       } catch (UnableToBuildTransactionException e) {
          return false;
@@ -87,7 +89,7 @@ public class TradeActivityUtil {
    }
 
    public static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
-                                                               Address buyerAddress, Address feeAddress, WalletAccount acc, long minerFeeToUse) {
+                                                               BitcoinAddress buyerAddress, BitcoinAddress feeAddress, WalletAccount acc, long minerFeeToUse) {
       Preconditions.checkArgument(satoshisForBuyer > MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
@@ -98,7 +100,7 @@ public class TradeActivityUtil {
       }
       try {
          return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);
-      } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException e) {
+      } catch (BtcOutputTooSmallException | InsufficientBtcException | UnableToBuildTransactionException e) {
          throw new RuntimeException(e);
       }
    }

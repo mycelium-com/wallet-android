@@ -1,37 +1,38 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
+import com.mycelium.wapi.wallet.Address;
 
 import java.math.BigInteger;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class CryptoCurrency extends AbstractAsset {
+public class CryptoCurrency extends AbstractAsset {
     private static final long serialVersionUID = 1L;
 
     protected String id;
-    protected int addressHeader;
-    protected int p2shHeader;
-    protected int dumpedPrivateKeyHeader;
-    protected int[] acceptableAddressCodes;
-    protected int spendableCoinbaseDepth;
-    protected String uriScheme;
-    protected Integer bip44Index;
     protected Integer unitExponent;
     protected Integer friendlyDigits;
-    protected String addressPrefix;
-    protected Value feeValue;
-    protected Value minNonDust;
-    protected Value softDustLimit;
-    protected SoftDustPolicy softDustPolicy;
-    protected FeePolicy feePolicy = FeePolicy.FEE_PER_KB;
-    protected byte[] signedMessageHeader;
+    protected boolean isUtxosBased;
 
+    public CryptoCurrency(String id, String name, String symbol, Integer unitExponent, Integer friendlyDigits, boolean isUtxosBased) {
+        this.id = id;
+        this.name = name;
+        this.symbol = symbol;
+        this.unitExponent = unitExponent;
+        this.friendlyDigits = friendlyDigits;
+        this.isUtxosBased = isUtxosBased;
+    }
+
+    @Nonnull
     @Override
     public String getName() {
         return checkNotNull(name, "A coin failed to set a name");
     }
 
+    @Nonnull
     @Override
     public String getSymbol() {
         return checkNotNull(symbol, "A coin failed to set a symbol");
@@ -51,13 +52,7 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return str.getBytes(Charsets.UTF_8);
     }
 
-    /**
-     Return an address prefix like NXT- or BURST-, otherwise and empty string
-     */
-    public String getAddressPrefix() {
-        return checkNotNull(addressPrefix, "A coin failed to set the address prefix");
-    }
-
+    @Nonnull
     @Override
     public Value oneCoin() {
         if (oneCoin == null) {
@@ -67,15 +62,18 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return oneCoin;
     }
 
-    public FeePolicy getFeePolicy() {
-        return feePolicy;
-    }
-
+    @Nonnull
     @Override
-    public Value value(String string) {
+    public Value value(@Nonnull String string) {
         return Value.parse(this, string);
     }
 
+    @Override
+    public Address parseAddress(String address) {
+        return null;
+    }
+
+    @Nonnull
     @Override
     public Value value(long units) {
         return Value.valueOf(this, units);
@@ -86,11 +84,15 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return "Coin{" +
                 "name='" + name + '\'' +
                 ", symbol='" + symbol + '\'' +
-                ", bip44Index=" + (bip44Index != null ?  bip44Index : "null") +
                 '}';
     }
 
+    @Nonnull
     public String getId() {
         return id;
+    }
+
+    public boolean isUtxosBased() {
+        return isUtxosBased;
     }
 }

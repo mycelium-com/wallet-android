@@ -4,9 +4,8 @@ import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.crypto.RandomSource
-import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.AesKeyCipher
@@ -21,8 +20,8 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYP
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
+import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 import kotlin.collections.ArrayList
@@ -37,7 +36,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                       internal val signatureProviders: ExternalSignatureProviderProxy?,
                       internal val loadingProgressUpdater: LoadingProgressUpdater?,
                       internal val eventHandler: AbstractBtcAccount.EventHandler?) :
-        GenericModule(metadataStorage), WalletModule {
+        WalletModule(metadataStorage) {
 
     override fun getAccountById(id: UUID): WalletAccount<*>? {
         return accounts[id]
@@ -47,14 +46,13 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
-    private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
-
     override fun setCurrencySettings(currencySettings: CurrencySettings) {
         this.settings = currencySettings as BTCSettings
     }
 
     private val accounts = mutableMapOf<UUID, HDAccount>()
-    override fun getId(): String = ID
+
+    override val id = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
@@ -111,18 +109,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                     val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
                     keyManagerMap[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
                 }
-                ACCOUNT_TYPE_UNRELATED_X_PUB -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
-                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER -> {
-                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
-                }
+                ACCOUNT_TYPE_UNRELATED_X_PUB,
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR,
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER,
                 ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY -> {
                     val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
                     keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
@@ -191,7 +180,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             }
             is AdditionalHDAccountConfig -> {
                 // Get the master seed
-                val masterSeed = getMasterSeed(AesKeyCipher.defaultKeyCipher())
+                val masterSeed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
 
                 val accountIndex = getCurrentBip44Index() + 1
 
@@ -279,7 +268,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         if (config is ExternalSignaturesAccountConfig && signatureProviders == null)
             return null
 
-        return createLabel(getBaseLabel(config), id)
+        val label = createLabel(getBaseLabel(config))
+        storeLabel(id, label)
+        return label
     }
 
     private fun getBaseLabel(cfg: Config): String {
@@ -292,23 +283,6 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         }
     }
 
-    /**
-     * Get the master seed in plain text
-     *
-     * @param cipher the cipher used to decrypt the master seed
-     * @return the master seed in plain text
-     * @throws InvalidKeyCipher if the cipher is invalid
-     */
-    @Throws(InvalidKeyCipher::class)
-    fun getMasterSeed(cipher: KeyCipher): Bip39.MasterSeed {
-        val binaryMasterSeed = secureStore.getDecryptedValue(MASTER_SEED_ID, cipher)
-        val masterSeed = Bip39.MasterSeed.fromBytes(binaryMasterSeed, false)
-        if (!masterSeed.isPresent) {
-            throw RuntimeException()
-        }
-        return masterSeed.get()
-    }
-
     fun getAccountByIndex(index: Int): HDAccount? {
         return accounts.values.firstOrNull { it.accountIndex == index }
     }
@@ -319,7 +293,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         ?.accountIndex
         ?: -1
 
-    fun hasBip32MasterSeed(): Boolean = secureStore.hasCiphertextValue(MASTER_SEED_ID)
+    fun hasBip32MasterSeed(): Boolean = secureStore.hasCiphertextValue(MasterSeedManager.MASTER_SEED_ID)
 
     /**
      * To create an additional HD account from the master seed, the master seed must be present and
@@ -360,17 +334,17 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         return allIndices.subtract(accountIndices)
     }
 
-    fun getGapAddresses(cipher: KeyCipher): List<Address> {
+    fun getGapAddresses(cipher: KeyCipher): List<BitcoinAddress> {
         val gaps: Set<Int> = getGapsBug()
         // Get the master seed
-        val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
+        val masterSeed: Bip39.MasterSeed = MasterSeedManager.getMasterSeed(secureStore, cipher)
         val tempSecureBacking = InMemoryBtcWalletManagerBacking()
 
         val tempSecureKeyValueStore = SecureKeyValueStore(tempSecureBacking, RandomSource {
             // randomness not needed for the temporary keystore
         })
 
-        val addresses: MutableList<Address> = mutableListOf()
+        val addresses: MutableList<BitcoinAddress> = mutableListOf()
         for (gapIndex in gaps.indices) {
             for (derivationType: BipDerivationType in BipDerivationType.values()) {
                 // Generate the root private key
@@ -384,7 +358,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
     fun createArchivedGapFiller(cipher: KeyCipher, accountIndex: Int): UUID {
         // Get the master seed
-        val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
+        val masterSeed: Bip39.MasterSeed = MasterSeedManager.getMasterSeed(secureStore, cipher)
 
         synchronized(accounts) {
             backing.beginTransaction()

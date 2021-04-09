@@ -18,13 +18,13 @@ package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
-import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
+import com.mrd.bitlib.StandardTransactionBuilder.InsufficientBtcException;
+import com.mrd.bitlib.StandardTransactionBuilder.BtcOutputTooSmallException;
 import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionDetails;
@@ -55,7 +55,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
     * @param address the address to check
     * @return true iff this address is one of our own
     */
-   boolean isMine(Address address);
+   boolean isMine(BitcoinAddress address);
 
    /**
     * Get the unique ID of this account
@@ -77,7 +77,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
     * continuously use the same receiving address while others return new ones
     * as they get used.
     */
-   Optional<Address> getReceivingAddress();
+   Optional<BitcoinAddress> getReceivingAddress();
 
    /**
     * Get the current balance of this account based on the last synchronized
@@ -110,7 +110,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
     * @param transaction the transaction to broadcast
     * @return the broadcast result
     */
-   BroadcastResult broadcastTransaction(Transaction transaction);
+   BroadcastResult broadcastTransaction(BitcoinTransaction transaction);
 
    /**
     * Create a new unsigned transaction sending funds to one or more addresses.
@@ -126,12 +126,12 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
     *
     * @param receivers the receiving address and amount to send
     * @return an unsigned transaction.
-    * @throws StandardTransactionBuilder.OutputTooSmallException    if one of the outputs were too small
-    * @throws StandardTransactionBuilder.InsufficientFundsException if not enough funds were present to create the unsigned
+    * @throws BtcOutputTooSmallException    if one of the outputs were too small
+    * @throws InsufficientBtcException if not enough funds were present to create the unsigned
     *                                    transaction
     */
-   UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
-           StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+   UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse) throws BtcOutputTooSmallException,
+           InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    /**
     * Create a new unsigned transaction sending funds to one or more defined script outputs.
@@ -148,12 +148,12 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
     * @param outputs the receiving output (script and amount)
     * @param minerFeeToUse use this minerFee
     * @return an unsigned transaction.
-    * @throws OutputTooSmallException    if one of the outputs were too small
-    * @throws InsufficientFundsException if not enough funds were present to create the unsigned
+    * @throws BtcOutputTooSmallException    if one of the outputs were too small
+    * @throws InsufficientBtcException if not enough funds were present to create the unsigned
     *                                    transaction
     */
-   UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws OutputTooSmallException,
-           InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+   UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws BtcOutputTooSmallException,
+           InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    /**
     * Sign an unsigned transaction without broadcasting it.
@@ -163,7 +163,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
     * @return the signed transaction.
     * @throws InvalidKeyCipher
     */
-   Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
+   BitcoinTransaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws InvalidKeyCipher;
 
    boolean broadcastOutgoingTransactions();
@@ -228,10 +228,10 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
    /**
     * returns true if this is one of our already used or monitored external (=normal receiving) addresses
     */
-   boolean isOwnExternalAddress(Address address);
+   boolean isOwnExternalAddress(BitcoinAddress address);
 
    /**
     * returns true if this is one of our already used or monitored internal (="change") addresses
     */
-   boolean isOwnInternalAddress(Address address);
+   boolean isOwnInternalAddress(BitcoinAddress address);
 }

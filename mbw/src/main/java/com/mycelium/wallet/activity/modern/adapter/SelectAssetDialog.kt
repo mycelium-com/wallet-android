@@ -10,7 +10,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.event.AssetSelected
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.squareup.otto.Bus
 
 class SelectAssetDialog : DialogFragment() {
@@ -46,11 +46,11 @@ class SelectAssetDialog : DialogFragment() {
     }
 
     companion object {
-        private var addressList: List<GenericAddress>? = null
+        private var addressList: List<Address>? = null
         private val instance: SelectAssetDialog = SelectAssetDialog()
 
         @JvmStatic
-        fun getInstance(genericAddresses: List<GenericAddress>): SelectAssetDialog {
+        fun getInstance(genericAddresses: List<Address>): SelectAssetDialog {
             addressList = genericAddresses
             return instance
         }

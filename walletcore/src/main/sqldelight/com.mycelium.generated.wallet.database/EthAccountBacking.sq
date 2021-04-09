@@ -1,0 +1,80 @@
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import java.math.BigInteger;
+import java.util.UUID;
+
+-- Creates table for transactions
+
+CREATE TABLE IF NOT EXISTS EthAccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT AS UUID NOT NULL,
+    fromAddress TEXT NOT NULL,
+    toAddress TEXT NOT NULL,
+    nonce TEXT AS BigInteger,
+    gasLimit TEXT AS BigInteger DEFAULT 21000 NOT NULL,
+    gasUsed TEXT AS BigInteger DEFAULT 21000 NOT NULL,
+    success INTEGER AS Boolean NOT NULL DEFAULT 1,
+    internalValue TEXT AS Value,
+    PRIMARY KEY (txid, uuid),
+    FOREIGN KEY (txid, uuid)
+            REFERENCES AccountBacking (txid, uuid)
+            ON DELETE CASCADE
+);
+
+
+selectTransactionSummaries:
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (:uuid) ORDER BY b.blockNumber DESC, b.timestamp DESC
+        LIMIT (:limit) OFFSET (:offset);
+
+
+-- Selects transactions since time in seconds
+
+selectTransactionSummariesSince:
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (:uuid) AND b.timestamp > (:timestamp)
+        ORDER BY b.blockNumber DESC, b.timestamp DESC;
+
+selectTransactionSummaryById:
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (?) AND eb.txid = (?);
+
+selectUnconfirmedTransactions:
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
+           b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (:uuid) AND b.confirmations = 0 ORDER BY b.blockNumber DESC, b.timestamp DESC;
+
+insertTransaction:
+INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit,
+                                         success, internalValue)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+updateGasUsed:
+UPDATE EthAccountBacking
+SET gasUsed = (?)
+WHERE uuid = (?) AND txid = (?);
+
+updateNonce:
+UPDATE EthAccountBacking
+SET nonce = (?)
+WHERE uuid = (?) AND txid = (?);
+
+deleteTransaction:
+DELETE FROM EthAccountBacking
+WHERE uuid = (?) AND txid = (?);

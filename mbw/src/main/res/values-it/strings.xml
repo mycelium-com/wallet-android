@@ -5,18 +5,18 @@
     <string name="add_unrelated_account_title">Aggiungi account non integrato</string>
     <string name="import_seed_title">Importa Master Seed</string>
     <string name="import_words_title">Inserisci wordlist</string>
-    <string name="add_account_desc">Mycelium supporta sia account HD (Hierarchical Deterministic) che a singolo indirizzo. Tutti gli account HD sono creati partendo dallo stesso Master Seed. La prima volta che ne crei uno, il tuo Master Seed verrà configurato.</string>
+    <string name="add_account_desc">Mycelium supporta sia account HD Bitcoin (Hierarchical Deterministic) che a singolo indirizzo. Tutti gli account HD Bitcoin sono creati partendo dallo stesso Master Seed. La prima volta che ne crei uno, il tuo Master Seed verrà configurato.</string>
     <string name="add_single_acc_info">Per aggiungere un account a singolo indirizzo basato su una chiave privata o un indirizzo in sola lettura, clicca sul pulsante \"Impostazioni avanzate\" qui sotto.</string>
-    <string name="scan_desc">Scandisci indirizzo Bitcoin, chiave privata o account HD.</string>
+    <string name="scan_desc">Scandisci indirizzo Bitcoin, chiave privata o account HD Bitcoin.</string>
     <string name="scan_seed">Scandisci il Master Seed da un backup di Mycelium</string>
-    <string name="use_acc_first">Puoi avere un solo account HD non in uso.</string>
+    <string name="use_acc_first">Puoi avere un solo account HD Bitcoin non in uso.</string>
     <string name="clipboard_desc">Importa un indirizzo bitcoin o una chiave privata dagli appunti.</string>
     <string name="wordlist_des">Crea il Master Seed dalla wordlist</string>
     <string name="scan">Scandisci</string>
     <string name="advanced">Impostazioni avanzate</string>
     <string name="clipboard">Appunti</string>
     <string name="enter_wordlist">Inserisci la wordlist</string>
-    <string name="hd_account">Aggiungere conto HD</string>
+    <string name="hd_account">Aggiungere conto HD Bitcoin</string>
     <string name="close">Chiudi</string>
     <string name="sending">Invio di %1$s</string>
     <string name="receiving">Ricezione di %1$s</string>
@@ -24,7 +24,6 @@
     <string name="send">Invia</string>
     <string name="receive">Ricevi</string>
     <string name="private_key_deleted">Chiave privata eliminata.</string>
-    <string name="enter_recipient_title">Inserisci indirizzo destinatario</string>
     <string name="recipient_title">Indirizzo destinatario</string>
     <string name="amount_label">Importo:</string>
     <string name="amount_title">Importo</string>
@@ -38,7 +37,7 @@
     <string name="amount_too_small">L\'importo che stai inviando è troppo basso</string>
     <string name="unable_to_build_tx">Impossibile generare la transazione</string>
     <string name="amount_too_small_short">Importo troppo basso</string>
-    <string name="miner_fee_label">Commissione:</string>
+    <string name="miner_fee_label">Commissione</string>
     <string name="miner_fee_title">Commissione</string>
     <string name="synchronizing">Sincronizzazione</string>
     <string name="transaction_not_sent">Invio della transazione fallito</string>
@@ -100,11 +99,11 @@
     <string name="export_to_clipboard_warning">Attenzione: esportando la chiave privata negli appunti la renderà esposta a tutte le altre applicazioni installate sul tuo dispositivo.\n\nNota: non basta memorizzare la chiave privata negli appunti, dovrai incollarla in un posto sicuro.\n\nDesideri continuare?</string>
     <string name="found_clipboard_private_key_title">Chiave privata trovata negli appunti</string>
     <string name="exchange_source_not_available">Tasso di cambio non disponibile per %1$s</string>
-    <string name="my_own_address_warning">Nota: Stai per inviare ad uno dei tuoi indirizzi.</string>
-    <string name="read_only_warning">Attenzione: Il portafogli non contiene la chiave privata di questo indirizzo. \nNon puoi spendere bitcoin senza possedere la chiave privata associata all\'indirizzo.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Nota: Stai per inviare ad uno dei tuoi indirizzi.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Attenzione: Il portafogli non contiene la chiave privata di questo indirizzo. \nNon puoi spendere bitcoin senza possedere la chiave privata associata all\'indirizzo.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Aggiungi indirizzo alla rubrica</string>
-    <string name="scan_address_book_desc">Scandisci un indirizzo bitcoin.</string>
-    <string name="clipboard_address_book_desc">Importa indirizzo bitcoin dagli appunti.</string>
+    <string name="scan_address_book_desc">Scandisci un indirizzo.</string>
+    <string name="clipboard_address_book_desc">Importa indirizzo dagli appunti.</string>
     <string name="get_private_key">Importa la chiave privata da:</string>
     <string name="cold_storage">Cold storage</string>
     <string name="cold_storage_title">Spendi da cold storage</string>
@@ -133,8 +132,6 @@
     <string name="broadcasting_transaction">Trasmissione della transazione</string>
     <string name="transaction_rejected_message">La transazione è stata rifiutata dalla rete. Questo significa che il tuo portafogli non è sincronizzato</string>
     <string name="enter_bitcoin_address">Inserisci indirizzo Bitcoin</string>
-    <string name="bitcoin_address_invalid">Indirizzo bitcoin non valido</string>
-    <string name="bitcoin_address_valid">Indirizzo bitcoin valido</string>
     <string name="redirecting_to_block_explorer">Reindirizzamento verso un block explorer</string>
     <string name="enter_local_currency">Inserire la valuta locale</string>
     <string name="using_address_from_clipboard">Indirizzo copiato dagli appunti in uso</string>
@@ -189,7 +186,7 @@
     <string name="lock_label">Blocca</string>
     <string name="secure_my_funds">Proteggi i miei fondi</string>
     <string name="ignore_warnings_title">Ignorare gli avvisi</string>
-    <string name="ignore_warnings_description">Desideri ignorare gli avvertimenti che questo account non HD contiene fondi, e che possiedi un backup verificato della chiave privata?</string>
+    <string name="ignore_warnings_description">Desideri ignorare gli avvertimenti che questo account non HD Bitcoin contiene fondi, e che possiedi un backup verificato della chiave privata?</string>
     <string name="explore">Esplora</string>
     <string name="getting_location">ottenimento della posizione&#8230;</string>
     <string name="about">Informazioni</string>
@@ -391,7 +388,7 @@
     <string name="ignore_update">Ignora questo aggiornamento</string>
     <string name="get_from">Scarica da</string>
     <string name="sign_message">Firma il messaggio</string>
-    <string name="cant_sign_message">Non è possibile firmare un messaggio con un account HD</string>
+    <string name="cant_sign_message">Non è possibile firmare un messaggio con un account HD Bitcoin</string>
     <string name="enter_message_hint">Inserire il messaggio che si desidera firmare</string>
     <string name="copy_signature">Copia la firma negli appunti</string>
     <string name="share_signature">Condividi il testo + la firma</string>
@@ -424,7 +421,7 @@
     <!-- BitID end -->
     <string name="selected_archived_warning">Non è possibile lavorare su account archiviati.</string>
     <string name="transaction_not_broadcasted_info">Impossibile trasmettere</string>
-    <string name="hd_account_creation_started">Creazione di nuovi Account HD&#8230;</string>
+    <string name="hd_account_creation_started">Creazione di nuovi Account HD Bitcoin&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Preparazione portafogli...</string>
     <string name="importing_master_seed_from_wordlist">Calcolo del Master Seed&#8230;</string>
     <string name="importing_wordlist_enter_next_word">inserisci la parola numero %1$s of %2$s</string>
@@ -466,18 +463,18 @@
     <string name="verify_wordlist_success_pin_already_set">Il backup della tua wordlist è stato verificato con successo. Custodisci il backup in un luogo sicuro, i tuoi fondi dipendono da esso!</string>
     <string name="note_down_password_title">Trascriviti la tua password</string>
     <string name="title_wrong_password">Password errata, riprovare</string>
-    <string name="dont_allow_archiving_unused_notification">Non è possibile archiviare un account HD inutilizzato</string>
+    <string name="dont_allow_archiving_unused_notification">Non è possibile archiviare un account HD Bitcoin inutilizzato</string>
     <string name="newly_generated_coins_from_coinbase">Monete appena generate</string>
     <string name="button_continue">Continua</string>
     <string name="butto_show_release_notes">Mostra dettagli</string>
     <string name="word_does_not_exist_in_wordlist">La parola che hai digitato non è presente nella lista di parole</string>
-    <string name="pref_legacy_backup_title">Backup non HD</string>
-    <string name="pref_legacy_backup_summary">Crea un backup non HD, contenente account a singolo indirizzo.</string>
-    <string name="pref_legacy_backup_verify_title">Verifica backup non HD</string>
-    <string name="pref_legacy_backup_verify_summary">Verificare un backup esistente di tipo non HD</string>
+    <string name="pref_legacy_backup_title">Backup non HD Bitcoin</string>
+    <string name="pref_legacy_backup_summary">Crea un backup non HD Bitcoin, contenente account a singolo indirizzo.</string>
+    <string name="pref_legacy_backup_verify_title">Verifica backup non HD Bitcoin</string>
+    <string name="pref_legacy_backup_verify_summary">Verificare un backup esistente di tipo non HD Bitcoin</string>
     <string name="error_no_browser">Impossibile accedere al sito web, nessun browser trovato su questo dispositivo</string>
     <string name="transaction_label_title">Etichetta della transazione</string>
-    <string name="no_spending_records">Non hai un account che permette di inviare bitcoin.\n\nPer inviare bitcoin è necessario un account che contenga una chiave privata. Al momento non ci sono account HD o a singolo indirizzo con chiavi private attivi. Si prega di attivare o importare un account che contenga una chiave privata.</string>
+    <string name="no_spending_records">Non hai un account che permette di inviare bitcoin.\n\nPer inviare bitcoin è necessario un account che contenga una chiave privata. Al momento non ci sono account HD Bitcoin o a singolo indirizzo con chiavi private attivi. Si prega di attivare o importare un account che contenga una chiave privata.</string>
     <string name="select_key_for_signing">Seleziona la chiave per firmare</string>
     <string name="playstore_link_label">PlayStore Link</string>
     <string name="direct_apk_link_label">Download\ndiretto</string>
@@ -527,7 +524,7 @@
     <string name="select_ext_sig_account_to_spend_from">Seleziona l\'account da cui inviare bitcoin</string>
     <string name="ext_sig_passphrase_description">Inserisci la passphrase opzionale</string>
     <string name="ext_sig_show_passphrase">Visualizza la passphrase</string>
-    <string name="trezor_import_account">Importare un conto Trezor-HD</string>
+    <string name="trezor_import_account">Importare un conto Trezor-HD Bitcoin</string>
     <string name="ext_sig_import_account_caption">Importa un account</string>
     <string name="ext_sig_select_account_to_import">Seleziona l\'account da importare</string>
     <string name="ext_sig_verify_transaction_on_device">Verifica e conferma la\ntransazione sul tuo dispositivo</string>
@@ -546,11 +543,11 @@
     <string name="ext_sig_unnamed">(senza nome)</string>
     <string name="keepkey_cold_storage_header">Cold storage di KeepKey</string>
     <string name="keepkey_new_firmware_description">È disponibile un nuovo firmware per KeepKey. \nSi prega di usare l\'estensione di Chrome per KeepKey su un PC per aggiornare il dispositivo.</string>
-    <string name="keepkey_import_account">Importa un account KeepKey HD</string>
+    <string name="keepkey_import_account">Importa un account KeepKey HD Bitcoin</string>
     <string name="ledger_scanning_status">Ledger Wallet in funzione - scansione degli account</string>
     <string name="connect_your_ledger_info">Il Ledger Nano funziona solo con dispositivi che supportano USB-OTG (on-the-go).\n\nPer collegarsi è necessario un adattatore o un cavo USB-OTG. Collega il Ledger Nano sul lato client e il lato host al telefono/tablet.</string>
     <string name="select_ledger_account_to_spend_from">Seleziona l\'account da cui inviare bitcoin</string>
-    <string name="ledger_import_account">Importa un account Ledger HD</string>
+    <string name="ledger_import_account">Importa un account Ledger HD Bitcoin</string>
     <string name="ledger_import_account_caption">Importa un account</string>
     <string name="ledger_select_account_to_import">Seleziona l\'account da importare</string>
     <string name="ledger_amount">Importo:</string>
@@ -582,8 +579,8 @@
     <string name="both">Entrambi</string>
     <string name="button_changelog">Elenco modifiche</string>
     <string name="hint_type_to_filter">scrivi per filtrare la lista</string>
-    <string name="info_add_account_keep_backup_secure">Informazione: Tutti gli account di HD derivano dal tuo Master Master - se conservi in modo adeguato il backup delle 12 parole, potrai ripristinare in sicurezza tutti i tuoi account HD.</string>
-    <string name="warning_add_account_no_backup">Attenzione: Non hai un backup confermato del tuo Master Seed. Tutti i tuoi account HD dipendono da esso. Gi account sono sicuri e recuperabili solo se si dispone di un backup valido e ben conservato.</string>
+    <string name="info_add_account_keep_backup_secure">Informazione: Tutti gli account di HD Bitcoin derivano dal tuo Master Master - se conservi in modo adeguato il backup delle 12 parole, potrai ripristinare in sicurezza tutti i tuoi account HD Bitcoin.</string>
+    <string name="warning_add_account_no_backup">Attenzione: Non hai un backup confermato del tuo Master Seed. Tutti i tuoi account HD Bitcoin dipendono da esso. Gi account sono sicuri e recuperabili solo se si dispone di un backup valido e ben conservato.</string>
     <string name="transaction_to_address_prefix">A: %s</string>
     <!-- from libNetCipher -->
     <string name="install_orbot_">Installare Orbot?</string>

@@ -12,4 +12,6 @@ import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                               keyStore: PublicPrivateKeyStore, network: NetworkParameters,
                               backing: SingleAddressBtcAccountBacking, wapi: Wapi)
-    : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE))
+    : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
+    override fun canSign(): Boolean = false
+}

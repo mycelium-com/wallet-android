@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_activity_eth">
+
+    <data>
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/tvAdvancedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="@={viewModel.isAdvancedBlockExpanded}"
+            android:text="@string/transaction_options"
+            android:alpha="@{viewModel.isAdvancedBlockExpanded ? 1f : 0.6f}"
+            android:textColor="@color/white"
+            bind:switchPadding="8dp" />
+
+        <include
+            layout="@layout/send_coins_advanced_eth"
+            bind:activity="@{activity}"
+            bind:viewModel="@{viewModel}" />
+    </LinearLayout>
+</layout>

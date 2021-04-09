@@ -78,8 +78,8 @@ public class ScriptOutputMsg extends ScriptOutput implements Serializable {
    }
 
    @Override
-   public Address getAddress(NetworkParameters network) {
+   public BitcoinAddress getAddress(NetworkParameters network) {
       byte[] addressBytes = getAddressBytes();
-      return Address.fromStandardBytes(addressBytes, network);
+      return BitcoinAddress.fromStandardBytes(addressBytes, network);
    }
 }

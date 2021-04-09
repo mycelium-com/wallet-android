@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="java.text.SimpleDateFormat" />
+
+        <variable
+            name="headerViewModel"
+            type="com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.kyc.steps.viewmodel.Step1ViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/stepHeader"
+            layout="@layout/part_bequant_step_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/bequant_gray_2"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvTitle"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/personal_information"
+                    android:textSize="20sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.5"
+                    android:text="Please fill in your personal information as it appears on the proof of identity document."
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/first_name"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/edFirstname"
+                    style="@style/Bequant.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:singleLine="true"
+                    android:text="@={viewModel.firstName}"
+                    tools:text="Name Name" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/last_name"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/edLastname"
+                    style="@style/Bequant.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:singleLine="true"
+                    android:text="@={viewModel.lastName}"
+                    tools:text="Name Name" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/date_of_birth"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDateOfBirth"
+                    style="@style/Bequant.EditText"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:hint="@string/mm_dd_yyyy"
+                    android:text="@{viewModel.birthday != null ? @string/format(viewModel.birthday) : null}"
+                    app:drawableRightCompat="@drawable/ic_date_of_birth"
+                    tools:text="11/02/1999" />
+
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/nationality"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvNationality"
+                    style="@style/Bequant.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    app:drawableEndCompat="@drawable/ic_arrow_drop_down"
+                    android:gravity="center_vertical"
+                    android:text="@{viewModel.nationality}"
+                    tools:text="American" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:text="@string/fatca_declaration"
+                    android:textSize="20sp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.5"
+                    android:lineSpacingExtra="5dp"
+                    android:text="@string/fatca_legislations_requires"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <RadioButton
+                        android:id="@+id/underFatca"
+                        style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:text="@string/i_warrant_that_i_do_fall_under_fatca"
+                        android:textSize="16sp" />
+
+                    <RadioButton
+                        style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:paddingLeft="10dp"
+                        android:text="@string/i_warrant_that_i_do_not_fall_under_fatca"
+                        android:textSize="16sp" />
+                </RadioGroup>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/termsOfUse"
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/by_clicking_proceed_you_agree_to_our_terms_of_use"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btNext"
+                    style="@style/Bequant.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:enabled="@{viewModel.nextButton}"
+                    android:text="@string/next" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </ScrollView>
+
+        <include
+            layout="@layout/part_bequant_stepper_body"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:headerViewModel="@{headerViewModel}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stepHeader"
+            tools:visibility="gone" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

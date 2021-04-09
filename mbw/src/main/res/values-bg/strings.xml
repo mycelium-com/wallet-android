@@ -6,18 +6,18 @@
     <string name="add_unrelated_account_title">Добави несвързана сметка</string>
     <string name="import_seed_title">Импортиране на Master Seed</string>
     <string name="import_words_title">Въведете списъка с думи</string>
-    <string name="add_account_desc">Mycelium поддържа HD сметки и сметки с единични адреси. Всички създадени HD сметки са базирани на един и същи Master Seed.</string>
+    <string name="add_account_desc">Mycelium поддържа HD Bitcoin сметки и сметки с единични адреси. Всички създадени HD Bitcoin сметки са базирани на един и същи Master Seed.</string>
     <string name="add_single_acc_info">За да добавите сметка с единичен адрес, базирана на частен ключ или адрес само за четене, моля кликнете бутона \"Разширени настройки\" по-долу.</string>
-    <string name="scan_desc">Сканиране на биткоин адрес, частен ключ или HD сметка.</string>
+    <string name="scan_desc">Сканиране на биткоин адрес, частен ключ или HD Bitcoin сметка.</string>
     <string name="scan_seed">Сканиране на Master Seed от Mycelium резервно копие</string>
-    <string name="use_acc_first">Може да имате само една неизползвана HD сметка.</string>
+    <string name="use_acc_first">Може да имате само една неизползвана HD Bitcoin сметка.</string>
     <string name="clipboard_desc">Импортиране на биткоин адрес или частен ключ от клипборда.</string>
     <string name="wordlist_des">Създаване на Master Seed от списък с думи</string>
     <string name="scan">Сканиране</string>
     <string name="advanced">Разширени настройки</string>
     <string name="clipboard">Клипборд</string>
     <string name="enter_wordlist">Въведете списък с думи</string>
-    <string name="hd_account">Добавяне на HD сметка</string>
+    <string name="hd_account">Добавяне на HD Bitcoin сметка</string>
     <string name="close">Затвори</string>
     <string name="sending">Изпращане на %1$s</string>
     <string name="receiving">Получаване на %1$s</string>
@@ -25,7 +25,6 @@
     <string name="send">Изпрати</string>
     <string name="receive">Приеми</string>
     <string name="private_key_deleted">Частният ключ е изтрит.</string>
-    <string name="enter_recipient_title">Въведете приемащия адрес</string>
     <string name="recipient_title">Приемащ адрес</string>
     <string name="amount_label">Сума:</string>
     <string name="amount_title">Сума</string>
@@ -39,7 +38,7 @@
     <string name="amount_too_small">Сумата, която пращате, е прекалено малка</string>
     <string name="unable_to_build_tx">Транзакцията не може да се извърши</string>
     <string name="amount_too_small_short">Прекалено малка сума</string>
-    <string name="miner_fee_label">Такса за транзакция:</string>
+    <string name="miner_fee_label">Такса за транзакция</string>
     <string name="miner_fee_title">Такса за транзакция</string>
     <string name="synchronizing">Синхронизиране</string>
     <string name="transaction_not_sent">Неуспешно предаване на транзакция</string>
@@ -101,15 +100,15 @@
     <string name="delete">Изтриване</string>
     <string name="payment_request">Заявка за плащане</string>
     <string name="export_account_data_warning">Предстои да експортирате поверителни данни от избраната сметка.\n\nВсеки, който получи достъп да тези ключове, може да поеме контрол над биткоините в нея или да получи Ваша лична информация.\n\nЖелаете ли да продължите?</string>
-    <string name="backup_all_warning">Трябва да направите резервно копие на Master Seed-а на Вашия портфейл.\nРезервно копие на Master Seed-а Ви позволява да възстановите парите, съхранени в HD сметките в случай че устройството Ви се загуби или повреди.\n\nЖелаете ли да направите това сега?</string>
+    <string name="backup_all_warning">Трябва да направите резервно копие на Master Seed-а на Вашия портфейл.\nРезервно копие на Master Seed-а Ви позволява да възстановите парите, съхранени в HD Bitcoin сметките в случай че устройството Ви се загуби или повреди.\n\nЖелаете ли да направите това сега?</string>
     <string name="export_to_clipboard_warning">Внимание: експортирането на лични данни от сметката в клипборда ги прави достъпни за всички други приложения на устройството Ви.\n\nЗабележка: не е достатъчно да съхраните личните данни в клипборда, трябва след това да ги поставите някъде на сигурно място.\n\nЖелаете ли да продължите?</string>
     <string name="found_clipboard_private_key_title">Частен ключ намерен в клипборда</string>
     <string name="exchange_source_not_available">Обменният курс на %1$s не е наличен</string>
-    <string name="my_own_address_warning">Забележка: изпращате към ваш собствен адрес.</string>
-    <string name="read_only_warning">Внимание: вашият портфейл не съдържа частния ключ за този адрес.\nНе можете да харчите получени на него суми освен ако не разполагате с частния ключ другаде.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Забележка: изпращате към ваш собствен адрес.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Внимание: вашият портфейл не съдържа частния ключ за този адрес.\nНе можете да харчите получени на него суми освен ако не разполагате с частния ключ другаде.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Добави адрес</string>
-    <string name="scan_address_book_desc">Сканиране на биткоин адрес.</string>
-    <string name="clipboard_address_book_desc">Прочитане на биткоин адрес от клипборда.</string>
+    <string name="scan_address_book_desc">Сканиране на адрес.</string>
+    <string name="clipboard_address_book_desc">Прочитане на адрес от клипборда.</string>
     <string name="max">Максимум</string>
     <string name="get_private_key">Прочитане на частен ключ от:</string>
     <string name="cold_storage">Замразено хранилище</string>
@@ -139,8 +138,6 @@
     <string name="broadcasting_transaction">Излъчване на транзакция</string>
     <string name="transaction_rejected_message">Транзакцията е отхвърлена от мрежата. Това показва че портфейлът ви не е синхронизиран</string>
     <string name="enter_bitcoin_address">Въведете биткоин адрес</string>
-    <string name="bitcoin_address_invalid">Невалиден биткоин адрес</string>
-    <string name="bitcoin_address_valid">Биткоин адресът е валиден</string>
     <string name="redirecting_to_block_explorer">Пренасочване към block explorer</string>
     <string name="enter_local_currency">Въведете вашата местна валута</string>
     <string name="using_address_from_clipboard">Използва се адрес от клипборда</string>
@@ -404,7 +401,7 @@
     <string name="ignore_update">Ще актуализирам по-късно</string>
     <string name="get_from">Изтегляне от</string>
     <string name="sign_message">Подписване на съобщение</string>
-    <string name="cant_sign_message">Не може да подпишете съобщение с HD сметка</string>
+    <string name="cant_sign_message">Не може да подпишете съобщение с HD Bitcoin сметка</string>
     <string name="enter_message_hint">Моля, въведете съобщението, което искате да подпишете тук</string>
     <string name="copy_signature">Копиране на подписа в клипборда</string>
     <string name="share_signature">Споделяне на текста + подпис</string>
@@ -437,7 +434,7 @@
     <!-- BitID end -->
     <string name="selected_archived_warning">Не можете да работите с архивирани сметки.</string>
     <string name="transaction_not_broadcasted_info">Не може да се предаде</string>
-    <string name="hd_account_creation_started">Създаване на нова HD сметка&#8230;</string>
+    <string name="hd_account_creation_started">Създаване на нова HD Bitcoin сметка&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Подготовка на портфейла&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Изчисляване на Master Seed&#8230;</string>
     <string name="importing_wordlist_enter_next_word">въведете дума номер %1$s от %2$s</string>
@@ -480,7 +477,7 @@
     <string name="verify_wordlist_success_pin_already_set">Вашият списък с думи е успешно проверен. Съхранете го на сигурно място, сигурността на вашите пари зависи от това!</string>
     <string name="note_down_password_title">Запишете вашата парола</string>
     <string name="title_wrong_password">Грешна парола, моля опитайте отново</string>
-    <string name="dont_allow_archiving_unused_notification">Не може да архивирате неизползвана HD сметка</string>
+    <string name="dont_allow_archiving_unused_notification">Не може да архивирате неизползвана HD Bitcoin сметка</string>
     <string name="newly_generated_coins_from_coinbase">Новогенерирани биткоини</string>
     <string name="button_continue">Продължи</string>
     <string name="butto_show_release_notes">Покажи детайли</string>
@@ -491,7 +488,7 @@
     <string name="pref_legacy_backup_verify_summary">Проверка на съществуващо резервно копие стар вариант</string>
     <string name="error_no_browser">Не може да се отвори сайтът, на телефона не е намерен браузър</string>
     <string name="transaction_label_title">Описание на трансакцията</string>
-    <string name="no_spending_records">Нямате сметка, то която може да се плаща.\n\nЗа да платите ви трябва сметка с частен ключ в нея. В момента няма активни HD сметки или сметки с единичен частен ключ. Моля активирайте или импортирайте сметка, съдържаща частен ключ, за да платите.</string>
+    <string name="no_spending_records">Нямате сметка, то която може да се плаща.\n\nЗа да платите ви трябва сметка с частен ключ в нея. В момента няма активни HD Bitcoin сметки или сметки с единичен частен ключ. Моля активирайте или импортирайте сметка, съдържаща частен ключ, за да платите.</string>
     <string name="select_key_for_signing">Изберете ключ за подписване</string>
     <string name="playstore_link_label">Връзка към Playstore</string>
     <string name="direct_apk_link_label">Директно\nизтегляне</string>
@@ -544,7 +541,7 @@
     <string name="select_ext_sig_account_to_spend_from">Изберете сметка, от която да харчите</string>
     <string name="ext_sig_passphrase_description">Въведете парола ако желаете</string>
     <string name="ext_sig_show_passphrase">Покажи паролата</string>
-    <string name="trezor_import_account">Импортиране на Trezor-HD сметка</string>
+    <string name="trezor_import_account">Импортиране на Trezor-HD Bitcoin сметка</string>
     <string name="ext_sig_import_account_caption">Импортиране на сметка</string>
     <string name="ext_sig_select_account_to_import">Изберете сметка за импортиране</string>
     <string name="ext_sig_verify_transaction_on_device">Проверете и потвърдете\nтрансакцията на вашето устройство</string>
@@ -562,13 +559,13 @@
     <string name="trezor_new_firmware_description">Наличен е нов фърмуер за трезор.\nМоля използвайте MyTrezor.com на компютър, за да актуализирате вашия трезор.</string>
     <string name="ext_sig_unnamed">(без име)</string>
     <string name="keepkey_new_firmware_description">Наличен е нов фърмуер за KeeoKey.\nМоля използвайте Chrome разширението за KeepKey на компютър, за да актуализирате вашия KeepKey.</string>
-    <string name="keepkey_import_account">Импортиране на KeepKey-HD-сметка</string>
+    <string name="keepkey_import_account">Импортиране на KeepKey-HD Bitcoin-сметка</string>
     <string name="ledger_initial_status">Моля свържете или чукнете и задръжте вашия Ledger портфейл</string>
     <string name="ledger_scanning_status">Ledger портфейлът е наред - сканират се сметките</string>
     <string name="ledger_cold_storage_header">Ledger портфейл</string>
     <string name="connect_your_ledger_info">Ledger Nano работи само ако телефонът ви поддържа USB-OTG (on-the-go)\n\nЗа да свържете Ledger Nano ви трябва USB-OTG адаптер или кабел. Свържете устройството откъм клиентската страна и свържете хост-страната с вашия телефон.</string>
     <string name="select_ledger_account_to_spend_from">Изберете сметка, от която да харчите</string>
-    <string name="ledger_import_account">Импортиране на Ledger-HD сметка</string>
+    <string name="ledger_import_account">Импортиране на Ledger-HD Bitcoin сметка</string>
     <string name="ledger_import_account_caption">Импортиране на сметка</string>
     <string name="ledger_select_account_to_import">Изберете сметка за импортиране</string>
     <string name="ledger_amount">Сума:</string>
@@ -602,8 +599,8 @@
     <string name="both">И двете</string>
     <string name="button_changelog">Списък с промени</string>
     <string name="hint_type_to_filter">започнете да пишете, за да филтрирате списъка</string>
-    <string name="info_add_account_keep_backup_secure">Информация: всички HD сметки са получени от вашия Master Seed - ако държите резервното си копие на 12-те думи сигурно, можете да възстановите всички HD сметки от него.</string>
-    <string name="warning_add_account_no_backup">Предупреждение: не сте потвърдили резервно копие на вашия Master Seed. Всички ваши HD сметки са получени от него. Те са осигурени и възстановими, само ако имате валидно и подсигурено резервно копие.</string>
+    <string name="info_add_account_keep_backup_secure">Информация: всички HD Bitcoin сметки са получени от вашия Master Seed - ако държите резервното си копие на 12-те думи сигурно, можете да възстановите всички HD Bitcoin сметки от него.</string>
+    <string name="warning_add_account_no_backup">Предупреждение: не сте потвърдили резервно копие на вашия Master Seed. Всички ваши HD Bitcoin сметки са получени от него. Те са осигурени и възстановими, само ако имате валидно и подсигурено резервно копие.</string>
     <string name="transaction_to_address_prefix">До: %s</string>
     <string name="tor_state_init">Установяване на Tor</string>
     <!-- from libNetCipher -->

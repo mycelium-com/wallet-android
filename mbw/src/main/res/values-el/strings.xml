@@ -6,18 +6,18 @@
     <string name="add_unrelated_account_title">Προσθήκη Λογαριασμού Μονής Διεύθυνσης</string>
     <string name="import_seed_title">Εισαγωγή Κεντρικού Κωδικού (σπόρου)</string>
     <string name="import_words_title">Εισαγωγή Λίστας Λέξεων</string>
-    <string name="add_account_desc">Το Mycelium υποστηρίζει Λογαριασμούς HD (Ιεραρχικούς-Ντετερμινιστικούς) και Λογαριασμούς Μονής Διεύθυνσης. Όλοι οι HD λογαριασμοί που δημιουργούνται βασίζονται στον ίδιο Κεντρικό Κωδικό (σπόρο).</string>
+    <string name="add_account_desc">Το Mycelium υποστηρίζει Λογαριασμούς HD Bitcoin (Ιεραρχικούς-Ντετερμινιστικούς) και Λογαριασμούς Μονής Διεύθυνσης. Όλοι οι HD Bitcoin λογαριασμοί που δημιουργούνται βασίζονται στον ίδιο Κεντρικό Κωδικό (σπόρο).</string>
     <string name="add_single_acc_info">Για να προσθέσετε Λογαριασμό Μονής Διεύθυνσης με βάση ένα μυστικό κλειδί, ή να προσθέσετε μία διεύθυνση μόνο για παρακολούθηση, πατήστε το πλήκτρο Προηγμένες Ρυθμίσεις.</string>
-    <string name="scan_desc">Σαρώστε διεύθυνση Bitcoin, μυστικό κλειδί ή HD λογαριασμό.</string>
+    <string name="scan_desc">Σαρώστε διεύθυνση Bitcoin, μυστικό κλειδί ή HD Bitcoin λογαριασμό.</string>
     <string name="scan_seed">Σάρωση Κεντρικού Κωδικού (σπόρου) από Αντίγραφο Ασφαλείας του Mycelium</string>
-    <string name="use_acc_first">Μπορείτε να έχετε μόνο έναν αχρησιμοποίητο HD λογαριασμό.</string>
+    <string name="use_acc_first">Μπορείτε να έχετε μόνο έναν αχρησιμοποίητο HD Bitcoin λογαριασμό.</string>
     <string name="clipboard_desc">Εισαγωγή Διεύθυνσης Bitcoin ή μυστικού κλειδιού από το πρόχειρο.</string>
     <string name="wordlist_des">Δημιουργία Κεντρικού Κωδικού (σπόρου) από Λίστα Λέξεων</string>
     <string name="scan">Σάρωση</string>
     <string name="advanced">Προηγμένες Ρυθμίσεις</string>
     <string name="clipboard">Πρόχειρο</string>
     <string name="enter_wordlist">Εισαγωγή Λίστας Λέξεων</string>
-    <string name="hd_account">Εισαγωγή HD Λογαριασμού</string>
+    <string name="hd_account">Εισαγωγή HD Bitcoin Λογαριασμού</string>
     <string name="close">Κλείσιμο</string>
     <string name="sending">Γίνεται αποστολή %1$s</string>
     <string name="receiving">Γίνεται Λήψη %1$s</string>
@@ -25,7 +25,6 @@
     <string name="send">Αποστολή</string>
     <string name="receive">Λήψη</string>
     <string name="private_key_deleted">Το μυστικό κλειδί διεγράφη.</string>
-    <string name="enter_recipient_title">Εισαγάγετε Διεύθυνση Παραλήπτη</string>
     <string name="recipient_title">Διεύθυνση Παραλήπτη</string>
     <string name="amount_label">Ποσό:</string>
     <string name="amount_title">Ποσό</string>
@@ -38,7 +37,7 @@
     <string name="insufficient_funds_for_fee">Ανεπαρκείς πόροι για πληρωμή τέλους αποστολής</string>
     <string name="amount_too_small">Το ποσό που στέλνετε είναι πολύ μικρό</string>
     <string name="amount_too_small_short">Ποσό πολύ μικρό</string>
-    <string name="miner_fee_label">Τέλος αποστολής:</string>
+    <string name="miner_fee_label">Τέλος αποστολής</string>
     <string name="miner_fee_title">Τέλος Αποστολής</string>
     <string name="synchronizing">Συγχρονισμός</string>
     <string name="transaction_not_sent">Αποτυχία μετάδοσης συναλλαγής</string>
@@ -101,15 +100,15 @@
     <string name="delete">Διαγραφή</string>
     <string name="payment_request">Αίτηση Πληρωμής</string>
     <string name="export_account_data_warning">Πρόκειται να εξαγάγετε ευαίσθητα δεδομένα του επιλεγμένου λογαριασμού.\n\nΌποιος αποκτήσει πρόσβαση σε αυτά τα κλειδιά μπορεί να έχει πρόσβαση είτε στα bitcoins που ελέγχει, ή σε πληροφορίες που ενδέχεται να ανατρέψουν την ιδιωτικότητά σας.\n\nΘέλετε να προχωρήσετε;</string>
-    <string name="backup_all_warning">Πρέπει να κάνετε αντίγραφο ασφαλείας του κεντρικού κωδικού (σπόρου) του πορτοφολιού σας.\nΤο αντίγραφο αυτό σας επιτρέπει να αποκαταστήσετε τα κεφάλαια που είναι αποθηκευμένα στους HD λογαριασμούς σας σε περίπτωση απώλειας ή βλάβης της συσκευής σας.\n\nΘέλετε να το κάνετε τώρα;</string>
+    <string name="backup_all_warning">Πρέπει να κάνετε αντίγραφο ασφαλείας του κεντρικού κωδικού (σπόρου) του πορτοφολιού σας.\nΤο αντίγραφο αυτό σας επιτρέπει να αποκαταστήσετε τα κεφάλαια που είναι αποθηκευμένα στους HD Bitcoin λογαριασμούς σας σε περίπτωση απώλειας ή βλάβης της συσκευής σας.\n\nΘέλετε να το κάνετε τώρα;</string>
     <string name="export_to_clipboard_warning">Προσοχή: Η εξαγωγή των μυστικών κλειδιών του λογαριασμού σας στο πρόχειρο τα εκθέτει σε άλλες εφαρμογές της συσκευής.\n\nΣημείωση: Δεν αρκεί να αποθηκεύσετε τα μυστικά δεδομένα στο πρόχειρο, θα πρέπει να τα επικολλήσετε κάπου με ασφάλεια.\n\nΘέλετε να συνεχίσετε;</string>
     <string name="found_clipboard_private_key_title">Βρέθηκε Μυστικό Κλειδί στο Πρόχειρο</string>
     <string name="exchange_source_not_available">Ισοτιμία μη διαθέσιμη για %1$s</string>
-    <string name="my_own_address_warning">Σημείωση: Πρόκειται να στείλετε σε μία δική σας διεύθυνση.</string>
-    <string name="read_only_warning">Προσοχή: Το πορτοφόλι σας δεν περιέχει το μυστικό κλειδί για τη διεύθυνση αυτή.\nΔε θα μπορείτε να ξοδέψετε τα εισερχόμενα χρήματα εκτός κι αν έχετε το μυστικό κλειδί αποθηκευμένο αλλού.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Σημείωση: Πρόκειται να στείλετε σε μία δική σας διεύθυνση.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Προσοχή: Το πορτοφόλι σας δεν περιέχει το μυστικό κλειδί για τη διεύθυνση αυτή.\nΔε θα μπορείτε να ξοδέψετε τα εισερχόμενα χρήματα εκτός κι αν έχετε το μυστικό κλειδί αποθηκευμένο αλλού.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Προσθήκη Διεύθυνσης</string>
-    <string name="scan_address_book_desc">Σάρωση Διεύθυνσης Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Αντιγραφή διεύθυνσης Bitcoin από το πρόχειρο.</string>
+    <string name="scan_address_book_desc">Σάρωση Διεύθυνσης.</string>
+    <string name="clipboard_address_book_desc">Αντιγραφή διεύθυνσης από το πρόχειρο.</string>
     <string name="max">Μέγιστο</string>
     <string name="get_private_key">Πάρε το μυστικό κλειδί από:</string>
     <string name="cold_storage">Ψυχρή Αποθήκευση</string>
@@ -139,8 +138,6 @@
     <string name="broadcasting_transaction">Η Συνδιαλλαγή Εκπέμπεται</string>
     <string name="transaction_rejected_message">Η συνδιαλλαγή απορρίφθηκε από το δίκτυο. Αυτό υποδεικνύει ότι το πορτοφόλι σας είναι εκτός συγχρονισμού</string>
     <string name="enter_bitcoin_address">Εισαγάγετε Διεύθυνση Bitcoin</string>
-    <string name="bitcoin_address_invalid">Μη έγκυρη Διεύθυνση Bitcoin</string>
-    <string name="bitcoin_address_valid">Έγκυρη Διεύθυνση Bitcoin</string>
     <string name="redirecting_to_block_explorer">Προωθείστε σε πλοηγητή για μπλοκ</string>
     <string name="enter_local_currency">Επιλέξτε το τοπικό σας νόμισμα</string>
     <string name="using_address_from_clipboard">Γίνεται χρήση διεύθυνσης από το πρόχειρο</string>
@@ -396,7 +393,7 @@
     <string name="update_check">Έλεγχος Ενημερώσεων</string>
     <string name="get_from">Κατέβασμα από</string>
     <string name="sign_message">Υπογραφή Μηνύματος</string>
-    <string name="cant_sign_message">Δεν μπορείτε να υπογράψετε μηνύματα με χρήση HD λογαριασμού</string>
+    <string name="cant_sign_message">Δεν μπορείτε να υπογράψετε μηνύματα με χρήση HD Bitcoin λογαριασμού</string>
     <string name="enter_message_hint">Παρακαλώ εισαγάγετε το μήνυμα που θέλετε να στείλετε εδώ</string>
     <string name="copy_signature">Αντιγραφή της Υπογραφής στο Πρόχειρο</string>
     <string name="share_signature">Αποστολή Κειμένου + Υπογραφής</string>
@@ -428,7 +425,7 @@
     <string name="invalid_bitid_uri">Μη έγκυρο URI για BitID</string>
     <!-- BitID end -->
     <string name="selected_archived_warning">Δεν μπορείτε να εργαστείτε με αρχειοθετημένους λογαριασμούς.</string>
-    <string name="hd_account_creation_started">Δημιουργία ενός νέου HD λογαριασμού&#8230;</string>
+    <string name="hd_account_creation_started">Δημιουργία ενός νέου HD Bitcoin λογαριασμού&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">To πορτοφόλι προετοιμάζεται&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Υπολογισμός Κεντρικού Κωδικού (σπόρου)&#8230;</string>
     <string name="importing_wordlist_enter_next_word">Εισαγάγετε την %1$sη λέξη από τις %2$s</string>
@@ -469,7 +466,7 @@
     <string name="verify_wordlist_success_pin_already_set">Το αντίγραφο ασφαλείας της λίστας λέξεων επιβεβαιώθηκε επιτυχώς. Αποθηκεύστε το αντίγραφο σε ασφαλές μέρος, τα κεφάλαιά σας εξαρτώνται από αυτό!</string>
     <string name="note_down_password_title">Σημειώστε τον κωδικό σας</string>
     <string name="title_wrong_password">Λάθος κωδικός, παρακαλώ δοκιμάστε ξανά</string>
-    <string name="dont_allow_archiving_unused_notification">Δεν μπορείτε να αρχειοθετήσετε αχρησιμοποίητο HD λογαριασμό</string>
+    <string name="dont_allow_archiving_unused_notification">Δεν μπορείτε να αρχειοθετήσετε αχρησιμοποίητο HD Bitcoin λογαριασμό</string>
     <string name="newly_generated_coins_from_coinbase">Νεοδημιουργηθέντα Bitcoins</string>
     <string name="button_continue">Συνέχεια</string>
     <string name="butto_show_release_notes">Προβολή Λεπτομερειών</string>
@@ -480,7 +477,7 @@
     <string name="pref_legacy_backup_verify_summary">Επιβεβαιώστε ένα υπάρχον αντίγραφο ασφαλείας παλαιού τύπου</string>
     <string name="error_no_browser">Αδυναμία πλοήγησης στην ιστοσελίδα, δε βρέθηκε πλοηγητής στη συσκευή</string>
     <string name="transaction_label_title">Τίτλος Συναλλαγής</string>
-    <string name="no_spending_records">Δε διαθέτετε λογαριασμό ικανό για δαπάνη.\n\nΠροκειμένου να στείλετε χρήματα, χρειάζεστε έναν λογαριασμό με ένα τουλάχιστον μυστικό κλειδί. Προς το παρόν δεν υπάρχουν ενεργοί HD λογαριασμοί ή λογαριασμοί μονής διεύθυνσης που να περιέχουν μυστικά κλειδιά. Παρακαλώ, είτε ενεργοποιήστε ή εισαγάγετε έναν λογαριασμό με ένα μυστικό κλειδί.</string>
+    <string name="no_spending_records">Δε διαθέτετε λογαριασμό ικανό για δαπάνη.\n\nΠροκειμένου να στείλετε χρήματα, χρειάζεστε έναν λογαριασμό με ένα τουλάχιστον μυστικό κλειδί. Προς το παρόν δεν υπάρχουν ενεργοί HD Bitcoin λογαριασμοί ή λογαριασμοί μονής διεύθυνσης που να περιέχουν μυστικά κλειδιά. Παρακαλώ, είτε ενεργοποιήστε ή εισαγάγετε έναν λογαριασμό με ένα μυστικό κλειδί.</string>
     <string name="select_key_for_signing">Επιλογή Κλειδιού για Υπογραφή</string>
     <string name="playstore_link_label">Σύνδεσμος Playstore</string>
     <string name="direct_apk_link_label">Απευθείας\nκατέβασμα</string>
@@ -526,14 +523,14 @@
     <string name="account_found">βρέθηκαν %s</string>
     <string name="account_balance_sending_amount">(αποστολή %s)</string>
     <string name="trezor_cold_storage_header">Ψυχρή Αποθήκευση Trezor</string>
-    <string name="trezor_import_account">Εισαγωγή HD Λογαριασμού από Trezor</string>
+    <string name="trezor_import_account">Εισαγωγή HD Bitcoin Λογαριασμού από Trezor</string>
     <string name="trezor_new_firmware_description">Νέα έκδοση λογισμικού συσκευής trezor διαθέσιμη.\nΠαρακαλώ κάντε χρήση του MyTrezor.com σε Η/Υ για να ανανεώσετε το trezor σας.</string>
     <string name="ledger_initial_status">Παρακαλώ συνδεστε, ή πατήστε παρατεταμένα το κουμπί στο πορτοφόλι Ledger</string>
     <string name="ledger_scanning_status">Πορτοφόλι Ledger OK - Σάρωση Λογαριασμών</string>
     <string name="ledger_cold_storage_header">Πορτοφόλι Ledger</string>
     <string name="connect_your_ledger_info">Το Ledger Nano λειτουργεί μόνο εαν η συσκευή σας υποστηρίζει USB-OTG (on-the-go).\n\nΓια να συνδέσετε το Ledger Nano χρειάζεστε έναν προσαρμογέα-καλώδιο USB-OTG. Συνδέστε το Plug Ledger Nano στο ακρο-client και το άκρο-host στη συσκευή σας.</string>
     <string name="select_ledger_account_to_spend_from">Επιλέξτε λογαριασμό για δαπάνη</string>
-    <string name="ledger_import_account">Εισαγωγή HD Λογαρισμού απ\' το Ledger</string>
+    <string name="ledger_import_account">Εισαγωγή HD Bitcoin Λογαρισμού απ\' το Ledger</string>
     <string name="ledger_import_account_caption">Εισαγωγή Λογαριασμού</string>
     <string name="ledger_select_account_to_import">Επιλέξτε λογαριασμό για εισαγωγή</string>
     <string name="ledger_amount">Ποσό:</string>
@@ -565,8 +562,8 @@
     <string name="both">Αμφότερα</string>
     <string name="button_changelog">Αρχείο Αλλαγών</string>
     <string name="hint_type_to_filter">ξεκινήστε να πληκτρολογείτε στη λίστα φίλτρου</string>
-    <string name="info_add_account_keep_backup_secure">Πληροφορία: Όλοι οι HD λογαριασμοί προέρχονται από τον Κεντρικό σας Κωδικό (σπόρο). Κρατώντας το Αντίγραφο Ασφαλείας 12 Λέξεων ασφαλές, μπορείτε να επαναφέρετε όλους του HD λογαριασμούς σας με αυτό.</string>
-    <string name="warning_add_account_no_backup">Προειδοποίηση: Δεν έχετε επιβεβαιώσει το αντίγραφο ασφαλείας του Κεντρικού σας Κωδικού (σπόρου). Όλοι οι HD λογαριασμοί σας προκύπτουν από αυτόν. Θα είναι ασφαλείς και ανακτήσιμοι μόνο εάν έχετε ένα έγκυρο και ασφαλές αντίγραφο ασφαλείας.</string>
+    <string name="info_add_account_keep_backup_secure">Πληροφορία: Όλοι οι HD Bitcoin λογαριασμοί προέρχονται από τον Κεντρικό σας Κωδικό (σπόρο). Κρατώντας το Αντίγραφο Ασφαλείας 12 Λέξεων ασφαλές, μπορείτε να επαναφέρετε όλους του HD Bitcoin λογαριασμούς σας με αυτό.</string>
+    <string name="warning_add_account_no_backup">Προειδοποίηση: Δεν έχετε επιβεβαιώσει το αντίγραφο ασφαλείας του Κεντρικού σας Κωδικού (σπόρου). Όλοι οι HD Bitcoin λογαριασμοί σας προκύπτουν από αυτόν. Θα είναι ασφαλείς και ανακτήσιμοι μόνο εάν έχετε ένα έγκυρο και ασφαλές αντίγραφο ασφαλείας.</string>
     <string name="transaction_to_address_prefix">Προς: %s</string>
     <string name="tor_state_init">Tor εκκιν.</string>
     <!-- from libNetCipher -->

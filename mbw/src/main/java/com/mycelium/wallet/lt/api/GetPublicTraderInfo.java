@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
 import com.mycelium.lt.api.model.PublicTraderInfo;
@@ -48,9 +48,9 @@ import com.mycelium.wallet.lt.LocalTraderManager.LocalManagerApiContext;
 public class GetPublicTraderInfo extends Request {
    private static final long serialVersionUID = 1L;
 
-   private Address _traderIdentity;
+   private BitcoinAddress _traderIdentity;
 
-   public GetPublicTraderInfo(Address traderIdentity) {
+   public GetPublicTraderInfo(BitcoinAddress traderIdentity) {
       super(true, true);
       _traderIdentity = Preconditions.checkNotNull(traderIdentity);
    }

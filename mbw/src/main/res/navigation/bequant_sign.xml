@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bequant_sign"
+    app:startDestination="@id/signFragment">
+
+    <fragment
+        android:id="@+id/signFragment"
+        android:name="com.mycelium.bequant.sign.SignFragment"
+        android:label="SignFragment"
+        tools:layout="@layout/fragment_bequant_sign">
+        <action
+            android:id="@+id/actionRegister"
+            app:destination="@id/registrationInfoFragment">
+        </action>
+        <action
+            android:id="@+id/actionResetPassword"
+            app:destination="@id/resetPasswordFragment" />
+        <action
+            android:id="@+id/actionSignIn"
+            app:destination="@id/signInTwoFactorFragment">
+        </action>
+        <action
+            android:id="@+id/actionSelectCountry"
+            app:destination="@id/countrySelectorFragment">
+        </action>
+        <argument
+            android:name="tab"
+            android:defaultValue=""
+            app:argType="string"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/registrationInfoFragment"
+        android:name="com.mycelium.bequant.signup.RegistrationInfoFragment"
+        android:label="RegistrationInfoFragment"
+        tools:layout="@layout/fragment_bequant_registration_info">
+        <action
+            android:id="@+id/actionFinish"
+            app:destination="@id/signFragment"
+            app:popUpTo="@id/signFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="register"
+            app:argType="com.mycelium.bequant.remote.client.models.RegisterAccountRequest" />
+    </fragment>
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.mycelium.bequant.signin.ResetPasswordFragment"
+        android:label="ResetPasswordFragment"
+        tools:layout="@layout/fragment_bequant_sign_in_reset_password">
+        <action
+            android:id="@+id/actionSubmit"
+            app:destination="@id/resetPasswordInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInTwoFactorFragment"
+        android:name="com.mycelium.bequant.signin.SignInTwoFactorFragment"
+        android:label="SignInTwoFactorFragment"
+        tools:layout="@layout/fragment_bequant_sign_in_two_factor">
+        <argument
+            android:name="auth"
+            app:argType="com.mycelium.bequant.remote.client.models.AccountAuthRequest"
+            app:nullable="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/resetPasswordInfoFragment"
+        android:name="com.mycelium.bequant.signin.ResetPasswordInfoFragment"
+        android:label="ResetPasswordInfoFragment"
+        tools:layout="@layout/fragment_bequant_reset_password_info">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/resetPasswordChangeFragment">
+        </action>
+        <action
+            android:id="@+id/actionFinish"
+            app:destination="@id/signFragment"
+            app:popUpTo="@id/signFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="email"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/resetPasswordChangeFragment"
+        android:name="com.mycelium.bequant.signin.ResetPasswordChangeFragment"
+        android:label="ResetPasswordChangeFragment"
+        tools:layout="@layout/fragment_bequant_change_password">
+        <action
+            android:id="@+id/finish"
+            app:destination="@id/signFragment"
+            app:popUpTo="@id/signFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="token"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/countrySelectorFragment"
+        android:name="com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment"
+        android:label="CountrySelectorFragment"
+        tools:layout="@layout/activity_bequant_kyc_country_of_residence" >
+        <argument
+            android:name="showPhoneCode"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="nationality"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/actionFail"
+            app:destination="@id/countryFailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/countryFailFragment"
+        android:name="com.mycelium.bequant.common.CountryFailFragment"
+        android:label="CountryFailFragment"
+        tools:layout="@layout/fragment_country_fail">
+        <action
+            android:id="@+id/actionFinish"
+            app:destination="@id/signFragment"
+            app:popUpTo="@id/signFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+</navigation>

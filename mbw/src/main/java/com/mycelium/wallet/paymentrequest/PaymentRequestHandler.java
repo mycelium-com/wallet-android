@@ -5,12 +5,12 @@ import android.os.Build;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -45,7 +45,7 @@ public class PaymentRequestHandler {
       this.networkParameters = networkParameters;
    }
 
-   public void fetchPaymentRequest(final GenericAssetUri uri) {
+   public void fetchPaymentRequest(final AssetUri uri) {
       if (hasValidPaymentRequest()) {
          // dont refresh from the server, if we already have fetched it
          eventBus.post(paymentRequestInformation);
@@ -114,7 +114,7 @@ public class PaymentRequestHandler {
    }
 
 
-   public PaymentRequestInformation fromBitcoinUri(GenericAssetUri assetUri) {
+   public PaymentRequestInformation fromBitcoinUri(AssetUri assetUri) {
       WithCallback withCallback = (WithCallback) assetUri;
       Preconditions.checkNotNull(withCallback.getCallbackURL());
       Preconditions.checkArgument(!Strings.isNullOrEmpty(withCallback.getCallbackURL()));
@@ -127,7 +127,7 @@ public class PaymentRequestHandler {
       boolean hasBip70Amount = paymentRequestInformation.hasAmount();
       if (hasBip21Amount && hasBip70Amount) {
          final long totalAmount = paymentRequestInformation.getOutputs().getTotalAmount();
-         if (assetUri.getValue().value != totalAmount) {
+         if (assetUri.getValue().getValueAsLong() != totalAmount) {
             throw new PaymentRequestException(String.format("Uri amount does not match payment request amount, %d vs. %d", assetUri.getValue().value, totalAmount));
          }
       }
@@ -207,8 +207,7 @@ public class PaymentRequestHandler {
       return trustStore;
    }
 
-
-   public boolean sendResponse(final Transaction signedTransaction, final Address refundAddress) {
+   public boolean sendResponse(final BitcoinTransaction signedTransaction, final BitcoinAddress refundAddress) {
       if (hasValidPaymentRequest() && !Strings.isNullOrEmpty(paymentRequestInformation.getPaymentDetails().payment_url)) {
          new AsyncTask<Void, Void, AsyncResultAck>() {
             @Override

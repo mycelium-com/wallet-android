@@ -44,11 +44,12 @@ import android.widget.LinearLayout
 import com.google.common.base.Preconditions
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.exchange.ValueSum
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.toggleable_currency_display.view.*
@@ -67,6 +68,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         get() = currencySwitcher.getAsFiatValue(currentValue)
 
     private var isAddedToBus = false
+    var coinType: AssetInfo? = null
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init(context)
@@ -123,28 +125,48 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         if (fiatOnly) {
             showFiat()
         } else {
-            // Switch to BTC if no fiat fx rate is available
-            if (!currencySwitcher.isFiatExchangeRateAvailable
-                    && currencySwitcher.isFiatCurrency(currencySwitcher.currentCurrency)
-                    && !currencySwitcher.isFiatCurrency(currencySwitcher.defaultCurrency)) {
-                currencySwitcher.setCurrency(Utils.getBtcCoinType())
+            // Switch to cryptocurrency if no fiat fx rate is available
+            if (!currencySwitcher.isFiatExchangeRateAvailable(coinType!!)
+                    && currencySwitcher.isFiatCurrency(currencySwitcher.currentCurrencyMap[coinType!!])) {
+//                    && !currencySwitcher.isFiatCurrency(currencySwitcher.defaultCurrency)) {
+                currencySwitcher.setCurrency(coinType!!, coinType)
             }
 
             visibility = View.VISIBLE
-            tvDisplayValue.text = currentValue?.toString(currencySwitcher.denomination)
-            val currentCurrency = currencySwitcher.currentCurrencyIncludingDenomination
+            val displayValue = currentValue?.toString(currencySwitcher.getDenomination(coinType!!)!!)
+            tvDisplayValue.text = if (currentValue?.type is EthCoin)
+                makeNDigitsAfterComma(displayValue, 4)
+            else
+                displayValue
+            val currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination(coinType!!)
             tvCurrency.text = currentCurrency
         }
     }
 
+    private fun makeNDigitsAfterComma(displayValue: String?, n: Int): CharSequence? {
+        displayValue ?: return null
+        val commaPos = displayValue.indexOf(".")
+        val digitsAfterComma = displayValue.length - (displayValue.indexOf(".") + 1)
+        return if (commaPos == -1 || digitsAfterComma < (n + 1)) {
+            displayValue
+        } else {
+            displayValue.substring(0, displayValue.length - (digitsAfterComma - n))
+        }
+    }
+
     private fun showFiat() {
-        visibility = if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable) {
+        visibility = if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable(MbwManager.getInstance(context).selectedAccount.coinType)) {
             // hide everything
             View.GONE
         } else {
             val value = currencySwitcher.getAsFiatValue(currentValue)
-            tvCurrency.text = currencySwitcher.currentFiatCurrency.symbol
-            tvDisplayValue.text = value?.toString(currencySwitcher.denomination)
+            if (coinType == null) { // then it's a total TCB
+                tvCurrency.text = currencySwitcher.currentTotalCurrency!!.symbol
+                tvDisplayValue.text = value?.toPlainString()
+            } else {
+                tvCurrency.text = currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
+                tvDisplayValue.text = value?.toString(currencySwitcher.getDenomination(coinType!!)!!)
+            }
             View.VISIBLE
         }
     }
@@ -171,8 +193,13 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         updateUi()
     }
 
-    fun setValue(sum: ValueSum) {
-        this.currentValue = currencySwitcher.getValue(sum)
+    fun setValue(sum: ValueSum, totalBalance: Boolean) {
+        val toCurrency: AssetInfo = if (totalBalance) {
+            currencySwitcher.currentTotalCurrency!!
+        } else {
+            currencySwitcher.currentCurrencyMap[coinType]!!
+        }
+        this.currentValue = currencySwitcher.getValue(sum, toCurrency)
         updateUi()
     }
 

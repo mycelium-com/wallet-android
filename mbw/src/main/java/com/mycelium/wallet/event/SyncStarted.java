@@ -34,5 +34,4 @@
 
 package com.mycelium.wallet.event;
 
-public class SyncStarted {
-}
+public class SyncStarted {}

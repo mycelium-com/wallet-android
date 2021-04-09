@@ -1,36 +1,43 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Activity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.PopupMenu
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import asStringRes
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.GetAmountActivity
-import com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel.Companion.GET_AMOUNT_RESULT_CODE
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.coins.Value
-
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.fio.FioAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
+import kotlinx.android.synthetic.main.receive_coins_activity_fio_name.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
-import asStringRes
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
@@ -49,6 +56,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
+            is EthAccount -> viewModelProvider.get(ReceiveEthViewModel::class.java)
+            is ERC20Account -> viewModelProvider.get(ReceiveERC20ViewModel::class.java)
+            is FioAccount -> viewModelProvider.get(ReceiveFIOViewModel::class.java)
             else -> viewModelProvider.get(ReceiveGenericCoinsViewModel::class.java)
         }
 
@@ -60,16 +70,53 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
         activateNfc()
 
-        initDatabinding(account)
+        val binding = initDatabinding(account)
+        initWithBindings(binding)
 
         if (viewModel is ReceiveBtcViewModel &&
                 (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
-            val addressTypes = if ((account as? SingleAddressAccount)?.publicKey?.isCompressed != false) {
-                (account as AbstractBtcAccount).availableAddressTypes
-            } else {
-                mutableListOf(AddressType.P2PKH)
+            createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
+        }
+        fioNameSpinner.adapter = ArrayAdapter<String>(this,
+                R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value!!).apply {
+            setDropDownViewResource(R.layout.layout_receive_fio_names_dropdown)
+        }
+        fioNameSpinner.onItemSelectedListener = object:AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                viewModel.onFioNameSelected(fioNameSpinner.getItemAtPosition(position))
             }
-            createAddressDropdown(addressTypes)
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                viewModel.onFioNameSelected(null)
+            }
+        }
+        supportActionBar?.run {
+            title = getString(R.string.receive_cointype, viewModel.getCurrencySymbol())
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
+        registerReceiver(nfcReceiver, IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED))
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        viewModel.processReceivedResults(requestCode, resultCode, data, this)
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item?.itemId) {
+                android.R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
+    private fun initWithBindings(binding: ViewDataBinding?) {
+        btCreateFioRequest.setOnClickListener {
+            viewModel.createFioRequest(this@ReceiveCoinsActivity)
         }
     }
 
@@ -79,13 +126,15 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType().asStringRes())
 
         address_dropdown_image_view.visibility = if (addressTypes.size > 1) {
-            val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
+            val addressTypesMenu = PopupMenu(this, address_dropdown_image_view)
             addressTypes.forEach {
                 addressTypesMenu.menu.add(Menu.NONE, it.ordinal, it.ordinal, it.asStringRes())
             }
 
-            addressDropdownLayout.setOnClickListener {
-                addressTypesMenu.show()
+            addressDropdownLayout.referencedIds.forEach {
+                findViewById<View>(it).setOnClickListener {
+                    addressTypesMenu.show()
+                }
             }
 
             addressTypesMenu.setOnMenuItemClickListener { item ->
@@ -107,15 +156,17 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         })
     }
 
-    private fun initDatabinding(account: WalletAccount<*>) {
+    private fun initDatabinding(account: WalletAccount<*>): ViewDataBinding? {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
                     is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
-                    is AbstractBtcAccount ->  {
+                    is AbstractBtcAccount -> {
                         // This is only actual if account contains multiple address types inside
                         if (account.availableAddressTypes.size > 1) {
-                            val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
+                            val contentView =
+                                    DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(
+                                            this, R.layout.receive_coins_activity_btc)
                             contentView.viewModel = viewModel as ReceiveBtcViewModel
                             contentView.activity = this
                             contentView
@@ -125,7 +176,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                     }
                     else -> getDefaultBinding()
                 }
-        receiveCoinsActivityNBinding.setLifecycleOwner(this)
+        receiveCoinsActivityNBinding.lifecycleOwner = this
+
+        return receiveCoinsActivityNBinding
     }
 
     private fun getDefaultBinding(): ReceiveCoinsActivityBinding =
@@ -137,6 +190,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                     }
 
     private fun activateNfc() {
+        viewModel.checkNfcAvailable()
         val nfc = viewModel.getNfc()
         if (nfc?.isNdefPushEnabled == true) {
             nfc.setNdefPushMessageCallback(NfcAdapter.CreateNdefMessageCallback {
@@ -151,13 +205,14 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-            // Get result from address chooser (may be null)
-            val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value
-            viewModel.setAmount(amount)
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
+    override fun onDestroy() {
+        unregisterReceiver(nfcReceiver)
+        super.onDestroy()
+    }
+
+    val nfcReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            activateNfc()
         }
     }
 
@@ -166,6 +221,8 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         private const val PRIVATE_KEY = "havePrivateKey"
         private const val SHOW_UTXO = "showIncomingUtxo"
         private const val IS_COLD_STORAGE = "isColdStorage"
+        const val MANUAL_ENTRY_RESULT_CODE = 4
+        const val REQUEST_CODE_FIO_NAME_MAPPING = 5
 
         @JvmStatic
         @JvmOverloads

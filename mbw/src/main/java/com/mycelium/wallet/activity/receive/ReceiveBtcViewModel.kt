@@ -1,17 +1,17 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Application
-import androidx.lifecycle.MutableLiveData
 import android.os.Bundle
+import android.text.Html
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import android.text.Html
+import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -53,9 +53,9 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     fun getAvailableAddressTypesCount() = (account as AbstractBtcAccount).availableAddressTypes.size
 
 
-    override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
+    override fun getCurrencyName(): String = context.getString(R.string.bitcoin_name)
 
-    override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.denomination)
+    override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.getDenomination(account.coinType))
 
     fun showAddressTypesInfo(activity: AppCompatActivity) {
         // building message based on networking preferences
@@ -65,14 +65,12 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
             activity.getString(R.string.what_is_address_type_description, "m or n", "2", "tb1")
         }
 
-        val dialog = AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
+        AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog_BlueButtons)
                 .setTitle(activity.resources.getString(R.string.what_is_address_type))
                 .setMessage(Html.fromHtml(dialogMessage))
                 .setPositiveButton(R.string.button_ok, null)
                 .create()
-
-        dialog.show()
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.resources.getColor(R.color.mycelium_midblue))
+                .show()
     }
 
     override fun loadInstance(savedInstanceState: Bundle) {

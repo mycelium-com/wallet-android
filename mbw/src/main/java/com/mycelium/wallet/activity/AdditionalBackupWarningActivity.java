@@ -87,7 +87,7 @@ public class AdditionalBackupWarningActivity extends AppCompatActivity {
 
          // Show warning, that you have to wait for n Blocks
          Integer remainingPinLockdownDuration = mbwManager.getRemainingPinLockdownDuration().or(Constants.MIN_PIN_BLOCKHEIGHT_AGE_ADDITIONAL_BACKUP);
-         String approximateDuration = Utils.formatBlockcountAsApproxDuration(this, remainingPinLockdownDuration);
+         String approximateDuration = Utils.formatBlockcountAsApproxDuration(mbwManager, remainingPinLockdownDuration, Constants.BTC_BLOCK_TIME_IN_SECONDS);
 
          txtView.setText(String.format(this.getApplicationContext().getString(R.string.wordlist_additional_backup_not_possible_pin_too_new),
                remainingPinLockdownDuration,

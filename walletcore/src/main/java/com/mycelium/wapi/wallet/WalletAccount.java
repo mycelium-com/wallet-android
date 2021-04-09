@@ -1,37 +1,35 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletAccount<A extends GenericAddress> {
 
-    FeeEstimationsGeneric getDefaultFeeEstimation();
-
+public interface WalletAccount<A extends Address> {
     void setAllowZeroConfSpending(boolean b);
 
-    GenericTransaction createTx(GenericAddress addres, Value amount, GenericFee fee)
-            throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
+    Transaction createTx(Address address, Value amount, Fee fee, @Nullable TransactionData data)
+            throws BuildTransactionException, InsufficientFundsException, OutputTooSmallException;
 
-    void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
+    void signTx(Transaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
 
-    BroadcastResult broadcastTx(GenericTransaction tx) throws GenericTransactionBroadcastException;
+    BroadcastResult broadcastTx(Transaction tx) throws TransactionBroadcastException;
 
     /**
      * Get current receive address
      */
-    GenericAddress getReceiveAddress();
+    Address getReceiveAddress();
 
     CryptoCurrency getCoinType();
 
@@ -51,31 +49,32 @@ public interface WalletAccount<A extends GenericAddress> {
      * @param address the address to check
      * @return true iff this address is one of our own
      */
-    boolean isMineAddress(GenericAddress address);
+    boolean isMineAddress(Address address);
 
     boolean isExchangeable();
 
-    GenericTransaction getTx(byte[] transactionId);
+    Transaction getTx(byte[] transactionId);
 
-    GenericTransactionSummary getTxSummary(byte[] transactionId);
+    TransactionSummary getTxSummary(byte[] transactionId);
 
-    List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit);
+    /**
+     * @return transactions in reversed order (last added goes first)
+     */
+    List<TransactionSummary> getTransactionSummaries(int offset, int limit);
 
     /**
      * Get the transaction history of this account since the stated timestamp in milliseconds
      * @param receivingSince only include tx younger than this
      */
-    List<GenericTransactionSummary> getTransactionsSince(long receivingSince);
+    List<TransactionSummary> getTransactionsSince(long receivingSince);
 
-    List<GenericTransaction> getTransactions(int offset, int limit);
-
-    List<GenericOutputViewModel> getUnspentOutputViewModels();
+    List<OutputViewModel> getUnspentOutputViewModels();
 
     String getLabel();
 
     void setLabel(String label);
 
-    boolean isSpendingUnconfirmed(GenericTransaction tx);
+    boolean isSpendingUnconfirmed(Transaction tx);
 
     /**
      * Synchronize this account
@@ -101,6 +100,11 @@ public interface WalletAccount<A extends GenericAddress> {
      * Can this account be used for spending, or is it read-only?
      */
     boolean canSpend();
+
+    /**
+     * Can this account be used for signing messages?
+     */
+    boolean canSign();
 
     /**
      * Get is account sync in progress
@@ -174,11 +178,6 @@ public interface WalletAccount<A extends GenericAddress> {
      */
     UUID getId();
 
-    /**
-     * Returns true, if this account is currently in process of synchronization.
-     */
-    boolean isSynchronizing();
-
     boolean broadcastOutgoingTransactions();
 
     void removeAllQueuedTransactions();
@@ -187,14 +186,12 @@ public interface WalletAccount<A extends GenericAddress> {
      * Determine the maximum spendable amount you can send in a transaction
      * Destination address can be null
      */
-    Value calculateMaxSpendableAmount(long minerFeePerKilobyte, A destinationAddress);
+    Value calculateMaxSpendableAmount(Value minerFeePerKilobyte, A destinationAddress);
 
     /**
      * Returns the number of retrieved transactions during synchronization
      */
     int getSyncTotalRetrievedTransactions();
-
-    FeeEstimationsGeneric getFeeEstimations();
 
     int getTypicalEstimatedTransactionSize();
 
@@ -216,5 +213,5 @@ public interface WalletAccount<A extends GenericAddress> {
      *
      * @param transaction     an transaction
      */
-    void queueTransaction(@NotNull GenericTransaction transaction);
+    void queueTransaction(@NotNull Transaction transaction);
 }

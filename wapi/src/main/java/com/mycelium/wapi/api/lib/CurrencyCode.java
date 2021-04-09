@@ -191,6 +191,7 @@ public enum CurrencyCode {
    UYU("UYU", "Uruguayan Peso"), //
    UZS("UZS", "Uzbekistan Som"), //
    VEF("VEF", "Venezuelan Bol\u00EDvar Fuerte"), //
+   VES("VES", "Venezuelan Bol\u00EDvar Soberano"), //
    VND("VND", "Vietnamese Dong"), //
    VUV("VUV", "Vanuatu Vatu"), //
    WST("WST", "Samoan Tala"), //

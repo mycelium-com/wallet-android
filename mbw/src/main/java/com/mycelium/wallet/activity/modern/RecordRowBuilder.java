@@ -38,12 +38,13 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
 import android.text.Html;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -64,6 +65,8 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 
@@ -88,10 +91,31 @@ public class RecordRowBuilder {
         if (drawableForAccount == null) {
             holder.icon.setVisibility(View.INVISIBLE);
         } else {
-            holder.icon.setVisibility(View.VISIBLE);
+            holder.icon.setVisibility(VISIBLE);
             holder.icon.setImageDrawable(drawableForAccount);
         }
 
+        updateRMCInfo(holder, model);
+        int textColor = resources.getColor(R.color.white);
+        if (model.label.length() == 0) {
+            holder.tvLabel.setVisibility(GONE);
+        } else {
+            // Display name
+            holder.tvLabel.setVisibility(VISIBLE);
+            holder.tvLabel.setText(Html.fromHtml(model.label));
+            holder.tvLabel.setTextColor(textColor);
+        }
+
+        holder.tvAddress.setText(model.displayAddress);
+        holder.tvAddress.setTextColor(textColor);
+        updateSyncing(holder, model);
+        updateBalance(holder, model, textColor);
+        // Show/hide trader account message
+        holder.tvTraderKey.setVisibility(model.accountId.equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())
+                ? VISIBLE : GONE);
+    }
+
+    private void updateRMCInfo(AccountViewHolder holder, ViewAccountModel model) {
         if (model.isRMCLinkedAccount) {
             holder.tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -103,78 +127,68 @@ public class RecordRowBuilder {
                             .show();
                 }
             });
-            holder.tvWhatIsIt.setVisibility(View.VISIBLE);
+            holder.tvWhatIsIt.setVisibility(VISIBLE);
         } else {
-            holder.tvWhatIsIt.setVisibility(View.GONE);
+            holder.tvWhatIsIt.setVisibility(GONE);
         }
-        int textColor = resources.getColor(R.color.white);
-        if (model.label.length() == 0) {
-            holder.tvLabel.setVisibility(View.GONE);
+    }
+
+    private void updateSyncing(AccountViewHolder holder, ViewAccountModel model) {
+        if (model.isSyncing) {
+            holder.tvProgressLayout.setVisibility(VISIBLE);
+            if (model.syncTotalRetrievedTransactions == 0) {
+                holder.layoutProgressTxRetreived.setVisibility(GONE);
+            } else {
+                holder.layoutProgressTxRetreived.setVisibility(VISIBLE);
+                holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
+                        model.syncTotalRetrievedTransactions));
+                holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
+            }
         } else {
-            // Display name
-            holder.tvLabel.setVisibility(View.VISIBLE);
-            holder.tvLabel.setText(Html.fromHtml(model.label));
-            holder.tvLabel.setTextColor(textColor);
+            holder.tvProgressLayout.setVisibility(GONE);
         }
+    }
 
-        holder.tvAddress.setText(model.displayAddress);
-        holder.tvAddress.setTextColor(textColor);
-
-        if (model.syncTotalRetrievedTransactions == 0 && !model.isSyncing) {
-            holder.tvProgressLayout.setVisibility(View.GONE);
-        } else {
-            holder.tvProgressLayout.setVisibility(View.VISIBLE);
-            holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
-                    Integer.toString(model.syncTotalRetrievedTransactions)));
-            holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
-        }
-
-        // Set balance
+    private void updateBalance(AccountViewHolder holder, ViewAccountModel model, int textColor) {
         if (model.isActive) {
             Balance balance = model.balance;
-            holder.tvBalance.setVisibility(View.VISIBLE);
-            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
+            holder.tvBalance.setVisibility(VISIBLE);
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(),
+                    mbwManager.getDenomination(model.coinType));
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 
             // Show legacy account with funds warning if necessary
-            holder.backupMissing.setVisibility(model.showBackupMissingWarning ? View.VISIBLE : View.GONE);
+            holder.backupMissing.setVisibility(model.showBackupMissingWarning ? VISIBLE : GONE);
             if (mbwManager.getMetadataStorage().getOtherAccountBackupState(model.accountId) == MetadataStorage.BackupState.NOT_VERIFIED) {
                 holder.backupMissing.setText(R.string.backup_not_verified);
             } else {
                 holder.backupMissing.setText(R.string.backup_missing);
             }
-            holder.tvAccountType.setVisibility(View.GONE);
-
+            holder.tvAccountType.setVisibility(GONE);
         } else {
             // We don't show anything if the account is archived
-            holder.tvBalance.setVisibility(View.GONE);
-            holder.backupMissing.setVisibility(View.GONE);
+            holder.tvBalance.setVisibility(GONE);
+            holder.backupMissing.setVisibility(GONE);
             if (model.accountType.isInstance(Bip44BCHAccount.class)
                     || model.accountType.isInstance(SingleAddressBCHAccount.class)) {
                 holder.tvAccountType.setText(Html.fromHtml(holder.tvAccountType.getResources().getString(R.string.bitcoin_cash)));
-                holder.tvAccountType.setVisibility(View.VISIBLE);
+                holder.tvAccountType.setVisibility(VISIBLE);
             } else {
-                holder.tvAccountType.setVisibility(View.GONE);
+                holder.tvAccountType.setVisibility(GONE);
             }
         }
-
-        // Show/hide trader account message
-        holder.tvTraderKey.setVisibility(model.accountId.equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())
-                ? View.VISIBLE : View.GONE);
     }
 
     private View.OnClickListener whatIsSyncHandler = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog)
+            new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog_BlueButtons)
                     .setTitle(resources.getString(R.string.what_is_sync))
                     .setMessage(resources.getString(R.string.what_is_sync_description))
                     .setPositiveButton(R.string.button_ok, null)
-                    .create();
-
-            dialog.show();
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.mycelium_midblue));
+                    .create()
+                    .show();
         }
     };
 
@@ -182,6 +196,7 @@ public class RecordRowBuilder {
     private ViewAccountModel convert(WalletAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
+        result.coinType = walletAccount.getCoinType();
 
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
@@ -201,7 +216,7 @@ public class RecordRowBuilder {
                 int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
                 result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
             } else {
-                Optional<Address> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
+                Optional<BitcoinAddress> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
                 if (receivingAddress.isPresent()) {
                     if (result.label.length() == 0) {
                         // Display address in it's full glory, chopping it into three

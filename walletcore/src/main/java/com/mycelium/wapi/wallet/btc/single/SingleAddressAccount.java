@@ -17,13 +17,14 @@
 package com.mycelium.wapi.wallet.btc.single;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -31,10 +32,11 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
@@ -48,17 +50,19 @@ import com.mycelium.wapi.wallet.btc.Reference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
-   private List<Address> _addressList;
-   private volatile boolean _isSynchronizing;
+   private List<BitcoinAddress> _addressList;
    private PublicPrivateKeyStore _keyStore;
    private PublicKey publicKey;
    private SingleAddressBtcAccountBacking _backing;
@@ -94,9 +98,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       try {
          InMemoryPrivateKey privateKey = getPrivateKey(AesKeyCipher.defaultKeyCipher());
          if (privateKey != null) {
-            Map<AddressType, Address> allPossibleAddresses = privateKey.getPublicKey().getAllSupportedAddresses(_network, true);
+            Map<AddressType, BitcoinAddress> allPossibleAddresses = privateKey.getPublicKey().getAllSupportedAddresses(_network, true);
             if (allPossibleAddresses.size() != _context.getAddresses().size()) {
-               for (Address address : allPossibleAddresses.values()) {
+               for (BitcoinAddress address : allPossibleAddresses.values()) {
                   if (!address.equals(_context.getAddresses().get(address.getType()))) {
                      _keyStore.setPrivateKey(address.getAllAddressBytes(), privateKey, AesKeyCipher.defaultKeyCipher());
                   }
@@ -106,11 +110,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             }
          }
       } catch (InvalidKeyCipher invalidKeyCipher) {
-         _logger.logError(invalidKeyCipher.getMessage());
+         _logger.log(Level.SEVERE,invalidKeyCipher.getMessage());
       }
    }
 
-   public static UUID calculateId(Address address) {
+   public static UUID calculateId(BitcoinAddress address) {
       return addressToUUID(address);
    }
 
@@ -169,7 +173,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public synchronized boolean doSynchronization(SyncMode mode) {
       checkNotArchived();
-      _isSynchronizing = true;
       syncTotalRetrievedTransactions = 0;
       try {
          if (synchronizeUnspentOutputs(_addressList) == -1) {
@@ -194,18 +197,20 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          _context.persistIfNecessary(_backing);
          return true;
       } finally {
-         _isSynchronizing = false;
          syncTotalRetrievedTransactions = 0;
       }
    }
 
    @Override
    public List<AddressType> getAvailableAddressTypes() {
+      if (publicKey != null && !publicKey.isCompressed()) {
+         return Collections.singletonList(AddressType.P2PKH);
+      }
       return new ArrayList<>(_context.getAddresses().keySet());
    }
 
    @Override
-   public Address getReceivingAddress(AddressType addressType) {
+   public BitcoinAddress getReceivingAddress(AddressType addressType) {
       return getAddress(addressType);
    }
 
@@ -219,7 +224,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       // Get the latest transactions
       List<Sha256Hash> discovered;
       List<Sha256Hash> txIds = new ArrayList<>();
-      for (Address address : _addressList) {
+      for (BitcoinAddress address : _addressList) {
          try {
             final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, Collections.singletonList(address)))
                     .getResult();
@@ -227,7 +232,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             setBlockChainHeight(result.height);
          } catch (WapiException e) {
             if (e.errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
-               _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+               _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
                postEvent(Event.SERVER_CONNECTION_ERROR);
                return false;
             } else if (e.errorCode == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE) {
@@ -256,9 +261,10 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          try {
             int toIndex = Math.min(fromIndex + chunkSize, toFetch.size());
             GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();
-            handleNewExternalTransactions(response.transactions);
+            Collection<TransactionEx> transactionsEx = Lists.newLinkedList(response.transactions);
+            handleNewExternalTransactions(transactionsEx);
          } catch (WapiException e) {
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return false;
          }
@@ -267,7 +273,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public Optional<Address> getReceivingAddress() {
+   public Optional<BitcoinAddress> getReceivingAddress() {
       //removed checkNotArchived, cause we wont to know the address for archived acc
       //to display them as archived accounts in "Accounts" tab
       return Optional.of(getAddress());
@@ -279,7 +285,12 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public boolean isMine(Address address) {
+   public boolean canSign() {
+      return true;
+   }
+
+   @Override
+   public boolean isMine(BitcoinAddress address) {
       return _addressList.contains(address);
    }
 
@@ -313,17 +324,17 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected void onNewTransaction(Transaction t) {
+   protected void onNewTransaction(BitcoinTransaction t) {
       // Nothing to do for this account type
    }
 
    @Override
-   public boolean isOwnInternalAddress(Address address) {
+   public boolean isOwnInternalAddress(BitcoinAddress address) {
       return isMine(address);
    }
 
    @Override
-   public boolean isOwnExternalAddress(Address address) {
+   public boolean isOwnExternalAddress(BitcoinAddress address) {
       return isMine(address);
    }
 
@@ -333,13 +344,13 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public Address getChangeAddress() {
+   public BitcoinAddress getChangeAddress() {
       return getAddress();
    }
 
    @Override
-   protected Address getChangeAddress(Address destinationAddress) {
-      Address result;
+   protected BitcoinAddress getChangeAddress(BitcoinAddress destinationAddress) {
+      BitcoinAddress result;
       switch (changeAddressModeReference.get()) {
          case P2WPKH:
             result = getAddress(AddressType.P2WPKH);
@@ -360,9 +371,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected Address getChangeAddress(List<Address> destinationAddresses) {
+   protected BitcoinAddress getChangeAddress(List<BitcoinAddress> destinationAddresses) {
       Map<AddressType, Integer> mostUsedTypesMap = new HashMap<>();
-      for (Address address : destinationAddresses) {
+      for (BitcoinAddress address : destinationAddresses) {
          Integer currentValue = mostUsedTypesMap.get(address.getType());
          if (currentValue == null) {
             currentValue = 0;
@@ -377,7 +388,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             maxedOn = addressType;
          }
       }
-      Address result;
+      BitcoinAddress result;
       switch (changeAddressModeReference.get()) {
          case P2WPKH:
             result = getAddress(AddressType.P2WPKH);
@@ -412,7 +423,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
+   protected InMemoryPrivateKey getPrivateKeyForAddress(BitcoinAddress address, KeyCipher cipher) throws InvalidKeyCipher {
       if (_addressList.contains(address)) {
          InMemoryPrivateKey privateKey = getPrivateKey(cipher);
          if (address.getType() == AddressType.P2SH_P2WPKH || address.getType() == AddressType.P2WPKH) {
@@ -426,7 +437,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected PublicKey getPublicKeyForAddress(Address address) {
+   protected PublicKey getPublicKeyForAddress(BitcoinAddress address) {
       if (_addressList.contains(address)) {
          return getPublicKey();
       } else {
@@ -446,23 +457,18 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          } else {
             sb.append(" Balance: ").append(_cachedBalance);
          }
-         Optional<Address> receivingAddress = getReceivingAddress();
+         Optional<BitcoinAddress> receivingAddress = getReceivingAddress();
          sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
          sb.append(" Spendable Outputs: ").append(getSpendableOutputs(0).size());
       }
       return sb.toString();
    }
 
-   @Override
-   public boolean isSynchronizing() {
-      return _isSynchronizing;
-   }
-
    public void forgetPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
       if (getPublicKey() == null) {
          _keyStore.forgetPrivateKey(getAddress().getAllAddressBytes(), cipher);
       } else {
-         for (Address address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
+         for (BitcoinAddress address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
             _keyStore.forgetPrivateKey(address.getAllAddressBytes(), cipher);
          }
       }
@@ -486,8 +492,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    /**
     * @return default address
     */
-   public Address getAddress() {
-      Address defaultAddress = getAddress(_context.getDefaultAddressType());
+   public BitcoinAddress getAddress() {
+      BitcoinAddress defaultAddress = getAddress(_context.getDefaultAddressType());
       if (defaultAddress != null) {
          return defaultAddress;
       } else {
@@ -495,7 +501,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       }
    }
 
-   public Address getAddress(AddressType type) {
+   public BitcoinAddress getAddress(AddressType type) {
       if (publicKey != null && !publicKey.isCompressed()) {
          if (type == AddressType.P2SH_P2WPKH || type == AddressType.P2WPKH) {
             return null;
@@ -517,7 +523,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          }
       }
       for (AddressType type : getAvailableAddressTypes()) {
-         Address address = getAddress(type);
+         BitcoinAddress address = getAddress(type);
          if (address != null) {
             publicDataMap.put(BipDerivationType.Companion.getDerivationTypeByAddressType(type),
                     address.toString());
@@ -527,14 +533,14 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) {
+   protected Set<BipDerivationType> doDiscoveryForAddresses(List<BitcoinAddress> lookAhead) {
       // not needed for SingleAddressAccount
-      return Collections.emptyMap();
+      return Collections.emptySet();
    }
 
 
    @Override
-   public BroadcastResult broadcastTx(GenericTransaction tx) {
+   public BroadcastResult broadcastTx(Transaction tx) {
       BtcTransaction btcTransaction = (BtcTransaction)tx;
       return broadcastTransaction(btcTransaction.getTx());
    }

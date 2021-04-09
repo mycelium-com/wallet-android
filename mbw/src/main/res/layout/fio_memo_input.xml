@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.view.View" />
+        <variable
+                name="payeeFioName"
+                type="String" />
+        <variable
+                name="fioMemo"
+                type="String" />
+    </data>
+    <LinearLayout
+            android:id="@+id/ll_fio_memo"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/horizontal_page_margin"
+            android:layout_marginEnd="@dimen/horizontal_page_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Memo:"
+                android:textSize="14sp"
+                android:textColor="#DDD" />
+        <EditText
+                android:id="@+id/et_fio_memo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:hint="@{`Leave a message for ` + payeeFioName ?? `the recipient` + `…`}"
+                tools:hint="Leave a message for tom@fiotestnet…"
+                tools:text="Leave a message for tom@fiotestnet…"
+                android:textSize="14sp"
+                android:text="@{fioMemo}"
+                android:singleLine="false"
+                android:maxLength="64"/>
+<!--
+TODO: make the length dynamic depending on limiting factors according to
+      https://developers.fioprotocol.io/wallet-integration-guide/encrypting-fio-data#size-limitations-on-encrypted-data
+-->
+    </LinearLayout>
+
+</layout>

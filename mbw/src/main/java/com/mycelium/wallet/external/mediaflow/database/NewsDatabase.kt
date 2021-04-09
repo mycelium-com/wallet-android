@@ -1,15 +1,17 @@
 package com.mycelium.wallet.external.mediaflow.database
 
 import android.content.Context
+import android.database.Cursor
 import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
 import android.database.sqlite.SQLiteStatement
 import android.util.Log
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
+import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.mediaflow.database.NewsSQLiteHelper.NEWS
-import com.mycelium.wallet.external.mediaflow.model.Author
-import com.mycelium.wallet.external.mediaflow.model.Category
-import com.mycelium.wallet.external.mediaflow.model.News
+import com.mycelium.wallet.external.mediaflow.model.*
 import java.util.*
 
 
@@ -17,6 +19,7 @@ object NewsDatabase {
     private lateinit var database: SQLiteDatabase
     private lateinit var insertOrReplaceNews: SQLiteStatement
     private lateinit var readNews: SQLiteStatement
+    private val gson = GsonBuilder().create()
 
     enum class SqlState {
         INSERTED, UPDATED
@@ -27,8 +30,8 @@ object NewsDatabase {
         val helper = NewsSQLiteHelper(context)
         database = helper.writableDatabase
 
-        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS(id,title,content,date,author,short_URL,category,image,excerpt)" +
-                " VALUES (?,?,?,?,?,?,?,?,?)")
+        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS(id,title,content,date,author,short_URL,category,image,excerpt,isfull,tags)" +
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?)")
         readNews = database.compileStatement("UPDATE $NEWS SET read = ? WHERE id = ?")
     }
 
@@ -47,27 +50,33 @@ object NewsDatabase {
         builder.tables = NEWS
 
         val cursor = builder.query(database
-                , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
+                , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt", "isfull", "tags")
                 , where.toString(), null, null, null, "date desc"
                 , if (limit != -1) "$offset,$limit" else null)
         val result = mutableListOf<News>()
         while (cursor.moveToNext()) {
-            val news = News()
-            news.id = cursor.getInt(cursor.getColumnIndex("id"))
-            news.title = cursor.getString(cursor.getColumnIndex("title"))
-            news.content = cursor.getString(cursor.getColumnIndex("content"))
-            news.date = Date(cursor.getLong(cursor.getColumnIndex("date")))
-            news.author = Author(cursor.getString(cursor.getColumnIndex("author")))
-            news.image = cursor.getString(cursor.getColumnIndex("image"))
-            news.link = cursor.getString(cursor.getColumnIndex("short_URL"))
-            val category = cursor.getString(cursor.getColumnIndex("category"))
-            news.isRead = cursor.getInt(cursor.getColumnIndex("read")) != 0
-            news.excerpt = cursor.getString(cursor.getColumnIndex("excerpt"))
-            news.categories = mapOf<String, Category>(category to Category(category))
-            result.add(news)
+            result.add(News().apply {
+                parse(cursor)
+            })
         }
         cursor.close()
         return result
+    }
+
+    private fun News.parse(cursor: Cursor) {
+        id = cursor.getInt(cursor.getColumnIndex("id"))
+        title = Content(cursor.getString(cursor.getColumnIndex("title")))
+        content = Content(cursor.getString(cursor.getColumnIndex("content")))
+        date = Date(cursor.getLong(cursor.getColumnIndex("date")))
+        author = Author(cursor.getString(cursor.getColumnIndex("author")))
+        image = cursor.getString(cursor.getColumnIndex("image"))
+        link = cursor.getString(cursor.getColumnIndex("short_URL"))
+        isRead = cursor.getInt(cursor.getColumnIndex("read")) != 0
+        excerpt = Content(cursor.getString(cursor.getColumnIndex("excerpt")))
+        val category = cursor.getString(cursor.getColumnIndex("category"))
+        categories = listOf(Category(category))
+        isFull = cursor.getInt(cursor.getColumnIndex("isfull")) != 0
+        tags = gson.fromJson(cursor.getString(cursor.getColumnIndex("tags")), object : TypeToken<List<Tag>>() {}.type)
     }
 
     fun getNewsCount(search: String?, categories: List<Category>): Long {
@@ -96,14 +105,16 @@ object NewsDatabase {
 
                 insertOrReplaceNews.clearBindings()
                 insertOrReplaceNews.bindLong(1, it.id.toLong())
-                insertOrReplaceNews.bindString(2, it.title)
-                insertOrReplaceNews.bindString(3, it.content)
-                insertOrReplaceNews.bindLong(4, it.date.time)
-                insertOrReplaceNews.bindString(5, it.author.name)
-                insertOrReplaceNews.bindString(6, it.link)
-                insertOrReplaceNews.bindString(7, it.categories.values.first().name)
-                insertOrReplaceNews.bindString(8, it.image)
-                insertOrReplaceNews.bindString(9, it.excerpt)
+                insertOrReplaceNews.bindString(2, it.title.rendered)
+                insertOrReplaceNews.bindString(3, it.content.rendered ?: "")
+                insertOrReplaceNews.bindLong(4, it.date?.time ?: 0)
+                insertOrReplaceNews.bindString(5, it.author?.name ?: "")
+                insertOrReplaceNews.bindString(6, it.link ?: "")
+                insertOrReplaceNews.bindString(7, it.categories?.firstOrNull()?.name ?: NewsUtils.NEWS_CATEGORY)
+                insertOrReplaceNews.bindString(8, it.image ?: "")
+                insertOrReplaceNews.bindString(9, it.excerpt.rendered ?: "")
+                insertOrReplaceNews.bindLong(10, if (it.isFull) 1 else 0)
+                insertOrReplaceNews.bindString(11, gson.toJson(it.tags))
                 insertOrReplaceNews.executeInsert()
 
                 result[it] = if (isExists) SqlState.UPDATED else SqlState.INSERTED
@@ -150,5 +161,20 @@ object NewsDatabase {
 
     fun delete(id: String) {
         database.delete(NEWS, "id=?", arrayOf(id))
+    }
+
+    fun getTopic(id: Int): News? {
+        val cursor = database.query(NEWS,
+                arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt", "isfull", "tags"),
+                "id=?", arrayOf(id.toString()), null, null, null)
+        var result: News? = null
+        if (cursor.moveToFirst()) {
+            result = News().apply {
+                parse(cursor)
+            }
+        }
+        cursor.close()
+        return result
+
     }
 }

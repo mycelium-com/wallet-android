@@ -2,10 +2,8 @@ package com.mycelium.wallet.external
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -14,6 +12,12 @@ import com.mycelium.wapi.wallet.fio.FioKeyManager
 
 
 object Ads {
+    fun doAction(key: String, context: Context) {
+        when (key) {
+            "open-fio" -> openFio(context)
+        }
+    }
+
     @JvmStatic
     fun openFio(context: Context) {
         val mbwManager = MbwManager.getInstance(context)
@@ -31,7 +35,7 @@ object Ads {
                     .create()
                     .show()
         } else {
-            Toast.makeText(context, R.string.fio_requires_hd_account, Toast.LENGTH_LONG).show()
+            Toaster(context).toast(R.string.fio_requires_hd_account, false)
         }
     }
 }

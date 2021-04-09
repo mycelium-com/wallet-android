@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:showIn="@layout/send_coins_activity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+    <merge>
+
+        <TextView
+            android:id="@+id/tvStaleWarning"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginTop="4dp"
+            android:layout_gravity="center"
+            android:visibility="@{viewModel.showStaleWarning == true ? View.VISIBLE : View.GONE}"
+            android:text="@string/stale_fee_warning"
+            android:textColor="@color/fio_red"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvUnconfirmedWarning"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_gravity="center"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/fio_yellow"
+            android:textSize="14sp"
+            android:text="@string/spending_unconfirmed_warning"
+            android:visibility="@{viewModel.isSpendingUnconfirmed == true ? View.VISIBLE : View.GONE}"
+            android:onClick="@{_ -> activity.onClickUnconfirmedWarning()}"
+            tools:visibility="visible" />
+    </merge>
+</layout>

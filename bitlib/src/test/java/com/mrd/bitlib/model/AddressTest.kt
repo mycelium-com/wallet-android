@@ -41,7 +41,6 @@ import org.junit.Assert
 import org.junit.Test
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.crypto.RandomSource
 
 class AddressTest {
@@ -56,19 +55,19 @@ class AddressTest {
 
     @Test
     fun standardAddressTestFromBytes() {
-        val address = Address.fromStandardBytes(
+        val address = BitcoinAddress.fromStandardBytes(
                 HexUtils.toBytes("B169F2B0B866DB05900B93A5D76345F18D3AFB24"), NetworkParameters.productionNetwork)
         Assert.assertEquals("1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v", address!!.toString())
     }
 
     @Test
     fun standardAddressTest() {
-        val tAddr = Address.fromString("muvtKjWtqcxrsDYfvFCgGnkmB4EqEcU8Bk")
+        val tAddr = BitcoinAddress.fromString("muvtKjWtqcxrsDYfvFCgGnkmB4EqEcU8Bk")
         Assert.assertNotNull(tAddr)
         Assert.assertFalse(tAddr.isP2SH(tAddr.network))
         Assert.assertTrue(tAddr.network.isTestnet)
 
-        val pAddr = Address.fromString("1NiKrdcsiat3NVRu5XCmGkzZhZDTGXabU5")
+        val pAddr = BitcoinAddress.fromString("1NiKrdcsiat3NVRu5XCmGkzZhZDTGXabU5")
         Assert.assertNotNull(pAddr)
         Assert.assertFalse(pAddr.isP2SH(pAddr.network))
         Assert.assertTrue(pAddr.network.isProdnet)
@@ -76,12 +75,12 @@ class AddressTest {
 
     @Test
     fun multisigAddressTest() {
-        val tAddr = Address.fromString("2N9ZkpDh83uygvhTSy5syYADZvDuVZi8mRH")
+        val tAddr = BitcoinAddress.fromString("2N9ZkpDh83uygvhTSy5syYADZvDuVZi8mRH")
         Assert.assertNotNull(tAddr)
         Assert.assertTrue(tAddr.isP2SH(tAddr.network))
         Assert.assertTrue(tAddr.network.isTestnet)
 
-        val pAddr = Address.fromString("31qh3GkM3RLPfMy86XjisS7bVkz7Pz8wee")
+        val pAddr = BitcoinAddress.fromString("31qh3GkM3RLPfMy86XjisS7bVkz7Pz8wee")
         Assert.assertNotNull(pAddr)
         Assert.assertTrue(pAddr.isP2SH(pAddr.network))
         Assert.assertTrue(pAddr.network.isProdnet)

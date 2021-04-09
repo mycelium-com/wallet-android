@@ -42,7 +42,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.ArrayMap;
 import android.util.Log;
-
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Optional;
@@ -52,7 +51,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -65,13 +64,10 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccountBacking;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -103,9 +99,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private final SQLiteStatement _deleteSubId;
    private final SQLiteStatement _getMaxSubId;
    private final NetworkParameters networkParameters;
-
-   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
-
 
    public SqliteColuManagerBacking(Context context, NetworkParameters networkParameters) {
       this.networkParameters = networkParameters;
@@ -155,7 +148,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
             if (addressStringsList != null) {
                for (String addressString : addressStringsList) {
-                  Address address = Address.fromString(addressString);
+                  BitcoinAddress address = BitcoinAddress.fromString(addressString);
                   addresses.put(address.getType(), new BtcAddress(coinType, address));
                }
             }
@@ -459,36 +452,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         String assetTypeName = assetType.getName();
-         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
-         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
-                 feeEstimation.getEconomy().value,
-                 feeEstimation.getNormal().value,
-                 feeEstimation.getHigh().value,
-                 feeEstimation.getLastCheck());
-         byte[] value = gson.toJson(feeValues).getBytes();
-         setValue(key, value);
-      }
-
-      @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         String key = assetType.getName() + LAST_FEE_ESTIMATE;
-         FeeEstimationSerialized feeValues;
-         try {
-            feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
-         } catch (Exception ignore) {
-            return null;
-         }
-
-         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
-                 Value.valueOf(assetType, feeValues.economy),
-                 Value.valueOf(assetType, feeValues.normal),
-                 Value.valueOf(assetType, feeValues.high),
-                 feeValues.lastCheck);
-      }
-
-      @Override
       public Tx.Json getTx(Sha256Hash hash) {
          Cursor cursor = null;
          Tx.Json result = null;
@@ -524,25 +487,18 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void putUnspentOutputs(List<TransactionOutputEx> unspentOutputs) {
-
       }
 
       @Override
       public List<Tx.Json> getTransactions(int offset, int limit) {
-         Cursor cursor = null;
          List<Tx.Json> result = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
-                            + " ORDER BY height desc limit ? offset ?",
-                    new String[]{Integer.toString(limit), Integer.toString(offset)});
+         try (Cursor cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
+                         + " ORDER BY height desc, time desc limit ? offset ?",
+                 new String[]{Integer.toString(limit), Integer.toString(offset)})) {
             while (cursor.moveToNext()) {
                String json = new String(cursor.getBlob(1), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
-            }
-         } finally {
-            if (cursor != null) {
-               cursor.close();
             }
          }
          return result;
@@ -576,7 +532,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          List<Tx.Json> result = new LinkedList<>();
          try (Cursor cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
                          + " WHERE time >= ?"
-                         + " ORDER BY height desc",
+                         + " ORDER BY height desc, time desc",
                  new String[]{Long.toString(since / 1000)})) {
 
             while (cursor.moveToNext()) {
@@ -665,7 +621,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);
                   String addressString = cursor.getString(2);
-                  Address address = new Address(addressBytes, addressString);
+                  BitcoinAddress address = new BitcoinAddress(addressBytes, addressString);
                   UUID newId = ColuUtils.getGuidForAsset(coluUUIDs.get(id), address.getAllAddressBytes());
 
                   metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
@@ -697,7 +653,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             for (SingleAddressAccountContext saaContext : list) {
                statement.bindBlob(1, uuidToBytes(saaContext.getId()));
                List<String> addresses = new ArrayList<>();
-               for (Address address: saaContext.getAddresses().values()){
+               for (BitcoinAddress address: saaContext.getAddresses().values()){
                   addresses.add(address.toString());
                }
                statement.bindString(2, gson.toJson(addresses));
@@ -724,7 +680,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   }.getType();
                   Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
                   for (String addressString : addressStringsList) {
-                     Address address = Address.fromString(addressString);
+                     BitcoinAddress address = BitcoinAddress.fromString(addressString);
                      if (address.getType() == AddressType.P2PKH) {
                         listForRemove.remove(id);
                         break;
@@ -877,11 +833,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                                                        NetworkParameters networkParameters) {
          PublicKey key = new PublicKey(publicKeyBytes);
          List<String> addresses = new ArrayList<>();
-         for (Address address : key.getAllSupportedAddresses(networkParameters).values()) {
+         for (BitcoinAddress address : key.getAllSupportedAddresses(networkParameters).values()) {
             addresses.add(address.toString());
          }
          return gson.toJson(addresses);
       }
+
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
          try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
             // getColumnIndex()  will return the index of the column

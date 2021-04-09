@@ -12,6 +12,9 @@ public class Author implements Serializable {
     public Author() {
     }
 
+    @JsonProperty("id")
+    public int id;
+
     @JsonProperty("name")
     public String name;
 }

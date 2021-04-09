@@ -18,8 +18,8 @@ out/
 !.idea/codeStyleSettings.xml
 .settings
 nohup.out
-/gradle.properties
 /keys.properties
 /keystore_mbwProd
 /keystore_mbwTest
 /crowdin.properties
+**/ndk_locator_record.json

@@ -34,9 +34,6 @@
 
 package com.mycelium.wallet.lt.activity.sell;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -71,6 +68,7 @@ import com.mycelium.wallet.EnterTextDialog;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.LtAndroidConstants;
@@ -85,6 +83,9 @@ import com.mycelium.wallet.lt.api.CreateAd;
 import com.mycelium.wallet.lt.api.EditAd;
 import com.mycelium.wallet.lt.api.GetPriceFormulas;
 import com.mycelium.wallet.lt.api.Request;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateOrEditAdActivity extends Activity {
 
@@ -160,7 +161,7 @@ public class CreateOrEditAdActivity extends Activity {
       String description = isEdit() ? _ad.description : null;
       PriceFormula priceFormula = isEdit() ? _ad.priceFormula : null;
       _location = isEdit() ? _ad.location : _ltManager.getUserLocation();
-      _currency = isEdit() ? _ad.currency : _mbwManager.getFiatCurrency().getSymbol();
+      _currency = isEdit() ? _ad.currency : _mbwManager.getFiatCurrency(Utils.getBtcCoinType()).getSymbol();
       if (_currency.equals("")) {
          //lt without fiat is pointless, if there is none, revert to usd
          _currency = "USD";
@@ -563,12 +564,12 @@ public class CreateOrEditAdActivity extends Activity {
       public void onLtError(int errorCode) {
          // if the price source is not available, dont close the current activity - just signal it to the user
          if (errorCode == LtApi.ERROR_CODE_PRICE_FORMULA_NOT_AVAILABLE){
-            Toast.makeText(CreateOrEditAdActivity.this, R.string.lt_missing_fx_rate, Toast.LENGTH_LONG).show();
+            new Toaster(CreateOrEditAdActivity.this).toast(R.string.lt_missing_fx_rate, false);
             _isFetchingPrice = false;
             _btcPrice = null;
             updateUi();
          } else {
-            Toast.makeText(CreateOrEditAdActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+            new Toaster(CreateOrEditAdActivity.this).toast(R.string.lt_error_api_occurred, false);
             finish();
          }
       }

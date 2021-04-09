@@ -20,11 +20,11 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
-    implementation "com.madgag.spongycastle:core:$spongyCoreVersion"
-    implementation "com.madgag.spongycastle:prov:$spongyProvVersion"
-    implementation "com.madgag.spongycastle:pkix:$spongyPkixVersion"
-    implementation "com.madgag.spongycastle:pg:$spongyPgVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    implementation "com.squareup.sqldelight:sqlite-driver:$sqldelight_version"
+
+    runtime 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.23.0"

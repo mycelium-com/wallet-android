@@ -3,6 +3,11 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">testnet.api.coloredcoins.org</domain>
         <domain includeSubdomains="true">coloredcoins-test.mycelium.com</domain>
-        <domain includeSubdomains="true">public-api.wordpress.com</domain>
+        <domain includeSubdomains="true">media.mycelium.com</domain>
+        <domain includeSubdomains="true">media-dev.mycelium.com</domain>
+        <domain includeSubdomains="true">etherscan.io</domain>
+        <domain includeSubdomains="true">fioprotocol.io</domain>
+        <domain includeSubdomains="true">greymass.com</domain>
+        <domain includeSubdomains="true">reg.bequant.io</domain>
     </domain-config>
 </network-security-config>

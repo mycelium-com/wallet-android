@@ -2,23 +2,26 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.app.NotificationManager
-import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
-import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransactionSummary
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.fio.FioModule
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
@@ -32,7 +35,9 @@ class ReceiveCoinsModel(
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
     val receivingAmount: MutableLiveData<Value?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
-    val receivingAddress: MutableLiveData<GenericAddress> = MutableLiveData()
+    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
+    val receivingFioName = MutableLiveData<String>()
+    val fioNameList = MutableLiveData<List<String>>()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
@@ -44,6 +49,10 @@ class ReceiveCoinsModel(
         MbwManager.getEventBus().register(this)
         receivingAmountWrong.value = false
         receivingAddress.value = account.receiveAddress
+
+        val walletManager = mbwManager.getWalletManager(false)
+        val module = walletManager.getModuleById(FioModule.ID) as FioModule
+        fioNameList.value = module.getFIONames(account).map { it.name }
 
         if (showIncomingUtxo) {
             updateObservingAddress()
@@ -85,12 +94,16 @@ class ReceiveCoinsModel(
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.stripTrailingZeros().toPlainString())
             } else {
-                val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
+                val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType) ?: amount.value
 
                 if (value != null) {
-                    uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
+                    uri.append(if (account is AbstractEthERC20Account) "?value=" else "?amount=")
+                    uri.append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
-                    Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
+                    Toaster(context).toast(R.string.value_conversion_error, false);
+                }
+                if (account is ERC20Account) {
+                    uri.append("&req-asset=${account.coinType.contractAddress}")
                 }
             }
         }
@@ -153,7 +166,7 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransactionSummary>) =
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<TransactionSummary>) =
             transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {

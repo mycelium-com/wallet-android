@@ -24,10 +24,9 @@ import java.text.Normalizer;
 import Rijndael.Rijndael;
 import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.lambdaworks.crypto.SCrypt;
-import com.mrd.bitlib.lambdaworks.crypto.SCryptProgress;
 
 import com.mrd.bitlib.crypto.ec.Parameters;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -47,12 +46,11 @@ public class Bip38 {
     * This is a helper function that does everything in one go. You can call the
     * individual functions if you wish to separate it into more phases.
     */
-   public static String encryptNoEcMultiply(String passphrase, String base58EncodedPrivateKey,
-                                            SCryptProgress progressTracker) throws InterruptedException {
+   public static String encryptNoEcMultiply(String passphrase, String base58EncodedPrivateKey) throws InterruptedException {
       InMemoryPrivateKey key = new InMemoryPrivateKey(base58EncodedPrivateKey, NetworkParameters.productionNetwork);
-      Address address = key.getPublicKey().toAddress(NetworkParameters.productionNetwork, AddressType.P2PKH);
+      BitcoinAddress address = key.getPublicKey().toAddress(NetworkParameters.productionNetwork, AddressType.P2PKH);
       byte[] salt = Bip38.calculateScryptSalt(address);
-      byte[] stretchedKeyMaterial = bip38Stretch1(passphrase, salt, progressTracker, SCRYPT_LENGTH);
+      byte[] stretchedKeyMaterial = bip38Stretch1(passphrase, salt, SCRYPT_LENGTH);
       return encryptNoEcMultiply(stretchedKeyMaterial, key, salt);
    }
 
@@ -60,13 +58,12 @@ public class Bip38 {
     * Perform BIP38 compatible password stretching on a password to derive the
     * BIP38 key material
     */
-   public static byte[] bip38Stretch1(String passphrase, byte[] salt, SCryptProgress progressTracker, int outputSize)
+   public static byte[] bip38Stretch1(String passphrase, byte[] salt, int outputSize)
            throws InterruptedException {
       byte[] derived;
       String normalizedPassphrase = Normalizer.normalize(passphrase, Normalizer.Form.NFC);
       try {
-         derived = SCrypt.scrypt(normalizedPassphrase.getBytes(StandardCharsets.UTF_8), salt, SCRYPT_N, SCRYPT_R, SCRYPT_P, outputSize,
-                 progressTracker);
+         derived = SCrypt.scrypt(normalizedPassphrase.getBytes(StandardCharsets.UTF_8), salt, SCRYPT_N, SCRYPT_R, SCRYPT_P, outputSize);
          return derived;
       } catch (GeneralSecurityException e) {
          throw new RuntimeException(e);
@@ -225,21 +222,21 @@ public class Bip38 {
     *
     * @throws InterruptedException
     */
-   public static String decrypt(String bip38PrivateKeyString, String passphrase, SCryptProgress progressTracker,
+   public static String decrypt(String bip38PrivateKeyString, String passphrase,
                                 NetworkParameters network) throws InterruptedException {
       Bip38PrivateKey bip38Key = parseBip38PrivateKey(bip38PrivateKeyString);
       if (bip38Key == null) {
          return null;
       }
       if (bip38Key.ecMultiply) {
-         return decryptEcMultiply(bip38Key, passphrase, progressTracker, network);
+         return decryptEcMultiply(bip38Key, passphrase, network);
       } else {
-         byte[] stretcedKeyMaterial = bip38Stretch1(passphrase, bip38Key.salt, progressTracker, SCRYPT_LENGTH);
+         byte[] stretcedKeyMaterial = bip38Stretch1(passphrase, bip38Key.salt, SCRYPT_LENGTH);
          return decryptNoEcMultiply(bip38Key, stretcedKeyMaterial, network);
       }
    }
 
-   public static String decryptEcMultiply(Bip38PrivateKey bip38Key, String passphrase, SCryptProgress progressTracker,
+   public static String decryptEcMultiply(Bip38PrivateKey bip38Key, String passphrase,
                                           NetworkParameters network) throws InterruptedException {
       // Get 8 byte Owner Salt
       byte[] ownerEntropy = new byte[8];
@@ -252,7 +249,7 @@ public class Bip38 {
       }
 
       // Stretch to get Pass Factor
-      byte[] passFactor = bip38Stretch1(passphrase, ownerSalt, progressTracker, 32);
+      byte[] passFactor = bip38Stretch1(passphrase, ownerSalt, 32);
 
       if (bip38Key.lotSequence) {
          byte[] tmp = new byte[40];
@@ -281,7 +278,7 @@ public class Bip38 {
       System.arraycopy(ownerEntropy, 0, saltPlusOwnerSalt, 4, 8);
       byte[] derived;
       try {
-         derived = SCrypt.scrypt(passPoint, saltPlusOwnerSalt, 1024, 1, 1, 64, null);
+         derived = SCrypt.scrypt(passPoint, saltPlusOwnerSalt, 1024, 1, 1, 64);
       } catch (GeneralSecurityException e) {
          throw new RuntimeException(e);
       }
@@ -330,7 +327,7 @@ public class Bip38 {
       InMemoryPrivateKey finalKey = new InMemoryPrivateKey(keyBytes, bip38Key.compressed);
 
       // Validate result
-      Address address = finalKey.getPublicKey().toAddress(network, AddressType.P2PKH);
+      BitcoinAddress address = finalKey.getPublicKey().toAddress(network, AddressType.P2PKH);
       byte[] newSalt = calculateScryptSalt(address);
       if (!BitUtils.areEqual(bip38Key.salt, newSalt)) {
          // The passphrase is either invalid or we are on the wrong network
@@ -377,19 +374,17 @@ public class Bip38 {
       InMemoryPrivateKey key = new InMemoryPrivateKey(complete, bip38Key.compressed);
 
       // Validate result
-      Address address = key.getPublicKey().toAddress(network, AddressType.P2PKH);
-      byte[] newSalt = calculateScryptSalt(address);
-      if (!BitUtils.areEqual(bip38Key.salt, newSalt)) {
-         // The passphrase is either invalid or we are on the wrong network
-         return null;
+      for (AddressType type : AddressType.values()) {
+         BitcoinAddress address = key.getPublicKey().toAddress(network, type);
+         byte[] newSalt = calculateScryptSalt(address);
+         if (BitUtils.areEqual(bip38Key.salt, newSalt)) {
+            // Get SIPA format
+            return key.getBase58EncodedPrivateKey(network);
+         }
       }
 
-      // Get SIPA format
-      return key.getBase58EncodedPrivateKey(network);
-   }
-
-   public static SCryptProgress getScryptProgressTracker() {
-      return new SCryptProgress(SCRYPT_N, SCRYPT_R, SCRYPT_P);
+      // The passphrase is either invalid or we are on the wrong network
+      return null;
    }
 
    /**
@@ -398,7 +393,7 @@ public class Bip38 {
     * BIP38 uses a scrypt salt which depends on the Bitcoin address. This method
     * takes a Bitcoin address and calculates the BIP38 salt.
     */
-   public static byte[] calculateScryptSalt(Address address) {
+   public static byte[] calculateScryptSalt(BitcoinAddress address) {
       Sha256Hash hash = HashUtils.doubleSha256(address.toString().getBytes());
       return hash.firstFourBytes();
    }

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.mycelium.wapi.wallet.coins.Value" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioRequestCreateViewModel" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity" />
+
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/page_margin_width"
+            android:paddingEnd="@dimen/page_margin_width">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:text="From:"
+                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvPayeeFio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="16dp"
+                    android:text="@{viewModel.payeeFioName}"
+                    android:textSize="18sp"
+                    app:drawableRightCompat="@drawable/arrow_bottom"
+                    tools:text="newAddress@domain" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:text="Receiving account:"
+                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvReceivingAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:text="@{viewModel.payeeAccount.label}"
+                    android:textColor="@color/fio_green"
+                    tools:text="newAddress@domain" />
+
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginRight="8dp"
+                android:text="Send request to: "
+                android:textColor="@color/fio_white_alpha_0_6"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvPayerFioAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:drawablePadding="16dp"
+                android:text="@{viewModel.payerFioName}"
+                android:textSize="18sp"
+                app:drawableRightCompat="@drawable/ic_edit_fio_name"
+                tools:text="newAddress@domain" />
+
+            <!--Contains amount selection-->
+
+            <include
+                layout="@layout/send_coins_amount"
+                app:listener="@{activity}"
+                app:viewModel="@{viewModel}" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="32dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:text="Miner fee:"
+                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:text="Free (bundle transaction)"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Memo:"
+                android:textColor="@color/fio_white_alpha_0_6"
+                android:textSize="14sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:counterEnabled="true"
+                app:counterMaxLength="@{viewModel.memoMaxLength}"
+                app:counterTextColor="@color/fio_white_alpha_0_6"
+                app:hintEnabled="false">
+
+                <EditText
+                    android:id="@+id/memo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="-4dp"
+                    android:layout_marginEnd="-4dp"
+                    android:hint="@{@string/leave_a_message_for_s(viewModel.payerFioName)}"
+                    android:maxLength="@{viewModel.memoMaxLength}"
+                    android:text="@={viewModel.fioMemo}"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btNextButton"
+                style="@style/FioNameRegistrationButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="60dp"
+                android:enabled="@{viewModel.amount.moreThanZero()}"
+                android:minWidth="220dp"
+                android:text="@string/send_fio_request"
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

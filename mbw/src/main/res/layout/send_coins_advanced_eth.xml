@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.send.model.Converter" />
+
+        <import type="com.mycelium.wapi.wallet.erc20.ERC20Account" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/advancedBlock"
+        activity="@{activity}"
+        animatedVisibility="@{viewModel.isAdvancedBlockExpanded}"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvNonceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:singleLine="true"
+            android:text="@string/replace_transaction"
+            android:textSize="16sp"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ic_info_replace"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="1dp"
+            android:onClick="@{_ -> activity.showTxReplaceInfo()}"
+            android:tint="@color/dark_sky_blue"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toRightOf="@id/tvNonceLabel"
+            app:layout_constraintTop_toTopOf="@id/tvNonceLabel"
+            app:srcCompat="@drawable/ic_info" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinner"
+            selectedItem="@={viewModel.selectedTxItem}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:minWidth="220dp"
+            android:background="@drawable/send_coin_spinner_selector"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNonceLabel" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="#AFB0B1"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinner" />
+
+        <TextView
+            android:id="@+id/tvGasLimitLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/transaction_gas_limit"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinner" />
+
+        <ImageView
+            android:id="@+id/ic_info_gas_limit"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="1dp"
+            android:onClick="@{_ -> activity.showGasLimitInfo()}"
+            android:tint="@color/dark_sky_blue"
+            app:layout_constraintLeft_toRightOf="@id/tvGasLimitLabel"
+            app:layout_constraintTop_toTopOf="@id/tvGasLimitLabel"
+            app:srcCompat="@drawable/ic_info" />
+
+        <EditText
+            android:id="@+id/etGasLimit"
+            activity="@{activity}"
+            isRedColor="@{viewModel.showGasLimitError}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:minWidth="220dp"
+            android:text="@={Converter.bigIntToString(viewModel.gasLimit)}"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvGasLimitLabel" />
+
+        <TextView
+            android:id="@+id/tvDataLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/transaction_input_data"
+            android:textSize="16sp"
+            android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etGasLimit" />
+
+        <ImageView
+            android:id="@+id/ic_info_address_type"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="1dp"
+            android:onClick="@{_ -> activity.showInputDataInfo()}"
+            android:tint="@color/dark_sky_blue"
+            android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toRightOf="@id/tvDataLabel"
+            app:layout_constraintTop_toTopOf="@id/tvDataLabel"
+            app:srcCompat="@drawable/ic_info" />
+
+        <EditText
+            android:id="@+id/etData"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:digits="0123456789abcdefABCDEFx"
+            android:minWidth="220dp"
+            android:inputType="text"
+            android:text="@={viewModel.inputData}"
+            android:textSize="14sp"
+            android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDataLabel"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            animatedVisibility="@{viewModel.showGasLimitError}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:gravity="center"
+            android:text="@string/gas_limit_error"
+            android:textColor="@color/red"
+            android:textSize="13sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etData" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

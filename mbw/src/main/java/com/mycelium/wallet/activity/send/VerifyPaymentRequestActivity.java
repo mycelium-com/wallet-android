@@ -61,7 +61,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.okhttp.OkHttpClient;
@@ -112,7 +112,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
    private Runnable expiredUpdater;
 
 
-   public static Intent getIntent(Activity currentActivity, GenericAssetUri uri) {
+   public static Intent getIntent(Activity currentActivity, AssetUri uri) {
       return new Intent(currentActivity, VerifyPaymentRequestActivity.class)
               .putExtra(CALLBACK_URI, uri);
    }
@@ -128,12 +128,11 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       setContentView(R.layout.verify_payment_request_activity);
       ButterKnife.bind(this);
       mbw = MbwManager.getInstance(this);
-      mbw.getEventBus().register(this);
 
       // only popup the keyboard if the user taps the textbox
       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-      GenericAssetUri assetUri = (GenericAssetUri) getIntent().getSerializableExtra(CALLBACK_URI);
+      AssetUri assetUri = (AssetUri) getIntent().getSerializableExtra(CALLBACK_URI);
       byte[] rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
 
       // either one of them must be set...
@@ -159,7 +158,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
          // check if we are currently in TOR-only mode - if so, setup the PaymentRequestHandler
          // that all http(s) calls get routed over TOR
          if (mbw.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbw.getTorManager() != null){
-            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork()){
+            requestHandler = new PaymentRequestHandler(MbwManager.getEventBus(), mbw.getNetwork()){
                @Override
                protected OkHttpClient getHttpClient() {
                   OkHttpClient client = super.getHttpClient();
@@ -169,7 +168,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             progressMsg += getString(R.string.payment_request_over_tor);
 
          } else {
-            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork());
+            requestHandler = new PaymentRequestHandler(MbwManager.getEventBus(), mbw.getNetwork());
          }
          mbw.getBackgroundObjectsCache().put(paymentRequestHandlerUuid, requestHandler);
       }
@@ -287,11 +286,15 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             long totalAmount = requestInformation.getOutputs().getTotalAmount();
             tvAmount.setText(mbw.getBtcValueString(totalAmount));
             CurrencySwitcher currencySwitcher = mbw.getCurrencySwitcher();
-            if (currencySwitcher.isFiatExchangeRateAvailable()){
+            if (currencySwitcher.isFiatExchangeRateAvailable(Utils.getBtcCoinType())){
                tvFiatAmount.setVisibility(View.VISIBLE);
                Value btcValue = Utils.getBtcCoinType().value(totalAmount);
                Value fiatValue = currencySwitcher.getAsFiatValue(btcValue);
-               tvFiatAmount.setText(String.format("(~%s)", ValueExtensionsKt.toStringWithUnit(fiatValue)));
+               String fiatAppendment = "";
+               if (fiatValue != null) {
+                  fiatAppendment = String.format("(~%s)", ValueExtensionsKt.toStringWithUnit(fiatValue));
+               }
+               tvFiatAmount.setText(fiatAppendment);
             } else {
                tvFiatAmount.setVisibility(View.GONE);
             }

@@ -6,8 +6,9 @@ import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,39 +34,40 @@ import static com.mycelium.wallet.activity.send.view.SelectableRecyclerView.SRVA
  */
 public class FeeItemsBuilder {
     private static final int MIN_NON_ZERO_FEE_PER_KB = 1000;
+    private static final long MIN_NON_ZERO_GAS_PER_KB = 100000000000L; // 0.1 Gwei * 1000
     private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
     private ExchangeRateManager exchangeRateManager;
-    private GenericAssetInfo fiatType;
+    private AssetInfo fiatType;
 
-    public FeeItemsBuilder(ExchangeRateManager exchangeRateManager, GenericAssetInfo fiatType) {
+    public FeeItemsBuilder(ExchangeRateManager exchangeRateManager, AssetInfo fiatType) {
         this.exchangeRateManager = exchangeRateManager;
         this.fiatType = fiatType;
     }
 
-    public List<FeeItem> getFeeItemList(GenericAssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
-        long min = MIN_NON_ZERO_FEE_PER_KB;
+    public List<FeeItem> getFeeItemList(AssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
+        long min = asset instanceof EthCoin ? MIN_NON_ZERO_GAS_PER_KB : MIN_NON_ZERO_FEE_PER_KB;
         long current = 0;
         long previous = 0;
         long next = 0;
         switch (minerFee) {
             case LOWPRIO:
-                current = feeEstimation.getLow().value;
-                next = feeEstimation.getEconomy().value;
+                current = feeEstimation.getLow().getValueAsLong();
+                next = feeEstimation.getEconomy().getValueAsLong();
                 break;
             case ECONOMIC:
-                current = feeEstimation.getEconomy().value;
-                previous = feeEstimation.getLow().value;
-                next = feeEstimation.getNormal().value;
+                current = feeEstimation.getEconomy().getValueAsLong();
+                previous = feeEstimation.getLow().getValueAsLong();
+                next = feeEstimation.getNormal().getValueAsLong();
                 break;
             case NORMAL:
-                current = feeEstimation.getNormal().value;
-                previous = feeEstimation.getEconomy().value;
-                next = feeEstimation.getHigh().value;
+                current = feeEstimation.getNormal().getValueAsLong();
+                previous = feeEstimation.getEconomy().getValueAsLong();
+                next = feeEstimation.getHigh().getValueAsLong();
                 break;
             case PRIORITY:
-                current = feeEstimation.getHigh().value;
-                previous = feeEstimation.getNormal().value;
+                current = feeEstimation.getHigh().getValueAsLong();
+                previous = feeEstimation.getNormal().getValueAsLong();
                 break;
         }
 
@@ -73,7 +75,7 @@ public class FeeItemsBuilder {
             min = (current + previous) / 2;
         }
 
-        long max = 3 * feeEstimation.getHigh().value / 2;
+        long max = 3 * feeEstimation.getHigh().getValueAsLong() / 2;
         if (minerFee != MinerFee.PRIORITY) {
             max = (next + current) / 2;
         }
@@ -95,7 +97,7 @@ public class FeeItemsBuilder {
         return feeItems;
     }
 
-    private void addItemsInRange(GenericAssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
+    private void addItemsInRange(AssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
             FeeItem currFeeItem = createFeeItem(asset, txSize, algorithm.computeValue(i));
             FeeItem prevFeeItem = !feeItems.isEmpty() ? feeItems.get(feeItems.size() - 1) : null;
@@ -117,7 +119,7 @@ public class FeeItemsBuilder {
     }
 
     @NonNull
-    private FeeItem createFeeItem(GenericAssetInfo asset, int txSize, long feePerKb) {
+    private FeeItem createFeeItem(AssetInfo asset, int txSize, long feePerKb) {
         Value fee = Value.valueOf(asset, txSize * feePerKb / 1000);
         Value fiatFee = exchangeRateManager.get(fee, fiatType);
         return new FeeItem(feePerKb, fee, fiatFee, VIEW_TYPE_ITEM);

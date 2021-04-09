@@ -5,7 +5,7 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.BroadcastResult;
@@ -18,6 +18,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import kotlin.jvm.Volatile;
+
 public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccount {
    private static final ImmutableMap<SyncMode.Mode, Integer> MIN_SYNC_INTERVAL = ImmutableMap.of(
          SyncMode.Mode.FAST_SYNC, 1000,
@@ -28,7 +30,10 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
-   private boolean isSyncing;
+   @Volatile
+   private volatile boolean isSyncing;
+
+   private String accountLabel;
 
    /**
     * Checks if the account needs to be synchronized, according to the provided SyncMode
@@ -75,7 +80,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public boolean synchronize(SyncMode mode){
       if (needsSynchronization(mode)){
          isSyncing = true;
-         boolean synced = doSynchronization(mode);
+         boolean synced =  doSynchronization(mode);
          isSyncing = false;
          // if sync went well, remember current time for this sync mode
          if (synced){
@@ -111,10 +116,10 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract boolean broadcastOutgoingTransactions();
 
    @Override
-   public abstract BroadcastResult broadcastTransaction(Transaction transaction);
+   public abstract BroadcastResult broadcastTransaction(BitcoinTransaction transaction);
 
    @Override
-   public abstract Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
+   public abstract BitcoinTransaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws KeyCipher.InvalidKeyCipher;
 
    @Override
@@ -125,25 +130,26 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    @Override
    public String getLabel() {
-      return null;
+      return accountLabel;
    }
 
    @Override
    public void setLabel(String label) {
+      accountLabel = label;
    }
 
    @Override
    public abstract NetworkParameters getNetwork();
 
    @Override
-   public abstract Value calculateMaxSpendableAmount(long minerFeeToUse, BtcAddress destinationAddress);
+   public abstract Value calculateMaxSpendableAmount(Value minerFeeToUse, BtcAddress destinationAddress);
 
    @Override
    public abstract UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
-         throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+         throws StandardTransactionBuilder.BtcOutputTooSmallException, StandardTransactionBuilder.InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override
-   public abstract UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+   public abstract UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.BtcOutputTooSmallException, StandardTransactionBuilder.InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override
    public abstract BalanceSatoshis getBalance();

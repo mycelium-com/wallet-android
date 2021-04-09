@@ -8,44 +8,55 @@
     <string name="add_unrelated_account_title">Add Unrelated Account</string>
     <string name="import_seed_title">Import Master Seed</string>
     <string name="import_words_title">Enter Word List</string>
-    <string name="add_account_desc">Mycelium supports HD Accounts and Single Address Accounts. All created HD Accounts are based on the same Master Seed.</string>
+    <string name="add_account_desc">Mycelium supports Bitcoin HD Accounts, Bitcoin Single Address Accounts and Ethereum Account. All created Bitcoin HD Accounts and Ethereum Account are based on the same Master Seed.</string>
     <string name="add_single_acc_info">In order to add a Single Address Account based on a private key or a read-only address, please click the Advanced button below.</string>
-    <string name="scan_desc">Scan Bitcoin address, private key or HD-Account.</string>
+    <string name="scan_desc">Scan Bitcoin address, private key or HD Bitcoin-Account.</string>
     <string name="scan_seed">Scan Master Seed from Mycelium Backup</string>
-    <string name="use_acc_first">You can only have one unused HD Account.</string>
+    <string name="use_acc_first">You can only have one unused HD Bitcoin Account.</string>
     <string name="clipboard_desc">Import Bitcoin address or private key from clipboard.</string>
     <string name="wordlist_des">Create Master Seed from Word List</string>
     <string name="scan">Scan</string>
-    <string name="advanced">Advanced</string>
+    <string name="advanced">Advanced &amp; More</string>
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
-    <string name="hd_account">Add HD Account</string>
+    <string name="hd_account">Add Bitcoin HD Account</string>
     <string name="close">Close</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
     <string name="confirmations">%d Confirmations</string>
     <string name="send">Send</string>
+    <string name="send_cointype">Send %1$s</string>
     <string name="receive">Receive</string>
+    <string name="receive_cointype">Receive %1$s</string>
     <string name="private_key_deleted">Private key deleted.</string>
     <string name="account_deleted">Account deleted.</string>
     <string name="amount_hint">0.00</string>
     <string name="amount_hint_denomination">0.00 %1$s</string>
-    <string name="enter_recipient_title">Enter Recipient Address</string>
-    <string name="recipient_title">Recipient Address</string>
+    <string name="enter_recipient_title">Send to</string>
+    <string name="enter_recipient_hint">%1$s Address or FIO Name</string>
+    <string name="enter_recipient_description">Enter %1$s Address or FIO Name</string>
+    <string name="recipient_title">Enter recipient address:</string>
     <string name="amount_label">Amount:</string>
+    <string name="amount_label_s">Amount: %s</string>
     <string name="amount_title">Amount</string>
-    <string name="enter_amount_title">Enter Amount</string>
+    <string name="enter_amount_title">Enter Amount:</string>
+    <string name="crypto_address">%1$s Address:</string>
     <string name="max_btc">Spendable: %1$s</string>
     <string name="max_fiat">Spendable: %1$s %2$s</string>
+    <string name="s_payment_request">%s Payment Request</string>
+    <string name="share_address">Share Address</string>
+    <string name="share_address_and_amount">Share Address and Amount</string>
+    <string name="s_fio_request">%s FIO Request</string>
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
     <string name="insufficient_funds">Insufficient funds</string>
+    <string name="tx_build_error">Unknown error while building transaction.</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
     <string name="amount_too_small">The amount you are sending is too small</string>
     <string name="unable_to_build_tx">Unable to build transaction</string>
     <string name="amount_too_small_short">Amount too small</string>
-    <string name="miner_fee_label">Miner fee:</string>
-    <string name="miner_fee_title">Miner Fee</string>
+    <string name="miner_fee_label">Miner fee</string>
+    <string name="miner_fee_title">Miner Fee:</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
@@ -72,7 +83,7 @@
     <string name="private_key">Private Key</string>
     <string name="bitcoin_address_title">Bitcoin Address</string>
     <string name="approximate_fiat_value">%2$s %1$s</string>
-    <string name="no_server_connection">No Server Connection</string>
+    <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
@@ -97,6 +108,19 @@
     <string name="confirmed_in_block">In block #%1$d</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="value">Value</string>
+    <string name="gas_limit">Gas Limit</string>
+    <string name="gas_used">Gas Used</string>
+    <string name="gas_price">Gas Price</string>
+    <string name="nonce">Nonce</string>
+    <string name="eth_internal_transfer">(%s has been transferred to the caller)</string>
+    <string name="replace_transaction">Transaction to be replaced</string>
+    <string name="gas_limit_error">Gas Limit must be at least 21000</string>
+    <string name="input_data">Input Data</string>
+    <string name="input_data_format">Input Data format</string>
+    <string name="input_data_format_desc">The Input Data should be in hexadecimal form. Start with \'0x\' prefix is not necessary, it is inserted automatically if needed.</string>
     <string name="pref_category_pin">PIN Settings</string>
     <string name="randomize_pin">Randomize PIN pad</string>
     <string name="randomize_pin_text">Considerably improves security by randomizing PIN pad layout</string>
@@ -109,10 +133,10 @@
     <string name="pref_local_currency_summary">Select the local fiat currency</string>
     <string name="pref_exchange_source">Exchange source</string>
     <string name="pref_exchange_source_with_value">Exchange Source (%1$s)</string>
-    <string name="pref_exchange_source_summary">Select the source for obtaining exchange rates between Bitcoin and fiat currencies</string>
+    <string name="pref_exchange_source_summary">Select the source for obtaining exchange rates between cryptocurrency and fiat currencies</string>
     <string name="pref_bitcoin_denomination">Cryptocurrency denomination</string>
     <string name="pref_bitcoin_denomination_with_denomination">Cryptocurrency denomination (%1$s)</string>
-    <string name="pref_bitcoin_denomination_summary">Set preferred Bitcoin denomination\nBTC, mBTC, or μBTC</string>
+    <string name="pref_bitcoin_denomination_summary">Set preferred cryptocurrency denomination</string>
     <string name="pref_advanced_settings">Advanced Settings</string>
     <string name="pref_socks_proxy">Socks Proxy</string>
     <string name="pref_socks_proxy_enabled">Socks Proxy (Enabled)</string>
@@ -136,7 +160,7 @@
     <string name="delete">Delete</string>
     <string name="payment_request">Payment Request</string>
     <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to these keys can either take possession of the bitcoin it controls or gain information that might subvert your privacy.\n\nDo you want to continue?</string>
-    <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds stored on your HD accounts if your device is lost or damaged.\n\nDo you want to do this now?</string>
+    <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds stored on your HD Bitcoin accounts if your device is lost or damaged.\n\nDo you want to do this now?</string>
     <string name="backup_legacy_warning">Make a Backup of your Private Key!\n\nIt will take you 2 minutes but can save millions! Having a proper backup is a cornerstone when managing your digital assets or Bitcoin funds.\n\nDO NOT USE Mycelium without creating and verifying backup of all your accounts - if you lose your smartphone and have no backup your bitcoins and digital assets will be  lost forever.\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
@@ -145,11 +169,12 @@
     <string name="found_clipboard_public_keys_message">The clipboard contains a public key.\nDo you want to clear the clipboard?</string>
     <string name="balance_rate">1 %1$s ~ %2$s %3$s</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
-    <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
-    <string name="read_only_warning">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</string>
+    <string name="no_exchange_available">No Exchange available for Account</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
-    <string name="scan_address_book_desc">Scan Bitcoin address.</string>
-    <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
+    <string name="scan_address_book_desc">Scan address.</string>
+    <string name="clipboard_address_book_desc">Get address from clipboard.</string>
     <string name="max">Max</string>
     <string name="get_private_key">Get private key from:</string>
     <string name="cold_storage">Cold Storage</string>
@@ -159,7 +184,8 @@
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
-    <string name="eth_accounts_name">Ethereum</string>
+    <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
+    <string name="fio_accounts_name">FIO</string>
     <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
     <string name="active_accounts_empty">(Empty)</string>
@@ -167,6 +193,7 @@
     <string name="archive_action">Archive</string>
     <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="question_archive_many_accounts"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and %3$s]]></string>
     <string name="master_seed_configuration_title">Welcome to Mycelium</string>
     <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
@@ -187,9 +214,12 @@
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
     <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
-    <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
-    <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
+    <string name="checking_fio_address">Checking FIO Name…</string>
+    <string name="recipient_invalid">Invalid address or FIO Name</string>
+    <string name="recipient_has_no_such_address">%1$s has no %2$s address connected</string>
+    <string name="recipient_valid">Recipient Valid</string>
     <string name="redirecting_to_block_explorer">Redirecting to a block explorer</string>
     <string name="enter_local_currency">Enter your local currency</string>
     <string name="using_address_from_clipboard">Using address from clipboard</string>
@@ -198,6 +228,7 @@
     <string name="sending_addresses">Address Book</string>
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="delete_accounts_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and %3$s]]></string>
     <string name="delete_archived_account_message"><![CDATA[Do you want to delete accounts <b>\"%1$s\"</b> and <b>\"%2$s\"</b>?]]></string>
     <string name="delete_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="delete_archived_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b>]]></string>
@@ -248,6 +279,7 @@
     <string name="share_with">Share with…</string>
     <string name="bitcoin_name">Bitcoin</string>
     <string name="bitcoin_cash_name">Bitcoin Cash</string>
+    <string name="ethereum_name">Ethereum</string>
     <string name="import_decrypt_key_title">Private Key Decryption</string>
     <string name="import_decrypt_key_description">You are about to decrypt a password protected private key.</string>
     <string name="import_decrypt_key_enter_password">Enter the 15 character password and checksum.</string>
@@ -256,6 +288,7 @@
     <string name="out_of_memory_error">ERROR: Your device does not have enough memory to complete this task</string>
     <string name="share_payment_request">Share Payment Request</string>
     <string name="share_bitcoin_address">Share Bitcoin Address</string>
+    <string name="share_fio_name">Share FIO Name</string>
     <string name="optional_amount">Optional Amount</string>
     <string name="show_qr_code_menu">Show QR Code</string>
     <string name="tab_accounts">Accounts</string>
@@ -483,8 +516,8 @@
     <string name="lt_cash_only_hint_cash_only">Trade face-to-face, cash only.</string>
     <!-- LT end -->
 
-    <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
-    <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
+    <string name="cs_private_key_description">You are using a private key with the following %1$s address:</string>
+    <string name="cs_address_description">You have scanned %1$s address. You can view the balance but not spend from it.</string>
     <plurals name="contains_keys">
         <item quantity="one">Contains %1$d private key.</item>
         <item quantity="other">Contains %1$d private keys.</item>
@@ -493,7 +526,7 @@
         <item quantity="one">Contains %1$d address.</item>
         <item quantity="other">Contains %1$d addresses.</item>
     </plurals>
-    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
+    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$d transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
@@ -505,7 +538,7 @@
     <string name="mycelium_com">mycelium.com</string>
     <string name="google_play">Google Play</string>
     <string name="sign_message">Sign Message</string>
-    <string name="cant_sign_message">You cannot sign a message with an HD account</string>
+    <string name="cant_sign_message">You cannot sign a message with an HD Bitcoin account</string>
     <string name="enter_message_hint">Please enter the message that you want to sign here</string>
     <string name="copy_signature">Copy Signature to Clipboard</string>
     <string name="share_signature">Share Text + Signature</string>
@@ -539,10 +572,13 @@
     <!-- BitID end -->
 
     <string name="selected_archived_warning">You cannot work on archived accounts.</string>
-    <string name="selected_hd_info">You are now working on this HD account.</string>
+    <string name="selected_hd_info">You are now working on this HD Bitcoin account.</string>
     <string name="selected_single_info">You are now working on this single address account.</string>
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
-    <string name="hd_account_creation_started">Creating new HD Account…</string>
+    <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
+    <string name="fio_account_creation_started">Creating new FIO Account…</string>
+    <string name="eth_account_creation_started">Creating new ETH Account…</string>
+    <string name="erc20_account_creation_started">Creating new ERC-20 Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>
@@ -587,7 +623,7 @@
     <string name="title_wrong_password">Wrong password, please try again</string>
     <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
     <string name="testnet_label_startup">TESTNET</string>
-    <string name="dont_allow_archiving_unused_notification">You cannot archive an unused HD account</string>
+    <string name="dont_allow_archiving_unused_notification">You cannot archive an unused HD Bitcoin account</string>
     <string name="newly_generated_coins_from_coinbase">Newly generated coins</string>
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
@@ -599,7 +635,7 @@
     <string name="pref_legacy_backup_verify_summary">Verify an existing legacy backup</string>
     <string name="error_no_browser">Cannot navigate to website, no browser found on phone</string>
     <string name="transaction_label_title">Transaction Label</string>
-    <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
+    <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD Bitcoin accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
     <string name="select_key_for_signing">Select Key for Signing</string>
     <string name="playstore_link_label">Playstore Link</string>
     <string name="direct_apk_link_label">Direct\ndownload</string>
@@ -662,7 +698,7 @@
     <string name="ext_sig_passphrase_description">Enter optional passphrase</string>
     <string name="ext_sig_show_passphrase">Show passphrase</string>
     <string name="trezor">Trezor</string>
-    <string name="trezor_import_account">Import a Trezor-HD-Account</string>
+    <string name="trezor_import_account">Import a Trezor-HD Bitcoin-Account</string>
     <string name="trezor_name">Trezor:</string>
     <string name="ext_sig_import_account_caption">Import Account</string>
     <string name="ext_sig_select_account_to_import">Select account to import</string>
@@ -688,14 +724,14 @@
     <string name="keepkey">KeepKey</string>
     <string name="keepkey_name">KeepKey:</string>
     <string name="keepkey_new_firmware_description">A new KeepKey firmware is available.\nPlease use KeepKey Chrome Extension on a PC to update your KeepKey.</string>
-    <string name="keepkey_import_account">Import a KeepKey-HD-Account</string>
+    <string name="keepkey_import_account">Import a KeepKey-HD Bitcoin-Account</string>
 
     <string name="ledger_initial_status">Please connect or tap and hold your Ledger Wallet</string>
     <string name="ledger_scanning_status">Ledger Wallet okay - scanning Accounts</string>
     <string name="ledger_cold_storage_header">Ledger Wallet</string>
     <string name="connect_your_ledger_info">Ledger Nano only works if your phone supports USB-OTG (on-the-go).\n\nTo connect Ledger Nano you need a USB-OTG-adapter or cable. Plug Ledger Nano on the client-side and connect the host-side with your phone.</string>
     <string name="select_ledger_account_to_spend_from">Select account to spend from</string>
-    <string name="ledger_import_account">Import a Ledger HD-Account</string>
+    <string name="ledger_import_account">Import a Ledger HD Bitcoin-Account</string>
     <string name="ledger_import_account_caption">Import Account</string>
     <string name="ledger_select_account_to_import">Select account to import</string>
     <string name="ledger_amount">Amount:</string>
@@ -740,8 +776,9 @@
     <string name="both">Both</string>
     <string name="button_changelog">Changelog</string>
     <string name="hint_type_to_filter">start typing to filter list</string>
-    <string name="info_add_account_keep_backup_secure">Info: All HD accounts are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your HD accounts with it.</string>
-    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your HD accounts are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
+    <string name="info_add_account_keep_backup_secure">Info: All Bitcoin HD Accounts and Ethereum Account are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your Bitcoin HD Accounts and Ethereum Account with it.</string>
+    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your Bitcoin HD Accounts and Ethereum Account are derived from it. They are only secure and recoverable if you have a valid and safe Backup.</string>
+    <string name="transaction_from_address_prefix">From: %s</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="tor_state_init">Tor init</string>
 
@@ -764,7 +801,7 @@
     <string name="lt_warning_watch_only_account">Current account is watch-only - select different account.</string>
 
 
-    <string name="refresh">refresh</string>
+    <string name="refresh">Refresh</string>
     <string name="xpriv_title">Extended private key</string>
     <string name="share_xpriv">Share extended private key</string>
     <string name="export_share_warning">Warning: You are about to share your private account data. Whoever gets hold of it can access all current and future funds in your account. Do you want to continue?</string>
@@ -917,13 +954,14 @@
     <!-- Simplex end -->
 
     <string name="label_single_key_icon">a single key</string>
+    <string name="label_token_icon">an ERC-20 token icon</string>
     <string name="label_blue_circle">blue circle</string>
     <string name="label_type_it_in">type it in</string>
     <string name="label_use_device_location">use device location</string>
     <string name="label_list_activity_indicator">had activity</string>
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
-    <string name="buy_sell_select_activity_warning">This feature is only for BTC accounts</string>
+    <string name="buy_sell_select_activity_warning">This feature is only for BTC or ETH accounts</string>
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>
@@ -964,30 +1002,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="rmc_activate">RMC activate</string>
     <string name="save">Save</string>
     <string name="warning_partner">Partner information</string>
-
-    <string name="partner_header_title">New to crypto?</string>
-    <string name="partner_header_text">Please find here a selection of partner businesses.</string>
-
-    <string name="partner_ledger">Ledger</string>
-    <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
-    <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
-    <string name="partner_ledger_info" />
-
-    <string name="partner_trezor">Trezor</string>
-    <string name="partner_trezor_short">The original hardware wallet.</string>
-    <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
-    <string name="partner_trezor_info" />
-
-    <string name="partner_purse">Purse</string>
-    <string name="partner_purse_short">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
-    <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="partner_purse_info" />
-
-    <string name="partner_safervpn">SaferVPN</string>
-    <string name="partner_safervpn_short">Secure your Internet connection</string>
-    <string name="partner_safervpn_url">https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313</string>
-    <string name="partner_safervpn_info" />
-
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
     <string name="partner_more_info_text">
@@ -1013,6 +1027,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be deleted.</string>
+    <string name="both_eth_and_tokens_will_deleted" formatted="false">All, %s and its token accounts, will be deleted.</string>
     <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
     <string name="selected_colu_info">You are now working on this %s account.</string>
     <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
@@ -1021,6 +1036,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Restore address as</string>
     <string name="account_already_exist">This Bitcoin address is already restored as %s account.</string>
+    <string name="fio_account_import_error">Cannot find FIO address/account: %s.\nCheck correctness of address/account or internet connection.</string>
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
     <string name="not_available">N/A</string>
@@ -1032,6 +1048,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
 1) decreasing sending amount in order to get your change back;\n
 2) increasing sending amount to a maximum;\n
 3) adjusting miner fee to fit in the network output limit.</string>
+    <string name="possible_duplicate_warning_title">Possible duplicate transaction</string>
+    <string name="possible_duplicate_warning_desc">Do you want to send the same transaction while you have the similar one in outgoing list?</string>
     <string name="verify_message">Verify Message</string>
     <string name="rate">1 %1$s ~ %2$s</string>
     <string name="share_transaction_manually">Share Transaction manually</string>
@@ -1078,7 +1096,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="value_currency">%1$s %2$s</string>
     <string name="enter_exchange_amount">Enter exchange amount</string>
     <string name="exchange_in_order_to_complete">In order to complete exchange operation, you need to send the selected amount to the address below.</string>
-    <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging.\nStep 3. Send this.</string>
+    <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging and paste the address.\nStep 3. Copy and paste the exchanging amount below.</string>
     <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be sent to your receiving account.</string>
     <string name="exchange_altcoins_to_btc">Shift any coins to BTC</string>
     <string name="exchange_minimum_amount">Minimum exchangeable amount is %1$s %2$s.</string>
@@ -1090,13 +1108,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="press_exchange_button_below_to_confirm">Press Exchange button below to confirm</string>
     <string name="confirmation">Exchange confirmation</string>
     <string name="no_connected_modules">No connected modules</string>
-    <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD]]></string>
+    <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD Bitcoin]]></string>
     <string name="bitcoin_cash_sa"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> SA]]></string>
     <string name="bitcoin_cash_module"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> Module]]></string>
     <string name="bitcoin_cash_module_short">BCH</string>
     <string name="exchange_bch_to_btc">EXCHANGE BCH TO BTC</string>
     <string name="single_address_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a backup of this address NOW and keep it in a safe place!</string>
-    <string name="wallet_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
+    <string name="wallet_backup_missing">No backup - no coins! In order not to lose your coins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
     <string name="backup">BACKUP</string>
     <string name="backup_later">Backup later</string>
     <string name="backup_now">Backup now</string>
@@ -1116,6 +1134,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bitcoin_cash"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
     <string name="generate_new_bch_key">Generate BCH SA Account</string>
+    <string name="create_fio_legacy_presale_account">Create FIO Legacy Account</string>
+    <string name="new_fio_legacy_presale_account_desc">Create FIO Legacy Account ONLY if you have purchased FIO domain during FIO Presale.</string>
+    <string name="fio_legacy_account">FIO Legacy Account</string>
+    <string name="fio_legacy_already_created">FIO Legacy Account created already</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
     <string name="bch_technology_preview"><![CDATA[Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your Bitcoin <font color="#f08c18">Cash</font> to BTC right in Mycelium so far. Fully functional Bitcoin <font color="#f08c18">Cash</font> module will be available soon. Special thanks to all our contributors and beta testers!]]></string>
     <string name="install">Install</string>
@@ -1160,7 +1182,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="this_is_read_only_account">This is watch-only account. In order to spend funds from it, you need to import the corresponding private key.\nYou can do it by selecting Accounts tab > Add New Account > Advanced and using either Scan or Clipboard option for key\'s importing.</string>
     <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
-    <string name="waiting_offer">Waiting offer…</string>
+    <string name="waiting_offer">Waiting for an offer…</string>
     <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>
@@ -1183,7 +1205,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="what_is_sync">What is sync?</string>
-    <string name="what_is_sync_description" >Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
+    <string name="what_is_sync_description">Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
     <string name="what_is_address_type">What is an address type?</string>
     <string name="what_is_address_type_description"><![CDATA[There are three Bitcoin address formats:<p><b>P2PKH – Legacy</b>, starting with \"%1$s\".</p><p><b>P2SH – SegWit compatible</b>, starting with \"%2$s\". This is the default.</p><p><b>Bech32 – SegWit native</b>, starting with \"%3$s\".</p><p>Use either <b>P2SH</b> or <b>Bech32</b> to receive funds if you would like to send low-fee SegWit transactions in the future.</p><p>Bech32 is the newest and most cost-effective standard, but it is not yet widely adopted, so not everybody can send bitcoins to it. Since Bech32 is not yet widely used, it might be a bit easier for blockchain analysts to discover your cash flow.</p>]]></string>
     <string name="pref_language">Language</string>
@@ -1251,8 +1273,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="starting_application">Starting application</string>
     <string name="migrating_accounts">Migrating accounts</string>
     <string name="loading_accounts">Loading accounts</string>
-    <string name="migrating_n_of_m_hd">Migrating HD accounts: %1$s of %2$s</string>
-    <string name="loading_n_of_m_hd">Loading HD accounts: %1$s of %2$s</string>
+    <string name="migrating_n_of_m_hd">Migrating HD Bitcoin accounts: %1$s of %2$s</string>
+    <string name="loading_n_of_m_hd">Loading HD Bitcoin accounts: %1$s of %2$s</string>
     <string name="migrating_n_of_m_sa">Migrating SA accounts: %1$s of %2$s</string>
     <string name="loading_n_of_m_sa">Loading SA accounts: %1$s of %2$s</string>
     <string name="mixed_mode_explanation"><![CDATA[Unfortunately %1$s firmware does not support Mycelium mixed-spending mode.<br><br>Usually when you sign transaction on your hardware device it shows you just one output - destination address. In case of mixed-spending mode you will have to sign two outputs: one destination address and the other - change address.<br><br>You are still in control of the process and hardware wallet will show that the change goes to your account.<br><br>For more information please check this <a href=\"https://github.com/mycelium-com/wallet-android/issues/483\">Github issue</a>]]></string>
@@ -1281,8 +1303,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="united_states">United States</string>
     <string name="australia">Australia/New Zealand</string>
     <string name="share">Share</string>
-    <string name="explorer_topics">Explorer topics</string>
-    <string name="search_topics_and_articles">Search topics and articles</string>
     <string name="other_news">Other news</string>
     <string name="discover">Discover</string>
     <string name="and">and</string>
@@ -1303,25 +1323,25 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         <item quantity="one">%d new account created</item>
         <item quantity="other">%d new accounts created</item>
     </plurals>
-    <plurals name="media_flow_new_topic">
-        <item quantity="one">one new topic</item>
-        <item quantity="other">%d new topics</item>
-    </plurals>
     <string name="check_gap_bug_spannable_string">Sorry to interrupt you… \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.</string>
     <string name="account_gap">Account Gap</string>
     <string name="address_gaps">Address gaps: </string>
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignore</string>
-    <string name="connection_logs">Connection Logs</string>
-    <string name="fio_requires_hd_account">Currently you can only link HD accounts to FIO labels. Please switch to another account.</string>
-    <string name="confirm_fio_link">Do you want to register a FIO address for your HD account %1$s?</string>
+    <string name="hd_eth_account">Add Ethereum Account</string>
+    <string name="hd_fio_account">Add FIO Account</string>
+    <string name="connection_logs">Logs</string>
+    <string name="fio_server_error_logs">FIO Server Error Logs</string>
+    <string name="no_logs">No logs</string>
+    <string name="fio_requires_hd_account">Currently you can only link HD Bitcoin accounts to FIO labels. Please switch to another account.</string>
+    <string name="confirm_fio_link">Do you want to register a FIO Name for your HD Bitcoin account %1$s?</string>
     <string name="partner_fiopresale">FIO Address Presale</string>
     <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
     <string name="partner_fiopresale_info" />
     <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
     <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
     <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
-    <string name="media_flow_notification_title" >"Mycelium Wallet / Mediaflow"</string>
+    <string name="media_flow_notification_title">"Mycelium Wallet / Mediaflow"</string>
     <string name="sepa_buy_sell_title">SEPA</string>
     <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
@@ -1330,7 +1350,304 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="loading_media_flow_feed_please_wait">Loading Media Flow feed, please wait %s</string>
     <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
     <string name="retry">RETRY</string>
+    <string name="single_eth_account">You can only have one Ethereum account.</string>
     <string name="notifications_summary">Media Flow</string>
+    <string name="changelly_indicate_extra">Please don’t forget to indicate the %s before sending funds.</string>
+    <string name="changelly_memo_id_name">memo</string>
+    <string name="changelly_destination_tag">Destination Tag</string>
+    <string name="changelly_message_name">Message</string>
+    <string name="changelly_extra_id">Extra Id</string>
+    <string name="you_have_36_hours_to_send_funds">You have 36 hours to send funds otherwise the transaction will be canceled automatically.</string>
+    <string name="exchange_operation_id_s">Exchange operation ID: %s</string>
+    <string name="exchange_to_do_so_memo">Step 4. Copy and paste the memo below.</string>
+    <string name="exchange_to_do_so_end">Step 5. Send funds.</string>
+    <string name="summary_media_flow">Show Media Flow</string>
+    <string name="are_you_interested_in_media_flow">Don\'t find it useful? Turn Media Flow off</string>
+    <string name="yes_keep_it">Keep it so far</string>
+    <string name="no_turn_it_off">Turn it off</string>
+    <string name="turn_off">Turn it off</string>
+    <string name="you_about_turn_off_mf">You are about to turn Media Flow off</string>
+    <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news, the wallet features reviews, Micro OTC special offers and more.\n\nYou can always turn it on in Settings -> Mycelium services.\n\nIf you only want to disable notifications, please go to Settings -> Personalization -> Notifications.</string>
+    <string name="not_correct_address_type">Not correct address type</string>
+    <string name="payment_uri_wrong_account_erc20">Select %s account in order to read the payment uri</string>
+    <string name="payment_uri_wrong_account_eth">Select Ethereum account in order to read the payment uri</string>
+    <string name="payment_uri_unsupported_token">The token requested in the payment uri is not supported</string>
+    <string name="export_fio_public_key_title">Export FIO public key</string>
+    <string name="buy_ethereum">BUY / SELL ETH</string>
+    <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>
+    <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
+    <string name="share_fio_public_key">Share FIO public key</string>
+    <string name="add_erc20_account">Add ERC-20 Account</string>
+    <string name="buy_eth">BUY ETH</string>
+    <string name="sell_eth">SELL ETH</string>
+    <string name="buy_bitcoin">BUY BITCOIN</string>
+    <string name="sell_bitcoin">SELL BITCOIN</string>
+    <string name="dialog_title_buy_sell_eth_sepa">Buy or Sell ETH using SEPA</string>
+    <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
+    <string name="select_token">Add ERC-20 tokens to \"%s\" account</string>
+    <string name="select_token_new_account">Add ERC-20 tokens to new ETH Account</string>
+    <string name="select_eth_account_to_erc20">Select ETH Account to store your ERC-20 tokens</string>
+    <string name="create_new_account">Add new ETH Account</string>
+    <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal ETH transfers, the value is 21,000.\nFor contract this value is higher and bound by block gas limit.</string>
+    <string name="gas_limit_info_title">Gas Limit</string>
+    <string name="transaction_options">Transaction options</string>
+    <string name="transaction_gas_limit">Transaction Gas Limit</string>
+    <string name="transaction_input_data">Transaction Input Data</string>
+    <string name="account_added_part">(Added)</string>
+    <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of ERC-20 tokens - one of each type per ETH account.</string>
+    <string name="list_added_tokens">ERC-20 tokens on \"%s\" account</string>
+    <string name="list_added_tokens_new_account">ERC-20 tokens on new account</string>
+    <string name="tx_replace_info_title">Transaction to be replaced</string>
+    <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
+    <string name="none">none</string>
+    <string name="receive_title_fio">FIO Public key</string>
+    <string name="settings_summary_fio_fee">FIO miner fee is determined by FIO block producers.\nThe current miner fee is %s %s.</string>
+    <string name="select_name_to_associate">Connect accounts to your FIO Name. Only <b>one</b> account per each cryptocurrency can be connected with <b>one</b> FIO Name.</string>
+    <string name="select_name_to_associate_read_only_account">Accounts connected to this FIO Name. Only <b>one</b> account per each cryptocurrency can be connected with <b>one</b> FIO Name.</string>
+    <string name="fio_register_address">Register FIO Name</string>
+    <string name="fio_create_name_title">Create FIO Name</string>
+    <string name="fio_create_domain_title">Create FIO Domain</string>
+    <string name="fio_enter_fio_name_title">Send request to</string>
+    <string name="fio_address">FIO Address</string>
+    <string name="fio_registration_fee">Registration Fee</string>
+    <string name="fio_remaining_balance">Remaining FIO Balance</string>
+    <string name="fio_create_unique_address">Create a unique FIO Name</string>
+    <string name="fio_create_request">FIO Request</string>
+    <string name="fio_create_request_currency_title">Request %s</string>
+    <string name="fio_address_is_invalid">Invalid FIO Name</string>
+    <string name="fio_domain_is_invalid">Invalid FIO Domain</string>
+    <string name="fio_address_occupied"><![CDATA[This name is already taken on @%s domain. Please try another one or register own <font color="#30B7E4"><u>FIO domain</u></font>.]]></string>
+    <string name="fio_domain_occupied">This Domain is already taken, please try something else</string>
+    <string name="fio_address_available">This FIO Name is available for registration.</string>
+    <string name="fio_domain_available">This FIO Domain is available for registration.</string>
+    <string name="fio_address_check_service_unavailable">Looks like FIO protocol experiences some problems. Please check your internet connection or try again later.</string>
+    <string name="fio_create_name_description"><b>FIO Protocol</b> is a new simple way to Send, Receive, and Request <b>ANY CRYPTO</b> with one public alias for all crypto accounts!\n\n- Crypto transactions with memos\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized\n\n<b>Create your FIO Name</b> (i.e. nakamoto@mycelium) and get your daily crypto experience to the next level!</string>
+    <string name="fio_annual_fee">Register FIO name and use FIO services for %s/year including 100 commission free transactions.</string>
+    <string name="fio_annual_fee_domain">Register for an annual fee %s. Fee is charged by the FIO Network.</string>
+    <string name="fio_manage_name_and_domain">Here you can manage your FIO Names and Domains:</string>
+    <string name="add_new_fio_name">Add new FIO Name</string>
+    <string name="create_fio_domain">Create FIO Domain</string>
+    <string name="fio_connect_accounts_desc"><![CDATA[Connect FIO Name <b>\"%s\"</b> to your accounts and benefit from FIO Protocol.]]></string>
+    <string name="fio_create_name_desc"><![CDATA[Create and Register new FIO Names to your FIO Domain <b>%s</b> and benefit from FIO protocol.]]></string>
+    <string name="fio_not_sufficient_funds_on_selected_account">Not sufficient funds on selected account</string>
+    <string name="fio_create_name_hint_text">Enter FIO Name (only letters, numbers -,_.)</string>
+    <string name="tab_fio_requests">FIO Requests</string>
+    <string name="fio_create_domain_hint">Enter FIO Domain</string>
+    <string name="fio_confirm_and_pay">Confirm &amp; Pay</string>
+    <string name="fio_register_domain_desc">You can create your own FIO Domain to register any FIO name you want. Charges in FIO tokens may apply. \nDon\'t have FIO tokens yet? You can buy it <font color="#31A7CE">here</font>.</string>
+    <string name="fio_protocol_decentralized">The <font color="#2AA5DB"><u><b>FIO Protocol</b></u></font> is a decentralized service layer that bridges the gap between crypto endpoints such as wallets, exchanges, crypto payment processors, and any other application in which crypto assets are held and/or transferred.</string>
+    <string name="fio_name_readable_wallet_identifier"><b>FIO Name</b> - a human-readable wallet identifier (such as john@edge or alice@gold) which eliminates the need to see, or even know of, blockchain public addresses. FIO Addresses automatically support any token in a wallet/exchange, and requires no manual mapping.</string>
+    <string name="fio_requests_ability_to_request_funds"><b>FIO Requests</b> - the ability to request funds from any other wallet, utilizing in-wallet/app notifications and simple approvals. FIO Requests are fully encrypted between counter-parties, and do not interfere with the actual underlying blockchain transactions.</string>
+    <string name="fio_expiration_details_desc">If the renewal fee for a FIO Domain is not paid by its expiration date, the following restrictions will be placed on the domain and addresses on that domain:</string>
+    <string name="fio_expiration_details_0_30_days">Days after expiration date: 0–30 days</string>
+    <string name="fio_expiration_details_0_30_days_desc">Disallowed to register new FIO Names under expired FIO Domain. \nRegistered FIO Names can be still used for 30 days after FIO Domain expiration date.</string>
+    <string name="fio_expiration_details_30_90_days">Days after expiration date: 31–90 days</string>
+    <string name="fio_expiration_details_30_90_days_desc">Disallowed following actions:\n- register new FIO Names\n- renew FIO Names under expired domain\n- Request, Send or Reject with FIO Names under expired domain</string>
+    <string name="fio_expiration_details_90_days">Days after expiration date: on day 90 days</string>
+    <string name="fio_expiration_details_90_days_desc">Domain is burned and can be re-registered by any user.\nAll addresses on that domain and associated data are burned.</string>
+    <string name="fio_expiration_details_anyone_can_renew">Anyone can renew a domain as long as they are willing to pay the renewal fee.</string>
+    <string name="fio_names">RECENTS</string>
+    <string name="fio_name">FIO Name</string>
+    <string name="my_fio_names">My FIO Names</string>
+    <string name="fio_name_details">FIO Name details</string>
+    <string name="my_fio_domains">My FIO Domains</string>
+    <string name="following_fio_domains_registered">Following FIO Domains registered</string>
+    <string name="renew_fio_name">Renew FIO Name</string>
+    <string name="fio_account_s">FIO Account: %s</string>
+    <string name="fio_acknowledge_mapping">I acknowledge that, once connected, one address from each connected wallet will become public</string>
+    <string name="connect_accounts">Save</string>
+    <string name="domain_details">Domain details</string>
+    <string name="renew_fio_domain">Renew FIO Domain</string>
+    <string name="fio_names_registered">Your FIO Names in this domain:</string>
+    <string name="no_fio_names_registered">No FIO Names in this domain</string>
+    <string name="fio_names_registered_read_only_account">FIO Names in this domain:</string>
+    <string name="create_new_fio_name">Create new FIO Name</string>
+    <string name="expiration_date">Expiration date:</string>
+    <string name="bundled_transactions">Bundled transactions:</string>
+    <string name="fio_register_name">Register FIO Name</string>
+    <string name="fio_register_domain">Register FIO Domain</string>
+    <string name="fio_manage_name_need_mapping_s"><b>%s</b> is not connect to a FIO Name.  Select FIO Name to connect to:</string>
+    <string name="fio_name_label">FIO Name:</string>
+    <string name="fio_domain_label">FIO Domain:</string>
+    <string name="fio_register_new_name">Register new FIO Name</string>
+    <string name="fio_registration_complete">Registration complete!</string>
+    <string name="fio_requests_tab_fio_protocol_desc_part1"><b>FIO Protocol</b> is a new simple way to Send, Receive, and Request <b>ANY CRYPTO</b> with one public alias for all crypto accounts!</string>
+    <string name="fio_requests_tab_fio_protocol_desc_part2">- Crypto transactions with memos\n- Works across all tokens and coins\n- Secured by your private key\n- Completely decentralized</string>
+    <string name="about_fio_protocol_title">About FIO Protocol</string>
+    <string name="fio_create_name_banner_desc">New &amp; easy way to send\nand request crypto!</string>
+    <string name="create_fio_account">Create FIO Account</string>
+    <string name="send_mail">Send mail…</string>
+    <string name="bequant_secure_custodial_storage">Secure custodial storage\nfor crypto on the go</string>
+    <string name="bequant_secure_mobile_access">Secure Mobile or Web\naccess</string>
+    <string name="bequant_over_70_trading_pairs">Over 70 trading pairs\nincluding fiat currencies</string>
+    <string name="bequant_reliable_support">Reliable support service</string>
+    <string name="access_from_any_device">Access from any device</string>
+    <string name="bequant_dont_fret_about_losing_your_phone">Don\'t fret about losing your phone - access\nyour crypto assets from any mobile or web\ndevice with our secure login process.</string>
+    <string name="bequant_exchange_withdraw">Exchange, withdraw and deposit</string>
+    <string name="bequant_exchange_completed_pending">Transaction is pending</string>
+    <string name="bequant_exchange_completed_note">Note that it might take a while to process the transaction. Once the transaction is completed, your balance will be updated</string>
+    <string name="bequant_offers_you_the_most_trusted_secure">Bequant offers you the most trusted, secure\nand convenient way to exchange, withdraw\nand deposit the world\'s top traded\ncryptocurrencies and fiat, all within one app.</string>
+    <string name="industry_leading_security">Industry-leading security</string>
+    <string name="institutional_grade_crypto_storage">Institutional grade crypto storage and\nindustry-leading security, trusted by world\'s\nlargest crypto funds. You can manage your\ncrypto portfolio with confidence.</string>
+    <string name="bequant_professional_support">Professional Support teams based\nin London and Malta</string>
+    <string name="bequant_choose_service">Choose service</string>
+    <string name="bequant_mycelium_wallet">Mycelium Wallet</string>
+    <string name="we_offer_extensive_support">We offer extensive support with maximum\n24 hour response time so you can be at\npeace that your issues are prioritized.</string>
+    <string name="bequant_account_description_accounts_list">Buy, sell, trade over 25+\ncoins with lowest spreads</string>
+    <string name="bequant_account_description_add_account">Gain secure access to over 20 major digital\ncoins and instantly and safely exchange,\nwithdraw and deposit coins to any address\nof your choice. Powered by Bequant, an\ninstitutional-grade exchange platform with\ntop liquidity and top-of-the-line security.</string>
+    <string name="search_markets">Search markets</string>
+    <string name="support_center">Support Center</string>
+    <string name="kyc">KYC</string>
+    <string name="legal_information">Legal Information</string>
+    <string name="log_in">Log In</string>
+    <string name="available">Available:</string>
+    <string name="you_send">You send:</string>
+    <string name="bequant_order_rejected">Your order was rejected</string>
+    <string name="bequant_exchange_temporary_closed">Exchange temporary closed</string>
+    <string name="bequant_contact_support">Contact Support</string>
+    <string name="hide_zero_balances">Hide Zero Balances</string>
+    <string name="you_get">You get <font color="#49505C">(estimated)</font>:</string>
+    <string name="bequant_sign_up">Sign Up</string>
+    <string name="bequant_sign_in">Sign In</string>
+    <string name="register">Register</string>
+    <string name="email">Email</string>
+    <string name="set_password">Set password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="password">Password</string>
+    <string name="reset_password">Reset password</string>
+    <string name="no_account_yet_register">No account yet? <font color="#F2E868">Register</font></string>
+    <string name="google_authenticator_code">Google Authenticator Code</string>
+    <string name="get_a_verification_code">Get a verification code from the Google\nAuthenticator app.</string>
+    <string name="paste_from_clipboard">Paste from clipboard</string>
+    <string name="provide_your_recovery_e_mail_address">Provide your recovery e-mail address below. We will send you a secure link and instructions on how to reset your password.</string>
+    <string name="new_password">New password</string>
+    <string name="change_password">Change password</string>
+    <string name="at_least_6_characters">At least 6 characters, including one number, one uppercase and one lowercase character</string>
+    <string name="by_clicking_sign_up_you_agree_to_our_terms_of_use">By clicking Sign Up you agree to our <font color="#F2E868">Terms of Use</font></string>
+    <string name="build_version">Build Version %s</string>
+    <string name="next">Next</string>
+    <string name="only_send_btc_to_this_address">Only send %s to this address. Sending any other digital asset will result in permanent loss.</string>
+    <string name="important_notes">Important Notes</string>
+    <string name="deposits_without_destination_tag_will_be_lost">Deposits without Destination Tag will be lost!</string>
+    <string name="est_total_balance">Est. Total Balance</string>
+    <string name="bequant_page_title_two_factor_auth">Two-factor Auth</string>
+    <string name="i_have_a_referral_code">I have a referral code</string>
+    <string name="referral_code">Referral Code</string>
+    <string name="we_sent_a_confirmation_email_to">We sent a confirmation email to</string>
+    <string name="loading">Loading…</string>
+    <string name="thank_you_for_signing_up_with_bequant">Thank you for signing up with Bequant!</string>
+    <string name="bequant_exchange_summary_you_get_estimated">You get (estimated)</string>
+    <string name="residence_country">Residence country</string>
+    <string name="bequant_password_weak">Weak</string>
+    <string name="bequant_password_strong">Strong</string>
+    <string name="bequant_password_very_strong">Very Strong</string>
+    <string name="reset_password_for">Reset password for</string>
+    <string name="bequant_page_title_backup_code">Backup Code</string>
+    <string name="bequant_page_title_setup_code">Setup Code</string>
+    <string name="bequant_page_title_reset_password">Reset password</string>
+    <string name="set_up_2fa_to_secure_your_account">Set up 2FA to secure your account</string>
+    <string name="please_note_that_you_will_need_to_install_the_google_authenticator_app_on_your_phone_it_can_be_found_on_the_google_play_store_at_the_link_below">Please note that you will need to install the Google Authenticator app on your phone. It can be found on the Google Play store, at the link below.</string>
+    <string name="resend_confirmation_email">Resend confirmation email.</string>
+    <string name="write_down_the_backup_code">Write down the backup code</string>
+    <string name="please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app">Please add your Bequant account to your Google Authenticator app by manually entering the codes below into the authenticator app.</string>
+    <string name="can_t_scan_it">Can\'t scan it?</string>
+    <string name="secure_private_code">Secure private code</string>
+    <string name="google_authenticator_for_android">Google Authenticator for Android</string>
+    <string name="download">Download</string>
+    <string name="try_demo">Try Demo</string>
+    <string name="s_copied_to_clipboard">%s copied to clipboard</string>
+    <string name="please_check_your_inbox_to_complete_setup">Please check your inbox to complete setup.</string>
+    <string name="verify_via_email">Verify via Email</string>
+    <string name="log_out">Log Out</string>
+    <string name="confirm">Confirm</string>
+    <string name="activate_account"><u>Activate Account</u></string>
+    <string name="backup_code_will_be_the_font_only">The Backup Code will be the <font color="#CE3C4E">only way to sign in to your account</font> in case your phone is unavailable</string>
+    <string name="if_none_of_the_above_helps_please_contact_our_support_team">If none of the above helps, please contact our <font color="#F2E868">support team.</font></string>
+    <string name="bequant_s_deposit_address">%s Deposit Address</string>
+    <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
+    <string name="bequant_deposit">Deposit</string>
+    <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
+    <string name="bequant_trading_account">Trading Account</string>
+    <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
+    <string name="step_n">Step %d</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="personal_info">Personal information</string>
+    <string name="residential_address">Residential Address</string>
+    <string name="doc_selfie"><![CDATA[Documents & Selfie]]></string>
+    <string name="identity_auth">Identity Authentication</string>
+    <string name="upload_document">Upload Document</string>
+    <string name="upload_selfie">Upload Selfie</string>
+    <string name="identity_document">Identity Document</string>
+    <string name="add_document">Add Document</string>
+    <string name="add_selfie">Add Selfie</string>
+    <string name="finish">Finish</string>
+    <string name="proof_of_address">Proof of Address</string>
+    <string name="selfie">Selfie</string>
+    <string name="mm_dd_yyyy">mm/dd/yyyy</string>
+    <string name="date_of_birth">Date of Birth</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="personal_information">Personal information</string>
+    <string name="nationality">Nationality</string>
+    <string name="thank_you_for_completing_the_application_form">Thank you for completing the application form</string>
+    <string name="if_you_are_happy_with_the_content_please_submit_your_application_by_pressing_the_submit_button">If you are happy with the content please submit your application by pressing the Submit button.</string>
+    <string name="we_will_notify_you_of_the_outcome_of_the_application_as_soon_as_we_review_your_information_thank_you_for_your_patience">We will notify you of the outcome of the application as soon as we review your information. Thank you for your patience.</string>
+    <string name="your_account_was_verified_sucessfully">Your account was verified successfully.</string>
+    <string name="we_were_not_able_to_accept_verify_some_of_the_documents">We were not able to accept/verify some of the documents that you had submitted. Please check that the documents meet our requirements and re-submit your application.</string>
+    <string name="see_more">See more</string>
+    <string name="start">Start</string>
+    <string name="we_will_call_to_give_you_a_confirmation_code">We will call %s to give you a confirmation code</string>
+    <string name="your_application_being_reviewed">Your application is being reviewed</string>
+    <string name="resubmit">Resubmit</string>
+    <string name="do_you_want_resubmit">You have updated the information below. Do you want to resubmit your application?</string>
+    <string name="you_still_can_resubmit_info">You still have the ability to change and resubmit your information.</string>
+    <string name="bequant_application_submit_time">Application submitted: %s</string>
+    <string name="bequant_application_submit_time_left">Estimated review time: %dh left</string>
+    <string name="fatca_declaration">FATCA Declaration</string>
+    <string name="by_clicking_proceed_you_agree_to_our_terms_of_use">By clicking Proceed, you agree to our <font color="#F2E868">Terms of Use</font></string>
+    <string name="i_warrant_that_i_do_fall_under_fatca">I warrant that I do fall under FATCA</string>
+    <string name="i_warrant_that_i_do_not_fall_under_fatca">I warrant that I do not fall under FATCA</string>
+    <string name="fatca_legislations_requires">FATCA legislations requires certain U.S. taxpayers, who hold foreign financial assets, to report information about those assets on their annual income tax return. More information on eligibility can be found on <font color="#F2E868">www.irs.gov/fatca.</font> Please verify whether you fall under FATCA legislation.</string>
+    <string name="country">Country</string>
+    <string name="resend_verification_code">Resend verification code...</string>
+    <string name="nothing_happened">Nothing happened?</string>
+    <string name="delete_document">Do you want to delete the document?</string>
+    <string name="registration">Registration</string>
+    <string name="bequant_email_empty_error">Email shouldn\'t be empty</string>
+    <string name="bequant_field_empty_error">Can\'t be empty</string>
+    <string name="bequant_turn_2fa_deposit">Turn on 2FA to make a deposit</string>
+    <string name="bequant_enable_2fa">You need to enable two-factor authentication</string>
+    <string name="secure_your_account">Secure your account</string>
+    <string name="bequant_turn_2fa">Turn on 2FA to secure your account</string>
+    <string name="bequant_recommend_enable_2fa">We strongly recommend enabling two-factor authentication</string>
+    <string name="bequant_turn_2fa_withdraw">Turn on 2FA to withdraw</string>
+    <string name="bequant_you_send">You send</string>
+    <string name="bequant_you_get">You get</string>
+    <string name="bequant_password_fair">Fair</string>
+    <string name="bequant_password_good">Good</string>
+    <string name="bequant_kyc_verify_title">Verify your account</string>
+    <string name="bequant_kyc_verify_button">Get verified</string>
+    <string name="bequant_kyc_verify_message">Dear customer, please note that in order to use the platform, i.e. make deposits, withdraws and trading, you are required to be verified through our KYC procedure.\n\nAfter the verification is finished you will be granted with the equivalent of 100 BTC daily and unlimited monthly withdrawals.</string>
+    <string name="bequant_fiat_tx_not_supported">Fiat transactions are not yet supported directly in the mycelium app.\n\nIf you wish to deposit or withdraw fiat please go to <font color="#F2E868"><u>bequant.io</u></font> and follow the simple instructions on the platform.</string>
+    <string name="you_cant_change_info">You can’t change your application at this time. We will be in touch with an assessment shortly.</string>
+    <string name="dear_user_s_s">Dear %s %s,</string>
+    <string name="dear_user">Dear User,</string>
+    <string name="please_fill_proof_of_address">Please fill in your personal information as it appears on the proof of address document.</string>
+    <string name="settings_media_flow_title">Enable Media Flow</string>
+    <string name="cant_disable_active_account">You can\'t disable active account</string>
+    <string name="try_request_backup_again"><![CDATA[It might be an issue with your internet connection or an internal server issue.<br/>Please try to request Backup Code again or contact <font color="#F2E868">Support Center</font> for help.]]></string>
+    <string name="backup_not_generated">Backup Code was not generated</string>
+    <string name="send_fio_request">Send FIO Request</string>
+    <string name="leave_a_message_for_s">Leave a message for %s</string>
+    <string name="buy_fio_token_link" translatable="false">https://www.binance.com/en/trade/FIO_BTC?layout=pro</string>
+    <string name="fio_payment_request">FIO Payment Request</string>
+    <string name="enter_fio_name">Enter FIO Name you are requesting funds from</string>
+    <string name="fio_recipient_invalid">Invalid FIO Name</string>
+    <string name="base_label_fio_account_legacy">FIO Legacy Account</string>
+    <string name="activate_trading_custodial_account">Activate Trading Account</string>
+    <string name="service_unavailable">Service unavailable</string>
+    <string name="avoid_get_to_pin_check">Something weird is happening. avoid getting to pin check</string>
+    <string name="boost_look_ahead_button_label">Missing Transactions?</string>
     <string name="fingerprint_detection_failed">Fingerprint detection failed</string>
     <string name="fingerprint_not_enroled">Your fingerprints have not been enrolled</string>
 </resources>

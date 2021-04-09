@@ -1,11 +1,21 @@
 package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import com.mycelium.wapi.wallet.manager.*
+import com.mycelium.wapi.wallet.providers.BtcFeeProvider
+import com.mycelium.wapi.wallet.providers.ColuFeeProvider
+import com.mycelium.wapi.wallet.providers.EthFeeProvider
+import com.mycelium.wapi.wallet.providers.FioFeeProvider
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class WalletManager
@@ -14,11 +24,14 @@ constructor(val network: NetworkParameters,
             val wapi: Wapi,
             private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
-            var accountScanManager: AccountScanManager? = null) {
+            var accountScanManager: AccountScanManager? = null,
+            private val walletDB: WalletDB) {
     private val accounts = ConcurrentHashMap<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
-    private val _logger = wapi.logger
+    private val _logger  = Logger.getLogger(WalletManager::class.java.getSimpleName())
+
+    val feeEstimations = FeeEstimations()
 
     fun getCurrencySettings(moduleID: String): CurrencySettings? {
         return currencySettingsMap[moduleID]
@@ -34,9 +47,9 @@ constructor(val network: NetworkParameters,
 
     var state: State = State.OFF
 
-    fun add(walletModule: WalletModule) = walletModules.put(walletModule.getId(), walletModule)
+    fun add(walletModule: WalletModule) = walletModules.put(walletModule.id, walletModule)
 
-    fun remove(walletModule: WalletModule) = walletModules.remove(walletModule.getId())
+    fun remove(walletModule: WalletModule) = walletModules.remove(walletModule.id)
 
     fun init() {
         for (walletModule in walletModules.values) {
@@ -55,21 +68,25 @@ constructor(val network: NetworkParameters,
             }
         }
 
-        startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
+        val backing = FeeEstimationsBacking(walletDB)
+        feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
+        feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
+        feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
+        feeEstimations.addProvider(FioFeeProvider(network.isTestnet))
     }
 
     fun getAccountIds(): List<UUID> = accounts.keys().toList()
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
-    fun getAccountsBy(address: GenericAddress): List<WalletAccount<*>> =
+    fun getAccountsBy(address: Address): List<WalletAccount<*>> =
             accounts.values.filter { it.isMineAddress(address) }
 
     fun setIsNetworkConnected(connected: Boolean) {
         isNetworkConnected = connected
     }
 
-    fun hasPrivateKey(address: GenericAddress): Boolean =
+    fun hasPrivateKey(address: Address): Boolean =
             accounts.values.any { it.canSpend() && it.isMineAddress(address) }
 
     fun createAccounts(config: Config): List<UUID> {
@@ -84,7 +101,7 @@ constructor(val network: NetworkParameters,
                         result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){
-                    _logger.logError("Account", exception)
+                    _logger.log(Level.SEVERE, "Account", exception)
                 }
             }
         }
@@ -112,17 +129,19 @@ constructor(val network: NetworkParameters,
     fun getActiveAccountsFrom(accounts: List<WalletAccount<*>>) = accounts.filter { it.isActive }
 
     @JvmOverloads
-    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) {
-        if (!isNetworkConnected) {
-            return
+    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) : Boolean {
+        if (isNetworkConnected) {
+            feeEstimations.triggerRefresh()
+            Thread(Synchronizer(this, mode, accounts)).start()
         }
-        Thread(Synchronizer(this, mode, accounts)).start()
+        return isNetworkConnected
     }
 
     fun startSynchronization(acc: UUID?): Boolean {
+        // Launch synchronizer thread
         val activeAccount = getAccount(acc ?: return false) ?: return false
-        startSynchronization(SyncMode.NORMAL, listOf(activeAccount))
-        return isNetworkConnected
+        feeEstimations.triggerRefresh()
+        return startSynchronization(SyncMode.NORMAL, listOf(activeAccount))
     }
 
     fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
@@ -133,7 +152,7 @@ constructor(val network: NetworkParameters,
      * @param address the address to query for
      * @return if any account in the wallet manager has the address
      */
-    fun isMyAddress(address: GenericAddress): Boolean = getAccountByAddress(address) != null
+    fun isMyAddress(address: Address): Boolean = getAccountByAddress(address) != null
 
     /**
      * Get the account associated with an address if any
@@ -142,7 +161,7 @@ constructor(val network: NetworkParameters,
      * @return the first account UUID if found.
      */
     @Synchronized
-    fun getAccountByAddress(address: GenericAddress): UUID? = accounts.values.firstOrNull {
+    fun getAccountByAddress(address: Address): UUID? = accounts.values.firstOrNull {
             it.isMineAddress(address)
         }?.id
 
@@ -175,19 +194,21 @@ constructor(val network: NetworkParameters,
 
     fun getAllActiveAccounts():  List<WalletAccount<*>> = accounts.values.filter { it.isActive }
 
-    fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> = walletModules.values
+    fun getAssetTypes(): List<AssetInfo> = accounts.values.map { it.coinType }.distinct()
+
+    fun getCryptocurrenciesSymbols(): List<String> = getAssetTypes()
+            .filterNot { it is ColuMain }
+            .map { it.symbol }
+
+    fun getCryptocurrenciesNames(): List<String> = getAssetTypes()
+            .filterNot { it is ColuMain || it is ERC20Token }
+            .map { it.name }
+
+    fun parseAddress(address: String): List<Address> = walletModules.values
                 .flatMap { it.getSupportedAssets() }
                 .distinctBy { it.id }
-                .filter { it.isMineAddress(address)}
-                .toList()
-
-    fun getAssetTypes(): List<GenericAssetInfo> = accounts.values.map { it.coinType }.distinct()
-
-    fun parseAddress(address: String): List<GenericAddress> = walletModules.values
-                .flatMap { it.getSupportedAssets() }
-                .distinctBy { it.id }
-                .mapNotNull { genericAssetInfo ->
-                    genericAssetInfo.parseAddress(address)
+                .mapNotNull { AssetInfo ->
+                    AssetInfo.parseAddress(address)
                 }
 
     /**

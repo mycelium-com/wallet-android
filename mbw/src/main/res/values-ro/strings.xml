@@ -8,7 +8,7 @@
     <string name="scan">Scanează</string>
     <string name="advanced">Avansat</string>
     <string name="enter_wordlist">Introdu Lista de Cuvinte</string>
-    <string name="hd_account">Adauga un Cont HD (ierahic determinist)</string>
+    <string name="hd_account">Adauga un Cont HD Bitcoin (ierahic determinist)</string>
     <string name="close">Închide</string>
     <string name="sending">Se trimite %1$s</string>
     <string name="receiving">Se primeşte %1$s</string>
@@ -16,7 +16,6 @@
     <string name="send">Trimite</string>
     <string name="receive">Primeşte</string>
     <string name="private_key_deleted">Cheie privată ştearsă.</string>
-    <string name="enter_recipient_title">Introdu adresa destinatarului</string>
     <string name="recipient_title">Adresa Destinatarului</string>
     <string name="amount_label">Suma:</string>
     <string name="amount_title">Suma</string>
@@ -29,7 +28,7 @@
     <string name="insufficient_funds_for_fee">Fonduri insuficiente pentru a plăti taxa de tranzacţie</string>
     <string name="amount_too_small">Suma pe care o trimiţi este prea mică</string>
     <string name="amount_too_small_short">Suma prea mică</string>
-    <string name="miner_fee_label">Taxa pentru mineri:</string>
+    <string name="miner_fee_label">Taxa pentru mineri</string>
     <string name="miner_fee_title">Taxa pentru Mineri</string>
     <string name="synchronizing">Sincronizare</string>
     <string name="transaction_not_sent">Tranzacţia nu s-a trimis</string>
@@ -85,8 +84,8 @@
     <string name="payment_request">Cerere de Plată</string>
     <string name="found_clipboard_private_key_title">Cheie privată descoperită în Clipboard</string>
     <string name="add_to_address_book_dialog_title">Adaugă adresă</string>
-    <string name="scan_address_book_desc">Scanează Adresa Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Preia adresa Bitcoin din clipboard.</string>
+    <string name="scan_address_book_desc">Scanează Adresa.</string>
+    <string name="clipboard_address_book_desc">Preia adresa din clipboard.</string>
     <string name="max">Maxim</string>
     <string name="get_private_key">Preia cheia privată din:</string>
     <string name="cold_storage">Depozitare Offline</string>
@@ -101,8 +100,6 @@
     <string name="paste">Inseraţi din clipboard</string>
     <string name="broadcasting_transaction">Emitere Tranzacţie</string>
     <string name="enter_bitcoin_address">Introdu Adresa Bitcoin</string>
-    <string name="bitcoin_address_invalid">Adresă Bitcoin Invalidă</string>
-    <string name="bitcoin_address_valid">Adresă Bitcoin Validă</string>
     <string name="enter_local_currency">Alege moneda locală</string>
     <string name="using_address_from_clipboard">Folosire adresă din clipboard</string>
     <string name="confirm_delete_pk_title">Eşti sigur?</string>

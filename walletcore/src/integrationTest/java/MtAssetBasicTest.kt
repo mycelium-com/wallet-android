@@ -6,7 +6,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.RandomSource
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.WapiLogger
+import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.ServerEndpoints
@@ -20,14 +20,15 @@ import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.*
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 import org.junit.Test
+import org.mockito.Mockito
 import java.security.SecureRandom
 import java.util.HashMap
 import javax.net.ssl.SSLSocketFactory
@@ -71,26 +72,12 @@ class MtAssetBasicTest {
         val coloredCoinsApiURLs = arrayOf("http://coloredcoins-test.mycelium.com:28342/")
         val coluBlockExplorerApiURLs = arrayOf("http://coloredcoins-test.mycelium.com:28332/api/")
 
-        val wapiLogger = object : WapiLogger {
-            override fun logError(message: String) {
-                println(message)
-            }
-
-            override fun logError(message: String, e: Exception) {
-                println(message)
-            }
-
-            override fun logInfo(message: String) {
-                println(message)
-            }
-        }
-
         val masterSeed = Bip39.generateSeedFromWordList(arrayOf("oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil"), "")
 
         val network = NetworkParameters.testNetwork
 
         val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
-        val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
+        val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, "0")
 
         val socketFactory = SSLSocketFactory.getDefault()
 
@@ -108,7 +95,9 @@ class MtAssetBasicTest {
         val walletManager = WalletManager(
                 network,
                 wapiClient,
-                currenciesSettingsMap)
+                currenciesSettingsMap,
+                null,
+                Mockito.mock(WalletDB::class.java))
         walletManager.setIsNetworkConnected(true)
         walletManager.walletListener = listener
 
@@ -148,13 +137,13 @@ class MtAssetBasicTest {
             println("Colu 1 Account balance: " + coluAccount1.accountBalance.spendable.toString())
             println("Colu 2 Account balance: " + coluAccount2.accountBalance.spendable.toString())
 
-        } catch (ex: GenericTransactionBroadcastException) {
+        } catch (ex: TransactionBroadcastException) {
             ex.printStackTrace()
-        } catch (ex: GenericBuildTransactionException) {
+        } catch (ex: BuildTransactionException) {
             ex.printStackTrace()
-        } catch (ex: GenericInsufficientFundsException) {
+        } catch (ex: InsufficientFundsException) {
             ex.printStackTrace()
-        } catch (ex: GenericOutputTooSmallException) {
+        } catch (ex: OutputTooSmallException) {
             ex.printStackTrace()
         } catch (ex: KeyCipher.InvalidKeyCipher) {
             ex.printStackTrace()

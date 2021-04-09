@@ -15,13 +15,15 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import kotlin.math.min
 
 open class HDAccount(
         protected var context: HDAccountContext,
@@ -35,11 +37,11 @@ open class HDAccount(
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
 
-    protected var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
-    protected var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
-    private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
-    @Volatile
-    private var isSynchronizing = false
+    protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BitcoinAddress, Int>> = initAddressesMap()
+    protected var internalAddresses: MutableMap<BipDerivationType, BiMap<BitcoinAddress, Int>> = initAddressesMap()
+    private val safeLastExternalIndex: MutableMap<BipDerivationType, Int> = mutableMapOf()
+    private val safeLastInternalIndex: MutableMap<BipDerivationType, Int> = mutableMapOf()
+    private var receivingAddressMap: MutableMap<AddressType, BitcoinAddress> = mutableMapOf()
 
     // public method that needs no synchronization
     val accountIndex: Int
@@ -48,9 +50,9 @@ open class HDAccount(
     //used for message signing picker
     //get all used external plus the next unused
     //get all used internal
-    val allAddresses: List<Address>
+    val allAddresses: List<BitcoinAddress>
         get() {
-            val addresses = ArrayList<Address>()
+            val addresses = ArrayList<BitcoinAddress>()
 
             derivePaths.forEach { derivationType ->
                 val externalIndex = context.getLastExternalIndexWithActivity(derivationType) + 1
@@ -67,7 +69,6 @@ open class HDAccount(
             }
             return addresses
         }
-
 
     open fun getPrivateKeyCount() = derivePaths.sumBy {
         context.getLastExternalIndexWithActivity(it) +
@@ -86,6 +87,7 @@ open class HDAccount(
             ensureAddressIndexes()
             _cachedBalance = calculateLocalBalance()
         }
+        initSafeLastIndexes(false)
     }
 
     override fun getId() = context.id
@@ -131,12 +133,21 @@ open class HDAccount(
         receivingAddressMap.clear()
         _cachedBalance = null
         initContext(isArchived)
+        initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
             _cachedBalance = calculateLocalBalance()
         }
     }
 
+    private fun initSafeLastIndexes(reset: Boolean) {
+        listOf(BipDerivationType.BIP44,
+                BipDerivationType.BIP49,
+                BipDerivationType.BIP84).forEach {
+            safeLastExternalIndex[it] = if (reset) 0 else context.getLastExternalIndexWithActivity(it)
+            safeLastInternalIndex[it] = if (reset) 0 else context.getLastInternalIndexWithActivity(it)
+        }
+    }
     override fun getAvailableAddressTypes(): List<AddressType> =
         derivePaths.asSequence().map { it.addressType }.toList()
 
@@ -165,15 +176,13 @@ open class HDAccount(
         return derivePaths.any { context.getLastExternalIndexWithActivity(it) != -1 }
     }
 
-    override fun isSynchronizing() = isSynchronizing
-
     /**
      * Ensure that all addresses in the look ahead window have been created
      */
-    protected fun ensureAddressIndexes() {
+    protected fun ensureAddressIndexes(boostedLookAhead: Boolean = false) {
         derivePaths.forEachIndexed { index, derivationType ->
-            ensureAddressIndexes(true, true, derivationType)
-            ensureAddressIndexes(false, true, derivationType)
+            ensureAddressIndexes(true, true, boostedLookAhead, derivationType)
+            ensureAddressIndexes(false, true, boostedLookAhead, derivationType)
             // The current receiving address is the next external address just above
             // the last
             // external address with activity
@@ -186,9 +195,9 @@ open class HDAccount(
         }
     }
 
-    private fun ensureAddressIndexes(isChangeChain: Boolean, fullLookAhead: Boolean, derivationType: BipDerivationType) {
+    private fun ensureAddressIndexes(isChangeChain: Boolean, fullLookAhead: Boolean, boostedLookAhead: Boolean, derivationType: BipDerivationType) {
         var index: Int
-        val addressMap: BiMap<Address, Int>
+        val addressMap: BiMap<BitcoinAddress, Int>
         if (isChangeChain) {
             index = context.getLastInternalIndexWithActivity(derivationType)
             index += if (fullLookAhead) {
@@ -199,10 +208,10 @@ open class HDAccount(
             addressMap = internalAddresses[derivationType]!!
         } else {
             index = context.getLastExternalIndexWithActivity(derivationType)
-            index += if (fullLookAhead) {
-                EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
-            } else {
-                EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH
+            index += when {
+                boostedLookAhead -> EXTERNAL_BOOSTED_ADDRESS_LOOK_AHEAD_LENGTH
+                fullLookAhead -> EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+                else -> EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH
             }
             addressMap = externalAddresses[derivationType]!!
         }
@@ -215,50 +224,64 @@ open class HDAccount(
         }
     }
 
-    private fun getAddressesToSync(mode: SyncMode): List<Address> {
-        var addresses = mutableListOf<Address>()
+    private fun getAddressesToSync(mode: SyncMode): List<BitcoinAddress> {
+        var addresses = mutableListOf<BitcoinAddress>()
         derivePaths.forEach { derivationType ->
             val currentInternalAddressId = context.getLastInternalIndexWithActivity(derivationType) + 1
             val currentExternalAddressId = context.getLastExternalIndexWithActivity(derivationType) + 1
-            if (mode.mode == SyncMode.Mode.FULL_SYNC) {
-                // check the full change-chain and external-chain
-                addresses.addAll(getAddressRange(true, 0,
-                        currentInternalAddressId + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
-                addresses.addAll(getAddressRange(false, 0,
-                        currentExternalAddressId + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
-            } else if (mode.mode == SyncMode.Mode.NORMAL_SYNC) {
-                // check the current change address plus small lookahead;
-                // plus the current external address plus a small range before and after it
-                addresses.addAll(getAddressRange(true, currentInternalAddressId,
-                        currentInternalAddressId + INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
-                addresses.addAll(getAddressRange(false, currentExternalAddressId - 3,
-                        currentExternalAddressId + EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
-
-            } else if (mode.mode == SyncMode.Mode.FAST_SYNC) {
-                // check only the current change address
-                // plus the current external plus small lookahead
-                addresses.add(keyManagerMap[derivationType]!!
-                        .getAddress(true, currentInternalAddressId + 1) as Address)
-                addresses.addAll(getAddressRange(false, currentExternalAddressId,
-                        currentExternalAddressId + 2, derivationType))
-            } else if (mode.mode == SyncMode.Mode.ONE_ADDRESS && mode.addressToSync != null) {
-                // only check for the supplied address
-                addresses = if (isMineAddress(mode.addressToSync)) {
-                    Lists.newArrayList(Address.fromString(mode.addressToSync.toString()))
-                } else {
-                    throw IllegalArgumentException("Address " + mode.addressToSync + " is not part of my account addresses")
+            when (mode.mode!!) {
+                SyncMode.Mode.BOOSTED -> {
+                    // check the full change-chain and external-chain
+                    addresses.addAll(getAddressRange(true, currentInternalAddressId,
+                            currentInternalAddressId + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+                    addresses.addAll(getAddressRange(false, currentExternalAddressId,
+                            currentExternalAddressId + mode.mode.lookAhead, derivationType))
+                    ensureAddressIndexes(boostedLookAhead = true)
                 }
-            } else {
-                throw IllegalArgumentException("Unexpected SyncMode")
+                SyncMode.Mode.FULL_SYNC -> {
+                    // check the full change-chain and external-chain
+                    addresses.addAll(getAddressRange(true, 0,
+                            currentInternalAddressId + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+                    addresses.addAll(getAddressRange(false, 0,
+                            currentExternalAddressId + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+                }
+                SyncMode.Mode.NORMAL_SYNC -> {
+                    // check the current change address plus small lookahead;
+                    // plus the current external address plus a small range before and after it
+                    addresses.addAll(getAddressRange(true, currentInternalAddressId,
+                            currentInternalAddressId + INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+                    addresses.addAll(getAddressRange(false, currentExternalAddressId - 3,
+                            currentExternalAddressId + EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
+
+                }
+                SyncMode.Mode.FAST_SYNC -> {
+                    // check only the current change address
+                    // plus the current external plus small lookahead
+                    addresses.add(keyManagerMap[derivationType]!!
+                            .getAddress(true, currentInternalAddressId + 1) as BitcoinAddress)
+                    addresses.addAll(getAddressRange(false, currentExternalAddressId,
+                            currentExternalAddressId + 2, derivationType))
+                }
+                SyncMode.Mode.ONE_ADDRESS -> {
+                    if ( mode.addressToSync == null) {
+                        throw IllegalArgumentException("Unexpected SyncMode")
+                    }
+                    // only check for the supplied address
+                    addresses = if (isMineAddress(mode.addressToSync)) {
+                        Lists.newArrayList(BitcoinAddress.fromString(mode.addressToSync.toString()))
+                    } else {
+                        throw IllegalArgumentException("Address " + mode.addressToSync + " is not part of my account addresses")
+                    }
+                }
             }
         }
         return ImmutableList.copyOf(addresses)
     }
 
     protected fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
-                                  derivationType: BipDerivationType): List<Address> {
+                                  derivationType: BipDerivationType): List<BitcoinAddress> {
         val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
-        val ret = ArrayList<Address>(toIndex - clippedFromIndex + 1)
+        val ret = ArrayList<BitcoinAddress>(toIndex - clippedFromIndex + 1)
         for (i in clippedFromIndex..toIndex) {
             ret.add(keyManagerMap[derivationType]!!.getAddress(isChangeChain, i))
         }
@@ -269,9 +292,8 @@ open class HDAccount(
     public override fun doSynchronization(proposedMode: SyncMode): Boolean {
         var mode = proposedMode
         checkNotArchived()
-        isSynchronizing = true
         syncTotalRetrievedTransactions = 0
-        _logger.logInfo("Starting sync: $mode")
+        _logger.log(Level.INFO, "Starting sync: $mode")
         if (needsDiscovery()) {
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
         }
@@ -286,28 +308,24 @@ open class HDAccount(
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } finally {
-            isSynchronizing = false
             syncTotalRetrievedTransactions = 0
         }
     }
 
-    private fun needsDiscovery() = !isArchived && context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System
-            .currentTimeMillis()
+    private fun needsDiscovery() = !isArchived &&
+            context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
     @Synchronized
     private fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
-            // thus, method is done, once all are false.
-            var discovered = derivePaths.map { it to true }.toMap()
+            // thus, method is done once discovered is empty.
+            var discovered = derivePaths.toSet()
             do {
-                val pathsToDiscover = discovered.filter { it.value }
-                        .map { it.key }
-                        .toSet()
-                discovered = doDiscovery(pathsToDiscover)
-            } while (discovered.any { it.value })
+                discovered = doDiscovery(discovered)
+            } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e)
+            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             postEvent(Event.SERVER_CONNECTION_ERROR)
             return false
         }
@@ -326,31 +344,32 @@ open class HDAccount(
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private fun doDiscovery(derivePaths: Set<BipDerivationType> = this.derivePaths): Map<BipDerivationType, Boolean> {
+    private fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
     }
 
-    private fun getAddressesToDiscover(derivationType: BipDerivationType): ArrayList<Address> {
+    private fun getAddressesToDiscover(derivationType: BipDerivationType): List<BitcoinAddress> {
+        // getAddressesToDiscover has to progress covering all addresses while last address with
+        // activity might advance in jumps from sending to oneself from an old UTXO address to one
+        // 30 later.
         // Make look ahead address list
-        val lookAhead = ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
-        val extInverse = externalAddresses[derivationType]!!.inverse()
-        val intInverse = internalAddresses[derivationType]!!.inverse()
-
-        for (i in 0 until EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
-            val externalAddress = extInverse[context.getLastExternalIndexWithActivity(derivationType) + 1 + i]
-                    ?: continue
-            lookAhead.add(externalAddress)
-        }
-        for (i in 0 until INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
-            lookAhead.add(intInverse[context.getLastInternalIndexWithActivity(derivationType) + 1 + i]!!)
-        }
+        val lastExternalIndex = min(context.getLastExternalIndexWithActivity(derivationType), safeLastExternalIndex[derivationType] ?: 0)
+        val lastInternalIndex = min(context.getLastInternalIndexWithActivity(derivationType), safeLastInternalIndex[derivationType] ?: 0)
+        safeLastExternalIndex[derivationType] = lastExternalIndex + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        safeLastInternalIndex[derivationType] = lastInternalIndex + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        val lookAhead =
+                (externalAddresses[derivationType]!!.filter {
+                    lastExternalIndex <= it.value && it.value <= lastExternalIndex + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+                } + internalAddresses[derivationType]!!.filter {
+                    lastInternalIndex <= it.value && it.value <= lastInternalIndex + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+                }).map { it.key }
         return lookAhead
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(addresses: List<Address>): Map<BipDerivationType, Boolean> {
+    override fun doDiscoveryForAddresses(addresses: List<BitcoinAddress>): Set<BipDerivationType> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
@@ -358,21 +377,35 @@ open class HDAccount(
         val ids = result.txIds
         if (ids.isEmpty()) {
             // nothing found
-            return derivePaths.map { it to false }.toMap()
+            return emptySet()
         }
 
         val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
         val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
-        ids.chunked(50).forEach { fewIds ->
-            val transactions = getTransactionsBatched(fewIds).result.transactions
+        // query DB only once to sort TXIDs into new and old ones. Unconfirmed transactions are
+        // "new" in this sense until we know which block they fell into.
+        val newIds = mutableSetOf<Sha256Hash>()
+        val knownTransactions = mutableSetOf<TransactionEx>()
+        ids.forEach {
+            val dbTransaction = backing.getTransaction(it)
+            if (dbTransaction?.height ?: 0 > 0) {
+                // we have it and know its block
+                knownTransactions.add(dbTransaction)
+            } else {
+                // we have to query for details
+                newIds.add(it)
+            }
+        }
+        newIds.chunked(50).forEach { fewIds ->
+            val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
-        return derivePaths.map { derivationType ->
-            // Return true if the last external or internal index has changed
-            derivationType to
+        handleNewExternalTransactions(knownTransactions, true)
+        return derivePaths.filter { derivationType ->
+            // only include if the last external or internal index has changed
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
                             || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType))
-        }.toMap()
+        }.toSet()
     }
 
     private fun updateUnspentOutputs(mode: SyncMode): Boolean {
@@ -441,10 +474,10 @@ open class HDAccount(
     }
 
     // Get the next internal address just above the last address with activity
-    public override fun getChangeAddress(destinationAddress: Address): Address =
+    public override fun getChangeAddress(destinationAddress: BitcoinAddress): BitcoinAddress =
             getChangeAddress(listOf(destinationAddress))
 
-    public override fun getChangeAddress(destinationAddresses: List<Address>): Address =
+    public override fun getChangeAddress(destinationAddresses: List<BitcoinAddress>): BitcoinAddress =
             when (changeAddressModeReference.get()!!) {
                 ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
                 ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
@@ -457,7 +490,7 @@ open class HDAccount(
                 ChangeAddressMode.NONE -> throw IllegalStateException()
             }
 
-    override fun getChangeAddress(): Address {
+    override fun getChangeAddress(): BitcoinAddress {
         return when (changeAddressModeReference.get()!!) {
             ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
             ChangeAddressMode.P2SH_P2WPKH, ChangeAddressMode.PRIVACY -> getChangeAddress(BipDerivationType.BIP49)
@@ -465,7 +498,7 @@ open class HDAccount(
         }
     }
 
-    private fun getChangeAddress(preferredDerivationType: BipDerivationType): Address {
+    private fun getChangeAddress(preferredDerivationType: BipDerivationType): BitcoinAddress {
         val derivationType = if (derivePaths.contains(preferredDerivationType)) {
             preferredDerivationType
         } else {
@@ -475,7 +508,7 @@ open class HDAccount(
                 .inverse()[context.getLastInternalIndexWithActivity(derivationType) + 1]!!
     }
 
-    override fun getReceivingAddress(): Optional<Address> {
+    override fun getReceivingAddress(): Optional<BitcoinAddress> {
         // if this account is archived, we cant ensure that we have the most recent ReceivingAddress (or any at all)
         // so return absent.
         return if (isArchived) {
@@ -487,18 +520,18 @@ open class HDAccount(
         }
     }
 
-    override fun getReceivingAddress(addressType: AddressType): Address? {
+    override fun getReceivingAddress(addressType: AddressType): BitcoinAddress? {
         return receivingAddressMap[addressType]
     }
 
-    override fun isMine(address: Address): Boolean {
+    override fun isMine(address: BitcoinAddress): Boolean {
         val derivationType = getDerivationTypeByAddress(address)
         return internalAddresses[derivationType]?.containsKey(address) ?: false ||
                 externalAddresses[derivationType]?.containsKey(address) ?: false
     }
 
     // check whether we need to update our last index for activity
-    override fun onNewTransaction(t: Transaction) = updateLastIndexWithActivity(t)
+    override fun onNewTransaction(t: BitcoinTransaction) = updateLastIndexWithActivity(t)
 
     override fun onTransactionsBroadcasted(txids: List<Sha256Hash>) {
         // See if we can reduce the internal scan range
@@ -511,17 +544,13 @@ open class HDAccount(
      *
      * @param t transaction
      */
-    private fun updateLastIndexWithActivity(t: Transaction) {
+    private fun updateLastIndexWithActivity(t: BitcoinTransaction) {
         // Investigate whether the transaction sends us any coins
         for (out in t.outputs) {
             val receivingAddress = out.script.getAddress(_network)
             val derivationType = getDerivationTypeByAddress(receivingAddress)
-            val externalIndex = externalAddresses[derivationType]?.get(receivingAddress)
-            if (externalIndex != null) {
-                updateLastExternalIndex(externalIndex, derivationType)
-            } else {
-                updateLastInternalIndex(receivingAddress)
-            }
+            updateLastExternalIndex(receivingAddress, derivationType)
+            updateLastInternalIndex(receivingAddress, derivationType)
         }
         ensureAddressIndexes()
     }
@@ -531,11 +560,13 @@ open class HDAccount(
      *
      * @param externalIndex new index
      */
-    protected fun updateLastExternalIndex(externalIndex: Int, derivationType: BipDerivationType) {
-        // Sends coins to an external address, update internal max index if
-        // necessary
-        context.setLastExternalIndexWithActivity(derivationType,
-                Math.max(context.getLastExternalIndexWithActivity(derivationType), externalIndex))
+    protected fun updateLastExternalIndex(receivingAddress: BitcoinAddress, derivationType: BipDerivationType) {
+        externalAddresses[derivationType]?.get(receivingAddress)?.also { externalIndex ->
+            // Sends coins to an external address, update internal max index if necessary
+            if (context.getLastExternalIndexWithActivity(derivationType) < externalIndex) {
+                context.setLastExternalIndexWithActivity(derivationType, externalIndex)
+            }
+        }
     }
 
     /**
@@ -543,15 +574,12 @@ open class HDAccount(
      *
      * @param receivingAddress
      */
-    protected fun updateLastInternalIndex(receivingAddress: Address) {
-        val derivationType = getDerivationTypeByAddress(receivingAddress)
-        val internalIndex = internalAddresses[derivationType]?.get(receivingAddress)
-        if (internalIndex != null) {
-            // Sends coins to an internal address, update internal max index
-            // if necessary
-
-            context.setLastInternalIndexWithActivity(derivationType,
-                    Math.max(context.getLastInternalIndexWithActivity(derivationType), internalIndex))
+    protected fun updateLastInternalIndex(receivingAddress: BitcoinAddress, derivationType: BipDerivationType) {
+        internalAddresses[derivationType]?.get(receivingAddress)?.also { internalIndex ->
+            // Sends coins to an internal address, update internal max index if necessary
+            if (context.getLastInternalIndexWithActivity(derivationType) < internalIndex) {
+                context.setLastInternalIndexWithActivity(derivationType, internalIndex)
+            }
         }
     }
 
@@ -565,7 +593,7 @@ open class HDAccount(
     }
 
     @Throws(InvalidKeyCipher::class)
-    public override fun getPrivateKeyForAddress(address: Address, cipher: KeyCipher): InMemoryPrivateKey? {
+    public override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
         val derivationType = getDerivationTypeByAddress(address)
         if (!availableAddressTypes.contains(address.type)) {
                 return null
@@ -579,7 +607,7 @@ open class HDAccount(
         }
     }
 
-    override fun getPublicKeyForAddress(address: Address): PublicKey? {
+    override fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey? {
         val derivationType = getDerivationTypeByAddress(address)
         if (!availableAddressTypes.contains(address.type)) {
             return null
@@ -595,7 +623,7 @@ open class HDAccount(
 
     }
 
-    private fun getIndexLookup(address: Address, derivationType: BipDerivationType): IndexLookUp? {
+    private fun getIndexLookup(address: BitcoinAddress, derivationType: BipDerivationType): IndexLookUp? {
         var indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!, internalAddresses[derivationType]!!)
         if (indexLookUp == null) {
             // we did not find it - to be sure, generate all addresses and search again
@@ -633,7 +661,7 @@ open class HDAccount(
         }
     }
 
-    fun getAddressId(address: Address): Optional<Array<Int>> {
+    fun getAddressId(address: BitcoinAddress): Optional<Array<Int>> {
         if (address.type !in availableAddressTypes) {
             return Optional.absent()
         }
@@ -647,13 +675,13 @@ open class HDAccount(
     }
 
     // returns true if this is one of our already used or monitored internal (="change") addresses
-    override fun isOwnInternalAddress(address: Address): Boolean {
+    override fun isOwnInternalAddress(address: BitcoinAddress): Boolean {
         val addressId = getAddressId(address)
         return addressId.isPresent && addressId.get()[0] == 1
     }
 
     // returns true if this is one of our already used or monitored external (=normal receiving) addresses
-    override fun isOwnExternalAddress(address: Address): Boolean {
+    override fun isOwnExternalAddress(address: BitcoinAddress): Boolean {
         val addressId = getAddressId(address)
         return addressId.isPresent && addressId.get()[0] == 0
     }
@@ -702,7 +730,7 @@ open class HDAccount(
     // Helper class to find the mapping for a Address in the internal or external chain
     private class IndexLookUp private constructor(val isChange: Boolean, val index: Int?) {
         companion object {
-            fun forAddress(address: Address, external: Map<Address, Int>, internal: Map<Address, Int>): IndexLookUp? {
+            fun forAddress(address: BitcoinAddress, external: Map<BitcoinAddress, Int>, internal: Map<BitcoinAddress, Int>): IndexLookUp? {
                 var index: Int? = external[address]
                 return if (index == null) {
                     index = internal[address]
@@ -720,10 +748,11 @@ open class HDAccount(
         }
     }
 
-    protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = derivePaths
-            .map { it to HashBiMap.create<Address, Int>() }.toMap().toMutableMap()
+    protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<BitcoinAddress, Int>> = derivePaths
+            .map { it to HashBiMap.create<BitcoinAddress, Int>() }.toMap().toMutableMap()
 
     companion object {
+        const val EXTERNAL_BOOSTED_ADDRESS_LOOK_AHEAD_LENGTH = 200
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
         const val INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
         private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4
@@ -734,13 +763,13 @@ open class HDAccount(
     }
 
 
-    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val btcSendRequest = request as BtcTransaction
         val tx = signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher())
         if (tx != null) btcSendRequest.setTransaction(tx)
     }
 
-    override fun broadcastTx(tx: GenericTransaction) :BroadcastResult {
+    override fun broadcastTx(tx: Transaction) :BroadcastResult {
         val btcTx = tx as BtcTransaction
         return broadcastTransaction(btcTx.tx)
     }
@@ -750,4 +779,6 @@ open class HDAccount(
         // This method should NOT be called for HD account since it has more than one private key
         throw RuntimeException("Calling getPrivateKey() is not supported for HD account")
     }
+
+    override fun canSign(): Boolean = true
 }

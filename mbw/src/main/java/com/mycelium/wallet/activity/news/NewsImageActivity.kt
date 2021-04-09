@@ -18,12 +18,12 @@ class NewsImageActivity : AppCompatActivity() {
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back_arrow)
         supportActionBar?.setHomeButtonEnabled(true);
         supportActionBar?.setDisplayHomeAsUpEnabled(true);
-        Glide.with(image)
+        Glide.with(ivImage)
                 .load(url)
                 .apply(RequestOptions()
                         .placeholder(R.drawable.mediaflow_default_picture)
                         .error(R.drawable.mediaflow_default_picture))
-                .into(image)
+                .into(ivImage)
 
     }
 

@@ -5,18 +5,18 @@
     <string name="add_unrelated_account_title">Tambahkan Akun yang Tidak Bersangkutan</string>
     <string name="import_seed_title">Impor Master Seed</string>
     <string name="import_words_title">Masukkan Daftar Kata</string>
-    <string name="add_account_desc">Mycelium mendukung Akun HD dan satu alamat akun. Semua akun HD yang telah dibuat berdasarkan dari Master Seed yang sama.</string>
+    <string name="add_account_desc">Mycelium mendukung Akun HD Bitcoin dan satu alamat akun. Semua akun HD Bitcoin yang telah dibuat berdasarkan dari Master Seed yang sama.</string>
     <string name="add_single_acc_info">Untuk menambakan satu alamat akun berdasarkan private key atau read-only address, klik tombol Advance di bawah ini.</string>
-    <string name="scan_desc">Memindai alamat Bitcoin, private key atau akun HD.</string>
+    <string name="scan_desc">Memindai alamat Bitcoin, private key atau akun HD Bitcoin.</string>
     <string name="scan_seed">Memindai Master Seed dari Backup Mycelium</string>
-    <string name="use_acc_first">Anda hanya dapat mempunyai satu akun HD yang belum digunakan.</string>
+    <string name="use_acc_first">Anda hanya dapat mempunyai satu akun HD Bitcoin yang belum digunakan.</string>
     <string name="clipboard_desc">Mengimpor alamat Bitcoin atau private key dari clipboard.</string>
     <string name="wordlist_des">Membuat Master Seed dari Daftar Kata</string>
     <string name="scan">Memindai</string>
     <string name="advanced">Opsi Lanjutan</string>
     <string name="clipboard">Papan Klip</string>
     <string name="enter_wordlist">Masukkan Daftar Kata</string>
-    <string name="hd_account">Menambahkan akun HD</string>
+    <string name="hd_account">Menambahkan akun HD Bitcoin</string>
     <string name="close">Tutup</string>
     <string name="sending">Mengirim %1$s</string>
     <string name="receiving">Menerima %1$s</string>
@@ -24,7 +24,6 @@
     <string name="send">Kirim</string>
     <string name="receive">Terima</string>
     <string name="private_key_deleted">Private key dihapus.</string>
-    <string name="enter_recipient_title">Masukkan alamat Penerima</string>
     <string name="recipient_title">Alamat Penerima</string>
     <string name="amount_label">Jumlah:</string>
     <string name="amount_title">Jumlah</string>
@@ -81,10 +80,10 @@
     <string name="delete">Hapus</string>
     <string name="payment_request">Permintaan Pembayaran</string>
     <string name="found_clipboard_private_key_title">Private Key ditemukan di Clipboard</string>
-    <string name="my_own_address_warning">Note: Anda mengirim ke salah satu alamat anda.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: Anda mengirim ke salah satu alamat anda.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Menambahkan Alamat</string>
-    <string name="scan_address_book_desc">Memindai alamat Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Mendapatkan alamat Bitcoin dari Clipboard.</string>
+    <string name="scan_address_book_desc">Memindai alamat.</string>
+    <string name="clipboard_address_book_desc">Mendapatkan alamat dari Clipboard.</string>
     <string name="max">Maks</string>
     <string name="get_private_key">Mendapatkan private key dari:</string>
     <string name="cold_storage_title">Pengeluaran Cold Storage</string>
@@ -103,8 +102,6 @@
     <string name="synchronizing_please_wait">Sinkronasi, harap tunggu &#8230;</string>
     <string name="paste">Salin</string>
     <string name="enter_bitcoin_address">Masukkan Alamat Bitcoin</string>
-    <string name="bitcoin_address_invalid">Alamat Bitcoin Salah</string>
-    <string name="bitcoin_address_valid">Alamat Bitcoin Benar</string>
     <string name="enter_local_currency">Masukkan mata uang lokal</string>
     <string name="using_address_from_clipboard">Menggunakan alamat dari clipboard</string>
     <string name="my_accounts">Akun Saya</string>
@@ -247,7 +244,7 @@
     <string name="sign_bitid">Masuk</string>
     <string name="bitid_sslproblem">Masalah SSL</string>
     <!-- BitID end -->
-    <string name="hd_account_creation_started">Membuat akun HD baru&#8230;</string>
+    <string name="hd_account_creation_started">Membuat akun HD Bitcoin baru&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Mempersiapkan wallet&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Menghitung Master Seed&#8230;</string>
     <string name="showing_word_number">Kata %1$s:</string>

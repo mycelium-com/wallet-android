@@ -13,10 +13,10 @@ import static org.junit.Assert.assertTrue;
 public class CurrencyValueTest {
    private ExchangeRateProvider fakeExchangeRate = new ExchangeRateProvider() {
       @Override
-      public ExchangeRate getExchangeRate(String currency) {
-         if (currency.equals("USD")) {
+      public ExchangeRate getExchangeRate(String source, String destination) {
+         if (destination.equals("USD")) {
             return new ExchangeRate("FAKE", 0, 10, "USD"); // 1 BTC costs 10 USD
-         } else if (currency.equals("EUR")) {
+         } else if (destination.equals("EUR")) {
             return new ExchangeRate("FAKE", 0, 20, "EUR"); // 1 BTC costs 20 EUR
          }
          return null;
@@ -25,10 +25,10 @@ public class CurrencyValueTest {
 
    private ExchangeRateProvider fakeExchangeRate2 = new ExchangeRateProvider() {
       @Override
-      public ExchangeRate getExchangeRate(String currency) {
-         if (currency.equals("USD")) {
+      public ExchangeRate getExchangeRate(String source, String destination) {
+         if (destination.equals("USD")) {
             return new ExchangeRate("FAKE", 0, 100, "USD"); // 1 BTC costs 100 USD
-         } else if (currency.equals("EUR")) {
+         } else if (destination.equals("EUR")) {
             return new ExchangeRate("FAKE", 0, 400, "EUR"); // 1 BTC costs 400 EUR
          }
          return null;
@@ -95,7 +95,7 @@ public class CurrencyValueTest {
    }
 
    @Test
-   public void testIsNullOrZero() throws Exception {
+   public void testIsNullOrZero() {
       assertFalse(CurrencyValue.isNullOrZero(ExactBitcoinValue.from(BigDecimal.ONE)));
       assertFalse(CurrencyValue.isNullOrZero(ExactCurrencyValue.from(BigDecimal.ONE, "EUR")));
 

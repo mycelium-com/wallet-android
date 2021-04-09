@@ -44,9 +44,14 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
+import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MbwTestEnvironment extends MbwEnvironment {
    @Override
@@ -85,23 +90,34 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * <p>
     * The first is the default block explorer if the requested one is not available
     */
-   private static final List<BlockExplorer> testnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-      add(new BlockExplorer("SBT", "smartbit", "https://testnet.sandbox.smartbit.com.au/address/", "https://testnet.smartbit.com.au/tx/", null, null));
-      add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
-      add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
-      add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
-      add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
-   }};
+   private static final Map<String, List<BlockExplorer>> testnetExplorerClearEndpoints = new HashMap<String, List<BlockExplorer>>() {
+      {
+         put(BitcoinTest.get().getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("SBT", "smartbit", "https://testnet.smartbit.com.au/address/", "https://testnet.smartbit.com.au/tx/", null, null));
+            add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
+            add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
+            add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
+            add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
+         }});
+         put(EthTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("ETS", "etherscan.io", "https://ropsten.etherscan.io/address/", "https://ropsten.etherscan.io/tx/0x", null, null));
+         }});
+         put(FIOTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio-test.bloks.io/account/", "https://fio-test.bloks.io/transaction/", null, null));
+            add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.testnet.fioprotocol.io/account/", "https://explorer.testnet.fioprotocol.io/transaction/", null, null));
+         }});
+      }
+   };
 
-   public List<BlockExplorer> getBlockExplorerList() {
-      return new ArrayList<>(testnetExplorerClearEndpoints);
+   public Map<String, List<BlockExplorer>> getBlockExplorerMap() {
+      return new HashMap<>(testnetExplorerClearEndpoints);
    }
 
-   public List<BuySellServiceDescriptor> getBuySellServices(){
+   public List<BuySellServiceDescriptor> getBuySellServices() {
       return new ArrayList<BuySellServiceDescriptor>() {{
-          add(new SimplexServiceDescription());
-          add(new SepaServiceDescription());
-          add(new LocalTraderServiceDescription());
+         add(new SimplexServiceDescription());
+         add(new SepaServiceDescription());
+         add(new LocalTraderServiceDescription());
       }};
    }
 }

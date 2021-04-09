@@ -16,7 +16,7 @@
 
 package com.mrd.bitlib;
 
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 
@@ -48,7 +48,7 @@ public class TransactionUtils {
     * @param funding
     *           the unspent outputs that fund the transaction
     */
-   public static boolean hasInSufficientFees(Transaction tx, UnspentTransactionOutput[] funding, long minerFeeToUse) {
+   public static boolean hasInSufficientFees(BitcoinTransaction tx, UnspentTransactionOutput[] funding, long minerFeeToUse) {
       int txSize = tx.toBytes().length;
       // A fee is required, does it pay enough fees?
       return calculateFeePaid(tx, funding) < calculateFeeRequired(txSize, minerFeeToUse);
@@ -58,7 +58,7 @@ public class TransactionUtils {
       return (1 + (txSize / 1000)) * minerFeeToUse;
    }
 
-   private static long calculateFeePaid(Transaction tx, UnspentTransactionOutput[] funding) {
+   private static long calculateFeePaid(BitcoinTransaction tx, UnspentTransactionOutput[] funding) {
       long fee = 0;
       for (UnspentTransactionOutput in : funding) {
          fee += in.value;

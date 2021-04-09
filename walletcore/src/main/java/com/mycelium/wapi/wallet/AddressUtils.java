@@ -1,42 +1,42 @@
 package com.mycelium.wapi.wallet;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
+import com.mycelium.wapi.wallet.fio.coins.FIOToken;
 
 public class AddressUtils {
 
-    public static GenericAddress from(CryptoCurrency currencyType, String address) {
+    public static Address from(CryptoCurrency currencyType, String address) {
         if (address.length() == 0) {
             return null;
         }
-        if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest) {
+        if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest || currencyType instanceof FIOToken) {
             return currencyType.parseAddress(address);
         } else if (currencyType instanceof ColuMain) {
-            Address addr = Address.fromString(address);
+            BitcoinAddress addr = BitcoinAddress.fromString(address);
             if (addr != null) {
                 return new BtcAddress(currencyType, addr);
             } else {
                 return null;
             }
+        } else if (currencyType instanceof EthCoin) {
+            return new EthAddress(currencyType, address);
         } else {
             return null;
         }
     }
 
     //Use only for bitcoin address
-    public static GenericAddress fromAddress(Address address) {
+    public static Address fromAddress(BitcoinAddress address) {
         CryptoCurrency currency = address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-        GenericAddress res = new BtcAddress(currency, address);
-        return res;
-    }
-
-    public static boolean addressValidation(GenericAddress address) {
-        return Address.fromString(address.toString()) != null;
+        return new BtcAddress(currency, address);
     }
 
     public static String toMultiLineString(String address) {
@@ -49,7 +49,7 @@ public class AddressUtils {
             int i = 0;
             StringBuilder result = new StringBuilder();
             while (i + 12 < address.length()) {
-                result.append(address.substring(i, i + 12)).append("\r\n");
+                result.append(address, i, i + 12).append(System.lineSeparator());
                 i = i + 12;
             }
             return result.append(address.substring(i)).toString();
@@ -58,7 +58,7 @@ public class AddressUtils {
 
     public static String toDoubleLineString(String address) {
         int splitIndex = address.length() / 2;
-        return address.substring(0, splitIndex) + "\r\n" + address.substring(splitIndex);
+        return address.substring(0, splitIndex) + System.lineSeparator() + address.substring(splitIndex);
     }
 
     public static String toShortString(String address) {

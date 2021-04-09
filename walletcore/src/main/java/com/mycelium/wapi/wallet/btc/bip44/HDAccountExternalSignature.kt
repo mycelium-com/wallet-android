@@ -4,11 +4,14 @@ import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.model.Transaction
+import com.mrd.bitlib.model.BitcoinTransaction
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.ExportableAccount
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.LoadingProgressTracker
+import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 
 class HDAccountExternalSignature(
@@ -25,7 +28,7 @@ class HDAccountExternalSignature(
     fun getBIP44AccountType() = sigProvider.biP44AccountType
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
-    override fun signTransaction(unsigned: UnsignedTransaction, cipher: KeyCipher): Transaction? {
+    override fun signTransaction(unsigned: UnsignedTransaction, cipher: KeyCipher): BitcoinTransaction? {
         checkNotArchived()
         if (!isValidEncryptionKey(cipher)) {
             throw KeyCipher.InvalidKeyCipher()
@@ -65,4 +68,6 @@ class HDAccountExternalSignature(
         }
         return false
     }
+
+    override fun canSign(): Boolean = false
 }

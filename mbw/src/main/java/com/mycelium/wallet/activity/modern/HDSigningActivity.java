@@ -41,7 +41,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -49,7 +49,6 @@ import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
@@ -82,14 +81,14 @@ public class HDSigningActivity extends Activity {
       HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
 
       //sort addresses by alphabet for easier selection
-      List<Address> addresses = Utils.sortAddresses(account.getAllAddresses());
+      List<BitcoinAddress> addresses = Utils.sortAddresses(account.getAllAddresses());
 
-      for (Address address : addresses) {
+      for (BitcoinAddress address : addresses) {
          addressView.addView(getItemView(address));
       }
    }
 
-   private View getItemView(Address address) {
+   private View getItemView(BitcoinAddress address) {
       // Create vertical linear layout for address
       LinearLayout ll = new LinearLayout(this);
       ll.setOrientation(LinearLayout.VERTICAL);

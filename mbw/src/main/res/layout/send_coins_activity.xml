@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wapi.wallet.colu.ColuAccount" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+
+    <ScrollView
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+            <!--Heading, containing buttons, or currently selected address-->
+            <include
+                layout="@layout/send_coins_heading"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
+            <!--Warnings-->
+            <include
+                layout="@layout/send_coins_activity_warnings_heap"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
+            <TextView
+                android:id="@+id/colu_tips_check_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:onClick="@{_ -> activity.onColuTipClick()}"
+                android:text="@string/colu_before_sending_make_sure"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:visibility="@{viewModel.account instanceof ColuAccount ? View.VISIBLE : View.GONE}" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:layout_marginBottom="5dp"
+                android:orientation="vertical">
+
+                <!--Transaction label (might be part of bip21)-->
+                <include
+                    layout="@layout/send_coins_tx_label"
+                    bind:viewModel="@{viewModel}" />
+
+                <!--Contains amount selection-->
+                <include
+                    layout="@layout/send_coins_amount"
+                    bind:listener="@{activity}"
+                    bind:viewModel="@{viewModel}" />
+
+
+            </LinearLayout>
+
+            <!--Fee selector-->
+            <include
+                layout="@layout/send_coins_fee_block"
+                bind:viewModel="@{viewModel}" />
+
+            <!-- Sender -->
+            <include
+                layout="@layout/send_coins_sender_fio"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+
+            <!--FIO Memo-->
+            <include
+                layout="@layout/fio_memo_input"
+                bind:fioMemo="@{viewModel.fioMemo}"
+                bind:payeeFioName="@{viewModel.payeeFioName}" />
+
+            <!-- Amount Error -->
+            <include
+                layout="@layout/send_coins_insufficient"
+                bind:viewModel="@{viewModel}" />
+
+            <!--Update progress bar-->
+            <include
+                layout="@layout/send_coins_progress"
+                bind:viewModel="@{viewModel}" />
+
+            <!-- Send -->
+            <include
+                layout="@layout/send_coins_send_section"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+        </LinearLayout>
+    </ScrollView>
+</layout>

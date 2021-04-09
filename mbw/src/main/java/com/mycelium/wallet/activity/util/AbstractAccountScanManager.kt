@@ -45,18 +45,24 @@ import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.BuildConfig
+import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.satoshilabs.trezor.lib.protobuf.TrezorType
 import com.squareup.otto.Bus
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
-abstract class AbstractAccountScanManager(protected val context: Context, protected val network: NetworkParameters, protected val eventBus: Bus) : AccountScanManager {
+abstract class AbstractAccountScanManager @JvmOverloads constructor(protected val context: Context,
+                                                                    protected val network: NetworkParameters,
+                                                                    protected val eventBus: Bus,
+                                                                    private val coinType: CryptoCurrency = Utils.getBtcCoinType()) : AccountScanManager {
+
     private var scanAsyncTask: AsyncTask<Void, ScanStatus, Void>? = null
     private val foundAccounts = ArrayList<AccountScanManager.HdKeyNodeWrapper>()
     protected val passphraseSyncQueue = LinkedBlockingQueue<Optional<String>>(1)
-    protected val mainThreadHandler: Handler
+    protected val mainThreadHandler: Handler = Handler(Looper.getMainLooper())
 
     @Volatile
     var currentAccountState: AccountScanManager.AccountStatus = AccountScanManager.AccountStatus.unknown
@@ -64,10 +70,6 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
     var currentState: AccountScanManager.Status = AccountScanManager.Status.unableToScan
     @Volatile
     private var nextUnusedAccounts = listOf<HdKeyNode>()
-
-    init {
-        mainThreadHandler = Handler(Looper.getMainLooper())
-    }
 
     open inner class ScanStatus(val state: AccountScanManager.Status, val accountState: AccountScanManager.AccountStatus)
 
@@ -97,10 +99,11 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
                     // scan through the accounts, to find the first unused one
                     var lastScannedPath: HdKeyPath? = null
                     val lastAccountPubKeyNodes = mutableListOf<HdKeyNode>()
-                    var wasUsed = false
+                    var wasUsedOrAccountsLookahead = false
+                    var lastUsedAccountIndex = 0
                     do {
                         val rootNodes: List<HdKeyNode>
-                        val accountPathsToScan = getAccountPathsToScan(lastScannedPath, wasUsed)
+                        val accountPathsToScan = getAccountPathsToScan(lastScannedPath, wasUsedOrAccountsLookahead, coinType)
 
                         // we have scanned all accounts - get out of here...
                         if (accountPathsToScan.isEmpty()) {
@@ -129,13 +132,15 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
                         val newAccount = scanningCallback.checkForTransactions(acc)
                         lastScannedPath = accountPathsToScan.values.first()
 
-                        wasUsed = if (newAccount != null) {
+                        wasUsedOrAccountsLookahead = if (newAccount != null) {
+                            lastUsedAccountIndex++
                             val foundAccount = AccountScanManager.HdKeyNodeWrapper(accountPathsToScan.values, rootNodes, newAccount)
 
                             publishProgress(FoundAccountStatus(foundAccount))
                             true
                         } else {
-                            false
+                            // for FIO accounts we want to perform accounts lookahead
+                            coinType == Utils.getFIOCoinType() && accountPathsToScan.values.iterator().next().lastIndex < lastUsedAccountIndex + ACCOUNT_LOOKAHEAD
                         }
                     } while (!isCancelled)
                     publishProgress(ScanStatus(AccountScanManager.Status.readyToScan, AccountScanManager.AccountStatus.done))
@@ -228,19 +233,28 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
     abstract fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int): UUID
 
     // returns the next Bip44 account based on the last scanned account
-    override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsed: Boolean): Map<BipDerivationType, HdKeyPath> {
+    override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsedOrAccountsLookahead: Boolean, coinType: CryptoCurrency): Map<BipDerivationType, HdKeyPath> {
         // this is the first call - no lastPath given
         if (lastPath == null) {
-            return mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(0),
-                    BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(0),
-                    BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0))
+            return if (coinType == Utils.getBtcCoinType()) {
+                mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(0),
+                        BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(0),
+                        BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0))
+            } else {
+                mapOf(BipDerivationType.BIP44 to BIP44FIOCOIN_TYPE.getAccount(0))
+            }
         }
 
         // otherwise use the next bip44 account, as long as the last one had activity on it
-        return if (wasUsed) {
-            mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(lastPath.lastIndex + 1),
-                    BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(lastPath.lastIndex + 1),
-                    BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(lastPath.lastIndex + 1))
+        // or we perform accounts lookahead
+        return if (wasUsedOrAccountsLookahead) {
+            if (coinType == Utils.getBtcCoinType()) {
+                mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(lastPath.lastIndex + 1),
+                        BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(lastPath.lastIndex + 1),
+                        BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(lastPath.lastIndex + 1))
+            } else {
+                mapOf(BipDerivationType.BIP44 to BIP44FIOCOIN_TYPE.getAccount(lastPath.lastIndex + 1))
+            }
         } else {
             emptyMap()
         }
@@ -248,6 +262,8 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
     }
 
     companion object {
+        const val ACCOUNT_LOOKAHEAD = 20
+        val BIP44FIOCOIN_TYPE = HdKeyPath.BIP44.getHardenedChild(235)
         val BIP44COIN_TYPE = HdKeyPath.BIP44.getCoinTypeBitcoin(BuildConfig.FLAVOR == "btctestnet")
         val BIP49COIN_TYPE = HdKeyPath.BIP49.getCoinTypeBitcoin(BuildConfig.FLAVOR == "btctestnet")
         val BIP84COIN_TYPE = HdKeyPath.BIP84.getCoinTypeBitcoin(BuildConfig.FLAVOR == "btctestnet")

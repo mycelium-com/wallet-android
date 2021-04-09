@@ -2,27 +2,28 @@ package com.mycelium.wallet.activity.main.adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.TransactionSummary;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.text.DateFormat;
@@ -34,29 +35,28 @@ import java.util.Map;
 import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIAT_VALUE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
-public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSummary> {
+public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private final MetadataStorage _storage;
    protected Context _context;
    private DateFormat _dateFormat;
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
    private SharedPreferences transactionFiatValuePref;
-   private Map<GenericAddress, String> _addressBook;
+   private Map<Address, String> _addressBook;
    private boolean _alwaysShowAddress;
    private Set<String> exchangeTransactions;
 
-   public TransactionArrayAdapter(Context context, List<GenericTransactionSummary> transactions, Map<GenericAddress, String> addressBook) {
+   public TransactionArrayAdapter(Context context, List<TransactionSummary> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
    }
 
    public TransactionArrayAdapter(Context context,
-                                  List<GenericTransactionSummary> transactions,
+                                  List<TransactionSummary> transactions,
                                   Fragment containerFragment,
-                                  Map<GenericAddress, String> addressBook,
+                                  Map<Address, String> addressBook,
                                   boolean alwaysShowAddress) {
       super(context, R.layout.transaction_row, transactions);
       _context = context;
@@ -66,7 +66,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       _storage = _mbwManager.getMetadataStorage();
       _addressBook = addressBook;
       _alwaysShowAddress = alwaysShowAddress;
-      transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
+      transactionFiatValuePref = context.getSharedPreferences(SendCoinsActivity.TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
       SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_EXCHANGE, MODE_PRIVATE);
       exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
@@ -89,7 +89,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
          return rowView;
       }
 
-      final GenericTransactionSummary record = getItem(position);
+      final TransactionSummary record = getItem(position);
 
       // Determine Color
       int color;
@@ -106,12 +106,14 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
 
       // Set value
       TextView tvAmount = rowView.findViewById(R.id.tvAmount);
-      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getDenomination()));
+      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(),
+              _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
       tvAmount.setTextColor(color);
 
       // Set alternative value
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
-      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
+      AssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher()
+              .getCurrentFiatCurrency(_mbwManager.getSelectedAccount().getCoinType());
 
       if (alternativeCurrency != null) {
          Value recordValue = record.getTransferred().abs();
@@ -121,7 +123,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
             tvFiat.setVisibility(View.GONE);
          } else {
             tvFiat.setVisibility(View.VISIBLE);
-            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue, _mbwManager.getDenomination()));
+            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue,
+                    _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
             tvFiat.setTextColor(color);
          }
       } else {
@@ -143,7 +146,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
          // As we have a current limitation to send only to one recepient, we consider that
          // record.destinationAddresses should always have size of 1
          // and thus take the first element from it.
-         GenericAddress destAddress = record.getDestinationAddresses().get(0);
+         Address destAddress = record.getDestinationAddresses().get(0);
          String destAddressStr = destAddress.toString();
          if (_addressBook.containsKey(destAddress)) {
             tvDestAddress.setText(AddressUtils.toShortString(destAddressStr));
@@ -179,22 +182,18 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       // Show label or confirmations
       TextView tvLabel = rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.getIdHex());
-      if (label.length() == 0) {
-         // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
-         String confirmationsText;
-         if (record.isQueuedOutgoing()) {
-            confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
-         } else {
-            if (confirmations > 6) {
-               confirmationsText = _context.getResources().getString(R.string.confirmed);
-            } else {
-               confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);
-            }
-         }
-         tvLabel.setText(confirmationsText);
+      // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
+      String confirmationsText;
+      if (record.isQueuedOutgoing()) {
+         confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
       } else {
-         tvLabel.setText(label);
+         if (confirmations > 6) {
+            confirmationsText = _context.getResources().getString(R.string.confirmed);
+         } else {
+            confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);
+         }
       }
+      tvLabel.setText(confirmationsText + (label.isEmpty() ? "" : " / " + label));
 
       // Show risky unconfirmed warning if necessary
       TextView tvWarnings = rowView.findViewById(R.id.tvUnconfirmedWarning);

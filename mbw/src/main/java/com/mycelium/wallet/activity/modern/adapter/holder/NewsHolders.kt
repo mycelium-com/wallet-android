@@ -15,3 +15,7 @@ class NewsCategoryBtnHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
 class NewsLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 class NewsNoBookmarksHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+class NewsTurnOff(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+class CurrencycomBannerHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

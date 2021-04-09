@@ -4,22 +4,26 @@
     tools:showIn="@layout/receive_coins_activity">
 
     <data>
-
         <import type="android.view.View" />
+        <import type="android.text.Html" />
 
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
     </data>
 
-    <TextView
-        android:id="@+id/tvWarning"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:gravity="center"
-        android:visibility="@{viewModel.hasPrivateKey ? View.GONE : View.VISIBLE}"
-        android:text="@string/read_only_warning"
-        android:textColor="@color/red"
-        android:textSize="20sp" />
+    <merge>
+        <TextView
+                android:id="@+id/tvWarning"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:visibility="@{viewModel.hasPrivateKey ? View.GONE : View.VISIBLE}"
+                android:text="@{Html.fromHtml(@string/read_only_warning)}"
+                tools:text="Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere."
+                tools:textColor="@color/fio_red"
+                android:textSize="14sp" />
+    </merge>
 </layout>

@@ -6,10 +6,10 @@
     <string name="add_unrelated_account_title">הוסף חשבון לא-קשור</string>
     <string name="import_seed_title">ייבוא מפתח Seed</string>
     <string name="import_words_title">הזן את רשימת המילים</string>
-    <string name="add_account_desc">מייסליום תומך חשבונות HD וחשבונות כתובת אחת. כל חשבונות HD שנוצר מבוססים על בסיס באותו Seed.</string>
+    <string name="add_account_desc">מייסליום תומך חשבונות HD Bitcoin וחשבונות כתובת אחת. כל חשבונות HD Bitcoin שנוצר מבוססים על בסיס באותו Seed.</string>
     <string name="add_single_acc_info">כדי להוסיף חשבון כתובת בודד בהתבסס על פרטי מפתח או כתובת לקריאה בלבד, לחץ על לחצן מתקדם.</string>
-    <string name="scan_desc">סרוק ביטקוין כתובת, מפתח פרטי או חשבון HD.</string>
-    <string name="use_acc_first">יכול להיות רק חשבון אחד HD שאינו בשימוש.</string>
+    <string name="scan_desc">סרוק ביטקוין כתובת, מפתח פרטי או חשבון HD Bitcoin.</string>
+    <string name="use_acc_first">יכול להיות רק חשבון אחד HD Bitcoin שאינו בשימוש.</string>
     <string name="clipboard_desc">ייבא כתובת או מפתח מהעתק הדבק.</string>
     <string name="wordlist_des">ליצור Master Seed מתוך רשימת מילים</string>
     <string name="scan">סרוק</string>
@@ -24,7 +24,6 @@
     <string name="receive">קבל</string>
     <string name="private_key_deleted">המפתח נמחק.</string>
     <string name="account_deleted">חשבון נמחק.</string>
-    <string name="enter_recipient_title">הכניסו כתובת מקבלת</string>
     <string name="recipient_title">כתובת מקבלת</string>
     <string name="amount_label">סכום:</string>
     <string name="amount_title">סכום</string>
@@ -98,8 +97,8 @@
     <string name="export_to_clipboard_warning">אזהרה: ייצוא המפתח הפרטי ללוח (clipboard) חושף אותו לכל שאר היישומים שבמכשירך.\n\nהערה: אין זה מספיק לשמור את המפתח הפרטי בלוח, עליך גם להדביקו במקום בטוח.\n\nהאם ברצונך להמשיך?</string>
     <string name="found_clipboard_private_key_title">מפתח פרטי נמצא בלוח (clipboard)</string>
     <string name="exchange_source_not_available">לא קיים שער המרה עבור %1$s</string>
-    <string name="my_own_address_warning">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</string>
-    <string name="read_only_warning">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</font>]]></string>
     <string name="add_to_address_book_dialog_title">הוספת כתובת</string>
     <string name="scan_address_book_desc">סריקת כתובת ביטקוין.</string>
     <string name="clipboard_address_book_desc">קבל כתובת ביטקוין מהלוח (clipboard).</string>
@@ -128,8 +127,6 @@
     <string name="signing_transaction">חותם עסקה</string>
     <string name="broadcasting_transaction">שולח את הפעולה</string>
     <string name="enter_bitcoin_address">הכנס כתובת</string>
-    <string name="bitcoin_address_invalid">כתובת ביטקוין בלתי תקינה</string>
-    <string name="bitcoin_address_valid">כתובת ביטקוין תקינה</string>
     <string name="enter_local_currency">הזן את המטבע המקומי שלך</string>
     <string name="using_address_from_clipboard">משתמש בכתובת מהעתק-הדבק</string>
     <string name="my_accounts">החשבונות שלי</string>

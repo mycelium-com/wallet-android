@@ -1,0 +1,47 @@
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import java.math.BigInteger;
+import java.util.UUID;
+import kotlin.collections.List;
+
+-- Creates table for generic account context storage
+
+CREATE TABLE IF NOT EXISTS EthContext(
+    uuid TEXT AS UUID PRIMARY KEY NOT NULL,
+    nonce TEXT AS BigInteger NOT NULL,
+    enabledTokens TEXT AS List<String>,
+    accountIndex INTEGER AS Int NOT NULL,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+selectAll:
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.enabledTokens, ec.accountIndex
+FROM EthContext AS ec
+  INNER JOIN AccountContext AS c
+  ON ec.uuid = c.uuid;
+
+selectByUUID:
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.enabledTokens, ec.accountIndex
+FROM EthContext AS ec
+    INNER JOIN AccountContext AS c
+    ON ec.uuid = c.uuid
+        WHERE ec.uuid = (?);
+
+insert:
+INSERT INTO EthContext(uuid, nonce, enabledTokens, accountIndex)
+VALUES (?, ?, ?, ?);
+
+insertFullObject:
+INSERT INTO EthContext(uuid, nonce, enabledTokens, accountIndex)
+VALUES ?;
+
+update:
+UPDATE EthContext
+SET nonce = (?), enabledTokens = (?)
+WHERE uuid = (?);
+
+delete:
+DELETE FROM EthContext
+WHERE uuid = (?);

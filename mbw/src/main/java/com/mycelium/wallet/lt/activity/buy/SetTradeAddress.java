@@ -37,6 +37,7 @@ package com.mycelium.wallet.lt.activity.buy;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -44,7 +45,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
@@ -68,7 +69,7 @@ public class SetTradeAddress extends Activity {
    }
 
    private TradeSession _tradeSession;
-   private Address _address;
+   private BitcoinAddress _address;
 
    /**
     * Called when the activity is first created.
@@ -120,7 +121,8 @@ public class SetTradeAddress extends Activity {
          tvWarning.setVisibility(View.VISIBLE);
          tvWarning.setTextColor(getResources().getColor(R.color.red));
          if (Utils.isAllowedForLocalTrader(account)) {
-            tvWarning.setText(R.string.read_only_warning);
+            CharSequence warning = Html.fromHtml(getText(R.string.read_only_warning).toString());
+            tvWarning.setText(warning);
          } else {
             findViewById(R.id.btOk).setEnabled(false);
             tvWarning.setText(R.string.lt_account_not_allowed);

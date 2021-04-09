@@ -1,0 +1,46 @@
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
+import java.util.UUID;
+
+-- Creates table for transactions
+
+CREATE TABLE IF NOT EXISTS AccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT AS UUID,
+    currency TEXT AS CryptoCurrency NOT NULL,
+    blockNumber INTEGER AS Int NOT NULL,
+    timestamp INTEGER NOT NULL,
+    raw TEXT NOT NULL,
+    value TEXT AS Value NOT NULL,
+    fee TEXT AS Value NOT NULL,
+    confirmations INTEGER AS Int NOT NULL,
+    PRIMARY KEY (txid, uuid)
+);
+
+
+select:
+SELECT *
+FROM AccountBacking
+WHERE uuid = (?) AND txid = (?);
+
+insertTransaction:
+INSERT OR REPLACE INTO AccountBacking(txid, uuid, currency, blockNumber, timestamp, raw, value, fee, confirmations)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateTransaction:
+UPDATE AccountBacking
+SET blockNumber = (?), confirmations = (?)
+WHERE uuid = (?) AND txid = (?);
+
+updateFee:
+UPDATE AccountBacking
+SET fee = (?)
+WHERE uuid = (?) AND txid = (?);
+
+deleteAllAccountTransactions:
+DELETE FROM AccountBacking
+WHERE uuid = (?);
+
+deleteTransaction:
+DELETE FROM AccountBacking
+WHERE uuid = (?) AND txid = (?);

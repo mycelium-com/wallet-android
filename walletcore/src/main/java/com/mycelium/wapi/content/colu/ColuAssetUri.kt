@@ -1,13 +1,13 @@
 package com.mycelium.wapi.content.colu
 
-import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
 
-abstract class ColuAssetUri(address: GenericAddress?, value: Value?, label: String?, scheme: String?,
+abstract class ColuAssetUri(address: Address?, value: Value?, label: String?, scheme: String?,
                             override val callbackURL: String? = null)
-    : GenericAssetUri(address, value, label, scheme), WithCallback {
+    : AssetUri(address, value, label, scheme), WithCallback {
 
     override fun equals(other: Any?): Boolean {
         if (other !is ColuAssetUri) {

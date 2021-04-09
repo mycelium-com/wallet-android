@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -63,6 +64,8 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.Serializable;
@@ -80,8 +83,8 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    protected ArrayList<HdAccountWrapper> accounts = new ArrayList<>();
    protected AccountsAdapter accountsAdapter;
    protected AbstractAccountScanManager masterseedScanManager;
-
    protected TextView txtStatus;
+   protected CryptoCurrency coinType;
 
    protected abstract AbstractAccountScanManager initMasterseedManager();
 
@@ -98,11 +101,30 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       accountsAdapter = new AccountsAdapter(this, R.id.lvAccounts, accounts);
       lvAccounts.setAdapter(accountsAdapter);
       lvAccounts.setOnItemClickListener(accountClickListener());
+      // ask user from what blockchain he/she wants to spend from
+      final int[] selectedItem = new int[1];
+      CharSequence[] choices = new CharSequence[2];
+      choices[0] = "BTC";
+      choices[1] = "FIO";
+      new AlertDialog.Builder(this)
+              .setTitle("Choose blockchain")
+              .setSingleChoiceItems(choices, 0, (dialogInterface, i) -> selectedItem[0] = i)
+              .setPositiveButton(this.getString(R.string.ok), (dialogInterface, i) -> {
+                 if (selectedItem[0] == 0) {
+                    coinType = Utils.getBtcCoinType();
+                 } else {
+                    coinType = Utils.getFIOCoinType();
+                 }
 
-      masterseedScanManager = initMasterseedManager();
+                 masterseedScanManager = initMasterseedManager();
 
-      startBackgroundScan();
-      updateUi();
+                 startBackgroundScan();
+                 updateUi();
+              })
+              .setNegativeButton(this.getString(R.string.cancel), (dialogInterface, i) -> super.finish())
+              .setCancelable(false)
+              .show();
+
    }
 
    protected void startBackgroundScan() {
@@ -115,14 +137,25 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
                walletManager,
                account.keysPaths.iterator().next().getLastIndex());
 
-         HDAccount tempAccount = (HDAccount) walletManager.getAccount(id);
-         tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
-
-         if (tempAccount.hasHadActivity()) {
-            return id;
+         WalletAccount walletAccount = walletManager.getAccount(id);
+         if (walletAccount instanceof HDAccount) {
+            HDAccount tempAccount = (HDAccount) walletAccount;
+            tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
+            if (tempAccount.hasHadActivity()) {
+               return id;
+            } else {
+               tempAccount.dropCachedData();
+               return null;
+            }
          } else {
-            tempAccount.dropCachedData();
-            return null;
+            FioAccount tempAccount = (FioAccount) walletAccount;
+            tempAccount.synchronize(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
+            if (tempAccount.hasHadActivity()) {
+               return id;
+            } else {
+               tempAccount.dropCachedData();
+               return null;
+            }
          }
       });
    }
@@ -246,10 +279,10 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          MbwManager mbwManager = MbwManager.getInstance(getContext());
          WalletAccount walletAccount = mbwManager.getWalletManager(true).getAccount(account.id);
          Balance balance = walletAccount.getAccountBalance();
-         String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
+         String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination(walletAccount.getCoinType()));
          if (balance.getSendingToForeignAddresses().isPositive()) {
             balanceString += " " + String.format(getString(R.string.account_balance_sending_amount)
-                    , ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), mbwManager.getDenomination()));
+                    , ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), mbwManager.getDenomination(walletAccount.getCoinType())));
          }
          Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 

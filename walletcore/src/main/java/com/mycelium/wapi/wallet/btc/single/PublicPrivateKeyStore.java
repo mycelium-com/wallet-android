@@ -19,8 +19,7 @@ package com.mycelium.wapi.wallet.btc.single;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 
@@ -43,7 +42,7 @@ public class PublicPrivateKeyStore {
       return _secureStorage.hasCiphertextValue(addressBytes);
    }
 
-   public boolean hasPrivateKey(GenericAddress address) {
+   public boolean hasPrivateKey(Address address) {
       return hasPrivateKey(address.getBytes());
    }
 
@@ -54,7 +53,7 @@ public class PublicPrivateKeyStore {
       _secureStorage.storePlaintextValue(addressBytes, privateKey.getPublicKey().getPublicKeyBytes());
    }
 
-   public void setPrivateKey(GenericAddress address, InMemoryPrivateKey privateKey, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+   public void setPrivateKey(Address address, InMemoryPrivateKey privateKey, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       setPrivateKey(address.getBytes(), privateKey, cipher);
    }
 
@@ -68,7 +67,7 @@ public class PublicPrivateKeyStore {
       return new InMemoryPrivateKey(pri, pub);
    }
 
-   public InMemoryPrivateKey getPrivateKey(GenericAddress address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+   public InMemoryPrivateKey getPrivateKey(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       return getPrivateKey(address.getBytes(), cipher);
    }
 
@@ -80,7 +79,7 @@ public class PublicPrivateKeyStore {
       return new PublicKey(value);
    }
 
-   public PublicKey getPublicKey(GenericAddress address) {
+   public PublicKey getPublicKey(Address address) {
       return getPublicKey(address.getBytes());
    }
 
@@ -88,7 +87,7 @@ public class PublicPrivateKeyStore {
       _secureStorage.deleteEncryptedValue(addressBytes, cipher);
    }
 
-   public void forgetPrivateKey(GenericAddress address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+   public void forgetPrivateKey(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       forgetPrivateKey(address.getBytes(), cipher);
    }
 

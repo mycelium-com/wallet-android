@@ -50,7 +50,7 @@ import com.btchip.BTChipDongle.UserConfirmation;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mycelium.wallet.LedgerPin2FADialog;
 import com.mycelium.wallet.LedgerPinDialog;
@@ -142,7 +142,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
          UnsignedTransaction unsigned = ((BtcTransaction) _transaction).getUnsignedTx();
 
          for (TransactionOutput o : unsigned.getOutputs()) {
-            Address toAddress;
+            BitcoinAddress toAddress;
             toAddress = o.script.getAddress(_mbwManager.getNetwork());
             Optional<Integer[]> addressId = ((HDAccount) _account).getAddressId(toAddress);
 
@@ -198,7 +198,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       ArrayList<String> toAddresses = new ArrayList<>(1);
       UnsignedTransaction unsigned = ((BtcTransaction) _transaction).getUnsignedTx();
       for (TransactionOutput o : unsigned.getOutputs()) {
-         Address toAddress;
+         BitcoinAddress toAddress;
          toAddress = o.script.getAddress(_mbwManager.getNetwork());
          Optional<Integer[]> addressId = ((HDAccount) _account).getAddressId(toAddress);
 

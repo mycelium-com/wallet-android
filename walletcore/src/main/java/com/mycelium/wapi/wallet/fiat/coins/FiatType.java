@@ -1,30 +1,33 @@
 package com.mycelium.wapi.wallet.fiat.coins;
 
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.coins.AbstractAsset;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class FiatType extends AbstractAsset {
+import javax.annotation.Nonnull;
 
-    private String symbol;
+public class FiatType extends AbstractAsset {
 
     public FiatType(String symbol) {
         this.symbol = symbol;
     }
 
+    @Nonnull
     @Override
     public String getId() {
         return symbol;
     }
 
+    @Nonnull
     @Override
     public String getName() {
         return symbol;
     }
 
+    @Nonnull
     @Override
     public String getSymbol() {
         return symbol;
@@ -41,10 +44,11 @@ public class FiatType extends AbstractAsset {
     }
 
     @Override
-    public GenericAddress parseAddress(String address) {
+    public Address parseAddress(String address) {
         return null;
     }
 
+    @Nonnull
     @Override
     public Value oneCoin() {
         if (oneCoin == null) {
@@ -54,6 +58,7 @@ public class FiatType extends AbstractAsset {
         return oneCoin;
     }
 
+    @Nonnull
     @Override
     public Value value(long units) {
         return Value.valueOf(this, units);
@@ -62,7 +67,7 @@ public class FiatType extends AbstractAsset {
  /* TODO - implement equals
 e
     @Override
-    public boolean equals(GenericAssetInfo o) {
+    public boolean equals(AssetInfo o) {
         if (this == o) return true;
        if (o == null || getClass() != o.getClass()) return false;
        FiatType fiatType = (FiatType) o;
@@ -76,8 +81,9 @@ e
         return Objects.hash(symbol);
     }
 
+    @Nonnull
     @Override
-    public Value value(String string) {
+    public Value value(@Nonnull String string) {
         return Value.parse(this, string);
     }
 }

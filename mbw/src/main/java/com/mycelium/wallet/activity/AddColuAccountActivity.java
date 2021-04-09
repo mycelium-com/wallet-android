@@ -43,7 +43,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -51,11 +50,20 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
-import com.mycelium.wapi.wallet.colu.coins.*;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
 import java.util.UUID;
 
@@ -100,7 +108,7 @@ public class AddColuAccountActivity extends AppCompatActivity {
         if(selectedColuAsset != null) {
             createColuAccountProtected(selectedColuAsset);
         } else {
-            Toast.makeText(AddColuAccountActivity.this, R.string.colu_select_an_account_type, Toast.LENGTH_SHORT).show();
+            new Toaster(AddColuAccountActivity.this).toast(R.string.colu_select_an_account_type, true);
         }
         //displayTemporaryMessage();
     }
@@ -144,7 +152,7 @@ public class AddColuAccountActivity extends AppCompatActivity {
             selectedColuAsset = assetType;
         }
         btColuAddAccount.setEnabled(true);
-        Toast.makeText(this, name + " selected", Toast.LENGTH_SHORT).show();
+        new Toaster(this).toast(name + " selected", true);
     }
 
     private void createColuAccountProtected(final ColuMain coluAsset) {
@@ -193,18 +201,20 @@ public class AddColuAccountActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(UUID account) {
+            if (progressDialog != null && progressDialog.isShowing() && !isDestroyed()) {
+                progressDialog.dismiss();
+            }
             if (account != null) {
+                MbwManager.getEventBus().post(new AccountCreated(account));
+                MbwManager.getEventBus().post(new AccountChanged(account));
                 Intent result = new Intent();
                 result.putExtra(RESULT_KEY, account);
                 setResult(RESULT_OK, result);
                 finish();
             } else {
                 // something went wrong - clean up the half ready coluManager
-                Toast.makeText(AddColuAccountActivity.this, R.string.colu_unable_to_create_account, Toast.LENGTH_SHORT).show();
+                new Toaster(AddColuAccountActivity.this).toast(R.string.colu_unable_to_create_account, true);
                 _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, alreadyHadColuAccount);
-            }
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
             }
             setButtonEnabled();
         }

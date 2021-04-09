@@ -34,6 +34,12 @@
 
 package com.mycelium.wallet.event;
 
-public class SyncFailed {
+import java.util.UUID;
 
+public class SyncFailed {
+    public UUID accountId;
+
+    public SyncFailed(UUID accountId) {
+        this.accountId = accountId;
+    }
 }

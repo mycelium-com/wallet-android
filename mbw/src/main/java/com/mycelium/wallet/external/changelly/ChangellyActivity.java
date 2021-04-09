@@ -2,9 +2,6 @@ package com.mycelium.wallet.external.changelly;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
@@ -13,8 +10,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
@@ -109,7 +111,7 @@ public class ChangellyActivity extends AppCompatActivity {
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
-            Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
+            toast("Error parsing double values");
             return;
         }
         changellyAPIService.getExchangeAmount(fromCurrency, toCurrency, dblAmount).enqueue(new GetOfferCallback(fromCurrency, toCurrency, dblAmount));
@@ -147,16 +149,7 @@ public class ChangellyActivity extends AppCompatActivity {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 CurrencyAdapter.Item item = currencyAdapter.getItem(position);
-                if (item != null) {
-                    fromCurrency.setText(item.currency);
-                    fromValue.setText(null);
-                    minAmount = 0.0;
-                    toValue.setText("");
-
-                    // load min amount
-                    changellyAPIService.getMinAmount(item.currency, BTC)
-                            .enqueue(new GetMinCallback(item.currency));
-                }
+                selectCurrencyItem(item);
             }
         });
         List<WalletAccount<?>> toAccounts = new ArrayList<>();
@@ -191,6 +184,9 @@ public class ChangellyActivity extends AppCompatActivity {
                     }
                 }
                 currencyAdapter.setItems(itemList);
+                if (!itemList.isEmpty()) {
+                    selectCurrencyItem(itemList.get(0));
+                }
                 setLayout(ChangellyUITypes.Main);
             }
 
@@ -201,8 +197,21 @@ public class ChangellyActivity extends AppCompatActivity {
         });
     }
 
+    private void selectCurrencyItem(CurrencyAdapter.Item item) {
+        if (item != null) {
+            fromCurrency.setText(item.currency);
+            fromValue.setText(null);
+            minAmount = 0.0;
+            toValue.setText("");
+
+            // load min amount
+            changellyAPIService.getMinAmount(item.currency, BTC)
+                    .enqueue(new GetMinCallback(item.currency));
+        }
+    }
+
     private void toast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        new Toaster(this).toast(msg, true);
     }
 
     /* Activity UI logic Start */
@@ -333,7 +342,7 @@ public class ChangellyActivity extends AppCompatActivity {
             return false;
         }
 
-        if (minAmount == 0) {
+        if (minAmount == null || minAmount == 0) {
             btTakeOffer.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;

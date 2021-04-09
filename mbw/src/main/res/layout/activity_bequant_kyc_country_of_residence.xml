@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bequant_gray_2"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/edSearch"
+            style="@style/Bequant.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_bequant_search"
+            app:drawableStartCompat="@drawable/ic_search"
+            android:drawablePadding="8dp"
+            android:hint="Search countries"
+            android:lines="1"
+            android:maxLines="1"
+            android:paddingStart="12dp"
+            android:text="@={viewModel.search}"
+            android:paddingTop="8dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp"
+            android:singleLine="true"
+            android:textColorHint="@color/bequant_gray_6"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCountries"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layoutDirection="ltr"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/edSearch"
+            tools:listitem="@layout/country_item" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

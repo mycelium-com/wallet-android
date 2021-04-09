@@ -11,7 +11,6 @@
     <string name="send">Poslať</string>
     <string name="receive">Prijať</string>
     <string name="private_key_deleted">Privátny kľúč bol vymazaný.</string>
-    <string name="enter_recipient_title">Vložte Príjemcovú Adresu</string>
     <string name="recipient_title">Príjemcova Adresa</string>
     <string name="amount_label">Suma:</string>
     <string name="amount_title">Suma</string>
@@ -24,7 +23,7 @@
     <string name="insufficient_funds_for_fee">Nedostatok prostriedkov na zaplatenie poplatku</string>
     <string name="amount_too_small">Posielaná suma je primalá</string>
     <string name="amount_too_small_short">Suma transakcie je príliš malá</string>
-    <string name="miner_fee_label">Poplatok za transakciu:</string>
+    <string name="miner_fee_label">Poplatok za transakciu</string>
     <string name="miner_fee_title">Poplatok za transakciu</string>
     <string name="synchronizing">Synchronizuje sa</string>
     <string name="transaction_not_sent">Neúspešne sa odoslala transakcia</string>
@@ -82,11 +81,11 @@
     <string name="export_to_clipboard_warning">Upozornenie: Exportovanie Privátneho Kľúča do Schránky ho vystavuje všetkým ostatným aplikáciam na Vašom Zariadení.\n\nPoznámka: Nie je bezpečné skladovať Váš Privátny Kľúč v Schránke, musíte ho prilepiť na bezpečné miesto.\n\nChcete pokračovať?</string>
     <string name="found_clipboard_private_key_title">Nájdený Privátny Kľúč v Schránke</string>
     <string name="exchange_source_not_available">Výmenný kurz nie je dostupný pre %1$s</string>
-    <string name="my_own_address_warning">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</string>
-    <string name="read_only_warning">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Pridať Adresu</string>
-    <string name="scan_address_book_desc">Skenovať Bitcoinovú Adresu.</string>
-    <string name="clipboard_address_book_desc">Použi Bitcoinovú Adresu zo Schránky.</string>
+    <string name="scan_address_book_desc">Skenovať Adresu.</string>
+    <string name="clipboard_address_book_desc">Použi Adresu zo Schránky.</string>
     <string name="get_private_key">Získaj Privátny Kľúč z:</string>
     <string name="cold_storage">Offline úložisko</string>
     <string name="cold_storage_title">Útratiť z Offlinového Úložiska</string>
@@ -103,8 +102,6 @@
     <string name="slow_network">Vaše internetové pripojenie je zrejme pomalé.\nS trochou trpezlivosti sa to podarí&#8230;</string>
     <string name="broadcasting_transaction">Vysielanie Transakcie</string>
     <string name="enter_bitcoin_address">Vložte Bitcoinovú Adresu</string>
-    <string name="bitcoin_address_invalid">Neplatná Bitcoinová Adresa</string>
-    <string name="bitcoin_address_valid">Bitcoinová Adresa je platná</string>
     <string name="enter_local_currency">Zadajte Vašu lokálnu menu</string>
     <string name="using_address_from_clipboard">Použi Adresu zo Schránky</string>
     <string name="confirm_delete_pk_title">Ste si istý?</string>

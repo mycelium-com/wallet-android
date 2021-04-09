@@ -1,0 +1,53 @@
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.fio.FIODomain;
+import com.mycelium.wapi.wallet.fio.RegisteredFIOName;
+import java.math.BigInteger;
+import java.util.UUID;
+import kotlin.collections.List;
+
+-- Creates table for generic account context storage
+
+CREATE TABLE IF NOT EXISTS FioContext(
+    uuid TEXT AS UUID PRIMARY KEY NOT NULL,
+    accountIndex INTEGER AS Int NOT NULL,
+    accountType INTEGER AS Int NOT NULL,
+    actionSequenceNumber TEXT AS BigInteger NOT NULL,
+    registeredFIONames TEXT AS List<RegisteredFIOName>,
+    registeredFIODomains TEXT AS List<FIODomain>,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+selectAllFioContexts:
+SELECT fc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, fc.accountIndex, fc.accountType, fc.actionSequenceNumber,
+    fc.registeredFIONames, fc.registeredFIODomains
+FROM FioContext AS fc
+  INNER JOIN AccountContext AS c
+  ON fc.uuid = c.uuid;
+
+selectFioContextByUUID:
+SELECT fc.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, fc.accountIndex, fc.accountType, fc.actionSequenceNumber,
+    fc.registeredFIONames, fc.registeredFIODomains
+FROM FioContext AS fc
+    INNER JOIN AccountContext AS c
+    ON fc.uuid = c.uuid
+        WHERE fc.uuid = (?);
+
+insert:
+INSERT INTO FioContext(uuid, accountIndex, accountType, actionSequenceNumber, registeredFIONames, registeredFIODomains)
+VALUES (?, ?, ?, ?, ?, ?);
+
+insertFullObject:
+INSERT INTO FioContext(uuid, accountIndex, accountType, actionSequenceNumber, registeredFIONames, registeredFIODomains)
+VALUES ?;
+
+update:
+UPDATE FioContext
+SET actionSequenceNumber = (?), registeredFIONames = (?), registeredFIODomains = (?)
+WHERE uuid = (?);
+
+delete:
+DELETE FROM FioContext
+WHERE uuid = (?);

@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.text.DateFormat
@@ -25,7 +24,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
                                  internal var walletManager: WalletManager,
                                  metaDataStorage: IMetaDataStorage,
                                  internal val loadingProgressUpdater: LoadingProgressUpdater?,
-                                 internal val eventHandler: AbstractBtcAccount.EventHandler?) : GenericModule(metaDataStorage), WalletModule {
+                                 internal val eventHandler: AbstractBtcAccount.EventHandler?) : WalletModule(metaDataStorage) {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -36,7 +35,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
     }
 
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
-    override fun getId(): String = ID
+    override val id = ID
 
     override fun setCurrencySettings(currencySettings: CurrencySettings) {
         this.settings = currencySettings as BTCSettings
@@ -107,7 +106,8 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
             if (configLabel.isNotEmpty()) {
                 result.label = storeLabel(result.id, configLabel)
             } else {
-                result.label = createLabel(baseLabel, result.id)
+                result.label = createLabel(baseLabel)
+                storeLabel(result.id, result.label)
             }
         } else {
             throw IllegalStateException("Account can't be created")

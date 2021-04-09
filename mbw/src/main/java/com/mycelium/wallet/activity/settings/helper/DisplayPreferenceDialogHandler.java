@@ -1,19 +1,19 @@
 package com.mycelium.wallet.activity.settings.helper;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.adapter.DialogListAdapter;
 
 public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDisplayPreferenceDialogListener {
@@ -26,13 +26,7 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
 
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
-        int theme = R.style.MyceliumSettings_Dialog;
-        switch (preference.getKey()) {
-            case Constants.SETTING_DENOMINATION:
-            case Constants.SETTING_MINER_FEE:
-                theme = R.style.MyceliumSettings_Dialog_Small;
-                break;
-        }
+        int theme = R.style.MyceliumSettings_Dialog_Small;
 
         if (preference instanceof ListPreference) {
             final ListPreference listPreference = (ListPreference) preference;
@@ -66,9 +60,8 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
                         if (listPreference.callChangeListener(value)) {
                             listPreference.setValue(value);
                         }
-                    }
-                    else {
-                        Toast.makeText(context, context.getString(R.string.try_again), Toast.LENGTH_SHORT).show();
+                    } else {
+                        new Toaster(context).toast(R.string.try_again, true);
                     }
                     alertDialog.dismiss();
                 }

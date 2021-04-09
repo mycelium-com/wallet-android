@@ -38,6 +38,7 @@ public class SimplexMainActivity extends Activity {
 
     //the user wallet address
     private String _walletAddress;
+    private String coinType;
 
     //lvl entities
     private LicenseCheckerCallback _licenseCheckerCallback;
@@ -52,6 +53,7 @@ public class SimplexMainActivity extends Activity {
         setContentView(R.layout.simplex_main_activity);
 
         _walletAddress = getIntent().getExtras().getString("walletAddress");
+        coinType = getIntent().getExtras().getString("coinType");
         _activityHandler = new Handler();
         //display the loading spinner
         setLayout(SimplexUITypes.Loading);
@@ -125,7 +127,7 @@ public class SimplexMainActivity extends Activity {
                 signedData != null &&
                 signature != null;
         if (isReadyToTrade) {
-            String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
+            String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s&crypto=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature, coinType);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
             setLayout(SimplexUITypes.WebView);
             startActivity(browserIntent);

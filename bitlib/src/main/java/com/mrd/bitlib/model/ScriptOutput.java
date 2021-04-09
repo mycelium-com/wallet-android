@@ -54,6 +54,6 @@ public abstract class ScriptOutput extends Script {
       super(scriptBytes, false);
    }
 
-   public abstract Address getAddress(NetworkParameters network);
+   public abstract BitcoinAddress getAddress(NetworkParameters network);
    public abstract byte[] getAddressBytes();
 }

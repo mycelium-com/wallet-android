@@ -37,7 +37,7 @@ package com.mycelium.wallet.bitid;
 import android.net.Uri;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -154,7 +154,7 @@ public class BitIDSignRequest implements Serializable {
       }
    }
 
-   public JSONObject getCallbackJson(Address address, SignedMessage signature) {
+   public JSONObject getCallbackJson(BitcoinAddress address, SignedMessage signature) {
       JSONObject obj = new JSONObject();
       try {
          obj.put("uri", getFullUri());
