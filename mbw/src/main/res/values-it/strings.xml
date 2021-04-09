@@ -693,7 +693,7 @@
     <string name="error_details">Dettagli dell\'errore</string>
     <string name="settings_service_enabled">Attiva %1$s</string>
     <!-- Simplex start -->
-    <string name="si_buy_sell">Carta di credito</string>
+    <string name="si_buy_sell">Carta di debito / credito</string>
     <string name="si_buy_sell_description">Compra bitcoin in modo sicuro e veloce tramite carta di credito.</string>
     <string name="si_setting_show_button_summary">Visualizza l\'opzione di acquisto di Simplex</string>
     <string name="si_loading">caricamento&#8230;</string>
