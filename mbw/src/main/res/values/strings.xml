@@ -947,7 +947,7 @@
     <string name="si_buy_sell">Debit / credit card</string>
     <string name="si_simplex">Simplex</string>
     <string name="si_buy_sell_description">Buy bitcoin safely and easily using your credit card.</string>
-    <string name="si_setting_show_button_summary">Show Simplex\'s/Safello Buy option</string>
+    <string name="si_setting_show_button_summary">Show debit / credit card buy option</string>
     <string name="si_loading">loading…</string>
     <string name="si_error_message">error message</string>
     <string name="si_retry">Retry</string>
@@ -1369,7 +1369,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="export_fio_public_key_title">Export FIO public key</string>
     <string name="buy_ethereum">BUY / SELL ETH</string>
     <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>
-    <string name="si_buy_sell_s_description">Buy %s safely and easily using you credit card.</string>
+    <string name="si_buy_sell_s_description">Buy %s safely and easily using your debit / credit card.</string>
     <string name="share_fio_public_key">Share FIO public key</string>
     <string name="add_erc20_account">Add ERC-20 Account</string>
     <string name="buy_eth">BUY ETH</string>
