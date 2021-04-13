@@ -131,6 +131,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 import com.mycelium.wapi.wallet.fio.coins.FIOToken;
@@ -1030,7 +1031,8 @@ public class Utils {
       if (account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount
-              || account instanceof AbstractEthERC20Account) {
+              || account instanceof AbstractEthERC20Account
+              || account instanceof FioAccount) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {

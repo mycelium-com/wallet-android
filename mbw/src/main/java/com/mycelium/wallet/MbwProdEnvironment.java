@@ -44,7 +44,7 @@ import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
-import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wallet.external.BankCardServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
@@ -164,7 +164,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
 
    public List<BuySellServiceDescriptor> getBuySellServices() {
       return new ArrayList<BuySellServiceDescriptor>() {{
-         add(new SimplexServiceDescription());
+         add(new BankCardServiceDescription());
          add(new SepaServiceDescription());
          add(new LocalTraderServiceDescription());
       }};
