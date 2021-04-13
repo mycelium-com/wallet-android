@@ -177,7 +177,17 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/*.version'
+        exclude 'META-INF/*.properties'
+        exclude 'META-INF/*_module'
+        exclude 'META-INF/services'
+        exclude 'META-INF/services/'
+        exclude 'META-INF/services/*'
+        exclude 'META-INF/services/*.*'
+        exclude 'META-INF/services/**'
+        exclude 'META-INF/services/java.sql.Driver'
         // bitcoinj brings in a native library for x86_64, which seems to confuse the playstore upload - just strip the file
+        // still relevant 2021-03-31
         exclude 'lib/x86_64/darwin/libscrypt.dylib'
     }
 
@@ -190,8 +200,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3080900
-        versionName '3.8.9.0'
+        versionCode 3080901
+        versionName '3.8.9.1'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
