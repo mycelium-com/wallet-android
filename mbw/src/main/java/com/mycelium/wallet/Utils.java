@@ -114,6 +114,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -1032,7 +1033,8 @@ public class Utils {
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount
               || account instanceof AbstractEthERC20Account
-              || account instanceof FioAccount) {
+              || account instanceof FioAccount
+              || account instanceof BitcoinVaultHdAccount) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
