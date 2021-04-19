@@ -135,8 +135,6 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }.toSet()
     }
 
-    override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> = mutableListOf()
-
     override fun getLabel(): String = accountContext.accountName
 
     override fun setLabel(label: String) {
