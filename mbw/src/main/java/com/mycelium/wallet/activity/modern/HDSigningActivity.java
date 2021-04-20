@@ -50,8 +50,12 @@ import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount;
+import com.mycelium.wapi.wallet.btcvault.BtcvAddress;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 
 import java.util.List;
 import java.util.UUID;
@@ -78,14 +82,27 @@ public class HDSigningActivity extends Activity {
 
    private void updateUi() {
       LinearLayout addressView = findViewById(R.id.listPrivateKeyAddresses);
-      HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
+      WalletAccount account = (WalletAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
 
-      //sort addresses by alphabet for easier selection
-      List<BitcoinAddress> addresses = Utils.sortAddresses(account.getAllAddresses());
+      if (account instanceof HDAccount){
+         HDAccount hdAccount = (HDAccount) account;
+         //sort addresses by alphabet for easier selection
+         List<BitcoinAddress> addresses = Utils.sortAddresses(hdAccount.getAllAddresses());
 
-      for (BitcoinAddress address : addresses) {
-         addressView.addView(getItemView(address));
+         for (BitcoinAddress address : addresses) {
+            addressView.addView(getItemView(address));
+         }
       }
+
+      if (account instanceof BitcoinVaultHdAccount){
+         BitcoinVaultHdAccount bitcoinVaultHdAccount = (BitcoinVaultHdAccount) account;
+         //sort addresses by alphabet for easier selection
+         BtcvAddress address = bitcoinVaultHdAccount.getReceiveAddress();//Utils.sortAddresses(bitcoinVaultHdAccount.getReceiveAddress());
+
+         addressView.addView(getItemView(address));
+
+      }
+
    }
 
    private View getItemView(BitcoinAddress address) {
@@ -111,14 +128,25 @@ public class HDSigningActivity extends Activity {
          if (addressLabel.getAddress() == null) {
             return;
          }
-         HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
-         InMemoryPrivateKey key;
+         InMemoryPrivateKey key = null;
          BtcAddress btcAddress = (BtcAddress)addressLabel.getAddress();
-         try {
-            key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
-         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            throw new RuntimeException(invalidKeyCipher);
+         WalletAccount<?> accountSelected = _mbwManager.getWalletManager(false).getAccount(_accountid);
+         if (accountSelected instanceof  HDAccount){
+            HDAccount account = (HDAccount) accountSelected;
+            try {
+               key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+               throw new RuntimeException(invalidKeyCipher);
+            }
+         } else if (accountSelected instanceof AbstractBtcvAccount) {
+            AbstractBtcvAccount account = (AbstractBtcvAccount) accountSelected;
+            try {
+               key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+               throw new RuntimeException(invalidKeyCipher);
+            }
          }
+
          MessageSigningActivity.callMe(HDSigningActivity.this, key, btcAddress);
       }
    }

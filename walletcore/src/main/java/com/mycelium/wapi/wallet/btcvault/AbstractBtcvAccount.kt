@@ -938,7 +938,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     protected abstract fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey?
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
-    protected abstract fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey?
+    abstract fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey?
     protected abstract fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey?
 
     @Synchronized
