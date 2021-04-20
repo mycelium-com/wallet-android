@@ -96,8 +96,7 @@ public class HDSigningActivity extends Activity {
 
       if (account instanceof BitcoinVaultHdAccount){
          BitcoinVaultHdAccount bitcoinVaultHdAccount = (BitcoinVaultHdAccount) account;
-         //sort addresses by alphabet for easier selection
-         BtcvAddress address = bitcoinVaultHdAccount.getReceiveAddress();//Utils.sortAddresses(bitcoinVaultHdAccount.getReceiveAddress());
+         BtcvAddress address = bitcoinVaultHdAccount.getReceiveAddress();
 
          addressView.addView(getItemView(address));
 
