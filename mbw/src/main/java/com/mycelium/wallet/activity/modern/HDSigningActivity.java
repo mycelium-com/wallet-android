@@ -52,6 +52,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.PrivateKeyProvider;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.SigningAddressesListProvider;
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount;
@@ -115,25 +116,14 @@ public class HDSigningActivity extends Activity {
             if (addressLabel.getAddress() == null) {
                 return;
             }
-            InMemoryPrivateKey key = null;
+            InMemoryPrivateKey key;
             BtcAddress btcAddress = (BtcAddress) addressLabel.getAddress();
-            WalletAccount<?> accountSelected = _mbwManager.getWalletManager(false).getAccount(_accountid);
-            if (accountSelected instanceof HDAccount) {
-                HDAccount account = (HDAccount) accountSelected;
-                try {
-                    key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
-                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                    throw new RuntimeException(invalidKeyCipher);
-                }
-            } else if (accountSelected instanceof AbstractBtcvAccount) {
-                AbstractBtcvAccount account = (AbstractBtcvAccount) accountSelected;
-                try {
-                    key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
-                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                    throw new RuntimeException(invalidKeyCipher);
-                }
+            PrivateKeyProvider privateKeyProvider = (PrivateKeyProvider)_mbwManager.getWalletManager(false).getAccount(_accountid);
+            try {
+                key = privateKeyProvider.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                throw new RuntimeException(invalidKeyCipher);
             }
-
             MessageSigningActivity.callMe(HDSigningActivity.this, key, btcAddress);
         }
     }

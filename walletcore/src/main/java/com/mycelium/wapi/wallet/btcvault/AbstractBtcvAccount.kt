@@ -64,7 +64,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                                                          val network: NetworkParameters,
                                                          protected val wapi: Wapi,
                                                          val accountListener: AccountListener?)
-    : SynchronizeAbleWalletAccount<BtcvAddress>(), AddressContainer {
+    : SynchronizeAbleWalletAccount<BtcvAddress>(), AddressContainer, PrivateKeyProvider {
     interface EventHandler {
         fun onEvent(accountId: UUID?, event: WalletManager.Event?)
     }
@@ -937,8 +937,6 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     @Throws(KeyCipher.InvalidKeyCipher::class)
     protected abstract fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey?
 
-    @Throws(KeyCipher.InvalidKeyCipher::class)
-    abstract fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey?
     protected abstract fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey?
 
     @Synchronized

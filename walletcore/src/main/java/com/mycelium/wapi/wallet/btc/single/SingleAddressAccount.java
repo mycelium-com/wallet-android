@@ -423,7 +423,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected InMemoryPrivateKey getPrivateKeyForAddress(BitcoinAddress address, KeyCipher cipher) throws InvalidKeyCipher {
+   public InMemoryPrivateKey getPrivateKeyForAddress(BitcoinAddress address, KeyCipher cipher) throws InvalidKeyCipher {
       if (_addressList.contains(address)) {
          InMemoryPrivateKey privateKey = getPrivateKey(cipher);
          if (address.getType() == AddressType.P2SH_P2WPKH || address.getType() == AddressType.P2WPKH) {
