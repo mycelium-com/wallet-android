@@ -1,6 +1,5 @@
 package com.mycelium.wapi.wallet.btcvault.hd
 
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
@@ -18,6 +17,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.SigningAddressesListProvider
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
@@ -39,7 +39,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                             val backing: BitcoinVaultHDAccountBacking,
                             accountListener: AccountListener?,
                             protected val changeAddressModeReference: Reference<ChangeAddressMode>)
-    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount {
+    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount, SigningAddressesListProvider<BtcvAddress> {
 
     private val derivePaths = accountContext.indexesMap.keys
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = initAddressesMap()
@@ -59,6 +59,26 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }
         initSafeLastIndexes(false)
     }
+
+    val allAddresses: List<BtcvAddress>
+        get() {
+            val addresses = ArrayList<BtcvAddress>()
+
+            derivePaths.forEach { derivationType ->
+                val externalIndex = accountContext.getLastExternalIndexWithActivity(derivationType) + 1
+                val external = externalAddresses[derivationType]!!.inverse()
+                for (i in 0..externalIndex) {
+                    addresses.add(external[i]!!)
+                }
+
+                val internalIndex = accountContext.getLastInternalIndexWithActivity(derivationType)
+                val internal = internalAddresses[derivationType]!!.inverse()
+                for (i in 0..internalIndex) {
+                    addresses.add(internal[i]!!)
+                }
+            }
+            return addresses
+        }
 
     override fun getId(): UUID = accountContext.id
 
@@ -686,6 +706,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun getDummyAddress(subType: String): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters, AddressType.valueOf(subType))
 
+    override fun addressesList(): List<BtcvAddress> = allAddresses
 
     companion object {
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
@@ -694,4 +715,5 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
+
 }

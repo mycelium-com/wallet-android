@@ -18,8 +18,7 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
+import com.mycelium.wapi.wallet.btc.bip44.SigningAddressesListProvider
 import kotlin.concurrent.thread
 
 class MessageSigningActivity : Activity() {
@@ -90,7 +89,7 @@ Address: %s
         @JvmStatic
         fun callMe(currentActivity: Context, focusedAccount: WalletAccount<*>) {
             try {
-                if (focusedAccount is HDAccount || focusedAccount is AbstractBtcvAccount) {
+                if (focusedAccount is SigningAddressesListProvider<*>) {
                     val intent = Intent(currentActivity, HDSigningActivity::class.java)
                             .putExtra("account", focusedAccount.id)
                     currentActivity.startActivity(intent)

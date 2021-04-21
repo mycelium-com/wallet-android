@@ -53,100 +53,88 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.SigningAddressesListProvider;
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount;
-import com.mycelium.wapi.wallet.btcvault.BtcvAddress;
-import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 
 import java.util.List;
 import java.util.UUID;
 
 public class HDSigningActivity extends Activity {
-   private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+    private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
 
-   private SigningClickListener _signingClickListener;
-   private MbwManager _mbwManager;
-   private UUID _accountid;
+    private SigningClickListener _signingClickListener;
+    private MbwManager _mbwManager;
+    private UUID _accountid;
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.hd_signing_activity);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.hd_signing_activity);
 
-      _signingClickListener = new SigningClickListener();
-      _mbwManager = MbwManager.getInstance(this.getApplication());
-      _accountid = (UUID) getIntent().getSerializableExtra("account");
+        _signingClickListener = new SigningClickListener();
+        _mbwManager = MbwManager.getInstance(this.getApplication());
+        _accountid = (UUID) getIntent().getSerializableExtra("account");
 
-      updateUi();
-   }
+        updateUi();
+    }
 
-   private void updateUi() {
-      LinearLayout addressView = findViewById(R.id.listPrivateKeyAddresses);
-      WalletAccount account = (WalletAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
+    private void updateUi() {
+        LinearLayout addressView = findViewById(R.id.listPrivateKeyAddresses);
+        SigningAddressesListProvider signingAddressesListProvider = (SigningAddressesListProvider)
+                _mbwManager.getWalletManager(false).getAccount(_accountid);
 
-      if (account instanceof HDAccount){
-         HDAccount hdAccount = (HDAccount) account;
-         //sort addresses by alphabet for easier selection
-         List<BitcoinAddress> addresses = Utils.sortAddresses(hdAccount.getAllAddresses());
+        //sort addresses by alphabet for easier selection
+        List<BitcoinAddress> addresses = Utils.sortAddresses(signingAddressesListProvider.addressesList());
 
-         for (BitcoinAddress address : addresses) {
+        for (BitcoinAddress address : addresses) {
             addressView.addView(getItemView(address));
-         }
-      }
+        }
+    }
 
-      if (account instanceof BitcoinVaultHdAccount){
-         BitcoinVaultHdAccount bitcoinVaultHdAccount = (BitcoinVaultHdAccount) account;
-         BtcvAddress address = bitcoinVaultHdAccount.getReceiveAddress();
+    private View getItemView(BitcoinAddress address) {
+        // Create vertical linear layout for address
+        LinearLayout ll = new LinearLayout(this);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.setLayoutParams(WCWC);
+        ll.setPadding(10, 10, 10, 10);
 
-         addressView.addView(getItemView(address));
+        // Add address chunks
+        AddressLabel addressLabel = new AddressLabel(this);
+        addressLabel.setAddress(AddressUtils.fromAddress(address));
+        ll.addView(addressLabel);
+        //Make address clickable
+        addressLabel.setOnClickListener(_signingClickListener);
+        return ll;
+    }
 
-      }
-
-   }
-
-   private View getItemView(BitcoinAddress address) {
-      // Create vertical linear layout for address
-      LinearLayout ll = new LinearLayout(this);
-      ll.setOrientation(LinearLayout.VERTICAL);
-      ll.setLayoutParams(WCWC);
-      ll.setPadding(10, 10, 10, 10);
-
-      // Add address chunks
-      AddressLabel addressLabel = new AddressLabel(this);
-      addressLabel.setAddress(AddressUtils.fromAddress(address));
-      ll.addView(addressLabel);
-      //Make address clickable
-      addressLabel.setOnClickListener(_signingClickListener);
-      return ll;
-   }
-
-   private class SigningClickListener implements View.OnClickListener {
-      @Override
-      public void onClick(View v) {
-         AddressLabel addressLabel = (AddressLabel) v;
-         if (addressLabel.getAddress() == null) {
-            return;
-         }
-         InMemoryPrivateKey key = null;
-         BtcAddress btcAddress = (BtcAddress)addressLabel.getAddress();
-         WalletAccount<?> accountSelected = _mbwManager.getWalletManager(false).getAccount(_accountid);
-         if (accountSelected instanceof  HDAccount){
-            HDAccount account = (HDAccount) accountSelected;
-            try {
-               key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-               throw new RuntimeException(invalidKeyCipher);
+    private class SigningClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            AddressLabel addressLabel = (AddressLabel) v;
+            if (addressLabel.getAddress() == null) {
+                return;
             }
-         } else if (accountSelected instanceof AbstractBtcvAccount) {
-            AbstractBtcvAccount account = (AbstractBtcvAccount) accountSelected;
-            try {
-               key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-               throw new RuntimeException(invalidKeyCipher);
+            InMemoryPrivateKey key = null;
+            BtcAddress btcAddress = (BtcAddress) addressLabel.getAddress();
+            WalletAccount<?> accountSelected = _mbwManager.getWalletManager(false).getAccount(_accountid);
+            if (accountSelected instanceof HDAccount) {
+                HDAccount account = (HDAccount) accountSelected;
+                try {
+                    key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
+                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                    throw new RuntimeException(invalidKeyCipher);
+                }
+            } else if (accountSelected instanceof AbstractBtcvAccount) {
+                AbstractBtcvAccount account = (AbstractBtcvAccount) accountSelected;
+                try {
+                    key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
+                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                    throw new RuntimeException(invalidKeyCipher);
+                }
             }
-         }
 
-         MessageSigningActivity.callMe(HDSigningActivity.this, key, btcAddress);
-      }
-   }
+            MessageSigningActivity.callMe(HDSigningActivity.this, key, btcAddress);
+        }
+    }
 }

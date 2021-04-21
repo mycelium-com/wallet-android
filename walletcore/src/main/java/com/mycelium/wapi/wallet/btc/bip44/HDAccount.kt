@@ -32,7 +32,7 @@ open class HDAccount(
         protected val backing: Bip44BtcAccountBacking,
         wapi: Wapi,
         protected val changeAddressModeReference: Reference<ChangeAddressMode>
-) : AbstractBtcAccount(backing, network, wapi), ExportableAccount {
+) : AbstractBtcAccount(backing, network, wapi), ExportableAccount, SigningAddressesListProvider<BitcoinAddress> {
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
@@ -69,7 +69,6 @@ open class HDAccount(
             }
             return addresses
         }
-
     open fun getPrivateKeyCount() = derivePaths.sumBy {
         context.getLastExternalIndexWithActivity(it) +
                 2 + context.getLastInternalIndexWithActivity(it) + 1
@@ -752,6 +751,8 @@ open class HDAccount(
     protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<BitcoinAddress, Int>> = derivePaths
             .map { it to HashBiMap.create<BitcoinAddress, Int>() }.toMap().toMutableMap()
 
+    override fun addressesList(): List<BitcoinAddress> = allAddresses
+
     companion object {
         const val EXTERNAL_BOOSTED_ADDRESS_LOOK_AHEAD_LENGTH = 200
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
@@ -782,4 +783,5 @@ open class HDAccount(
     }
 
     override fun canSign(): Boolean = true
+
 }
