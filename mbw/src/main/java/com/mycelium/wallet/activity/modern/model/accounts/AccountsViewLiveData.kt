@@ -20,6 +20,7 @@ import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
+import com.mycelium.wapi.wallet.btcvault.hd.getBtcvHdAccounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
@@ -72,7 +73,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
                     R.string.eth_accounts_name to getEthERC20Accounts(walletManager),
-                    R.string.fio_accounts_name to getFIOAccounts(walletManager)
+                    R.string.fio_accounts_name to getFIOAccounts(walletManager),
+                    R.string.btcv_hd_accounts_name to walletManager.getBtcvHdAccounts()
             ).apply {
                 if ((BequantPreference.isLogged() && SettingsPreference.isEnabled(BequantConstants.PARTNER_ID)) ||
                         (!BequantPreference.isLogged() && SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID))) {

@@ -765,8 +765,13 @@
     <string name="gd_buy_sell_button">Купить / Продать Bitcoin</string>
     <string name="error_details">Сведения об ошибке</string>
     <!-- Simplex start -->
+    <string name="si_buy_sell">Дебетовая / кредитная карта</string>
+    <string name="si_buy_sell_description">Простой и безопасный способ покупки биткойнов с помощью дебетовой / кредитной карты</string>
     <string name="si_loading">загрузка…</string>
     <!-- Simplex end -->
+    <string name="buysell_bitcoin_title">Покупайте и продавайте %s</string>
+    <string name="sepa_buy_sell_description">Используйте SEPA (Единая зона платежей в евро) для покупки / продажи биткойнов</string>
+    <string name="lt_mycelium_marketplace_description">Находи в своем регионе других пользователей Mycelium, которые покупают / продают биткойны.</string>
     <string name="gd_buy_sell_rmc_button">Купить RMC</string>
     <string name="rmc_generate_new_account">Создать новый RMC аккаунт</string>
     <string name="rmc_you_buying">Вы покупаете</string>
@@ -880,4 +885,9 @@
     <string name="gas_limit_info_desc">Максимальное количество газа доступное для ETH-транзакции. Для стандартной ETH-транзакции этот лимит равен 21000.\nДля транзакции с использованием контракта (ERC-20) лимит газа может быть выше и ограничивается лимитом газа на блок.</string>
     <string name="input_data_format">Входные данные транзакции</string>
     <string name="input_data_format_desc">Входные данные транзакции должны быть в шестнадцатеричной форме. Префикс "0x" будет добавлен в начало строки автоматически.</string>
+    <string name="select_your_country">Выберите страну</string>
+    <string name="buysell_select_country_text">Выберите страну в которой была выпущена ваша дебетовая / кредитная карта</string>
+    <string name="search_country">Найти страну</string>
+    <string name="trusted_providers">Проверенные провайдеры</string>
+    <string name="buy_crypto_safely">Простой и безопасный способ покупки %s с помощью дебетовой / кредитной карты</string>
 </resources>

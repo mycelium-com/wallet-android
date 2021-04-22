@@ -26,12 +26,14 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
+import com.mycelium.wapi.wallet.AddressContainer
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
@@ -56,6 +58,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
+            is BitcoinVaultHdAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             is EthAccount -> viewModelProvider.get(ReceiveEthViewModel::class.java)
             is ERC20Account -> viewModelProvider.get(ReceiveERC20ViewModel::class.java)
             is FioAccount -> viewModelProvider.get(ReceiveFIOViewModel::class.java)
@@ -74,8 +77,8 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         initWithBindings(binding)
 
         if (viewModel is ReceiveBtcViewModel &&
-                (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
-            createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
+                (account as? AddressContainer)?.availableAddressTypes?.size ?: 0 > 1) {
+            createAddressDropdown((account as AddressContainer).availableAddressTypes)
         }
         fioNameSpinner.adapter = ArrayAdapter<String>(this,
                 R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value!!).apply {
@@ -120,10 +123,10 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
     }
 
-    private fun createAddressDropdown(addressTypes: MutableList<AddressType>) {
+    private fun createAddressDropdown(addressTypes: List<AddressType>) {
         val btcViewModel = viewModel as ReceiveBtcViewModel
         // setting initial text based on current address type
-        selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType().asStringRes())
+        selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType()?.asStringRes() ?: 0)
 
         address_dropdown_image_view.visibility = if (addressTypes.size > 1) {
             val addressTypesMenu = PopupMenu(this, address_dropdown_image_view)
@@ -162,6 +165,19 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                 when (account) {
                     is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
                     is AbstractBtcAccount -> {
+                        // This is only actual if account contains multiple address types inside
+                        if (account.availableAddressTypes.size > 1) {
+                            val contentView =
+                                    DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(
+                                            this, R.layout.receive_coins_activity_btc)
+                            contentView.viewModel = viewModel as ReceiveBtcViewModel
+                            contentView.activity = this
+                            contentView
+                        } else {
+                            getDefaultBinding()
+                        }
+                    }
+                    is BitcoinVaultHdAccount -> {
                         // This is only actual if account contains multiple address types inside
                         if (account.availableAddressTypes.size > 1) {
                             val contentView =

@@ -32,7 +32,7 @@ open class HDAccount(
         protected val backing: Bip44BtcAccountBacking,
         wapi: Wapi,
         protected val changeAddressModeReference: Reference<ChangeAddressMode>
-) : AbstractBtcAccount(backing, network, wapi), ExportableAccount {
+) : AbstractBtcAccount(backing, network, wapi), ExportableAccount, AddressesListProvider<BitcoinAddress> {
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
@@ -69,7 +69,6 @@ open class HDAccount(
             }
             return addresses
         }
-
     open fun getPrivateKeyCount() = derivePaths.sumBy {
         context.getLastExternalIndexWithActivity(it) +
                 2 + context.getLastInternalIndexWithActivity(it) + 1
@@ -148,8 +147,9 @@ open class HDAccount(
             safeLastInternalIndex[it] = if (reset) 0 else context.getLastInternalIndexWithActivity(it)
         }
     }
-    override fun getAvailableAddressTypes(): List<AddressType> =
-        derivePaths.asSequence().map { it.addressType }.toList()
+
+    override val availableAddressTypes: List<AddressType>
+        get() { return derivePaths.asSequence().map { it.addressType }.toList()}
 
 
     override fun setDefaultAddressType(addressType: AddressType) {
@@ -751,6 +751,8 @@ open class HDAccount(
     protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<BitcoinAddress, Int>> = derivePaths
             .map { it to HashBiMap.create<BitcoinAddress, Int>() }.toMap().toMutableMap()
 
+    override fun addressesList(): List<BitcoinAddress> = allAddresses
+
     companion object {
         const val EXTERNAL_BOOSTED_ADDRESS_LOOK_AHEAD_LENGTH = 200
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
@@ -769,7 +771,7 @@ open class HDAccount(
         if (tx != null) btcSendRequest.setTransaction(tx)
     }
 
-    override fun broadcastTx(tx: Transaction) :BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         val btcTx = tx as BtcTransaction
         return broadcastTransaction(btcTx.tx)
     }
@@ -781,4 +783,5 @@ open class HDAccount(
     }
 
     override fun canSign(): Boolean = true
+
 }

@@ -47,6 +47,7 @@ import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import com.mycelium.wapi.wallet.colu.ColuAccount
@@ -82,7 +83,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
 
         viewModel = when (account) {
             is ColuAccount -> viewModelProvider.get(SendColuViewModel::class.java)
-            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
+            is SingleAddressAccount, is HDAccount, is BitcoinVaultHdAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
             is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
             is FioAccount -> viewModelProvider.get(SendFioViewModel::class.java)
             else -> throw NotImplementedError()
