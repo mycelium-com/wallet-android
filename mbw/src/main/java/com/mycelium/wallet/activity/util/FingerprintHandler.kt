@@ -3,7 +3,7 @@ package com.mycelium.wallet.activity.util
 import android.content.Context
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
+import android.security.keystore.KeyProperties.*
 import androidx.annotation.RequiresApi
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.core.os.CancellationSignal
@@ -18,23 +18,21 @@ import javax.crypto.SecretKey
 class FingerprintHandler {
 
     private val cancelSignal = CancellationSignal()
-    private var keyStore: KeyStore? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun startAuth(context: Context, success: () -> Unit, fail: (String) -> Unit) {
         if (isFingerprintAvailable(context)) {
-            generateKey()
-            val cipher = Cipher.getInstance("$KEY_ALGORITHM_AES/$BLOCK_MODE_CBC/$ENCRYPTION_PADDING_PKCS7")
+            generateKey()?.let {
+                val cipher = Cipher.getInstance("$KEY_ALGORITHM_AES/$BLOCK_MODE_CBC/$ENCRYPTION_PADDING_PKCS7")
+                it.load(null)
+                val key = it.getKey("key", null) as SecretKey
+                cipher.init(Cipher.ENCRYPT_MODE, key)
 
-            keyStore?.load(null)
-            val key = keyStore?.getKey("key", null) as SecretKey
-            cipher.init(Cipher.ENCRYPT_MODE, key)
-
-            val cryptoObject = FingerprintManagerCompat.CryptoObject(cipher)
-
-            val fingerprintManagerCompat = FingerprintManagerCompat.from(context)
-            fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal,
-                    Callback(context, success, fail), null)
+                val cryptoObject = FingerprintManagerCompat.CryptoObject(cipher)
+                val fingerprintManagerCompat = FingerprintManagerCompat.from(context)
+                fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal,
+                        Callback(context, success, fail), null)
+            }
         }
     }
 
@@ -43,23 +41,24 @@ class FingerprintHandler {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun generateKey() {
+    private fun generateKey(): KeyStore? {
         try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
-            keyStore?.load(null);
+            val keyStore = KeyStore.getInstance("AndroidKeyStore")
+            keyStore?.load(null)
 
-            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-            keyGenerator.init(KeyGenParameterSpec.Builder("key", KeyProperties.PURPOSE_ENCRYPT.or(KeyProperties.PURPOSE_DECRYPT))
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+            val keyGenerator = KeyGenerator.getInstance(KEY_ALGORITHM_AES, "AndroidKeyStore")
+            keyGenerator.init(KeyGenParameterSpec.Builder("key", PURPOSE_ENCRYPT.or(PURPOSE_DECRYPT))
+                    .setBlockModes(BLOCK_MODE_CBC)
                     .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    .setEncryptionPaddings(ENCRYPTION_PADDING_PKCS7)
                     .build())
 
-            keyGenerator.generateKey();
-
+            keyGenerator.generateKey()
+            return keyStore
         } catch (exc: KeyStoreException) {
-            exc.printStackTrace();
+            exc.printStackTrace()
         }
+        return null
     }
 
     class Callback(val context: Context,
@@ -90,10 +89,8 @@ class FingerprintHandler {
         *
         * */
         @JvmStatic
-        fun isHardwareSupported(context: Context): Boolean {
-            val fingerprintManager = FingerprintManagerCompat.from(context)
-            return fingerprintManager.isHardwareDetected
-        }
+        fun isHardwareSupported(context: Context): Boolean =
+                FingerprintManagerCompat.from(context).isHardwareDetected
 
         /*
         * Condition III: Fingerprint authentication can be matched with a
@@ -101,9 +98,7 @@ class FingerprintHandler {
         * in order to enable fingerprint authentication
         * */
         @JvmStatic
-        fun isFingerprintAvailable(context: Context): Boolean {
-            val fingerprintManager = FingerprintManagerCompat.from(context)
-            return fingerprintManager.hasEnrolledFingerprints()
-        }
+        fun isFingerprintAvailable(context: Context): Boolean =
+                FingerprintManagerCompat.from(context).hasEnrolledFingerprints()
     }
 }
