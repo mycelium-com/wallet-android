@@ -96,7 +96,7 @@ public class AddColuAccountActivity extends AppCompatActivity {
         _mbwManager = MbwManager.getInstance(this);
         ButterKnife.bind(this);
         btColuAddAccount.setText(getString(R.string.colu_create_account, ""));
-   }
+    }
 
     void setButtonEnabled() {
         btColuAddAccount.setEnabled(true);
