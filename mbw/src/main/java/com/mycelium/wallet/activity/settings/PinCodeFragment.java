@@ -196,14 +196,10 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
     private final Preference.OnPreferenceChangeListener twoFactorListener = new Preference.OnPreferenceChangeListener() {
         @Override
-        public boolean onPreferenceChange(final Preference preference, Object o) {
-            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-                @Override
-                public void run() {
-                    boolean checked = !((CheckBoxPreference) preference).isChecked();
-                    _mbwManager.setTwoFactorEnabled(checked);
-                    update();
-                }
+        public boolean onPreferenceChange(final Preference preference, Object newValue) {
+            _mbwManager.runPinProtectedFunction(getActivity(), () -> {
+                _mbwManager.setTwoFactorEnabled((Boolean) newValue);
+                update();
             });
             return false;
         }
