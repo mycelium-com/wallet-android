@@ -58,6 +58,7 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionStatus;
+import com.mycelium.wapi.wallet.AddressContainer;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
@@ -115,7 +116,7 @@ import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
 
-public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount {
+public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount implements AddressContainer, PrivateKeyProvider {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 199;
    private final ColuTransferInstructionsParser coluTransferInstructionsParser;
@@ -1187,11 +1188,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected abstract InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher)
            throws InvalidKeyCipher;
 
-   protected abstract InMemoryPrivateKey getPrivateKeyForAddress(BitcoinAddress address, KeyCipher cipher)
-           throws InvalidKeyCipher;
-
-   public abstract List<AddressType> getAvailableAddressTypes();
-
    public abstract BitcoinAddress getReceivingAddress(AddressType addressType);
 
    public abstract void setDefaultAddressType(AddressType addressType);
@@ -1829,7 +1825,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public Address getReceiveAddress(){
+   public BtcAddress getReceiveAddress(){
       if(getReceivingAddress().isPresent()) {
          return AddressUtils.fromAddress(getReceivingAddress().get());
       } else {

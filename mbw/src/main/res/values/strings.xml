@@ -20,6 +20,7 @@
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
     <string name="hd_account">Add Bitcoin HD Account</string>
+    <string name="btcvault_hd_account">Add Bitcoin Vault HD Account</string>
     <string name="close">Close</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
@@ -578,6 +579,7 @@
     <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
     <string name="fio_account_creation_started">Creating new FIO Account…</string>
     <string name="eth_account_creation_started">Creating new ETH Account…</string>
+    <string name="btcv_account_creation_started">Creating new BTCV Account…</string>
     <string name="erc20_account_creation_started">Creating new ERC-20 Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
@@ -1649,4 +1651,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="buy_crypto_safely">Buy and sell %s safely and easily using your debit/credit card.</string>
     <string name="buy_sell_s_button">BUY / SELL %s</string>
     <string name="boost_look_ahead_button_label">Missing Transactions?</string>
+    <string name="btcv_hd_accounts_name">Bitcoin Vault HD</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity
+package com.mycelium.wallet.activity.txdetails
 
 import android.os.Bundle
 import android.util.TypedValue
@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment

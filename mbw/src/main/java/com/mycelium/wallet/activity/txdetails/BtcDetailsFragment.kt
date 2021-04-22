@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity
+package com.mycelium.wallet.activity.txdetails
 
 import android.os.AsyncTask
 import android.os.Bundle
@@ -15,9 +15,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.OutputViewModel
 import com.mycelium.wapi.wallet.TransactionSummary
-import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import kotlinx.android.synthetic.main.transaction_details_btc.*
 import java.util.*

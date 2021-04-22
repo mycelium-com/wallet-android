@@ -32,7 +32,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity;
+package com.mycelium.wallet.activity.txdetails;
 
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -49,6 +49,7 @@ import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
@@ -65,8 +66,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 public class TransactionDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_TXID = "transactionID";
     public static final String ACCOUNT_ID = "accountId";
-    protected static final LayoutParams FPWC = new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1);
-    protected static final LayoutParams WCWC = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
+    public static final LayoutParams FPWC = new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1);
+    public static final LayoutParams WCWC = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
     private boolean coluMode = false;
     private TransactionSummary tx;
 
@@ -92,6 +93,8 @@ public class TransactionDetailsActivity extends AppCompatActivity {
                 transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
             } else if (account instanceof FioAccount) {
                 transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx));
+            } else if(account instanceof BitcoinVaultHdAccount) {
+                transaction.add(R.id.spec_details_fragment, BtcvDetailsFragment.newInstance(tx, accountId));
             } else {
                 transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode, accountId));
             }
