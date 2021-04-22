@@ -116,7 +116,7 @@ import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
 
-public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount implements AddressContainer {
+public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount implements AddressContainer, PrivateKeyProvider {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 199;
    private final ColuTransferInstructionsParser coluTransferInstructionsParser;
@@ -1186,9 +1186,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    protected abstract InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher)
-           throws InvalidKeyCipher;
-
-   protected abstract InMemoryPrivateKey getPrivateKeyForAddress(BitcoinAddress address, KeyCipher cipher)
            throws InvalidKeyCipher;
 
    public abstract BitcoinAddress getReceivingAddress(AddressType addressType);
