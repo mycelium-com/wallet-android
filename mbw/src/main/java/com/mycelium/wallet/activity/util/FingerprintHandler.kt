@@ -24,10 +24,7 @@ class FingerprintHandler {
     fun startAuth(context: Context, success: () -> Unit, fail: (String) -> Unit) {
         if (isFingerprintAvailable(context)) {
             generateKey()
-            val cipher = Cipher.getInstance(
-                    KeyProperties.KEY_ALGORITHM_AES + "/"
-                            + KeyProperties.BLOCK_MODE_CBC + "/"
-                            + KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            val cipher = Cipher.getInstance("$KEY_ALGORITHM_AES/$BLOCK_MODE_CBC/$ENCRYPTION_PADDING_PKCS7")
 
             keyStore?.load(null)
             val key = keyStore?.getKey("key", null) as SecretKey
