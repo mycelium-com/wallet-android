@@ -112,10 +112,10 @@ public class PinDialog extends AppCompatDialog {
    }
 
    private void initFingerprint(Context context) {
-      final View view = findViewById(R.id.fingerprintHint);
+      final View fingerprintHint = findViewById(R.id.fingerprintHint);
       TextView logicView  = findViewById(R.id.logicOperationHint);
 
-      if (view != null) {
+      if (fingerprintHint != null) {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                  && MbwManager.getInstance(context).isFingerprintEnabled()) {
             if (!FingerprintHandler.isFingerprintAvailable(context)) {
@@ -130,7 +130,7 @@ public class PinDialog extends AppCompatDialog {
                   @Override
                   public Unit invoke() {
                      if (isTwoFactorAuth) {
-                        view.setEnabled(false);
+                        fingerprintHint.setEnabled(false);
                         twoFactorHelper.fingerprintSuccess();
                      } else {
                         dismiss();
@@ -150,7 +150,7 @@ public class PinDialog extends AppCompatDialog {
             }
             logicView.setText(isTwoFactorAuth ? R.string.and : R.string.or);
          } else {
-            view.setVisibility(View.GONE);
+            fingerprintHint.setVisibility(View.GONE);
             logicView.setVisibility(View.GONE);
          }
       }
