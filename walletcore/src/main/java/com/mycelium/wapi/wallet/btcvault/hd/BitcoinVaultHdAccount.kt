@@ -17,7 +17,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btc.bip44.SigningAddressesListProvider
+import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
@@ -39,7 +39,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                             val backing: BitcoinVaultHDAccountBacking,
                             accountListener: AccountListener?,
                             protected val changeAddressModeReference: Reference<ChangeAddressMode>)
-    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount, SigningAddressesListProvider<BtcvAddress> {
+    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount, AddressesListProvider<BtcvAddress> {
 
     private val derivePaths = accountContext.indexesMap.keys
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = initAddressesMap()

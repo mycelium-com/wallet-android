@@ -50,12 +50,9 @@ import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.PrivateKeyProvider;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.bip44.SigningAddressesListProvider;
-import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount;
+import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider;
 
 import java.util.List;
 import java.util.UUID;
@@ -82,11 +79,11 @@ public class HDSigningActivity extends Activity {
 
     private void updateUi() {
         LinearLayout addressView = findViewById(R.id.listPrivateKeyAddresses);
-        SigningAddressesListProvider signingAddressesListProvider = (SigningAddressesListProvider)
+        AddressesListProvider addressesListProvider = (AddressesListProvider)
                 _mbwManager.getWalletManager(false).getAccount(_accountid);
 
         //sort addresses by alphabet for easier selection
-        List<BitcoinAddress> addresses = Utils.sortAddresses(signingAddressesListProvider.addressesList());
+        List<BitcoinAddress> addresses = Utils.sortAddresses(addressesListProvider.addressesList());
 
         for (BitcoinAddress address : addresses) {
             addressView.addView(getItemView(address));

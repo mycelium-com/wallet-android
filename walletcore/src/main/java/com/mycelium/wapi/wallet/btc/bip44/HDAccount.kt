@@ -32,7 +32,7 @@ open class HDAccount(
         protected val backing: Bip44BtcAccountBacking,
         wapi: Wapi,
         protected val changeAddressModeReference: Reference<ChangeAddressMode>
-) : AbstractBtcAccount(backing, network, wapi), ExportableAccount, SigningAddressesListProvider<BitcoinAddress> {
+) : AbstractBtcAccount(backing, network, wapi), ExportableAccount, AddressesListProvider<BitcoinAddress> {
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
