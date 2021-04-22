@@ -159,36 +159,30 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceChangeListener fingerprintListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(final Preference preference, Object o) {
-            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-                @Override
-                public void run() {
-                    boolean checked = !((CheckBoxPreference) preference).isChecked();
-                    if (_mbwManager.isPinProtected() && checked) {
-                        if (!FingerprintHandler.isFingerprintAvailable(getContext())) {
-                            new AlertDialog.Builder(getContext())
-                                    .setMessage(R.string.add_fingerprint_in_settings)
-                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                                startActivity(new Intent(Settings.ACTION_FINGERPRINT_ENROLL));
-                                            } else {
-                                                startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
-                                            }
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, null)
-                                    .create()
-                                    .show();
-                        } else {
-                            _mbwManager.setFingerprintEnabled(true);
-                        }
+            _mbwManager.runPinProtectedFunction(getActivity(), () -> {
+                boolean checked = !((CheckBoxPreference) preference).isChecked();
+                if (_mbwManager.isPinProtected() && checked) {
+                    if (!FingerprintHandler.isFingerprintAvailable(getContext())) {
+                        new AlertDialog.Builder(getContext())
+                                .setMessage(R.string.add_fingerprint_in_settings)
+                                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                        startActivity(new Intent(Settings.ACTION_FINGERPRINT_ENROLL));
+                                    } else {
+                                        startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, null)
+                                .create()
+                                .show();
                     } else {
-                        _mbwManager.setFingerprintEnabled(false);
-                        _mbwManager.setTwoFactorEnabled(false);
+                        _mbwManager.setFingerprintEnabled(true);
                     }
-                    update();
+                } else {
+                    _mbwManager.setFingerprintEnabled(false);
+                    _mbwManager.setTwoFactorEnabled(false);
                 }
+                update();
             });
             return false;
         }
