@@ -97,6 +97,7 @@ import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
@@ -113,6 +114,7 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
+import com.mycelium.wapi.content.btcv.BitcoinVaultUriParser;
 import com.mycelium.wapi.content.ContentResolver;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
@@ -148,6 +150,8 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDBacking;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
@@ -187,6 +191,8 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -268,6 +274,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
+    private final WapiClientElectrumX btcvWapi;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -328,8 +335,14 @@ public class MbwManager {
 
         migrationProgressTracker = getMigrationProgressTracker();
 
-        _wapi = initWapi();
+        _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
+        List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
+        for (TcpEndpoint btcvEndpoint : btcvEndpoints) {
+            btcvEndpoint.setUseSsl(getNetwork().isProdnet());
+        }
+        btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
+        configuration.setElectrumVServerListChangedListener(btcvWapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -371,6 +384,9 @@ public class MbwManager {
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
+                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
+                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
                 AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
@@ -530,6 +546,7 @@ public class MbwManager {
         result.add(new RMCUriParser(network));
         result.add(new EthUriParser(network, getSupportedERC20Tokens()));
         result.add(new FIOUriParser(network));
+        result.add(new BitcoinVaultUriParser(network));
         return result;
     }
 
@@ -548,12 +565,18 @@ public class MbwManager {
 
     private void initPerCurrencySettings() {
         initBTCSettings();
+        initBTCVSettings();
     }
 
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
         currenciesSettingsMap.put(BitcoinSingleAddressModule.ID, btcSettings);
+    }
+
+    private void initBTCVSettings() {
+        BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
+        currenciesSettingsMap.put(BitcoinVaultHDModule.ID, btcSettings);
     }
 
     private void createTempWalletManager() {
@@ -592,11 +615,9 @@ public class MbwManager {
         return new LtApiClient(_environment.getLtEndpoints());
     }
 
-    private WapiClientElectrumX initWapi() {
+    private WapiClientElectrumX initWapi(List<TcpEndpoint> tcpEndpoints, List<HttpEndpoint> wapiEndpoints) {
         String version = "" + BuildConfig.VERSION_CODE;
 
-        List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
-        List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
         WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
                 tcpEndpoints.toArray(new TcpEndpoint[0]), version, Build.VERSION.SDK_INT);
 
@@ -795,6 +816,26 @@ public class MbwManager {
 
     private AccountListener accountListener = new AccountListener() {
         @Override
+        public void receivingAddressChanged(@NotNull WalletAccount<?> walletAccount, @NotNull Address receivingAddress) {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new ReceivingAddressChanged(receivingAddress));
+                }
+            });
+        }
+
+        @Override
+        public void serverConnectionError(WalletAccount<?> walletAccount, @NotNull String s) {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new SyncFailed(walletAccount.getId()));
+                }
+            });
+        }
+
+        @Override
         public void balanceUpdated(final WalletAccount<?> walletAccount) {
             mainLoopHandler.post(new Runnable() {
                 @Override
@@ -822,7 +863,8 @@ public class MbwManager {
                 new AndroidRandomSource());
 
         masterSeedManager = new MasterSeedManager(secureKeyValueStore);
-        final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi,
+        final WalletManager walletManager = new WalletManager(environment.getNetwork(),
+                _wapi, btcvWapi,
                 currenciesSettingsMap, walletDB);
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
@@ -884,6 +926,12 @@ public class MbwManager {
                 new FioKeyManager(new MasterSeedManager(secureKeyValueStore)), accountListener, walletManager, configuration.getFioTpid());
         walletManager.add(fioModule);
 
+        BitcoinVaultHDBacking bitcoinVaultBacking = new BitcoinVaultHDBacking(db, genericBacking);
+        walletManager.add(new BitcoinVaultHDModule(bitcoinVaultBacking, secureKeyValueStore,
+                environment.getBTCVNetwork(),
+                walletDB, btcvWapi, (BTCSettings) currenciesSettingsMap.get(BitcoinVaultHDModule.ID),
+                getMetadataStorage(), accountListener));
+
         walletManager.add(new InvestmentModule(getMetadataStorage()));
         walletManager.init();
         walletManager.startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
@@ -932,7 +980,7 @@ public class MbwManager {
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap, db);
+        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, btcvWapi, currenciesSettingsMap, db);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
         walletManager.setWalletListener(new SyncEventsListener());
 
@@ -1309,7 +1357,7 @@ public class MbwManager {
         return _currencySwitcher.getDenomination(coinType);
     }
 
-    public void setBitcoinDenomination(AssetInfo coinType, Denomination denomination) {
+    public void setDenomination(AssetInfo coinType, Denomination denomination) {
         _currencySwitcher.setDenomination(coinType, denomination);
         Gson gson = new GsonBuilder().create();
         Map<String, String> resultMap = new HashMap<>();
@@ -1490,7 +1538,7 @@ public class MbwManager {
         if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
             return _walletManager.getAccount(uuid);
         } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            for (WalletAccount activeAccount :_walletManager.getAllActiveAccounts()) {
+            for (WalletAccount activeAccount : _walletManager.getAllActiveAccounts()) {
                 if (!(activeAccount instanceof InvestmentAccount)) {
                     uuid = activeAccount.getId();
                     break;
@@ -1664,7 +1712,7 @@ public class MbwManager {
 
     @Subscribe
     public void onTransactionBroadcast(TransactionBroadcasted tbe) {
-        if(tbe.getTxid() != null && obtDataRecordCache != null) {
+        if (tbe.getTxid() != null && obtDataRecordCache != null) {
             FioAccount fioAccount = getActiveFioAccount(_walletManager, obtDataRecordCache.getPayerFioAddress());
             new Thread(() -> {
                 try {
@@ -1679,7 +1727,7 @@ public class MbwManager {
                             obtDataRecordCache.getTokenCode(),
                             tbe.getTxid(),
                             obtDataRecordCache.getMemo());
-                } catch(Exception e) {
+                } catch (Exception e) {
                     // TODO: 10/8/20 Actually handle the failure to send the obt record.
                     logger.log(Level.WARNING, "Sending fio obt record failed!", e);
                     FioModule fioModule = (FioModule) getWalletManager(false).getModuleById(FioModule.ID);

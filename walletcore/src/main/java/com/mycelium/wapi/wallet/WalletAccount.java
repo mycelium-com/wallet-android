@@ -29,7 +29,7 @@ public interface WalletAccount<A extends Address> {
     /**
      * Get current receive address
      */
-    Address getReceiveAddress();
+    A getReceiveAddress();
 
     CryptoCurrency getCoinType();
 

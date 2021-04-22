@@ -19,7 +19,7 @@ package com.mycelium.wapi.wallet.btc.bip44
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
 import com.mrd.bitlib.model.AddressType
-import java.io.Serializable
+import com.mycelium.wapi.wallet.AccountIndexesContext
 import java.util.UUID
 
 /**
@@ -163,12 +163,5 @@ class HDAccountContext @JvmOverloads constructor(
                 derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }
                         .toMap()
                         .toMutableMap()
-    }
-}
-
-data class AccountIndexesContext(var lastExternalIndexWithActivity: Int, var lastInternalIndexWithActivity: Int,
-                            var firstMonitoredInternalIndex: Int) : Serializable {
-    companion object {
-        private const val serialVersionUid = 1L
     }
 }

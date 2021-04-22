@@ -55,7 +55,7 @@ class DenominationFragment : PreferenceFragmentCompat() {
                 entries = denominationMap.keys.toTypedArray()
                 entryValues = denominationMap.keys.toTypedArray()
                 onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                    mbwManager.setBitcoinDenomination(coinType, denominationMap[newValue.toString()])
+                    mbwManager.setDenomination(coinType, denominationMap[newValue.toString()])
                     true
                 }
                 layoutResource = R.layout.preference_layout_no_icon

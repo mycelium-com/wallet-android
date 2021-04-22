@@ -129,7 +129,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getReceiveAddress(): Address {
+    override fun getReceiveAddress(): BtcAddress {
         return addressList[AddressType.P2PKH] ?: addressList.values.toList()[0]
     }
 

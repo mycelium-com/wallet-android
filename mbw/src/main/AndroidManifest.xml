@@ -160,7 +160,7 @@
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name=".activity.TransactionDetailsActivity"
+            android:name=".activity.txdetails.TransactionDetailsActivity"
             android:theme="@style/MyceliumNoActionBarFullScreen" />
         <activity
             android:name=".activity.settings.SettingsActivity"
