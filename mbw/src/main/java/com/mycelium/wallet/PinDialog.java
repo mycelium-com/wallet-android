@@ -80,6 +80,7 @@ public class PinDialog extends AppCompatDialog {
    private boolean hidden;
    protected boolean pinPadIsRandomized;
    protected boolean isTwoFactorAuth;
+   protected boolean isFingerprintEnabled;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
       this.onPinValid = _onPinValid;
@@ -94,6 +95,7 @@ public class PinDialog extends AppCompatDialog {
       super(context);
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
       pinPadIsRandomized = MbwManager.getInstance(context).isPinPadRandomized();
+      isFingerprintEnabled = MbwManager.getInstance(context).isFingerprintEnabled();
       isTwoFactorAuth = MbwManager.getInstance(context).isTwoFactorEnabled();
       this.hidden = hidden;
       setCancelable(cancelable);
@@ -108,34 +110,41 @@ public class PinDialog extends AppCompatDialog {
       fingerprintHandler.onCreate((FragmentActivity) context);
    }
 
-   private void initFingerprint(Context context) {
+   protected void initFingerprint(Context context) {
       final View fingerprintHint = findViewById(R.id.fingerprintHint);
       TextView logicView = findViewById(R.id.logicOperationHint);
-      fingerprintHandler.setSuccessListener(() -> {
-         if (isTwoFactorAuth) {
-            fingerprintHint.setEnabled(false);
-            twoFactorHelper.fingerprintSuccess();
-         } else {
-            dismiss();
-            if (fingerprintCallback != null) {
-               fingerprintCallback.onSuccess();
+      if (fingerprintHint != null) {
+         if (isFingerprintEnabled) {
+            fingerprintHandler.setSuccessListener(() -> {
+               if (isTwoFactorAuth) {
+                  fingerprintHint.setEnabled(false);
+                  twoFactorHelper.fingerprintSuccess();
+               } else {
+                  dismiss();
+                  if (fingerprintCallback != null) {
+                     fingerprintCallback.onSuccess();
+                  }
+               }
+               return null;
+            });
+            fingerprintHandler.setFailListener((msg) -> {
+               new Toaster(getContext()).toast(msg, false);
+               return null;
+            });
+            boolean result = fingerprintHandler.authenticate(context);
+            if (!result) {
+               new Toaster(getContext()).toast(R.string.fingerprint_not_available, false);
+               fingerprintHint.setVisibility(View.GONE);
+               logicView.setVisibility(View.GONE);
+            } else {
+               logicView.setText(isTwoFactorAuth ? R.string.and : R.string.or);
             }
+            fingerprintHint.setOnClickListener(view -> initFingerprint(getContext()));
+         } else {
+            fingerprintHint.setVisibility(View.GONE);
+            logicView.setVisibility(View.GONE);
          }
-         return null;
-      });
-      fingerprintHandler.setFailListener((msg) -> {
-         new Toaster(getContext()).toast(msg, false);
-         return null;
-      });
-      boolean result = fingerprintHandler.authenticate(context);
-      if (!result) {
-         new Toaster(getContext()).toast(R.string.fingerprint_not_available, false);
-         fingerprintHint.setVisibility(View.GONE);
-         logicView.setVisibility(View.GONE);
-      } else {
-         logicView.setText(isTwoFactorAuth ? R.string.and : R.string.or);
       }
-      fingerprintHint.setOnClickListener(view -> initFingerprint(getContext()));
    }
 
    @Override

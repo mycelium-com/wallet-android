@@ -54,12 +54,7 @@ public class NewPinDialog extends PinDialog {
 
       cbResettablePin.setChecked(mbwManager.getPin().isSet() );
 
-      cbResettablePin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-         @Override
-         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-            updateResetInfo(context);
-         }
-      });
+      cbResettablePin.setOnCheckedChangeListener((compoundButton, b) -> updateResetInfo(context));
 
       updateResetInfo(context);
    }
