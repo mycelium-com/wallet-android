@@ -35,18 +35,18 @@
 package com.mycelium.wallet;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDialog;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.common.base.Strings;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.TwoFactorHelper;
 import com.mycelium.wallet.activity.util.FingerprintHandler;
 import com.mycelium.wallet.activity.util.Pin;
@@ -54,17 +54,13 @@ import com.mycelium.wallet.activity.util.Pin;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
-
 public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
    public static final String PLACEHOLDER_NOT_TYPED = "\u25CB"; // Unicode Character 'WHITE CIRCLE' (which is a black circle)
    public static final String PLACEHOLDER_SMALL = "\u2022"; // Unicode Character  'BULLET'
    protected Button btnBack;
    protected Button btnClear;
-   private FingerprintHandler fingerprintHandler;
+   private final FingerprintHandler fingerprintHandler = new FingerprintHandler();
    private TwoFactorHelper twoFactorHelper;
 
    public interface OnPinEntered {
@@ -109,51 +105,37 @@ public class PinDialog extends AppCompatDialog {
       updatePinDisplay();
       this.setTitle(R.string.pin_enter_pin);
       twoFactorHelper = new TwoFactorHelper(this);
+      fingerprintHandler.onCreate((FragmentActivity) context);
    }
 
    private void initFingerprint(Context context) {
       final View fingerprintHint = findViewById(R.id.fingerprintHint);
-      TextView logicView  = findViewById(R.id.logicOperationHint);
-
-      if (fingerprintHint != null) {
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
-                 && MbwManager.getInstance(context).isFingerprintEnabled()) {
-            if (!FingerprintHandler.isFingerprintAvailable(context)) {
-               TextView fingerprintError = findViewById(R.id.fingerprintErrorMessage);
-               if(fingerprintError != null) {
-                  fingerprintError.setText(R.string.fingerprint_not_enroled);
-                  fingerprintError.setVisibility(View.VISIBLE);
-               }
-            }else {
-               fingerprintHandler = new FingerprintHandler();
-               fingerprintHandler.startAuth(context, new Function0<Unit>() {
-                  @Override
-                  public Unit invoke() {
-                     if (isTwoFactorAuth) {
-                        fingerprintHint.setEnabled(false);
-                        twoFactorHelper.fingerprintSuccess();
-                     } else {
-                        dismiss();
-                        if (fingerprintCallback != null) {
-                           fingerprintCallback.onSuccess();
-                        }
-                     }
-                     return null;
-                  }
-               }, new Function1<String, Unit>() {
-                  @Override
-                  public Unit invoke(String msg) {
-                     Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
-                     return null;
-                  }
-               });
-            }
-            logicView.setText(isTwoFactorAuth ? R.string.and : R.string.or);
+      TextView logicView = findViewById(R.id.logicOperationHint);
+      fingerprintHandler.setSuccessListener(() -> {
+         if (isTwoFactorAuth) {
+            fingerprintHint.setEnabled(false);
+            twoFactorHelper.fingerprintSuccess();
          } else {
-            fingerprintHint.setVisibility(View.GONE);
-            logicView.setVisibility(View.GONE);
+            dismiss();
+            if (fingerprintCallback != null) {
+               fingerprintCallback.onSuccess();
+            }
          }
+         return null;
+      });
+      fingerprintHandler.setFailListener((msg) -> {
+         new Toaster(getContext()).toast(msg, false);
+         return null;
+      });
+      boolean result = fingerprintHandler.authenticate(context);
+      if (!result) {
+         new Toaster(getContext()).toast(R.string.fingerprint_not_available, false);
+         fingerprintHint.setVisibility(View.GONE);
+         logicView.setVisibility(View.GONE);
+      } else {
+         logicView.setText(isTwoFactorAuth ? R.string.and : R.string.or);
       }
+      fingerprintHint.setOnClickListener(view -> initFingerprint(getContext()));
    }
 
    @Override
@@ -164,9 +146,8 @@ public class PinDialog extends AppCompatDialog {
 
    @Override
    protected void onStop() {
-      if (fingerprintHandler != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-         fingerprintHandler.cancelAuth();
-      }
+      fingerprintHandler.setSuccessListener(null);
+      fingerprintHandler.setFailListener(null);
       super.onStop();
    }
 
@@ -204,27 +185,14 @@ public class PinDialog extends AppCompatDialog {
 
       for (Button b : buttons) {
          final int num = Integer.parseInt(b.getText().toString());
-         b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               addDigit(String.valueOf(num));
-            }
-         });
+         b.setOnClickListener(v -> addDigit(String.valueOf(num)));
       }
 
-      btnBack.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            removeLastDigit();
-         }
-      });
+      btnBack.setOnClickListener(v -> removeLastDigit());
 
-      btnClear.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            clearDigits();
-            updatePinDisplay();
-         }
+      btnClear.setOnClickListener(v -> {
+         clearDigits();
+         updatePinDisplay();
       });
    }
 

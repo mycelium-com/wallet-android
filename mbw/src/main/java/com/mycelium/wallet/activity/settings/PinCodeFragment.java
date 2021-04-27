@@ -1,19 +1,14 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.view.MenuItem;
+
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import android.view.MenuItem;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -74,7 +69,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
         fingerprint = Preconditions.checkNotNull(findPreference("fingerprint"));
         twoFactorAuth = Preconditions.checkNotNull(findPreference("twoFactorAuth"));
-        if (!FingerprintHandler.isHardwareSupported(getActivity())) {
+        if (!FingerprintHandler.canAuthWithBiometric(getActivity())) {
             fingerprint.getParent().removePreference(fingerprint);
             twoFactorAuth.getParent().removePreference(twoFactorAuth);
         }else {
@@ -97,12 +92,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
     private final Preference.OnPreferenceClickListener setPinClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
-            Runnable afterDialogClosed = new Runnable() {
-                @Override
-                public void run() {
-                    update();
-                }
-            };
+            Runnable afterDialogClosed = () -> update();
 
             // This is an ugly hack to not to develop error handling for PinCode class.
             // Correct value would be automatically set on success and should not change on error.
@@ -119,15 +109,12 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceChangeListener setPinOnStartupClickListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(final Preference preference, Object o) {
-            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-                        @Override
-                        public void run() {
-                            // toggle it here
-                            boolean checked = !((CheckBoxPreference) preference).isChecked();
-                            _mbwManager.setPinRequiredOnStartup(checked);
-                            update();
-                        }
-                    }
+            _mbwManager.runPinProtectedFunction(getActivity(), () -> {
+                // toggle it here
+                boolean checked = !((CheckBoxPreference) preference).isChecked();
+                _mbwManager.setPinRequiredOnStartup(checked);
+                update();
+            }
             );
 
             // don't automatically take the new value, lets do it in the pin protected runnable
@@ -138,17 +125,14 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceChangeListener randomizePinListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(final Preference preference, Object o) {
-            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-                @Override
-                public void run() {
-                    boolean checked = !((CheckBoxPreference) preference).isChecked();
-                    if (_mbwManager.isPinProtected()) {
-                        _mbwManager.setPinPadRandomized(checked);
-                    } else {
-                        _mbwManager.setPinPadRandomized(false);
-                    }
-                    update();
+            _mbwManager.runPinProtectedFunction(getActivity(), () -> {
+                boolean checked = !((CheckBoxPreference) preference).isChecked();
+                if (_mbwManager.isPinProtected()) {
+                    _mbwManager.setPinPadRandomized(checked);
+                } else {
+                    _mbwManager.setPinPadRandomized(false);
                 }
+                update();
             });
 
             // don't automatically take the new value, lets do it in the pin protected runnable
@@ -162,22 +146,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
             _mbwManager.runPinProtectedFunction(getActivity(), () -> {
                 boolean checked = !((CheckBoxPreference) preference).isChecked();
                 if (_mbwManager.isPinProtected() && checked) {
-                    if (!FingerprintHandler.isFingerprintAvailable(getContext())) {
-                        new AlertDialog.Builder(getContext())
-                                .setMessage(R.string.add_fingerprint_in_settings)
-                                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                        startActivity(new Intent(Settings.ACTION_FINGERPRINT_ENROLL));
-                                    } else {
-                                        startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
-                                    }
-                                })
-                                .setNegativeButton(R.string.cancel, null)
-                                .create()
-                                .show();
-                    } else {
-                        _mbwManager.setFingerprintEnabled(true);
-                    }
+                    _mbwManager.setFingerprintEnabled(true);
                 } else {
                     _mbwManager.setFingerprintEnabled(false);
                     _mbwManager.setTwoFactorEnabled(false);

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="40dp"
@@ -20,19 +19,6 @@
             android:layout_gravity="center"
             android:layout_margin="8dp"
             app:srcCompat="@drawable/ic_fingerprint_selector" />
-
-        <TextView
-            android:id="@+id/fingerprintErrorMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16sp"
-            android:gravity="center"
-            android:textColor="@color/status_red"
-            android:textSize="14sp"
-            android:visibility="gone"
-            tools:text="@string/fingerprint_not_enroled" />
 
         <TextView
             android:id="@+id/logicOperationHint"

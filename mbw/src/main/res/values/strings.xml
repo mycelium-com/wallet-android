@@ -1659,5 +1659,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="boost_look_ahead_button_label">Missing Transactions?</string>
     <string name="btcv_hd_accounts_name">Bitcoin Vault HD</string>
     <string name="fingerprint_detection_failed">Fingerprint detection failed</string>
-    <string name="fingerprint_not_enroled">Your fingerprints have not been enrolled</string>
+    <string name="fingerprint_not_available">Fingerprint not available</string>
 </resources>

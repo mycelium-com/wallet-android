@@ -15,7 +15,7 @@ class Toaster(val context: Context) {
 
     private var fragment: Fragment? = null
 
-    constructor(fragment: Fragment) : this(fragment.context!!) {
+    constructor(fragment: Fragment) : this(fragment.requireContext()) {
         this.fragment = fragment
     }
 
