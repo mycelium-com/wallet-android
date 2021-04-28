@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.wallet.coins.COINS_SET
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.SYMBOL_COIN_MAP
 import com.mycelium.wapi.wallet.coins.Value
@@ -17,20 +16,18 @@ object Util {
      * exchange rates only by pure symbols, i.e. BTC and not tBTC
      */
     @JvmStatic
-    fun trimTestnetSymbolDecoration(symbol: String): String {
-        if (symbol == "tBTC") {
-            return symbol.substring(1)
-        }
-        return if (symbol == "MTt") {
-            symbol.substring(0, symbol.length - 1)
-        } else symbol
-    }
+    fun trimTestnetSymbolDecoration(symbol: String): String =
+            when (symbol) {
+                "tBTC", "tBTCV" -> symbol.substring(1)
+                "MTt" -> symbol.substring(0, symbol.length - 1)
+                else -> symbol
+            }
 
     @JvmStatic
     fun addTestnetSymbolDecoration(symbol: String, isTestnet: Boolean): String =
             if (isTestnet) {
                 when (symbol) {
-                    "BTC" -> "t$symbol"
+                    "BTC", "BTCV" -> "t$symbol"
                     "MT" -> symbol + "t"
                     else -> symbol
                 }

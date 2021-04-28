@@ -90,8 +90,8 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
     fun getNonce(address: String): BigInteger {
         val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
-
-        return mapper.readValue(URL(urlString), NonceResponse::class.java).nonce
+        val result = mapper.readValue(URL(urlString), NonceResponse::class.java)
+        return result.nonce + BigInteger.valueOf(result.unconfirmedTxs)
     }
 
     fun getTransaction(hash: String): Tx {
@@ -99,6 +99,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
         return mapper.readValue(URL(urlString), Tx::class.java)
     }
+
     fun getTransactions(address: String, contractAddress: String? = null): List<Tx> {
         return if (contractAddress != null) {
             fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress) != null }
@@ -129,6 +130,7 @@ private class ApiResponse {
 
 private class NonceResponse {
     val nonce: BigInteger = BigInteger.ZERO
+    val unconfirmedTxs: Long = 0
 }
 
 private class BlockbookInfo {

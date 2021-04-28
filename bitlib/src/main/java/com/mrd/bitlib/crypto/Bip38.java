@@ -374,15 +374,17 @@ public class Bip38 {
       InMemoryPrivateKey key = new InMemoryPrivateKey(complete, bip38Key.compressed);
 
       // Validate result
-      BitcoinAddress address = key.getPublicKey().toAddress(network, AddressType.P2PKH);
-      byte[] newSalt = calculateScryptSalt(address);
-      if (!BitUtils.areEqual(bip38Key.salt, newSalt)) {
-         // The passphrase is either invalid or we are on the wrong network
-         return null;
+      for (AddressType type : AddressType.values()) {
+         BitcoinAddress address = key.getPublicKey().toAddress(network, type);
+         byte[] newSalt = calculateScryptSalt(address);
+         if (BitUtils.areEqual(bip38Key.salt, newSalt)) {
+            // Get SIPA format
+            return key.getBase58EncodedPrivateKey(network);
+         }
       }
 
-      // Get SIPA format
-      return key.getBase58EncodedPrivateKey(network);
+      // The passphrase is either invalid or we are on the wrong network
+      return null;
    }
 
    /**

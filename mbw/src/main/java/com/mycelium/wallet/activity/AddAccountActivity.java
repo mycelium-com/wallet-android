@@ -46,8 +46,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,8 +55,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.bequant.BequantPreference;
 import com.mycelium.bequant.BequantConstants;
+import com.mycelium.bequant.BequantPreference;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -67,6 +65,9 @@ import com.mycelium.wallet.activity.addaccount.ERC20TokenAdapter;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wallet.databinding.AddAccountActivityBinding;
+import com.mycelium.wallet.databinding.LayoutSelectEthAccountToErc20Binding;
+import com.mycelium.wallet.databinding.LayoutSelectEthAccountToErc20TitleBinding;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -74,6 +75,8 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btcvault.hd.AdditionalMasterseedAccountConfig;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
 import com.mycelium.wapi.wallet.erc20.ERC20Config;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
 import com.mycelium.wapi.wallet.eth.EthAccount;
@@ -88,12 +91,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
 public class AddAccountActivity extends AppCompatActivity {
+    private AddAccountActivityBinding binding;
     private ETHCreationAsyncTask ethCreationAsyncTask;
 
     public static void callMe(Fragment fragment, int requestCode) {
@@ -113,33 +115,72 @@ public class AddAccountActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_account_activity);
+        binding = AddAccountActivityBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        setSupportActionBar(findViewById(R.id.toolbar));
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ButterKnife.bind(this);
         _mbwManager = MbwManager.getInstance(this);
         _toaster = new Toaster(this);
 
-        findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
-        findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
-        findViewById(R.id.btFIOCreate).setOnClickListener(createFioAccount);
+        binding.btAdvanced.setOnClickListener(advancedClickListener);
+        binding.btHdCreate.setOnClickListener(createHdAccount);
+        binding.btFIOCreate.setOnClickListener(createFioAccount);
         if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
-            findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
+            binding.tvWarningNoBackup.setVisibility(View.GONE);
         } else {
-            findViewById(R.id.tvInfoBackup).setVisibility(View.GONE);
+            binding.tvInfoBackup.setVisibility(View.GONE);
         }
-        final View coluCreate = findViewById(R.id.btColuCreate);
-        coluCreate.setOnClickListener(createColuAccount);
+        binding.btColuCreate.setOnClickListener(createColuAccount);
         _progress = new ProgressDialog(this);
+        binding.btInvestmentCreate.setOnClickListener(v ->
+                startActivity(new Intent(AddAccountActivity.this, BequantIntroActivity.class)));
+        binding.btBTCVHDCreate.setOnClickListener(v -> _mbwManager.runPinProtectedFunction(this, () -> {
+            final WalletManager wallet = _mbwManager.getWalletManager(false);
+            // at this point, we have to have a master seed, since we created one on startup
+            Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+
+            boolean canCreateAccount = wallet.getModuleById(BitcoinVaultHDModule.ID)
+                    .canCreateAccount(new AdditionalMasterseedAccountConfig());
+            if (!canCreateAccount) {
+                // TODO replace with string res
+                _toaster.toast("You can only have one unused Bitcoin Vault Account.", false);
+                return;
+            }
+
+            new BTCVHdCreationAsyncTask().execute();
+        }));
+        binding.btEthCreate.setOnClickListener(v -> {
+            _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+                @Override
+                public void run() {
+                    final WalletManager wallet = _mbwManager.getWalletManager(false);
+                    // at this point, we have to have a master seed, since we created one on startup
+                    Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+
+                    boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
+                    if (!canCreateAccount) {
+                        // TODO replace with string res
+                        _toaster.toast("You can only have one unused Ethereum Account.", false);
+                        return;
+                    }
+
+                    if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        ethCreationAsyncTask = new ETHCreationAsyncTask(null);
+                        ethCreationAsyncTask.execute();
+                    }
+                }
+            });
+        });
+        binding.btErc20Create.setOnClickListener(v -> showEthAccountsOptions());
     }
 
     /**
      * @return all supported tokens or all supported tokens except these that are already enabled for
-     *         account with ethAccountId.
+     * account with ethAccountId.
      */
     private List<ERC20Token> getAddedTokens(@Nullable UUID ethAccountId) {
         List<ERC20Token> result = new ArrayList<>();
@@ -156,45 +197,16 @@ public class AddAccountActivity extends AppCompatActivity {
         return result;
     }
 
-    @OnClick(R.id.btInvestmentCreate)
-    void onAddInvestment() {
-        startActivity(new Intent(this, BequantIntroActivity.class));
-    }
-
-    @OnClick(R.id.btEthCreate)
-    void onAddEth() {
-        final WalletManager wallet = _mbwManager.getWalletManager(false);
-        // at this point, we have to have a master seed, since we created one on startup
-        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
-
-        boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
-        if (!canCreateAccount) {
-            // TODO replace with string res
-            _toaster.toast("You can only have one unused Ethereum Account.", false);
-            return;
-        }
-
-        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
-            ethCreationAsyncTask = new ETHCreationAsyncTask(null);
-            ethCreationAsyncTask.execute();
-        }
-    }
-
-    @OnClick(R.id.btErc20Create)
-    void onAddERC20() {
-        showEthAccountsOptions();
-    }
-
     private void showEthAccountsOptions() {
         final ERC20EthAccountAdapter arrayAdapter = new ERC20EthAccountAdapter(this, R.layout.checked_item);
         List<WalletAccount<?>> accounts = EthereumModuleKt.getActiveEthAccounts(_mbwManager.getWalletManager(false));
         arrayAdapter.addAll(getEthAccountsForView(accounts));
         arrayAdapter.add(getString(R.string.create_new_account));
-        View view = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20, null);
-        ((ListView) view.findViewById(R.id.list)).setAdapter(arrayAdapter);
+        LayoutSelectEthAccountToErc20Binding selectBinding = LayoutSelectEthAccountToErc20Binding.inflate(LayoutInflater.from(this));
+        selectBinding.list.setAdapter(arrayAdapter);
         new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
                 .setCustomTitle(LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20_title, null))
-                .setView(view)
+                .setView(selectBinding.getRoot())
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
                     int selected = arrayAdapter.getSelected();
@@ -223,8 +235,9 @@ public class AddAccountActivity extends AppCompatActivity {
     /**
      * After selecting the desired erc20 token depending on whether ethAccountId is null or not
      * we create or don't create new ethereum account before creating erc20 account.
+     *
      * @param ethAccountId if it's null we would need to create new ethereum account first
-     *                     before creating erc20 account
+     * before creating erc20 account
      */
     Button positiveButton = null;
 
@@ -245,12 +258,12 @@ public class AddAccountActivity extends AppCompatActivity {
                 return null;
             }
         });
-        View customTitle = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20_title, null);
+        LayoutSelectEthAccountToErc20TitleBinding titleBinding = LayoutSelectEthAccountToErc20TitleBinding.inflate(LayoutInflater.from(this));
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
                 .setAdapter(arrayAdapter, null)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
         if (addedTokens.size() < supportedTokens.size()) {
-            ((TextView) customTitle.findViewById(R.id.titleText)).setText(ethAccount != null ?
+            titleBinding.titleText.setText(ethAccount != null ?
                     getString(R.string.select_token, ethAccount.getLabel()) : getString(R.string.select_token_new_account));
             builder.setPositiveButton(R.string.ok, (dialog, which) -> {
                 if (ethAccount != null) {
@@ -264,10 +277,10 @@ public class AddAccountActivity extends AppCompatActivity {
                 }
             });
         } else {
-            ((TextView) customTitle.findViewById(R.id.titleText)).setText(ethAccount != null ?
+            titleBinding.titleText.setText(ethAccount != null ?
                     getString(R.string.list_added_tokens, ethAccount.getLabel()) : getString(R.string.list_added_tokens_new_account));
         }
-        builder.setCustomTitle(customTitle);
+        builder.setCustomTitle(titleBinding.getRoot());
         AlertDialog dialog = builder.create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -347,6 +360,27 @@ public class AddAccountActivity extends AppCompatActivity {
         @Override
         protected UUID doInBackground(Void... params) {
             return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID account) {
+            _progress.dismiss();
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+            finishOk(account);
+        }
+    }
+
+    private class BTCVHdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(R.string.btcv_account_creation_started);
+        }
+
+        @Override
+        protected UUID doInBackground(Void... params) {
+            return _mbwManager.getWalletManager(false).createAccounts(new AdditionalMasterseedAccountConfig()).get(0);
         }
 
         @Override
@@ -491,7 +525,7 @@ public class AddAccountActivity extends AppCompatActivity {
         MbwManager.getEventBus().register(this);
         super.onResume();
 
-        findViewById(R.id.btInvestmentCreate).setVisibility(
+        binding.btInvestmentCreate.setVisibility(
                 BequantPreference.isLogged() || !SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID) ?
                         View.GONE : View.VISIBLE);
     }

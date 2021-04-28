@@ -49,7 +49,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun getReceiveAddress(): Address? = null
+    override fun getReceiveAddress(): BtcAddress? = null
 
     override fun getCoinType(): CryptoCurrency = Utils.getBtcCoinType()
 

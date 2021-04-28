@@ -1,10 +1,13 @@
 package com.mycelium.wapi.wallet.btc;
 
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -61,5 +64,18 @@ public class BtcAddress implements Address {
     public AddressType getType()
     {
         return address.getType();
+    }
+
+    private HdKeyPath bip32Path;
+
+    @Nullable
+    @Override
+    public HdKeyPath getBip32Path() {
+        return bip32Path;
+    }
+
+    @Override
+    public void setBip32Path(@Nullable HdKeyPath bip32Path) {
+        this.bip32Path = bip32Path;
     }
 }
