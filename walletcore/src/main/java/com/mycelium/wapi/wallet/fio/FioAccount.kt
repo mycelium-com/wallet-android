@@ -37,7 +37,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                  private val privkeyString: String? = null, // null if it's read-only account
                  val walletManager: WalletManager,
                  address: FioAddress? = null,
-                 private val fioServerLogsListWrapper: FioServerLogsListWrapper) : WalletAccount<FioAddress>, ExportableAccount {
+                 private val fioServerLogsListWrapper: FioServerLogsListWrapper) :
+        WalletAccount<FioAddress>, ExportableAccount, SyncPausableAccount(accountContext) {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!

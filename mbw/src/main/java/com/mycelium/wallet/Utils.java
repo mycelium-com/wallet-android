@@ -787,13 +787,12 @@ public class Utils {
 
       AlertDialog.Builder builder = new AlertDialog.Builder(parent);
       builder.setMessage(R.string.export_account_data_warning).setCancelable(true)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
-                          account);
+            .setPositiveButton(R.string.yes, (dialog, id) -> {
+               dialog.dismiss();
+               account.pauseSync(60);
+               ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
+                       account);
 
-               }
             }).setNegativeButton(R.string.no, null);
       AlertDialog alertDialog = builder.create();
       alertDialog.show();

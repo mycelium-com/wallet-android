@@ -20,6 +20,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.AccountIndexesContext
+import com.mycelium.wapi.wallet.SyncPausableContext
 import java.util.UUID
 
 /**
@@ -35,7 +36,7 @@ class HDAccountContext @JvmOverloads constructor(
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
         defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
-) {
+): SyncPausableContext() {
     private var isDirty: Boolean = false
     var defaultAddressType = defaultAddressType
         set(value) {

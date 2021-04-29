@@ -36,7 +36,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                   , private val accountBacking: ColuAccountBacking
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
-                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
+                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount, SyncPausableAccount(context) {
     override fun queueTransaction(transaction: Transaction) {
     }
 

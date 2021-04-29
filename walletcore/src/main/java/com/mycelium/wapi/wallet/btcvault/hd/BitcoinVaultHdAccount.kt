@@ -32,14 +32,17 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountContext,
+class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVaultHDAccountContext,
                             protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
                             val networkParameters: BTCVNetworkParameters,
                             wapi: Wapi,
                             val backing: BitcoinVaultHDAccountBacking,
                             accountListener: AccountListener?,
                             protected val changeAddressModeReference: Reference<ChangeAddressMode>)
-    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount, AddressesListProvider<BtcvAddress> {
+    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener),
+        ExportableAccount,
+        AddressesListProvider<BtcvAddress>,
+        SyncPausable {
 
     private val derivePaths = accountContext.indexesMap.keys
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = initAddressesMap()
@@ -708,6 +711,12 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun addressesList(): List<BtcvAddress> = allAddresses
 
+    override fun maySync(): Boolean = accountContext.maySync()
+
+    override fun pauseSync(seconds: Int) {
+        accountContext.pauseSync(seconds)
+    }
+
     companion object {
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
         const val INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
@@ -715,5 +724,4 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
-
 }

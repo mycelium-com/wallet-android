@@ -295,6 +295,11 @@ public class AccountsFragment extends Fragment {
                 linkedAccounts.add(getLinkedAccount(accountToDelete));
             }
         }
+        // pause syncing of all relevant accounts.
+        accountToDelete.pauseSync(60);
+        for (WalletAccount<?> wa : linkedAccounts) {
+            wa.pauseSync(60);
+        }
         final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
         final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
         keepAddrCheckbox.setText(getString(R.string.keep_account_address));
@@ -711,8 +716,7 @@ public class AccountsFragment extends Fragment {
 
             @Override
             public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                int id = menuItem.getItemId();
-                switch (id) {
+                switch (menuItem.getItemId()) {
                     case R.id.miMapFioAddress:
                         RegisterFioNameActivity.start(requireContext(), account.getId());
                         return true;
@@ -720,19 +724,11 @@ public class AccountsFragment extends Fragment {
                         FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;
                     case R.id.miFIORequests:
-                        ((ModernMain)getActivity()).selectRequestTab();
+                        ((ModernMain) getActivity()).selectRequestTab();
                         return true;
                     case R.id.miAboutFIOProtocol:
                         new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
                         break;
-
-                }
-                // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-                if (requireFocusedAccount().isSyncing()) {
-                    _toaster.toast(R.string.synchronizing_please_wait, false);
-                    return true;
-                }
-                switch (id) {
                     case R.id.miActivate:
                         activateSelected();
                         return true;
@@ -767,11 +763,17 @@ public class AccountsFragment extends Fragment {
                         verifySingleKeyBackup();
                         return true;
                     case R.id.miRescan:
+                        // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
+                        if (requireFocusedAccount().isSyncing()) {
+                            _toaster.toast(R.string.synchronizing_please_wait, false);
+                            return true;
+                        }
                         rescan();
                         return true;
                     default:
                         return false;
                 }
+                return false;
             }
 
             @Override
@@ -796,6 +798,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
+        account.pauseSync(5);
         if (account instanceof SingleAddressAccount || account instanceof ColuAccount) {
             //start legacy backup verification
             VerifyBackupActivity.callMe(getActivity());
@@ -807,6 +810,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
+        account.pauseSync(5);
         if (account instanceof ColuAccount) {
             //ColuAccount class can be single or HD
             //TODO: test if account is single address or HD and do wordlist backup instead
@@ -825,6 +829,7 @@ public class AccountsFragment extends Fragment {
 
     private void showOutputs() {
         WalletAccount account = requireFocusedAccount();
+        account.pauseSync(5);
         Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class)
                 .putExtra("account", account.getId());
         startActivity(intent);
@@ -834,12 +839,10 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                WalletAccount account = accountListAdapter.getFocusedAccount();
-                MessageSigningActivity.callMe(getActivity(), account);
-            }
+        runPinProtected(() -> {
+            WalletAccount account = accountListAdapter.getFocusedAccount();
+            account.pauseSync(30);
+            MessageSigningActivity.callMe(requireContext(), account);
         });
     }
 
@@ -920,23 +923,24 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.lt_detaching_title)
-                        .setMessage(getString(R.string.lt_detaching_question))
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                _mbwManager.getLocalTraderManager().unsetLocalTraderAccount();
-                                _toaster.toast(R.string.lt_detached, false);
-                                update();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null)
-                        .show();
-            }
-        });
+        LocalTraderManager ltm = _mbwManager.getLocalTraderManager();
+        boolean hasLt = ltm.hasLocalTraderAccount();
+        if (!hasLt) {
+            _toaster.toast("No LT configured.", true);
+            return;
+        }
+        runPinProtected(() -> new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.lt_detaching_title)
+                .setMessage(getString(R.string.lt_detaching_question))
+                .setPositiveButton(R.string.yes, (arg0, arg1) -> {
+                    WalletAccount wa = walletManager.getAccount(ltm.getLocalTraderAccountId());
+                    wa.pauseSync(30);
+                    ltm.unsetLocalTraderAccount();
+                    _toaster.toast(R.string.lt_detached, false);
+                    update();
+                })
+                .setNegativeButton(R.string.no, null)
+                .show());
     }
 
     private void activateSelected() {
@@ -1034,18 +1038,16 @@ public class AccountsFragment extends Fragment {
                 return;
             }
 
-            runPinProtected(new Runnable() {
-                @Override
-                public void run() {
-                    _mbwManager.getWalletManager(false).deleteAccount(hdAccount.getId());
-                    // in case user had labeled the account, delete the stored name
-                    _storage.deleteAccountMetadata(hdAccount.getId());
-                    eventBus.post(new AccountChanged(hdAccount.getId()));
-                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
-                    //we dont want to show the context menu for the automatically selected account
-                    accountListAdapter.setFocusedAccountId(null);
-                    finishCurrentActionMode();
-                }
+            runPinProtected(() -> {
+                hdAccount.pauseSync(60);
+                _mbwManager.getWalletManager(false).deleteAccount(hdAccount.getId());
+                // in case user had labeled the account, delete the stored name
+                _storage.deleteAccountMetadata(hdAccount.getId());
+                eventBus.post(new AccountChanged(hdAccount.getId()));
+                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
+                //we dont want to show the context menu for the automatically selected account
+                accountListAdapter.setFocusedAccountId(null);
+                finishCurrentActionMode();
             });
         }
     }
@@ -1060,6 +1062,11 @@ public class AccountsFragment extends Fragment {
             if (getLinkedAccount(account) != null) {
                 linkedAccounts.add(getLinkedAccount(account));
             }
+        }
+        // pause sync on all relevant accounts
+        account.pauseSync(60);
+        for (WalletAccount<?> wa: linkedAccounts) {
+            wa.pauseSync(60);
         }
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)

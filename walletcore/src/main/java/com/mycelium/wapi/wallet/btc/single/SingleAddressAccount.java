@@ -61,7 +61,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
-   private SingleAddressAccountContext _context;
+   volatile private SingleAddressAccountContext _context;
    private List<BitcoinAddress> _addressList;
    private PublicPrivateKeyStore _keyStore;
    private PublicKey publicKey;
@@ -287,6 +287,16 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public boolean canSign() {
       return true;
+   }
+
+   @Override
+   public boolean maySync() {
+      return _context.maySync();
+   }
+
+   @Override
+   public void pauseSync(int seconds) {
+      _context.pauseSync(seconds);
    }
 
    @Override

@@ -26,6 +26,7 @@ import java.util.logging.Level
 import kotlin.math.min
 
 open class HDAccount(
+        @Volatile
         protected var context: HDAccountContext,
         protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
@@ -97,20 +98,24 @@ open class HDAccount(
     // public method that needs no synchronization
     override fun isActive() = !isArchived
 
-    @Synchronized
     override fun archiveAccount() {
         if (context.isArchived()) {
             return
         }
-        clearInternalStateInt(true)
+        // Archiving has priority over syncing:
+        pauseSync(60)
+        synchronized(context) {
+            clearInternalStateInt(true)
+        }
     }
 
-    @Synchronized
     override fun activateAccount() {
         if (!context.isArchived()) {
             return
         }
-        clearInternalStateInt(false)
+        synchronized(context) {
+            clearInternalStateInt(false)
+        }
     }
 
     override fun dropCachedData() {
@@ -157,7 +162,7 @@ open class HDAccount(
         context.persistIfNecessary(backing)
     }
 
-    protected fun initContext(isArchived: Boolean) {
+    private fun initContext(isArchived: Boolean) {
         context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths, context.defaultAddressType)
         context.persist(backing)
     }
@@ -278,8 +283,8 @@ open class HDAccount(
         return ImmutableList.copyOf(addresses)
     }
 
-    protected fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
-                                  derivationType: BipDerivationType): List<BitcoinAddress> {
+    private fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
+                                derivationType: BipDerivationType): List<BitcoinAddress> {
         val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
         val ret = ArrayList<BitcoinAddress>(toIndex - clippedFromIndex + 1)
         for (i in clippedFromIndex..toIndex) {
@@ -288,40 +293,42 @@ open class HDAccount(
         return ret
     }
 
-    @Synchronized
     public override fun doSynchronization(proposedMode: SyncMode): Boolean {
+        if (!maySync()) { return false }
         var mode = proposedMode
-        checkNotArchived()
-        syncTotalRetrievedTransactions = 0
-        _logger.log(Level.INFO, "Starting sync: $mode")
-        if (needsDiscovery()) {
-            mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
-        }
-        try {
-            if (mode.mode == SyncMode.Mode.FULL_SYNC) {
-                // Discover new addresses once in a while
-                if (!discovery()) {
-                    return false
-                }
-            }
-
-            // Update unspent outputs
-            return updateUnspentOutputs(mode)
-        } finally {
+        synchronized(context) {
+            checkNotArchived()
             syncTotalRetrievedTransactions = 0
+            _logger.log(Level.INFO, "Starting sync: $mode")
+            if (needsDiscovery()) {
+                mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
+            }
+            try {
+                if (mode.mode == SyncMode.Mode.FULL_SYNC) {
+                    // Discover new addresses once in a while
+                    if (!discovery()) {
+                        return false
+                    }
+                }
+                if (!maySync()) { return false }
+                // Update unspent outputs
+                return updateUnspentOutputs(mode)
+            } finally {
+                syncTotalRetrievedTransactions = 0
+            }
         }
     }
 
     private fun needsDiscovery() = !isArchived &&
             context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
-    @Synchronized
     private fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
             // thus, method is done once discovered is empty.
             var discovered = derivePaths.toSet()
             do {
+                if (!maySync()) { return false }
                 discovered = doDiscovery(discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
@@ -373,6 +380,7 @@ open class HDAccount(
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
+        if (!maySync()) { return emptySet() }
         blockChainHeight = result.height
         val ids = result.txIds
         if (ids.isEmpty()) {
@@ -397,6 +405,7 @@ open class HDAccount(
             }
         }
         newIds.chunked(50).forEach { fewIds ->
+            if (!maySync()) { return emptySet() }
             val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
@@ -784,4 +793,11 @@ open class HDAccount(
 
     override fun canSign(): Boolean = true
 
+    override fun maySync(): Boolean = context.maySync()
+
+    override fun pauseSync(seconds: Int) {
+        val start = System.currentTimeMillis()
+        context.pauseSync(seconds)
+        _logger.log(Level.INFO, "pauseSync() blocked for ${System.currentTimeMillis() - start}ms.")
+    }
 }

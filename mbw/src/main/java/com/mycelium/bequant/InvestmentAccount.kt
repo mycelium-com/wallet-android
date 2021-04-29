@@ -28,7 +28,6 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     @Volatile
     private var syncing = false
 
-
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("Not yet implemented")
     }
@@ -186,4 +185,8 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun queueTransaction(transaction: Transaction) {
         TODO("Not yet implemented")
     }
+
+    override fun maySync(): Boolean = true
+
+    override fun pauseSync(seconds: Int) {}
 }
