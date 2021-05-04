@@ -171,33 +171,36 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public synchronized boolean doSynchronization(SyncMode mode) {
-      checkNotArchived();
-      syncTotalRetrievedTransactions = 0;
-      try {
-         if (synchronizeUnspentOutputs(_addressList) == -1) {
-            return false;
-         }
-
-         // Monitor young transactions
-         if (!monitorYoungTransactions()) {
-            return false;
-         }
-
-         //lets see if there are any transactions we need to discover
-         if (!mode.ignoreTransactionHistory) {
-            if (!discoverTransactions()) {
+   public boolean doSynchronization(SyncMode mode) {
+      if (!maySync()) { return false; }
+      synchronized (_context) {
+         checkNotArchived();
+         syncTotalRetrievedTransactions = 0;
+         try {
+            if (synchronizeUnspentOutputs(_addressList) == -1) {
                return false;
             }
+            if (!maySync()) { return false; }
+            // Monitor young transactions
+            if (!monitorYoungTransactions()) {
+               return false;
+            }
+            if (!maySync()) { return false; }
+            //lets see if there are any transactions we need to discover
+            if (!mode.ignoreTransactionHistory) {
+               if (!discoverTransactions()) {
+                  return false;
+               }
+            }
+            if (!maySync()) { return false; }
+            // recalculate cached Balance
+            updateLocalBalance();
+            if (!maySync()) { return false; }
+            _context.persistIfNecessary(_backing);
+            return true;
+         } finally {
+            syncTotalRetrievedTransactions = 0;
          }
-
-         // recalculate cached Balance
-         updateLocalBalance();
-
-         _context.persistIfNecessary(_backing);
-         return true;
-      } finally {
-         syncTotalRetrievedTransactions = 0;
       }
    }
 
@@ -258,6 +261,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       // Fetch any missing transactions
       int chunkSize = 50;
       for (int fromIndex = 0; fromIndex < toFetch.size(); fromIndex += chunkSize) {
+         if (!maySync()) { return false; }
          try {
             int toIndex = Math.min(fromIndex + chunkSize, toFetch.size());
             GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();

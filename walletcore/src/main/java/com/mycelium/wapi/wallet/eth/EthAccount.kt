@@ -124,13 +124,12 @@ class EthAccount(private val chainId: Byte,
         accountContext.nonce = nonce
     }
 
-    @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived) {
-            return false
+        if (removed || isArchived || !maySync()) { return false }
+        synchronized(accountContext) {
+            syncTransactions()
+            return updateBalanceCache()
         }
-        syncTransactions()
-        return updateBalanceCache()
     }
 
     override fun updateBalanceCache(): Boolean {

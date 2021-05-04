@@ -113,13 +113,14 @@ class ERC20Account(private val chainId: Byte,
         accountContext.accountName = label!!
     }
 
-    @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived) {
+        if (removed || isArchived || !maySync()) {
             return false
         }
-        syncTransactions()
-        return updateBalanceCache()
+        synchronized(accountContext) {
+            syncTransactions()
+            return updateBalanceCache()
+        }
     }
 
     override fun getNonce() = accountContext.nonce
