@@ -951,33 +951,33 @@ public class AccountsFragment extends Fragment {
     }
 
     private void activate(WalletAccount<?> account) {
-        List<WalletAccount<?>> accountsToSync = new ArrayList<>();
-        account.activateAccount();
-        accountsToSync.add(account);
+        List<WalletAccount<?>> accountsToActivateAndSync = new ArrayList<>();
+        accountsToActivateAndSync.add(account);
         if (account instanceof EthAccount) {
-            for (WalletAccount walletAccount : getLinkedERC20Accounts(account)) {
-                walletAccount.activateAccount();
-                accountsToSync.add(walletAccount);
+            for (WalletAccount<?> walletAccount : getLinkedERC20Accounts(account)) {
+                accountsToActivateAndSync.add(walletAccount);
             }
         } else if (account instanceof ERC20Account) {
             EthAccount ethAccount = getLinkedEthAccount(account);
             if (ethAccount.isArchived()) {
-                ethAccount.activateAccount();
-                accountsToSync.add(ethAccount);
+                accountsToActivateAndSync.add(ethAccount);
             }
         } else {
             WalletAccount<?> linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
             if (linkedAccount != null) {
-                linkedAccount.activateAccount();
-                accountsToSync.add(linkedAccount);
+                accountsToActivateAndSync.add(linkedAccount);
             }
         }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
         updateIncludingMenus();
         _toaster.toast(R.string.activated, false);
+        for(WalletAccount<?> wa : accountsToActivateAndSync) {
+            wa.pauseSync(-1); // unpause
+            wa.activateAccount();
+        }
         _mbwManager.getWalletManager(false)
-                .startSynchronization(SyncMode.NORMAL_FORCED, accountsToSync);
+                .startSynchronization(SyncMode.NORMAL_FORCED, accountsToActivateAndSync);
     }
 
     private void archiveSelected() {
