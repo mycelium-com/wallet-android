@@ -188,5 +188,5 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun maySync(): Boolean = true
 
-    override fun pauseSync(seconds: Int) {}
+    override fun interruptSync() {}
 }

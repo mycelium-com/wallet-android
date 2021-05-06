@@ -2,35 +2,33 @@ package com.mycelium.wapi.wallet
 
 interface SyncPausable {
     /**
-     * Interrupt ongoing sync and pause all sync. This method is blocking until the pause takes
-     * effect.
-     *
-     * @param seconds duration of the pause
+     * Interrupt gracefully ongoing sync. This method is blocking until it takes effect.
      */
-    fun pauseSync(seconds: Int)
+    fun interruptSync()
 
     /**
-     * @return true if syncing was not paused by pauseSync
+     * @return true if syncing was not interrupted by interruptSync()
      */
     fun maySync(): Boolean
 }
 
 open class SyncPausableContext: SyncPausable {
     @Volatile
-    private var noSyncUntilTs = 0L
+    private var maySync = true
 
-    override fun pauseSync(seconds: Int) {
-        noSyncUntilTs = System.currentTimeMillis() + seconds * 1000
+    override fun interruptSync() {
+        maySync = false
         synchronized(this) {}
+        maySync = true
     }
 
-    override fun maySync() = System.currentTimeMillis() > noSyncUntilTs
+    override fun maySync() = maySync
 }
 
 
 open class SyncPausableAccount(val syncPausableContext: SyncPausableContext): SyncPausable {
-    override fun pauseSync(seconds: Int) {
-        syncPausableContext.pauseSync(seconds)
+    override fun interruptSync() {
+        syncPausableContext.interruptSync()
     }
 
     override fun maySync() = syncPausableContext.maySync()

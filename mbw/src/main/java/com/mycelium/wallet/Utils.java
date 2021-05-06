@@ -789,7 +789,7 @@ public class Utils {
       builder.setMessage(R.string.export_account_data_warning).setCancelable(true)
             .setPositiveButton(R.string.yes, (dialog, id) -> {
                dialog.dismiss();
-               account.pauseSync(60);
+               account.interruptSync();
                ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
                        account);
 

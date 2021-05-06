@@ -103,7 +103,7 @@ open class HDAccount(
             return
         }
         // Archiving has priority over syncing:
-        pauseSync(60)
+        interruptSync()
         synchronized(context) {
             clearInternalStateInt(true)
         }
@@ -795,9 +795,9 @@ open class HDAccount(
 
     override fun maySync(): Boolean = context.maySync()
 
-    override fun pauseSync(seconds: Int) {
+    override fun interruptSync() {
         val start = System.currentTimeMillis()
-        context.pauseSync(seconds)
+        context.interruptSync()
         _logger.log(Level.INFO, "pauseSync() blocked for ${System.currentTimeMillis() - start}ms.")
     }
 }

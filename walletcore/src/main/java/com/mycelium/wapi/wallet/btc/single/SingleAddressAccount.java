@@ -299,8 +299,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public void pauseSync(int seconds) {
-      _context.pauseSync(seconds);
+   public void interruptSync() {
+      _context.interruptSync();
    }
 
    @Override

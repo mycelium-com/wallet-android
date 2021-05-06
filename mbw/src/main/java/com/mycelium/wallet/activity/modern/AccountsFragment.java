@@ -296,9 +296,9 @@ public class AccountsFragment extends Fragment {
             }
         }
         // pause syncing of all relevant accounts.
-        accountToDelete.pauseSync(60);
+        accountToDelete.interruptSync();
         for (WalletAccount<?> wa : linkedAccounts) {
-            wa.pauseSync(60);
+            wa.interruptSync();
         }
         final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
         final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
@@ -798,7 +798,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
-        account.pauseSync(5);
+        account.interruptSync();
         if (account instanceof SingleAddressAccount || account instanceof ColuAccount) {
             //start legacy backup verification
             VerifyBackupActivity.callMe(getActivity());
@@ -810,7 +810,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
-        account.pauseSync(5);
+        account.interruptSync();
         if (account instanceof ColuAccount) {
             //ColuAccount class can be single or HD
             //TODO: test if account is single address or HD and do wordlist backup instead
@@ -829,7 +829,7 @@ public class AccountsFragment extends Fragment {
 
     private void showOutputs() {
         WalletAccount account = requireFocusedAccount();
-        account.pauseSync(5);
+        account.interruptSync();
         Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class)
                 .putExtra("account", account.getId());
         startActivity(intent);
@@ -841,7 +841,7 @@ public class AccountsFragment extends Fragment {
         }
         runPinProtected(() -> {
             WalletAccount account = accountListAdapter.getFocusedAccount();
-            account.pauseSync(30);
+            account.interruptSync();
             MessageSigningActivity.callMe(requireContext(), account);
         });
     }
@@ -934,7 +934,7 @@ public class AccountsFragment extends Fragment {
                 .setMessage(getString(R.string.lt_detaching_question))
                 .setPositiveButton(R.string.yes, (arg0, arg1) -> {
                     WalletAccount wa = walletManager.getAccount(ltm.getLocalTraderAccountId());
-                    wa.pauseSync(30);
+                    wa.interruptSync();
                     ltm.unsetLocalTraderAccount();
                     _toaster.toast(R.string.lt_detached, false);
                     update();
@@ -968,14 +968,13 @@ public class AccountsFragment extends Fragment {
                 accountsToActivateAndSync.add(linkedAccount);
             }
         }
+        for(WalletAccount<?> wa : accountsToActivateAndSync) {
+            wa.activateAccount();
+        }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
         updateIncludingMenus();
         _toaster.toast(R.string.activated, false);
-        for(WalletAccount<?> wa : accountsToActivateAndSync) {
-            wa.pauseSync(-1); // unpause
-            wa.activateAccount();
-        }
         _mbwManager.getWalletManager(false)
                 .startSynchronization(SyncMode.NORMAL_FORCED, accountsToActivateAndSync);
     }
@@ -1039,7 +1038,7 @@ public class AccountsFragment extends Fragment {
             }
 
             runPinProtected(() -> {
-                hdAccount.pauseSync(60);
+                hdAccount.interruptSync();
                 _mbwManager.getWalletManager(false).deleteAccount(hdAccount.getId());
                 // in case user had labeled the account, delete the stored name
                 _storage.deleteAccountMetadata(hdAccount.getId());
@@ -1064,9 +1063,9 @@ public class AccountsFragment extends Fragment {
             }
         }
         // pause sync on all relevant accounts
-        account.pauseSync(60);
+        account.interruptSync();
         for (WalletAccount<?> wa: linkedAccounts) {
-            wa.pauseSync(60);
+            wa.interruptSync();
         }
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)

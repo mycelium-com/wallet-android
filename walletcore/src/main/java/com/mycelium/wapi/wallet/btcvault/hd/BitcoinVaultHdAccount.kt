@@ -717,8 +717,8 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
 
     override fun maySync(): Boolean = accountContext.maySync()
 
-    override fun pauseSync(seconds: Int) {
-        accountContext.pauseSync(seconds)
+    override fun interruptSync() {
+        accountContext.interruptSync()
     }
 
     companion object {

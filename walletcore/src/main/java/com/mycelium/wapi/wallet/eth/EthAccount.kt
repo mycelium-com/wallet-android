@@ -249,8 +249,8 @@ class EthAccount(private val chainId: Byte,
 
     override fun maySync(): Boolean = accountContext.maySync()
 
-    override fun pauseSync(seconds: Int) {
-        accountContext.pauseSync(seconds)
+    override fun interruptSync() {
+        accountContext.interruptSync()
     }
 }
 
