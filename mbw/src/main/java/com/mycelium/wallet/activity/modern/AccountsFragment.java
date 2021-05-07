@@ -136,7 +136,9 @@ import com.squareup.otto.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -283,6 +285,17 @@ public class AccountsFragment extends Fragment {
         }
     }
 
+    private void interruptSync(Collection<WalletAccount> accountsToInterrupt) {
+        try {
+            List<Thread> threads = new ArrayList<>();
+            for (WalletAccount<?> wa : accountsToInterrupt) threads.add(new Thread(wa::interruptSync));
+            for (Thread t : threads) t.start();
+            for (Thread t : threads) t.join();
+        } catch (InterruptedException ignore) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private void deleteAccount(final WalletAccount accountToDelete) {
         checkNotNull(accountToDelete);
         final List<WalletAccount> linkedAccounts = new ArrayList<>();
@@ -295,11 +308,12 @@ public class AccountsFragment extends Fragment {
                 linkedAccounts.add(getLinkedAccount(accountToDelete));
             }
         }
-        // pause syncing of all relevant accounts.
-        accountToDelete.interruptSync();
-        for (WalletAccount<?> wa : linkedAccounts) {
-            wa.interruptSync();
-        }
+
+        Collection<WalletAccount> accountsToInterrupt = new HashSet<>();
+        accountsToInterrupt.add(accountToDelete);
+        accountsToInterrupt.addAll(linkedAccounts);
+        interruptSync(accountsToInterrupt);
+
         final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
         final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
         keepAddrCheckbox.setText(getString(R.string.keep_account_address));
@@ -1062,11 +1076,12 @@ public class AccountsFragment extends Fragment {
                 linkedAccounts.add(getLinkedAccount(account));
             }
         }
-        // pause sync on all relevant accounts
-        account.interruptSync();
-        for (WalletAccount<?> wa: linkedAccounts) {
-            wa.interruptSync();
-        }
+
+        Collection<WalletAccount> accountsToInterrupt = new HashSet<>();
+        accountsToInterrupt.add(account);
+        accountsToInterrupt.addAll(linkedAccounts);
+        interruptSync(accountsToInterrupt);
+
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)
                 .setMessage(Html.fromHtml(createArchiveDialogText(account, linkedAccounts)))

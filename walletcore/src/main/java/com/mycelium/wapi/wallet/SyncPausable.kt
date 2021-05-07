@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet
 
+import kotlin.concurrent.thread
+
 interface SyncPausable {
     /**
      * Interrupt gracefully ongoing sync. This method is blocking until it takes effect.
@@ -32,4 +34,8 @@ open class SyncPausableAccount(val syncPausableContext: SyncPausableContext): Sy
     }
 
     override fun maySync() = syncPausableContext.maySync()
+}
+
+fun Collection<WalletAccount<*>>.interruptSync() {
+    map { thread { it.interruptSync() } }.map { it.join() }
 }
