@@ -286,13 +286,8 @@ public class AccountsFragment extends Fragment {
     }
 
     private void interruptSync(Collection<WalletAccount> accountsToInterrupt) {
-        try {
-            List<Thread> threads = new ArrayList<>();
-            for (WalletAccount<?> wa : accountsToInterrupt) threads.add(new Thread(wa::interruptSync));
-            for (Thread t : threads) t.start();
-            for (Thread t : threads) t.join();
-        } catch (InterruptedException ignore) {
-            Thread.currentThread().interrupt();
+        for (WalletAccount<?> wa : accountsToInterrupt) {
+            (new Thread(wa::interruptSync)).start();
         }
     }
 
