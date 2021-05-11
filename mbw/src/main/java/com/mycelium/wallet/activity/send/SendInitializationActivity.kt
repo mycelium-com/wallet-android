@@ -14,9 +14,11 @@ import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
+import kotlin.concurrent.thread
 
 class SendInitializationActivity : Activity() {
     private val mbwManager: MbwManager = MbwManager.getInstance(application)
@@ -41,6 +43,17 @@ class SendInitializationActivity : Activity() {
             ?: throw NullPointerException(crashHint)
         if (!isColdStorage) {
             continueIfReadyOrNonUtxos()
+        }
+        interruptOtherSyncs(account, walletManager)
+    }
+
+    /**
+     * Interrupt all syncing accounts to free up resources for the current user interaction.
+     * Do so without blocking the current thread.
+     */
+    private fun interruptOtherSyncs(account: WalletAccount<*>, walletManager: WalletManager) {
+        walletManager.getAllActiveAccounts().filter { it != account }.forEach {
+            thread(block = it::interruptSync)
         }
     }
 
