@@ -14,7 +14,7 @@ interface SyncPausable {
     fun maySync(): Boolean
 }
 
-open class SyncPausableContext: SyncPausable {
+abstract class SyncPausableContext: SyncPausable {
     @Volatile
     private var maySync = true
 
@@ -28,7 +28,7 @@ open class SyncPausableContext: SyncPausable {
 }
 
 
-open class SyncPausableAccount(val syncPausableContext: SyncPausableContext): SyncPausable {
+abstract class SyncPausableAccount(val syncPausableContext: SyncPausableContext): SyncPausable {
     override fun interruptSync() {
         syncPausableContext.interruptSync()
     }

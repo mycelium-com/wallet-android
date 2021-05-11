@@ -798,6 +798,6 @@ open class HDAccount(
     override fun interruptSync() {
         val start = System.currentTimeMillis()
         context.interruptSync()
-        _logger.log(Level.INFO, "pauseSync() blocked for ${System.currentTimeMillis() - start}ms.")
+        _logger.log(Level.INFO, "interruptSync() blocked for ${System.currentTimeMillis() - start}ms.")
     }
 }
