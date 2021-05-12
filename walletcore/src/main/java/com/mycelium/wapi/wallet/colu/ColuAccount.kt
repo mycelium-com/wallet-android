@@ -163,6 +163,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return accountBalance.spendable
     }
 
+    @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
         try {

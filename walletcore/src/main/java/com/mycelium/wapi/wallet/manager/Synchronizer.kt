@@ -59,8 +59,8 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"}")
                 }
             }
-            list.filterIsInstance(SyncPausableAccount::class.java).forEach { it.maySync = true }
         }
+        list.filterIsInstance(SyncPausableAccount::class.java).forEach { it.maySync = true }
     }
 
     private fun broadcastOutgoingTransactions(): Boolean =

@@ -113,6 +113,7 @@ class ERC20Account(private val chainId: Byte,
         accountContext.accountName = label!!
     }
 
+    @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
         if (removed || isArchived || !maySync) {
             return false

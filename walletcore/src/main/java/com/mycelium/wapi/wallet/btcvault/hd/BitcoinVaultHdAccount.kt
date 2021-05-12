@@ -32,7 +32,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 
-class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVaultHDAccountContext,
+class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountContext,
                             protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
                             val networkParameters: BTCVNetworkParameters,
                             wapi: Wapi,
@@ -166,6 +166,7 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
         accountContext.accountName = label
     }
 
+    @Synchronized
     override fun doSynchronization(proposedMode: SyncMode): Boolean {
         if (!maySync) { return false }
         var mode = proposedMode
@@ -722,4 +723,5 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
+
 }

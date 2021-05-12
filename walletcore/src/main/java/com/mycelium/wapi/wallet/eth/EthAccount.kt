@@ -124,6 +124,7 @@ class EthAccount(private val chainId: Byte,
         accountContext.nonce = nonce
     }
 
+    @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
         if (removed || isArchived || !maySync) { return false }
 

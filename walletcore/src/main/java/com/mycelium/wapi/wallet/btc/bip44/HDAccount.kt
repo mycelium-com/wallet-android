@@ -26,7 +26,6 @@ import java.util.logging.Level
 import kotlin.math.min
 
 open class HDAccount(
-        @Volatile
         protected var context: HDAccountContext,
         protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
@@ -293,6 +292,7 @@ open class HDAccount(
         return ret
     }
 
+    @Synchronized
     public override fun doSynchronization(proposedMode: SyncMode): Boolean {
         if (!maySync) {
             return false
@@ -324,6 +324,7 @@ open class HDAccount(
     private fun needsDiscovery() = !isArchived &&
             context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
+    @Synchronized
     private fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
@@ -795,10 +796,4 @@ open class HDAccount(
 
     override fun canSign(): Boolean = true
 
-
-//    override fun interruptSync() {
-//        val start = System.currentTimeMillis()
-//        context.interruptSync()
-//        _logger.log(Level.INFO, "interruptSync() blocked for ${System.currentTimeMillis() - start}ms.")
-//    }
 }
