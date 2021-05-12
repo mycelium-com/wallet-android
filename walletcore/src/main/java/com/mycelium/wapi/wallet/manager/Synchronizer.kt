@@ -48,7 +48,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         //split synchronization by coinTypes in own threads
         runBlocking {
             list.forEach {
-                async {
+                launch {
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
                     val isSyncSuccessful = try {
                         it.synchronize(syncMode)
