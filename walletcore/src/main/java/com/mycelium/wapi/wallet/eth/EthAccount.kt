@@ -125,11 +125,10 @@ class EthAccount(private val chainId: Byte,
     }
 
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived || !maySync()) { return false }
-        synchronized(accountContext) {
-            syncTransactions()
-            return updateBalanceCache()
-        }
+        if (removed || isArchived || !maySync) { return false }
+
+        syncTransactions()
+        return updateBalanceCache()
     }
 
     override fun updateBalanceCache(): Boolean {
@@ -245,12 +244,6 @@ class EthAccount(private val chainId: Byte,
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun maySync(): Boolean = accountContext.maySync()
-
-    override fun interruptSync() {
-        accountContext.interruptSync()
     }
 }
 

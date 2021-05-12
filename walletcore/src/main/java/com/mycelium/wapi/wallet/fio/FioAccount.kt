@@ -38,7 +38,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                  val walletManager: WalletManager,
                  address: FioAddress? = null,
                  private val fioServerLogsListWrapper: FioServerLogsListWrapper) :
-        WalletAccount<FioAddress>, ExportableAccount, SyncPausableAccount(accountContext) {
+        WalletAccount<FioAddress>, ExportableAccount, SyncPausableAccount() {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!
@@ -273,15 +273,15 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
-        fioEndpoints.rotateEndpoints()
-        syncFioRequests()
-        syncFioOBT()
-        syncFioAddresses()
-        syncFioDomains()
-        updateBlockHeight()
-        syncTransactions()
-        updateMappings()
-        updateBalance()
+        if(maySync) {fioEndpoints.rotateEndpoints()}
+        if(maySync) {syncFioRequests()}
+        if(maySync) {syncFioOBT()}
+        if(maySync) {syncFioAddresses()}
+        if(maySync) {syncFioDomains()}
+        if(maySync) {updateBlockHeight()}
+        if(maySync) {syncTransactions()}
+        if(maySync) {updateMappings()}
+        if(maySync) {updateBalance()}
         syncing = false
         return true
     }

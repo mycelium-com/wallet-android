@@ -21,10 +21,10 @@ import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.BitcoinTransaction;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -36,11 +36,11 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
@@ -172,35 +172,43 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    @Override
    public boolean doSynchronization(SyncMode mode) {
-      if (!maySync()) { return false; }
-      synchronized (_context) {
-         checkNotArchived();
-         syncTotalRetrievedTransactions = 0;
-         try {
-            if (synchronizeUnspentOutputs(_addressList) == -1) {
-               return false;
-            }
-            if (!maySync()) { return false; }
-            // Monitor young transactions
-            if (!monitorYoungTransactions()) {
-               return false;
-            }
-            if (!maySync()) { return false; }
-            //lets see if there are any transactions we need to discover
-            if (!mode.ignoreTransactionHistory) {
-               if (!discoverTransactions()) {
-                  return false;
-               }
-            }
-            if (!maySync()) { return false; }
-            // recalculate cached Balance
-            updateLocalBalance();
-            if (!maySync()) { return false; }
-            _context.persistIfNecessary(_backing);
-            return true;
-         } finally {
-            syncTotalRetrievedTransactions = 0;
+      if (!getMaySync()) {
+         return false;
+      }
+      checkNotArchived();
+      syncTotalRetrievedTransactions = 0;
+      try {
+         if (synchronizeUnspentOutputs(_addressList) == -1) {
+            return false;
          }
+         if (!getMaySync()) {
+            return false;
+         }
+         // Monitor young transactions
+         if (!monitorYoungTransactions()) {
+            return false;
+         }
+         if (!getMaySync()) {
+            return false;
+         }
+         //lets see if there are any transactions we need to discover
+         if (!mode.ignoreTransactionHistory) {
+            if (!discoverTransactions()) {
+               return false;
+            }
+         }
+         if (!getMaySync()) {
+            return false;
+         }
+         // recalculate cached Balance
+         updateLocalBalance();
+         if (!getMaySync()) {
+            return false;
+         }
+         _context.persistIfNecessary(_backing);
+         return true;
+      } finally {
+         syncTotalRetrievedTransactions = 0;
       }
    }
 
@@ -261,7 +269,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       // Fetch any missing transactions
       int chunkSize = 50;
       for (int fromIndex = 0; fromIndex < toFetch.size(); fromIndex += chunkSize) {
-         if (!maySync()) { return false; }
+         if (!getMaySync()) { return false; }
          try {
             int toIndex = Math.min(fromIndex + chunkSize, toFetch.size());
             GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();
@@ -291,16 +299,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public boolean canSign() {
       return true;
-   }
-
-   @Override
-   public boolean maySync() {
-      return _context.maySync();
-   }
-
-   @Override
-   public void interruptSync() {
-      _context.interruptSync();
    }
 
    @Override

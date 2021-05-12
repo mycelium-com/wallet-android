@@ -186,7 +186,5 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun maySync(): Boolean = true
-
     override fun interruptSync() {}
 }

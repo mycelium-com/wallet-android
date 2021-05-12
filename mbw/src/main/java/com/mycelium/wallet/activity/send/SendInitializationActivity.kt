@@ -53,7 +53,7 @@ class SendInitializationActivity : Activity() {
      */
     private fun interruptOtherSyncs(account: WalletAccount<*>, walletManager: WalletManager) {
         walletManager.getAllActiveAccounts().filter { it != account }.forEach {
-            thread(block = it::interruptSync)
+            it.interruptSync()
         }
     }
 

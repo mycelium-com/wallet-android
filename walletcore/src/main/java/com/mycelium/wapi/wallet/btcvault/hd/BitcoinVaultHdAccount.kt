@@ -123,7 +123,7 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
         // Do look ahead query
         val result = wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
-        if (!maySync()) { return emptySet() }
+        if (!maySync) { return emptySet() }
         blockChainHeight = result.height
         val ids = result.txIds
         if (ids.isEmpty()) {
@@ -138,7 +138,7 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
         val newIds = mutableSetOf<Sha256Hash>()
         val knownTransactions = mutableSetOf<TransactionEx>()
         ids.forEach {
-            if (!maySync()) { return emptySet() }
+            if (!maySync) { return emptySet() }
             val dbTransaction = backing.getTransaction(it)
             if (dbTransaction?.height ?: 0 > 0) {
                 // we have it and know its block
@@ -167,7 +167,7 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
     }
 
     override fun doSynchronization(proposedMode: SyncMode): Boolean {
-        if (!maySync()) { return false }
+        if (!maySync) { return false }
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTxs = 0
@@ -182,7 +182,7 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
                     return false
                 }
             }
-            if (!maySync()) { return false }
+            if (!maySync) { return false }
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } catch (e: RuntimeException) {
@@ -210,7 +210,7 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
             // thus, method is done once discovered is empty.
             var discovered = derivePaths.toSet()
             do {
-                if (!maySync()) { return false }
+                if (!maySync) { return false }
                 discovered = doDiscovery(discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
@@ -714,12 +714,6 @@ class BitcoinVaultHdAccount(@Volatile protected var accountContext: BitcoinVault
     override fun getDummyAddress(subType: String): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters, AddressType.valueOf(subType))
 
     override fun addressesList(): List<BtcvAddress> = allAddresses
-
-    override fun maySync(): Boolean = accountContext.maySync()
-
-    override fun interruptSync() {
-        accountContext.interruptSync()
-    }
 
     companion object {
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20

@@ -114,13 +114,11 @@ class ERC20Account(private val chainId: Byte,
     }
 
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived || !maySync()) {
+        if (removed || isArchived || !maySync) {
             return false
         }
-        synchronized(accountContext) {
-            syncTransactions()
-            return updateBalanceCache()
-        }
+        syncTransactions()
+        return updateBalanceCache()
     }
 
     override fun getNonce() = accountContext.nonce
@@ -254,11 +252,5 @@ class ERC20Account(private val chainId: Byte,
                 Value.valueOf(coinType, balance.pendingReceiving.value),
                 Value.valueOf(coinType, balance.pendingSending.value),
                 Value.valueOf(coinType, 0))
-    }
-
-    override fun maySync(): Boolean = accountContext.maySync()
-
-    override fun interruptSync() {
-        accountContext.interruptSync()
     }
 }
