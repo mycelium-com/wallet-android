@@ -206,6 +206,13 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
      */
     private fun compoundId(ids: Array<String>): String = ids.sortedArray().joinToString("")
 
+    fun cancel(requests: List<RpcRequestOut>) {
+        val compoundId = compoundId(requests.map { it.id.toString() }.toTypedArray())
+        callbacks.remove(compoundId)
+        awaitingRequestsMap.remove(compoundId)
+        awaitingLatches[compoundId]?.countDown()
+    }
+
     @Throws(RpcResponseException::class)
     fun write(requests: List<RpcRequestOut>, timeout: Long): BatchedRpcResponse {
         if (!waitForConnected(timeout)) {

@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet
 
+import com.mycelium.wapi.api.request.CancelableRequest
+
 interface SyncPausable {
     /**
      * Interrupt gracefully ongoing sync.
@@ -12,8 +14,11 @@ abstract class SyncPausableAccount() : SyncPausable {
     @Volatile
     var maySync = true
 
+    var cancelableRequest: CancelableRequest? = null
+
     override fun interruptSync() {
         maySync = false
+        cancelableRequest?.cancel?.invoke()
     }
 }
 

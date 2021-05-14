@@ -382,7 +382,9 @@ open class HDAccount(
     override fun doDiscoveryForAddresses(addresses: List<BitcoinAddress>): Set<BipDerivationType> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
-                QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
+                QueryTransactionInventoryRequest(Wapi.VERSION, addresses).apply {
+                    cancelableRequest = this
+                }).result
         if (!maySync) { return emptySet() }
         blockChainHeight = result.height
         val ids = result.txIds

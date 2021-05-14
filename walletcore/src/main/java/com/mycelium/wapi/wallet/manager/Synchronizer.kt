@@ -16,6 +16,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
     private val logger = Logger.getLogger(Synchronizer::class.simpleName)
 
     override fun run() {
+        logger.log(Level.INFO, "Synchronizing start")
         walletManager.state = State.SYNCHRONIZING
         walletManager.walletListener?.syncStarted()
 
@@ -35,7 +36,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     walletManager.getAllActiveAccounts()
                 } else {
                     accounts.filterNotNull().filter { it.isActive }
-                }.filter { !it.isSyncing }
+                }.filter { !it.isSyncing && it is SyncPausableAccount && it.maySync}
                 runSync(list)
             }
         } finally {
@@ -51,9 +52,13 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 launch {
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
                     val isSyncSuccessful = try {
-                        it.synchronize(syncMode)
+                        if (it is SyncPausableAccount && !it.maySync) {
+                            false
+                        } else {
+                            it.synchronize(syncMode)
+                        }
                     } catch (ex: Exception) {
-                        logger.log(Level.WARNING,"Sync error", ex)
+                        logger.log(Level.WARNING, "Sync error", ex)
                         false
                     }
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"}")
