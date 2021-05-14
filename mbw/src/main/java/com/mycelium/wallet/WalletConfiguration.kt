@@ -386,6 +386,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             ERC20Token("LAtoken", "LA", 18, "0xE50365f5D679CB98a1dd62D6F6e58e59321BcdDf"),
             ERC20Token("Bread", "BRD", 18, "0x558EC3152e2eb2174905cd19AeA4e34A23DE9aD6"),
             ERC20Token("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
+            ERC20Token("Mycelium Token", "MT", 7, "0x6a632eaea8ac6225a253be3811628569d8c05818"),
             when (BuildConfig.FLAVOR) {
                 "prodnet" -> ERC20Token("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498")
                 // for testing purposes
