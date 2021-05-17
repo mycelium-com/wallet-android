@@ -13,6 +13,9 @@ import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
 
 
 class PurchasedAdapter : ListAdapter<Card, RecyclerView.ViewHolder>(DiffCallback()) {
+
+    var itemClickListener: ((Card) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false))
 
@@ -22,6 +25,9 @@ class PurchasedAdapter : ListAdapter<Card, RecyclerView.ViewHolder>(DiffCallback
         holder.itemView.title.text = item.company
         holder.itemView.description.text = "Gift card amount:"
         holder.itemView.additional.text = "Date:"
+        holder.itemView.setOnClickListener {
+            itemClickListener?.invoke(getItem(holder.adapterPosition))
+        }
     }
 
     class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
