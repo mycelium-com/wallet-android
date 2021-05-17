@@ -8,11 +8,11 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
-        style="@style/Bequant.Tabs"
+        style="@style/Giftbox.Tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:tabTextAppearance="@style/BequantTabText" />
+        app:tabTextAppearance="@style/GiftboxTabText" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"

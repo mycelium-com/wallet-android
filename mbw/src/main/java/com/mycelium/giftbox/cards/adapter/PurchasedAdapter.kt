@@ -9,19 +9,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_giftbox_store.view.*
+import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
 
 
-class StoresAdapter : ListAdapter<Card, RecyclerView.ViewHolder>(DiffCallback()) {
+class PurchasedAdapter : ListAdapter<Card, RecyclerView.ViewHolder>(DiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_store, parent, false))
+            CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false))
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         holder.itemView.title.text = item.company
-        holder.itemView.description.text = item.description
-        holder.itemView.discount.text = "-${item.discount}%"
+        holder.itemView.description.text = "Gift card amount:"
+        holder.itemView.additional.text = "Date:"
     }
 
     class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

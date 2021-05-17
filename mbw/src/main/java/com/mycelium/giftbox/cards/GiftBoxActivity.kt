@@ -13,6 +13,12 @@ class GiftBoxActivity : AppCompatActivity(R.layout.activity_gift_box) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.run {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowTitleEnabled(true)
+            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_back_arrow))
+            setTitle("Gift cards")
+        }
         pager.adapter = CardsFragmentAdapter(supportFragmentManager, lifecycle)
         pager.offscreenPageLimit = 2
         mediator = TabLayoutMediator(tabs, pager) { tab, position ->
