@@ -19,7 +19,7 @@ package com.mycelium.wapi.wallet.btc.single
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking
-import com.mycelium.wapi.wallet.SyncPausableContext
+
 import java.util.*
 
 /**
@@ -31,7 +31,7 @@ class SingleAddressAccountContext constructor(
         private var isArchived: Boolean,
         private var blockHeight: Int,
         defaultAddressType: AddressType
-) : SyncPausableContext() {
+) {
     private var isDirty = false
     var defaultAddressType = defaultAddressType
         set(value) {

@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.genericdb
 
 import com.mycelium.generated.wallet.database.AccountContext
-import com.mycelium.wapi.wallet.SyncPausableContext
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
@@ -19,7 +18,7 @@ open class AccountContextImpl<Context : AccountContext>(uuid: UUID,
                 accountName,
                 balance,
                 archived,
-                blockHeight), SyncPausableContext() {
+                blockHeight) {
 
     override var archived = archived
         set(value) {

@@ -36,7 +36,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                   , private val accountBacking: ColuAccountBacking
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
-                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount, SyncPausableAccount(context) {
+                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount, SyncPausableAccount() {
     override fun queueTransaction(transaction: Transaction) {
     }
 
@@ -163,21 +163,22 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return accountBalance.spendable
     }
 
+    @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
         try {
-            if (!maySync()) { return false }
-            synchronized(context) {
-                val json = coluClient.getAddressTransactions(receiveAddress)
-                val genericTransactionSummaries = getGenericListFromJsonTxList(json.transactions)
-                val utxosFromJson = utxosFromJson(json, receiveAddress)
-                accountBacking.clear()
-                accountBacking.putTransactions(json.transactions)
-                cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
-                listener?.balanceUpdated(this)
-                return true
+            if (!maySync) {
+                return false
             }
-        } catch (e:IOException) {
+            val json = coluClient.getAddressTransactions(receiveAddress)
+            val genericTransactionSummaries = getGenericListFromJsonTxList(json.transactions)
+            val utxosFromJson = utxosFromJson(json, receiveAddress)
+            accountBacking.clear()
+            accountBacking.putTransactions(json.transactions)
+            cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
+            listener?.balanceUpdated(this)
+            return true
+        } catch (e: IOException) {
             return false
         }
     }

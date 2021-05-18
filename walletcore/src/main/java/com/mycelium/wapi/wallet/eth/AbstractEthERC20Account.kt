@@ -15,7 +15,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val backing: EthAccountBacking,
                                        protected val blockchainService: EthBlockchainService,
                                        className: String?,
-                                       address: EthAddress? = null) : WalletAccount<EthAddress> {
+                                       address: EthAddress? = null) : SyncPausableAccount(), WalletAccount<EthAddress> {
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     protected val logger: Logger = Logger.getLogger(className)
 
@@ -42,7 +42,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
-        if (!maySync()) { return false }
+        if (!maySync) { return false }
         updateBlockHeight()
         val synced = doSynchronization(mode)
         syncing = false

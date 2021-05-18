@@ -1,9 +1,12 @@
 package com.mycelium.wapi.wallet.manager
 
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -45,7 +48,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         //split synchronization by coinTypes in own threads
         runBlocking {
             list.forEach {
-                launch(context = Dispatchers.Unconfined) {
+                launch {
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
                     val isSyncSuccessful = try {
                         it.synchronize(syncMode)
@@ -57,6 +60,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 }
             }
         }
+        list.filterIsInstance(SyncPausableAccount::class.java).forEach { it.maySync = true }
     }
 
     private fun broadcastOutgoingTransactions(): Boolean =
