@@ -54,7 +54,7 @@
                             bind:layout_constraintEnd_toEndOf="parent"
                             bind:layout_constraintStart_toStartOf="parent"
                             bind:layout_constraintTop_toTopOf="parent"
-                            tools:text="Dsada" />
+                            tools:text="Some desctiption" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
