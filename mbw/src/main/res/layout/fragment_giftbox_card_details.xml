@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendBtcViewModel" />
+    </data>
+
+
+    <ScrollView
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:gravity="center"
+                            bind:layout_constraintDimensionRatio="3:2"
+                            bind:layout_constraintEnd_toEndOf="parent"
+                            bind:layout_constraintStart_toStartOf="parent"
+                            bind:layout_constraintTop_toTopOf="parent"
+                            tools:text="Dsada" />
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!--Request info-->
+                <include
+                    layout="@layout/giftcard_send_info"
+                    bind:fioRequestViewModel="@{fioRequestViewModel}" />
+
+
+                <!--Contains amount selection-->
+                <include
+                    layout="@layout/send_coins_amount"
+                    bind:listener="@{activity}"
+                    bind:viewModel="@{viewModel}" />
+                <!-- Recipient Fio Config -->
+
+            </LinearLayout>
+
+
+            <!-- Amount Error -->
+            <include
+                layout="@layout/send_coins_insufficient"
+                bind:viewModel="@{viewModel}" />
+
+            <!--Update progress bar-->
+            <include
+                layout="@layout/send_coins_progress"
+                bind:viewModel="@{viewModel}" />
+
+            <!-- Send -->
+            <include
+                layout="@layout/send_coins_send_section"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+        </LinearLayout>
+    </ScrollView>
+</layout>
