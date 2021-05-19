@@ -1,5 +1,8 @@
 package com.mycelium.giftbox.client
 
+import com.mycelium.giftbox.client.models.PriceResponse
+import com.mycelium.giftbox.client.models.ProductResponse
+import com.mycelium.giftbox.client.models.ProductsResponse
 import retrofit2.Response
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET

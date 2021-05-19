@@ -1,6 +1,9 @@
 package com.mycelium.giftbox.client
 
 import com.mycelium.bequant.remote.doRequest
+import com.mycelium.giftbox.client.models.PriceResponse
+import com.mycelium.giftbox.client.models.ProductResponse
+import com.mycelium.giftbox.client.models.ProductsResponse
 import kotlinx.coroutines.CoroutineScope
 
 class GiftboxApiRepository {
