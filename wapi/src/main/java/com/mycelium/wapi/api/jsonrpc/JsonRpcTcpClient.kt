@@ -208,8 +208,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
 
     fun cancel(requests: List<RpcRequestOut>) {
         val compoundId = compoundId(requests.map { it.id.toString() }.toTypedArray())
-        callbacks.remove(compoundId)
-        awaitingRequestsMap.remove(compoundId)
+        removeCurrentRequestData(compoundId)
         awaitingLatches[compoundId]?.countDown()
     }
 

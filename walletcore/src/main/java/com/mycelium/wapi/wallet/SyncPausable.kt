@@ -19,6 +19,7 @@ abstract class SyncPausableAccount() : SyncPausable {
     override fun interruptSync() {
         maySync = false
         cancelableRequest?.cancel?.invoke()
+        cancelableRequest = null
     }
 }
 
