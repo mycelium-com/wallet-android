@@ -95,7 +95,7 @@ public abstract class SynchronizeAbleWalletBtcAccount extends SyncPausableAccoun
 
    @Override
    public boolean isSyncing() {
-      return isSyncing & getMaySync();
+      return isSyncing && getMaySync();
    }
 
    public boolean isVisible() {
