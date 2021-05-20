@@ -797,5 +797,4 @@ open class HDAccount(
     }
 
     override fun canSign(): Boolean = true
-
 }
