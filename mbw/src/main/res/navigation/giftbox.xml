@@ -43,8 +43,7 @@
             app:argType="string" />
         <argument
             android:name="productId"
-            app:argType="string"
-            app:nullable="true" />
+            app:argType="string" />
     </fragment>
 
 </navigation>

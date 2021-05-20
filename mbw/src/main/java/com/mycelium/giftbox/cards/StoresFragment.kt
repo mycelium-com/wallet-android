@@ -52,12 +52,13 @@ class StoresFragment : Fragment(R.layout.fragment_giftbox_stores) {
                     loader(false)
                 }
                 Status.LOADING -> {
-//                    loader(true)
+//                        loader(true)
+
                 }
             }
 
         }
-        vm.load(StoresFragmentViewModel.Params(Constants.CLIENT_USER_ID, Constants.CLIENT_USER_ID))
+        vm.load(StoresFragmentViewModel.Params(Constants.CLIENT_USER_ID, Constants.CLIENT_ORDER_ID))
     }
 }
 
@@ -75,10 +76,7 @@ class StoresFragmentViewModel : ViewModel() {
             doRequest {
                 return@doRequest GitboxAPI.giftRepository.api.products(
                     clientUserId = clientUserId,
-                    client_order_id = clientOrderId
-//                    ,
-//                    offset = 0,
-//                    limit = 100
+                    clientOrderId = clientOrderId
                 )
             }.asLiveData()
         }

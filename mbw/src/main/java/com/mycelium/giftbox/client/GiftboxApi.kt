@@ -15,23 +15,23 @@ interface GiftboxApi {
 //        @Query("country") country: String? = null,
 //        @Query("category") category: String? = null,
 //        @Query("product_id") product_id: String? = null,
-//        @Query("offset") offset: Long,
-//        @Query("limit") limit: Long,
+        @Query("offset", encoded = true) offset: Long = 0,
+        @Query("limit", encoded = true) limit: Long = 100,
         @Query(value = "client_user_id", encoded = true) clientUserId: String,
-        @Query(value = "client_order_id",encoded = true) client_order_id: String?
+        @Query(value = "client_order_id", encoded = true) clientOrderId: String?
     ): Response<ProductsResponse>
 
     @GET("product")
     suspend fun product(
         @Query("client_user_id") clientUserId: String,
-        @Query("client_order_id") client_order_id: String,
+        @Query("client_order_id") clientOrderId: String,
         @Query("product_id") productId: String
     ): Response<ProductResponse>
 
     @GET("price")
     suspend fun price(
         @Query("client_user_id") clientUserId: String,
-        @Query("client_order_id") client_order_id: String,
+        @Query("client_order_id") clientOrderId: String,
         @Query("code") code: String,
         @Query("quantity") quantity: Int,
         @Query("amount") amount: Int,
@@ -42,7 +42,7 @@ interface GiftboxApi {
     @GET("checkoutProduct")
     suspend fun checkoutProduct(
         @Query("client_user_id") clientUserId: String,
-        @Query("client_order_id") client_order_id: String,
+        @Query("client_order_id") clientOrderId: String,
         @Query("code") code: String,
         @Query("quantity") quantity: Int,
         @Query("amount") amount: Int
@@ -51,7 +51,7 @@ interface GiftboxApi {
     @POST("createOrder")
     suspend fun createOrder(
         @Query("client_user_id") clientUserId: String,
-        @Query("client_order_id") client_order_id: String,
+        @Query("client_order_id") clientOrderId: String,
         @Query("code") code: String,
         @Query("quantity") quantity: Int,
         @Query("amount") amount: Int,
