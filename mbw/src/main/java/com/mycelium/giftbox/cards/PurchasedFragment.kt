@@ -23,8 +23,8 @@ class PurchasedFragment : Fragment(R.layout.fragment_giftbox_purchased) {
 //            startActivity(Intent(requireContext(), GiftBoxDetailsActivity::class.java))
         }
         adapter.submitList(listOf(
-                Card("", "Amazon UK", "Food, books, electronics", 12),
-                Card("", "Nike US", "Sport Clothes", 30),
-                Card("", "Ikea IT", "Furniture", 1)))
+                Card("", "Amazon UK", "Food, books, electronics", "12"),
+                Card("", "Nike US", "Sport Clothes", "30"),
+                Card("", "Ikea IT", "Furniture", "1")))
     }
 }

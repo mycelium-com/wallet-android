@@ -40,7 +40,7 @@ object RetrofitFactory {
                     }
 
 
-    private fun getBuilder(url: String, withAccessToken: Boolean = false): Retrofit.Builder =
+    private fun getBuilder(url: String): Retrofit.Builder =
             Retrofit.Builder()
                     .callFactory(object : Call.Factory {
                         //create client lazy on demand in background thread
@@ -54,8 +54,8 @@ object RetrofitFactory {
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
 
 
-    fun getRetrofit(url: String, withAccessToken: Boolean = false): Retrofit =
-            getBuilder(url, withAccessToken)
+    fun getRetrofit(url: String): Retrofit =
+            getBuilder(url)
                     .addConverterFactory(NullOnEmptyConverterFactory())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                     .build()

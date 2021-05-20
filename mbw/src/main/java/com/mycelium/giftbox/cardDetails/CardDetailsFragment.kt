@@ -35,12 +35,12 @@ class CardDetailsFragment : Fragment(R.layout.fragment_giftbox_card_details), Am
 class CardDetailsFragmentViewModel : ViewModel() {
     val productResponse = MutableLiveData<ProductResponse>()
     fun load() {
-        GitboxAPI.giftRepository.product(viewModelScope, "", "", "", {
-            productResponse.value = it
-        }, { i, s ->
-
-        }, {
-
-        })
+//        GitboxAPI.giftRepository.product(viewModelScope, "", "", "", {
+//            productResponse.value = it
+//        }, { i, s ->
+//
+//        }, {
+//
+//        })
     }
 }
