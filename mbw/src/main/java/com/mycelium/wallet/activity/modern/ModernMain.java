@@ -60,6 +60,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
+import com.mycelium.giftbox.GiftBoxRootActivity;
 import com.mycelium.giftbox.cards.GiftBoxFragment;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
@@ -546,7 +547,7 @@ public class ModernMain extends AppCompatActivity {
                 selectRequestTab();
                 break;
             case R.id.miGiftBox:
-                startActivity(new Intent(this, GiftBoxFragment.class));
+                startActivity(new Intent(this, GiftBoxRootActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);

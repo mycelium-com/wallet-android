@@ -1,6 +1,7 @@
 package com.mycelium.giftbox.cards
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
@@ -12,14 +13,8 @@ class GiftBoxFragment : Fragment(R.layout.activity_gift_box) {
 
     var mediator: TabLayoutMediator? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-//        supportActionBar?.run {
-//            setDisplayHomeAsUpEnabled(true)
-//            setDisplayShowTitleEnabled(true)
-//            setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_back_arrow))
-//            setTitle("Gift cards")
-//        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         pager.adapter = CardsFragmentAdapter(childFragmentManager, lifecycle)
         pager.offscreenPageLimit = 2
         mediator = TabLayoutMediator(tabs, pager) { tab, position ->
@@ -29,11 +24,5 @@ class GiftBoxFragment : Fragment(R.layout.activity_gift_box) {
             }
         }
         mediator?.attach()
-
-    }
-
-    override fun onDestroy() {
-        pager.adapter = null
-        super.onDestroy()
     }
 }

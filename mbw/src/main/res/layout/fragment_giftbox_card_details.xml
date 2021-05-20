@@ -46,7 +46,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <androidx.appcompat.widget.AppCompatTextView
+                        <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             android:gravity="center"
@@ -54,7 +54,7 @@
                             bind:layout_constraintEnd_toEndOf="parent"
                             bind:layout_constraintStart_toStartOf="parent"
                             bind:layout_constraintTop_toTopOf="parent"
-                            tools:text="Some desctiption" />
+                            tools:src="@color/cardview_dark_background" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -66,19 +66,19 @@
                     bind:viewModel="@{viewModel}" />
 
 
-<!--                &lt;!&ndash;Contains amount selection&ndash;&gt;-->
-<!--                <include-->
-<!--                    layout="@layout/send_coins_amount"-->
-<!--                    bind:listener="@{activity}"-->
-<!--                    bind:viewModel="@{viewModel}" />-->
+                <!--                &lt;!&ndash;Contains amount selection&ndash;&gt;-->
+                <!--                <include-->
+                <!--                    layout="@layout/send_coins_amount"-->
+                <!--                    bind:listener="@{activity}"-->
+                <!--                    bind:viewModel="@{viewModel}" />-->
 
             </LinearLayout>
 
 
-<!--            &lt;!&ndash; Amount Error &ndash;&gt;-->
-<!--            <include-->
-<!--                layout="@layout/send_coins_insufficient"-->
-<!--                bind:viewModel="@{viewModel}" />-->
+            <!--            &lt;!&ndash; Amount Error &ndash;&gt;-->
+            <!--            <include-->
+            <!--                layout="@layout/send_coins_insufficient"-->
+            <!--                bind:viewModel="@{viewModel}" />-->
 
             <!-- Send -->
             <Button
@@ -88,12 +88,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="@dimen/horizontal_page_margin"
-                android:layout_marginEnd="@dimen/horizontal_page_margin"
                 android:layout_marginTop="32dp"
+                android:layout_marginEnd="@dimen/horizontal_page_margin"
                 android:layout_marginBottom="60dp"
-                android:textSize="20sp"
                 android:text="@string/next"
-                />
+                android:textSize="20sp" />
         </LinearLayout>
     </ScrollView>
 </layout>

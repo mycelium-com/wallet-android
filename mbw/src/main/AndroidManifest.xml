@@ -350,7 +350,7 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name="com.mycelium.giftbox.cards.GiftBoxFragment" />
+        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity" />
     </application>
 
 </manifest>
