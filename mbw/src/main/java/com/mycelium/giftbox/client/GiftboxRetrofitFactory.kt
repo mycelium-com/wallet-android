@@ -34,7 +34,7 @@ object RetrofitFactory {
                     .apply {
                         if (BuildConfig.DEBUG) {
                             addInterceptor(HttpLoggingInterceptor().apply {
-                                level = HttpLoggingInterceptor.Level.BASIC
+                                level = HttpLoggingInterceptor.Level.BODY
                             })
                         }
                     }
