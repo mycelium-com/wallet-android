@@ -11,11 +11,11 @@
 
         <variable
             name="activity"
-            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+            type="com.mycelium.giftbox.cardDetails.CardDetailsFragment" />
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.send.model.SendBtcViewModel" />
+            type="com.mycelium.giftbox.cardDetails.CardDetailsFragmentViewModel" />
     </data>
 
 
@@ -63,34 +63,37 @@
                 <!--Request info-->
                 <include
                     layout="@layout/giftcard_send_info"
-                    bind:fioRequestViewModel="@{fioRequestViewModel}" />
-
-
-                <!--Contains amount selection-->
-                <include
-                    layout="@layout/send_coins_amount"
-                    bind:listener="@{activity}"
                     bind:viewModel="@{viewModel}" />
-                <!-- Recipient Fio Config -->
+
+
+<!--                &lt;!&ndash;Contains amount selection&ndash;&gt;-->
+<!--                <include-->
+<!--                    layout="@layout/send_coins_amount"-->
+<!--                    bind:listener="@{activity}"-->
+<!--                    bind:viewModel="@{viewModel}" />-->
 
             </LinearLayout>
 
 
-            <!-- Amount Error -->
-            <include
-                layout="@layout/send_coins_insufficient"
-                bind:viewModel="@{viewModel}" />
-
-            <!--Update progress bar-->
-            <include
-                layout="@layout/send_coins_progress"
-                bind:viewModel="@{viewModel}" />
+<!--            &lt;!&ndash; Amount Error &ndash;&gt;-->
+<!--            <include-->
+<!--                layout="@layout/send_coins_insufficient"-->
+<!--                bind:viewModel="@{viewModel}" />-->
 
             <!-- Send -->
-            <include
-                layout="@layout/send_coins_send_section"
-                bind:activity="@{activity}"
-                bind:viewModel="@{viewModel}" />
+            <Button
+                android:id="@+id/btSend"
+                style="@style/MyceliumButton.FIO"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/horizontal_page_margin"
+                android:layout_marginEnd="@dimen/horizontal_page_margin"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="60dp"
+                android:textSize="20sp"
+                android:text="@string/next"
+                />
         </LinearLayout>
     </ScrollView>
 </layout>

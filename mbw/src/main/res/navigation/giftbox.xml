@@ -2,10 +2,32 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/giftbox"
-    app:startDestination="@id/startFragment">
+    app:startDestination="@id/giftboxFragment">
 
-    <fragment android:name="com.mycelium.giftbox.cardDetails.CardDetailsFragment" />
+    <fragment
+        android:id="@+id/giftboxFragment"
+        android:name="com.mycelium.giftbox.cards.GiftBoxFragment" >
+        <action android:id="@+id/toPurchasedFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/purchasedFragment"
+        android:name="com.mycelium.giftbox.cards.PurchasedFragment" >
 
-    <fragment android:name="com.mycelium.giftbox.cardDetails.CardDetailsFragment" />
+        <action android:id="@+id/toCardDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cardDetailsFragment"
+        android:name="com.mycelium.giftbox.cardDetails.CardDetailsFragment">
+        <argument
+            android:name="clientUserId"
+            app:argType="string" />
+        <argument
+            android:name="client_order_id"
+            app:argType="string" />
+        <argument
+            android:name="productId"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

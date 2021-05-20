@@ -11,8 +11,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="fioRequestViewModel"
-            type="com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel" />
+            name="viewModel"
+            type="com.mycelium.giftbox.cardDetails.CardDetailsFragmentViewModel" />
     </data>
 
     <LinearLayout
@@ -73,7 +73,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="@{fioRequestViewModel.payeeName}"
+                android:text="@{viewModel.productResponse.priceCurrency}"
                 android:textSize="18sp"
                 app:layout_constraintStart_toEndOf="@id/tvCurrencyTitle"
                 app:layout_constraintTop_toBottomOf="@id/tvDescription"
@@ -98,7 +98,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="@{fioRequestViewModel.payeeName}"
+                android:text="@{viewModel.productResponse.priceCurrency}"
                 android:textSize="18sp"
                 app:layout_constraintStart_toEndOf="@id/tvCountryTitle"
                 app:layout_constraintTop_toBottomOf="@id/tvCurrency"
@@ -122,7 +122,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="@{fioRequestViewModel.payeeName}"
+                android:text="@{viewModel.productResponse.priceCurrency}"
                 android:textSize="18sp"
                 app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
                 app:layout_constraintTop_toBottomOf="@id/tvCountry"
@@ -146,7 +146,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="@{fioRequestViewModel.payeeName}"
+                android:text="@{viewModel.productResponse.priceCurrency}"
                 android:textSize="18sp"
                 app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
                 app:layout_constraintTop_toBottomOf="@id/tvExpire"
