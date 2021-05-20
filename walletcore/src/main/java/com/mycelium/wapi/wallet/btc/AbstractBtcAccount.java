@@ -716,7 +716,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     */
    @Override
    public synchronized boolean broadcastOutgoingTransactions() {
-      checkNotArchived();
+      if(isArchived()) return false;
       List<Sha256Hash> broadcastedIds = new LinkedList<>();
       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
