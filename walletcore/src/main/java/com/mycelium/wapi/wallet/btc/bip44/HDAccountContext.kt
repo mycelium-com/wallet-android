@@ -28,7 +28,7 @@ import java.util.UUID
 class HDAccountContext @JvmOverloads constructor(
         val id: UUID,
         val accountIndex: Int,
-        private var isArchived: Boolean,
+        @Volatile private var isArchived: Boolean,
         private var blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
         val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
