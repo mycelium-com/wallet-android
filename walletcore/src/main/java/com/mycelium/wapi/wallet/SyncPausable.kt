@@ -15,6 +15,10 @@ abstract class SyncPausableAccount() : SyncPausable {
     var maySync = true
 
     var cancelableRequest: CancelableRequest? = null
+        set(value) {
+            if(value?.cancel == null) throw IllegalStateException("cancel function shouldn't be null")
+            field = value
+        }
 
     override fun interruptSync() {
         maySync = false
