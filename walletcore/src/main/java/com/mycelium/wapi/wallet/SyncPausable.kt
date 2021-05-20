@@ -16,7 +16,7 @@ abstract class SyncPausableAccount() : SyncPausable {
 
     var cancelableRequest: CancelableRequest? = null
         set(value) {
-            if(value?.cancel == null) throw IllegalStateException("cancel function shouldn't be null")
+            if (value != null && value.cancel == null) throw IllegalStateException("cancel function shouldn't be null")
             field = value
         }
 
