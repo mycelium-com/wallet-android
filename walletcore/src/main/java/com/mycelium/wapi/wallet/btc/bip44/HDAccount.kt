@@ -135,7 +135,8 @@ open class HDAccount(
         internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
         _cachedBalance = null
-        initContext(isArchived)
+        context.setArchived(isArchived)
+        context.persistIfNecessary(backing)
         initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
@@ -159,11 +160,6 @@ open class HDAccount(
     override fun setDefaultAddressType(addressType: AddressType) {
         context.defaultAddressType = addressType
         context.persistIfNecessary(backing)
-    }
-
-    private fun initContext(isArchived: Boolean) {
-        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths, context.defaultAddressType)
-        context.persist(backing)
     }
 
     /**
