@@ -67,7 +67,10 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 }
             }
         }
-        list.filterIsInstance(SyncPausableAccount::class.java).forEach { it.maySync = true }
+        list.filterIsInstance(SyncPausableAccount::class.java).forEach {
+            it.maySync = true
+            it.clearCancelableRequests()
+        }
     }
 
     private fun broadcastOutgoingTransactions(): Boolean =

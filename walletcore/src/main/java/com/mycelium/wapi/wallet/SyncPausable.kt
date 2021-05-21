@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet
 
 import com.mycelium.wapi.api.request.CancelableRequest
+import java.util.concurrent.ConcurrentSkipListSet
 
 interface SyncPausable {
     /**
@@ -10,20 +11,24 @@ interface SyncPausable {
 }
 
 
-abstract class SyncPausableAccount() : SyncPausable {
+abstract class SyncPausableAccount : SyncPausable {
     @Volatile
     var maySync = true
 
-    var cancelableRequest: CancelableRequest? = null
-        set(value) {
-            if (value != null && value.cancel == null) throw IllegalStateException("cancel function shouldn't be null")
-            field = value
-        }
+    private var cancelableRequests = ConcurrentSkipListSet<CancelableRequest>()
+
+    fun addCancelableRequest(request: CancelableRequest) {
+        cancelableRequests.add(request)
+    }
+
+    fun clearCancelableRequests() {
+        cancelableRequests.clear()
+    }
 
     override fun interruptSync() {
         maySync = false
-        cancelableRequest?.cancel?.invoke()
-        cancelableRequest = null
+        cancelableRequests.forEach { it.cancel?.invoke() }
+        clearCancelableRequests()
     }
 }
 

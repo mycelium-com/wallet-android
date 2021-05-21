@@ -316,7 +316,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       QueryUnspentOutputsResponse unspentOutputResponse;
       try {
          QueryUnspentOutputsRequest request = new QueryUnspentOutputsRequest(Wapi.VERSION, addresses);
-         setCancelableRequest(request);
+         addCancelableRequest(request);
          unspentOutputResponse = _wapi.queryUnspentOutputs(request)
                  .getResult();
       } catch (WapiException e) {
