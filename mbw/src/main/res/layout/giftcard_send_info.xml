@@ -148,7 +148,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:text="@{viewModel.productResponse.product.description}"
                 android:textSize="18sp"
-                app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+                app:layout_constraintStart_toEndOf="@id/tvDiscountTitle"
                 app:layout_constraintTop_toBottomOf="@id/tvExpire"
                 tools:text="10% discount for each" />
 
