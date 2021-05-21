@@ -17,10 +17,10 @@
 package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.AccountIndexesContext
-import java.util.UUID
+import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
+import java.util.*
 
 /**
  * The abstract context of an account
@@ -72,12 +72,16 @@ class HDAccountContext @JvmOverloads constructor(
         if (this.isArchived != isArchived) {
             isDirty = true
             this.isArchived = isArchived
-            blockHeight = 0
-            lastDiscovery = 0
-            val newIndexes = createNewIndexesContexts(indexesMap.keys)
-            indexesMap.clear()
-            indexesMap.putAll(newIndexes)
         }
+    }
+
+    fun reset() {
+        blockHeight = 0
+        lastDiscovery = 0
+        val newIndexes = createNewIndexesContexts(indexesMap.keys)
+        indexesMap.clear()
+        indexesMap.putAll(newIndexes)
+        isDirty = true
     }
 
     /**

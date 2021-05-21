@@ -136,6 +136,7 @@ open class HDAccount(
         receivingAddressMap.clear()
         _cachedBalance = null
         context.setArchived(isArchived)
+        context.reset()
         context.persistIfNecessary(backing)
         initSafeLastIndexes(true)
         if (isActive) {

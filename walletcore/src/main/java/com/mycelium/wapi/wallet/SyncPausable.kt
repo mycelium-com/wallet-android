@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet
 
+import com.google.common.collect.ConcurrentHashMultiset
 import com.mycelium.wapi.api.request.CancelableRequest
-import java.util.concurrent.ConcurrentSkipListSet
 
 interface SyncPausable {
     /**
@@ -15,7 +15,7 @@ abstract class SyncPausableAccount : SyncPausable {
     @Volatile
     var maySync = true
 
-    private var cancelableRequests = ConcurrentSkipListSet<CancelableRequest>()
+    private var cancelableRequests = ConcurrentHashMultiset.create<CancelableRequest>()
 
     fun addCancelableRequest(request: CancelableRequest) {
         cancelableRequests.add(request)
