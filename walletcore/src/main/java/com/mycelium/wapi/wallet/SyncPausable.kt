@@ -2,6 +2,8 @@ package com.mycelium.wapi.wallet
 
 import com.google.common.collect.ConcurrentHashMultiset
 import com.mycelium.wapi.api.request.CancelableRequest
+import java.util.logging.Level
+import java.util.logging.Logger
 
 interface SyncPausable {
     /**
@@ -12,6 +14,7 @@ interface SyncPausable {
 
 
 abstract class SyncPausableAccount : SyncPausable {
+    private val logger = Logger.getLogger(SyncPausableAccount::class.simpleName)
     @Volatile
     var maySync = true
 
@@ -26,6 +29,7 @@ abstract class SyncPausableAccount : SyncPausable {
     }
 
     override fun interruptSync() {
+        logger.log(Level.INFO, "Synchronizing interrupt")
         maySync = false
         cancelableRequests.forEach { it.cancel?.invoke() }
         clearCancelableRequests()
