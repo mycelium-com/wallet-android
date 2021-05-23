@@ -7,14 +7,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.equalsValuesBy
-import com.mycelium.giftbox.model.Card
+import com.mycelium.giftbox.client.models.Product
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
 
 
-class PurchasedAdapter : ListAdapter<Card, RecyclerView.ViewHolder>(DiffCallback()) {
+class PurchasedAdapter : ListAdapter<Product, RecyclerView.ViewHolder>(DiffCallback()) {
 
-    var itemClickListener: ((Card) -> Unit)? = null
+    var itemClickListener: ((Product) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false))
@@ -22,7 +22,7 @@ class PurchasedAdapter : ListAdapter<Card, RecyclerView.ViewHolder>(DiffCallback
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.itemView.title.text = item.company
+        holder.itemView.title.text = item.name
         holder.itemView.description.text = "Gift card amount:"
         holder.itemView.additional.text = "Date:"
         holder.itemView.setOnClickListener {
@@ -32,13 +32,13 @@ class PurchasedAdapter : ListAdapter<Card, RecyclerView.ViewHolder>(DiffCallback
 
     class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    class DiffCallback : DiffUtil.ItemCallback<Card>() {
-        override fun areItemsTheSame(oldItem: Card, newItem: Card): Boolean =
-                oldItem.company == newItem.company
+    class DiffCallback : DiffUtil.ItemCallback<Product>() {
+        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean =
+                oldItem == newItem
 
 
-        override fun areContentsTheSame(oldItem: Card, newItem: Card): Boolean =
+        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean =
                 equalsValuesBy(oldItem, newItem,
-                        { it.image }, { it.company }, { it.description }, { it.discount })
+                        { it.card_image_url }, { it.name }, { it.description } )
     }
 }

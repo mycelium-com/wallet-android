@@ -3,6 +3,7 @@ package com.mycelium.giftbox.cards
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
@@ -12,8 +13,6 @@ import com.mycelium.giftbox.buycard.GiftBoxBuyActivity
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
 import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.models.ProductsResponse
-import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.loader
 import kotlinx.android.synthetic.main.fragment_giftbox_stores.*
@@ -38,22 +37,15 @@ class StoresFragment : Fragment(R.layout.fragment_giftbox_stores) {
                 Status.SUCCESS -> {
                     loader(false)
                     adapter.submitList(
-                        it.data?.products?.map {
-                            Card(
-                                it.card_image_url,
-                                it.name,
-                                it.description,
-                                it.description
-                            )
-                        }
+                        it.data?.products
                     )
                 }
                 Status.ERROR -> {
+                    Toast.makeText(requireContext(), it.error?.localizedMessage, Toast.LENGTH_SHORT).show()
                     loader(false)
                 }
                 Status.LOADING -> {
-//                        loader(true)
-
+                    loader(true)
                 }
             }
 
@@ -64,7 +56,6 @@ class StoresFragment : Fragment(R.layout.fragment_giftbox_stores) {
 
 class StoresFragmentViewModel : ViewModel() {
 
-    private val productsResponse = MutableLiveData<ProductsResponse>()
     private val load = MutableLiveData<Params>()
     fun load(params: Params) {
         load.value = params
@@ -75,8 +66,8 @@ class StoresFragmentViewModel : ViewModel() {
             val (clientUserId, clientOrderId) = it
             doRequest {
                 return@doRequest GitboxAPI.giftRepository.api.products(
-                    clientUserId = clientUserId,
-                    clientOrderId = clientOrderId
+//                    clientUserId = clientUserId,
+//                    clientOrderId = clientOrderId
                 )
             }.asLiveData()
         }

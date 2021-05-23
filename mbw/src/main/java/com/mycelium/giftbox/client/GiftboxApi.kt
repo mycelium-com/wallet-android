@@ -7,18 +7,19 @@ import com.mycelium.giftbox.client.models.ProductsResponse
 import retrofit2.Response
 import retrofit2.http.*
 
-interface GiftboxApi {
+//curl -s -v -G -H 'Content-Type: application/json' -H 'Authorization: Basic VEFrbmdDVkRiRURJMHluSTNsNzBnb1Vya1l0eHFiNW46Y2dwQ3NlOVVaaXFQcHg1cmRFUDhONW53akJ5NG8xc2s=' --data-urlencode 'search=' --data-urlencode 'country=RU' --data-urlencode 'offset=0' --data-urlencode 'limit=10' 'https://apps-api.giftbox.tech/api/products'
 
+interface GiftboxApi {
     @GET("products")
     suspend fun products(
 //        @Query("search") search: String? = null,
 //        @Query("country") country: String? = null,
 //        @Query("category") category: String? = null,
 //        @Query("product_id") product_id: String? = null,
-        @Query("offset", encoded = true) offset: Long = 0,
-        @Query("limit", encoded = true) limit: Long = 100,
-        @Query(value = "client_user_id", encoded = true) clientUserId: String,
-        @Query(value = "client_order_id", encoded = true) clientOrderId: String?
+//        @Query("offset") offset: Long = 0,
+//        @Query("limit") limit: Long = 100,
+//        @Query(value = "client_user_id") clientUserId: String,
+//        @Query(value = "client_order_id") clientOrderId: String?
     ): Response<ProductsResponse>
 
     @GET("product")
