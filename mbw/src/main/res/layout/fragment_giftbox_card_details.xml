@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -12,10 +12,6 @@
         <variable
             name="activity"
             type="com.mycelium.giftbox.cardDetails.CardDetailsFragment" />
-
-        <variable
-            name="viewModel"
-            type="com.mycelium.giftbox.cardDetails.CardDetailsFragmentViewModel" />
     </data>
 
 
@@ -47,30 +43,29 @@
                         android:layout_height="wrap_content">
 
                         <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ivImage"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
+                            android:background="@android:color/transparent"
                             android:gravity="center"
-                            bind:layout_constraintDimensionRatio="3:2"
-                            bind:layout_constraintEnd_toEndOf="parent"
-                            bind:layout_constraintStart_toStartOf="parent"
-                            bind:layout_constraintTop_toTopOf="parent"
-                            tools:src="@color/cardview_dark_background" />
+                            app:layout_constraintDimensionRatio="3:2"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
 
                 <!--Request info-->
-                <include
-                    layout="@layout/giftcard_send_info"
-                    bind:viewModel="@{viewModel}" />
+                <include layout="@layout/giftcard_send_info" />
 
 
                 <!--                &lt;!&ndash;Contains amount selection&ndash;&gt;-->
                 <!--                <include-->
                 <!--                    layout="@layout/send_coins_amount"-->
-                <!--                    bind:listener="@{activity}"-->
-                <!--                    bind:viewModel="@{viewModel}" />-->
+                <!--                    app:listener="@{activity}"-->
+                <!--                    app:viewModel="@{viewModel}" />-->
 
             </LinearLayout>
 
@@ -78,7 +73,7 @@
             <!--            &lt;!&ndash; Amount Error &ndash;&gt;-->
             <!--            <include-->
             <!--                layout="@layout/send_coins_insufficient"-->
-            <!--                bind:viewModel="@{viewModel}" />-->
+            <!--                app:viewModel="@{viewModel}" />-->
 
             <!-- Send -->
             <Button

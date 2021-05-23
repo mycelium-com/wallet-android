@@ -34,8 +34,6 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/MyceliumModern">
-        <activity android:name="com.mycelium.giftbox.details.GiftBoxDetailsActivity"></activity>
-        <activity android:name="com.mycelium.giftbox.buycard.GiftBoxBuyActivity" />
 
         <meta-data
             android:name="firebase_analytics_collection_deactivated"

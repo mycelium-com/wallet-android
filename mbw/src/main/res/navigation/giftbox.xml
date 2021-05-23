@@ -18,12 +18,21 @@
             app:argType="string"
             app:nullable="true" />
 
+        <action
+            android:id="@+id/toCardDetailsFragment"
+            app:destination="@id/cardDetailsFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/giftboxFragment"
         android:name="com.mycelium.giftbox.cards.GiftBoxFragment">
-        <action android:id="@+id/toPurchasedFragment" />
+        <action
+            android:id="@+id/toPurchasedFragment"
+            app:destination="@id/cardDetailsFragment" />
+
+        <action
+            android:id="@+id/toCardDetailsFragment"
+            app:destination="@id/cardDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/purchasedFragment"

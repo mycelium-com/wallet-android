@@ -1,15 +1,14 @@
 package com.mycelium.giftbox.cards
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
+import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.remote.Status
 import com.mycelium.bequant.remote.doRequest
-import com.mycelium.giftbox.buycard.GiftBoxBuyActivity
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
 import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
@@ -29,7 +28,13 @@ class StoresFragment : Fragment(R.layout.fragment_giftbox_stores) {
         super.onViewCreated(view, savedInstanceState)
         list.adapter = adapter
         adapter.itemClickListener = {
-            startActivity(Intent(requireContext(), GiftBoxBuyActivity::class.java))
+            findNavController().navigate(
+                GiftBoxFragmentDirections.toCardDetailsFragment(
+                    Constants.CLIENT_USER_ID,
+                    Constants.CLIENT_ORDER_ID,
+                    it.code!!
+                )
+            )
         }
 
         vm.loadSubsription().observe(viewLifecycleOwner) {
@@ -41,7 +46,8 @@ class StoresFragment : Fragment(R.layout.fragment_giftbox_stores) {
                     )
                 }
                 Status.ERROR -> {
-                    Toast.makeText(requireContext(), it.error?.localizedMessage, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), it.error?.localizedMessage, Toast.LENGTH_SHORT)
+                        .show()
                     loader(false)
                 }
                 Status.LOADING -> {
