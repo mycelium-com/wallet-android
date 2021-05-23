@@ -66,8 +66,8 @@ class StoresFragmentViewModel : ViewModel() {
             val (clientUserId, clientOrderId) = it
             doRequest {
                 return@doRequest GitboxAPI.giftRepository.api.products(
-//                    clientUserId = clientUserId,
-//                    clientOrderId = clientOrderId
+                    clientUserId = clientUserId,
+                    clientOrderId = clientOrderId
                 )
             }.asLiveData()
         }

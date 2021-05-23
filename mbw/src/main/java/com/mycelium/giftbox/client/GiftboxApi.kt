@@ -12,14 +12,14 @@ import retrofit2.http.*
 interface GiftboxApi {
     @GET("products")
     suspend fun products(
-//        @Query("search") search: String? = null,
-//        @Query("country") country: String? = null,
-//        @Query("category") category: String? = null,
-//        @Query("product_id") product_id: String? = null,
-//        @Query("offset") offset: Long = 0,
-//        @Query("limit") limit: Long = 100,
-//        @Query(value = "client_user_id") clientUserId: String,
-//        @Query(value = "client_order_id") clientOrderId: String?
+        @Query("search") search: String? = null,
+        @Query("country") country: String? = null,
+        @Query("category") category: String? = null,
+        @Query("product_id") product_id: String? = null,
+        @Query("offset") offset: Long = 0,
+        @Query("limit") limit: Long = 100,
+        @Query(value = "client_user_id") clientUserId: String,
+        @Query(value = "client_order_id") clientOrderId: String?
     ): Response<ProductsResponse>
 
     @GET("product")
