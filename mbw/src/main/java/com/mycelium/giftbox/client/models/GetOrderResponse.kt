@@ -1,5 +1,9 @@
 package com.mycelium.giftbox.client.models
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class GetOrderResponse(
     val amount: String?,
     val amount_expected_from: String?,
@@ -18,4 +22,4 @@ data class GetOrderResponse(
     val status: String?,
     val timestamp: String?,
     val tx_created_at: String?
-)
+) : Parcelable
