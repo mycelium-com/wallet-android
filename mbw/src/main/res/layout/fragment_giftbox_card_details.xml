@@ -61,11 +61,11 @@
                 <include layout="@layout/giftcard_send_info" />
 
 
-                <!--                &lt;!&ndash;Contains amount selection&ndash;&gt;-->
-                <!--                <include-->
-                <!--                    layout="@layout/send_coins_amount"-->
-                <!--                    app:listener="@{activity}"-->
-                <!--                    app:viewModel="@{viewModel}" />-->
+                                <!--Contains amount selection-->
+<!--                                <include-->
+<!--                                    layout="@layout/send_coins_amount"-->
+<!--                                    app:listener="@{activity}"-->
+<!--                                    app:viewModel="@{viewModel}" />-->
 
             </LinearLayout>
 
