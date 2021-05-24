@@ -287,7 +287,7 @@ public class AccountsFragment extends Fragment {
 
     private void interruptSync(Collection<WalletAccount> accountsToInterrupt) {
         for (WalletAccount<?> wa : accountsToInterrupt) {
-            (new Thread(wa::interruptSync)).start();
+            wa.interruptSync();
         }
     }
 

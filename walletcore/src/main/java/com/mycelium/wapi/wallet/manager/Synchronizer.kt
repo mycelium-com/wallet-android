@@ -63,7 +63,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                         logger.log(Level.SEVERE, "Sync error", ex)
                         false
                     }
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if (isSyncSuccessful) "success" else "failed!"}")
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"}")
                 }
             }
         }

@@ -15,10 +15,10 @@ import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.interruptSync
 import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
-import kotlin.concurrent.thread
 
 class SendInitializationActivity : Activity() {
     private val mbwManager: MbwManager = MbwManager.getInstance(application)
@@ -52,9 +52,7 @@ class SendInitializationActivity : Activity() {
      * Do so without blocking the current thread.
      */
     private fun interruptOtherSyncs(account: WalletAccount<*>, walletManager: WalletManager) {
-        walletManager.getAllActiveAccounts().filter { it != account }.forEach {
-            it.interruptSync()
-        }
+        walletManager.getAllActiveAccounts().filter { it != account }.interruptSync()
     }
 
     override fun onResume() {
