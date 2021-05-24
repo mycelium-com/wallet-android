@@ -81,13 +81,16 @@ public abstract class SynchronizeAbleWalletBtcAccount extends SyncPausableAccoun
    public boolean synchronize(SyncMode mode){
       if (needsSynchronization(mode)){
          isSyncing = true;
-         boolean synced =  doSynchronization(mode);
-         isSyncing = false;
-         // if sync went well, remember current time for this sync mode
-         if (synced){
-            _lastSync.put(mode.mode, new Date());
+         try {
+            boolean synced = doSynchronization(mode);
+            // if sync went well, remember current time for this sync mode
+            if (synced) {
+               _lastSync.put(mode.mode, new Date());
+            }
+            return synced;
+         } finally {
+            isSyncing = false;
          }
-         return synced;
       } else {
          return true;
       }
@@ -95,7 +98,7 @@ public abstract class SynchronizeAbleWalletBtcAccount extends SyncPausableAccoun
 
    @Override
    public boolean isSyncing() {
-      return isSyncing;
+      return isSyncing && getMaySync();
    }
 
    public boolean isVisible() {

@@ -22,7 +22,7 @@ import com.mrd.bitlib.model.BitcoinAddress;
 import java.io.Serializable;
 import java.util.Collection;
 
-public class QueryUnspentOutputsRequest implements Serializable {
+public class QueryUnspentOutputsRequest extends CancelableRequest implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @JsonProperty
