@@ -1,18 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
+        android:id="@+id/tags"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_gift_box_tag" />
+
+    <TextView
+        android:id="@+id/giftCardLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:text="@string/gift_cards_with_discount"
+        android:textColor="@color/fio_white_alpha_0_6"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tags" />
+
+    <TextView
+        android:id="@+id/counties"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:drawablePadding="6dp"
+        android:text="@string/country"
+        android:textColor="#60B687"
+        android:textSize="12sp"
+        app:drawableStartCompat="@drawable/ic_glyph"
+        app:layout_constraintBaseline_toBaselineOf="@id/giftCardLabel"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search"
-        tools:listitem="@layout/item_bequant_market" />
-</LinearLayout>
+        app:layout_constraintTop_toBottomOf="@id/giftCardLabel"
+        tools:listitem="@layout/item_giftbox_store" />
+</androidx.constraintlayout.widget.ConstraintLayout>

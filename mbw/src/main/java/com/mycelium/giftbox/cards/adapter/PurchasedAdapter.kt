@@ -6,15 +6,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.mycelium.bequant.common.equalsValuesBy
-import com.mycelium.giftbox.client.models.Product
+import com.mycelium.giftbox.client.models.Item
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
 
 
-class PurchasedAdapter : ListAdapter<Product, RecyclerView.ViewHolder>(DiffCallback()) {
+class PurchasedAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
 
-    var itemClickListener: ((Product) -> Unit)? = null
+    var itemClickListener: ((Item) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false))
@@ -22,9 +23,12 @@ class PurchasedAdapter : ListAdapter<Product, RecyclerView.ViewHolder>(DiffCallb
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.itemView.title.text = item.name
-        holder.itemView.description.text = "Gift card amount:"
-        holder.itemView.additional.text = "Date:"
+        holder.itemView.title.text = item.product_name
+        holder.itemView.description.text = item.amount
+        holder.itemView.additional.text = item.timestamp
+        Glide.with(holder.itemView.image)
+                .load(item.product_img)
+                .into(holder.itemView.image)
         holder.itemView.setOnClickListener {
             itemClickListener?.invoke(getItem(holder.adapterPosition))
         }
@@ -32,13 +36,13 @@ class PurchasedAdapter : ListAdapter<Product, RecyclerView.ViewHolder>(DiffCallb
 
     class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    class DiffCallback : DiffUtil.ItemCallback<Product>() {
-        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean =
+    class DiffCallback : DiffUtil.ItemCallback<Item>() {
+        override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean =
                 oldItem == newItem
 
 
-        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean =
+        override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean =
                 equalsValuesBy(oldItem, newItem,
-                        { it.card_image_url }, { it.name }, { it.description } )
+                        { it.product_img }, { it.product_name }, { it.amount }, { it.timestamp })
     }
 }

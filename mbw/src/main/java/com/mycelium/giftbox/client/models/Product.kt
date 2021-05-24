@@ -1,5 +1,9 @@
 package com.mycelium.giftbox.client.models
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Product(
         val available_denominations: List<String>?,
         val card_image_url: String?,
@@ -16,4 +20,4 @@ data class Product(
         val name: String?,
         val redeem_instructions_html: String?,
         val terms_and_conditions_pdf_url: String?
-)
+) : Parcelable
