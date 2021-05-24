@@ -89,6 +89,7 @@ constructor(val network: NetworkParameters,
             accounts.values.any { it.canSpend() && it.isMineAddress(address) }
 
     fun createAccounts(config: Config): List<UUID> {
+        getAllActiveAccounts().interruptSync()
         val result = mutableMapOf<UUID, WalletAccount<*>>()
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {

@@ -30,7 +30,7 @@ class EthAccount(private val chainId: Byte,
                  private val accountListener: AccountListener?,
                  blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, EthAccount::class.simpleName, address) {
+        backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
     private var removed = false
 
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
@@ -126,9 +126,8 @@ class EthAccount(private val chainId: Byte,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived) {
-            return false
-        }
+        if (removed || isArchived || !maySync) { return false }
+
         syncTransactions()
         return updateBalanceCache()
     }

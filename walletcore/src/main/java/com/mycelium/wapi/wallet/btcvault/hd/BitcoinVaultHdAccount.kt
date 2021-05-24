@@ -39,7 +39,10 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                             val backing: BitcoinVaultHDAccountBacking,
                             accountListener: AccountListener?,
                             protected val changeAddressModeReference: Reference<ChangeAddressMode>)
-    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount, AddressesListProvider<BtcvAddress> {
+    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener),
+        ExportableAccount,
+        AddressesListProvider<BtcvAddress>,
+        SyncPausable {
 
     private val derivePaths = accountContext.indexesMap.keys
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = initAddressesMap()
@@ -120,6 +123,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         // Do look ahead query
         val result = wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
+        if (!maySync) { return emptySet() }
         blockChainHeight = result.height
         val ids = result.txIds
         if (ids.isEmpty()) {
@@ -134,6 +138,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         val newIds = mutableSetOf<Sha256Hash>()
         val knownTransactions = mutableSetOf<TransactionEx>()
         ids.forEach {
+            if (!maySync) { return emptySet() }
             val dbTransaction = backing.getTransaction(it)
             if (dbTransaction?.height ?: 0 > 0) {
                 // we have it and know its block
@@ -161,7 +166,9 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         accountContext.accountName = label
     }
 
+    @Synchronized
     override fun doSynchronization(proposedMode: SyncMode): Boolean {
+        if (!maySync) { return false }
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTxs = 0
@@ -176,7 +183,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                     return false
                 }
             }
-
+            if (!maySync) { return false }
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } catch (e: RuntimeException) {
@@ -204,6 +211,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             // thus, method is done once discovered is empty.
             var discovered = derivePaths.toSet()
             do {
+                if (!maySync) { return false }
                 discovered = doDiscovery(discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {

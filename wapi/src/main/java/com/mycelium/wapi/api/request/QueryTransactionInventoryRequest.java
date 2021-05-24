@@ -21,8 +21,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.BitcoinAddress;
+import com.mycelium.wapi.api.jsonrpc.RpcRequestOut;
 
-public class QueryTransactionInventoryRequest implements Serializable {
+public class QueryTransactionInventoryRequest extends CancelableRequest implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @JsonProperty

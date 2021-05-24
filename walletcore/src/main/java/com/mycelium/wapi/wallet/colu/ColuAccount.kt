@@ -36,7 +36,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                   , private val accountBacking: ColuAccountBacking
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
-                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
+                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount, SyncPausableAccount() {
     override fun queueTransaction(transaction: Transaction) {
     }
 
@@ -167,6 +167,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     override fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
         try {
+            if (!maySync) {
+                return false
+            }
             val json = coluClient.getAddressTransactions(receiveAddress)
             val genericTransactionSummaries = getGenericListFromJsonTxList(json.transactions)
             val utxosFromJson = utxosFromJson(json, receiveAddress)
@@ -175,7 +178,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
             listener?.balanceUpdated(this)
             return true
-        } catch (e:IOException) {
+        } catch (e: IOException) {
             return false
         }
     }
