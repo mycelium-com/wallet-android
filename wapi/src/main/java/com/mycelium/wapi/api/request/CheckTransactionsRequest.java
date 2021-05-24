@@ -22,7 +22,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.util.Sha256Hash;
 
-public class CheckTransactionsRequest implements Serializable {
+public class CheckTransactionsRequest extends CancelableRequest implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @JsonProperty
@@ -31,4 +31,5 @@ public class CheckTransactionsRequest implements Serializable {
    public CheckTransactionsRequest(@JsonProperty("txIds") List<Sha256Hash> txIds) {
       this.txIds = txIds;
    }
+
 }
