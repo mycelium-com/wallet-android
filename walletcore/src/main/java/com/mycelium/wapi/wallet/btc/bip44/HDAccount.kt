@@ -336,7 +336,7 @@ open class HDAccount(
             postEvent(Event.SERVER_CONNECTION_ERROR)
             return false
         }
-
+        if (!maySync) { return false }
         context.setLastDiscovery(System.currentTimeMillis())
         context.persistIfNecessary(backing)
         return true
@@ -794,5 +794,4 @@ open class HDAccount(
     }
 
     override fun canSign(): Boolean = true
-
 }
