@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Currency(
-    val extraIdName: Any,
+    val extraIdName: String?,
     val fullName: String?,
     val name: String?
 ) : Parcelable
