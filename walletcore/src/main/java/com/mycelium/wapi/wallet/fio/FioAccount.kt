@@ -273,25 +273,28 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
-        if(!maySync) { return false }
-        fioEndpoints.rotateEndpoints()
-        if(!maySync) { return false }
-        syncFioRequests()
-        if(!maySync) { return false }
-        syncFioOBT()
-        if(!maySync) { return false }
-        syncFioAddresses()
-        if(!maySync) { return false }
-        syncFioDomains()
-        if(!maySync) { return false }
-        updateBlockHeight()
-        if(!maySync) { return false }
-        syncTransactions()
-        if(!maySync) { return false }
-        updateMappings()
-        if(!maySync) { return false }
-        updateBalance()
-        syncing = false
+        try {
+            if (!maySync) { return false }
+            fioEndpoints.rotateEndpoints()
+            if (!maySync) { return false }
+            syncFioRequests()
+            if (!maySync) { return false }
+            syncFioOBT()
+            if (!maySync) { return false }
+            syncFioAddresses()
+            if (!maySync) { return false }
+            syncFioDomains()
+            if (!maySync) { return false }
+            updateBlockHeight()
+            if (!maySync) { return false }
+            syncTransactions()
+            if (!maySync) { return false }
+            updateMappings()
+            if (!maySync) { return false }
+            updateBalance()
+        } finally {
+            syncing = false
+        }
         return true
     }
 
