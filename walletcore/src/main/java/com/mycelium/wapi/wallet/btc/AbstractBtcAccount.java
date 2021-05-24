@@ -45,7 +45,6 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
-import com.mycelium.wapi.api.request.CancelableRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
 import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
@@ -113,9 +112,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
@@ -138,8 +134,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    private EventHandler _eventHandler;
    private final BtcAccountBacking _backing;
    protected int syncTotalRetrievedTransactions = 0;
-
-   protected CancelableRequest cancelableRequest = null;
 
    protected AbstractBtcAccount(BtcAccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
@@ -322,8 +316,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       QueryUnspentOutputsResponse unspentOutputResponse;
       try {
          QueryUnspentOutputsRequest request = new QueryUnspentOutputsRequest(Wapi.VERSION, addresses);
-         cancelableRequest = request;
-         unspentOutputResponse = _wapi.queryUnspentOutputs(request).getResult();
+         addCancelableRequest(request);
+         unspentOutputResponse = _wapi.queryUnspentOutputs(request)
+                 .getResult();
       } catch (WapiException e) {
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
          postEvent(Event.SERVER_CONNECTION_ERROR);
@@ -721,7 +716,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     */
    @Override
    public synchronized boolean broadcastOutgoingTransactions() {
-      checkNotArchived();
+      if(isArchived()) return false;
       List<Sha256Hash> broadcastedIds = new LinkedList<>();
       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
@@ -1897,19 +1892,5 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       TransactionEx transactionEx = getTransaction(Sha256Hash.of(txid));
       BitcoinTransaction transaction = TransactionEx.toTransaction(transactionEx);
       fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
-   }
-
-   @Override
-   public void interruptSync() {
-      super.interruptSync();
-      if (cancelableRequest == null) {
-         return;
-      }
-      Function0<Unit> cancel = cancelableRequest.getCancel();
-      if (cancel == null) {
-         return;
-      }
-      cancel.invoke();
-      cancelableRequest = null;
    }
 }

@@ -135,7 +135,9 @@ open class HDAccount(
         internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
         _cachedBalance = null
-        initContext(isArchived)
+        context.setArchived(isArchived)
+        context.reset()
+        context.persistIfNecessary(backing)
         initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
@@ -159,11 +161,6 @@ open class HDAccount(
     override fun setDefaultAddressType(addressType: AddressType) {
         context.defaultAddressType = addressType
         context.persistIfNecessary(backing)
-    }
-
-    private fun initContext(isArchived: Boolean) {
-        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths, context.defaultAddressType)
-        context.persist(backing)
     }
 
     /**
@@ -339,7 +336,7 @@ open class HDAccount(
             postEvent(Event.SERVER_CONNECTION_ERROR)
             return false
         }
-
+        if (!maySync) { return false }
         context.setLastDiscovery(System.currentTimeMillis())
         context.persistIfNecessary(backing)
         return true
@@ -383,7 +380,7 @@ open class HDAccount(
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses).apply {
-                    cancelableRequest = this
+                    addCancelableRequest(this)
                 }).result
         if (!maySync) { return emptySet() }
         blockChainHeight = result.height
