@@ -12,18 +12,18 @@
         tools:layout="@layout/fragment_gift_box">
         <action
             android:id="@+id/toPurchasedFragment"
-            app:destination="@id/cardDetailsFragment" />
+            app:destination="@id/cardBuyFragment" />
 
         <action
             android:id="@+id/toCardDetailsFragment"
-            app:destination="@id/cardDetailsFragment" />
+            app:destination="@id/cardBuyFragment" />
         <action
             android:id="@+id/actionSelectCountries"
             app:destination="@id/selectCountiesFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/cardDetailsFragment"
+        android:id="@+id/cardBuyFragment"
         android:name="com.mycelium.giftbox.cardDetails.CardBuyFragment"
         tools:layout="@layout/fragment_giftbox_card_buy">
         <argument
