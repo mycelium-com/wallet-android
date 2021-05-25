@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxAmountBinding
 import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.coins.Value
@@ -29,7 +30,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         Value(Utils.getTypeByName(CurrencyCode.USD.shortString)!!, 0.toBigInteger())
         set(value) {
             field = value
-            binding.tvAmount.text = value.toString()
+            binding.tvAmount.text = value.toStringWithUnit()
         }
 
 
