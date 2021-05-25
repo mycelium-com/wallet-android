@@ -6,5 +6,5 @@ import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 
 
 class GiftBoxViewModel : ViewModel() {
-    val counties = MutableLiveData<List<CountryModel>>()
+    val counties = MutableLiveData<List<CountryModel>>(emptyList())
 }
