@@ -11,7 +11,7 @@
 
         <variable
             name="activity"
-            type="com.mycelium.giftbox.cardDetails.CardDetailsFragment" />
+            type="com.mycelium.giftbox.checkoutResult.GiftCheckoutResultFragmentViewModel" />
     </data>
 
 

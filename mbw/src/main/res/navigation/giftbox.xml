@@ -40,8 +40,8 @@
 
     <fragment
         android:id="@+id/cardDetailsFragment"
-        android:name="com.mycelium.giftbox.cardDetails.CardDetailsFragment"
-        tools:layout="@layout/fragment_giftbox_card_details">
+        android:name="com.mycelium.giftbox.cardDetails.CardBuyFragment"
+        tools:layout="@layout/fragment_giftbox_card_buy">
         <argument
             android:name="clientUserId"
             app:argType="string" />
