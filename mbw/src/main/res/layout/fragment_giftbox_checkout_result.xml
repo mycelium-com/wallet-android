@@ -36,7 +36,8 @@
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="14dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -53,6 +54,51 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
+                        <TextView
+                            android:id="@+id/tvGiftCardAmountTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="Gift card amount:"
+                            android:textColor="@color/fio_white_alpha_0_8"
+                            android:textSize="14sp"
+                            app:layout_constraintBaseline_toBaselineOf="@id/tvGiftCardAmount"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <TextView
+                            android:id="@+id/tvGiftCardAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textSize="18sp"
+                            app:layout_constraintStart_toEndOf="@id/tvGiftCardAmountTitle"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="240 USD" />
+
+                        <TextView
+                            android:id="@+id/tvExpireTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="Expire date:"
+                            android:textColor="@color/fio_white_alpha_0_8"
+                            android:textSize="14sp"
+                            app:layout_constraintBaseline_toBaselineOf="@id/tvExpire"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <TextView
+                            android:id="@+id/tvExpire"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textSize="14sp"
+                            app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+                            app:layout_constraintTop_toBottomOf="@id/tvGiftCardAmount"
+                            tools:text="Does not expire" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
@@ -61,11 +107,11 @@
                 <include layout="@layout/giftcard_checkout_result_info" />
 
 
-                                <!--Contains amount selection-->
-<!--                                <include-->
-<!--                                    layout="@layout/send_coins_amount"-->
-<!--                                    app:listener="@{activity}"-->
-<!--                                    app:viewModel="@{viewModel}" />-->
+                <!--Contains amount selection-->
+                <!--                                <include-->
+                <!--                                    layout="@layout/send_coins_amount"-->
+                <!--                                    app:listener="@{activity}"-->
+                <!--                                    app:viewModel="@{viewModel}" />-->
 
             </LinearLayout>
 
