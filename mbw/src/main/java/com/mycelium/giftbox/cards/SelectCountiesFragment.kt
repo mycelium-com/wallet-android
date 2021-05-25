@@ -32,7 +32,7 @@ class SelectCountiesFragment : Fragment(R.layout.fragment_select_counties) {
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.selected.clear()
-        adapter.selected.addAll(activityViewModel.counties.value ?: listOf())
+        adapter.selected.addAll(activityViewModel.countries.value ?: listOf())
         adapter.submitList(CountriesSource.countryModels)
         binding?.search?.doAfterTextChanged { search ->
             adapter.submitList(CountriesSource.countryModels
@@ -44,7 +44,7 @@ class SelectCountiesFragment : Fragment(R.layout.fragment_select_counties) {
     }
 
     override fun onPause() {
-        activityViewModel.counties.postValue(adapter.selected)
+        activityViewModel.countries.value = adapter.selected
         super.onPause()
     }
 

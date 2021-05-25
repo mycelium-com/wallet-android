@@ -29,7 +29,7 @@ class StoresAdapter : ListAdapter<Product, RecyclerView.ViewHolder>(DiffCallback
                 .into(holder.itemView.image)
 
         holder.itemView.title.text = item.name
-        holder.itemView.description.text = item.description
+        holder.itemView.description.text = item.categories?.joinToString(",")
         holder.itemView.additional.text = "from ${item.minimum_value} to ${item.maximum_value}"
 
         item.minimum_value?.let {
