@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.cards.adapter
 
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,8 @@ import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.Item
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
+import java.text.DateFormat
+import java.util.*
 
 
 class PurchasedAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -25,7 +28,7 @@ class PurchasedAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback
         val item = getItem(position)
         holder.itemView.title.text = item.product_name
         holder.itemView.description.text = item.amount
-        holder.itemView.additional.text = item.timestamp
+        holder.itemView.additional.text = getDateString(holder.itemView.resources, item.timestamp!!)
         Glide.with(holder.itemView.image)
                 .load(item.product_img)
                 .into(holder.itemView.image)
@@ -33,6 +36,9 @@ class PurchasedAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback
             itemClickListener?.invoke(getItem(holder.adapterPosition))
         }
     }
+
+    private fun getDateString(resources: Resources, date: Date): String =
+            DateFormat.getDateInstance(DateFormat.LONG, resources.configuration.locale).format(date)
 
     class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 

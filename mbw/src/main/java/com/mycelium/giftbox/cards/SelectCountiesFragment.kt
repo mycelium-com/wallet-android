@@ -36,7 +36,7 @@ class SelectCountiesFragment : Fragment(R.layout.fragment_select_counties) {
         adapter.submitList(CountriesSource.countryModels)
         binding?.search?.doAfterTextChanged { search ->
             adapter.submitList(CountriesSource.countryModels
-                    .filter { it.name.contains(search.toString(), true) || it.acronym.contains(search.toString(), true) })
+                    .filter { it.name.contains(search.toString(), true) || it.acronym3.contains(search.toString(), true) })
         }
         binding?.clear?.setOnClickListener {
             binding?.search?.text = null

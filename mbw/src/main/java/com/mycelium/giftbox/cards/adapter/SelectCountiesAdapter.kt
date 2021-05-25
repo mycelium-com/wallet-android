@@ -20,7 +20,7 @@ class SelectCountiesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         holder.itemView.tv_currency_name.text = item.name
-        holder.itemView.tv_currency_short.text = item.acronym
+        holder.itemView.tv_currency_short.text = item.acronym3
         holder.itemView.checkbox_currency.isChecked = selected.contains(item)
         holder.itemView.setOnClickListener {
             toggleChecked(getItem(holder.adapterPosition))
