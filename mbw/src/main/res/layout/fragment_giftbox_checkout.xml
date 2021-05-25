@@ -51,11 +51,11 @@
 
 
                 <!--                Contains amount selection-->
-                <include
-                    layout="@layout/send_coins_amount"
-                    app:listener="@{activity}"
+<!--                <include-->
+<!--                    layout="@layout/send_coins_amount"-->
+<!--                    app:listener="@{activity}"-->
 
-                    />
+<!--                    />-->
 <!--                app:viewModel="@{viewModel}"-->
 
             </LinearLayout>

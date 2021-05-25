@@ -1,5 +1,9 @@
 package com.mycelium.giftbox.cardDetails
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,25 +12,43 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.Status
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.send.event.AmountListener
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxCardBuyBinding
+import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 import kotlinx.coroutines.flow.onEach
 
-class CardBuyFragment : Fragment(), AmountListener {
+class CardBuyFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxCardBuyBinding
     val args by navArgs<CardBuyFragmentArgs>()
 
     val viewModel: CardDetailsFragmentViewModel by viewModels()
+
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            intent?.getSerializableExtra(AmountInputFragment.AMOUNT_KEY)?.let {
+                val value = it as Value
+                binding.tvAmount.text = value.toStringWithUnit()
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(receiver, IntentFilter(AmountInputFragment.ACTION_AMOUNT_SELECTED))
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,7 +83,11 @@ class CardBuyFragment : Fragment(), AmountListener {
                             """from ${product?.minimum_value} to ${product?.maximum_value}"""
 
                         amountRoot.setOnClickListener {
-                            findNavController().navigate(CardBuyFragmentDirections.enterAmount(product!!))
+                            findNavController().navigate(
+                                CardBuyFragmentDirections.enterAmount(
+                                    product!!
+                                )
+                            )
                         }
                     }
                     loader(false)
@@ -83,13 +109,21 @@ class CardBuyFragment : Fragment(), AmountListener {
             )
         )
         binding.btSend.setOnClickListener {
-            findNavController().navigate(CardBuyFragmentDirections.actionNext(viewModel.productResponse.value?.product!!, 100, 0))
+            findNavController().navigate(
+                CardBuyFragmentDirections.actionNext(
+                    viewModel.productResponse.value?.product!!,
+                    100,
+                    0
+                )
+            )
         }
     }
 
-    override fun onClickAmount() {
-
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
+
 }
 
 

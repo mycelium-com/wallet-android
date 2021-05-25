@@ -1,11 +1,13 @@
 package com.mycelium.giftbox.cardDetails
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.*
@@ -53,7 +55,10 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         _mbwManager = MbwManager.getInstance(activity?.applicationContext)
         with(binding) {
             btOk.setOnClickListener {
-//                setFragmentResult(REQUEST_AMOUNT, bundleOf(AMOUNT_KEY to _amount))
+                LocalBroadcastManager.getInstance(requireContext())
+                    .sendBroadcast(Intent(ACTION_AMOUNT_SELECTED).apply {
+                        putExtra(AMOUNT_KEY, _amount)
+                    })
                 findNavController().navigateUp()
             }
             btMax.setOnClickListener {
@@ -115,6 +120,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
 
     companion object {
+        const val ACTION_AMOUNT_SELECTED: String = "action_amount"
         const val REQUEST_AMOUNT = "request_amount"
         const val AMOUNT_KEY = "amount"
         const val ENTERED_AMOUNT = "enteredamount"
