@@ -24,6 +24,7 @@
 
     <fragment
         android:id="@+id/cardBuyFragment"
+        android:label="Gift card amount"
         android:name="com.mycelium.giftbox.cardDetails.CardBuyFragment"
         tools:layout="@layout/fragment_giftbox_card_buy">
         <argument

@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.*
@@ -18,6 +16,8 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import kotlinx.android.synthetic.main.layout_fio_request_notification.*
+import java.math.BigDecimal
+import java.math.BigInteger
 
 class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var binding: FragmentGiftboxAmountBinding
@@ -29,9 +29,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         Value(Utils.getTypeByName(CurrencyCode.USD.shortString)!!, 0.toBigInteger())
         set(value) {
             field = value
-            binding.tvAmount.text = value.toFriendlyString()
+            binding.tvAmount.text = value.toString()
         }
-
 
 
     override fun onCreateView(
@@ -53,16 +52,19 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         _mbwManager = MbwManager.getInstance(activity?.applicationContext)
         with(binding) {
             btOk.setOnClickListener {
-                setFragmentResult(REQUEST_AMOUNT, bundleOf(AMOUNT_KEY to _amount))
+//                setFragmentResult(REQUEST_AMOUNT, bundleOf(AMOUNT_KEY to _amount))
                 findNavController().navigateUp()
             }
             btMax.setOnClickListener {
-                _amount = valueOf(_amount.type, args.product.maximum_value!!)
+                setEnteredAmount(toUnits(args.product.maximum_value).toString())
             }
         }
 
         initNumberEntry(savedInstanceState)
     }
+
+    private fun toUnits(amount: BigDecimal): BigInteger =
+        amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
@@ -78,7 +80,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         // Init the number pad
         val amountString: String
         if (!isNullOrZero(_amount)) {
-            amountString = _amount.toString(_mbwManager.getDenomination(_amount.type))
+            val denomination = _mbwManager.getDenomination(_amount.type)
+            amountString = _amount.toString(denomination)
         } else {
             amountString = ""
         }
@@ -95,12 +98,18 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     }
 
     private fun setEnteredAmount(value: String) {
-        _amount = valueOf(_amount.type, value)
+        if (value.isEmpty()) {
+            _amount = valueOf(_amount.type, BigInteger.ZERO)
+        } else {
+            _amount = valueOf(_amount.type, value)
+        }
     }
 
     private fun checkEntry() {
         val valid = !isNullOrZero(_amount)
-        binding.btOk.isEnabled = !valid
+                && _amount.moreThan(valueOf(_amount.type, toUnits(args.product.minimum_value)))
+                && _amount.lessThan(valueOf(_amount.type, toUnits(args.product.maximum_value)))
+        binding.btOk.isEnabled = valid
     }
 
 
