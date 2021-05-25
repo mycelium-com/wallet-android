@@ -30,32 +30,56 @@
         tools:text="Amazon UK" />
 
     <TextView
-        android:id="@+id/description"
-        android:layout_width="0dp"
+        android:id="@+id/descriptionLabel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:text="@string/gift_card_amount"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@id/additional"
         app:layout_constraintLeft_toRightOf="@id/image"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="8dp"
+        android:textColor="@color/fio_white_alpha_0_9"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/descriptionLabel"
+        app:layout_constraintLeft_toRightOf="@id/descriptionLabel"
         app:layout_constraintRight_toLeftOf="@id/discount"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        tools:text="Food, books, electronics" />
+        tools:text="100 USD" />
+
+    <TextView
+        android:id="@+id/additionalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Date:"
+        android:textColor="@color/fio_white_alpha_0_6"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/image"
+        app:layout_constraintLeft_toRightOf="@id/image" />
 
     <TextView
         android:id="@+id/additional"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="3dp"
         android:layout_marginEnd="8dp"
-        android:textColor="@color/fio_white_alpha_0_6"
+        android:textColor="@color/fio_white_alpha_0_9"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/image"
-        app:layout_constraintLeft_toRightOf="@id/image"
+        app:layout_constraintBaseline_toBaselineOf="@id/additionalLabel"
+        app:layout_constraintLeft_toRightOf="@id/additionalLabel"
         app:layout_constraintRight_toLeftOf="@id/discount"
-        tools:text="from 1 $" />
+        tools:text="September 18" />
 
     <ImageView
         android:id="@+id/discount"

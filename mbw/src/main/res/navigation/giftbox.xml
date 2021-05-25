@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/giftbox"
     app:startDestination="@id/giftboxFragment">
 
     <fragment
         android:id="@+id/storesFragment"
-        android:name="com.mycelium.giftbox.cards.StoresFragment">
-        <argument
-            android:name="clientUserId"
-            app:argType="string" />
-        <argument
-            android:name="client_order_id"
-            app:argType="string" />
-        <argument
-            android:name="productId"
-            app:argType="string"
-            app:nullable="true" />
-
+        android:name="com.mycelium.giftbox.cards.StoresFragment"
+        tools:layout="@layout/fragment_giftbox_stores">
         <action
             android:id="@+id/toCardDetailsFragment"
             app:destination="@id/cardDetailsFragment" />
@@ -25,7 +16,9 @@
 
     <fragment
         android:id="@+id/giftboxFragment"
-        android:name="com.mycelium.giftbox.cards.GiftBoxFragment">
+        android:name="com.mycelium.giftbox.cards.GiftBoxFragment"
+        android:label="Gift cards"
+        tools:layout="@layout/fragment_gift_box">
         <action
             android:id="@+id/toPurchasedFragment"
             app:destination="@id/cardDetailsFragment" />
@@ -33,17 +26,22 @@
         <action
             android:id="@+id/toCardDetailsFragment"
             app:destination="@id/cardDetailsFragment" />
+        <action
+            android:id="@+id/actionSelectCountries"
+            app:destination="@id/selectCountiesFragment" />
     </fragment>
     <fragment
         android:id="@+id/purchasedFragment"
-        android:name="com.mycelium.giftbox.cards.PurchasedFragment">
+        android:name="com.mycelium.giftbox.cards.PurchasedFragment"
+        tools:layout="@layout/fragment_giftbox_purchased">
 
         <action android:id="@+id/toCardDetailsFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/cardDetailsFragment"
-        android:name="com.mycelium.giftbox.cardDetails.CardDetailsFragment">
+        android:name="com.mycelium.giftbox.cardDetails.CardDetailsFragment"
+        tools:layout="@layout/fragment_giftbox_card_details">
         <argument
             android:name="clientUserId"
             app:argType="string" />
@@ -57,7 +55,8 @@
 
     <fragment
         android:id="@+id/giftCheckoutFragment"
-        android:name="com.mycelium.giftbox.checkout.GiftCheckoutFragment">
+        android:name="com.mycelium.giftbox.checkout.GiftCheckoutFragment"
+        tools:layout="@layout/fragment_giftbox_checkout">
         <argument
             android:name="clientUserId"
             app:argType="string" />
@@ -88,5 +87,10 @@
             android:name="result"
             app:argType="com.mycelium.giftbox.client.models.CheckoutProductResponse" />
     </fragment>
+    <fragment
+        android:id="@+id/selectCountiesFragment"
+        android:name="com.mycelium.giftbox.cards.SelectCountiesFragment"
+        android:label="Select country"
+        tools:layout="@layout/fragment_select_counties" />
 
 </navigation>

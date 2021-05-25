@@ -1633,4 +1633,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fio_payment_request">FIO Payment Request</string>
     <string name="enter_fio_name">Enter FIO Name you are requesting funds from</string>
     <string name="fio_recipient_invalid">Invalid FIO Name</string>
+    <string name="gift_card_amount">Gift card amount:</string>
+    <string name="gift_cards_with_discount">Gift cards with discount</string>
+    <plurals name="d_countries">
+        <item quantity="zero">All countries</item>
+        <item quantity="one">%d country</item>
+        <item quantity="other">%d countries</item>
+    </plurals>
 </resources>

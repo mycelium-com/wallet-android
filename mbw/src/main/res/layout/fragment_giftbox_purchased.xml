@@ -12,5 +12,5 @@
         android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_bequant_market" />
+        tools:listitem="@layout/item_giftbox_purchaced" />
 </LinearLayout>
