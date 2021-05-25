@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.remote.Status
 import com.mycelium.bequant.remote.doRequest
@@ -77,13 +78,14 @@ class CardDetailsFragment : Fragment(), AmountListener {
                 args.productId
             )
         )
+        binding.btSend.setOnClickListener {
+            findNavController().navigate(CardDetailsFragmentDirections.actionNext())
+        }
     }
 
     override fun onClickAmount() {
 
     }
-
-
 }
 
 

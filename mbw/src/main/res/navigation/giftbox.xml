@@ -6,15 +6,6 @@
     app:startDestination="@id/giftboxFragment">
 
     <fragment
-        android:id="@+id/storesFragment"
-        android:name="com.mycelium.giftbox.cards.StoresFragment"
-        tools:layout="@layout/fragment_giftbox_stores">
-        <action
-            android:id="@+id/toCardDetailsFragment"
-            app:destination="@id/cardDetailsFragment" />
-    </fragment>
-
-    <fragment
         android:id="@+id/giftboxFragment"
         android:name="com.mycelium.giftbox.cards.GiftBoxFragment"
         android:label="Gift cards"
@@ -30,13 +21,6 @@
             android:id="@+id/actionSelectCountries"
             app:destination="@id/selectCountiesFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/purchasedFragment"
-        android:name="com.mycelium.giftbox.cards.PurchasedFragment"
-        tools:layout="@layout/fragment_giftbox_purchased">
-
-        <action android:id="@+id/toCardDetailsFragment" />
-    </fragment>
 
     <fragment
         android:id="@+id/cardDetailsFragment"
@@ -51,11 +35,15 @@
         <argument
             android:name="productId"
             app:argType="string" />
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/selectAccountFragment2" />
     </fragment>
 
     <fragment
         android:id="@+id/giftCheckoutFragment"
         android:name="com.mycelium.giftbox.checkout.GiftCheckoutFragment"
+        android:label="Buy gift card"
         tools:layout="@layout/fragment_giftbox_checkout">
         <argument
             android:name="clientUserId"
@@ -76,13 +64,15 @@
             android:name="quantity"
             app:argType="integer" />
 
-        <action android:id="@+id/toCheckoutResult"
-            app:destination="@id/giftCheckoutResultFragment"/>
+        <action
+            android:id="@+id/toCheckoutResult"
+            app:destination="@id/giftCheckoutResultFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/giftCheckoutResultFragment"
         android:name="com.mycelium.giftbox.checkoutResult.GiftCheckoutResultFragment"
+        android:label="Success!"
         tools:layout="@layout/fragment_giftbox_checkout_result">
         <argument
             android:name="result"
@@ -93,5 +83,14 @@
         android:name="com.mycelium.giftbox.cards.SelectCountiesFragment"
         android:label="Select country"
         tools:layout="@layout/fragment_select_counties" />
+    <fragment
+        android:id="@+id/selectAccountFragment2"
+        android:name="com.mycelium.bequant.receive.SelectAccountFragment"
+        android:label="Buy gift card"
+        tools:layout="@layout/fragment_bequant_select_account">
+        <action
+            android:id="@+id/actionCheckout"
+            app:destination="@id/giftCheckoutFragment" />
+    </fragment>
 
 </navigation>
