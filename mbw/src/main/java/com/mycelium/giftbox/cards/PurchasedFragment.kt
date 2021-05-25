@@ -8,7 +8,6 @@ import androidx.lifecycle.observe
 import com.mycelium.bequant.remote.Status
 import com.mycelium.giftbox.cards.adapter.PurchasedAdapter
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
-import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
 import com.mycelium.giftbox.client.Constants
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -36,7 +35,7 @@ class PurchasedFragment : Fragment(R.layout.fragment_giftbox_purchased) {
                     adapter.submitList(it.data?.items)
                 }
                 Status.ERROR -> {
-                    Toaster(this).toast(it.error?.localizedMessage?:"", true)
+                    Toaster(this).toast(it.error?.localizedMessage ?: "", true)
                     loader(false)
                 }
                 Status.LOADING -> {

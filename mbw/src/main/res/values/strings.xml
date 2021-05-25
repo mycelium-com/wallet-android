@@ -1654,6 +1654,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="btcv_hd_accounts_name">Bitcoin Vault HD</string>
     <string name="gift_card_amount">Gift card amount:</string>
     <string name="gift_cards_with_discount">Gift cards with discount</string>
+    <string name="select_account_to_pay_with">Select account to pay with:</string>
     <plurals name="d_countries">
         <item quantity="zero">All countries</item>
         <item quantity="one">%d country</item>

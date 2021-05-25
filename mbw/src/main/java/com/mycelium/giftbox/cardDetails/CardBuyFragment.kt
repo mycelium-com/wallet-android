@@ -82,13 +82,14 @@ class CardBuyFragment : Fragment(), AmountListener {
                 args.productId
             )
         )
+        binding.btSend.setOnClickListener {
+            findNavController().navigate(CardDetailsFragmentDirections.actionNext(viewModel.productResponse.value?.product!!, 100, 0))
+        }
     }
 
     override fun onClickAmount() {
 
     }
-
-
 }
 
 

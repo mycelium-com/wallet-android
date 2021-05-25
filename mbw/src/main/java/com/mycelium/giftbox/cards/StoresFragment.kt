@@ -56,7 +56,7 @@ class StoresFragment : Fragment(R.layout.fragment_giftbox_stores) {
                     adapter.submitList(it.data?.products)
                 }
                 Status.ERROR -> {
-                    Toaster(this).toast(it.error?.localizedMessage?:"", true)
+                    Toaster(this).toast(it.error?.localizedMessage ?: "", true)
                     loader(false)
                 }
                 Status.LOADING -> {
