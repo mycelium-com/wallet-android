@@ -14,10 +14,13 @@ import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.databinding.AddressFragmentBinding
 import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
+import com.mycelium.wallet.databinding.AddressFragmentBtcBinding
 import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import kotlinx.android.synthetic.main.address_fragment_fioname.*
 import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_qr.*
@@ -41,13 +44,13 @@ class AddressFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding =
                 if (accountSupportsMultipleBtcReceiveAddresses(mbwManager.selectedAccount)) {
-                    DataBindingUtil.inflate<AddressFragmentBtcBindingImpl>(inflater, R.layout.address_fragment_btc,
+                    DataBindingUtil.inflate<AddressFragmentBtcBinding>(inflater, R.layout.address_fragment_btc,
                             container, false).also {
                         it.activity = activity
                         it.viewModel = viewModel as AddressFragmentBtcModel
                     }
                 } else {
-                    DataBindingUtil.inflate<AddressFragmentBindingImpl>(inflater, R.layout.address_fragment,
+                    DataBindingUtil.inflate<AddressFragmentBinding>(inflater, R.layout.address_fragment,
                             container, false).also {
                         it.activity = activity
                         it.viewModel = viewModel as AddressFragmentCoinsModel
@@ -58,7 +61,8 @@ class AddressFragment : Fragment() {
     }
 
     private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*>): Boolean =
-            account is AbstractBtcAccount && account.availableAddressTypes.size > 1
+            (account is AbstractBtcAccount && account.availableAddressTypes.size > 1)
+                    || (account is AbstractBtcvAccount && account.availableAddressTypes.size > 1)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

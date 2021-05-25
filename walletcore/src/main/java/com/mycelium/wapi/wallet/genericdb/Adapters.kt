@@ -2,9 +2,15 @@ package com.mycelium.wapi.wallet.genericdb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.google.common.base.Preconditions
 import com.google.gson.GsonBuilder
+import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.OutPoint
+import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.generated.wallet.database.*
 import com.mycelium.generated.wallet.database.EthAccountBacking
+import com.mycelium.wapi.wallet.AccountIndexesContext
 import com.mycelium.wapi.wallet.coins.*
 import com.mycelium.wapi.wallet.fio.FIODomain
 import com.mycelium.wapi.wallet.fio.FioName
@@ -15,9 +21,11 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FundsRequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.RecordObtDataContent
 import java.math.BigInteger
 import java.util.*
+import kotlin.collections.HashMap
 
 
 object Adapters {
+    val mapper = ObjectMapper()
 
     val uuidAdapter = object : ColumnAdapter<UUID, String> {
         override fun decode(databaseValue: String) = databaseValue.let(UUID::fromString)
@@ -52,8 +60,6 @@ object Adapters {
 
     val balanceAdapter = object : ColumnAdapter<Balance, String> {
         override fun decode(databaseValue: String): Balance {
-            val mapper = ObjectMapper()
-
             val rootNode = mapper.readTree(databaseValue)
             val childNodes = rootNode.get("Balance") as ArrayNode
             val asset = rootNode.get("Asset").asText()
@@ -67,8 +73,6 @@ object Adapters {
         }
 
         override fun encode(value: Balance): String {
-            val mapper = ObjectMapper()
-
             val rootNode = mapper.createObjectNode()
             val childNodes = mapper.createArrayNode()
 
@@ -84,8 +88,6 @@ object Adapters {
 
     val valueAdapter = object : ColumnAdapter<Value, String> {
         override fun decode(databaseValue: String): Value {
-            val mapper = ObjectMapper()
-
             val rootNode = mapper.readTree(databaseValue)
             val asset = COINS.getValue(rootNode["Asset"].asText())
             val value = rootNode["Value"].bigIntegerValue()
@@ -93,8 +95,6 @@ object Adapters {
         }
 
         override fun encode(value: Value): String {
-            val mapper = ObjectMapper()
-
             val rootNode = mapper.createObjectNode()
             rootNode.put("Asset", assetAdapter.encode(value.type))
             rootNode.put("Value", value.value)
@@ -114,34 +114,30 @@ object Adapters {
 
     val listAdapter = object : ColumnAdapter<List<String>, String> {
         override fun decode(databaseValue: String): List<String> {
-            val mapper = ObjectMapper()
             val type = mapper.typeFactory.constructCollectionType(ArrayList::class.java, String::class.java)
             return mapper.readValue(databaseValue, type)
         }
 
-        override fun encode(value: List<String>): String {
-            return ObjectMapper().writeValueAsString(value)
-        }
+        override fun encode(value: List<String>): String =
+                mapper.writeValueAsString(value)
     }
 
     val registeredFioNameAdapter = object : ColumnAdapter<List<RegisteredFIOName>, String> {
         override fun decode(databaseValue: String): List<RegisteredFIOName> {
-            val mapper = ObjectMapper()
             val type = mapper.typeFactory.constructCollectionType(ArrayList::class.java, RegisteredFIOName::class.java)
             return mapper.readValue(databaseValue, type)
         }
 
-        override fun encode(value: List<RegisteredFIOName>): String = ObjectMapper().writeValueAsString(value)
+        override fun encode(value: List<RegisteredFIOName>): String = mapper.writeValueAsString(value)
     }
 
     val fioDomainAdapter = object : ColumnAdapter<List<FIODomain>, String> {
         override fun decode(databaseValue: String): List<FIODomain> {
-            val mapper = ObjectMapper()
             val type = mapper.typeFactory.constructCollectionType(ArrayList::class.java, FIODomain::class.java)
             return mapper.readValue(databaseValue, type)
         }
 
-        override fun encode(value: List<FIODomain>): String = ObjectMapper().writeValueAsString(value)
+        override fun encode(value: List<FIODomain>): String = mapper.writeValueAsString(value)
     }
 
     val fioRequestStatusAdapter = object : ColumnAdapter<FioRequestStatus, String> {
@@ -167,6 +163,44 @@ object Adapters {
 
         override fun encode(value: RecordObtDataContent): String = value.toJson()
     }
+
+    val sha256Adapter = object : ColumnAdapter<Sha256Hash, ByteArray> {
+        override fun decode(databaseValue: ByteArray): Sha256Hash = Sha256Hash(databaseValue)
+
+        override fun encode(value: Sha256Hash): ByteArray = value.bytes
+    }
+    val outPointAdapter = object : ColumnAdapter<OutPoint, ByteArray> {
+        override fun decode(databaseValue: ByteArray): OutPoint {
+            Preconditions.checkArgument(databaseValue.size == 34)
+            val hash = Sha256Hash.copyOf(databaseValue, 0)
+            val index: Int = (databaseValue[32].toInt() and 0xFF) or ((databaseValue[33].toInt() and 0xFF) shl 8)
+            return OutPoint(hash, index)
+        }
+
+        override fun encode(value: OutPoint): ByteArray {
+            val bytes = ByteArray(34)
+            System.arraycopy(value.txid.bytes, 0, bytes, 0, Sha256Hash.HASH_LENGTH)
+            bytes[32] = (value.index and 0xFF).toByte()
+            bytes[33] = ((value.index shr 8) and 0xFF).toByte()
+            return bytes
+        }
+    }
+
+    val indexContextsAdapter = object : ColumnAdapter<Map<BipDerivationType, AccountIndexesContext>, String> {
+        override fun decode(databaseValue: String): Map<BipDerivationType, AccountIndexesContext> {
+            val type = mapper.typeFactory.constructMapType(HashMap::class.java, BipDerivationType::class.java, AccountIndexesContext::class.java)
+            return mapper.readValue(databaseValue, type)
+        }
+
+        override fun encode(value: Map<BipDerivationType, AccountIndexesContext>): String =
+                mapper.writeValueAsString(value)
+    }
+
+    val addressTypeAdapter = object : ColumnAdapter<AddressType, String> {
+        override fun decode(databaseValue: String): AddressType = AddressType.valueOf(databaseValue)
+
+        override fun encode(value: AddressType): String = value.toString()
+    }
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
@@ -182,6 +216,14 @@ val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapter
 val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)
 
 val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
+
+val BTCVAccountBackingAdapter = BTCVAccountBacking.Adapter(Adapters.uuidAdapter)
+val BTCVContextAdapter = BTCVContext.Adapter(Adapters.uuidAdapter, Adapters.indexContextsAdapter, Adapters.addressTypeAdapter)
+val BTCVTransactionAdapter = BTCVTransaction.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter, Adapters.sha256Adapter)
+val BTCVUtxoAdapter = BTCVUtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter)
+val BTCVPtxoAdapter = BTCVPtxo.Adapter(Adapters.outPointAdapter, Adapters.uuidAdapter)
+val BTCVRefersPtxoAdapter = BTCVRefersPtxo.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter, Adapters.outPointAdapter)
+val BTCVOutgoingTxAdapter = BTCVOutgoingTx.Adapter(Adapters.sha256Adapter, Adapters.uuidAdapter)
 
 val fioContextAdapter = FioContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.registeredFioNameAdapter,
         Adapters.fioDomainAdapter)

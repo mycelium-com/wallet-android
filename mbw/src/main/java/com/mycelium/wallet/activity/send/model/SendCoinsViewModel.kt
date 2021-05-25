@@ -34,6 +34,7 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.AssetUriParser
 import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.content.btcv.BitcoinVaultUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
@@ -280,6 +281,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     private fun isUriMatchAccountCoinType(uri: AssetUri, coinType: CryptoCurrency): Boolean {
         return when (uri) {
             is BitcoinUri -> coinType == Utils.getBtcCoinType()
+            is BitcoinVaultUri -> coinType == Utils.getBtcvCoinType()
             is MTUri -> coinType == Utils.getMtCoinType()
             is MSSUri -> coinType == Utils.getMassCoinType()
             is RMCUri -> coinType == Utils.getRmcCoinType()
@@ -426,7 +428,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 .createAccounts(UnrelatedHDAccountConfig(listOf(hdKeyNode)))[0]
         xpubSyncing = true
         if (!mbwManager.getWalletManager(true).startSynchronization(receivingAcc!!)) {
-            MbwManager.getEventBus().post(SyncFailed())
+            MbwManager.getEventBus().post(SyncFailed(receivingAcc))
         }
     }
 }

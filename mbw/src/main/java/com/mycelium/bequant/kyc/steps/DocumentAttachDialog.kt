@@ -78,7 +78,7 @@ class DocumentAttachDialog : BottomSheetDialogFragment() {
     }
 
     companion object {
-        private val CAMERA_REQUEST_CODE = 504
+        private const val CAMERA_REQUEST_CODE = 504
 
         var currentPhotoFile: File? = null
     }

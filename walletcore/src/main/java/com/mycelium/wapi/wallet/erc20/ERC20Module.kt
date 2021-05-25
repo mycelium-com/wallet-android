@@ -19,6 +19,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
+import org.web3j.tx.ChainId
 import java.util.*
 
 class ERC20Module(
@@ -33,6 +34,8 @@ class ERC20Module(
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
+    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else ChainId.ROPSTEN
+
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
         val baseLabel: String
@@ -48,7 +51,7 @@ class ERC20Module(
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
-                result = ERC20Account(accountContext, token, config.ethAccount, credentials, accountBacking,
+                result = ERC20Account(chainId, accountContext, token, config.ethAccount, credentials, accountBacking,
                         accountListener, blockchainService)
             }
             else -> throw NotImplementedError("Unknown config")
@@ -116,7 +119,7 @@ class ERC20Module(
         val token = ERC20Token(accountContext.accountName, accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
         val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
-        val account = ERC20Account(accountContext, token, ethAccount, credentials, accountBacking,
+        val account = ERC20Account(chainId, accountContext, token, ethAccount, credentials, accountBacking,
                 accountListener, blockchainService)
         accounts[account.id] = account
         return account

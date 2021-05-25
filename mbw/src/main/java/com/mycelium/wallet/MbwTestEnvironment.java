@@ -40,15 +40,19 @@ import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.net.TorHttpsEndpoint;
 import com.mycelium.wallet.activity.util.BlockExplorer;
+import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
-import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wallet.external.BankCardServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +61,11 @@ public class MbwTestEnvironment extends MbwEnvironment {
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;
+   }
+
+   @Override
+   public BTCVNetworkParameters getBTCVNetwork() {
+      return BTCVNetworkParameters.getTestNetwork();
    }
 
    /**
@@ -106,6 +115,9 @@ public class MbwTestEnvironment extends MbwEnvironment {
             add(new BlockExplorer("FBI", "fio.bloks.io", "https://fio-test.bloks.io/account/", "https://fio-test.bloks.io/transaction/", null, null));
             add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.testnet.fioprotocol.io/account/", "https://explorer.testnet.fioprotocol.io/transaction/", null, null));
          }});
+         put(BitcoinVaultTest.INSTANCE.getName(), Arrays.asList(
+                 new BlockExplorer("BVE", "explorer.bitcoinvault.global", "http://18.196.199.105/address/", "http://18.196.199.105/tx/", null, null)
+         ));
       }
    };
 
@@ -115,7 +127,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
 
    public List<BuySellServiceDescriptor> getBuySellServices() {
       return new ArrayList<BuySellServiceDescriptor>() {{
-         add(new SimplexServiceDescription());
+         add(new BankCardServiceDescription());
          add(new SepaServiceDescription());
          add(new LocalTraderServiceDescription());
       }};

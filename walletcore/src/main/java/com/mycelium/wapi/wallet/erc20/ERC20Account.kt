@@ -26,14 +26,15 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 
-class ERC20Account(private val accountContext: ERC20AccountContext,
+class ERC20Account(private val chainId: Byte,
+                   private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    val ethAcc: EthAccount,
                    credentials: Credentials,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
                    blockchainService: EthBlockchainService) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, ERC20Account::class.simpleName) {
+        backing, blockchainService, ERC20Account::class.simpleName), SyncPausable {
     private var removed = false
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
@@ -69,11 +70,13 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         val ethTx = request as EthTransaction
         val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
                 token.contractAddress, ethTx.value.value, ethTx.inputData)
-        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
+        val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
-        request.signedHex = hexValue
-        request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
-        request.txBinary = TransactionEncoder.encode(rawTransaction)!!
+        request.apply {
+            signedHex = hexValue
+            txHash = TransactionUtils.generateTransactionHash(rawTransaction, chainId, credentials)
+            txBinary = TransactionEncoder.encode(rawTransaction)!!
+        }
     }
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
@@ -112,7 +115,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived) {
+        if (removed || isArchived || !maySync) {
             return false
         }
         syncTransactions()

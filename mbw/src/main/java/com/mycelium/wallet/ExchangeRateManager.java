@@ -37,7 +37,8 @@ package com.mycelium.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import androidx.annotation.NonNull;
 
@@ -46,6 +47,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.exchange.GetExchangeRate;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
@@ -442,7 +444,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
         @Override
         public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
-            Toast.makeText(_applicationContext, "Service unavailable", Toast.LENGTH_SHORT).show();
+            new Toaster(_applicationContext).toast(R.string.service_unavailable, true);
         }
     }
 

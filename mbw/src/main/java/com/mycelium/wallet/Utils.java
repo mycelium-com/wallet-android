@@ -64,7 +64,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
@@ -83,22 +82,23 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -112,9 +112,12 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
@@ -129,6 +132,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.coins.FIOMain;
 import com.mycelium.wapi.wallet.fio.coins.FIOTest;
 import com.mycelium.wapi.wallet.fio.coins.FIOToken;
@@ -255,8 +259,7 @@ public class Utils {
    }
 
    public static void toastConnectionError(Context context) {
-      int resId = isConnected(context) ? R.string.no_server_connection : R.string.no_network_connection;
-      Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
+      new Toaster(context).toastConnectionError();
    }
 
    public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
@@ -506,7 +509,7 @@ public class Utils {
          clipboard.setPrimaryClip(ClipData.newPlainText("Mycelium", string));
       } catch (NullPointerException ex) {
          MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(context, context.getString(R.string.unable_to_set_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_set_clipboard, false);
       }
    }
 
@@ -525,11 +528,11 @@ public class Utils {
          //some devices reported java.lang.SecurityException: Permission Denial:
          // reading com.android.providers.media.MediaProvider uri content://media/external/file/6595
          // it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
-         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_get_clipboard, false);
          return "";
       } catch (NullPointerException ex) {
          MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(context).toast(R.string.unable_to_get_clipboard, false);
          return "";
       }
    }
@@ -543,7 +546,7 @@ public class Utils {
          }
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity, activity.getString(R.string.unable_to_clear_clipboard), Toast.LENGTH_LONG).show();
+         new Toaster(activity).toast(R.string.unable_to_clear_clipboard, false);
       }
    }
 
@@ -784,13 +787,12 @@ public class Utils {
 
       AlertDialog.Builder builder = new AlertDialog.Builder(parent);
       builder.setMessage(R.string.export_account_data_warning).setCancelable(true)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
-                          account);
+            .setPositiveButton(R.string.yes, (dialog, id) -> {
+               dialog.dismiss();
+               account.interruptSync();
+               ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
+                       account);
 
-               }
             }).setNegativeButton(R.string.no, null);
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
@@ -1029,7 +1031,9 @@ public class Utils {
       if (account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount
-              || account instanceof AbstractEthERC20Account) {
+              || account instanceof AbstractEthERC20Account
+              || account instanceof FioAccount
+              || account instanceof BitcoinVaultHdAccount) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
@@ -1061,6 +1065,10 @@ public class Utils {
 
    public static CryptoCurrency getBtcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+   }
+
+   public static CryptoCurrency getBtcvCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinVaultMain.INSTANCE : BitcoinVaultTest.INSTANCE;
    }
 
    public static CryptoCurrency getEthCoinType() {

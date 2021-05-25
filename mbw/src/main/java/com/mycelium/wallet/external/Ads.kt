@@ -4,9 +4,9 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.fio.FioKeyManager
 
@@ -35,7 +35,7 @@ object Ads {
                     .create()
                     .show()
         } else {
-            Toast.makeText(context, R.string.fio_requires_hd_account, Toast.LENGTH_LONG).show()
+            Toaster(context).toast(R.string.fio_requires_hd_account, false)
         }
     }
 }

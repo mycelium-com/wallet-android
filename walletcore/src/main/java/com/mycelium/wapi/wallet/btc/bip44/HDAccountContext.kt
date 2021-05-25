@@ -17,10 +17,10 @@
 package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
 import com.mrd.bitlib.model.AddressType
-import java.io.Serializable
-import java.util.UUID
+import com.mycelium.wapi.wallet.AccountIndexesContext
+import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
+import java.util.*
 
 /**
  * The abstract context of an account
@@ -28,7 +28,7 @@ import java.util.UUID
 class HDAccountContext @JvmOverloads constructor(
         val id: UUID,
         val accountIndex: Int,
-        private var isArchived: Boolean,
+        @Volatile private var isArchived: Boolean,
         private var blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
         val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
@@ -73,6 +73,15 @@ class HDAccountContext @JvmOverloads constructor(
             isDirty = true
             this.isArchived = isArchived
         }
+    }
+
+    fun reset() {
+        blockHeight = 0
+        lastDiscovery = 0
+        val newIndexes = createNewIndexesContexts(indexesMap.keys)
+        indexesMap.clear()
+        indexesMap.putAll(newIndexes)
+        isDirty = true
     }
 
     /**
@@ -163,12 +172,5 @@ class HDAccountContext @JvmOverloads constructor(
                 derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }
                         .toMap()
                         .toMutableMap()
-    }
-}
-
-data class AccountIndexesContext(var lastExternalIndexWithActivity: Int, var lastInternalIndexWithActivity: Int,
-                            var firstMonitoredInternalIndex: Int) : Serializable {
-    companion object {
-        private const val serialVersionUid = 1L
     }
 }

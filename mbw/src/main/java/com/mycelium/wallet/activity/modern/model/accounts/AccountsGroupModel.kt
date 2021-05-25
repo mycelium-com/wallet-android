@@ -20,8 +20,7 @@ class AccountsGroupModel(val titleId: Int, private val groupType: AccountListIte
     /**
      * @param context - context must be passed, as with language change title might change.
      */
-    fun getTitle(context: Context): String = if (isInvestmentAccount)
-        "<font color='#F2E868'>${context.getString(titleId)}</font>" else context.getString(titleId)
+    fun getTitle(context: Context): String = context.getString(titleId)
 
     override fun getType(): AccountListItem.Type = groupType
 

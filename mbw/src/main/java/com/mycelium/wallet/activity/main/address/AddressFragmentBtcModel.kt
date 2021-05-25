@@ -9,6 +9,7 @@ import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.ReceivingAddressChanged
+import com.mycelium.wapi.wallet.AddressContainer
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
@@ -26,7 +27,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
         setNextLabel()
 
 
-        (model.account as AbstractBtcAccount).setDefaultAddressType(currentType)
+        (model.account as AddressContainer).setDefaultAddressType(currentType)
 
         MbwManager.getEventBus().post(ReceivingAddressChanged(model.accountAddress.value!!))
         model.onAddressChange()
@@ -38,7 +39,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
     }
 
     private fun getNextType(): AddressType {
-        val addressTypes = (model.account as AbstractBtcAccount).availableAddressTypes
+        val addressTypes = (model.account as AddressContainer).availableAddressTypes
         val currentAddressTypeIndex = addressTypes.lastIndexOf(currentType)
         return addressTypes[(currentAddressTypeIndex + 1) % addressTypes.size]
     }

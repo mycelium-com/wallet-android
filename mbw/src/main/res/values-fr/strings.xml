@@ -723,9 +723,9 @@
     <string name="tap_to_toggle_through_other_currencies">Appuyez pour alterner entre les autres monnaies</string>
     <string name="settings_service_enabled">Activez %1$s</string>
     <!-- Simplex start -->
-    <string name="si_buy_sell">Carte de Crédit</string>
+    <string name="si_buy_sell">Carte de débit / crédit</string>
     <string name="si_buy_sell_description">Acheter bitcoin facilement et en toute sécurité avec votre carte de crédit.</string>
-    <string name="si_setting_show_button_summary">Afficher l’option d’achat de Simplex</string>
+    <string name="si_setting_show_button_summary">Afficher l’option d’achat par carte de débit / crédit</string>
     <string name="si_loading">téléchargement&#8230;</string>
     <string name="si_error_message">message d’erreur</string>
     <string name="si_retry">Réessayez</string>

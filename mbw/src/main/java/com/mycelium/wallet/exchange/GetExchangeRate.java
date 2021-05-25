@@ -4,6 +4,8 @@ import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.eth.coins.EthTest;
@@ -62,7 +64,7 @@ public class GetExchangeRate {
         sourceExchangeRate = null;
         targetExchangeRate = null;
 
-        if (isBtc(sourceCurrency) || isEth(sourceCurrency) || isFio(sourceCurrency)
+        if (isBtc(sourceCurrency) || isEth(sourceCurrency) || isFio(sourceCurrency) || isBtcv(sourceCurrency)
                 || (isERC20Token(walletManager, sourceCurrency) && !isEth(targetCurrency))) {
             sourcePrice = BigDecimal.ONE;
         } else {
@@ -72,7 +74,7 @@ public class GetExchangeRate {
             }
         }
 
-        if (isBtc(targetCurrency) || isEth(targetCurrency) || isFio(targetCurrency)
+        if (isBtc(targetCurrency) || isEth(targetCurrency) || isFio(targetCurrency) || isBtcv(targetCurrency)
                 || isERC20Token(walletManager, targetCurrency)) {
             targetPrice = BigDecimal.ONE;
         } else {
@@ -86,6 +88,10 @@ public class GetExchangeRate {
 
     private boolean isBtc(String currencySymbol) {
         return currencySymbol.equals(BitcoinMain.get().getSymbol()) || currencySymbol.equals(BitcoinTest.get().getSymbol());
+    }
+
+    private boolean isBtcv(String currencySymbol) {
+        return currencySymbol.equals(BitcoinVaultMain.INSTANCE.getSymbol()) || currencySymbol.equals(BitcoinVaultTest.INSTANCE.getSymbol());
     }
 
     private boolean isEth(String currencySymbol) {

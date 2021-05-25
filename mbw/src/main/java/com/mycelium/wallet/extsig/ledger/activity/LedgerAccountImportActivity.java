@@ -79,7 +79,6 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
    @Override
    protected void onResume() {
       super.onResume();
-      updateUi();
       if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
          dispatcher.enableExclusiveNfc();
       }

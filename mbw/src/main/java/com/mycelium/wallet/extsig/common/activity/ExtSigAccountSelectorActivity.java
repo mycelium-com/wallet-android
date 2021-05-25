@@ -53,12 +53,6 @@ import com.squareup.otto.Subscribe;
 
 public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorActivity implements MasterseedPasswordSetter {
 
-   @Override
-   protected void onStart() {
-      super.onStart();
-      updateUi();
-   }
-
    abstract protected AdapterView.OnItemClickListener accountClickListener();
    abstract protected void setView();
 

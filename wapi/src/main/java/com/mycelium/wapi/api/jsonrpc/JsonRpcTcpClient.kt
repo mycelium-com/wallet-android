@@ -5,7 +5,9 @@ import com.mycelium.wapi.api.exception.RpcResponseException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.lang.Thread.sleep
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -24,7 +26,7 @@ import kotlin.concurrent.timerTask
 
 typealias Consumer<T> = (T) -> Unit
 
-data class TcpEndpoint(val host: String, val port: Int)
+data class TcpEndpoint(val host: String, val port: Int, var useSsl: Boolean = true)
 
 /*
     JsonRpcTcpClient is intended for JSON RPC communication. Its key design features:
@@ -100,7 +102,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
                 try {
                     logger.log(Level.INFO, "Connecting to ${currentEndpoint.host}:${currentEndpoint.port}")
 
-                    socket = ssf.createSocket().apply {
+                    socket = (if (currentEndpoint.useSsl) ssf.createSocket() else Socket()).apply {
                         soTimeout = MAX_READ_RESPONSE_TIMEOUT.toInt()
                         connect(InetSocketAddress(currentEndpoint.host, currentEndpoint.port))
                         keepAlive = true
@@ -203,6 +205,12 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
      * Computes a "short" compound ID based on an array of IDs.
      */
     private fun compoundId(ids: Array<String>): String = ids.sortedArray().joinToString("")
+
+    fun cancel(requests: List<RpcRequestOut>) {
+        val compoundId = compoundId(requests.map { it.id.toString() }.toTypedArray())
+        removeCurrentRequestData(compoundId)
+        awaitingLatches[compoundId]?.countDown()
+    }
 
     @Throws(RpcResponseException::class)
     fun write(requests: List<RpcRequestOut>, timeout: Long): BatchedRpcResponse {

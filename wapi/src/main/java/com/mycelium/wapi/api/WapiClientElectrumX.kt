@@ -3,8 +3,8 @@ package com.mycelium.wapi.api
 import com.google.gson.annotations.SerializedName
 import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.StandardTransactionBuilder
-import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.BitcoinTransaction
+import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
@@ -80,7 +80,7 @@ class WapiClientElectrumX(
                 val addrScriptHash = it.scriptHash.toHex()
                 requestsList.add(RpcRequestOut(LIST_UNSPENT_METHOD, RpcParams.listParams(addrScriptHash)))
             }
-
+            request.cancel = { cancelRequest(requestsList) }
             val unspentsArray = rpcClient.write(requestsList, MAX_RESPONSE_TIMEOUT).responses
 
             //Fill temporary indexes map in order to find right address
@@ -104,6 +104,10 @@ class WapiClientElectrumX(
         }
     }
 
+    private fun cancelRequest(rpcRequestOuts:List<RpcRequestOut>){
+        rpcClient.cancel(rpcRequestOuts)
+    }
+
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
         if (!isNetworkConnected) {
             return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
@@ -114,6 +118,7 @@ class WapiClientElectrumX(
                 val addrScripthHash = it.scriptHash.toHex()
                 requestsList.add(RpcRequestOut(GET_HISTORY_METHOD, RpcParams.listParams(addrScripthHash)))
             }
+            request.cancel = { cancelRequest(requestsList) }
             val transactionHistoryArray = rpcClient.write(requestsList, MAX_RESPONSE_TIMEOUT).responses
 
             val outputs = transactionHistoryArray.filter { it.hasResult }.flatMap {

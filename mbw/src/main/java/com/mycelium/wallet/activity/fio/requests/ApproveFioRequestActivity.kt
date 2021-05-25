@@ -100,7 +100,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioRequestViewModel.memoFrom.value = fioRequestContent.deserializedContent?.memo ?: ""
         fioRequestViewModel.payeeName.value = fioRequestContent.payeeFioAddress
         fioRequestViewModel.payerName.value = fioRequestContent.payerFioAddress
-        fioRequestViewModel.requestDate.value = fioRequestContent.timeStamp
+        fioRequestViewModel.requestDate.value = Util.transformExpirationDate(fioRequestContent.timeStamp)
 
         mbwManager = MbwManager.getInstance(this)
         val walletManager = mbwManager.getWalletManager(false)
@@ -158,7 +158,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
             if (response.message != null) {
-                Toaster(this).toast(response.message, false)
+                Toaster(this).toast(response.message!!, false)
             } else {
                 fioRequestViewModel.payeeTokenPublicAddress.value = response.publicAddress!!
             }
@@ -168,7 +168,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestContent.deserializedContent!!.chainCode,
                 fioRequestContent.deserializedContent!!.tokenCode, fioModule) { response ->
             if (response.message != null) {
-                Toaster(this).toast(response.message, false)
+                Toaster(this).toast(response.message!!, false)
             } else {
                 fioRequestViewModel.payerTokenPublicAddress.value = response.publicAddress!!
             }

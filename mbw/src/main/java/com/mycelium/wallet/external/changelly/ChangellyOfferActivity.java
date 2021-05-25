@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
 import com.mycelium.wallet.external.changelly.model.Order;
@@ -149,7 +149,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     }
 
     private void toast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        new Toaster(this).toast(msg, true);
     }
 
     private void createOffer() {

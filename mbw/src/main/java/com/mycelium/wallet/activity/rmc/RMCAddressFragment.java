@@ -7,20 +7,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.rmc.adapter.AddressWidgetAdapter;
 import com.mycelium.wallet.activity.view.ViewPagerIndicator;
 import com.mycelium.wallet.event.AccountChanged;
@@ -166,7 +167,7 @@ public class RMCAddressFragment extends Fragment {
         try {
             startActivity(intent);
         } catch (Exception ignore) {
-            Toast.makeText(getActivity(), R.string.error_start_google_calendar, Toast.LENGTH_LONG).show();
+            new Toaster(this).toast(R.string.error_start_google_calendar, false);
         }
     }
 

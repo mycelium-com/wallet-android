@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet.lt.activity;
 
-import java.util.UUID;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,12 +41,12 @@ import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.sell.CreateOrEditAdActivity;
@@ -57,6 +55,8 @@ import com.mycelium.wallet.lt.api.CreateTrade;
 import com.mycelium.wallet.lt.api.EditAd;
 import com.mycelium.wallet.lt.api.GetTradeSession;
 import com.mycelium.wallet.lt.api.Request;
+
+import java.util.UUID;
 
 public class SendRequestActivity extends Activity {
 
@@ -162,11 +162,10 @@ public class SendRequestActivity extends Activity {
       public void onLtError(int errorCode) {
          if (errorCode == LtApi.ERROR_CODE_CANNOT_TRADE_WITH_SELF) {
             // You cannot trade with yourself
-            Toast.makeText(SendRequestActivity.this, R.string.lt_error_cannot_trade_with_self, Toast.LENGTH_LONG)
-                  .show();
+            new Toaster(SendRequestActivity.this).toast(R.string.lt_error_cannot_trade_with_self, false);
          } else {
             // Some other error
-            Toast.makeText(SendRequestActivity.this, R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
+            new Toaster(SendRequestActivity.this).toast(R.string.lt_error_api_occurred, false);
          }
          finish();
       }
@@ -199,13 +198,13 @@ public class SendRequestActivity extends Activity {
 
       @Override
       public void onLtAdCreated(UUID sellOrderId, CreateAd request) {
-         Toast.makeText(SendRequestActivity.this, R.string.lt_ad_created, Toast.LENGTH_LONG).show();
+         new Toaster(SendRequestActivity.this).toast(R.string.lt_ad_created, false);
          finish();
       }
 
       @Override
       public void onLtAdEdited(EditAd request) {
-         Toast.makeText(SendRequestActivity.this, R.string.lt_ad_edited, Toast.LENGTH_LONG).show();
+         new Toaster(SendRequestActivity.this).toast(R.string.lt_ad_edited, false);
          finish();
       }
 

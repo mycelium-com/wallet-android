@@ -16,11 +16,7 @@ class CountriesAdapter(val itemClickListener: ItemClickListener) : ListAdapter<C
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.country_item, parent, false).apply {
                 tvCountryCode.visibility = if (showPhoneCode) View.VISIBLE else View.GONE
-                if (nationality) {
-                    tvAcronym.visibility = View.GONE
-                } else {
-                    tvAcronym.visibility = View.VISIBLE
-                }
+                tvAcronym.visibility = if (nationality) View.GONE else View.VISIBLE
             })
 
 

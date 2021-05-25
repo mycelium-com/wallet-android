@@ -11,7 +11,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.bequant.market.viewmodel.*
 import com.mycelium.wallet.R
@@ -57,7 +57,7 @@ class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<
                     }
                     setOnClickListener {
                         LocalBroadcastManager.getInstance(context)
-                                .sendBroadcast(Intent(Constants.ACTION_EXCHANGE)
+                                .sendBroadcast(Intent(BequantConstants.ACTION_EXCHANGE)
                                         .putExtra("from", item.from)
                                         .putExtra("to", item.to))
                     }

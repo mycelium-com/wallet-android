@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet
 
+import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
 import java.io.Serializable
@@ -14,4 +15,8 @@ interface Address : Serializable {
     fun getSubType(): String
 
     fun getBytes(): ByteArray
+
+    fun getBip32Path(): HdKeyPath?
+
+    fun setBip32Path(bip32Path: HdKeyPath?)
 }
