@@ -7,7 +7,7 @@ import kotlinx.android.parcel.Parcelize
 data class Item(
     val amount: String?,
     val client_order_id: String?,
-    val items: Any,
+    val items: List<String>,
     val product_code: String?,
     val product_img: String?,
     val product_name: String?,

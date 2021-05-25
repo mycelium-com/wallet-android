@@ -8,11 +8,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.remote.Status
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutBinding
@@ -45,7 +45,7 @@ class GiftCheckoutFragment : Fragment() {
         viewModel.loadSubsription().observe(viewLifecycleOwner) {
             when (it.status) {
                 Status.SUCCESS -> {
-                    val product = it.data?.product
+                    findNavController().navigate(GiftCheckoutFragmentDirections.toCheckoutResult(it.data!!))
                     with(binding) {
 //                        ivImage.loadImage(product?.card_image_url)
 //                        tvDescription.text = product?.description

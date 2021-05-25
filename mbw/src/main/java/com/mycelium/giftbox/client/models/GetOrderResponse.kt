@@ -7,7 +7,7 @@ import kotlinx.android.parcel.Parcelize
 data class GetOrderResponse(
     val amount: String?,
     val amount_expected_from: String?,
-    val client_order_id: Any,
+    val client_order_id: String?,
     val currency_code: String?,
     val currency_from: String?,
     val currency_from_info: CurrencyFromInfo,

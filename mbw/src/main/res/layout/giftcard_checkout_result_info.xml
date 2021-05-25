@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/fragment_giftbox_checkout_result">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.giftbox.checkoutResult.GiftCheckoutResultFragmentViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clReceivedRequestInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="5"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                tools:text="@tools:sample/lorem/random" />
+
+            <TextView
+                android:id="@+id/tvCurrencyTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Currency:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvCurrency"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tvCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@id/tvCurrencyTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvDescription"
+                tools:text="USD Dollars, $" />
+
+
+            <TextView
+                android:id="@+id/tvCountryTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Available country:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvCountry"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tvCountry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@id/tvCountryTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvCurrency"
+                tools:text="United states" />
+
+            <TextView
+                android:id="@+id/tvExpireTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Expire:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvExpire"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tvExpire"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvCountry"
+                tools:text="Does not expire" />
+
+            <TextView
+                android:id="@+id/tvDiscountTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Discount:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvDiscount"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tvDiscount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@id/tvDiscountTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvExpire"
+                tools:text="10% discount for each" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </LinearLayout>
+</layout>

@@ -76,6 +76,17 @@
         <argument
             android:name="quantity"
             app:argType="integer" />
+
+        <action android:id="@+id/toCheckoutResult"
+            app:destination="@id/giftCheckoutResultFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/giftCheckoutResultFragment"
+        android:name="com.mycelium.giftbox.checkoutResult.GiftCheckoutResultFragment">
+        <argument
+            android:name="result"
+            app:argType="com.mycelium.giftbox.client.models.CheckoutProductResponse" />
     </fragment>
 
 </navigation>
