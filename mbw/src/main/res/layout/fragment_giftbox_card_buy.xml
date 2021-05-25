@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.giftbox.cardDetails.CardBuyFragment" />
+    </data>
+
+
+    <ScrollView
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ivImage"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:background="@android:color/transparent"
+                            android:gravity="center"
+                            app:layout_constraintDimensionRatio="3:2"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <include layout="@layout/giftcard_send_info" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/amountRoot"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="24dp">
+
+                    <TextView
+                        android:id="@+id/tvAmountLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gift card amount"
+                        android:textColor="@color/fio_white_alpha_0_6"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!--                    android:text="@{viewModel.requestedAmountFormatted}"-->
+                    <!--                    android:textAlignment="@{viewModel.requestedAmountFormatted.isEmpty() ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"-->
+                    <TextView
+                        android:id="@+id/tvAmount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto_mono_medium"
+                        android:hint="0.00 USD"
+                        android:singleLine="true"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="20sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/btEnterAmount"
+                        tools:hint="0.00 USD"
+                        tools:text="0.05 USD" />
+
+                    <View
+                        android:id="@+id/divider"
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="#393939"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
+                        app:layout_constraintStart_toStartOf="@id/tvAmount" />
+
+                    <ImageButton
+                        android:id="@+id/btEnterAmount"
+                        style="@style/MyceliumSlimButton"
+                        android:layout_width="75dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="4dp"
+                        android:clickable="false"
+                        android:contentDescription="@string/enter_amount_title"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/keyboard_icon"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvAmountLabel" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btSend"
+                style="@style/MyceliumButton.FIO"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/horizontal_page_margin"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="@dimen/horizontal_page_margin"
+                android:layout_marginBottom="60dp"
+                android:text="@string/next"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </ScrollView>
+</layout>

@@ -18,13 +18,13 @@ import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.activity.view.loader
-import com.mycelium.wallet.databinding.FragmentGiftboxCardDetailsBinding
+import com.mycelium.wallet.databinding.FragmentGiftboxCardBuyBinding
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 import kotlinx.coroutines.flow.onEach
 
-class CardDetailsFragment : Fragment(), AmountListener {
-    private lateinit var binding: FragmentGiftboxCardDetailsBinding
-    val args by navArgs<CardDetailsFragmentArgs>()
+class CardBuyFragment : Fragment(), AmountListener {
+    private lateinit var binding: FragmentGiftboxCardBuyBinding
+    val args by navArgs<CardBuyFragmentArgs>()
 
     val viewModel: CardDetailsFragmentViewModel by viewModels()
 
@@ -33,14 +33,14 @@ class CardDetailsFragment : Fragment(), AmountListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate<FragmentGiftboxCardDetailsBinding>(
+        binding = DataBindingUtil.inflate<FragmentGiftboxCardBuyBinding>(
             inflater,
-            R.layout.fragment_giftbox_card_details,
+            R.layout.fragment_giftbox_card_buy,
             container,
             false
         )
             .apply {
-                lifecycleOwner = this@CardDetailsFragment
+                lifecycleOwner = this@CardBuyFragment
             }
         return binding.root
     }
@@ -59,6 +59,10 @@ class CardDetailsFragment : Fragment(), AmountListener {
                         tvCountry.text = product?.countries?.joinToString(separator = ", ")
                         tvDiscount.text =
                             """from ${product?.minimum_value} to ${product?.maximum_value}"""
+
+                        amountRoot.setOnClickListener {
+                            findNavController().navigate(CardBuyFragmentDirections.enterAmount(product!!))
+                        }
                     }
                     loader(false)
                 }
@@ -79,7 +83,7 @@ class CardDetailsFragment : Fragment(), AmountListener {
             )
         )
         binding.btSend.setOnClickListener {
-            findNavController().navigate(CardDetailsFragmentDirections.actionNext(viewModel.productResponse.value?.product!!, 100, 0))
+            findNavController().navigate(CardBuyFragmentDirections.actionNext(viewModel.productResponse.value?.product!!, 100, 0))
         }
     }
 
