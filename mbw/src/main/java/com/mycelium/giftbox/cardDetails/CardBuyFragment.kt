@@ -61,7 +61,7 @@ class CardBuyFragment : Fragment(), AmountListener {
                             """from ${product?.minimum_value} to ${product?.maximum_value}"""
 
                         amountRoot.setOnClickListener {
-//                            findNavController().navigate(CardBuyFragment)
+                            findNavController().navigate(CardBuyFragmentDirections.enterAmount(product!!))
                         }
                     }
                     loader(false)
