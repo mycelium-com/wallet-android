@@ -6,7 +6,6 @@ import kotlinx.android.synthetic.main.record_row_investment.view.*
 
 
 class InvestmentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val label = view.tvLabel
     val balance = view.tvBalance
     val activateLink = view.activateLink
 }

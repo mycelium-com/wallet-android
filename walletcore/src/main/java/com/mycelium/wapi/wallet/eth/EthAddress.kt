@@ -1,10 +1,11 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import org.web3j.abi.datatypes.Address as E3jAddress
 import java.io.IOException
 import java.io.ObjectInputStream
+import org.web3j.abi.datatypes.Address as E3jAddress
 
 
 class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : Address {
@@ -44,5 +45,12 @@ class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : Ad
     companion object {
         fun getDummyAddress(cryptoCurrency: CryptoCurrency) =
                 EthAddress(cryptoCurrency, "0x000000000000000000000000000000000000dEaD")
+    }
+
+    private var _bip32Path: HdKeyPath? = null
+    override fun getBip32Path(): HdKeyPath? = _bip32Path
+
+    override fun setBip32Path(bip32Path: HdKeyPath?) {
+        _bip32Path = bip32Path
     }
 }

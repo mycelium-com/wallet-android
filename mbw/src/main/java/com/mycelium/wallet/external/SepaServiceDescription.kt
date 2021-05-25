@@ -8,6 +8,8 @@ import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 
@@ -21,13 +23,13 @@ class SepaServiceDescription : BuySellServiceDescriptor(R.string.sepa_buy_sell_t
                 R.string.sepa_buy_sell_description
             }
 
-    override fun launchService(activity: Activity, mbwManager: MbwManager, activeReceivingAddress: Address) {
-        val buySell = if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest)
+    override fun launchService(activity: Activity, mbwManager: MbwManager, activeReceivingAddress: Address, cryptoCurrency: CryptoCurrency) {
+        val buySell = if (cryptoCurrency == EthMain || cryptoCurrency == EthTest)
             arrayOf(activity.getString(R.string.buy_eth), activity.getString(R.string.sell_eth))
         else arrayOf(activity.getString(R.string.buy_bitcoin), activity.getString(R.string.sell_bitcoin))
 
         AlertDialog.Builder(activity, R.style.BuySell_Dialog)
-                .setTitle(if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest)
+                .setTitle(if (cryptoCurrency == EthMain || cryptoCurrency == EthTest)
                     activity.getString(R.string.dialog_title_buy_sell_eth_sepa) else
                     activity.getString(R.string.dialog_sepa_buy_sell_btc))
                 .setItems(buySell) { _, position ->
@@ -44,7 +46,8 @@ class SepaServiceDescription : BuySellServiceDescriptor(R.string.sepa_buy_sell_t
                 }.create().show()
     }
 
-    override fun isEnabled(mbwManager: MbwManager) = mbwManager.metadataStorage.sepaIsEnabled
+    override fun isEnabled(mbwManager: MbwManager) = mbwManager.metadataStorage.sepaIsEnabled &&
+            mbwManager.selectedAccount !is ERC20Account
 
     override fun setEnabled(mbwManager: MbwManager, enabledState: Boolean) {
         mbwManager.metadataStorage.sepaIsEnabled = enabledState

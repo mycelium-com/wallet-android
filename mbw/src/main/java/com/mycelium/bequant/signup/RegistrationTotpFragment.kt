@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.model.BequantUserEvent
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
@@ -43,7 +43,7 @@ class RegistrationTotpFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_BEQUANT_TOTP_CONFIRMED))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(BequantConstants.ACTION_BEQUANT_TOTP_CONFIRMED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -65,7 +65,7 @@ class RegistrationTotpFragment : Fragment() {
 //            Api.signRepository.resendRegister(Email(register.email), {}, {})
         }
         supportTeam.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BequantConstants.LINK_SUPPORT_CENTER)))
         }
     }
 

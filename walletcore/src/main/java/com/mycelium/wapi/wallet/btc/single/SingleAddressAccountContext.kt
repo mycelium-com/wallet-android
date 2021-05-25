@@ -19,6 +19,7 @@ package com.mycelium.wapi.wallet.btc.single
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking
+
 import java.util.*
 
 /**

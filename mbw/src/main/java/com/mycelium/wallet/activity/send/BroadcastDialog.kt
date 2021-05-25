@@ -3,16 +3,16 @@ package com.mycelium.wallet.activity.send
 import android.app.AlertDialog
 import android.os.AsyncTask
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.DialogFragment
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wapi.wallet.*
@@ -140,7 +140,7 @@ class BroadcastDialog : DialogFragment() {
             } else {
                 // Offer the user to queue the transaction
                 AlertDialog.Builder(activity)
-                        .setTitle(R.string.no_server_connection)
+                        .setTitle(activity!!.getString(R.string.no_server_connection, ""))
                         .setMessage(R.string.queue_transaction_message)
                         .setPositiveButton(R.string.yes) { textId, listener ->
                             account.queueTransaction(transaction)
@@ -175,8 +175,7 @@ class BroadcastDialog : DialogFragment() {
                 }
             BroadcastResultType.SUCCESS -> {
                 // Toast success and finish
-                Toast.makeText(activity, resources.getString(R.string.transaction_sent),
-                        Toast.LENGTH_LONG).show()
+                activity?.let { Toaster(it).toast(R.string.transaction_sent, false) }
                 returnResult(broadcastResult)
             }
             else -> throw RuntimeException("Unknown broadcast result type ${broadcastResult.resultType}")

@@ -19,6 +19,7 @@ open class AccountContextImpl<Context : AccountContext>(uuid: UUID,
                 balance,
                 archived,
                 blockHeight) {
+
     override var archived = archived
         set(value) {
             field = value

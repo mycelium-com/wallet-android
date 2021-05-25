@@ -1,6 +1,9 @@
 package com.mycelium.wallet.activity.settings.helper;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
@@ -9,12 +12,8 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.adapter.DialogListAdapter;
 
 public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDisplayPreferenceDialogListener {
@@ -62,7 +61,7 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
                             listPreference.setValue(value);
                         }
                     } else {
-                        Toast.makeText(context, context.getString(R.string.try_again), Toast.LENGTH_SHORT).show();
+                        new Toaster(context).toast(R.string.try_again, true);
                     }
                     alertDialog.dismiss();
                 }

@@ -77,7 +77,7 @@ import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.TransactionDetailsActivity;
+import com.mycelium.wallet.activity.txdetails.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
@@ -133,8 +133,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
-import static android.widget.Toast.LENGTH_LONG;
-import static android.widget.Toast.makeText;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TransactionHistoryFragment extends Fragment {
@@ -758,16 +756,16 @@ public class TransactionHistoryFragment extends Fragment {
          txFee -= i.getValue().getValueAsLong();
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
-         makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
+         new Toaster(getActivity()).toast(getResources().getString(R.string.bumping_not_necessary), false);
          return null;
       }
 
       try {
          return ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).createUnsignedCPFPTransaction(txid, feePerKB, txFee);
       } catch (InsufficientBtcException e) {
-         makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+         new Toaster(getActivity()).toast(R.string.insufficient_funds, false);
       } catch (UnableToBuildTransactionException e) {
-         makeText(getActivity(), getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
+         new Toaster(getActivity()).toast(getResources().getString(R.string.unable_to_build_tx), false);
       }
       return null;
    }

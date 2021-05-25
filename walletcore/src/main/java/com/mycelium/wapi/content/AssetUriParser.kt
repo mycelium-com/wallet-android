@@ -3,15 +3,18 @@ package com.mycelium.wapi.content
 import com.mrd.bitlib.crypto.Bip38
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.content.btcv.BitcoinVaultUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.content.fio.FIOUri
-import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
+import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.*
@@ -80,6 +83,7 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
                                 paymentUri: String?): AssetUri? {
             return when (coinType) {
                 is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
+                is BitcoinVaultMain, is BitcoinVaultTest -> BitcoinVaultUri(address, amount, label, paymentUri)
                 is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
                 is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
@@ -87,6 +91,32 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
                 is FIOMain, is FIOTest -> FIOUri(address, amount, label, paymentUri)
                 else -> FallbackUri(address)
             }
+        }
+    }
+}
+
+open class CryptoUriParser(
+        override val network: NetworkParameters,
+        private val scheme: String,
+        private val prodnet: CryptoCurrency,
+        private val testnet: CryptoCurrency) : AssetUriParser(network) {
+    override fun parse(content: String): AssetUri? {
+        return try {
+            var uri = URI.create(content.trim { it <= ' ' })
+            if (!uri.scheme!!.equals(scheme, ignoreCase = true)) {
+                // not a valid URI
+                return null
+            }
+            var schemeSpecific = uri.toString().substring("$scheme:".length)
+            if (schemeSpecific.startsWith("//")) {
+                // Fix for invalid URI in the form "scheme://"
+                schemeSpecific = schemeSpecific.substring(2)
+            }
+            uri = URI.create("$scheme://$schemeSpecific")
+
+            parseParameters(uri, if (network.isProdnet) prodnet else testnet)
+        } catch (e: Exception) {
+            null
         }
     }
 }

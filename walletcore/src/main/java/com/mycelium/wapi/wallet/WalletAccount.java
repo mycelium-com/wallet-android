@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public interface WalletAccount<A extends Address> {
+public interface WalletAccount<A extends Address> extends SyncPausable {
     void setAllowZeroConfSpending(boolean b);
 
     Transaction createTx(Address address, Value amount, Fee fee, @Nullable TransactionData data)
@@ -29,7 +29,7 @@ public interface WalletAccount<A extends Address> {
     /**
      * Get current receive address
      */
-    Address getReceiveAddress();
+    A getReceiveAddress();
 
     CryptoCurrency getCoinType();
 

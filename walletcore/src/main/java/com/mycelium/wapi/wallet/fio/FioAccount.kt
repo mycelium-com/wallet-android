@@ -37,7 +37,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                  private val privkeyString: String? = null, // null if it's read-only account
                  val walletManager: WalletManager,
                  address: FioAddress? = null,
-                 private val fioServerLogsListWrapper: FioServerLogsListWrapper) : WalletAccount<FioAddress>, ExportableAccount {
+                 private val fioServerLogsListWrapper: FioServerLogsListWrapper) :
+        WalletAccount<FioAddress>, ExportableAccount, SyncPausableAccount() {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!
@@ -215,7 +216,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
     }
 
-    override fun getReceiveAddress(): Address = receivingAddress
+    override fun getReceiveAddress(): FioAddress = receivingAddress
 
     override fun getCoinType(): CryptoCurrency = accountContext.currency
 
@@ -272,16 +273,28 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
-        fioEndpoints.rotateEndpoints()
-        syncFioRequests()
-        syncFioOBT()
-        syncFioAddresses()
-        syncFioDomains()
-        updateBlockHeight()
-        syncTransactions()
-        updateMappings()
-        updateBalance()
-        syncing = false
+        try {
+            if (!maySync) { return false }
+            fioEndpoints.rotateEndpoints()
+            if (!maySync) { return false }
+            syncFioRequests()
+            if (!maySync) { return false }
+            syncFioOBT()
+            if (!maySync) { return false }
+            syncFioAddresses()
+            if (!maySync) { return false }
+            syncFioDomains()
+            if (!maySync) { return false }
+            updateBlockHeight()
+            if (!maySync) { return false }
+            syncTransactions()
+            if (!maySync) { return false }
+            updateMappings()
+            if (!maySync) { return false }
+            updateBalance()
+        } finally {
+            syncing = false
+        }
         return true
     }
 
@@ -502,7 +515,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isVisible(): Boolean = true
 
-    override fun isDerivedFromInternalMasterseed(): Boolean = privkeyString != null
+    override fun isDerivedFromInternalMasterseed(): Boolean = accountContext.accountType == FioAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
     override fun getId(): UUID = accountContext.uuid
 

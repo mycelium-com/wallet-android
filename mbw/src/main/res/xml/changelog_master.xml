@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.8.8.0" versioncode="3080800">
+        <change>Feature to temporarily extend the gap limit</change>
+    </release>
     <release version="3.8.0.0" versioncode="3080000">
         <change>Full FIO support</change>
     </release>

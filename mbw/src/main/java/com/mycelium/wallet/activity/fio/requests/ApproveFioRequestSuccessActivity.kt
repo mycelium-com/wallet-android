@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.TransactionDetailsActivity
+import com.mycelium.wallet.activity.txdetails.TransactionDetailsActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.ACCOUNT
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.AMOUNT
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.CONVERTED_AMOUNT

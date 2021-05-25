@@ -8,10 +8,7 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import com.mycelium.wapi.wallet.manager.*
-import com.mycelium.wapi.wallet.providers.BtcFeeProvider
-import com.mycelium.wapi.wallet.providers.ColuFeeProvider
-import com.mycelium.wapi.wallet.providers.EthFeeProvider
-import com.mycelium.wapi.wallet.providers.FioFeeProvider
+import com.mycelium.wapi.wallet.providers.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
@@ -22,6 +19,7 @@ class WalletManager
 @JvmOverloads
 constructor(val network: NetworkParameters,
             val wapi: Wapi,
+            val btcvWapi: Wapi,
             private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
             var accountScanManager: AccountScanManager? = null,
@@ -72,6 +70,7 @@ constructor(val network: NetworkParameters,
         feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
         feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
+        feeEstimations.addProvider(BtcvFeeProvider(network.isTestnet, btcvWapi, backing))
         feeEstimations.addProvider(FioFeeProvider(network.isTestnet))
     }
 
@@ -90,6 +89,7 @@ constructor(val network: NetworkParameters,
             accounts.values.any { it.canSpend() && it.isMineAddress(address) }
 
     fun createAccounts(config: Config): List<UUID> {
+        getAllActiveAccounts().interruptSync()
         val result = mutableMapOf<UUID, WalletAccount<*>>()
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {

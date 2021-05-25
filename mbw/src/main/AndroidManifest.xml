@@ -153,7 +153,7 @@
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name=".activity.TransactionDetailsActivity"
+            android:name=".activity.txdetails.TransactionDetailsActivity"
             android:theme="@style/MyceliumNoActionBarFullScreen" />
         <activity
             android:name=".activity.settings.SettingsActivity"
@@ -244,6 +244,8 @@
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
         <activity android:name=".external.BuySellSelectActivity" />
+        <activity android:name=".external.BuySellSelectCountryActivity"/>
+        <activity android:name=".external.BuySellBankCardActivity"/>
         <activity android:name=".activity.MessageVerifyActivity" />
         <activity
             android:name=".external.changelly.bch.ExchangeActivity"

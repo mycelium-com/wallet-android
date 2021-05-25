@@ -82,7 +82,8 @@
 
     <fragment
         android:id="@+id/giftCheckoutResultFragment"
-        android:name="com.mycelium.giftbox.checkoutResult.GiftCheckoutResultFragment">
+        android:name="com.mycelium.giftbox.checkoutResult.GiftCheckoutResultFragment"
+        tools:layout="@layout/fragment_giftbox_checkout_result">
         <argument
             android:name="result"
             app:argType="com.mycelium.giftbox.client.models.CheckoutProductResponse" />

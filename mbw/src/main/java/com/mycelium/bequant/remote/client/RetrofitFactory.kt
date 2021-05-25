@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
-import com.mycelium.bequant.Constants
+import com.mycelium.bequant.BequantConstants
 import com.mycelium.bequant.remote.NullOnEmptyConverterFactory
 import com.mycelium.wallet.BuildConfig
 import okhttp3.Call
@@ -71,5 +71,5 @@ object RetrofitFactory {
 
 }
 
-inline fun <reified T> createApi(url: String = Constants.ACCOUNT_ENDPOINT_POSTFIX, withAccessToken: Boolean = false): T =
+inline fun <reified T> createApi(url: String = BequantConstants.ACCOUNT_ENDPOINT_POSTFIX, withAccessToken: Boolean = false): T =
         RetrofitFactory.getRetrofit(url, withAccessToken).create(T::class.java)

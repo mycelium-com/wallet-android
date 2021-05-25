@@ -93,7 +93,7 @@ public class NetworkParameters implements Serializable {
       PRODNET, TESTNET, REGTEST
    }
 
-   private NetworkParameters(NetworkType networkType) {
+   protected NetworkParameters(NetworkType networkType) {
       _networkType = networkType;
       switch (networkType) {
          case PRODNET:
