@@ -79,7 +79,7 @@ class CardDetailsFragment : Fragment(), AmountListener {
             )
         )
         binding.btSend.setOnClickListener {
-            findNavController().navigate(CardDetailsFragmentDirections.actionNext())
+            findNavController().navigate(CardDetailsFragmentDirections.actionNext(viewModel.productResponse.value?.product!!, 100, 0))
         }
     }
 

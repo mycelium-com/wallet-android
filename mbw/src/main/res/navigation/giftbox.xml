@@ -46,17 +46,12 @@
         android:label="Buy gift card"
         tools:layout="@layout/fragment_giftbox_checkout">
         <argument
-            android:name="clientUserId"
-            app:argType="string" />
-        <argument
-            android:name="client_order_id"
-            app:argType="string" />
-        <argument
-            android:name="productId"
-            app:argType="string" />
-        <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.Product" />
+
+        <argument
+            android:name="accountId"
+            app:argType="java.util.UUID" />
         <argument
             android:name="amount"
             app:argType="integer" />
@@ -85,9 +80,19 @@
         tools:layout="@layout/fragment_select_counties" />
     <fragment
         android:id="@+id/selectAccountFragment2"
-        android:name="com.mycelium.bequant.receive.SelectAccountFragment"
+        android:name="com.mycelium.giftbox.checkout.SelectAccountFragment"
         android:label="Buy gift card"
         tools:layout="@layout/fragment_bequant_select_account">
+        <argument
+            android:name="product"
+            app:argType="com.mycelium.giftbox.client.models.Product" />
+        <argument
+            android:name="amount"
+            app:argType="integer" />
+        <argument
+            android:name="quantity"
+            app:argType="integer" />
+
         <action
             android:id="@+id/actionCheckout"
             app:destination="@id/giftCheckoutFragment" />

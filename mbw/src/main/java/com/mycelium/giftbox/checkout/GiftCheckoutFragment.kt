@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.remote.Status
 import com.mycelium.bequant.remote.doRequest
+import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.loader
@@ -68,9 +69,9 @@ class GiftCheckoutFragment : Fragment() {
         }
         viewModel.load(
             GiftCheckoutFragmentViewModel.Params(
-                args.clientUserId,
-                args.clientOrderId,
-                args.productId,
+                Constants.CLIENT_USER_ID,
+                    Constants.CLIENT_ORDER_ID,
+                args.product.code!!,
                 args.quantity,
                 args.amount
             )
