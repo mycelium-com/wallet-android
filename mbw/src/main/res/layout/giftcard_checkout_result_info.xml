@@ -28,7 +28,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/tvTitle"
+                android:id="@+id/tvDescriptionTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Description"
@@ -44,60 +44,35 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="5"
-                android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvDescriptionTitle"
                 tools:text="@tools:sample/lorem/random" />
 
             <TextView
-                android:id="@+id/tvCurrencyTitle"
+                android:id="@+id/tvGiftCardAmountTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="Currency:"
+                android:text="Gift card amount:"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
-                app:layout_constraintBaseline_toBaselineOf="@id/tvCurrency"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvGiftCardAmount"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
-                android:id="@+id/tvCurrency"
+                android:id="@+id/tvGiftCardAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
                 android:textSize="18sp"
-                app:layout_constraintStart_toEndOf="@id/tvCurrencyTitle"
+                app:layout_constraintStart_toEndOf="@id/tvGiftCardAmountTitle"
                 app:layout_constraintTop_toBottomOf="@id/tvDescription"
-                tools:text="USD Dollars, $" />
-
-
-            <TextView
-                android:id="@+id/tvCountryTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Available country:"
-                android:textColor="@color/fio_white_alpha_0_8"
-                android:textSize="14sp"
-                app:layout_constraintBaseline_toBaselineOf="@id/tvCountry"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/tvCountry"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif-medium"
-                android:textSize="18sp"
-                app:layout_constraintStart_toEndOf="@id/tvCountryTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvCurrency"
-                tools:text="United states" />
+                tools:text="240 USD" />
 
             <TextView
                 android:id="@+id/tvExpireTitle"
@@ -117,37 +92,170 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvCountry"
+                app:layout_constraintTop_toBottomOf="@id/tvGiftCardAmount"
                 tools:text="Does not expire" />
 
             <TextView
-                android:id="@+id/tvDiscountTitle"
+                android:id="@+id/tvRedeemCodeTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="Discount:"
+                android:text="Redeem Code:"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
-                app:layout_constraintBaseline_toBaselineOf="@id/tvDiscount"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvRedeemCode"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
-                android:id="@+id/tvDiscount"
+                android:id="@+id/tvRedeemCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:drawableEnd="@drawable/ic_content_copy_white"
+                android:drawablePadding="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/tvRedeemCodeTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvExpire"
+                tools:text="aaaaa" />
+
+            <TextView
+                android:id="@+id/tvPincodeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="Pin Code:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvPincode"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tvPincode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:drawableEnd="@drawable/ic_content_copy_white"
+                android:drawablePadding="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/tvPincodeTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvRedeemCode"
+                tools:text="aaaaa" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <include layout="@layout/item_fio_list_divider" />
+
+        <TextView
+            android:id="@+id/tvAmountTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:drawablePadding="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Amount:"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:textSize="18sp"
-                app:layout_constraintStart_toEndOf="@id/tvDiscountTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvExpire"
-                tools:text="10% discount for each" />
+                android:textSize="24sp"
+                app:layout_constraintStart_toEndOf="@id/tvGiftCardAmountTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvDescription"
+                tools:text="240 BTC" />
 
+            <TextView
+                android:id="@+id/tvAmountFiat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/tvGiftCardAmountTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvDescription"
+                tools:text="~ 240 USD" />
+        </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <TextView
+                android:id="@+id/tvMinerFeeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Miner fee:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvMinerFee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                tools:text="~ 0.04 BTC ~ 0.5 USD" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvDateTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Date:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                tools:text="~ 0.04 BTC ~ 0.5 USD" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvShowTransaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/fio_prm_btn_line"
+            android:textSize="14sp"
+            android:text="Show transaction details >" />
 
     </LinearLayout>
 </layout>
