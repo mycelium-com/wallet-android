@@ -13,8 +13,7 @@ import com.mycelium.bequant.receive.adapter.AccountListItem
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
-import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.wallet.Address
+import com.mycelium.wallet.activity.util.getSpendableBalance
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
@@ -53,11 +52,10 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
         }
         walletsAccounts.forEach {
             if (it.second.isNotEmpty()) {
-                accountsList.add(AccountGroupItem(true, getString(it.first), getSpendableBalance(it.second)))
+                accountsList.add(AccountGroupItem(true, getString(it.first), it.second.getSpendableBalance()))
                 accountsList.addAll(it.second.map { AccountItem(it.label, it.accountBalance.confirmed) })
             }
         }
-//        accountsList.add(TotalItem(getSpendableBalance()))
         adapter.submitList(accountsList)
 
         adapter.accountClickListener = { accountItem ->
@@ -72,17 +70,6 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
     data class AccountData(val label: String?) : Parcelable
 
     companion object {
-
         val ACCOUNT_KEY = "chooseAccount"
-
-        private fun getSpendableBalance(walletAccountList: List<WalletAccount<out Address>>): ValueSum {
-            val sum = ValueSum()
-            for (account in walletAccountList) {
-                if (account.isActive) {
-                    sum.add(account.accountBalance.spendable)
-                }
-            }
-            return sum
-        }
     }
 }
