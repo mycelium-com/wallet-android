@@ -5,12 +5,12 @@ import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
-import com.mycelium.bequant.remote.Status
 import com.mycelium.giftbox.cards.adapter.PurchasedAdapter
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
+import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
@@ -41,23 +41,19 @@ class PurchasedFragment : Fragment() {
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it))
         }
-        viewModel.loadSubsription().observe(viewLifecycleOwner) {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    loader(false)
-                    viewModel.orders.value = it.data?.items
-                    adapter.submitList(it.data?.items)
-                }
-                Status.ERROR -> {
-                    Toaster(this).toast(it.error?.localizedMessage ?: "", true)
-                    loader(false)
-                }
-                Status.LOADING -> {
-                    loader(true)
-                }
-            }
-        }
-        viewModel.load()
+        loadData()
+    }
+
+    private fun loadData() {
+        loader(true)
+        GitboxAPI.giftRepository.getOrders(lifecycleScope, 0, 30, {
+            viewModel.orders.value = it?.items
+            adapter.submitList(it?.items)
+        }, error = { _, msg ->
+            Toaster(this).toast(msg, true)
+        }, finally = {
+            loader(false)
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

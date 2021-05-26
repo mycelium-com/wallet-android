@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.remote.Status
+import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.activity.modern.Toaster
@@ -35,21 +35,14 @@ class GiftBoxDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.ivImage?.loadImage(args.order.product_img)
-        viewModel.loadSubsription().observe(viewLifecycleOwner) {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    loader(false)
-                    viewModel.setOrder(it.data!!)
-                }
-                Status.ERROR -> {
-                    Toaster(this).toast(it.error?.localizedMessage ?: "", true)
-                    loader(false)
-                }
-                Status.LOADING -> {
-                    loader(true)
-                }
-            }
-        }
+        loader(true)
+        GitboxAPI.giftRepository.getOrder(lifecycleScope, args.order, {
+            viewModel.setOrder(it!!)
+        }, { _, msg ->
+            Toaster(this).toast(msg, true)
+        }, {
+            loader(false)
+        })
     }
 
     override fun onDestroyView() {

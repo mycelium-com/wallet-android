@@ -5,7 +5,7 @@ import com.mycelium.giftbox.client.models.*
 import kotlinx.coroutines.CoroutineScope
 
 class GiftboxApiRepository {
-    val api = GiftboxApi.create()
+    private val api = GiftboxApi.create()
 
     fun getPrice(
         scope: CoroutineScope,
@@ -54,11 +54,8 @@ class GiftboxApiRepository {
         search: String? = null,
         country: String? = null,
         category: String? = null,
-        product_id: String? = null,
         offset: Long = 0,
         limit: Long = 100,
-        clientUserId: String,
-        clientOrderId: String?,
         success: (ProductsResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
@@ -70,8 +67,8 @@ class GiftboxApiRepository {
                 category,
                 offset,
                 limit,
-                clientUserId,
-                clientOrderId
+                Constants.CLIENT_USER_ID,
+                Constants.CLIENT_ORDER_ID
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
@@ -124,7 +121,6 @@ class GiftboxApiRepository {
 
     fun getOrders(
         scope: CoroutineScope,
-        clientUserId: String,
         offset: Long = 0,
         limit: Long = 100,
         success: (GetOrdersResponse?) -> Unit,
@@ -132,11 +128,19 @@ class GiftboxApiRepository {
         finally: () -> Unit
     ) {
         doRequest(scope, {
-            api.orders(
-                clientUserId,
-                offset,
-                limit
-            )
+            api.orders(Constants.CLIENT_USER_ID, offset, limit)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+    }
+
+    fun getOrder(
+            scope: CoroutineScope,
+            item: Item,
+            success: (GetOrderResponse?) -> Unit,
+            error: (Int, String) -> Unit,
+            finally: () -> Unit
+    ) {
+        doRequest(scope, {
+            api.order(Constants.CLIENT_USER_ID, item.client_order_id!!)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 }
