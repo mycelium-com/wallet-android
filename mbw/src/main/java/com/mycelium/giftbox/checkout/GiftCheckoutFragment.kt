@@ -15,8 +15,10 @@ import com.mycelium.bequant.remote.doRequest
 import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutBinding
+import com.mycelium.wapi.wallet.coins.Value
 
 class GiftCheckoutFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxCheckoutBinding
@@ -43,20 +45,12 @@ class GiftCheckoutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        args.amount
+        fillProduct()
         viewModel.loadSubsription().observe(viewLifecycleOwner) {
             when (it.status) {
                 Status.SUCCESS -> {
                     findNavController().navigate(GiftCheckoutFragmentDirections.toCheckoutResult(it.data!!))
-                    with(binding) {
-//                        ivImage.loadImage(product?.card_image_url)
-//                        tvDescription.text = product?.description
-//                        tvCurrency.text = product?.currency_code
-//                        tvExpire.text = product?.expiry_date_policy
-//                        tvCountry.text = product?.countries?.joinToString(separator = ", ")
-//                        tvDiscount.text =
-//                            """from ${product?.minimum_value} to ${product?.maximum_value}"""
-                    }
+
                     loader(false)
                 }
                 Status.ERROR -> {
@@ -71,12 +65,23 @@ class GiftCheckoutFragment : Fragment() {
         viewModel.load(
             GiftCheckoutFragmentViewModel.Params(
                 Constants.CLIENT_USER_ID,
-                    Constants.CLIENT_ORDER_ID,
+                Constants.CLIENT_ORDER_ID,
                 args.product.code!!,
                 args.quantity,
                 args.amount
             )
         )
+    }
+
+    private fun fillProduct() {
+        with(binding) {
+            val product = args.product
+            tvTitle.text = product.name
+            tvGiftCardAmount.text = args.amount.toStringWithUnit()
+            tvExpire.text = product?.expiry_date_policy
+            tvDiscount.text =
+                """from ${product?.minimum_value} to ${product?.maximum_value}"""
+        }
     }
 }
 
@@ -96,7 +101,7 @@ class GiftCheckoutFragmentViewModel : ViewModel() {
                     clientOrderId,
                     code,
                     quantity,
-                    amount
+                    amount.value.toInt()
                 )
             }.asLiveData()
         }
@@ -107,6 +112,6 @@ class GiftCheckoutFragmentViewModel : ViewModel() {
         val clientOrderId: String,
         val code: String,
         val quantity: Int = 1,
-        val amount: Int
+        val amount: Value
     )
 }

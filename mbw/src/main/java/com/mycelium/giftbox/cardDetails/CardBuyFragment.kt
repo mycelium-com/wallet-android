@@ -85,7 +85,7 @@ class CardBuyFragment : Fragment() {
                         amountRoot.setOnClickListener {
                             findNavController().navigate(
                                 CardBuyFragmentDirections.enterAmount(
-                                    product!!
+                                    product!!,viewModel.amount.value
                                 )
                             )
                         }
@@ -112,7 +112,7 @@ class CardBuyFragment : Fragment() {
             findNavController().navigate(
                 CardBuyFragmentDirections.actionNext(
                     viewModel.productResponse.value?.product!!,
-                    viewModel.amount.value?.value?.toInt() ?: 0,
+                    viewModel.amount.value!!,
                     1
                 )
             )
