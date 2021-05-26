@@ -17,7 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.remote.Status
 import com.mycelium.bequant.remote.doRequest
+import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.Product
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
@@ -101,13 +103,7 @@ class CardBuyFragment : Fragment() {
             }
 
         }
-        viewModel.load(
-            CardDetailsFragmentViewModel.Params(
-                args.clientUserId,
-                args.clientOrderId,
-                args.productId
-            )
-        )
+        viewModel.load(Params(args.product))
         binding.btSend.setOnClickListener {
             findNavController().navigate(
                 CardBuyFragmentDirections.actionNext(
@@ -137,12 +133,11 @@ class CardDetailsFragmentViewModel : ViewModel() {
 
     val loadSubsription = {
         load.switchMap {
-            val (clientUserId, clientOrderId, productId) = it
             doRequest {
                 return@doRequest GitboxAPI.giftRepository.api.product(
-                    clientUserId = clientUserId,
-                    clientOrderId = clientOrderId,
-                    productId = productId
+                    clientUserId =  Constants.CLIENT_USER_ID,
+                    clientOrderId = Constants.CLIENT_ORDER_ID,
+                    productId = it.product.code!!
                 )
             }.onEach {
                 it.data?.let {
@@ -152,5 +147,6 @@ class CardDetailsFragmentViewModel : ViewModel() {
         }
     }
 
-    data class Params(val clientUserId: String, val clientOrderId: String, val productId: String)
 }
+
+data class Params(val product: Product)

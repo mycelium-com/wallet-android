@@ -1,6 +1,7 @@
 package com.mycelium.giftbox.client.models
 
 import android.os.Parcelable
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -11,7 +12,8 @@ data class Item(
     val items: List<SubItem>,
     val product_code: String?,
     val product_img: String?,
-    val product_name: String?,
+    @JsonProperty("product_name")
+    val name: String?,
     val quantity: String?,
     val status: String?,
     val timestamp: Date?

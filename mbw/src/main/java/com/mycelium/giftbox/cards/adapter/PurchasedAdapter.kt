@@ -26,7 +26,7 @@ class PurchasedAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.itemView.title.text = item.product_name
+        holder.itemView.title.text = item.name
         holder.itemView.description.text = item.amount
         holder.itemView.additional.text = getDateString(holder.itemView.resources, item.timestamp!!)
         Glide.with(holder.itemView.image)
@@ -49,6 +49,6 @@ class PurchasedAdapter : ListAdapter<Item, RecyclerView.ViewHolder>(DiffCallback
 
         override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean =
                 equalsValuesBy(oldItem, newItem,
-                        { it.product_img }, { it.product_name }, { it.amount }, { it.timestamp })
+                        { it.product_img }, { it.name }, { it.amount }, { it.timestamp })
     }
 }

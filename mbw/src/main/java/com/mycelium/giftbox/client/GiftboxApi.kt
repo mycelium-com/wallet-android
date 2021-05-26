@@ -14,7 +14,6 @@ interface GiftboxApi {
         @Query("search") search: String? = null,
         @Query("country") country: String? = null,
         @Query("category") category: String? = null,
-        @Query("product_id") product_id: String? = null,
         @Query("offset") offset: Long = 0,
         @Query("limit") limit: Long = 100,
         @Query(value = "client_user_id") clientUserId: String,

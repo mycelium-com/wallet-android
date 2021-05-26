@@ -24,18 +24,12 @@
 
     <fragment
         android:id="@+id/cardBuyFragment"
-        android:label="Gift card amount"
         android:name="com.mycelium.giftbox.cardDetails.CardBuyFragment"
+        android:label="Gift card amount"
         tools:layout="@layout/fragment_giftbox_card_buy">
         <argument
-            android:name="clientUserId"
-            app:argType="string" />
-        <argument
-            android:name="client_order_id"
-            app:argType="string" />
-        <argument
-            android:name="productId"
-            app:argType="string" />
+            android:name="product"
+            app:argType="com.mycelium.giftbox.client.models.Product" />
         <action
             android:id="@+id/actionNext"
             app:destination="@id/selectAccountFragment2" />
