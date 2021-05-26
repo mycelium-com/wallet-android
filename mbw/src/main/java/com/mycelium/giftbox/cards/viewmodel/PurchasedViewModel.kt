@@ -18,7 +18,7 @@ class PurchasedViewModel : ViewModel() {
     val loadSubsription = {
         load.switchMap {
             doRequest {
-                return@doRequest GitboxAPI.giftRepository.api.orders(it.clientUserId)
+                return@doRequest GitboxAPI.giftRepository.api.orders(it.clientUserId,0,100)
             }.asLiveData()
         }
     }
