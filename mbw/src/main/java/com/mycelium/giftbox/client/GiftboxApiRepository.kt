@@ -68,7 +68,6 @@ class GiftboxApiRepository {
                 search,
                 country,
                 category,
-                product_id,
                 offset,
                 limit,
                 clientUserId,

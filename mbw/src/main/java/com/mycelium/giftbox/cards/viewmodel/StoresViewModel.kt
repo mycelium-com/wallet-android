@@ -15,11 +15,13 @@ class StoresViewModel : ViewModel() {
     val products = MutableLiveData<List<Product>>(emptyList())
     private val load = MutableLiveData<Params>()
 
-    fun load(search: String? = null,
-             category: String? = null,
-             countries: List<CountryModel> = emptyList(),
-             offset: Long = 0,
-             limit: Long = 30) {
+    fun load(
+        search: String? = null,
+        category: String? = null,
+        countries: List<CountryModel> = emptyList(),
+        offset: Long = 0,
+        limit: Long = 30
+    ) {
         load.value = Params(search, category, countries, offset, limit)
     }
 
@@ -27,21 +29,23 @@ class StoresViewModel : ViewModel() {
         load.switchMap {
             doRequest {
                 return@doRequest GitboxAPI.giftRepository.api.products(
-                        it.search,
-                        it.countries.joinToString(","),
-                        it.category,
-                        it.offset,
-                        it.limit,
-                        Constants.CLIENT_USER_ID,
-                        Constants.CLIENT_ORDER_ID
+                    it.search,
+                    it.countries.joinToString(","),
+                    it.category,
+                    it.offset,
+                    it.limit,
+                    clientUserId = Constants.CLIENT_USER_ID,
+                    clientOrderId = Constants.CLIENT_ORDER_ID
                 )
             }.asLiveData()
         }
     }
 
-    data class Params(val search: String? = null,
-                      val category: String? = null,
-                      val countries: List<CountryModel> = emptyList(),
-                      val offset: Long = 0,
-                      val limit: Long = 30)
+    data class Params(
+        val search: String? = null,
+        val category: String? = null,
+        val countries: List<CountryModel> = emptyList(),
+        val offset: Long = 0,
+        val limit: Long = 30
+    )
 }

@@ -14,9 +14,8 @@ interface GiftboxApi {
         @Query("search") search: String? = null,
         @Query("country") country: String? = null,
         @Query("category") category: String? = null,
-        @Query("product_id") product_id: String? = null,
-        @Query("offset") offset: Long?,
-        @Query("limit") limit: Long?,
+        @Query("offset") offset: Long? = null,
+        @Query("limit") limit: Long? = null,
         @Query(value = "client_user_id") clientUserId: String,
         @Query(value = "client_order_id") clientOrderId: String?
     ): Response<ProductsResponse>
@@ -61,8 +60,8 @@ interface GiftboxApi {
     @GET("orders")
     suspend fun orders(
         @Query("client_user_id") clientUserId: String,
-        @Query("offset") offset: Long?,
-        @Query("limit") limit: Long?
+        @Query("offset") offset: Long? = null,
+        @Query("limit") limit: Long? = null
     ): Response<GetOrdersResponse>
 
     @GET("get-order")
