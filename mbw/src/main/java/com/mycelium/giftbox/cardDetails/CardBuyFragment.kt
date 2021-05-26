@@ -15,20 +15,17 @@ import androidx.lifecycle.*
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.remote.Status
-import com.mycelium.bequant.remote.doRequest
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.models.Product
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxCardBuyBinding
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.giftcard_send_info.*
-import kotlinx.coroutines.flow.onEach
 
 class CardBuyFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxCardBuyBinding
@@ -71,39 +68,38 @@ class CardBuyFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.btSend.isEnabled = viewModel.amount.value != null
         binding.tvAmount.text = viewModel.amount.value?.toStringWithUnit()
-        viewModel.loadSubsription().observe(viewLifecycleOwner) {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    val product = it.data?.product
-                    with(binding) {
-                        ivImage.loadImage(product?.card_image_url)
-                        tvDescription.text = product?.description
-                        tvCurrency.text = product?.currency_code
-                        tvExpire.text = product?.expiry_date_policy
-                        tvCountry.text = product?.countries?.joinToString(separator = ", ")
-                        tvDiscount.text =
-                            """from ${product?.minimum_value} to ${product?.maximum_value}"""
+        loader(true)
+        GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
+            clientUserId = Constants.CLIENT_USER_ID,
+            clientOrderId = Constants.CLIENT_ORDER_ID,
+            productId = args.product.code!!, success = { productResponse ->
+                viewModel.productResponse.value = productResponse
+                val product = productResponse?.product
+                with(binding) {
+                    ivImage.loadImage(product?.card_image_url)
+                    tvDescription.text = product?.description
+                    tvCurrency.text = product?.currency_code
+                    tvExpire.text = product?.expiry_date_policy
+                    tvCountry.text = product?.countries?.joinToString(separator = ", ")
+                    tvDiscount.text =
+                        """from ${product?.minimum_value} to ${product?.maximum_value}"""
 
-                        amountRoot.setOnClickListener {
-                            findNavController().navigate(
-                                CardBuyFragmentDirections.enterAmount(
-                                    product!!,viewModel.amount.value
-                                )
+                    amountRoot.setOnClickListener {
+                        findNavController().navigate(
+                            CardBuyFragmentDirections.enterAmount(
+                                product!!, viewModel.amount.value
                             )
-                        }
+                        )
                     }
-                    loader(false)
                 }
-                Status.ERROR -> {
-                    loader(false)
-                }
-                Status.LOADING -> {
-                    loader(true)
-                }
-            }
+            },
+            error = { _, error ->
+                ErrorHandler(requireContext()).handle(error)
+                loader(false)
+            }, finally = {
+                loader(false)
+            })
 
-        }
-        viewModel.load(Params(args.product))
         binding.btSend.setOnClickListener {
             findNavController().navigate(
                 CardBuyFragmentDirections.actionNext(
@@ -126,27 +122,4 @@ class CardBuyFragment : Fragment() {
 class CardDetailsFragmentViewModel : ViewModel() {
     val amount = MutableLiveData<Value>()
     val productResponse = MutableLiveData<ProductResponse>()
-    private val load = MutableLiveData<Params>()
-    fun load(params: Params) {
-        load.value = params
-    }
-
-    val loadSubsription = {
-        load.switchMap {
-            doRequest {
-                return@doRequest GitboxAPI.giftRepository.api.product(
-                    clientUserId =  Constants.CLIENT_USER_ID,
-                    clientOrderId = Constants.CLIENT_ORDER_ID,
-                    productId = it.product.code!!
-                )
-            }.onEach {
-                it.data?.let {
-                    productResponse.value = it
-                }
-            }.asLiveData()
-        }
-    }
-
 }
-
-data class Params(val product: Product)

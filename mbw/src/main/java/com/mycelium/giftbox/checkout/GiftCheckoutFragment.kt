@@ -10,15 +10,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.remote.Status
-import com.mycelium.bequant.remote.doRequest
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutBinding
-import com.mycelium.wapi.wallet.coins.Value
 
 class GiftCheckoutFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxCheckoutBinding
@@ -46,31 +44,22 @@ class GiftCheckoutFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fillProduct()
-        viewModel.loadSubsription().observe(viewLifecycleOwner) {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    findNavController().navigate(GiftCheckoutFragmentDirections.toCheckoutResult(it.data!!))
-
-                    loader(false)
-                }
-                Status.ERROR -> {
-                    loader(false)
-                }
-                Status.LOADING -> {
-                    loader(true)
-                }
-            }
-
-        }
-        viewModel.load(
-            GiftCheckoutFragmentViewModel.Params(
+        binding.btBuy.setOnClickListener {
+            GitboxAPI.giftRepository.checkoutProduct(viewModel.viewModelScope,
                 Constants.CLIENT_USER_ID,
                 Constants.CLIENT_ORDER_ID,
                 args.product.code!!,
                 args.quantity,
-                args.amount
-            )
-        )
+                args.amount.value.toInt(), success = {
+                    findNavController().navigate(GiftCheckoutFragmentDirections.toCheckoutResult(it!!))
+                    loader(false)
+                }, error = { _, error ->
+                    ErrorHandler(requireContext()).handle(error)
+                    loader(false)
+                }, finally = {
+                    loader(false)
+                })
+        }
     }
 
     private fun fillProduct() {
@@ -87,31 +76,4 @@ class GiftCheckoutFragment : Fragment() {
 
 
 class GiftCheckoutFragmentViewModel : ViewModel() {
-    private val load = MutableLiveData<Params>()
-    fun load(params: Params) {
-        load.value = params
-    }
-
-    val loadSubsription = {
-        load.switchMap {
-            val (clientUserId, clientOrderId, code, quantity, amount) = it
-            doRequest {
-                return@doRequest GitboxAPI.giftRepository.api.checkoutProduct(
-                    clientUserId,
-                    clientOrderId,
-                    code,
-                    quantity,
-                    amount.value.toInt()
-                )
-            }.asLiveData()
-        }
-    }
-
-    data class Params(
-        val clientUserId: String,
-        val clientOrderId: String,
-        val code: String,
-        val quantity: Int = 1,
-        val amount: Value
-    )
 }
