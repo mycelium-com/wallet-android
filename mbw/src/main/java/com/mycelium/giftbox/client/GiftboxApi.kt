@@ -25,7 +25,7 @@ interface GiftboxApi {
     suspend fun product(
         @Query("client_user_id") clientUserId: String,
         @Query("client_order_id") clientOrderId: String,
-        @Query("product_id") productId: String
+        @Query("code") productId: String
     ): Response<ProductResponse>
 
     @GET("price")

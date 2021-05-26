@@ -38,8 +38,7 @@ class CardBuyFragment : Fragment() {
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             intent?.getSerializableExtra(AmountInputFragment.AMOUNT_KEY)?.let {
-                val value = it as Value
-                binding.tvAmount.text = value.toStringWithUnit()
+                viewModel.amount.value = it as Value
             }
         }
     }
@@ -69,6 +68,8 @@ class CardBuyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        binding.tvAmount.text = viewModel.amount.value?.toStringWithUnit()
         viewModel.loadSubsription().observe(viewLifecycleOwner) {
             when (it.status) {
                 Status.SUCCESS -> {
@@ -118,7 +119,6 @@ class CardBuyFragment : Fragment() {
             )
         }
     }
-
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
@@ -128,6 +128,7 @@ class CardBuyFragment : Fragment() {
 
 
 class CardDetailsFragmentViewModel : ViewModel() {
+    val amount = MutableLiveData<Value>()
     val productResponse = MutableLiveData<ProductResponse>()
     private val load = MutableLiveData<Params>()
     fun load(params: Params) {

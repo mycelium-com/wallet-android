@@ -92,8 +92,7 @@
                         app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@id/btEnterAmount"
-                        tools:hint="0.00 USD"
-                        tools:text="0.05 USD" />
+                        tools:hint="0.00 USD"/>
 
                     <View
                         android:id="@+id/divider"
