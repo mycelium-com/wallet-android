@@ -92,11 +92,4 @@
         app:layout_constraintTop_toTopOf="@id/title"
         app:srcCompat="@drawable/ic_more_vert" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="@color/bequant_gray_4"
-        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

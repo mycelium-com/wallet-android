@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <import type="android.view.View" />
         <variable
             name="activityViewModel"
             type="com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel" />
@@ -21,6 +21,7 @@
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
+            android:visibility="@{activityViewModel.categories.isEmpty() ? View.GONE : View.VISIBLE}"
             tools:listitem="@layout/item_gift_box_tag" />
 
         <TextView
@@ -31,6 +32,7 @@
             android:text="@string/gift_cards_with_discount"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="12sp"
+            app:layout_goneMarginTop="16dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tags" />
 
@@ -40,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:drawablePadding="6dp"
-            android:text="@{@plurals/d_countries(activityViewModel.countries.size, activityViewModel.countries.size)}"
+            android:text="@{@plurals/d_countries(activityViewModel.selectedCountries.size, activityViewModel.selectedCountries.size)}"
             android:textColor="#60B687"
             android:textSize="12sp"
             app:drawableStartCompat="@drawable/ic_glyph"

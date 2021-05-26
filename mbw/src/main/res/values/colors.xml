@@ -72,6 +72,10 @@
     <color name="fio_white_alpha_0_9">#E5FFFFFF</color>
     <color name="fio_record">#0C1011</color>
 
+    <color name="black_alpha_0_6">#99000000</color>
+    <color name="black_alpha_0_8">#CC000000</color>
+    <color name="black_alpha_0_9">#E5000000</color>
+
     <fraction name="background_alpha">50%</fraction>
 
     <color name="bequant_yellow">#F2E868</color>

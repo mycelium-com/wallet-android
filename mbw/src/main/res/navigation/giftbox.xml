@@ -20,6 +20,9 @@
         <action
             android:id="@+id/actionSelectCountries"
             app:destination="@id/selectCountiesFragment" />
+        <action
+            android:id="@+id/actionDetails"
+            app:destination="@id/giftBoxDetailsFragment" />
     </fragment>
 
     <fragment
@@ -28,14 +31,8 @@
         android:label="Gift card amount"
         tools:layout="@layout/fragment_giftbox_card_buy">
         <argument
-            android:name="clientUserId"
-            app:argType="string" />
-        <argument
-            android:name="client_order_id"
-            app:argType="string" />
-        <argument
-            android:name="productId"
-            app:argType="string" />
+            android:name="product"
+            app:argType="com.mycelium.giftbox.client.models.Product" />
         <action
             android:id="@+id/actionNext"
             app:destination="@id/selectAccountFragment2" />
@@ -114,6 +111,15 @@
             android:name="amount"
             app:argType="com.mycelium.wapi.wallet.coins.Value"
             app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/giftBoxDetailsFragment"
+        android:name="com.mycelium.giftbox.details.GiftBoxDetailsFragment"
+        tools:layout="@layout/fragment_giftbox_details"
+        android:label="GiftBoxDetailsFragment" >
+        <argument
+            android:name="order"
+            app:argType="com.mycelium.giftbox.client.models.Item" />
     </fragment>
 
 </navigation>

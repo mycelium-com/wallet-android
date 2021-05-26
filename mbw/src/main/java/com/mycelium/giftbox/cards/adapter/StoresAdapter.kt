@@ -32,7 +32,7 @@ class StoresAdapter : ListAdapter<Product, RecyclerView.ViewHolder>(DiffCallback
         holder.itemView.description.text = item.categories?.joinToString(",")
         holder.itemView.additional.text = "from ${item.minimum_value} to ${item.maximum_value}"
 
-        item.minimum_value?.let {
+        item.minimum_value.let {
             holder.itemView.discount.text = "-${item.minimum_value}%"
         } ?: kotlin.run {
             holder.itemView.discount.isVisible = false

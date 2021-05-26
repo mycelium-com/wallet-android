@@ -8,7 +8,6 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.SelectCountiesAdapter
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.wallet.R
@@ -32,11 +31,11 @@ class SelectCountiesFragment : Fragment(R.layout.fragment_select_counties) {
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.selected.clear()
-        adapter.selected.addAll(activityViewModel.countries.value ?: listOf())
-        adapter.submitList(CountriesSource.countryModels)
+        adapter.selected.addAll(activityViewModel.selectedCountries.value ?: listOf())
+        adapter.submitList(activityViewModel.countries.value)
         binding?.search?.doAfterTextChanged { search ->
-            adapter.submitList(CountriesSource.countryModels
-                    .filter { it.name.contains(search.toString(), true) || it.acronym3.contains(search.toString(), true) })
+            adapter.submitList(activityViewModel.countries.value
+                    ?.filter { it.name.contains(search.toString(), true) || it.acronym3.contains(search.toString(), true) })
         }
         binding?.clear?.setOnClickListener {
             binding?.search?.text = null
@@ -44,7 +43,7 @@ class SelectCountiesFragment : Fragment(R.layout.fragment_select_counties) {
     }
 
     override fun onPause() {
-        activityViewModel.countries.value = adapter.selected
+        activityViewModel.selectedCountries.value = adapter.selected
         super.onPause()
     }
 

@@ -8,15 +8,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.remote.Status
 import com.mycelium.giftbox.cards.adapter.SearchTagAdapter
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
-import com.mycelium.giftbox.client.Constants
-import com.mycelium.giftbox.client.models.Product
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 
@@ -28,7 +29,6 @@ class StoresFragment : Fragment() {
     private val viewModel: StoresViewModel by viewModels()
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxStoresBinding? = null
-    private var products = emptyList<Product>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,19 +44,16 @@ class StoresFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.tags?.adapter = tagsAdapter
-        tagsAdapter.submitList(listOf("Popular", "Food & Drink", "Books", "Clothes"))
         tagsAdapter.clickListener = {
-
+            viewModel.load(category = it)
+        }
+        activityViewModel.categories.observe(viewLifecycleOwner) {
+            tagsAdapter.submitList(it)
         }
         binding?.list?.adapter = adapter
+        binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.itemClickListener = {
-            findNavController().navigate(
-                    GiftBoxFragmentDirections.toCardDetailsFragment(
-                            Constants.CLIENT_USER_ID,
-                            Constants.CLIENT_ORDER_ID,
-                            it.code!!
-                    )
-            )
+            findNavController().navigate(GiftBoxFragmentDirections.toCardDetailsFragment(it))
         }
         binding?.counties?.setOnClickListener {
             findNavController().navigate(GiftBoxFragmentDirections.actionSelectCountries())
@@ -65,7 +62,11 @@ class StoresFragment : Fragment() {
             when (it.status) {
                 Status.SUCCESS -> {
                     loader(false)
-                    products = it.data?.products ?: emptyList()
+                    viewModel.products.value = it.data?.products ?: emptyList()
+                    activityViewModel.categories.value = it.data?.categories
+                    activityViewModel.countries.value = it.data?.countries?.mapNotNull {
+                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+                    }
                     adapter.submitList(it.data?.products)
                 }
                 Status.ERROR -> {
@@ -78,7 +79,7 @@ class StoresFragment : Fragment() {
             }
 
         }
-        viewModel.load(StoresViewModel.Params(Constants.CLIENT_USER_ID, Constants.CLIENT_ORDER_ID))
+        viewModel.load()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -86,7 +87,7 @@ class StoresFragment : Fragment() {
         val searchItem = menu.findItem(R.id.actionSearch)
         val searchView = searchItem.actionView as SearchView
         searchView.setOnCloseListener {
-            adapter.submitList(products)
+            adapter.submitList(viewModel.products.value)
             false
         }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -101,12 +102,11 @@ class StoresFragment : Fragment() {
             }
 
             private fun findSearchResult(s: String) {
-                adapter.submitList(products.filter {
+                adapter.submitList(viewModel.products.value?.filter {
                     it.name?.contains(s, true) ?: false
                 })
             }
         })
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onDestroyView() {

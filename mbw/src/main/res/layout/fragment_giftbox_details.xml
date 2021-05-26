@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel" />
+    </data>
+
+
+    <ScrollView
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="14dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:minHeight="250dp" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#60B687">
+
+                    <TextView
+                        android:id="@+id/tvGiftCardAmountTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/gift_card_amount"
+                        android:textColor="@color/black_alpha_0_6"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvGiftCardAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@{viewModel.cardAmount}"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvGiftCardAmountTitle"
+                        app:layout_constraintStart_toEndOf="@id/tvGiftCardAmountTitle"
+                        tools:text="240 USD" />
+
+                    <TextView
+                        android:id="@+id/tvExpireTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/expire_date"
+                        android:textColor="@color/black_alpha_0_6"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvGiftCardAmountTitle" />
+
+                    <TextView
+                        android:id="@+id/tvExpire"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@{viewModel.expireDate}"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvExpireTitle"
+                        app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+                        tools:text="Does not expire" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!--Request info-->
+            <include layout="@layout/giftcard_checkout_result_info" />
+
+
+        </LinearLayout>
+
+
+    </ScrollView>
+</layout>
