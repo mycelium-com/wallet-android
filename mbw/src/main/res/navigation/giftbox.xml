@@ -53,7 +53,7 @@
             app:argType="java.util.UUID" />
         <argument
             android:name="amount"
-            app:argType="integer" />
+            app:argType="com.mycelium.wapi.wallet.coins.Value" />
         <argument
             android:name="quantity"
             app:argType="integer" />
@@ -87,7 +87,7 @@
             app:argType="com.mycelium.giftbox.client.models.Product" />
         <argument
             android:name="amount"
-            app:argType="integer" />
+            app:argType="com.mycelium.wapi.wallet.coins.Value" />
         <argument
             android:name="quantity"
             app:argType="integer" />
@@ -103,6 +103,11 @@
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.Product" />
+
+        <argument
+            android:name="amount"
+            app:argType="com.mycelium.wapi.wallet.coins.Value"
+            app:nullable="true" />
     </fragment>
 
 </navigation>

@@ -28,8 +28,9 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private lateinit var _mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
+    private val zeroUsd = Value(Utils.getTypeByName(CurrencyCode.USD.shortString)!!, 0.toBigInteger())
     private var _amount: Value =
-        Value(Utils.getTypeByName(CurrencyCode.USD.shortString)!!, 0.toBigInteger())
+        zeroUsd
         set(value) {
             field = value
             binding.tvAmount.text = value.toStringWithUnit()
@@ -81,6 +82,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         // Load saved state
         if (savedInstanceState != null) {
             _amount = savedInstanceState.getSerializable(ENTERED_AMOUNT) as Value
+        } else {
+            _amount = args.amount ?: zeroUsd
         }
 
         // Init the number pad
@@ -113,8 +116,18 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private fun checkEntry() {
         val valid = !isNullOrZero(_amount)
-                && _amount.moreOrEqualThan(valueOf(_amount.type, toUnits(args.product.minimum_value)))
-                && _amount.lessOrEqualThan(valueOf(_amount.type, toUnits(args.product.maximum_value)))
+                && _amount.moreOrEqualThan(
+            valueOf(
+                _amount.type,
+                toUnits(args.product.minimum_value)
+            )
+        )
+                && _amount.lessOrEqualThan(
+            valueOf(
+                _amount.type,
+                toUnits(args.product.maximum_value)
+            )
+        )
         binding.btOk.isEnabled = valid
     }
 
