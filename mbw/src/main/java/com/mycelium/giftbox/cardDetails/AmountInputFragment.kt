@@ -28,7 +28,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private lateinit var _mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
-    private val zeroUsd = Value(Utils.getTypeByName(CurrencyCode.USD.shortString)!!, 0.toBigInteger())
+    private val zeroUsd =
+        Value(Utils.getTypeByName(CurrencyCode.USD.shortString)!!, 0.toBigInteger())
     private var _amount: Value =
         zeroUsd
         set(value) {
@@ -134,7 +135,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     companion object {
         const val ACTION_AMOUNT_SELECTED: String = "action_amount"
-        const val REQUEST_AMOUNT = "request_amount"
         const val AMOUNT_KEY = "amount"
         const val ENTERED_AMOUNT = "enteredamount"
     }
