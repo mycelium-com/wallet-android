@@ -15,7 +15,6 @@ import androidx.lifecycle.*
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.Status
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.giftbox.client.GitboxAPI
@@ -68,7 +67,7 @@ class CardBuyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+        binding.btSend.isEnabled = viewModel.amount.value != null
         binding.tvAmount.text = viewModel.amount.value?.toStringWithUnit()
         viewModel.loadSubsription().observe(viewLifecycleOwner) {
             when (it.status) {
@@ -113,12 +112,13 @@ class CardBuyFragment : Fragment() {
             findNavController().navigate(
                 CardBuyFragmentDirections.actionNext(
                     viewModel.productResponse.value?.product!!,
-                    100,
-                    0
+                    viewModel.amount.value?.value?.toInt() ?: 0,
+                    1
                 )
             )
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)

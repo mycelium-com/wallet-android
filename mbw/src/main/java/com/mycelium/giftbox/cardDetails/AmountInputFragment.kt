@@ -113,8 +113,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private fun checkEntry() {
         val valid = !isNullOrZero(_amount)
-                && _amount.moreThan(valueOf(_amount.type, toUnits(args.product.minimum_value)))
-                && _amount.lessThan(valueOf(_amount.type, toUnits(args.product.maximum_value)))
+                && _amount.moreOrEqualThan(valueOf(_amount.type, toUnits(args.product.minimum_value)))
+                && _amount.lessOrEqualThan(valueOf(_amount.type, toUnits(args.product.maximum_value)))
         binding.btOk.isEnabled = valid
     }
 

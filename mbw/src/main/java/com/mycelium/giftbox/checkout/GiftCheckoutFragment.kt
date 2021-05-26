@@ -43,6 +43,7 @@ class GiftCheckoutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        args.amount
         viewModel.loadSubsription().observe(viewLifecycleOwner) {
             when (it.status) {
                 Status.SUCCESS -> {
