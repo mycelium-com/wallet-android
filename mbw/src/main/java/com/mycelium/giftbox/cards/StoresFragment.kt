@@ -107,7 +107,6 @@ class StoresFragment : Fragment() {
                 })
             }
         })
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onDestroyView() {

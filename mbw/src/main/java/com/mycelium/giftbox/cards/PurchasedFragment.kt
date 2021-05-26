@@ -6,6 +6,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import com.mycelium.bequant.remote.Status
 import com.mycelium.giftbox.cards.adapter.PurchasedAdapter
@@ -17,7 +18,7 @@ import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
 
 
-class PurchasedFragment : Fragment(R.layout.fragment_giftbox_purchased) {
+class PurchasedFragment : Fragment() {
 
     private val adapter = PurchasedAdapter()
     private val viewModel: PurchasedViewModel by viewModels()
@@ -27,7 +28,7 @@ class PurchasedFragment : Fragment(R.layout.fragment_giftbox_purchased) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
-    
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
                 binding = this
@@ -38,13 +39,13 @@ class PurchasedFragment : Fragment(R.layout.fragment_giftbox_purchased) {
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.itemClickListener = {
-//            findNavController().navigate(PurchasedFragmentDirections.to)
-//            startActivity(Intent(requireContext(), GiftBoxDetailsActivity::class.java))
+            findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it))
         }
         viewModel.loadSubsription().observe(viewLifecycleOwner) {
             when (it.status) {
                 Status.SUCCESS -> {
                     loader(false)
+                    viewModel.orders.value = it.data?.items
                     adapter.submitList(it.data?.items)
                 }
                 Status.ERROR -> {
@@ -84,6 +85,10 @@ class PurchasedFragment : Fragment(R.layout.fragment_giftbox_purchased) {
                 })
             }
         })
-        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 }

@@ -64,6 +64,12 @@ interface GiftboxApi {
         @Query("limit") limit: Long = 100
     ): Response<GetOrdersResponse>
 
+    @GET("get-order")
+    suspend fun order(
+        @Query("client_user_id") clientUserId: String,
+        @Query("client_order_id") clientOrderId: String
+    ): Response<GetOrderResponse>
+
 
     companion object {
         fun create(): GiftboxApi = createApi()
