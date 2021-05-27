@@ -5,10 +5,6 @@
 
     <data>
 
-        <import type="androidx.lifecycle.AndroidViewModel" />
-
-        <import type="android.view.View" />
-
         <variable
             name="viewModel"
             type="com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel" />
@@ -65,7 +61,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
-                        android:fontFamily="sans-serif-medium"
+                        android:fontFamily="@font/roboto_mono_medium"
                         android:text="@{viewModel.cardAmount}"
                         android:textColor="@color/black"
                         android:textSize="18sp"
@@ -93,7 +89,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_marginTop="4dp"
-                        android:fontFamily="sans-serif-medium"
                         android:text="@{viewModel.expireDate}"
                         android:textColor="@color/black"
                         android:textSize="14sp"
@@ -104,12 +99,16 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
-            <!--Request info-->
-            <include layout="@layout/giftcard_checkout_result_info" />
+            <include layout="@layout/layout_giftbox_card_info"
+                app:model="@{viewModel}" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="32dp" />
 
+            <include
+                layout="@layout/layout_giftbox_amount"
+                app:model="@{viewModel}" />
         </LinearLayout>
-
-
     </ScrollView>
 </layout>

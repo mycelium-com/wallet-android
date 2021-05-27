@@ -40,6 +40,7 @@ class StoresFragment : Fragment() {
             FragmentGiftboxStoresBinding.inflate(inflater).apply {
                 binding = this
                 this.activityViewModel = this@StoresFragment.activityViewModel
+                this.lifecycleOwner = this@StoresFragment
             }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

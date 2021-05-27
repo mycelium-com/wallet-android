@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -30,11 +31,26 @@ class GiftBoxDetailsFragment : Fragment() {
             FragmentGiftboxDetailsBinding.inflate(inflater).apply {
                 binding = this
                 this.viewModel = this@GiftBoxDetailsFragment.viewModel
+                this.lifecycleOwner = this@GiftBoxDetailsFragment
             }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.ivImage?.loadImage(args.order.product_img)
+        (activity as AppCompatActivity).supportActionBar?.title = args.order.name
+        loadOrder()
+        loadProduct()
+    }
+
+    private fun loadProduct() {
+        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.order.client_order_id!!, args.order.product_code!!, {
+            viewModel.setProduct(it!!)
+        }, { _, msg ->
+            Toaster(this).toast(msg, true)
+        })
+    }
+
+    private fun loadOrder() {
         loader(true)
         GitboxAPI.giftRepository.getOrder(lifecycleScope, args.order, {
             viewModel.setOrder(it!!)

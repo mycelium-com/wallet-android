@@ -70,7 +70,6 @@ class CardBuyFragment : Fragment() {
         binding.tvAmount.text = viewModel.amount.value?.toStringWithUnit()
         loader(true)
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
-            clientUserId = Constants.CLIENT_USER_ID,
             clientOrderId = Constants.CLIENT_ORDER_ID,
             productId = args.product.code!!, success = { productResponse ->
                 viewModel.productResponse.value = productResponse

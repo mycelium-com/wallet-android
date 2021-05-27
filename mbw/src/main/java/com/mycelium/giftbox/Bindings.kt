@@ -11,9 +11,13 @@ import java.util.*
 fun ImageView.loadImage(url: String?) {
     if (!url.isNullOrEmpty()) {
         Glide.with(context).load(url)
-            .into(this)
+                .into(this)
     }
 }
 
 fun Date.getDateString(resources: Resources): String =
         DateFormat.getDateInstance(DateFormat.LONG, resources.configuration.locale).format(this)
+
+fun Date.getDateTimeString(resources: Resources): String =
+        "${DateFormat.getDateInstance(DateFormat.LONG, resources.configuration.locale).format(this)} at " +
+                DateFormat.getTimeInstance(DateFormat.LONG, resources.configuration.locale).format(this)

@@ -33,16 +33,15 @@ class GiftboxApiRepository {
 
     fun getProduct(
         scope: CoroutineScope,
-        clientUserId: String,
         clientOrderId: String,
         productId: String,
         success: (ProductResponse?) -> Unit,
         error: (Int, String) -> Unit,
-        finally: () -> Unit
+        finally: () -> Unit = {}
     ) {
         doRequest(scope, {
             api.product(
-                clientUserId,
+                Constants.CLIENT_USER_ID,
                 clientOrderId,
                 productId
             )
