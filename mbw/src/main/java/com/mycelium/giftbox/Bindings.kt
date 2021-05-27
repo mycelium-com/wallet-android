@@ -20,4 +20,4 @@ fun Date.getDateString(resources: Resources): String =
 
 fun Date.getDateTimeString(resources: Resources): String =
         "${DateFormat.getDateInstance(DateFormat.LONG, resources.configuration.locale).format(this)} at " +
-                DateFormat.getTimeInstance(DateFormat.LONG, resources.configuration.locale).format(this)
+                DateFormat.getTimeInstance(DateFormat.SHORT, resources.configuration.locale).format(this)

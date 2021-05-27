@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
             android:visibility="@{activityViewModel.categories.isEmpty() ? View.GONE : View.VISIBLE}"
             tools:listitem="@layout/item_gift_box_tag" />
