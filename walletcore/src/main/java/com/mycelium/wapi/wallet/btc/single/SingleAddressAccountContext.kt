@@ -23,9 +23,9 @@ import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking
 import java.util.*
 
 /**
- * The abstract context of an account
+ * The context of an account
  */
-class SingleAddressAccountContext constructor(
+class SingleAddressAccountContext(
         val id: UUID,
         var addresses: Map<AddressType, BitcoinAddress>,
         private var isArchived: Boolean,
