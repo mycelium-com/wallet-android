@@ -2,15 +2,29 @@ package com.mycelium.giftbox.client
 
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.giftbox.client.models.*
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.WalletApplication
+import com.mycelium.wapi.wallet.AesKeyCipher
+import fiofoundation.io.fiosdk.toHexString
 import kotlinx.coroutines.CoroutineScope
 
-class GiftboxApiRepository {
+class GiftboxApiRepository() {
     private val api = GiftboxApi.create()
+
+    private val clientUserIdFromMasterSeed by lazy {
+        val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
+        if (mbwManager.network.isProdnet) {
+            mbwManager
+                .masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher()).toBytes(true)
+                .toHexString()
+        } else {
+            Constants.CLIENT_USER_ID
+        }
+    }
+    private var clientOrderId: String = Constants.CLIENT_ORDER_ID
 
     fun getPrice(
         scope: CoroutineScope,
-        clientUserId: String,
-        clientOrderId: String,
         code: String,
         quantity: Int,
         amount: Int,
@@ -21,7 +35,7 @@ class GiftboxApiRepository {
     ) {
         doRequest(scope, {
             api.price(
-                clientUserId,
+                clientUserIdFromMasterSeed,
                 clientOrderId,
                 code,
                 quantity,
@@ -33,7 +47,6 @@ class GiftboxApiRepository {
 
     fun getProduct(
         scope: CoroutineScope,
-        clientOrderId: String,
         productId: String,
         success: (ProductResponse?) -> Unit,
         error: (Int, String) -> Unit,
@@ -41,7 +54,7 @@ class GiftboxApiRepository {
     ) {
         doRequest(scope, {
             api.product(
-                Constants.CLIENT_USER_ID,
+                clientUserIdFromMasterSeed,
                 clientOrderId,
                 productId
             )
@@ -66,16 +79,14 @@ class GiftboxApiRepository {
                 category,
                 offset,
                 limit,
-                Constants.CLIENT_USER_ID,
-                Constants.CLIENT_ORDER_ID
+                clientUserIdFromMasterSeed,
+                clientOrderId
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
     fun createOrder(
         scope: CoroutineScope,
-        clientUserId: String,
-        clientOrderId: String,
         code: String,
         quantity: Int,
         amount: Int,
@@ -86,7 +97,7 @@ class GiftboxApiRepository {
     ) {
         doRequest(scope, {
             api.createOrder(
-                clientUserId,
+                clientUserIdFromMasterSeed,
                 clientOrderId,
                 code,
                 quantity,
@@ -98,8 +109,6 @@ class GiftboxApiRepository {
 
     fun checkoutProduct(
         scope: CoroutineScope,
-        clientUserId: String,
-        clientOrderId: String,
         code: String,
         quantity: Int,
         amount: Int,
@@ -109,7 +118,7 @@ class GiftboxApiRepository {
     ) {
         doRequest(scope, {
             api.checkoutProduct(
-                clientUserId,
+                clientUserIdFromMasterSeed,
                 clientOrderId,
                 code,
                 quantity,
@@ -127,19 +136,19 @@ class GiftboxApiRepository {
         finally: () -> Unit
     ) {
         doRequest(scope, {
-            api.orders(Constants.CLIENT_USER_ID, offset, limit)
+            api.orders(clientUserIdFromMasterSeed, offset, limit)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
     fun getOrder(
-            scope: CoroutineScope,
-            item: Item,
-            success: (GetOrderResponse?) -> Unit,
-            error: (Int, String) -> Unit,
-            finally: () -> Unit
+        scope: CoroutineScope,
+        item: Item,
+        success: (GetOrderResponse?) -> Unit,
+        error: (Int, String) -> Unit,
+        finally: () -> Unit
     ) {
         doRequest(scope, {
-            api.order(Constants.CLIENT_USER_ID, item.client_order_id!!)
+            api.order(clientUserIdFromMasterSeed, item.client_order_id!!)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 }

@@ -46,8 +46,6 @@ class GiftCheckoutFragment : Fragment() {
         fillProduct()
         binding.btBuy.setOnClickListener {
             GitboxAPI.giftRepository.checkoutProduct(viewModel.viewModelScope,
-                Constants.CLIENT_USER_ID,
-                Constants.CLIENT_ORDER_ID,
                 args.product.code!!,
                 args.quantity,
                 args.amount.value.toInt(), success = {
