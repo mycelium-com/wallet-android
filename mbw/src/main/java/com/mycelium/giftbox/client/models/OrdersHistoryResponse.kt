@@ -11,37 +11,38 @@
  */
 package com.mycelium.giftbox.client.models
 
-
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
 
 /**
- * Price offer for a given product quantity, amount and currency
- * @param priceOffer Price of selected amount and quantity in given currency_id
- * @param status Status - success or failure of request
+ * userâ€™s orders, including status and product information needed for display, as well as the products (codes for giftcards)
+ * @param items List of orders
+ * @param size Total amount of orders available. Can be used for paging.
+ * @param status Order status
  */
 @Parcelize
 
-data class PriceResponse(
-    /* Price of selected amount and quantity in given currency_id */
-    @JsonProperty("priceOffer")
-    var priceOffer: kotlin.String? = null,
-    /* Status - success or failure of request */
+data class OrdersHistoryResponse(
+    /* List of orders */
+    @JsonProperty("items")
+    var items: List<Order>? = null,
+    /* Total amount of orders available. Can be used for paging. */
+    @JsonProperty("size")
+    var size: Long? = null,
+    /* Order status */
     @JsonProperty("status")
     var status: Status? = null
 ) : Parcelable {
 
     /**
-     * Status - success or failure of request
-     * Values: sUCCESS,eRRORTOOHIGH,eRROR
+     * Order status
+     * Values: sUCCESS,eRROR
      */
 
     enum class Status(val value: kotlin.String) {
         @JsonProperty(value = "SUCCESS")
         sUCCESS("SUCCESS"),
-        @JsonProperty(value = "ERROR_TOO_HIGH")
-        eRRORTOOHIGH("ERROR_TOO_HIGH"),
         @JsonProperty(value = "ERROR")
         eRROR("ERROR");
     }

@@ -77,7 +77,7 @@ class PurchasedFragment : Fragment() {
 
             private fun findSearchResult(s: String) {
                 adapter.submitList(viewModel.orders.value?.filter {
-                    it.name?.contains(s, true) ?: false
+                    it.productName?.contains(s, true) ?: false
                 })
             }
         })

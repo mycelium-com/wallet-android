@@ -64,7 +64,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 findNavController().navigateUp()
             }
             btMax.setOnClickListener {
-                setEnteredAmount(toUnits(args.product.maximum_value).toString())
+                setEnteredAmount(toUnits(args.product.maximumValue).toString())
                 checkEntry()
             }
         }
@@ -121,13 +121,13 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 && _amount.moreOrEqualThan(
             valueOf(
                 _amount.type,
-                toUnits(args.product.minimum_value)
+                toUnits(args.product.minimumValue)
             )
         )
                 && _amount.lessOrEqualThan(
             valueOf(
                 _amount.type,
-                toUnits(args.product.maximum_value)
+                toUnits(args.product.maximumValue)
             )
         )
         binding.btOk.isEnabled = valid

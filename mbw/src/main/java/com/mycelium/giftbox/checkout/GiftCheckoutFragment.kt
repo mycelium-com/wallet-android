@@ -48,7 +48,7 @@ class GiftCheckoutFragment : Fragment() {
             GitboxAPI.giftRepository.checkoutProduct(viewModel.viewModelScope,
                 args.product.code!!,
                 args.quantity,
-                args.amount.value.toInt(), success = {
+                args.amount.value.toInt(), "btc", success = {
                     findNavController().navigate(GiftCheckoutFragmentDirections.toCheckoutResult(it!!))
                     loader(false)
                 }, error = { _, error ->
@@ -65,9 +65,9 @@ class GiftCheckoutFragment : Fragment() {
             val product = args.product
             tvTitle.text = product.name
             tvGiftCardAmount.text = args.amount.toStringWithUnit()
-            tvExpire.text = product?.expiry_date_policy
+            tvExpire.text = product?.expiryDatePolicy
             tvDiscount.text =
-                """from ${product?.minimum_value} to ${product?.maximum_value}"""
+                """from ${product?.minimumValue} to ${product?.maximumValue}"""
         }
     }
 }

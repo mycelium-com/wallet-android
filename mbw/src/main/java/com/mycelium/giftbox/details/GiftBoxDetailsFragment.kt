@@ -37,14 +37,14 @@ class GiftBoxDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.ivImage?.loadImage(args.order.product_img)
-        (activity as AppCompatActivity).supportActionBar?.title = args.order.name
+        binding?.ivImage?.loadImage(args.order.productImg)
+        (activity as AppCompatActivity).supportActionBar?.title = args.order.productName
         loadOrder()
         loadProduct()
     }
 
     private fun loadProduct() {
-        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.order.client_order_id!!, {
+        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.order.clientOrderId!!, {
             viewModel.setProduct(it!!)
         }, { _, msg ->
             Toaster(this).toast(msg, true)

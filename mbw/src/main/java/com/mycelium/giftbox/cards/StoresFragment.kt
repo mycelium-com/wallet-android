@@ -16,6 +16,7 @@ import com.mycelium.giftbox.cards.adapter.StoresAdapter
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
@@ -69,7 +70,7 @@ class StoresFragment : Fragment() {
                 category = category,
                 offset = 0, limit = 30,
                 success = {
-                    viewModel.products.value = it?.products ?: emptyList()
+                    viewModel.products.value = it?.products ?: emptyList<ProductInfo>()
                     activityViewModel.categories.value = it?.categories
                     activityViewModel.countries.value = it?.countries?.mapNotNull {
                         CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }

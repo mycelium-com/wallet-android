@@ -12,13 +12,13 @@ import retrofit2.http.Query
 interface GiftboxApi {
     @GET("products")
     suspend fun products(
+        @Query(value = "client_user_id") clientUserId: String,
+        @Query(value = "client_order_id") clientOrderId: String?,
+        @Query("category") category: String? = null,
         @Query("search") search: String? = null,
         @Query("country") country: String? = null,
-        @Query("category") category: String? = null,
         @Query("offset") offset: Long? = null,
-        @Query("limit") limit: Long? = null,
-        @Query(value = "client_user_id") clientUserId: String,
-        @Query(value = "client_order_id") clientOrderId: String?
+        @Query("limit") limit: Long? = null
     ): Response<ProductsResponse>
 
     @GET("product")
@@ -32,39 +32,40 @@ interface GiftboxApi {
     suspend fun price(
         @Query("client_user_id") clientUserId: String,
         @Query("client_order_id") clientOrderId: String,
-        @Query("code") code: String,
-        @Query("quantity") quantity: Int,
         @Query("amount") amount: Int,
-        @Query("currency_id") currencyId: String
+        @Query("quantity") quantity: Int,
+        @Query("code") code: String,
+        @Query("currency_id") currencyId: String? = null
     ): Response<PriceResponse>
 
 
-    @GET("checkoutProduct")
+    @GET("checkout-product")
     suspend fun checkoutProduct(
         @Query("client_user_id") clientUserId: String,
         @Query("client_order_id") clientOrderId: String,
         @Query("code") code: String,
         @Query("quantity") quantity: Int,
-        @Query("amount") amount: Int
+        @Query("amount") amount: Int,
+        @Query("currency_id") currencyId: String
     ): Response<CheckoutProductResponse>
 
-    @POST("createOrder")
+    @POST("create-order")
     suspend fun createOrder(
-        @Body createOrderBody: CreateOrderBody
-    ): Response<CreateOrderResponse>
+        @Body createOrderBody: CreateOrderRequest
+    ): Response<OrderResponse>
 
     @GET("orders")
     suspend fun orders(
         @Query("client_user_id") clientUserId: String,
         @Query("offset") offset: Long? = null,
         @Query("limit") limit: Long? = null
-    ): Response<GetOrdersResponse>
+    ): Response<OrdersHistoryResponse>
 
     @GET("get-order")
     suspend fun order(
         @Query("client_user_id") clientUserId: String,
         @Query("client_order_id") clientOrderId: String
-    ): Response<GetOrderResponse>
+    ): Response<OrderResponse>
 
 
     companion object {

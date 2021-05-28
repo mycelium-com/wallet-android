@@ -73,13 +73,13 @@ class CardBuyFragment : Fragment() {
                 viewModel.productResponse.value = productResponse
                 val product = productResponse?.product
                 with(binding) {
-                    ivImage.loadImage(product?.card_image_url)
+                    ivImage.loadImage(product?.cardImageUrl)
                     tvDescription.text = product?.description
-                    tvCurrency.text = product?.currency_code
-                    tvExpire.text = product?.expiry_date_policy
+                    tvCurrency.text = product?.currencyCode
+                    tvExpire.text = product?.expiryDatePolicy
                     tvCountry.text = product?.countries?.joinToString(separator = ", ")
                     tvDiscount.text =
-                        """from ${product?.minimum_value} to ${product?.maximum_value}"""
+                        """from ${product?.minimumValue} to ${product?.maximumValue}"""
 
                     amountRoot.setOnClickListener {
                         findNavController().navigate(

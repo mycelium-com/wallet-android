@@ -3,11 +3,13 @@ package com.mycelium.giftbox.details.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.mycelium.giftbox.client.models.GetOrderResponse
+import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.common.AmountViewModel
 import com.mycelium.giftbox.common.DetailsViewModel
 import com.mycelium.giftbox.getDateTimeString
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(application), AmountViewModel, DetailsViewModel {
@@ -21,10 +23,10 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
 
     override val description = MutableLiveData<String>()
 
-    fun setOrder(order: GetOrderResponse) {
-        cardAmount.value = "${order.amount} ${order.currency_code}"
+    fun setOrder(order: OrderResponse) {
+        cardAmount.value = "${order.amount} ${order.currencyCode}"
         expireDate.value = "Does not expire" //TODO find where we can get expire date
-        amount.value = "${order.amount} ${order.currency_code}"
+        amount.value = "${order.amount} ${order.currencyCode}"
         date.value = order.timestamp?.getDateTimeString(getApplication<Application>().resources)
     }
 

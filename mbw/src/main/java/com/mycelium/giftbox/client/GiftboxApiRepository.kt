@@ -37,9 +37,9 @@ class GiftboxApiRepository() {
             api.price(
                 clientUserIdFromMasterSeed,
                 clientOrderId,
-                code,
-                quantity,
                 amount,
+                quantity,
+                code,
                 currencyId
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -74,13 +74,14 @@ class GiftboxApiRepository() {
     ) {
         doRequest(scope, {
             api.products(
+                clientUserIdFromMasterSeed,
+                clientOrderId,
                 search,
                 country,
                 category,
                 offset,
-                limit,
-                clientUserIdFromMasterSeed,
-                clientOrderId
+                limit
+
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
@@ -91,19 +92,19 @@ class GiftboxApiRepository() {
         quantity: Int,
         amount: Int,
         currencyId: String,
-        success: (CreateOrderResponse?) -> Unit,
+        success: (OrderResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
     ) {
         doRequest(scope, {
             api.createOrder(
-                CreateOrderBody(
-                    clientUserIdFromMasterSeed,
-                    clientOrderId,
-                    code,
-                    quantity,
-                    amount,
-                    currencyId
+                CreateOrderRequest(
+                    clientUserId = clientUserIdFromMasterSeed,
+                    clientOrderId = clientOrderId,
+                    code = code,
+                    quantity = quantity.toString(),
+                    amount = amount.toString(),
+                    currencyId = currencyId
                 )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -114,6 +115,7 @@ class GiftboxApiRepository() {
         code: String,
         quantity: Int,
         amount: Int,
+        currencyId: String,
         success: (CheckoutProductResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
@@ -124,7 +126,8 @@ class GiftboxApiRepository() {
                 clientOrderId,
                 code,
                 quantity,
-                amount
+                amount,
+                currencyId
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
@@ -133,7 +136,7 @@ class GiftboxApiRepository() {
         scope: CoroutineScope,
         offset: Long = 0,
         limit: Long = 100,
-        success: (GetOrdersResponse?) -> Unit,
+        success: (OrdersHistoryResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
     ) {
@@ -144,13 +147,13 @@ class GiftboxApiRepository() {
 
     fun getOrder(
         scope: CoroutineScope,
-        item: Item,
-        success: (GetOrderResponse?) -> Unit,
+        item: Order,
+        success: (OrderResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
     ) {
         doRequest(scope, {
-            api.order(clientUserIdFromMasterSeed, item.client_order_id!!)
+            api.order(clientUserIdFromMasterSeed, item.clientOrderId!!)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 }
