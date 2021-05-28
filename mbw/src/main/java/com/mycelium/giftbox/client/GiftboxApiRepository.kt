@@ -97,12 +97,14 @@ class GiftboxApiRepository() {
     ) {
         doRequest(scope, {
             api.createOrder(
-                clientUserIdFromMasterSeed,
-                clientOrderId,
-                code,
-                quantity,
-                amount,
-                currencyId
+                CreateOrderBody(
+                    clientUserIdFromMasterSeed,
+                    clientOrderId,
+                    code,
+                    quantity,
+                    amount,
+                    currencyId
+                )
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }

@@ -2,6 +2,7 @@ package com.mycelium.giftbox.client
 
 import com.mycelium.giftbox.client.models.*
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -49,12 +50,7 @@ interface GiftboxApi {
 
     @POST("createOrder")
     suspend fun createOrder(
-        @Query("client_user_id") clientUserId: String,
-        @Query("client_order_id") clientOrderId: String,
-        @Query("code") code: String,
-        @Query("quantity") quantity: Int,
-        @Query("amount") amount: Int,
-        @Query("currency_id") currencyId: String
+        @Body createOrderBody: CreateOrderBody
     ): Response<CreateOrderResponse>
 
     @GET("orders")

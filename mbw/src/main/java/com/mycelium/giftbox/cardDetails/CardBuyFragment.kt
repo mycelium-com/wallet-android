@@ -17,7 +17,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
@@ -99,13 +98,26 @@ class CardBuyFragment : Fragment() {
             })
 
         binding.btSend.setOnClickListener {
-            findNavController().navigate(
-                CardBuyFragmentDirections.actionNext(
-                    viewModel.productResponse.value?.product!!,
-                    viewModel.amount.value!!,
-                    1
-                )
-            )
+
+            GitboxAPI.giftRepository.createOrder(viewModel.viewModelScope,
+                code = args.product.code!!,
+                quantity = 1,
+                amount = viewModel.amount.value?.value?.toInt()!!,
+                currencyId = "btc", success = { productResponse ->
+                    findNavController().navigate(
+                        CardBuyFragmentDirections.actionNext(
+                            viewModel.productResponse.value?.product!!,
+                            viewModel.amount.value!!,
+                            1
+                        )
+                    )
+                },
+                error = { _, error ->
+                    ErrorHandler(requireContext()).handle(error)
+                    loader(false)
+                }, finally = {
+                    loader(false)
+                })
         }
     }
 
