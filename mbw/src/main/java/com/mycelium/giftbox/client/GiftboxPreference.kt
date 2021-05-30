@@ -10,10 +10,10 @@ object GiftboxPreference {
         WalletApplication.getInstance().getSharedPreferences("giftbox_main", Context.MODE_PRIVATE)
     }
 
-    fun setAccessToken(accessToken: String) {
-        preference.edit().putString(Constants.ACCESS_TOKEN_KEY, accessToken).apply()
-    }
-
-    fun getAccessToken() = preference.getString(Constants.ACCESS_TOKEN_KEY, Constants.API_KEY) ?: ""
+//    fun setAccessToken(accessToken: String) {
+//        preference.edit().putString(Constants.ACCESS_TOKEN_KEY, accessToken).apply()
+//    }
+//
+//    fun getAccessToken() = preference.getString(Constants.ACCESS_TOKEN_KEY, Constants.API_KEY) ?: ""
 
 }
