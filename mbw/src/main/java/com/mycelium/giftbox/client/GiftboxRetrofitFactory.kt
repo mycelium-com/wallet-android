@@ -28,7 +28,7 @@ object RetrofitFactory {
             .addInterceptor {
                 it.proceed(it.request().newBuilder().apply {
                     addHeader("Content-Type", "application/json")
-                    addHeader("Authorization", "Basic ${GiftboxPreference.getAccessToken()}")
+//                    addHeader("Authorization", "Basic ${GiftboxPreference.getAccessToken()}")
                 }.build())
             }
             .apply {
