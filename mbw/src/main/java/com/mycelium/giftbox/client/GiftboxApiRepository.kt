@@ -15,7 +15,8 @@ class GiftboxApiRepository {
         val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
         if (mbwManager.network.isProdnet) {
             mbwManager.masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
-                .publicAccountRoot.publicKey.publicKeyBytes.toHexString()
+                .getPrivateKeyForWebsite(Constants.ENDPOINT,AesKeyCipher.defaultKeyCipher())
+                .publicKey.publicKeyBytes.toHexString()
         } else {
             Constants.CLIENT_USER_ID
         }
