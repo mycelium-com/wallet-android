@@ -10,14 +10,18 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
-import com.mycelium.giftbox.client.Constants
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutBinding
-import com.mycelium.wapi.wallet.Util
+import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.coins.Value
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,7 +30,7 @@ class GiftCheckoutFragment : Fragment() {
     val args by navArgs<GiftCheckoutFragmentArgs>()
 
     val sdf by lazy {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         sdf.timeZone = TimeZone.getTimeZone("GMT")
         sdf
     }
@@ -77,6 +81,14 @@ class GiftCheckoutFragment : Fragment() {
 //            tvDiscount.text =
 //                """from ${product?.minimumValue} to ${product?.maximumValue}"""
         }
+    }
+
+    fun startBuyActivity(){
+        val value =
+            Value.parse(Utils.getBtcCoinType(), args.orderResponse.amountExpectedFrom.toString())
+        GetAmountActivity.callMeToSend(requireActivity(), SendCoinsActivity.GET_AMOUNT_RESULT_CODE, args.accountId,
+            value,Value.zeroValue(BitcoinMain.get()),false,BtcAddress(BitcoinMain.get(),
+                BitcoinAddress.fromString(args.orderResponse.payinAddress)))
     }
 }
 
