@@ -5,10 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.receive.adapter.AccountAdapter
-import com.mycelium.bequant.receive.adapter.AccountGroupItem
-import com.mycelium.bequant.receive.adapter.AccountItem
-import com.mycelium.bequant.receive.adapter.AccountListItem
+import com.mycelium.bequant.receive.adapter.*
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
@@ -19,7 +16,11 @@ import kotlinx.android.synthetic.main.fragment_bequant_select_account.*
 
 
 class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account) {
-    val adapter = AccountAdapter()
+    val adapter = AccountAdapter(AccountAdapterConfig(
+            R.layout.item_giftbox_select_account,
+            R.layout.item_giftbox_select_account_group,
+            R.layout.item_giftbox_select_account_total
+    ))
     val args by navArgs<SelectAccountFragmentArgs>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
