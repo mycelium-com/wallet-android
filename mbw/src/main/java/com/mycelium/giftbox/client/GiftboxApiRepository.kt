@@ -55,7 +55,7 @@ class GiftboxApiRepository() {
         doRequest(scope, {
             api.product(
                 clientUserIdFromMasterSeed,
-                clientOrderId,
+                Constants.CLIENT_ORDER_ID, //TODO check why client order id need for product
                 productId
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -76,12 +76,11 @@ class GiftboxApiRepository() {
             api.products(
                 clientUserIdFromMasterSeed,
                 clientOrderId,
+                category,
                 search,
                 country,
-                category,
                 offset,
                 limit
-
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }

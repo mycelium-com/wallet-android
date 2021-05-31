@@ -36,6 +36,6 @@ data class ProductsResponse(
     var products: List<ProductInfo>? = null,
     /* Total number of results for the given parameters - can be used for paging */
     @JsonProperty("size")
-    var size: kotlin.Long? = null
+    var size: Long = 0
 ) : Parcelable
 

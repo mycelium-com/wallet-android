@@ -44,7 +44,7 @@ class GiftBoxDetailsFragment : Fragment() {
     }
 
     private fun loadProduct() {
-        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.order.clientOrderId!!, {
+        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.order.productCode!!, {
             viewModel.setProduct(it!!)
         }, { _, msg ->
             Toaster(this).toast(msg, true)

@@ -27,6 +27,7 @@ class PurchasedFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        loadData()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -41,7 +42,7 @@ class PurchasedFragment : Fragment() {
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it))
         }
-        loadData()
+
     }
 
     private fun loadData() {
