@@ -8,15 +8,14 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import fiofoundation.io.fiosdk.toHexString
 import kotlinx.coroutines.CoroutineScope
 
-class GiftboxApiRepository() {
+class GiftboxApiRepository {
     private val api = GiftboxApi.create()
 
     private val clientUserIdFromMasterSeed by lazy {
         val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
         if (mbwManager.network.isProdnet) {
-            mbwManager
-                .masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher()).toBytes(true)
-                .toHexString()
+            mbwManager.masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
+                .publicAccountRoot.publicKey.publicKeyBytes.toHexString()
         } else {
             Constants.CLIENT_USER_ID
         }
