@@ -47,7 +47,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
 
         adapter.accountClickListener = { accountItem ->
             val selectedAccount = walletsAccounts.map { it.second }.flatten().find { it.label == accountItem.label }
-            findNavController().navigate(SelectAccountFragmentDirections.actionCheckout(args.product, selectedAccount?.id!!, args.amount, args.quantity))
+            findNavController().navigate(SelectAccountFragmentDirections.actionCheckout(args.orderResponse, selectedAccount?.id!!))
         }
     }
 }

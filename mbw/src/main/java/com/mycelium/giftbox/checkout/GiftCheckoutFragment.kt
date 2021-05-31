@@ -17,11 +17,19 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutBinding
+import com.mycelium.wapi.wallet.Util
+import java.text.SimpleDateFormat
+import java.util.*
 
 class GiftCheckoutFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxCheckoutBinding
     val args by navArgs<GiftCheckoutFragmentArgs>()
 
+    val sdf by lazy {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        sdf.timeZone = TimeZone.getTimeZone("GMT")
+        sdf
+    }
     val viewModel: GiftCheckoutFragmentViewModel by viewModels()
 
     override fun onCreateView(
@@ -46,9 +54,9 @@ class GiftCheckoutFragment : Fragment() {
         fillProduct()
         binding.btBuy.setOnClickListener {
             GitboxAPI.giftRepository.checkoutProduct(viewModel.viewModelScope,
-                args.product.code!!,
-                args.quantity,
-                args.amount.value.toInt(), "btc", success = {
+                args.orderResponse.productCode!!,
+                args.orderResponse.quantity?.toInt()!!,
+                args.orderResponse.amount?.toInt()!!, "btc", success = {
                     findNavController().navigate(GiftCheckoutFragmentDirections.toCheckoutResult(it!!))
                     loader(false)
                 }, error = { _, error ->
@@ -62,12 +70,12 @@ class GiftCheckoutFragment : Fragment() {
 
     private fun fillProduct() {
         with(binding) {
-            val product = args.product
-            tvTitle.text = product.name
-            tvGiftCardAmount.text = args.amount.toStringWithUnit()
-            tvExpire.text = product?.expiryDatePolicy
-            tvDiscount.text =
-                """from ${product?.minimumValue} to ${product?.maximumValue}"""
+            tvTitle.text = args.orderResponse.productName
+            tvGiftCardAmount.text = args.orderResponse.amount
+            tvExpire.text = sdf.format(args.orderResponse.payTill)
+//            args.orderResponse.currencyFromInfo?.
+//            tvDiscount.text =
+//                """from ${product?.minimumValue} to ${product?.maximumValue}"""
         }
     }
 }

@@ -98,17 +98,14 @@ class CardBuyFragment : Fragment() {
             })
 
         binding.btSend.setOnClickListener {
-
             GitboxAPI.giftRepository.createOrder(viewModel.viewModelScope,
                 code = args.product.code!!,
                 quantity = 1,
-                amount = viewModel.amount.value?.value?.toInt()!!,
-                currencyId = "btc", success = { productResponse ->
+                amount = viewModel.amount.value?.valueAsBigDecimal?.toInt() ?: 0,
+                currencyId = "btc", success = { orderResponse ->
                     findNavController().navigate(
                         CardBuyFragmentDirections.actionNext(
-                            viewModel.productResponse.value?.product!!,
-                            viewModel.amount.value!!,
-                            1
+                            orderResponse!!
                         )
                     )
                 },
@@ -125,9 +122,7 @@ class CardBuyFragment : Fragment() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
-
 }
-
 
 class CardDetailsFragmentViewModel : ViewModel() {
     val amount = MutableLiveData<Value>()

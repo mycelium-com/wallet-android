@@ -5,10 +5,13 @@ import com.mycelium.giftbox.client.models.*
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
-import fiofoundation.io.fiosdk.toHexString
 import kotlinx.coroutines.CoroutineScope
+import java.lang.IllegalArgumentException
+import java.util.*
 
 class GiftboxApiRepository {
+    private lateinit var lastOrderId: String
+
     private val api = GiftboxApi.create()
 
     private val clientUserIdFromMasterSeed by lazy {
@@ -17,7 +20,14 @@ class GiftboxApiRepository {
             .getPrivateKeyForWebsite(Constants.ENDPOINT, AesKeyCipher.defaultKeyCipher())
             .publicKey.toString()
     }
-    private var clientOrderId: String = Constants.CLIENT_ORDER_ID
+
+    private fun updateOrderId() {
+        lastOrderId = UUID.randomUUID().toString()
+    }
+
+    init {
+        updateOrderId()
+    }
 
     fun getPrice(
         scope: CoroutineScope,
@@ -32,7 +42,7 @@ class GiftboxApiRepository {
         doRequest(scope, {
             api.price(
                 clientUserIdFromMasterSeed,
-                clientOrderId,
+                lastOrderId!!,
                 amount,
                 quantity,
                 code,
@@ -71,7 +81,7 @@ class GiftboxApiRepository {
         doRequest(scope, {
             api.products(
                 clientUserIdFromMasterSeed,
-                clientOrderId,
+                lastOrderId,
                 category,
                 search,
                 country,
@@ -91,11 +101,12 @@ class GiftboxApiRepository {
         error: (Int, String) -> Unit,
         finally: () -> Unit
     ) {
+        updateOrderId()
         doRequest(scope, {
             api.createOrder(
                 CreateOrderRequest(
                     clientUserId = clientUserIdFromMasterSeed,
-                    clientOrderId = clientOrderId,
+                    clientOrderId = lastOrderId,
                     code = code,
                     quantity = quantity.toString(),
                     amount = amount.toString(),
@@ -118,7 +129,7 @@ class GiftboxApiRepository {
         doRequest(scope, {
             api.checkoutProduct(
                 clientUserIdFromMasterSeed,
-                clientOrderId,
+                lastOrderId,
                 code,
                 quantity,
                 amount,
