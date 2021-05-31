@@ -13,12 +13,9 @@ class GiftboxApiRepository {
 
     private val clientUserIdFromMasterSeed by lazy {
         val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
-        if (mbwManager.network.isProdnet) {
-            mbwManager.masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
-                .publicAccountRoot.publicKey.publicKeyBytes.toHexString()
-        } else {
-            Constants.CLIENT_USER_ID
-        }
+        mbwManager.masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
+            .getPrivateKeyForWebsite(Constants.ENDPOINT, AesKeyCipher.defaultKeyCipher())
+            .publicKey.toString()
     }
     private var clientOrderId: String = Constants.CLIENT_ORDER_ID
 
