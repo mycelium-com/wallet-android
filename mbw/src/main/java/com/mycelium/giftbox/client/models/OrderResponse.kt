@@ -66,7 +66,7 @@ data class OrderResponse(
     var errorString: String? = null,
     /* Payment must be sent before this time */
     @JsonProperty("pay_till")
-    var payTill: java.time.OffsetDateTime? = null,
+    var payTill: Date? = null,
     /* Send payment to this address */
     @JsonProperty("payin_address")
     var payinAddress: String? = null,
