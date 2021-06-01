@@ -22,13 +22,13 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.databinding.FragmentGiftboxCardBuyBinding
+import com.mycelium.wallet.databinding.FragmentGiftboxPreSubmitBinding
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 
-class CardBuyFragment : Fragment() {
-    private lateinit var binding: FragmentGiftboxCardBuyBinding
-    val args by navArgs<CardBuyFragmentArgs>()
+class GiftboxPresubmitFragment : Fragment() {
+    private lateinit var binding: FragmentGiftboxPreSubmitBinding
+    val args by navArgs<GiftboxPresubmitFragmentArgs>()
 
     val viewModel: CardDetailsFragmentViewModel by viewModels()
 
@@ -51,14 +51,14 @@ class CardBuyFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate<FragmentGiftboxCardBuyBinding>(
+        binding = DataBindingUtil.inflate<FragmentGiftboxPreSubmitBinding>(
             inflater,
-            R.layout.fragment_giftbox_card_buy,
+            R.layout.fragment_giftbox_pre_submit,
             container,
             false
         )
             .apply {
-                lifecycleOwner = this@CardBuyFragment
+                lifecycleOwner = this@GiftboxPresubmitFragment
             }
         return binding.root
     }
@@ -83,7 +83,7 @@ class CardBuyFragment : Fragment() {
 
                     amountRoot.setOnClickListener {
                         findNavController().navigate(
-                            CardBuyFragmentDirections.enterAmount(
+                            GiftboxPresubmitFragmentDirections.enterAmount(
                                 product!!, viewModel.amount.value
                             )
                         )
@@ -98,17 +98,14 @@ class CardBuyFragment : Fragment() {
             })
 
         binding.btSend.setOnClickListener {
-
             GitboxAPI.giftRepository.createOrder(viewModel.viewModelScope,
                 code = args.product.code!!,
                 quantity = 1,
-                amount = viewModel.amount.value?.value?.toInt()!!,
-                currencyId = "btc", success = { productResponse ->
+                amount = viewModel.amount.value?.valueAsBigDecimal?.toInt() ?: 0,
+                currencyId = "btc", success = { orderResponse ->
                     findNavController().navigate(
-                        CardBuyFragmentDirections.actionNext(
-                            viewModel.productResponse.value?.product!!,
-                            viewModel.amount.value!!,
-                            1
+                        GiftboxPresubmitFragmentDirections.actionNext(
+                            orderResponse!!
                         )
                     )
                 },
@@ -125,9 +122,7 @@ class CardBuyFragment : Fragment() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
-
 }
-
 
 class CardDetailsFragmentViewModel : ViewModel() {
     val amount = MutableLiveData<Value>()

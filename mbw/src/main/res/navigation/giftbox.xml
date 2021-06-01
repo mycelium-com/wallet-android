@@ -27,9 +27,9 @@
 
     <fragment
         android:id="@+id/cardBuyFragment"
-        android:name="com.mycelium.giftbox.cardDetails.CardBuyFragment"
+        android:name="com.mycelium.giftbox.cardDetails.GiftboxPresubmitFragment"
         android:label="Gift card amount"
-        tools:layout="@layout/fragment_giftbox_card_buy">
+        tools:layout="@layout/fragment_giftbox_pre_submit">
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
@@ -44,22 +44,16 @@
 
     <fragment
         android:id="@+id/giftCheckoutFragment"
-        android:name="com.mycelium.giftbox.checkout.GiftCheckoutFragment"
+        android:name="com.mycelium.giftbox.checkout.GiftboxSubmitFragment"
         android:label="Buy gift card"
-        tools:layout="@layout/fragment_giftbox_checkout">
+        tools:layout="@layout/fragment_giftbox_submit">
         <argument
-            android:name="product"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+            android:name="orderResponse"
+            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
 
         <argument
             android:name="accountId"
             app:argType="java.util.UUID" />
-        <argument
-            android:name="amount"
-            app:argType="com.mycelium.wapi.wallet.coins.Value" />
-        <argument
-            android:name="quantity"
-            app:argType="integer" />
 
         <action
             android:id="@+id/toCheckoutResult"
@@ -86,14 +80,8 @@
         android:label="Buy gift card"
         tools:layout="@layout/fragment_bequant_select_account">
         <argument
-            android:name="product"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
-        <argument
-            android:name="amount"
-            app:argType="com.mycelium.wapi.wallet.coins.Value" />
-        <argument
-            android:name="quantity"
-            app:argType="integer" />
+            android:name="orderResponse"
+            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
 
         <action
             android:id="@+id/actionCheckout"
