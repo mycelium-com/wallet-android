@@ -7,11 +7,10 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
 import kotlinx.coroutines.CoroutineScope
-import java.lang.IllegalArgumentException
 import java.util.*
 
 class GiftboxApiRepository {
-    private lateinit var lastOrderId: String
+    private var lastOrderId: String = updateOrderId()
 
     private val api = GiftboxApi.create()
 
@@ -22,8 +21,9 @@ class GiftboxApiRepository {
             .publicKey.toString()
     }
 
-    private fun updateOrderId() {
+    private fun updateOrderId(): String {
         lastOrderId = UUID.randomUUID().toString()
+        return lastOrderId
     }
 
     init {
