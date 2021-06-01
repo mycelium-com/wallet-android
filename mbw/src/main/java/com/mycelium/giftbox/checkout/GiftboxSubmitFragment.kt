@@ -18,16 +18,16 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.send.SendCoinsActivity
-import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutBinding
+import com.mycelium.wallet.databinding.FragmentGiftboxSubmitBinding
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.Value
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GiftCheckoutFragment : Fragment() {
-    private lateinit var binding: FragmentGiftboxCheckoutBinding
-    val args by navArgs<GiftCheckoutFragmentArgs>()
+class GiftboxSubmitFragment : Fragment() {
+    private lateinit var binding: FragmentGiftboxSubmitBinding
+    val args by navArgs<GiftboxSubmitFragmentArgs>()
 
     val sdf by lazy {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
@@ -41,14 +41,14 @@ class GiftCheckoutFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate<FragmentGiftboxCheckoutBinding>(
+        binding = DataBindingUtil.inflate<FragmentGiftboxSubmitBinding>(
             inflater,
-            R.layout.fragment_giftbox_checkout,
+            R.layout.fragment_giftbox_submit,
             container,
             false
         )
             .apply {
-                lifecycleOwner = this@GiftCheckoutFragment
+                lifecycleOwner = this@GiftboxSubmitFragment
             }
         return binding.root
     }
@@ -61,7 +61,7 @@ class GiftCheckoutFragment : Fragment() {
                 args.orderResponse.productCode!!,
                 args.orderResponse.quantity?.toInt()!!,
                 args.orderResponse.amount?.toInt()!!, "btc", success = {
-                    findNavController().navigate(GiftCheckoutFragmentDirections.toCheckoutResult(it!!))
+                    findNavController().navigate(GiftboxSubmitFragmentDirections.toCheckoutResult(it!!))
                     loader(false)
                 }, error = { _, error ->
                     ErrorHandler(requireContext()).handle(error)

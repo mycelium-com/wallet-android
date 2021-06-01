@@ -22,13 +22,13 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.databinding.FragmentGiftboxCardPreSubmitBinding
+import com.mycelium.wallet.databinding.FragmentGiftboxPreSubmitBinding
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 
-class CardPresubmitFragment : Fragment() {
-    private lateinit var binding: FragmentGiftboxCardPreSubmitBinding
-    val args by navArgs<CardPresubmitFragmentArgs>()
+class GiftboxPresubmitFragment : Fragment() {
+    private lateinit var binding: FragmentGiftboxPreSubmitBinding
+    val args by navArgs<GiftboxPresubmitFragmentArgs>()
 
     val viewModel: CardDetailsFragmentViewModel by viewModels()
 
@@ -51,14 +51,14 @@ class CardPresubmitFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate<FragmentGiftboxCardPreSubmitBinding>(
+        binding = DataBindingUtil.inflate<FragmentGiftboxPreSubmitBinding>(
             inflater,
-            R.layout.fragment_giftbox_card_pre_submit,
+            R.layout.fragment_giftbox_pre_submit,
             container,
             false
         )
             .apply {
-                lifecycleOwner = this@CardPresubmitFragment
+                lifecycleOwner = this@GiftboxPresubmitFragment
             }
         return binding.root
     }
@@ -83,7 +83,7 @@ class CardPresubmitFragment : Fragment() {
 
                     amountRoot.setOnClickListener {
                         findNavController().navigate(
-                            CardPresubmitFragmentDirections.enterAmount(
+                            GiftboxPresubmitFragmentDirections.enterAmount(
                                 product!!, viewModel.amount.value
                             )
                         )
@@ -104,7 +104,7 @@ class CardPresubmitFragment : Fragment() {
                 amount = viewModel.amount.value?.valueAsBigDecimal?.toInt() ?: 0,
                 currencyId = "btc", success = { orderResponse ->
                     findNavController().navigate(
-                        CardPresubmitFragmentDirections.actionNext(
+                        GiftboxPresubmitFragmentDirections.actionNext(
                             orderResponse!!
                         )
                     )

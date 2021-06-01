@@ -27,9 +27,9 @@
 
     <fragment
         android:id="@+id/cardBuyFragment"
-        android:name="com.mycelium.giftbox.cardDetails.CardPresubmitFragment"
+        android:name="com.mycelium.giftbox.cardDetails.GiftboxPresubmitFragment"
         android:label="Gift card amount"
-        tools:layout="@layout/fragment_giftbox_card_pre_submit">
+        tools:layout="@layout/fragment_giftbox_pre_submit">
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
@@ -44,9 +44,9 @@
 
     <fragment
         android:id="@+id/giftCheckoutFragment"
-        android:name="com.mycelium.giftbox.checkout.GiftCheckoutFragment"
+        android:name="com.mycelium.giftbox.checkout.GiftboxSubmitFragment"
         android:label="Buy gift card"
-        tools:layout="@layout/fragment_giftbox_checkout">
+        tools:layout="@layout/fragment_giftbox_submit">
         <argument
             android:name="orderResponse"
             app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
