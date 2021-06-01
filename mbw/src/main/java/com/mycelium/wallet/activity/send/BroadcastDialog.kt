@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.send
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -92,6 +93,12 @@ class BroadcastDialog : DialogFragment() {
         } else {
             dismissAllowingStateLoss()
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.setCanceledOnTouchOutside(false)
+        return dialog
     }
 
     private fun returnResult(it: BroadcastResult) {
