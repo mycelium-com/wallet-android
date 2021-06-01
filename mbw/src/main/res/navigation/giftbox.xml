@@ -66,8 +66,12 @@
         android:label="Success!"
         tools:layout="@layout/fragment_giftbox_checkout_result">
         <argument
-            android:name="result"
-            app:argType="com.mycelium.giftbox.client.models.CheckoutProductResponse" />
+            android:name="orderResponse"
+            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
+
+        <argument
+            android:name="accountId"
+            app:argType="java.util.UUID" />
     </fragment>
     <fragment
         android:id="@+id/selectCountiesFragment"

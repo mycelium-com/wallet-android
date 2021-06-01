@@ -9,8 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
+import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutBinding
 import com.mycelium.wallet.databinding.FragmentGiftboxCheckoutResultBinding
 
 class GiftCheckoutResultFragment : Fragment() {
@@ -38,7 +40,19 @@ class GiftCheckoutResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        args.result
+
+        GitboxAPI.giftRepository.checkoutProduct(viewModel.viewModelScope,
+            args.orderResponse.productCode!!,
+            args.orderResponse.quantity?.toInt()!!,
+            args.orderResponse.amount?.toInt()!!, "btc", success = {
+//                findNavController().navigate(GiftboxSubmitFragmentDirections.toCheckoutResult(it!!))
+                loader(false)
+            }, error = { _, error ->
+                ErrorHandler(requireContext()).handle(error)
+                loader(false)
+            }, finally = {
+                loader(false)
+            })
     }
 }
 

@@ -1,5 +1,7 @@
 package com.mycelium.giftbox.checkout
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,16 +10,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mrd.bitlib.model.BitcoinAddress
-import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.loader
-import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.GetAmountActivity
-import com.mycelium.wallet.activity.send.SendCoinsActivity
+import com.mycelium.wallet.activity.send.SendCoinsActivity.Companion.getIntent
 import com.mycelium.wallet.databinding.FragmentGiftboxSubmitBinding
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
@@ -57,19 +54,19 @@ class GiftboxSubmitFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         fillProduct()
         binding.btBuy.setOnClickListener {
-            GitboxAPI.giftRepository.checkoutProduct(viewModel.viewModelScope,
-                args.orderResponse.productCode!!,
-                args.orderResponse.quantity?.toInt()!!,
-                args.orderResponse.amount?.toInt()!!, "btc", success = {
-                    findNavController().navigate(GiftboxSubmitFragmentDirections.toCheckoutResult(it!!))
-                    loader(false)
-                }, error = { _, error ->
-                    ErrorHandler(requireContext()).handle(error)
-                    loader(false)
-                }, finally = {
-                    loader(false)
-                })
+            startBuyActivity()
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            GiftboxSubmitFragmentDirections.toCheckoutResult(args.orderResponse,args.accountId)
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+
+        }
+
     }
 
     private fun fillProduct() {
@@ -83,12 +80,18 @@ class GiftboxSubmitFragment : Fragment() {
         }
     }
 
-    fun startBuyActivity(){
+    fun startBuyActivity() {
         val value =
             Value.parse(Utils.getBtcCoinType(), args.orderResponse.amountExpectedFrom.toString())
-        GetAmountActivity.callMeToSend(requireActivity(), SendCoinsActivity.GET_AMOUNT_RESULT_CODE, args.accountId,
-            value,Value.zeroValue(BitcoinMain.get()),false,BtcAddress(BitcoinMain.get(),
-                BitcoinAddress.fromString(args.orderResponse.payinAddress)))
+        val address = BtcAddress(
+            BitcoinMain.get(),
+            BitcoinAddress.fromString(args.orderResponse.payinAddress)
+        )
+
+        startActivity(
+            getIntent(requireActivity(), args.accountId, value.valueAsLong, address, false)
+                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+        )
     }
 }
 
