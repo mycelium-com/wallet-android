@@ -62,7 +62,7 @@ class GiftboxSubmitFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK) {
-            GiftboxSubmitFragmentDirections.toCheckoutResult(args.orderResponse,args.accountId)
+            GiftboxSubmitFragmentDirections.toCheckoutResult(args.orderResponse, args.accountId)
         } else if (resultCode == Activity.RESULT_CANCELED) {
 
         }

@@ -62,11 +62,11 @@
 
     <fragment
         android:id="@+id/giftCheckoutResultFragment"
-        android:name="com.mycelium.giftbox.checkoutResult.GiftCheckoutResultFragment"
+        android:name="com.mycelium.giftbox.checkout.GiftBoxCheckoutFragment"
         android:label="Success!"
-        tools:layout="@layout/fragment_giftbox_checkout_result">
+        tools:layout="@layout/fragment_giftbox_details">
         <argument
-            android:name="orderResponse"
+            android:name="order"
             app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
 
         <argument
@@ -107,8 +107,8 @@
     <fragment
         android:id="@+id/giftBoxDetailsFragment"
         android:name="com.mycelium.giftbox.details.GiftBoxDetailsFragment"
-        tools:layout="@layout/fragment_giftbox_details"
-        android:label="GiftBoxDetailsFragment" >
+        android:label="GiftBoxDetailsFragment"
+        tools:layout="@layout/fragment_giftbox_details">
         <argument
             android:name="order"
             app:argType="com.mycelium.giftbox.client.models.Order" />

@@ -1,4 +1,4 @@
-package com.mycelium.giftbox.details
+package com.mycelium.giftbox.checkout
 
 import android.content.Intent
 import android.os.Bundle
@@ -18,9 +18,9 @@ import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxDetailsBinding
 
 
-class GiftBoxDetailsFragment : Fragment() {
+class GiftBoxCheckoutFragment : Fragment() {
     private var binding: FragmentGiftboxDetailsBinding? = null
-    private val args by navArgs<GiftBoxDetailsFragmentArgs>()
+    private val args by navArgs<GiftBoxCheckoutFragmentArgs>()
     private val viewModel: GiftBoxDetailsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,14 +31,15 @@ class GiftBoxDetailsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             FragmentGiftboxDetailsBinding.inflate(inflater).apply {
                 binding = this
-                this.viewModel = this@GiftBoxDetailsFragment.viewModel
-                this.lifecycleOwner = this@GiftBoxDetailsFragment
+                this.viewModel = this@GiftBoxCheckoutFragment.viewModel
+                this.lifecycleOwner = this@GiftBoxCheckoutFragment
             }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.ivImage?.loadImage(args.order.productImg)
-        (activity as AppCompatActivity).supportActionBar?.title = args.order.productName
+        val order = args.order
+        binding?.ivImage?.loadImage(order.productImg)
+        (activity as AppCompatActivity).supportActionBar?.title = order.productName
         loadOrder()
         loadProduct()
     }
@@ -53,11 +54,11 @@ class GiftBoxDetailsFragment : Fragment() {
 
     private fun loadOrder() {
         loader(true)
-        GitboxAPI.giftRepository.getOrder(lifecycleScope, args.order.clientOrderId!!, {
+        GitboxAPI.giftRepository.getOrder(scope = lifecycleScope, success =  {
             viewModel.setOrder(it!!)
-        }, { _, msg ->
+        }, error = { _, msg ->
             Toaster(this).toast(msg, true)
-        }, {
+        }, finally = {
             loader(false)
         })
     }

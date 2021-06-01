@@ -155,13 +155,13 @@ class GiftboxApiRepository {
 
     fun getOrder(
         scope: CoroutineScope,
-        item: Order,
+        clientOrderId: String = lastOrderId,
         success: (OrderResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
     ) {
         doRequest(scope, {
-            api.order(clientUserIdFromMasterSeed, item.clientOrderId!!)
+            api.order(clientUserIdFromMasterSeed, clientOrderId)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 }
