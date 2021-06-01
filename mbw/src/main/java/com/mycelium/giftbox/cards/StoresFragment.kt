@@ -76,6 +76,9 @@ class StoresFragment : Fragment() {
                 }
             }
         })
+        activityViewModel.selectedCountries.observe(viewLifecycleOwner) {
+            loadData()
+        }
     }
 
     private fun loadData(offset: Long = 0) {
@@ -88,6 +91,7 @@ class StoresFragment : Fragment() {
         GitboxAPI.giftRepository.getProducts(lifecycleScope,
                 search = viewModel.search,
                 category = viewModel.category,
+                country = activityViewModel.selectedCountries.value,
                 offset = offset, limit = 30,
                 success = {
                     activityViewModel.categories.value = it?.categories

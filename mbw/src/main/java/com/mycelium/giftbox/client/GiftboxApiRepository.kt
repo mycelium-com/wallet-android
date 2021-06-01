@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.client
 
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.giftbox.client.models.*
 import com.mycelium.wallet.MbwManager
@@ -60,7 +61,7 @@ class GiftboxApiRepository {
     fun getProducts(
         scope: CoroutineScope,
         search: String? = null,
-        country: String? = null,
+        country: List<CountryModel>? = null,
         category: String? = null,
         offset: Long = 0,
         limit: Long = 100,
@@ -68,13 +69,14 @@ class GiftboxApiRepository {
         error: (Int, String) -> Unit,
         finally: () -> Unit
     ) {
+        val countryString = country?.joinToString(",") { it.acronym }
         doRequest(scope, {
             api.products(
                 clientUserIdFromMasterSeed,
                 clientOrderId,
                 category,
                 search,
-                country,
+                if(countryString?.isNotEmpty() == true) countryString else null,
                 offset,
                 limit
             )
