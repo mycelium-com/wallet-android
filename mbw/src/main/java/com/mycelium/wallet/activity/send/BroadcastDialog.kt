@@ -98,6 +98,7 @@ class BroadcastDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
         dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(false)
         return dialog
     }
 
