@@ -765,7 +765,7 @@ public class TransactionHistoryFragment extends Fragment {
       } catch (InsufficientBtcException e) {
          new Toaster(getActivity()).toast(R.string.insufficient_funds, false);
       } catch (UnableToBuildTransactionException e) {
-         new Toaster(getActivity()).toast(getResources().getString(R.string.unable_to_build_tx), false);
+         new Toaster(getActivity()).toast(getResources().getString(R.string.unable_to_build_tx, e.getMessage()), false);
       }
       return null;
    }

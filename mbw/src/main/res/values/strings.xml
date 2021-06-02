@@ -54,7 +54,7 @@
     <string name="tx_build_error">Unknown error while building transaction.</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
     <string name="amount_too_small">The amount you are sending is too small</string>
-    <string name="unable_to_build_tx">Unable to build transaction</string>
+    <string name="unable_to_build_tx">Unable to build transaction: %s</string>
     <string name="amount_too_small_short">Amount too small</string>
     <string name="miner_fee_label">Miner fee</string>
     <string name="miner_fee_title">Miner Fee:</string>

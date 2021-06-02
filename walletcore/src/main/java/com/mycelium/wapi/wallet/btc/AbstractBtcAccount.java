@@ -1256,7 +1256,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
       }
       if (!haveOutputToBump) {
-         throw new StandardTransactionBuilder.UnableToBuildTransactionException("We have no UTXO");
+         throw new StandardTransactionBuilder.UnableToBuildTransactionException("we have no UTXO");
       }
       BitcoinAddress changeAddress = getChangeAddress();
       long parentChildFeeSat;
