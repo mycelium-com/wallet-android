@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import com.mycelium.giftbox.cards.adapter.PurchasedAdapter
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.details.MODE
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
@@ -40,7 +41,7 @@ class PurchasedFragment : Fragment() {
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.itemClickListener = {
-            findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it))
+            findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it,MODE.INFO))
         }
 
     }

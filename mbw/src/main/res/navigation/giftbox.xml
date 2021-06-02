@@ -112,6 +112,9 @@
         <argument
             android:name="order"
             app:argType="com.mycelium.giftbox.client.models.Order" />
+        <argument
+            android:name="mode"
+            app:argType="com.mycelium.giftbox.details.MODE" />
     </fragment>
 
 </navigation>

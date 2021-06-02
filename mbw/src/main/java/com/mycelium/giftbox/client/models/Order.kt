@@ -14,6 +14,8 @@ package com.mycelium.giftbox.client.models
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.*
 
 /**
@@ -51,7 +53,7 @@ data class Order(
     var productName: String? = null,
     /* Number of products in purchase */
     @JsonProperty("quantity")
-    var quantity: String? = null,
+    var quantity: BigDecimal? = null,
     /* Order status */
     @JsonProperty("status")
     var status: Status? = null,
@@ -60,18 +62,6 @@ data class Order(
     var timestamp: Date? = null
 ) : Parcelable {
 
-    /**
-     * Order status
-     * Values: sUCCESS,eRROR,pROCESSING
-     */
 
-    enum class Status(val value: String) {
-        @JsonProperty(value = "SUCCESS")
-        sUCCESS("SUCCESS"),
-        @JsonProperty(value = "ERROR")
-        eRROR("ERROR"),
-        @JsonProperty(value = "PROCESSING")
-        pROCESSING("PROCESSING");
-    }
 }
 

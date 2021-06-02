@@ -10,8 +10,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mycelium.giftbox.cards.GiftBoxFragmentDirections
+import com.mycelium.giftbox.client.models.Order
+import com.mycelium.giftbox.details.MODE
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.SendCoinsActivity.Companion.getIntent
@@ -62,7 +66,20 @@ class GiftboxSubmitFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK) {
-            GiftboxSubmitFragmentDirections.toCheckoutResult(args.orderResponse, args.accountId)
+            val orderResponse = args.orderResponse
+            val order = Order(
+                amount = orderResponse.amount,
+                clientOrderId = null,
+                items = null,
+                productCode = orderResponse.productCode,
+                productImg = orderResponse.productImg,
+                productName = orderResponse.productName,
+                quantity = orderResponse.quantity,
+                status = orderResponse.status,
+                timestamp = orderResponse.timestamp
+            )
+            findNavController().navigate(GiftBoxFragmentDirections.actionDetails(order, MODE.STATUS))
+            GiftboxSubmitFragmentDirections.toCheckoutResult(orderResponse, args.accountId)
         } else if (resultCode == Activity.RESULT_CANCELED) {
 
         }

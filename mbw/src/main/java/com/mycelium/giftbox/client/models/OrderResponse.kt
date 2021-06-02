@@ -95,19 +95,5 @@ data class OrderResponse(
     @JsonProperty("timestamp")
     var timestamp: Date? = null
 ) : Parcelable {
-
-    /**
-     * Order status
-     * Values: sUCCESS,eRROR,pROCESSING
-     */
-
-    enum class Status(val value: String) {
-        @JsonProperty(value = "SUCCESS")
-        sUCCESS("SUCCESS"),
-        @JsonProperty(value = "ERROR")
-        eRROR("ERROR"),
-        @JsonProperty(value = "PROCESSING")
-        pROCESSING("PROCESSING");
-    }
 }
 
