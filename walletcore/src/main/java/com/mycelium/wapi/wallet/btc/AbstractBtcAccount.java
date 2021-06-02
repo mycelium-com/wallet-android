@@ -1256,7 +1256,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
       }
       if (!haveOutputToBump) {
-         throw new StandardTransactionBuilder.UnableToBuildTransactionException("we have no UTXO");
+         throw new StandardTransactionBuilder.UnableToBuildTransactionException(StandardTransactionBuilder.UnableToBuildTransactionException.BuildError.NO_UTXO);
       }
       BitcoinAddress changeAddress = getChangeAddress();
       long parentChildFeeSat;
@@ -1267,7 +1267,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
       if (parentChildFeeSat < childSize * minerFeeToUse / 1000) {
          // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
-         throw new StandardTransactionBuilder.UnableToBuildTransactionException("parent needs no boosting");
+         throw new StandardTransactionBuilder.UnableToBuildTransactionException(StandardTransactionBuilder.UnableToBuildTransactionException.BuildError.PARENT_NEEDS_NO_BOOSTING);
       }
       do {
          UnspentTransactionOutput utxo = utxos.remove(0);
