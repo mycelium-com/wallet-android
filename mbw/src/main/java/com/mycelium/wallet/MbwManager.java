@@ -317,6 +317,20 @@ public class MbwManager {
         //accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
         _environment = MbwEnvironment.verifyEnvironment();
 
+        SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
+                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
+                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
+                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
+                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
+                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
+                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
+                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
+        driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
+
+        startLogger();
+
         // Preferences
         SharedPreferences preferences = getPreferences();
         configuration = new WalletConfiguration(preferences, getNetwork());
@@ -381,17 +395,7 @@ public class MbwManager {
             }
         }
 
-        SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
-                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
-                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
-                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
-                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
-                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
-                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
-                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
-        driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
+
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
         ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -430,8 +434,6 @@ public class MbwManager {
         _versionManager.initBackgroundVersionChecker();
 
         _blockExplorerManager = getBlockExplorerManager(preferences);
-
-        startLogger();
     }
 
     private void startLogger() {
