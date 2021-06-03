@@ -18,6 +18,7 @@ import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.details.MODE
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.SendCoinsActivity.Companion.getIntent
 import com.mycelium.wallet.databinding.FragmentGiftboxSubmitBinding
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -81,7 +82,7 @@ class GiftboxSubmitFragment : Fragment() {
             findNavController().navigate(GiftBoxFragmentDirections.actionDetails(order, MODE.STATUS))
             GiftboxSubmitFragmentDirections.toCheckoutResult(orderResponse, args.accountId)
         } else if (resultCode == Activity.RESULT_CANCELED) {
-
+            Toaster(requireContext()).toast("Cancelled",false)
         }
 
     }
