@@ -90,7 +90,7 @@ class GiftboxSubmitFragment : Fragment() {
     private fun fillProduct() {
         with(binding) {
             tvTitle.text = args.orderResponse.productName
-            tvGiftCardAmount.text = args.orderResponse.amount
+            tvGiftCardAmount.text = args.orderResponse.amount + " " + args.orderResponse.currencyCode
             tvExpire.text = sdf.format(args.orderResponse.payTill)
 //            args.orderResponse.currencyFromInfo?.
 //            tvDiscount.text =

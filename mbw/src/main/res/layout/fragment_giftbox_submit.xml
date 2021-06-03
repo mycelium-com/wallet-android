@@ -69,13 +69,14 @@
                             app:layout_constraintBaseline_toBaselineOf="@id/tvGiftCardAmount"
                             app:layout_constraintStart_toStartOf="parent" />
 
+
+<!--                        android:drawableRight="@drawable/ic_baseline_edit_24"-->
                         <TextView
                             android:id="@+id/tvGiftCardAmount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:layout_marginTop="4dp"
-                            android:drawableRight="@drawable/ic_baseline_edit_24"
                             android:drawablePadding="8dp"
                             android:fontFamily="sans-serif-medium"
                             android:textSize="22sp"
