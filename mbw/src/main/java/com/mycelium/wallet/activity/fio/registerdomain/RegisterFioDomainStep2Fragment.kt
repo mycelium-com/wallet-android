@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.fio.registerdomain
 
 import android.annotation.SuppressLint
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,18 +16,14 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
-import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep2BindingImpl
-import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.getActiveSpendableFioAccounts
-import fiofoundation.io.fiosdk.errors.FIOError
 import kotlinx.android.synthetic.main.fragment_register_fio_domain_step2.*
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class RegisterFioDomainStep2Fragment : Fragment() {
     private val viewModel: RegisterFioDomainViewModel by activityViewModels()
@@ -99,22 +94,22 @@ class RegisterFioDomainStep2Fragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btNextButton.setOnClickListener {
-            val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
-            RegisterDomainTask(viewModel.fioAccountToRegisterName.value!!, viewModel.domain.value!!, fioModule) { expiration ->
-                loader(false)
-                if (expiration != null) {
-                    requireActivity().supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.container,
-                                    RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!,
-                                            viewModel.fioAccountToRegisterName.value!!.label,
-                                            viewModel.fioAccountToRegisterName.value!!.id, expiration))
-                            .commit()
-                } else {
-                    Toaster(this).toast("Something went wrong", true)
-                }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             loader(true)
+            val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
+            viewModel.registerDomain(fioModule, { expiration ->
+                loader(false)
+                requireActivity().supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.container,
+                                RegisterFioDomainCompletedFragment.newInstance(viewModel.domain.value!!,
+                                        viewModel.fioAccountToRegisterName.value!!.label,
+                                        viewModel.fioAccountToRegisterName.value!!.id, expiration))
+                        .addToBackStack(null)
+                        .commit()
+            }, { errorMessage ->
+                loader(false)
+                Utils.showSimpleMessageDialog(activity, getString(R.string.fio_register_domain_failed, errorMessage))
+            })
         }
         icEdit.setOnClickListener {
             findNavController().popBackStack()
@@ -134,27 +129,5 @@ class RegisterFioDomainStep2Fragment : Fragment() {
             (spinnerPayFromAccounts.getChildAt(0) as? TextView)?.setTextColor(
                     if (isNotEnoughFunds) resources.getColor(R.color.fio_red) else resources.getColor(R.color.white))
         })
-    }
-}
-
-class RegisterDomainTask(
-        val account: FioAccount,
-        private val fioDomain: String,
-        private val fioModule: FioModule,
-        val listener: ((String?) -> Unit)) : AsyncTask<Void, Void, String?>() {
-    override fun doInBackground(vararg args: Void): String? {
-        return try {
-            account.registerFIODomain(fioDomain)
-        } catch (e: Exception) {
-            Logger.getLogger(RegisterDomainTask::class.simpleName).log(Level.WARNING, "failed to register fio domain: ${e.localizedMessage}")
-            if (e is FIOError) {
-                fioModule.addFioServerLog(e.toJson())
-            }
-            null
-        }
-    }
-
-    override fun onPostExecute(result: String?) {
-        listener(result)
     }
 }
