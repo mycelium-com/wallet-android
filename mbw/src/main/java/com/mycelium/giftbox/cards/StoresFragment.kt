@@ -98,8 +98,8 @@ class StoresFragment : Fragment() {
                     activityViewModel.countries.value = it?.countries?.mapNotNull {
                         CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
                     }
-                    viewModel.setProductsResponse(it)
-                    adapter.submitList(it?.products)
+                    viewModel.setProductsResponse(it, offset != 0L)
+                    adapter.submitList(viewModel.products.value)
                 },
                 error = { _, msg ->
                     Toaster(this).toast(msg, true)
