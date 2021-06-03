@@ -19,6 +19,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registername.viewmodel.RegisterFioNameViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentRegisterFioNameStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.*
 import fiofoundation.io.fiosdk.errors.FIOError
@@ -97,6 +98,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
         btNextButton.setOnClickListener {
             val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
             RegisterAddressTask(viewModel.fioAccountToRegisterName.value!!, viewModel.addressWithDomain.value!!, fioModule) { expiration ->
+                loader(false)
                 if (expiration != null) {
                     requireActivity().supportFragmentManager
                             .beginTransaction()
@@ -109,6 +111,7 @@ class RegisterFioNameStep2Fragment : Fragment() {
                     Toaster(this).toast("Something went wrong", true)
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            loader(true)
         }
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
             tvFeeInfo.text = resources.getString(R.string.fio_annual_fee, it.toStringWithUnit())

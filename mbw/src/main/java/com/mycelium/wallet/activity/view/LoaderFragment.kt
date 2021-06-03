@@ -25,7 +25,9 @@ class LoaderFragment(val message: String? = null) : DialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.layout_loading, container, false).apply {
-                loaderText.text = message
+                message?.apply {
+                    loaderText.text = this
+                }
             }
 
     override fun onStart() {

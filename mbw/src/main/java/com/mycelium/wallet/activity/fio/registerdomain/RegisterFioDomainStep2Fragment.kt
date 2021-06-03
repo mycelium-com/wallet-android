@@ -20,6 +20,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.registerdomain.viewmodel.RegisterFioDomainViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentRegisterFioDomainStep2BindingImpl
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
@@ -100,6 +101,7 @@ class RegisterFioDomainStep2Fragment : Fragment() {
         btNextButton.setOnClickListener {
             val fioModule = MbwManager.getInstance(context).getWalletManager(false).getModuleById(FioModule.ID) as FioModule
             RegisterDomainTask(viewModel.fioAccountToRegisterName.value!!, viewModel.domain.value!!, fioModule) { expiration ->
+                loader(false)
                 if (expiration != null) {
                     requireActivity().supportFragmentManager
                             .beginTransaction()
@@ -112,6 +114,7 @@ class RegisterFioDomainStep2Fragment : Fragment() {
                     Toaster(this).toast("Something went wrong", true)
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            loader(true)
         }
         icEdit.setOnClickListener {
             findNavController().popBackStack()
