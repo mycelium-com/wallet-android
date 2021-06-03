@@ -30,5 +30,6 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
             }
         }
         mediator?.attach()
+        pager.setCurrentItem(0, true)
     }
 }

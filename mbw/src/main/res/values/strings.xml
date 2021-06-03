@@ -1657,8 +1657,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="select_account_to_pay_with">Select account to pay with:</string>
     <string name="expire_date">Expire date:</string>
     <plurals name="d_countries">
-        <item quantity="zero">All countries</item>
-        <item quantity="one">%d country</item>
-        <item quantity="other">%d countries</item>
+        <item quantity="zero"><u>All countries</u></item>
+        <item quantity="one"><u>%d country</u></item>
+        <item quantity="other"><u>%d countries</u></item>
     </plurals>
 </resources>

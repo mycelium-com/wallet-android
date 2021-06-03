@@ -29,6 +29,7 @@
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintRight_toLeftOf="@id/discount"
         app:layout_constraintTop_toTopOf="@id/image"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
         tools:text="Amazon UK" />
 
     <TextView
@@ -46,6 +47,7 @@
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintRight_toLeftOf="@id/discount"
         app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
         tools:text="Food, books, electronics" />
 
     <TextView
@@ -61,6 +63,7 @@
         app:layout_constraintBottom_toBottomOf="@id/image"
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintRight_toLeftOf="@id/discount"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
         tools:text="from 1 $" />
 
     <TextView
