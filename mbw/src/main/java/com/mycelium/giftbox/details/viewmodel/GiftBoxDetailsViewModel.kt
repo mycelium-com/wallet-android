@@ -8,8 +8,6 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.common.AmountViewModel
 import com.mycelium.giftbox.common.DetailsViewModel
 import com.mycelium.giftbox.getDateTimeString
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(application), AmountViewModel, DetailsViewModel {
@@ -22,6 +20,7 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     override val date = MutableLiveData<String>()
 
     override val description = MutableLiveData<String>()
+    override val expiry = MutableLiveData<String>()
 
     fun setOrder(order: OrderResponse) {
         cardAmount.value = "${order.amount} ${order.currencyCode}"
@@ -32,5 +31,6 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
 
     fun setProduct(product: ProductResponse) {
         description.value = product.product?.description
+        expiry.value = if (product.product?.expiryInMonths != null) "${product.product?.expiryDatePolicy} (${product.product?.expiryInMonths} months)" else "Does not expire"
     }
 }

@@ -3,7 +3,6 @@ package com.mycelium.giftbox.cards.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +11,7 @@ import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_store.view.*
+import java.math.BigDecimal
 
 
 class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -29,13 +29,16 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
                 .into(holder.itemView.image)
 
         holder.itemView.title.text = item.name
-        holder.itemView.description.text = item.categories?.joinToString(",")
-        holder.itemView.additional.text = "from ${item.minimumValue} to ${item.maximumValue}"
-
-        item.minimumValue.let {
-            holder.itemView.discount.text = "-${item.minimumValue}%"
-        } ?: kotlin.run {
-            holder.itemView.discount.isVisible = false
+        holder.itemView.description.text = item.categories?.joinToString()
+        holder.itemView.additional.text = if (item.denominationType == ProductInfo.DenominationType.open) {
+            "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
+                    if (item.maximumValue != BigDecimal.ZERO) {
+                        " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
+                    } else {
+                        ""
+                    }
+        } else {
+            item.availableDenominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${item.currencyCode}" }
         }
 
         holder.itemView.setOnClickListener {
@@ -47,7 +50,7 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
 
     class DiffCallback : DiffUtil.ItemCallback<ProductInfo>() {
         override fun areItemsTheSame(oldItem: ProductInfo, newItem: ProductInfo): Boolean =
-                oldItem == newItem
+                oldItem.code == newItem.code
 
 
         override fun areContentsTheSame(oldItem: ProductInfo, newItem: ProductInfo): Boolean =
