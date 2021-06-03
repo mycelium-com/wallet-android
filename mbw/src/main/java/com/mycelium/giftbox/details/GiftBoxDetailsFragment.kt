@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
@@ -68,18 +69,26 @@ class GiftBoxDetailsFragment : Fragment() {
                     delayMillis = 0,
                     repeatMillis = repeatMillis
                 ) {
-                    load()
+                    load(true)
                 }
             }
             MODE.INFO -> {
-                load()
+                load(false)
             }
         }
     }
 
-    private fun load() {
+    private fun load(showStatus: Boolean = false) {
         loader(true)
         GitboxAPI.giftRepository.getOrder(lifecycleScope, args.order.clientOrderId!!, {
+            if (showStatus) {
+                when (it?.status) {
+                    Status.sUCCESS -> setTitle("Success")
+                    Status.eRROR -> setTitle("Error")
+                    Status.pROCESSING -> setTitle("Processing")
+                    null -> {}
+                }
+            }
             viewModel.setOrder(it!!)
         }, { _, msg ->
             Toaster(this).toast(msg, true)
@@ -121,6 +130,10 @@ class GiftBoxDetailsFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+
+    fun setTitle(title: String) {
+        (activity as AppCompatActivity?)!!.supportActionBar!!.title = title
     }
 
     inline fun startCoroutineTimer(
