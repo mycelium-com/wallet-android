@@ -22,11 +22,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintRight_toLeftOf="@id/discount"
         app:layout_constraintTop_toTopOf="@id/image"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
         tools:text="Amazon UK" />
 
     <TextView
@@ -35,6 +38,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -42,6 +47,7 @@
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintRight_toLeftOf="@id/discount"
         app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
         tools:text="Food, books, electronics" />
 
     <TextView
@@ -50,11 +56,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:ellipsize="middle"
+        android:singleLine="true"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@id/image"
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintRight_toLeftOf="@id/discount"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
         tools:text="from 1 $" />
 
     <TextView
@@ -66,6 +75,7 @@
         android:gravity="center"
         android:textColor="#60B687"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/image"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@id/image"

@@ -46,11 +46,15 @@ class PurchasedFragment : Fragment() {
 
     }
 
-    private fun loadData() {
-        loader(true)
-        GitboxAPI.giftRepository.getOrders(lifecycleScope, 0, 30, {
-            viewModel.orders.value = it?.items
-            adapter.submitList(it?.items)
+    private fun loadData(offset: Long = 0) {
+        if (offset == 0L) {
+            loader(true)
+        } else if (offset >= viewModel.ordersSize) {
+            return
+        }
+        GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, 30, {
+            viewModel.setOrdersResponse(it, offset != 0L)
+            adapter.submitList(viewModel.orders.value)
         }, error = { _, msg ->
             Toaster(this).toast(msg, true)
         }, finally = {

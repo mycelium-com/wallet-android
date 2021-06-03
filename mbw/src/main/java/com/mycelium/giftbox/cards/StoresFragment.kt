@@ -50,13 +50,14 @@ class StoresFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding?.tags?.adapter = tagsAdapter
         tagsAdapter.clickListener = {
-            viewModel.category = it
+            viewModel.category = if (it == "All") null else it
             loadData()
         }
         activityViewModel.categories.observe(viewLifecycleOwner) {
-            tagsAdapter.submitList(it)
+            tagsAdapter.submitList(listOf("All") + it)
         }
         binding?.list?.adapter = adapter
+        binding?.list?.itemAnimator = null
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.toCardDetailsFragment(it))
@@ -98,8 +99,8 @@ class StoresFragment : Fragment() {
                     activityViewModel.countries.value = it?.countries?.mapNotNull {
                         CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
                     }
-                    viewModel.setProductsResponse(it)
-                    adapter.submitList(it?.products)
+                    viewModel.setProductsResponse(it, offset != 0L)
+                    adapter.submitList(viewModel.products.value)
                 },
                 error = { _, msg ->
                     Toaster(this).toast(msg, true)

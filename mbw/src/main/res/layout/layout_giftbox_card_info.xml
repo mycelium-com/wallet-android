@@ -39,7 +39,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDescriptionTitle"
-            tools:text="@tools:sample/lorem/random" />
+            tools:text="@tools:sample/lorem" />
 
         <TextView
             android:id="@+id/tvGiftCardAmountTitle"
@@ -84,6 +84,7 @@
             android:layout_marginStart="4dp"
             android:fontFamily="sans-serif-medium"
             android:textSize="14sp"
+            android:text="@{model.expiry}"
             app:layout_constraintBaseline_toBaselineOf="@id/tvExpireTitle"
             app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
             tools:text="Does not expire" />

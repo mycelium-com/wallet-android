@@ -40,7 +40,7 @@ import java.math.BigDecimal
 data class ProductInfo(
     /* For 'fixed' (denomination_type) products. List of available values for product. Display for user to choose from. */
     @JsonProperty("available_denominations")
-    var availableDenominations: List<String>? = null,
+    var availableDenominations: List<BigDecimal>? = null,
     /* Url of card image */
     @JsonProperty("card_image_url")
     var cardImageUrl: String? = null,
