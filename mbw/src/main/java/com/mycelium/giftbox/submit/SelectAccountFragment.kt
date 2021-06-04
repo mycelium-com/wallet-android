@@ -1,4 +1,4 @@
-package com.mycelium.giftbox.checkout
+package com.mycelium.giftbox.submit
 
 import android.os.Bundle
 import android.view.View
@@ -47,7 +47,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
 
         adapter.accountClickListener = { accountItem ->
             val selectedAccount = walletsAccounts.map { it.second }.flatten().find { it.label == accountItem.label }
-            findNavController().navigate(SelectAccountFragmentDirections.actionCheckout(args.orderResponse, selectedAccount?.id!!))
+            findNavController().navigate(SelectAccountFragmentDirections.actionBuy(selectedAccount?.id!!, args.productInfo))
         }
     }
 }
