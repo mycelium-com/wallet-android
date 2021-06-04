@@ -46,7 +46,7 @@ interface GiftboxApi {
         @Query("code") code: String,
         @Query("quantity") quantity: Int,
         @Query("amount") amount: Int,
-        @Query("currency_id") currencyId: String
+        @Query("currency_id") currencyId: String? = null
     ): Response<CheckoutProductResponse>
 
     @POST("create-order")

@@ -60,7 +60,7 @@ class StoresFragment : Fragment() {
         binding?.list?.itemAnimator = null
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.itemClickListener = {
-            findNavController().navigate(GiftBoxFragmentDirections.actionProductInfo(it))
+            findNavController().navigate(GiftBoxFragmentDirections.actionStoreDetails(it))
         }
         binding?.counties?.setOnClickListener {
             findNavController().navigate(GiftBoxFragmentDirections.actionSelectCountries())

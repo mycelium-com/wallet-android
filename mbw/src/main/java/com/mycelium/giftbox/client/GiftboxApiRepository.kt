@@ -17,7 +17,7 @@ class GiftboxApiRepository {
     private val clientUserIdFromMasterSeed by lazy {
         val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
         mbwManager.masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
-            .getPrivateKeyForWebsite(Constants.ENDPOINT, AesKeyCipher.defaultKeyCipher())
+            .getPrivateKeyForWebsite(Constants.WEBSITE, AesKeyCipher.defaultKeyCipher())
             .publicKey.toString()
     }
 
@@ -123,7 +123,7 @@ class GiftboxApiRepository {
         code: String,
         quantity: Int,
         amount: Int,
-        currencyId: String,
+        currencyId: String? = null,
         success: (CheckoutProductResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit

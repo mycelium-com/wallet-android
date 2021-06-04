@@ -1,4 +1,4 @@
-package com.mycelium.giftbox.submit
+package com.mycelium.giftbox.purchase
 
 import android.os.Bundle
 import android.view.View
@@ -8,10 +8,8 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.receive.adapter.*
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.activity.util.getSpendableBalance
-import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
-import com.mycelium.wapi.wallet.eth.getEthAccounts
+import com.mycelium.wapi.wallet.Util
 import kotlinx.android.synthetic.main.fragment_bequant_select_account.*
 
 
@@ -31,15 +29,18 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
 
     private fun generateAccountList() {
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
-        val btcWallets = listOf(R.string.active_hd_accounts_name to walletManager.getBTCBip44Accounts(),
-                R.string.active_bitcoin_sa_group_name to walletManager.getBTCSingleAddressAccounts())
-        val ethWallets = listOf(R.string.eth_accounts_name to walletManager.getEthAccounts())
-        val walletsAccounts = btcWallets + ethWallets
+        val currencies = args.currencies.mapNotNull { it.name }
+        val accounts = walletManager.getActiveSpendingAccounts()
+                .filter { account ->
+                    currencies.find { it.equals(Util.trimTestnetSymbolDecoration(account.coinType.symbol), true) } != null
+                }
+        val walletsAccounts = accounts.map { it.coinType }.toSet()
+                .map { coin -> coin.name to accounts.filter { it.coinType == coin } }
 
         val accountsList = mutableListOf<AccountListItem>()
         walletsAccounts.forEach {
             if (it.second.isNotEmpty()) {
-                accountsList.add(AccountGroupItem(true, getString(it.first), it.second.getSpendableBalance()))
+                accountsList.add(AccountGroupItem(true, it.first, it.second.getSpendableBalance()))
                 accountsList.addAll(it.second.map { AccountItem(it.label, it.accountBalance.confirmed) })
             }
         }
@@ -47,7 +48,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
 
         adapter.accountClickListener = { accountItem ->
             val selectedAccount = walletsAccounts.map { it.second }.flatten().find { it.label == accountItem.label }
-            findNavController().navigate(SelectAccountFragmentDirections.actionBuy(selectedAccount?.id!!, args.productInfo))
+            findNavController().navigate(SelectAccountFragmentDirections.actionNext(selectedAccount?.id!!, args.product))
         }
     }
 }

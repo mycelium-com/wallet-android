@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:text="Description:"
             android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="14sp"
@@ -83,8 +83,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:fontFamily="sans-serif-medium"
-            android:textSize="14sp"
             android:text="@{model.expiry}"
+            android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/tvExpireTitle"
             app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
             tools:text="Does not expire" />

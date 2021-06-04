@@ -36,3 +36,4 @@ data class CurrencyInfo(
     var name: String? = null
 ) : Parcelable
 
+class CurrencyInfos : ArrayList<CurrencyInfo>()

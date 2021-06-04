@@ -1,4 +1,4 @@
-package com.mycelium.giftbox.cardDetails
+package com.mycelium.giftbox.purchase
 
 import android.content.Intent
 import android.os.Bundle

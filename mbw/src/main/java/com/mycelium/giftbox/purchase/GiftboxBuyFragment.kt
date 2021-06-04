@@ -1,4 +1,4 @@
-package com.mycelium.giftbox.cardDetails
+package com.mycelium.giftbox.purchase
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -78,8 +78,8 @@ class GiftboxBuyFragment : Fragment() {
                     tvCurrency.text = product?.currencyCode
                     tvExpire.text = product?.expiryDatePolicy
                     tvCountry.text = product?.countries?.joinToString(separator = ", ")
-                    tvDiscount.text =
-                        """from ${product?.minimumValue} to ${product?.maximumValue}"""
+//                    tvDiscount.text =
+//                        """from ${product?.minimumValue} to ${product?.maximumValue}"""
 
                     amountRoot.setOnClickListener {
                         findNavController().navigate(

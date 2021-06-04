@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="model"
+            type="com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel" />
+    </data>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="14dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:minHeight="250dp" />
+            </androidx.cardview.widget.CardView>
+
+            <include
+                layout="@layout/giftcard_send_info"
+                app:viewModel="@{model}" />
+
+            <TextView
+                android:id="@+id/cardValueLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Card value:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/cardValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@{model.amount}"
+                android:textSize="20sp"
+                tools:text="from 1$ to 20$" />
+
+            <Button
+                android:id="@+id/btSend"
+                style="@style/MyceliumButton.FIO"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/horizontal_page_margin"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="@dimen/horizontal_page_margin"
+                android:layout_marginBottom="60dp"
+                android:text="Proceed"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </ScrollView>
+</layout>
