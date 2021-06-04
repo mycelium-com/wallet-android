@@ -10,13 +10,10 @@
         android:name="com.mycelium.giftbox.cards.GiftBoxFragment"
         android:label="Gift cards"
         tools:layout="@layout/fragment_gift_box">
-        <action
-            android:id="@+id/toPurchasedFragment"
-            app:destination="@id/cardBuyFragment" />
 
         <action
             android:id="@+id/toCardDetailsFragment"
-            app:destination="@id/cardBuyFragment" />
+            app:destination="@id/giftBoxDetailsFragment" />
         <action
             android:id="@+id/actionSelectCountries"
             app:destination="@id/selectCountiesFragment" />
@@ -27,9 +24,14 @@
 
     <fragment
         android:id="@+id/cardBuyFragment"
-        android:name="com.mycelium.giftbox.cardDetails.GiftboxPresubmitFragment"
-        android:label="Gift card amount"
-        tools:layout="@layout/fragment_giftbox_pre_submit">
+        android:name="com.mycelium.giftbox.cardDetails.GiftboxBuyFragment"
+        android:label="Buy gift card"
+        tools:layout="@layout/fragment_giftbox_buy">
+
+        <argument
+            android:name="accountId"
+            app:argType="java.util.UUID" />
+
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
@@ -43,53 +45,22 @@
     </fragment>
 
     <fragment
-        android:id="@+id/giftCheckoutFragment"
-        android:name="com.mycelium.giftbox.checkout.GiftboxSubmitFragment"
-        android:label="Buy gift card"
-        tools:layout="@layout/fragment_giftbox_submit">
-        <argument
-            android:name="orderResponse"
-            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
-
-        <argument
-            android:name="accountId"
-            app:argType="java.util.UUID" />
-
-        <action
-            android:id="@+id/toCheckoutResult"
-            app:destination="@id/giftCheckoutResultFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/giftCheckoutResultFragment"
-        android:name="com.mycelium.giftbox.checkout.GiftBoxCheckoutFragment"
-        android:label="Success!"
-        tools:layout="@layout/fragment_giftbox_details">
-        <argument
-            android:name="order"
-            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
-
-        <argument
-            android:name="accountId"
-            app:argType="java.util.UUID" />
-    </fragment>
-    <fragment
         android:id="@+id/selectCountiesFragment"
         android:name="com.mycelium.giftbox.cards.SelectCountiesFragment"
         android:label="Select country"
         tools:layout="@layout/fragment_select_counties" />
     <fragment
         android:id="@+id/selectAccountFragment2"
-        android:name="com.mycelium.giftbox.checkout.SelectAccountFragment"
+        android:name="com.mycelium.giftbox.submit.SelectAccountFragment"
         android:label="Buy gift card"
         tools:layout="@layout/fragment_bequant_select_account">
         <argument
-            android:name="orderResponse"
-            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
+            android:name="productInfo"
+            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
 
         <action
-            android:id="@+id/actionCheckout"
-            app:destination="@id/giftCheckoutFragment" />
+            android:id="@+id/actionBuy"
+            app:destination="@id/cardBuyFragment" />
     </fragment>
 
     <fragment
@@ -115,6 +86,11 @@
         <argument
             android:name="mode"
             app:argType="com.mycelium.giftbox.details.MODE" />
+
+        <action
+            android:id="@+id/toBuyFragment"
+            app:destination="@id/cardBuyFragment" />
+
     </fragment>
 
 </navigation>

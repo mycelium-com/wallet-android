@@ -22,15 +22,15 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.databinding.FragmentGiftboxPreSubmitBinding
+import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 
-class GiftboxPresubmitFragment : Fragment() {
-    private lateinit var binding: FragmentGiftboxPreSubmitBinding
-    val args by navArgs<GiftboxPresubmitFragmentArgs>()
+class GiftboxBuyFragment : Fragment() {
+    private lateinit var binding: FragmentGiftboxBuyBinding
+    val args by navArgs<GiftboxBuyFragmentArgs>()
 
-    val viewModel: CardDetailsFragmentViewModel by viewModels()
+    val viewModel: GiftboxBuyViewModel by viewModels()
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -51,14 +51,14 @@ class GiftboxPresubmitFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate<FragmentGiftboxPreSubmitBinding>(
+        binding = DataBindingUtil.inflate<FragmentGiftboxBuyBinding>(
             inflater,
-            R.layout.fragment_giftbox_pre_submit,
+            R.layout.fragment_giftbox_buy,
             container,
             false
         )
             .apply {
-                lifecycleOwner = this@GiftboxPresubmitFragment
+                lifecycleOwner = this@GiftboxBuyFragment
             }
         return binding.root
     }
@@ -83,7 +83,7 @@ class GiftboxPresubmitFragment : Fragment() {
 
                     amountRoot.setOnClickListener {
                         findNavController().navigate(
-                            GiftboxPresubmitFragmentDirections.enterAmount(
+                            GiftboxBuyFragmentDirections.enterAmount(
                                 product!!, viewModel.amount.value
                             )
                         )
@@ -103,11 +103,11 @@ class GiftboxPresubmitFragment : Fragment() {
                 quantity = 1,
                 amount = viewModel.amount.value?.valueAsBigDecimal?.toInt() ?: 0,
                 currencyId = "btc", success = { orderResponse ->
-                    findNavController().navigate(
-                        GiftboxPresubmitFragmentDirections.actionNext(
-                            orderResponse!!
-                        )
-                    )
+//                    findNavController().navigate(
+//                        GiftboxBuyFragmentDirections.actionNext(
+//                            orderResponse!!
+//                        )
+//                    )
                 },
                 error = { _, error ->
                     ErrorHandler(requireContext()).handle(error)
@@ -124,7 +124,7 @@ class GiftboxPresubmitFragment : Fragment() {
     }
 }
 
-class CardDetailsFragmentViewModel : ViewModel() {
+class GiftboxBuyViewModel : ViewModel() {
     val amount = MutableLiveData<Value>()
     val productResponse = MutableLiveData<ProductResponse>()
 }
