@@ -22,6 +22,9 @@ import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
 class PurchasedFragment : Fragment() {
 
     private val adapter = PurchasedAdapter()
+            .apply {
+                submitList(listOf(PurchasedAdapter.LOADING_ITEM, PurchasedAdapter.LOADING_ITEM, PurchasedAdapter.LOADING_ITEM))
+            }
     private val viewModel: PurchasedViewModel by viewModels()
     private var binding: FragmentGiftboxPurchasedBinding? = null
 
@@ -32,22 +35,22 @@ class PurchasedFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View =
-        FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
-            binding = this
-        }.root
+            FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
+                binding = this
+            }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(
-            DividerItemDecoration(
-                resources.getDrawable(R.drawable.divider_bequant),
-                VERTICAL
-            )
+                DividerItemDecoration(
+                        resources.getDrawable(R.drawable.divider_bequant),
+                        VERTICAL
+                )
         )
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it, MODE.INFO))
@@ -56,9 +59,7 @@ class PurchasedFragment : Fragment() {
     }
 
     private fun loadData(offset: Long = 0) {
-        if (offset == 0L) {
-            loader(true)
-        } else if (offset >= viewModel.ordersSize) {
+        if (offset != 0L && offset >= viewModel.ordersSize) {
             return
         }
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, 30, {
@@ -66,8 +67,6 @@ class PurchasedFragment : Fragment() {
             adapter.submitList(viewModel.orders.value)
         }, error = { _, msg ->
             Toaster(this).toast(msg, true)
-        }, finally = {
-            loader(false)
         })
     }
 

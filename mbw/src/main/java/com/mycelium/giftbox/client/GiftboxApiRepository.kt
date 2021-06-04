@@ -146,7 +146,7 @@ class GiftboxApiRepository {
         limit: Long = 100,
         success: (OrdersHistoryResponse?) -> Unit,
         error: (Int, String) -> Unit,
-        finally: () -> Unit
+        finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
             api.orders(clientUserIdFromMasterSeed, offset, limit)

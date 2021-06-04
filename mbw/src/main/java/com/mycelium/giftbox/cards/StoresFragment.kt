@@ -21,7 +21,6 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
-import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 
 
@@ -29,6 +28,9 @@ class StoresFragment : Fragment() {
 
     private val tagsAdapter = SearchTagAdapter()
     private val adapter = StoresAdapter()
+            .apply {
+                submitList(listOf(StoresAdapter.LOADING_ITEM,StoresAdapter.LOADING_ITEM, StoresAdapter.LOADING_ITEM ))
+            }
     private val viewModel: StoresViewModel by viewModels()
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxStoresBinding? = null
@@ -83,9 +85,7 @@ class StoresFragment : Fragment() {
     }
 
     private fun loadData(offset: Long = 0) {
-        if (offset == 0L) {
-            loader(true)
-        } else if (offset >= viewModel.productsSize) {
+        if (offset != 0L && offset >= viewModel.productsSize) {
             return
         }
         viewModel.loading.value = true
@@ -106,7 +106,6 @@ class StoresFragment : Fragment() {
                     Toaster(this).toast(msg, true)
                 },
                 finally = {
-                    loader(false)
                     viewModel.loading.value = false
                 })
     }

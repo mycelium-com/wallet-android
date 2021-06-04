@@ -19,34 +19,47 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
     var itemClickListener: ((ProductInfo) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_store, parent, false))
+            when (viewType) {
+                TYPE_CARD -> CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_store, parent, false))
+                TYPE_LOADING -> LoadingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_loading, parent, false))
+                else -> TODO("not implemented")
+            }
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = getItem(position)
-        Glide.with(holder.itemView.image)
-                .load(item?.cardImageUrl)
-                .into(holder.itemView.image)
+        if (getItemViewType(position) == TYPE_CARD) {
+            val item = getItem(position)
+            Glide.with(holder.itemView.image)
+                    .load(item?.cardImageUrl)
+                    .into(holder.itemView.image)
 
-        holder.itemView.title.text = item.name
-        holder.itemView.description.text = item.categories?.joinToString()
-        holder.itemView.additional.text = if (item.denominationType == ProductInfo.DenominationType.open) {
-            "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
-                    if (item.maximumValue != BigDecimal.ZERO) {
-                        " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
-                    } else {
-                        ""
-                    }
-        } else {
-            item.availableDenominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${item.currencyCode}" }
-        }
+            holder.itemView.title.text = item.name
+            holder.itemView.description.text = item.categories?.joinToString()
+            holder.itemView.additional.text = if (item.denominationType == ProductInfo.DenominationType.open) {
+                "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
+                        if (item.maximumValue != BigDecimal.ZERO) {
+                            " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
+                        } else {
+                            ""
+                        }
+            } else {
+                item.availableDenominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${item.currencyCode}" }
+            }
 
-        holder.itemView.setOnClickListener {
-            itemClickListener?.invoke(getItem(holder.adapterPosition))
+            holder.itemView.setOnClickListener {
+                itemClickListener?.invoke(getItem(holder.adapterPosition))
+            }
         }
     }
 
+    override fun getItemViewType(position: Int): Int =
+            when (getItem(position)) {
+                LOADING_ITEM -> TYPE_LOADING
+                else -> TYPE_CARD
+            }
+
     class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<ProductInfo>() {
         override fun areItemsTheSame(oldItem: ProductInfo, newItem: ProductInfo): Boolean =
@@ -56,5 +69,12 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
         override fun areContentsTheSame(oldItem: ProductInfo, newItem: ProductInfo): Boolean =
                 equalsValuesBy(oldItem, newItem,
                         { it.cardImageUrl }, { it.name }, { it.description })
+    }
+
+    companion object {
+        const val TYPE_CARD = 0
+        const val TYPE_LOADING = 1
+
+        val LOADING_ITEM = ProductInfo()
     }
 }

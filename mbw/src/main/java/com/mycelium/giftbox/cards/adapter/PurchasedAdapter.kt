@@ -1,6 +1,5 @@
 package com.mycelium.giftbox.cards.adapter
 
-import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.Order
+import com.mycelium.giftbox.getDateString
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
-import java.text.DateFormat
-import java.util.*
 
 
 class PurchasedAdapter : ListAdapter<Order, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -28,7 +26,7 @@ class PurchasedAdapter : ListAdapter<Order, RecyclerView.ViewHolder>(DiffCallbac
         val item = getItem(position)
         holder.itemView.title.text = item.productName
         holder.itemView.description.text = item.amount
-        holder.itemView.additional.text = getDateString(holder.itemView.resources, item.timestamp!!)
+        holder.itemView.additional.text = item.timestamp?.getDateString(holder.itemView.resources)
         Glide.with(holder.itemView.image)
                 .load(item.productImg)
                 .into(holder.itemView.image)
@@ -37,8 +35,11 @@ class PurchasedAdapter : ListAdapter<Order, RecyclerView.ViewHolder>(DiffCallbac
         }
     }
 
-    private fun getDateString(resources: Resources, date: Date): String =
-            DateFormat.getDateInstance(DateFormat.LONG, resources.configuration.locale).format(date)
+    override fun getItemViewType(position: Int): Int =
+            when (getItem(position)) {
+                LOADING_ITEM -> TYPE_LOADING
+                else -> TYPE_CARD
+            }
 
     class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -50,5 +51,12 @@ class PurchasedAdapter : ListAdapter<Order, RecyclerView.ViewHolder>(DiffCallbac
         override fun areContentsTheSame(oldItem: Order, newItem: Order): Boolean =
                 equalsValuesBy(oldItem, newItem,
                         { it.productImg }, { it.productName }, { it.amount }, { it.timestamp })
+    }
+
+    companion object {
+        const val TYPE_CARD = 0
+        const val TYPE_LOADING = 1
+
+        val LOADING_ITEM = Order()
     }
 }
