@@ -20,6 +20,9 @@
         <action
             android:id="@+id/actionDetails"
             app:destination="@id/giftBoxDetailsFragment" />
+        <action
+            android:id="@+id/actionProductInfo"
+            app:destination="@id/productInfoFragment" />
     </fragment>
 
     <fragment
@@ -75,6 +78,22 @@
             app:argType="com.mycelium.wapi.wallet.coins.Value"
             app:nullable="true" />
     </fragment>
+
+    <fragment
+        android:id="@+id/productInfoFragment"
+        android:name="com.mycelium.giftbox.productInfo.ProductInfoFragment"
+        android:label="GiftBoxDetailsFragment"
+        tools:layout="@layout/fragment_giftbox_product_info">
+        <argument
+            android:name="productInfo"
+            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+
+        <action
+            android:id="@+id/toSelectAccount"
+            app:destination="@id/selectAccountFragment2" />
+
+    </fragment>
+
     <fragment
         android:id="@+id/giftBoxDetailsFragment"
         android:name="com.mycelium.giftbox.details.GiftBoxDetailsFragment"

@@ -31,17 +31,26 @@ class PurchasedFragment : Fragment() {
         loadData()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
-                binding = this
-            }.root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View =
+        FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
+            binding = this
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.list?.adapter = adapter
-        binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
+        binding?.list?.addItemDecoration(
+            DividerItemDecoration(
+                resources.getDrawable(R.drawable.divider_bequant),
+                VERTICAL
+            )
+        )
         adapter.itemClickListener = {
-            findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it,MODE.INFO))
+            findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it, MODE.INFO))
         }
 
     }
