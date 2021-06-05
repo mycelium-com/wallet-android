@@ -1656,6 +1656,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gift_cards_with_discount">Gift cards with discount</string>
     <string name="select_account_to_pay_with">Select account to pay with:</string>
     <string name="expire_date">Expire date:</string>
+    <string name="card_value">Card value:</string>
+    <string name="total_amount">Total amount:</string>
+    <string name="quantity">Quantity:</string>
+    <string name="miner_fee">Miner Fee:</string>
+    <string name="expires_at">Expires at:</string>
+    <string name="currency">Currency:</string>
+    <string name="description">Description:</string>
+    <string name="available_country">Available country:</string>
+    <string name="buy">Buy</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

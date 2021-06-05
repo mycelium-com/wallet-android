@@ -24,7 +24,10 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.coins.Value
+import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.*
+import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
+import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
 
 class GiftboxBuyFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxBuyBinding

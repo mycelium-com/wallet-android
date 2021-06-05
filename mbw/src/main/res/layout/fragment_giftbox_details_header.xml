@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/fragment_giftbox_buy"
+    android:background="@drawable/rect_background_rounded">
+
+    <!--    <data>-->
+
+    <!--        <variable-->
+    <!--            name="viewModel"-->
+    <!--            type="com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel" />-->
+    <!--    </data>-->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/imageRoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/ivImage"
+                android:layout_width="65dp"
+                android:layout_height="46dp"
+                android:src="@drawable/recyclerview_item_rectangle_selected" />
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="22sp"
+            app:layout_constraintStart_toEndOf="@id/imageRoot"
+            app:layout_constraintTop_toTopOf="@id/imageRoot"
+            tools:text="Hotels" />
+
+        <TextView
+            android:id="@+id/tvCountryLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/country"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/imageRoot"
+            app:layout_constraintStart_toStartOf="@id/tvName"
+            app:layout_constraintTop_toBottomOf="@id/tvName" />
+
+        <TextView
+            android:id="@+id/tvCountry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/country"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvCountryLabel"
+            app:layout_constraintStart_toEndOf="@id/tvCountryLabel"
+            tools:text="United States" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/imageRoot">
+
+            <TextView
+                android:id="@+id/tvCardValueHeaderTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/card_value"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvCardValueHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvCardValueHeaderTitle"
+                app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+                tools:text="From $1 to $100" />
+
+            <TextView
+                android:id="@+id/tvExpireTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/expires_at"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvCardValueHeader" />
+
+            <TextView
+                android:id="@+id/tvExpire"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvExpireTitle"
+                app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+                tools:text="Does not expire" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
