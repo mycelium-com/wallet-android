@@ -84,7 +84,7 @@
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="~0.00 BTC"
                         android:singleLine="true"
-                        android:text="@{vm.totalAmountCryptoSingle}"
+                        android:text="@{vm.totalAmountCryptoSingleString}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="12sp"
@@ -138,7 +138,7 @@
 
                     <!--                    android:text="@{viewModel.requestedAmountFormatted}"-->
                     <!--                    android:textAlignment="@{viewModel.requestedAmountFormatted.isEmpty() ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"-->
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <TextView
                         android:id="@+id/tvQuanity"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -149,7 +149,7 @@
                         android:hint="0"
                         android:inputType="number"
                         android:singleLine="true"
-                        android:text="@={vm.quantity}"
+                        android:text="@{vm.quantityString}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="20sp"
@@ -190,6 +190,7 @@
                             android:id="@+id/btPlusQuantity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:clickable="@{vm.isGrantedPlus}"
                             android:layout_marginLeft="8dp"
                             android:layout_marginTop="4dp"
                             android:background="@null"

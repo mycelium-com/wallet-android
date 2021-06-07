@@ -15,6 +15,7 @@ import androidx.lifecycle.*
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
@@ -23,12 +24,14 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
 import com.mycelium.wallet.activity.send.model.FeeItem
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.api.lib.CurrencyCode
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
@@ -93,14 +96,14 @@ class GiftboxBuyFragment : Fragment() {
                     ivImage.loadImage(product?.cardImageUrl)
                     tvName.text = product?.name
                     tvExpire.text = product?.expiryDatePolicy
+                    tvCardValueHeader.text =
+                        "From " + product?.minimumValue + " to " + product?.maximumValue
                     tvCountry.text = product?.countries?.joinToString(separator = ", ")
                     btMinusQuantity.setOnClickListener {
-                        viewModel.quantity.value =
-                            ((viewModel.quantity.value?.toInt() ?: 0) - 1).toString()
+                        viewModel.quantity.value = (viewModel.quantity.value?.toInt() ?: 0) - 1
                     }
                     btPlusQuantity.setOnClickListener {
-                        viewModel.quantity.value =
-                            ((viewModel.quantity.value?.toInt() ?: 0) + 1).toString()
+                        viewModel.quantity.value = (viewModel.quantity.value?.toInt() ?: 0) + 1
                     }
                     amountRoot.setOnClickListener {
                         findNavController().navigate(
@@ -119,19 +122,28 @@ class GiftboxBuyFragment : Fragment() {
             })
 
         binding.btSend.setOnClickListener {
-            GitboxAPI.giftRepository.createOrder(viewModel.viewModelScope,
+            loader(true)
+            GitboxAPI.giftRepository.createOrder(
+                viewModel.viewModelScope,
                 code = args.product.code!!,
-                quantity = 1,
-                amount = viewModel.amount.value?.valueAsBigDecimal?.toInt() ?: 0,
-                currencyId = "btc", success = { orderResponse ->
+                amount = viewModel.totalAmountCrypto.value?.valueAsLong?.toInt()!!,
+                quantity = viewModel.quantity.value!!,
+                currencyId = args.product.currencyCode!!,
+                success = { orderResponse ->
+                    val type = Utils.getBtcCoinType()
+                    val address =
+                        BtcAddress(type, BitcoinAddress.fromString(orderResponse?.payinAddress))
+                    startActivity(
+                        SendCoinsActivity.getIntent(
+                            requireActivity(),
+                            viewModel.accountId.value!!,
+                            viewModel.totalAmountCrypto.value?.valueAsLong!!,
+                            address,
+                            false
+                        )
+                    )
 
-//                    findNavController().navigate(
-//                        GiftboxBuyFragmentDirections.actionNext(
-//                            orderResponse!!
-//                        )
-//                    )
-                },
-                error = { _, error ->
+                }, error = { _, error ->
                     ErrorHandler(requireContext()).handle(error)
                     loader(false)
                 }, finally = {
@@ -149,15 +161,19 @@ class GiftboxBuyFragment : Fragment() {
 class GiftboxBuyViewModel : ViewModel() {
     val accountId = MutableLiveData<UUID>()
     val amount = MutableLiveData<Value>()
-    val quantity = MutableLiveData<String>()
+    val quantity = MutableLiveData(1)
     val productResponse = MutableLiveData<ProductResponse>()
-    val priceResponse = MutableLiveData<PriceResponse>()
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
 
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
     }
+
+    val quantityString = Transformations.map(quantity) {
+        it.toString()
+    }
+
     private val feeItemsBuilder by lazy {
         FeeItemsBuilder(
             mbwManager.exchangeRateManager,
@@ -181,7 +197,8 @@ class GiftboxBuyViewModel : ViewModel() {
 
     private fun estimateTxSize() = account!!.typicalEstimatedTransactionSize
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
-    val totalAmountCryptoSingle: LiveData<String> = Transformations.map(totalAmountCrypto(forSingleItem = true)){
+    val totalAmountCryptoSingle: LiveData<Value> = totalAmountCrypto(forSingleItem = true)
+    val totalAmountCryptoSingleString = Transformations.map(totalAmountCryptoSingle) {
         it.toStringWithUnit()
     }
 
@@ -235,12 +252,20 @@ class GiftboxBuyViewModel : ViewModel() {
     val minerFeeFiat: MutableLiveData<String> by lazy { MutableLiveData(getFeeItem().fiatValue.toStringWithUnit()) }
     val minerFeeCrypto: MutableLiveData<String> by lazy { MutableLiveData("~" + getFeeItem().value.toStringWithUnit()) }
 
-    //    val isGrantedPlus = Transformations.map(totalAmountCrypto) {
-//        val cryptoValue = Value.valueOf(Utils.getBtcCoinType()!!,it.priceOffer!!)
-//        return@map cryptoValue.lessOrEqualThan(getAccountBalance().minus())
-//    }
-    val isGrantedMinus = Transformations.map(totalAmountCrypto) {
-        return@map it.moreOrEqualThanZero() && quantity.value?.toInt() ?: 0 > 0
+    val isGrantedPlus =
+        Transformations.map(
+            zip2(
+                totalAmountCrypto,
+                totalAmountCryptoSingle
+            ) { total: Value, single: Value ->
+                Pair(total, single)
+            }) {
+            val (total, single) = it
+            total.minus(single).moreOrEqualThanZero()
+        }
+
+    val isGrantedMinus = Transformations.map(quantity) {
+        return@map it > 1
     }
     val isGranted = Transformations.map(totalAmountCrypto) {
         return@map it.lessOrEqualThan(getAccountBalance())
