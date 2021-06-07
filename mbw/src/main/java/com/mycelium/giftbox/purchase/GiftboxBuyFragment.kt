@@ -24,10 +24,12 @@ import com.mycelium.giftbox.loadImage
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
+import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
@@ -36,6 +38,7 @@ import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import java.math.BigDecimal
 import java.util.*
 
 class GiftboxBuyFragment : Fragment() {
@@ -153,7 +156,7 @@ class GiftboxBuyViewModel : ViewModel() {
     val priceResponse = MutableLiveData<PriceResponse>()
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
 
-    val totalAmountFiat: LiveData<PriceResponse> =
+    val totalAmountCrypto: LiveData<Value> =
         Transformations.switchMap(
             zip2(
                 amount,
@@ -171,7 +174,7 @@ class GiftboxBuyViewModel : ViewModel() {
                     currencyId = productResponse.value?.product?.currencyCode ?: "",
                     success = { priceResponse ->
                         errorMessage.value = ""
-                        offer(priceResponse!!)
+                        offer(getBtcAmount(priceResponse!!))
                     },
                     error = { _, error ->
                         errorMessage.value = error
@@ -185,39 +188,44 @@ class GiftboxBuyViewModel : ViewModel() {
         }
 
 
-//    val totalAmountCryptoString: LiveData<String> = Transformations.map(totalAmountFiat) {
-//        getAsCrypto(it).asString()
-//    }
-
-    //    val isGrantedPlus = Transformations.map(totalAmountFiat) {
-//        return@map it.lessOrEqualThan(getAccountBalance().minus(getAsCrypto(amount.value!!)))
-//    }
-    val isGrantedMinus = Transformations.map(totalAmountFiat) {
-        val valueOf = Value.valueOf(
-            FiatType(productResponse.value?.priceCurrency!!),
-            it.priceOffer?.toLong()!!
-        )
-        return@map valueOf.moreOrEqualThanZero()
+    val totalAmountFiatString = Transformations.map(totalAmountCrypto) {
+        val fiatValue = convert(it, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
+        return@map fiatValue?.toStringWithUnit()
     }
-    val isGranted = Transformations.map(totalAmountFiat) {
-        val valueOf = Value.valueOf(
-            FiatType(productResponse.value?.priceCurrency!!),
-            it.priceOffer?.toLong()!!
-        )
-        return@map valueOf.lessOrEqualThan(getAccountBalance())
+
+    val totalAmountCryptoString = Transformations.map(totalAmountCrypto) {
+        return@map it.toStringWithUnit()
+    }
+
+    private fun getBtcAmount(priceResponse1: PriceResponse): Value {
+        val cryptoUnit =
+            BigDecimal(priceResponse1.priceOffer).movePointRight(Utils.getBtcCoinType().unitExponent)
+                .toBigInteger()
+        return Value.valueOf(Utils.getBtcCoinType()!!, cryptoUnit)
+    }
+
+    //    val isGrantedPlus = Transformations.map(totalAmountCrypto) {
+//        val cryptoValue = Value.valueOf(Utils.getBtcCoinType()!!,it.priceOffer!!)
+//        return@map cryptoValue.lessOrEqualThan(getAccountBalance().minus())
+//    }
+    val isGrantedMinus = Transformations.map(totalAmountCrypto) {
+        return@map it.moreOrEqualThanZero()
+    }
+    val isGranted = Transformations.map(totalAmountCrypto) {
+        return@map it.lessOrEqualThan(getAccountBalance())
     }
 
     private fun getAccountBalance(): Value {
         return MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false)
             .getAccount(accountId.value!!)?.accountBalance?.confirmed!!
     }
-//
-//    private fun getAsCrypto(value: Value): Value {
-//        return MbwManager.getInstance(WalletApplication.getInstance())
-//            .exchangeRateManager.get(value, FiatType("BTC"))
-//    }
 
-    private fun Value.asString(): String = toStringWithUnit(Denomination.UNIT)
+    private fun convert(value: Value, assetInfo: AssetInfo): Value? =
+        MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
+            value,
+            assetInfo
+        )
+
 
 
 }

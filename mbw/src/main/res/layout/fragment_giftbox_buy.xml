@@ -211,7 +211,7 @@
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="0.00 USD"
                         android:singleLine="true"
-                        android:text="@{vm.totalAmountFiat.priceOffer}"
+                        android:text="@{vm.totalAmountFiatString}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="20sp"
@@ -221,6 +221,7 @@
 
                     <TextView
                         android:id="@+id/tvTotalAmountCrypto"
+                        android:text="@{vm.totalAmountCryptoString}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
