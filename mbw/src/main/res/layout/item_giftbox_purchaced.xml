@@ -79,6 +79,7 @@
         app:layout_constraintBaseline_toBaselineOf="@id/additionalLabel"
         app:layout_constraintLeft_toRightOf="@id/additionalLabel"
         app:layout_constraintRight_toLeftOf="@id/discount"
+        app:layout_goneMarginLeft="8dp"
         tools:text="September 18" />
 
     <ImageView

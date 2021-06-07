@@ -15,16 +15,12 @@ import com.mycelium.giftbox.details.MODE
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
-import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
 
 
 class PurchasedFragment : Fragment() {
 
     private val adapter = PurchasedAdapter()
-            .apply {
-                submitList(listOf(PurchasedAdapter.LOADING_ITEM, PurchasedAdapter.LOADING_ITEM, PurchasedAdapter.LOADING_ITEM))
-            }
     private val viewModel: PurchasedViewModel by viewModels()
     private var binding: FragmentGiftboxPurchasedBinding? = null
 
@@ -59,7 +55,9 @@ class PurchasedFragment : Fragment() {
     }
 
     private fun loadData(offset: Long = 0) {
-        if (offset != 0L && offset >= viewModel.ordersSize) {
+        if (offset == 0L) {
+            adapter.submitList(MutableList(8) { PurchasedAdapter.LOADING_ITEM })
+        } else if (offset >= viewModel.ordersSize) {
             return
         }
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, 30, {

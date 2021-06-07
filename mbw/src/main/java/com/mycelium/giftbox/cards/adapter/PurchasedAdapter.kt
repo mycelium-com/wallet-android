@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.Order
+import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.getDateString
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
@@ -26,7 +27,20 @@ class PurchasedAdapter : ListAdapter<Order, RecyclerView.ViewHolder>(DiffCallbac
         val item = getItem(position)
         holder.itemView.title.text = item.productName
         holder.itemView.description.text = item.amount
-        holder.itemView.additional.text = item.timestamp?.getDateString(holder.itemView.resources)
+        holder.itemView.additional.text = when (item.status) {
+            Status.pROCESSING -> {
+                holder.itemView.additionalLabel.visibility = View.GONE
+                "Processing"
+            }
+            Status.eRROR -> {
+                holder.itemView.additionalLabel.visibility = View.GONE
+                "Failed"
+            }
+            else -> {
+                holder.itemView.additionalLabel.visibility = View.VISIBLE
+                item.timestamp?.getDateString(holder.itemView.resources)
+            }
+        }
         Glide.with(holder.itemView.image)
                 .load(item.productImg)
                 .into(holder.itemView.image)
