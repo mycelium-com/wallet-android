@@ -5,7 +5,7 @@
     tools:showIn="@layout/fragment_giftbox_store_details">
 
     <data>
-
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel" />
@@ -41,15 +41,47 @@
             tools:text="@tools:sample/lorem/random" />
 
         <TextView
+            android:id="@+id/redeem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="8dp"
+            android:text="@string/redeem_instructions"
+            android:visibility="@{viewModel.more ? View.VISIBLE : View.GONE}"
+            app:drawableStartCompat="@drawable/ic_keyboard_arrow_right_white_24dp"
+            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
+
+        <TextView
+            android:id="@+id/terms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="8dp"
+            android:text="@string/terms_and_conditions"
+            android:visibility="@{viewModel.more ? View.VISIBLE : View.GONE}"
+            app:drawableStartCompat="@drawable/ic_keyboard_arrow_right_white_24dp"
+            app:layout_constraintTop_toBottomOf="@id/redeem" />
+
+        <TextView
+            android:id="@+id/less"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/less"
+            android:visibility="@{viewModel.more ? View.VISIBLE : View.GONE}"
+            android:textColor="#E503B3FF"
+            app:layout_constraintTop_toBottomOf="@id/terms" />
+
+        <TextView
             android:id="@+id/tvCurrencyTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="28dp"
             android:text="@string/currency"
             android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="14sp"
-            app:layout_constraintBaseline_toBaselineOf="@id/tvCurrency"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/less" />
 
         <TextView
             android:id="@+id/tvCurrency"
@@ -59,8 +91,8 @@
             android:layout_marginTop="4dp"
             android:text="@{viewModel.currency}"
             android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvCurrencyTitle"
             app:layout_constraintStart_toEndOf="@id/tvCurrencyTitle"
-            app:layout_constraintTop_toBottomOf="@id/tvDescription"
             tools:text="USD Dollars, $" />
 
         <TextView
@@ -80,7 +112,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
-            android:fontFamily="sans-serif-medium"
             android:text="@{viewModel.country}"
             android:textSize="14sp"
             app:layout_constraintStart_toEndOf="@id/tvCountryTitle"

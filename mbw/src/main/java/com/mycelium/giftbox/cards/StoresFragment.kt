@@ -28,9 +28,6 @@ class StoresFragment : Fragment() {
 
     private val tagsAdapter = SearchTagAdapter()
     private val adapter = StoresAdapter()
-            .apply {
-                submitList(listOf(StoresAdapter.LOADING_ITEM,StoresAdapter.LOADING_ITEM, StoresAdapter.LOADING_ITEM ))
-            }
     private val viewModel: StoresViewModel by viewModels()
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxStoresBinding? = null
@@ -85,7 +82,9 @@ class StoresFragment : Fragment() {
     }
 
     private fun loadData(offset: Long = 0) {
-        if (offset != 0L && offset >= viewModel.productsSize) {
+        if (offset == 0L) {
+            adapter.submitList(MutableList(8) { StoresAdapter.LOADING_ITEM })
+        } else if (offset >= viewModel.productsSize) {
             return
         }
         viewModel.loading.value = true
