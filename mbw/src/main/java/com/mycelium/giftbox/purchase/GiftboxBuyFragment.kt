@@ -128,7 +128,7 @@ class GiftboxBuyFragment : Fragment() {
                 code = args.product.code!!,
                 amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
                 quantity = viewModel.quantity.value!!,
-                currencyId = args.product.currencyCode!!,
+                currencyId = Utils.getBtcCoinType().symbol,//viewModel.totalAmountCrypto.value?.currencySymbol!!,
                 success = { orderResponse ->
                     val type = Utils.getBtcCoinType()
                     val address =
