@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/redeemCodeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/redeem_code"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/redeemCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:drawablePadding="8dp"
+            android:text="@{viewModel.redeemCode}"
+            android:textSize="14sp"
+            app:drawableRightCompat="@drawable/ic_content_copy_white"
+            app:layout_constraintBaseline_toBaselineOf="@id/redeemCodeLabel"
+            app:layout_constraintStart_toEndOf="@id/redeemCodeLabel"
+            tools:text="@tools:sample/lorem" />
+
+        <TextView
+            android:id="@+id/pinCodeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/giftbox_pin_code"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/redeemCodeLabel" />
+
+        <TextView
+            android:id="@+id/pinCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:drawablePadding="8dp"
+            android:text="@{viewModel.pinCode}"
+            android:textSize="14sp"
+            app:drawableRightCompat="@drawable/ic_content_copy_white"
+            app:layout_constraintBaseline_toBaselineOf="@id/pinCodeLabel"
+            app:layout_constraintStart_toEndOf="@id/pinCodeLabel"
+            tools:text="4589rhjkflt7ehJUG806504HH" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

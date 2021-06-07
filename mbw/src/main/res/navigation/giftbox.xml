@@ -105,6 +105,9 @@
         <argument
             android:name="mode"
             app:argType="com.mycelium.giftbox.details.MODE" />
+        <action
+            android:id="@+id/actionRedeem"
+            app:destination="@id/redeemInstructionsFragment" />
     </fragment>
     <fragment
         android:id="@+id/giftBoxBuyResultFragment"

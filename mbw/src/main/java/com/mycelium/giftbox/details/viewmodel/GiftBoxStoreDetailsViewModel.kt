@@ -5,16 +5,17 @@ import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.models.CurrencyInfo
 import com.mycelium.giftbox.client.models.ProductInfo
+import com.mycelium.giftbox.common.DescriptionViewModel
 
 
-class GiftBoxStoreDetailsViewModel : ViewModel() {
-    val description = MutableLiveData<String>()
+class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
+    override val description = MutableLiveData<String>()
+    override val more = MutableLiveData<Boolean>(false)
+
     val amount = MutableLiveData<String>()
     val country = MutableLiveData<String>()
     val currency = MutableLiveData<String>()
     val expire = MutableLiveData<String>()
-    val more = MutableLiveData<Boolean>(false)
-
     var productInfo: ProductInfo? = null
     var currencies: Array<CurrencyInfo>? = null
 

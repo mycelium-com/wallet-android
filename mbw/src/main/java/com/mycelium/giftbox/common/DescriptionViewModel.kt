@@ -3,7 +3,7 @@ package com.mycelium.giftbox.common
 import androidx.lifecycle.MutableLiveData
 
 
-interface DetailsViewModel {
+interface DescriptionViewModel {
     val description: MutableLiveData<String>
-    val expiry: MutableLiveData<String>
+    val more: MutableLiveData<Boolean>
 }
