@@ -180,36 +180,40 @@ class GiftboxBuyViewModel : ViewModel() {
     }
 
     private fun estimateTxSize() = account!!.typicalEstimatedTransactionSize
-    val totalAmountCrypto: LiveData<Value> =
-        Transformations.switchMap(
-            zip2(
+    val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
+    val totalAmountCryptoSingle: LiveData<String> = Transformations.map(totalAmountCrypto(forSingleItem = true)){
+        it.toStringWithUnit()
+    }
+
+    private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
+        zip2(
+            amount,
+            quantity.map { if (forSingleItem) 1 else it.toInt() }) { amount: Value, quantity: Int ->
+            Pair(
                 amount,
-                quantity.map { it.toInt() }) { amount: Value, quantity: Int ->
-                Pair(
-                    amount,
-                    quantity
-                )
-            }) {
-            callbackFlow {
-                GitboxAPI.giftRepository.getPrice(viewModelScope,
-                    code = productResponse.value?.product?.code ?: "",
-                    quantity = quantity.value?.toIntOrNull() ?: 0,
-                    amount = amount.value?.valueAsLong?.toInt() ?: 0,
-                    currencyId = productResponse.value?.product?.currencyCode ?: "",
-                    success = { priceResponse ->
-                        errorMessage.value = ""
-                        offer(getBtcAmount(priceResponse!!))
-                    },
-                    error = { _, error ->
-                        errorMessage.value = error
-                        close()
-                    },
-                    finally = {
-                        close()
-                    })
-                awaitClose { }
-            }.asLiveData()
-        }
+                quantity
+            )
+        }) {
+        callbackFlow {
+            GitboxAPI.giftRepository.getPrice(viewModelScope,
+                code = productResponse.value?.product?.code ?: "",
+                quantity = it.second,
+                amount = it.first.valueAsLong.toInt(),
+                currencyId = productResponse.value?.product?.currencyCode ?: "",
+                success = { priceResponse ->
+                    errorMessage.value = ""
+                    offer(getBtcAmount(priceResponse!!))
+                },
+                error = { _, error ->
+                    errorMessage.value = error
+                    close()
+                },
+                finally = {
+                    close()
+                })
+            awaitClose { }
+        }.asLiveData()
+    }
 
 
     val totalAmountFiatString = Transformations.map(totalAmountCrypto) {
@@ -229,7 +233,7 @@ class GiftboxBuyViewModel : ViewModel() {
     }
 
     val minerFeeFiat: MutableLiveData<String> by lazy { MutableLiveData(getFeeItem().fiatValue.toStringWithUnit()) }
-    val minerFeeCrypto: MutableLiveData<String> by lazy { MutableLiveData("~"+getFeeItem().value.toStringWithUnit()) }
+    val minerFeeCrypto: MutableLiveData<String> by lazy { MutableLiveData("~" + getFeeItem().value.toStringWithUnit()) }
 
     //    val isGrantedPlus = Transformations.map(totalAmountCrypto) {
 //        val cryptoValue = Value.valueOf(Utils.getBtcCoinType()!!,it.priceOffer!!)

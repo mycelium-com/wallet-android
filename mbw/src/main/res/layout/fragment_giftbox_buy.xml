@@ -70,12 +70,30 @@
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@id/btEnterAmount"
                         tools:hint="0.00 USD" />
 
+                    <TextView
+                        android:id="@+id/tvAmountCrypto"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto_mono_medium"
+                        android:hint="~0.00 BTC"
+                        android:singleLine="true"
+                        android:text="@{vm.totalAmountCryptoSingle}"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="5dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvAmount"
+                        tools:hint="0.00 USD" />
                     <View
                         android:id="@+id/divider"
                         android:layout_width="0dp"
