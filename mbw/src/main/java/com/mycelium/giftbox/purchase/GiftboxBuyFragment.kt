@@ -212,10 +212,11 @@ class GiftboxBuyViewModel : ViewModel() {
             )
         }) {
         callbackFlow {
+            val (amount, quantity) = it
             GitboxAPI.giftRepository.getPrice(viewModelScope,
                 code = productResponse.value?.product?.code ?: "",
-                quantity = it.second,
-                amount = it.first.valueAsLong.toInt(),
+                quantity = quantity,
+                amount = amount.valueAsBigDecimal.toInt(),
                 currencyId = productResponse.value?.product?.currencyCode ?: "",
                 success = { priceResponse ->
                     errorMessage.value = ""
