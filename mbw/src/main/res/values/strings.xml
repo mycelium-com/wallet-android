@@ -1665,6 +1665,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="description">Description:</string>
     <string name="available_country">Available country:</string>
     <string name="buy">Buy</string>
+    <string name="redeem_instructions">Redeem instructions</string>
+    <string name="terms_and_conditions">Terms and conditions</string>
+    <string name="less">less</string>
+    <string name="proceed">Proceed</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

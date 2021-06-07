@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true">
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+        android:layout_marginVertical="@dimen/activity_vertical_margin"
+        android:text="1. Click the Redemption URL provided above for gift card information.\n\n2. Search our hotel database in the currency of your gift card and book your hotel @ www.globalhotelcard.com."
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+</FrameLayout>

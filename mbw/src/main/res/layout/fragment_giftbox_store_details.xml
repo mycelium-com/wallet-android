@@ -42,6 +42,7 @@
             </androidx.cardview.widget.CardView>
 
             <include
+                android:id="@+id/layoutProductInfo"
                 layout="@layout/giftcard_send_info"
                 app:viewModel="@{model}" />
 
@@ -62,7 +63,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:text="@{model.amount}"
                 android:textSize="20sp"
-                tools:text="from 1$ to 20$" />
+                tools:text="From 1$ to 20$" />
 
             <Button
                 android:id="@+id/btSend"
@@ -74,7 +75,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="@dimen/horizontal_page_margin"
                 android:layout_marginBottom="60dp"
-                android:text="Proceed"
+                android:text="@string/proceed"
                 android:textSize="20sp" />
         </LinearLayout>
     </ScrollView>

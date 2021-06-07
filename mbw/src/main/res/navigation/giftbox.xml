@@ -33,6 +33,9 @@
         <action
             android:id="@+id/actionNext"
             app:destination="@id/selectAccountFragment2" />
+        <action
+            android:id="@+id/actionRedeem"
+            app:destination="@id/redeemInstructionsFragment" />
     </fragment>
 
     <fragment
@@ -108,4 +111,13 @@
         android:name="com.mycelium.giftbox.purchase.GiftBoxBuyResultFragment"
         android:label="Purchase details"
         tools:layout="@layout/fragment_giftbox_buy_result" />
+    <fragment
+        android:id="@+id/redeemInstructionsFragment"
+        android:name="com.mycelium.giftbox.details.RedeemInstructionsFragment"
+        android:label="Redeem instructions"
+        tools:layout="@layout/fragment_giftbox_redeem">
+        <argument
+            android:name="product"
+            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+    </fragment>
 </navigation>

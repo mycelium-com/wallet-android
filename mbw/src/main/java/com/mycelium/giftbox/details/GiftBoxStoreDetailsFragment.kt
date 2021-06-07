@@ -16,6 +16,7 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.CurrencyInfos
 import com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel
 import com.mycelium.giftbox.loadImage
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 
@@ -44,6 +45,17 @@ class GiftBoxStoreDetailsFragment : Fragment() {
                     CurrencyInfos().apply {
                         addAll(viewModel.currencies!!)
                     }))
+        }
+        val descriptionClick = { _: View ->
+            viewModel.more.value = !(viewModel.more.value ?: false)
+        }
+        binding?.layoutProductInfo?.tvDescription?.setOnClickListener(descriptionClick)
+        binding?.layoutProductInfo?.less?.setOnClickListener(descriptionClick)
+        binding?.layoutProductInfo?.redeem?.setOnClickListener {
+            findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))
+        }
+        binding?.layoutProductInfo?.terms?.setOnClickListener {
+            Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
         }
         loadData()
     }
