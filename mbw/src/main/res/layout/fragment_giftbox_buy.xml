@@ -129,9 +129,9 @@
                         android:ellipsize="end"
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="0"
-                        android:text="@={vm.quantity}"
                         android:inputType="number"
                         android:singleLine="true"
+                        android:text="@={vm.quantity}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="20sp"
@@ -159,10 +159,10 @@
 
                         <ImageButton
                             android:id="@+id/btMinusQuantity"
-                            style="@style/MyceliumSlimButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
+                            android:background="@null"
                             android:clickable="@{vm.isGrantedMinus}"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
@@ -170,17 +170,17 @@
 
                         <ImageButton
                             android:id="@+id/btPlusQuantity"
-                            style="@style/MyceliumSlimButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="8dp"
                             android:layout_marginTop="4dp"
+                            android:background="@null"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/ic_plus" />
                     </LinearLayout>
 
-<!--                    android:clickable="@{vm.isGrantedPlus}"-->
+                    <!--                    android:clickable="@{vm.isGrantedPlus}"-->
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -221,17 +221,16 @@
 
                     <TextView
                         android:id="@+id/tvTotalAmountCrypto"
-                        android:text="@{vm.totalAmountCryptoString}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-
+                        android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="12dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="~ 0.00 BTC"
                         android:singleLine="true"
+                        android:text="@{vm.totalAmountCryptoString}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"
@@ -239,7 +238,7 @@
                         app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-<!--                android:text="@{vm.totalAmountCryptoString}"-->
+                <!--                android:text="@{vm.totalAmountCryptoString}"-->
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/minerFeeRoot"
                     android:layout_width="match_parent"
@@ -267,6 +266,7 @@
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="0.00 USD"
                         android:singleLine="true"
+                        android:text="@{vm.minerFeeFiat}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"
@@ -279,12 +279,14 @@
                         android:id="@+id/tvMinerFeeAmountCrypto"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="12dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="~ 0.00 BTC"
                         android:singleLine="true"
+                        android:text="@{vm.minerFeeCrypto}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"

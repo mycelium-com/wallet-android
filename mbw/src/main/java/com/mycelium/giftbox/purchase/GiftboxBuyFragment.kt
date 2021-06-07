@@ -21,18 +21,16 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
-import com.mycelium.view.Denomination
-import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.*
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
-import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
+import com.mycelium.wallet.activity.send.model.FeeItem
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
@@ -57,6 +55,7 @@ class GiftboxBuyFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.accountId.value = args.accountId
         LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(receiver, IntentFilter(AmountInputFragment.ACTION_AMOUNT_SELECTED))
     }
@@ -83,7 +82,6 @@ class GiftboxBuyFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.btSend.isEnabled = viewModel.amount.value != null
         binding.tvAmount.text = viewModel.amount.value?.toStringWithUnit()
-        viewModel.accountId.value = args.accountId
 
         loader(true)
 
@@ -156,6 +154,32 @@ class GiftboxBuyViewModel : ViewModel() {
     val priceResponse = MutableLiveData<PriceResponse>()
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
 
+    private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
+    val account by lazy {
+        mbwManager.getWalletManager(false).getAccount(accountId.value!!)
+    }
+    private val feeItemsBuilder by lazy {
+        FeeItemsBuilder(
+            mbwManager.exchangeRateManager,
+            mbwManager.getFiatCurrency(account?.coinType)
+        )
+    }
+    private val feeEstimation by lazy {
+        mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
+    }
+
+    private fun getFeeItemList(): List<FeeItem> {
+        return feeItemsBuilder.getFeeItemList(
+            account!!.basedOnCoinType,
+            feeEstimation, MinerFee.NORMAL, estimateTxSize()
+        )
+    }
+
+    private fun getFeeItem(): FeeItem {
+        return getFeeItemList()[0]
+    }
+
+    private fun estimateTxSize() = account!!.typicalEstimatedTransactionSize
     val totalAmountCrypto: LiveData<Value> =
         Transformations.switchMap(
             zip2(
@@ -194,30 +218,32 @@ class GiftboxBuyViewModel : ViewModel() {
     }
 
     val totalAmountCryptoString = Transformations.map(totalAmountCrypto) {
-        return@map it.toStringWithUnit()
+        return@map "~" + it.toStringWithUnit()
     }
 
-    private fun getBtcAmount(priceResponse1: PriceResponse): Value {
+    private fun getBtcAmount(priceResponse: PriceResponse): Value {
         val cryptoUnit =
-            BigDecimal(priceResponse1.priceOffer).movePointRight(Utils.getBtcCoinType().unitExponent)
+            BigDecimal(priceResponse.priceOffer).movePointRight(Utils.getBtcCoinType().unitExponent)
                 .toBigInteger()
         return Value.valueOf(Utils.getBtcCoinType()!!, cryptoUnit)
     }
+
+    val minerFeeFiat: MutableLiveData<String> by lazy { MutableLiveData(getFeeItem().fiatValue.toStringWithUnit()) }
+    val minerFeeCrypto: MutableLiveData<String> by lazy { MutableLiveData("~"+getFeeItem().value.toStringWithUnit()) }
 
     //    val isGrantedPlus = Transformations.map(totalAmountCrypto) {
 //        val cryptoValue = Value.valueOf(Utils.getBtcCoinType()!!,it.priceOffer!!)
 //        return@map cryptoValue.lessOrEqualThan(getAccountBalance().minus())
 //    }
     val isGrantedMinus = Transformations.map(totalAmountCrypto) {
-        return@map it.moreOrEqualThanZero()
+        return@map it.moreOrEqualThanZero() && quantity.value?.toInt() ?: 0 > 0
     }
     val isGranted = Transformations.map(totalAmountCrypto) {
         return@map it.lessOrEqualThan(getAccountBalance())
     }
 
     private fun getAccountBalance(): Value {
-        return MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false)
-            .getAccount(accountId.value!!)?.accountBalance?.confirmed!!
+        return account?.accountBalance?.confirmed!!
     }
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
@@ -225,7 +251,4 @@ class GiftboxBuyViewModel : ViewModel() {
             value,
             assetInfo
         )
-
-
-
 }
