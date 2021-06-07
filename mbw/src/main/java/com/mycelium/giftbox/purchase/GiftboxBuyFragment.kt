@@ -28,7 +28,9 @@ import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
@@ -81,7 +83,6 @@ class GiftboxBuyFragment : Fragment() {
         viewModel.accountId.value = args.accountId
 
         loader(true)
-
 
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
             productId = args.product.code!!, success = { productResponse ->
@@ -150,25 +151,9 @@ class GiftboxBuyViewModel : ViewModel() {
     val quantity = MutableLiveData<String>()
     val productResponse = MutableLiveData<ProductResponse>()
     val priceResponse = MutableLiveData<PriceResponse>()
-
-    //    val feeCrypto = MutableLiveData<String>(
-//        MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false)
-//            .getAccount(accountId.value!!)?.estimateFeeFromTransferrableAmount(MbwManager.getInstance())
-//    )
-    val totalAmountFiat: LiveData<Value> =
-        zip2(amount, quantity.map { it.toInt() }) { amount: Value, quantity: Int ->
-            amount.times(
-                quantity.toLong()
-            )
-        }
-
-    val totalAmountFiatString: LiveData<String> = Transformations.map(priceResponse) {
-        it.priceOffer
-    }
-
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
 
-    val totalAmountFiat1: LiveData<PriceResponse> =
+    val totalAmountFiat: LiveData<PriceResponse> =
         Transformations.switchMap(
             zip2(
                 amount,
@@ -190,7 +175,6 @@ class GiftboxBuyViewModel : ViewModel() {
                     },
                     error = { _, error ->
                         errorMessage.value = error
-                        close(error(error))
                         close()
                     },
                     finally = {
@@ -200,22 +184,6 @@ class GiftboxBuyViewModel : ViewModel() {
             }.asLiveData()
         }
 
-//        zip2(amount, quantity) { amount: Value, quantity: Int ->
-//            flow<PriceResponse> {
-//                GitboxAPI.giftRepository.getPrice(viewModel.viewModelScope,
-//                    code = args.product.code!!,
-//                    quantity = viewModel.quantity.value ?: 0,
-//                    amount = viewModel.amount.value?.valueAsLong?.toInt()?:0,
-//                    currencyId = args.product.currencyCode!!,
-//                    success = { priceResponse ->
-//                        viewModel.priceResponse.value = priceResponse
-//                    },
-//                    error = { _, error -> },
-//                    finally = {
-//                        loader(false)
-//                    })
-//            }
-//        }
 
 //    val totalAmountCryptoString: LiveData<String> = Transformations.map(totalAmountFiat) {
 //        getAsCrypto(it).asString()
@@ -225,10 +193,18 @@ class GiftboxBuyViewModel : ViewModel() {
 //        return@map it.lessOrEqualThan(getAccountBalance().minus(getAsCrypto(amount.value!!)))
 //    }
     val isGrantedMinus = Transformations.map(totalAmountFiat) {
-        return@map it.moreOrEqualThanZero()
+        val valueOf = Value.valueOf(
+            FiatType(productResponse.value?.priceCurrency!!),
+            it.priceOffer?.toLong()!!
+        )
+        return@map valueOf.moreOrEqualThanZero()
     }
     val isGranted = Transformations.map(totalAmountFiat) {
-        return@map it.lessOrEqualThan(getAccountBalance())
+        val valueOf = Value.valueOf(
+            FiatType(productResponse.value?.priceCurrency!!),
+            it.priceOffer?.toLong()!!
+        )
+        return@map valueOf.lessOrEqualThan(getAccountBalance())
     }
 
     private fun getAccountBalance(): Value {
