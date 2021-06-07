@@ -126,7 +126,7 @@ class GiftboxBuyFragment : Fragment() {
             GitboxAPI.giftRepository.createOrder(
                 viewModel.viewModelScope,
                 code = args.product.code!!,
-                amount = viewModel.totalAmountCrypto.value?.valueAsLong?.toInt()!!,
+                amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
                 quantity = viewModel.quantity.value!!,
                 currencyId = args.product.currencyCode!!,
                 success = { orderResponse ->
@@ -233,10 +233,11 @@ class GiftboxBuyViewModel : ViewModel() {
         }.asLiveData()
     }
 
-
-    val totalAmountFiatString = Transformations.map(totalAmountCrypto) {
-        val fiatValue = convert(it, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
-        return@map fiatValue?.toStringWithUnit()
+    val totalAmountFiat  = Transformations.map(totalAmountCrypto) {
+        convert(it, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
+    }
+    val totalAmountFiatString = Transformations.map(totalAmountFiat) {
+        return@map it?.toStringWithUnit()
     }
 
     val totalAmountCryptoString = Transformations.map(totalAmountCrypto) {
