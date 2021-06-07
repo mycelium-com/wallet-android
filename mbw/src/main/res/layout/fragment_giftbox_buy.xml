@@ -12,6 +12,10 @@
         <variable
             name="activity"
             type="com.mycelium.giftbox.purchase.GiftboxBuyFragment" />
+
+        <variable
+            name="vm"
+            type="com.mycelium.giftbox.purchase.GiftboxBuyViewModel" />
     </data>
 
 
@@ -125,6 +129,7 @@
                         android:ellipsize="end"
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="0"
+                        android:text="@={vm.quantity}"
                         android:inputType="number"
                         android:singleLine="true"
                         android:textColor="@color/white"
@@ -158,7 +163,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:clickable="false"
+                            android:clickable="@{vm.isGrantedMinus}"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/ic_minus" />
@@ -170,11 +175,12 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="8dp"
                             android:layout_marginTop="4dp"
-                            android:clickable="false"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/ic_plus" />
                     </LinearLayout>
+
+<!--                    android:clickable="@{vm.isGrantedPlus}"-->
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -196,8 +202,8 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/tvTotalAmount"
-                        android:layout_width="0dp"
+                        android:id="@+id/tvTotalAmountFiat"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="12dp"
@@ -205,17 +211,34 @@
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="0.00 USD"
                         android:singleLine="true"
+                        android:text="@{vm.totalAmountFiat1.priceOffer}"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="20sp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvTotalAmountLabel" />
 
+                    <TextView
+                        android:id="@+id/tvTotalAmountCrypto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="12dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto_mono_medium"
+                        android:hint="~ 0.00 BTC"
+                        android:singleLine="true"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="14sp"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvTotalAmountFiat"
+                        app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
+<!--                android:text="@{vm.totalAmountCryptoString}"-->
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/minerFeeRoot"
                     android:layout_width="match_parent"
@@ -233,44 +256,39 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/tvMinerFeeAmount"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="12dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto_mono_medium"
+                        android:hint="0.00 USD"
+                        android:singleLine="true"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="14sp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvMinerFeeLabel">
-
-                        <TextView
-                            android:id="@+id/tvMinerFeeAmount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="12dp"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/roboto_mono_medium"
-                            android:hint="0.00 USD"
-                            android:singleLine="true"
-                            android:textColor="@color/white"
-                            android:textColorHint="@color/darkgrey"
-                            android:textSize="14sp" />
+                        app:layout_constraintTop_toBottomOf="@id/tvMinerFeeLabel" />
 
 
-                        <TextView
-                            android:id="@+id/tvMinerFeeAmountCrypto"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="12dp"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/roboto_mono_medium"
-                            android:hint="~ 0.00 BTC"
-                            android:singleLine="true"
-                            android:textColor="@color/white"
-                            android:textColorHint="@color/darkgrey"
-                            android:textSize="14sp" />
-
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvMinerFeeAmountCrypto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="12dp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/roboto_mono_medium"
+                        android:hint="~ 0.00 BTC"
+                        android:singleLine="true"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="14sp"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvMinerFeeAmount"
+                        app:layout_constraintLeft_toRightOf="@id/tvMinerFeeAmount" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -286,6 +304,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="@dimen/horizontal_page_margin"
                 android:layout_marginBottom="60dp"
+                android:enabled="@{vm.isGranted}"
                 android:text="@string/buy"
                 android:textSize="20sp" />
         </LinearLayout>

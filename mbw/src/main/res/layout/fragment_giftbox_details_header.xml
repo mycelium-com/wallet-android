@@ -5,13 +5,6 @@
     tools:showIn="@layout/fragment_giftbox_buy"
     android:background="@drawable/rect_background_rounded">
 
-    <!--    <data>-->
-
-    <!--        <variable-->
-    <!--            name="viewModel"-->
-    <!--            type="com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel" />-->
-    <!--    </data>-->
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -88,7 +81,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="4dp"
                 android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvCardValueHeaderTitle"
