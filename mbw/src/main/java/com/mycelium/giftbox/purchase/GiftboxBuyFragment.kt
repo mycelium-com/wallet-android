@@ -126,9 +126,9 @@ class GiftboxBuyFragment : Fragment() {
             GitboxAPI.giftRepository.createOrder(
                 viewModel.viewModelScope,
                 code = args.product.code!!,
-                amount = viewModel.totalAmountCrypto.value?.valueAsLong?.toInt()!!,
+                amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
                 quantity = viewModel.quantity.value!!,
-                currencyId = args.product.currencyCode!!,
+                currencyId = Utils.getBtcCoinType().symbol,//viewModel.totalAmountCrypto.value?.currencySymbol!!,
                 success = { orderResponse ->
                     val type = Utils.getBtcCoinType()
                     val address =
@@ -212,10 +212,11 @@ class GiftboxBuyViewModel : ViewModel() {
             )
         }) {
         callbackFlow {
+            val (amount, quantity) = it
             GitboxAPI.giftRepository.getPrice(viewModelScope,
                 code = productResponse.value?.product?.code ?: "",
-                quantity = it.second,
-                amount = it.first.valueAsLong.toInt(),
+                quantity = quantity,
+                amount = amount.valueAsBigDecimal.toInt(),
                 currencyId = productResponse.value?.product?.currencyCode ?: "",
                 success = { priceResponse ->
                     errorMessage.value = ""
@@ -232,10 +233,11 @@ class GiftboxBuyViewModel : ViewModel() {
         }.asLiveData()
     }
 
-
-    val totalAmountFiatString = Transformations.map(totalAmountCrypto) {
-        val fiatValue = convert(it, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
-        return@map fiatValue?.toStringWithUnit()
+    val totalAmountFiat  = Transformations.map(totalAmountCrypto) {
+        convert(it, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
+    }
+    val totalAmountFiatString = Transformations.map(totalAmountFiat) {
+        return@map it?.toStringWithUnit()
     }
 
     val totalAmountCryptoString = Transformations.map(totalAmountCrypto) {
