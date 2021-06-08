@@ -25,6 +25,7 @@ import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
+import com.mycelium.wallet.Constants.TRANSACTION_ID_INTENT_KEY
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
@@ -168,8 +169,12 @@ class GiftboxBuyFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK){
+            val txHash = data?.getStringExtra(TRANSACTION_ID_INTENT_KEY)
             findNavController().navigate(
                 GiftboxBuyFragmentDirections.toResult(
+                    args.accountId,
+                    txHash!!,
+                    viewModel.productResponse.value!!,
                     viewModel.totalAmountFiat.value!!,
                     viewModel.totalAmountCrypto.value!!,
                     viewModel.minerFeeFiat(),
