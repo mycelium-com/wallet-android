@@ -8,12 +8,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxDetailsBinding
@@ -35,20 +37,32 @@ class GiftBoxDetailsFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View =
-        FragmentGiftboxDetailsBinding.inflate(inflater).apply {
-            binding = this
-            this.viewModel = this@GiftBoxDetailsFragment.viewModel
-            this.lifecycleOwner = this@GiftBoxDetailsFragment
-        }.root
+            FragmentGiftboxDetailsBinding.inflate(inflater).apply {
+                binding = this
+                this.viewModel = this@GiftBoxDetailsFragment.viewModel
+                this.lifecycleOwner = this@GiftBoxDetailsFragment
+            }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.ivImage?.loadImage(args.order.productImg)
         (activity as AppCompatActivity).supportActionBar?.title = args.order.productName
+        val descriptionClick = { _: View ->
+            viewModel.more.value = !(viewModel.more.value ?: false)
+        }
+        binding?.layoutDescription?.tvDescription?.setOnClickListener(descriptionClick)
+        binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
+        binding?.layoutDescription?.redeem?.setOnClickListener {
+            findNavController().navigate(GiftBoxDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))
+        }
+        binding?.layoutDescription?.terms?.setOnClickListener {
+            Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
+        }
+        viewModel.pinCode.value = args.order.items?.first()?.pin
         loadOrder()
         loadProduct()
     }
@@ -65,9 +79,9 @@ class GiftBoxDetailsFragment : Fragment() {
         when (args.mode) {
             MODE.STATUS -> {
                 startCoroutineTimer(
-                    scope = this.lifecycleScope,
-                    delayMillis = 0,
-                    repeatMillis = repeatMillis
+                        scope = this.lifecycleScope,
+                        delayMillis = 0,
+                        repeatMillis = repeatMillis
                 ) {
                     load(true)
                 }
@@ -86,7 +100,8 @@ class GiftBoxDetailsFragment : Fragment() {
                     Status.sUCCESS -> setTitle("Success")
                     Status.eRROR -> setTitle("Error")
                     Status.pROCESSING -> setTitle("Processing")
-                    null -> {}
+                    null -> {
+                    }
                 }
             }
             viewModel.setOrder(it!!)
@@ -102,30 +117,30 @@ class GiftBoxDetailsFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            R.id.share -> {
-                //TODO fill share text
-                startActivity(
-                    Intent.createChooser(
-                        Intent(Intent.ACTION_SEND)
-                            .putExtra(Intent.EXTRA_SUBJECT, "")
-                            .putExtra(Intent.EXTRA_TEXT, "")
-                            .setType("text/plain"), "share gift card"
+            when (item.itemId) {
+                R.id.share -> {
+                    //TODO fill share text
+                    startActivity(
+                            Intent.createChooser(
+                                    Intent(Intent.ACTION_SEND)
+                                            .putExtra(Intent.EXTRA_SUBJECT, "")
+                                            .putExtra(Intent.EXTRA_TEXT, "")
+                                            .setType("text/plain"), "share gift card"
+                            )
                     )
-                )
-                true
+                    true
+                }
+                R.id.delete -> {
+                    AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                            .setTitle("Delete gift card?")
+                            .setMessage("Are you sure you want to delete this gift card?")
+                            .setNegativeButton(R.string.button_cancel) { _, _ -> }
+                            .setPositiveButton(R.string.delete) { _, _ -> }
+                            .create().show()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
             }
-            R.id.delete -> {
-                AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                    .setTitle("Delete gift card?")
-                    .setMessage("Are you sure you want to delete this gift card?")
-                    .setNegativeButton(R.string.button_cancel) { _, _ -> }
-                    .setPositiveButton(R.string.delete) { _, _ -> }
-                    .create().show()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
 
     override fun onDestroyView() {
         binding = null
@@ -137,10 +152,10 @@ class GiftBoxDetailsFragment : Fragment() {
     }
 
     inline fun startCoroutineTimer(
-        scope: CoroutineScope,
-        delayMillis: Long = 0,
-        repeatMillis: Long = 0,
-        crossinline action: () -> Unit
+            scope: CoroutineScope,
+            delayMillis: Long = 0,
+            repeatMillis: Long = 0,
+            crossinline action: () -> Unit
     ) = scope.launch {
         delay(delayMillis)
         if (repeatMillis > 0) {

@@ -12,7 +12,6 @@
             type="com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel" />
     </data>
 
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,6 +39,11 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:minHeight="250dp" />
             </androidx.cardview.widget.CardView>
+
+            <include
+                android:id="@+id/layoutDescription"
+                layout="@layout/layout_giftbox_card_description"
+                app:viewModel="@{model}" />
 
             <include
                 android:id="@+id/layoutProductInfo"

@@ -20,13 +20,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:layout_marginVertical="@dimen/activity_vertical_margin"
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
                 app:cardCornerRadius="14dp">
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -100,20 +100,21 @@
             </androidx.cardview.widget.CardView>
 
             <include
-                layout="@layout/layout_giftbox_card_info"
-                app:model="@{viewModel}" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="32dp" />
+                android:id="@+id/layoutDescription"
+                layout="@layout/layout_giftbox_card_description"
+                app:viewModel="@{viewModel}" />
 
             <include
-                layout="@layout/layout_giftbox_amount"
-                app:model="@{viewModel}" />
+                android:id="@+id/layoutCode"
+                layout="@layout/layout_giftbox_card_code"
+                app:viewModel="@{viewModel}" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="32dp" />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="32dp"
+                android:text="@string/share" />
         </LinearLayout>
     </ScrollView>
 </layout>

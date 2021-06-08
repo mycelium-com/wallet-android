@@ -49,12 +49,12 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         val descriptionClick = { _: View ->
             viewModel.more.value = !(viewModel.more.value ?: false)
         }
-        binding?.layoutProductInfo?.tvDescription?.setOnClickListener(descriptionClick)
-        binding?.layoutProductInfo?.less?.setOnClickListener(descriptionClick)
-        binding?.layoutProductInfo?.redeem?.setOnClickListener {
+        binding?.layoutDescription?.tvDescription?.setOnClickListener(descriptionClick)
+        binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
+        binding?.layoutDescription?.redeem?.setOnClickListener {
             findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))
         }
-        binding?.layoutProductInfo?.terms?.setOnClickListener {
+        binding?.layoutDescription?.terms?.setOnClickListener {
             Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
         }
         loadData()
