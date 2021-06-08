@@ -19,9 +19,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxDetailsBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.mycelium.wallet.startCoroutineTimer
 
 enum class MODE { STATUS, INFO }
 
@@ -151,20 +149,5 @@ class GiftBoxDetailsFragment : Fragment() {
         (activity as AppCompatActivity?)!!.supportActionBar!!.title = title
     }
 
-    inline fun startCoroutineTimer(
-            scope: CoroutineScope,
-            delayMillis: Long = 0,
-            repeatMillis: Long = 0,
-            crossinline action: () -> Unit
-    ) = scope.launch {
-        delay(delayMillis)
-        if (repeatMillis > 0) {
-            while (true) {
-                action()
-                delay(repeatMillis)
-            }
-        } else {
-            action()
-        }
-    }
+
 }

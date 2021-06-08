@@ -52,7 +52,7 @@
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
         <action
-            android:id="@+id/actionNext"
+            android:id="@+id/toResult"
             app:destination="@id/giftBoxBuyResultFragment" />
 
         <action
@@ -113,7 +113,23 @@
         android:id="@+id/giftBoxBuyResultFragment"
         android:name="com.mycelium.giftbox.purchase.GiftBoxBuyResultFragment"
         android:label="Purchase details"
-        tools:layout="@layout/fragment_giftbox_buy_result" />
+        tools:layout="@layout/fragment_giftbox_buy_result">
+        <argument
+            android:name="totalFiat"
+            app:argType="com.mycelium.wapi.wallet.coins.Value" />
+        <argument
+            android:name="totalCrypto"
+            app:argType="com.mycelium.wapi.wallet.coins.Value" />
+        <argument
+            android:name="minerFeeFiat"
+            app:argType="com.mycelium.wapi.wallet.coins.Value" />
+        <argument
+            android:name="minerFeeCrypto"
+            app:argType="com.mycelium.wapi.wallet.coins.Value" />
+        <argument
+            android:name="orderResponse"
+            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
+    </fragment>
     <fragment
         android:id="@+id/redeemInstructionsFragment"
         android:name="com.mycelium.giftbox.details.RedeemInstructionsFragment"
