@@ -128,8 +128,10 @@ class GiftboxBuyFragment : Fragment() {
                 code = args.product.code!!,
                 amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
                 quantity = viewModel.quantity.value!!,
-                currencyId = Utils.getBtcCoinType().symbol,//viewModel.totalAmountCrypto.value?.currencySymbol!!,
+                //TODO Do we need to hardcode this
+                currencyId = "btc",//Utils.getBtcCoinType().symbol
                 success = { orderResponse ->
+                    //TODO tBTC for debug for send test, do we need BTC instead?
                     val type = Utils.getBtcCoinType()
                     val address =
                         BtcAddress(type, BitcoinAddress.fromString(orderResponse?.payinAddress))
@@ -140,6 +142,16 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.totalAmountCrypto.value?.valueAsLong!!,
                             address,
                             false
+                        )
+                    )
+
+                    findNavController().navigate(
+                        GiftboxBuyFragmentDirections.toResult(
+                            viewModel.totalAmountFiat.value!!,
+                            viewModel.totalAmountCrypto.value!!,
+                            viewModel.minerFeeFiat(),
+                            viewModel.minerFeeCrypto(),
+                            orderResponse!!
                         )
                     )
 
@@ -233,7 +245,7 @@ class GiftboxBuyViewModel : ViewModel() {
         }.asLiveData()
     }
 
-    val totalAmountFiat  = Transformations.map(totalAmountCrypto) {
+    val totalAmountFiat = Transformations.map(totalAmountCrypto) {
         convert(it, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
     }
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {
@@ -251,8 +263,10 @@ class GiftboxBuyViewModel : ViewModel() {
         return Value.valueOf(Utils.getBtcCoinType()!!, cryptoUnit)
     }
 
-    val minerFeeFiat: MutableLiveData<String> by lazy { MutableLiveData(getFeeItem().fiatValue.toStringWithUnit()) }
-    val minerFeeCrypto: MutableLiveData<String> by lazy { MutableLiveData("~" + getFeeItem().value.toStringWithUnit()) }
+    val minerFeeFiat: MutableLiveData<String> by lazy { MutableLiveData(minerFeeFiat().toStringWithUnit()) }
+    fun minerFeeFiat() = getFeeItem().fiatValue
+    val minerFeeCrypto: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
+    fun minerFeeCrypto() = getFeeItem().value
 
     val isGrantedPlus =
         Transformations.map(
