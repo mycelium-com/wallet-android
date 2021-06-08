@@ -256,6 +256,14 @@
                         app:layout_constraintBaseline_toBaselineOf="@id/tvTotalAmountFiat"
                         app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
 
+                    <ProgressBar
+                        android:id="@+id/totalProgress"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:visibility="@{vm.totalProgress ? View.VISIBLE : View.GONE}"
+                        android:layout_marginStart="16dp"
+                        app:layout_constraintLeft_toRightOf="@id/tvTotalAmountCrypto"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
                 <!--                android:text="@{vm.totalAmountCryptoString}"-->
                 <androidx.constraintlayout.widget.ConstraintLayout
