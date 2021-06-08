@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.purchase
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -19,6 +20,7 @@ import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
@@ -30,10 +32,12 @@ import com.mycelium.wallet.activity.send.model.FeeItem
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
+import com.mycelium.wallet.event.TransactionBroadcasted
 import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
@@ -131,28 +135,19 @@ class GiftboxBuyFragment : Fragment() {
                 //TODO Do we need to hardcode this
                 currencyId = "btc",//Utils.getBtcCoinType().symbol
                 success = { orderResponse ->
+                    viewModel.orderResponse.value = orderResponse
                     //TODO tBTC for debug for send test, do we need BTC instead?
                     val type = Utils.getBtcCoinType()
                     val address =
                         BtcAddress(type, BitcoinAddress.fromString(orderResponse?.payinAddress))
-                    startActivity(
+                    startActivityForResult(
                         SendCoinsActivity.getIntent(
                             requireActivity(),
                             viewModel.accountId.value!!,
                             viewModel.totalAmountCrypto.value?.valueAsLong!!,
                             address,
                             false
-                        )
-                    )
-
-                    findNavController().navigate(
-                        GiftboxBuyFragmentDirections.toResult(
-                            viewModel.totalAmountFiat.value!!,
-                            viewModel.totalAmountCrypto.value!!,
-                            viewModel.minerFeeFiat(),
-                            viewModel.minerFeeCrypto(),
-                            orderResponse!!
-                        )
+                        ),101
                     )
 
                 }, error = { _, error ->
@@ -168,11 +163,28 @@ class GiftboxBuyFragment : Fragment() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK){
+            findNavController().navigate(
+                GiftboxBuyFragmentDirections.toResult(
+                    viewModel.totalAmountFiat.value!!,
+                    viewModel.totalAmountCrypto.value!!,
+                    viewModel.minerFeeFiat(),
+                    viewModel.minerFeeCrypto(),
+                    viewModel.orderResponse.value!!
+                )
+            )
+        }
+    }
 }
 
 class GiftboxBuyViewModel : ViewModel() {
     val accountId = MutableLiveData<UUID>()
     val amount = MutableLiveData<Value>()
+    val orderResponse = MutableLiveData<OrderResponse>()
     val quantity = MutableLiveData(1)
     val productResponse = MutableLiveData<ProductResponse>()
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
