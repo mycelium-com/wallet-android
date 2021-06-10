@@ -36,6 +36,7 @@
             android:maxLines="@{viewModel.more ? 100 : 5}"
             android:text="@{viewModel.description}"
             android:textColor="@color/white"
+            android:textIsSelectable="true"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

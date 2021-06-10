@@ -76,6 +76,7 @@
         android:layout_marginEnd="8dp"
         android:textColor="@color/fio_white_alpha_0_9"
         android:textSize="12sp"
+        android:drawablePadding="4dp"
         app:layout_constraintBaseline_toBaselineOf="@id/additionalLabel"
         app:layout_constraintLeft_toRightOf="@id/additionalLabel"
         app:layout_constraintRight_toLeftOf="@id/discount"

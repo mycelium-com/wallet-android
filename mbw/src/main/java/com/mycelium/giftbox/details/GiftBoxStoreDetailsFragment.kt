@@ -49,7 +49,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         val descriptionClick = { _: View ->
             viewModel.more.value = !(viewModel.more.value ?: false)
         }
-        binding?.layoutDescription?.tvDescription?.setOnClickListener(descriptionClick)
+        binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
             findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))

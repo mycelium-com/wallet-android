@@ -52,13 +52,16 @@ class GiftBoxDetailsFragment : Fragment() {
         val descriptionClick = { _: View ->
             viewModel.more.value = !(viewModel.more.value ?: false)
         }
-        binding?.layoutDescription?.tvDescription?.setOnClickListener(descriptionClick)
+        binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
             findNavController().navigate(GiftBoxDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))
         }
         binding?.layoutDescription?.terms?.setOnClickListener {
             Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
+        }
+        binding?.share?.setOnClickListener {
+            share()
         }
         viewModel.pinCode.value = args.order.items?.first()?.pin
         loadOrder()
@@ -118,14 +121,7 @@ class GiftBoxDetailsFragment : Fragment() {
             when (item.itemId) {
                 R.id.share -> {
                     //TODO fill share text
-                    startActivity(
-                            Intent.createChooser(
-                                    Intent(Intent.ACTION_SEND)
-                                            .putExtra(Intent.EXTRA_SUBJECT, "")
-                                            .putExtra(Intent.EXTRA_TEXT, "")
-                                            .setType("text/plain"), "share gift card"
-                            )
-                    )
+                    share()
                     true
                 }
                 R.id.delete -> {
@@ -139,6 +135,17 @@ class GiftBoxDetailsFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    private fun share() {
+        startActivity(
+                Intent.createChooser(
+                        Intent(Intent.ACTION_SEND)
+                                .putExtra(Intent.EXTRA_SUBJECT, "")
+                                .putExtra(Intent.EXTRA_TEXT, "")
+                                .setType("text/plain"), "share gift card"
+                )
+        )
+    }
 
     override fun onDestroyView() {
         binding = null

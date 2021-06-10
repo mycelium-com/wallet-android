@@ -30,14 +30,17 @@ class PurchasedAdapter : ListAdapter<Order, RecyclerView.ViewHolder>(DiffCallbac
         holder.itemView.additional.text = when (item.status) {
             Status.pROCESSING -> {
                 holder.itemView.additionalLabel.visibility = View.GONE
+                holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
                 "Processing"
             }
             Status.eRROR -> {
                 holder.itemView.additionalLabel.visibility = View.GONE
+                holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
                 "Failed"
             }
             else -> {
                 holder.itemView.additionalLabel.visibility = View.VISIBLE
+                holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
                 item.timestamp?.getDateString(holder.itemView.resources)
             }
         }
