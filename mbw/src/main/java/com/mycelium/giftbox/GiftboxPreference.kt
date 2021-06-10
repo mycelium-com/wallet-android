@@ -17,4 +17,11 @@ object GiftboxPreference {
 
     fun isRedeemed(order: Order) =
             preference.getStringSet("redeemed_set", setOf())!!.contains(order.clientOrderId)
+
+    fun setGroupOpen(group: String, flag: Boolean) {
+        preference.edit().putBoolean(group, flag).apply()
+    }
+
+    fun isGroupOpen(group: String): Boolean =
+            preference.getBoolean(group, true)
 }

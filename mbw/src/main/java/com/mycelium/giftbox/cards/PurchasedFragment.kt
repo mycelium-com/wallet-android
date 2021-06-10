@@ -63,6 +63,10 @@ class PurchasedFragment : Fragment() {
         adapter.itemDeleteListener = {
 
         }
+        adapter.groupListener = {
+            GiftboxPreference.setGroupOpen(it, !GiftboxPreference.isGroupOpen(it))
+            adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
+        }
     }
 
     private fun loadData(offset: Long = 0) {
@@ -85,8 +89,11 @@ class PurchasedFragment : Fragment() {
             PurchasedOrderItem(it, true)
         }
         if (redeemed.isNotEmpty()) {
-            add(PurchasedGroupItem("REDEEMED GIFT CARDS"))
-            addAll(redeemed)
+            val isOpened = GiftboxPreference.isGroupOpen(REDEEM_GROUP)
+            add(PurchasedGroupItem(REDEEM_GROUP, isOpened))
+            if (isOpened) {
+                addAll(redeemed)
+            }
         }
     }
 
@@ -120,5 +127,9 @@ class PurchasedFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+
+    companion object {
+        const val REDEEM_GROUP = "REDEEMED GIFT CARDS"
     }
 }

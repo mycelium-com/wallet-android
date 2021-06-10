@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.item_giftbox_purchaced_group.view.*
 
 abstract class PurchasedItem(val type: Int)
 data class PurchasedOrderItem(val order: Order, val redeemed: Boolean = false) : PurchasedItem(PurchasedAdapter.TYPE_CARD)
-data class PurchasedGroupItem(val title: String, val isOpen = true) : PurchasedItem(PurchasedAdapter.TYPE_GROUP)
+data class PurchasedGroupItem(val title: String, val isOpened: Boolean = true) : PurchasedItem(PurchasedAdapter.TYPE_GROUP)
 object PurchasedLoadingItem : PurchasedItem(PurchasedAdapter.TYPE_LOADING)
 
 class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -27,6 +27,7 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
     var itemShareListener: ((Order) -> Unit)? = null
     var itemRedeemListener: ((Order) -> Unit)? = null
     var itemDeleteListener: ((Order) -> Unit)? = null
+    var groupListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -61,36 +62,46 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                         item.timestamp?.getDateString(holder.itemView.resources)
                     }
                 }
-                holder.itemView.more.setOnClickListener { view ->
-                    PopupMenu(view.context, view).run {
-                        menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
-                        setOnMenuItemClickListener { menuItem ->
-                            when (menuItem.itemId) {
-                                R.id.share -> {
-                                    itemShareListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                }
-                                R.id.delete -> {
-                                    itemDeleteListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                }
-                                R.id.redeem -> {
-                                    itemRedeemListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                }
-                            }
-                            true
-                        }
-                        show()
-                    }
-                }
                 holder.itemView.isEnabled = !purchasedItem.redeemed
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
                         .into(holder.itemView.image)
-                holder.itemView.setOnClickListener {
-                    itemClickListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                if (!purchasedItem.redeemed) {
+                    holder.itemView.setOnClickListener {
+                        itemClickListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                    }
+                    holder.itemView.more.setOnClickListener { view ->
+                        PopupMenu(view.context, view).run {
+                            menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
+                            setOnMenuItemClickListener { menuItem ->
+                                when (menuItem.itemId) {
+                                    R.id.share -> {
+                                        itemShareListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                                    }
+                                    R.id.delete -> {
+                                        itemDeleteListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                                    }
+                                    R.id.redeem -> {
+                                        itemRedeemListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                                    }
+                                }
+                                true
+                            }
+                            show()
+                        }
+                    }
+                } else {
+                    holder.itemView.setOnClickListener(null)
+                    holder.itemView.more.setOnClickListener(null)
                 }
             }
             TYPE_GROUP -> {
-                holder.itemView.groupTitle.text = (getItem(position) as PurchasedGroupItem).title
+                val item = getItem(position) as PurchasedGroupItem
+                holder.itemView.groupTitle.text = item.title
+                holder.itemView.expand.rotation = if (item.isOpened) 180f else 0f
+                holder.itemView.setOnClickListener {
+                    groupListener?.invoke((getItem(holder.adapterPosition) as PurchasedGroupItem).title)
+                }
             }
         }
     }
@@ -103,7 +114,15 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
 
     class DiffCallback : DiffUtil.ItemCallback<PurchasedItem>() {
         override fun areItemsTheSame(oldItem: PurchasedItem, newItem: PurchasedItem): Boolean =
-                oldItem.type == newItem.type && oldItem == newItem
+                oldItem.type == newItem.type &&
+                        when (oldItem.type) {
+                            TYPE_CARD ->
+                                equalsValuesBy(oldItem as PurchasedOrderItem, newItem as PurchasedOrderItem,
+                                        { it.order.clientOrderId })
+                            TYPE_GROUP -> equalsValuesBy(oldItem as PurchasedGroupItem, newItem as PurchasedGroupItem,
+                                    { it.title })
+                            else -> true
+                        }
 
 
         override fun areContentsTheSame(oldItem: PurchasedItem, newItem: PurchasedItem): Boolean =
@@ -113,7 +132,7 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                                 { it.order.productImg }, { it.order.productName },
                                 { it.order.amount }, { it.order.timestamp })
                     TYPE_GROUP -> equalsValuesBy(oldItem as PurchasedGroupItem, newItem as PurchasedGroupItem,
-                            { it.title })
+                            { it.title }, { it.isOpened })
                     else -> true
                 }
     }
