@@ -8,9 +8,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
+import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.giftbox.cards.adapter.PurchasedAdapter
+import com.mycelium.giftbox.cards.adapter.PurchasedGroupItem
+import com.mycelium.giftbox.cards.adapter.PurchasedLoadingItem
+import com.mycelium.giftbox.cards.adapter.PurchasedOrderItem
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.details.MODE
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -51,29 +56,45 @@ class PurchasedFragment : Fragment() {
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it, MODE.INFO))
         }
+        adapter.itemShareListener = {
 
+        }
+        adapter.itemRedeemListener = {
+            GiftboxPreference.redeem(it)
+            adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
+        }
+        adapter.itemDeleteListener = {
+
+        }
     }
 
     private fun loadData(offset: Long = 0) {
         if (offset == 0L) {
-            adapter.submitList(MutableList(8) { PurchasedAdapter.LOADING_ITEM })
+            adapter.submitList(List(8) { PurchasedLoadingItem })
         } else if (offset >= viewModel.ordersSize) {
             return
         }
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, 30, {
             viewModel.setOrdersResponse(it, offset != 0L)
-            adapter.submitList(viewModel.orders.value)
+            adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
         }, error = { _, msg ->
             Toaster(this).toast(msg, true)
         })
     }
+
+    private fun generateList(data: List<Order>) =
+            data.filter { !GiftboxPreference.isRedeemed(it) }.map { PurchasedOrderItem(it) } +
+                    PurchasedGroupItem("REDEEMED GIFT CARDS") +
+                    data.filter { GiftboxPreference.isRedeemed(it) }.map {
+                        PurchasedOrderItem(it, true)
+                    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.giftbox_store, menu)
         val searchItem = menu.findItem(R.id.actionSearch)
         val searchView = searchItem.actionView as SearchView
         searchView.setOnCloseListener {
-            adapter.submitList(viewModel.orders.value)
+            adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
             false
         }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -88,9 +109,9 @@ class PurchasedFragment : Fragment() {
             }
 
             private fun findSearchResult(s: String) {
-                adapter.submitList(viewModel.orders.value?.filter {
+                adapter.submitList(generateList(viewModel.orders.value?.filter {
                     it.productName?.contains(s, true) ?: false
-                })
+                } ?: emptyList()))
             }
         })
     }

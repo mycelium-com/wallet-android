@@ -30,7 +30,7 @@
 
         <TextView
             android:id="@+id/tvDescription"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="@{viewModel.more ? 100 : 5}"
@@ -38,8 +38,7 @@
             android:textColor="@color/white"
             android:textIsSelectable="true"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:singleLine="false"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
             tools:maxLines="5"
             tools:text="@tools:sample/lorem/random" />

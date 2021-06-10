@@ -10,8 +10,8 @@
         android:layout_width="80dp"
         android:layout_height="60dp"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,7 +25,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintRight_toLeftOf="@id/discount"
+        app:layout_constraintRight_toLeftOf="@id/more"
         app:layout_constraintTop_toTopOf="@id/image"
         tools:text="Amazon UK" />
 
@@ -53,7 +53,7 @@
         android:textSize="12sp"
         app:layout_constraintBaseline_toBaselineOf="@id/descriptionLabel"
         app:layout_constraintLeft_toRightOf="@id/descriptionLabel"
-        app:layout_constraintRight_toLeftOf="@id/discount"
+        app:layout_constraintRight_toLeftOf="@id/more"
         tools:text="100 USD" />
 
     <TextView
@@ -74,24 +74,24 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
         android:layout_marginEnd="8dp"
+        android:drawablePadding="4dp"
         android:textColor="@color/fio_white_alpha_0_9"
         android:textSize="12sp"
-        android:drawablePadding="4dp"
         app:layout_constraintBaseline_toBaselineOf="@id/additionalLabel"
         app:layout_constraintLeft_toRightOf="@id/additionalLabel"
-        app:layout_constraintRight_toLeftOf="@id/discount"
+        app:layout_constraintRight_toLeftOf="@id/more"
         app:layout_goneMarginLeft="8dp"
         tools:text="September 18" />
 
     <ImageView
-        android:id="@+id/discount"
+        android:id="@+id/more"
         android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_height="0dp"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:rotation="90"
-        app:layout_constraintBottom_toBottomOf="@id/title"
+        android:scaleType="fitStart"
+        app:layout_constraintBottom_toBottomOf="@id/additional"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@id/title"
-        app:srcCompat="@drawable/ic_more_vert" />
+        app:srcCompat="@drawable/ic_more_horiz" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
