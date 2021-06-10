@@ -115,6 +115,15 @@
         android:label="Purchase details"
         tools:layout="@layout/fragment_giftbox_buy_result">
         <argument
+            android:name="accountId"
+            app:argType="java.util.UUID" />
+        <argument
+            android:name="txHash"
+            app:argType="string" />
+        <argument
+            android:name="productResponse"
+            app:argType="com.mycelium.giftbox.client.models.ProductResponse" />
+        <argument
             android:name="totalFiat"
             app:argType="com.mycelium.wapi.wallet.coins.Value" />
         <argument

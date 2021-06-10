@@ -148,6 +148,7 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <include layout="@layout/details_common" />
             </LinearLayout>
 
             <Button

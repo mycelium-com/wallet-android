@@ -25,6 +25,7 @@ import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
+import com.mycelium.wallet.Constants.TRANSACTION_ID_INTENT_KEY
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
@@ -32,12 +33,8 @@ import com.mycelium.wallet.activity.send.model.FeeItem
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
-import com.mycelium.wallet.event.TransactionBroadcasted
-import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
-import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
@@ -147,7 +144,7 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.totalAmountCrypto.value?.valueAsLong!!,
                             address,
                             false
-                        ),101
+                        ), 101
                     )
 
                 }, error = { _, error ->
@@ -167,9 +164,13 @@ class GiftboxBuyFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode == Activity.RESULT_OK){
+        if (resultCode == Activity.RESULT_OK) {
+            val txHash = data?.getStringExtra(TRANSACTION_ID_INTENT_KEY)
             findNavController().navigate(
                 GiftboxBuyFragmentDirections.toResult(
+                    args.accountId,
+                    txHash!!,
+                    viewModel.productResponse.value!!,
                     viewModel.totalAmountFiat.value!!,
                     viewModel.totalAmountCrypto.value!!,
                     viewModel.minerFeeFiat(),
@@ -188,7 +189,7 @@ class GiftboxBuyViewModel : ViewModel() {
     val quantity = MutableLiveData(1)
     val productResponse = MutableLiveData<ProductResponse>()
     val errorMessage: MutableLiveData<String> = MutableLiveData("")
-
+    val totalProgress = MutableLiveData<Boolean>(false)
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
@@ -237,6 +238,10 @@ class GiftboxBuyViewModel : ViewModel() {
         }) {
         callbackFlow {
             val (amount, quantity) = it
+            if (!forSingleItem) {
+                totalAmountFiat.value = amount.times(quantity.toLong())
+            }
+            totalProgress.value = true
             GitboxAPI.giftRepository.getPrice(viewModelScope,
                 code = productResponse.value?.product?.code ?: "",
                 quantity = quantity,
@@ -252,14 +257,13 @@ class GiftboxBuyViewModel : ViewModel() {
                 },
                 finally = {
                     close()
+                    totalProgress.value = false
                 })
             awaitClose { }
         }.asLiveData()
     }
 
-    val totalAmountFiat = Transformations.map(totalAmountCrypto) {
-        convert(it, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
-    }
+    val totalAmountFiat = MutableLiveData<Value>()
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {
         return@map it?.toStringWithUnit()
     }
@@ -289,7 +293,7 @@ class GiftboxBuyViewModel : ViewModel() {
                 Pair(total, single)
             }) {
             val (total, single) = it
-            total.minus(single).moreOrEqualThanZero()
+            total.plus(single).lessOrEqualThan(getAccountBalance())
         }
 
     val isGrantedMinus = Transformations.map(quantity) {
@@ -302,10 +306,4 @@ class GiftboxBuyViewModel : ViewModel() {
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.confirmed!!
     }
-
-    private fun convert(value: Value, assetInfo: AssetInfo): Value? =
-        MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
-            value,
-            assetInfo
-        )
 }
