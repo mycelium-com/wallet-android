@@ -9,10 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import com.mycelium.giftbox.GiftboxPreference
-import com.mycelium.giftbox.cards.adapter.PurchasedAdapter
-import com.mycelium.giftbox.cards.adapter.PurchasedGroupItem
-import com.mycelium.giftbox.cards.adapter.PurchasedLoadingItem
-import com.mycelium.giftbox.cards.adapter.PurchasedOrderItem
+import com.mycelium.giftbox.cards.adapter.*
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Order
@@ -82,12 +79,16 @@ class PurchasedFragment : Fragment() {
         })
     }
 
-    private fun generateList(data: List<Order>) =
-            data.filter { !GiftboxPreference.isRedeemed(it) }.map { PurchasedOrderItem(it) } +
-                    PurchasedGroupItem("REDEEMED GIFT CARDS") +
-                    data.filter { GiftboxPreference.isRedeemed(it) }.map {
-                        PurchasedOrderItem(it, true)
-                    }
+    private fun generateList(data: List<Order>) = mutableListOf<PurchasedItem>().apply {
+        addAll(data.filter { !GiftboxPreference.isRedeemed(it) }.map { PurchasedOrderItem(it) })
+        val redeemed = data.filter { GiftboxPreference.isRedeemed(it) }.map {
+            PurchasedOrderItem(it, true)
+        }
+        if (redeemed.isNotEmpty()) {
+            add(PurchasedGroupItem("REDEEMED GIFT CARDS"))
+            addAll(redeemed)
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.giftbox_store, menu)

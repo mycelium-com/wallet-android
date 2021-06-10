@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.item_giftbox_purchaced_group.view.*
 
 abstract class PurchasedItem(val type: Int)
 data class PurchasedOrderItem(val order: Order, val redeemed: Boolean = false) : PurchasedItem(PurchasedAdapter.TYPE_CARD)
-data class PurchasedGroupItem(val title: String) : PurchasedItem(PurchasedAdapter.TYPE_GROUP)
+data class PurchasedGroupItem(val title: String, val isOpen = true) : PurchasedItem(PurchasedAdapter.TYPE_GROUP)
 object PurchasedLoadingItem : PurchasedItem(PurchasedAdapter.TYPE_LOADING)
 
 class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCallback()) {
