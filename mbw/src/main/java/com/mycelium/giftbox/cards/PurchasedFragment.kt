@@ -2,6 +2,7 @@ package com.mycelium.giftbox.cards
 
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -61,7 +62,15 @@ class PurchasedFragment : Fragment() {
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
         }
         adapter.itemDeleteListener = {
-
+            AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                    .setTitle("Delete gift card?")
+                    .setMessage("Are you sure you want to delete this gift card?")
+                    .setNegativeButton(R.string.button_cancel) { _, _ -> }
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        GiftboxPreference.remove(it)
+                        adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
+                    }
+                    .create().show()
         }
         adapter.groupListener = {
             GiftboxPreference.setGroupOpen(it, !GiftboxPreference.isGroupOpen(it))
@@ -83,7 +92,8 @@ class PurchasedFragment : Fragment() {
         })
     }
 
-    private fun generateList(data: List<Order>) = mutableListOf<PurchasedItem>().apply {
+    private fun generateList(dataAll: List<Order>) = mutableListOf<PurchasedItem>().apply {
+        val data = dataAll.filter { !GiftboxPreference.isRemoved(it) }
         addAll(data.filter { !GiftboxPreference.isRedeemed(it) }.map { PurchasedOrderItem(it) })
         val redeemed = data.filter { GiftboxPreference.isRedeemed(it) }.map {
             PurchasedOrderItem(it, true)

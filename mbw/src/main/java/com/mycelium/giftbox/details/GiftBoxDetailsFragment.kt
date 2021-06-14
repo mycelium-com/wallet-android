@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
@@ -129,7 +130,10 @@ class GiftBoxDetailsFragment : Fragment() {
                             .setTitle("Delete gift card?")
                             .setMessage("Are you sure you want to delete this gift card?")
                             .setNegativeButton(R.string.button_cancel) { _, _ -> }
-                            .setPositiveButton(R.string.delete) { _, _ -> }
+                            .setPositiveButton(R.string.delete) { _, _ ->
+                                GiftboxPreference.remove(args.order)
+                                findNavController().popBackStack()
+                            }
                             .create().show()
                     true
                 }
