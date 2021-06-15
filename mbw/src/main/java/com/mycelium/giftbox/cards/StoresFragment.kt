@@ -102,7 +102,7 @@ class StoresFragment : Fragment() {
 
     private fun loadData(offset: Long = 0) {
         if (offset == 0L) {
-            adapter.submitList(MutableList(8) { StoresAdapter.LOADING_ITEM })
+            adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
         } else if (offset >= viewModel.productsSize) {
             return
         }

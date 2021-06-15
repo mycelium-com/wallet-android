@@ -99,8 +99,9 @@ class PurchasedFragment : Fragment() {
             PurchasedOrderItem(it, true)
         }
         if (redeemed.isNotEmpty()) {
-            val isOpened = GiftboxPreference.isGroupOpen(REDEEM_GROUP)
-            add(PurchasedGroupItem(REDEEM_GROUP, isOpened))
+            val redeemedGroup = getString(R.string.redeemed_gift_cards)
+            val isOpened = GiftboxPreference.isGroupOpen(redeemedGroup)
+            add(PurchasedGroupItem(redeemedGroup, isOpened))
             if (isOpened) {
                 addAll(redeemed)
             }
@@ -137,9 +138,5 @@ class PurchasedFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
-    }
-
-    companion object {
-        const val REDEEM_GROUP = "REDEEMED GIFT CARDS"
     }
 }
