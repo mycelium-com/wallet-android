@@ -63,8 +63,8 @@ class PurchasedFragment : Fragment() {
         }
         adapter.itemDeleteListener = {
             AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                    .setTitle("Delete gift card?")
-                    .setMessage("Are you sure you want to delete this gift card?")
+                    .setTitle(getString(R.string.delete_gift_card))
+                    .setMessage(getString(R.string.delete_gift_card_msg))
                     .setNegativeButton(R.string.button_cancel) { _, _ -> }
                     .setPositiveButton(R.string.delete) { _, _ ->
                         GiftboxPreference.remove(it)

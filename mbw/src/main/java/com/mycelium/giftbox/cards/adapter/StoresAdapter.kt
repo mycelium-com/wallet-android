@@ -34,7 +34,7 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
                     .into(holder.itemView.image)
 
             holder.itemView.title.text = item.name
-            holder.itemView.description.text = item.categories?.joinToString()
+            holder.itemView.description.text = item.categories?.joinToString { it.replace("-", " ") }
             holder.itemView.additional.text = if (item.denominationType == ProductInfo.DenominationType.open) {
                 "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
                         if (item.maximumValue != BigDecimal.ZERO) {
