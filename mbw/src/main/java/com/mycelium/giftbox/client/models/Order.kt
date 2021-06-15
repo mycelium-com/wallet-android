@@ -36,6 +36,9 @@ data class Order(
     /* Value of product in product currency */
     @JsonProperty("amount")
     var amount: String? = null,
+    /* Product currency code */
+    @JsonProperty("currency_code")
+    var currencyCode: String? = null,
     /* Unique client order id */
     @JsonProperty("client_order_id")
     var clientOrderId: String? = null,

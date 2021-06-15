@@ -44,7 +44,7 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                 val purchasedItem = getItem(position) as PurchasedOrderItem
                 val item = purchasedItem.order
                 holder.itemView.title.text = item.productName
-                holder.itemView.description.text = item.amount
+                holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
                 holder.itemView.additional.text = when (item.status) {
                     Status.pROCESSING -> {
                         holder.itemView.additionalLabel.visibility = View.GONE
