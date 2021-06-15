@@ -19,21 +19,21 @@ import kotlinx.android.synthetic.main.layout_loading.*
 class LoaderFragment(val message: String? = null) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
-            window?.requestFeature(Window.FEATURE_NO_TITLE);
+            window?.requestFeature(Window.FEATURE_NO_TITLE)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.layout_loading, container, false).apply {
                 message?.apply {
-                    loaderText.text = this
+                    loaderText?.text = this
                 }
             }
 
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT));
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 }
 
