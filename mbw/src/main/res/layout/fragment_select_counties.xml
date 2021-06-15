@@ -26,6 +26,7 @@
             android:paddingEnd="12dp"
             android:paddingBottom="8dp"
             android:singleLine="true"
+            android:background="@null"
             app:drawableStartCompat="@drawable/ic_search"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -38,6 +39,14 @@
             app:layout_constraintRight_toRightOf="@id/search"
             app:layout_constraintTop_toTopOf="@id/search"
             app:srcCompat="@drawable/ic_bequant_clear" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/search"
+            app:layout_constraintEnd_toEndOf="@id/search"
+            android:background="@drawable/divider_horizontal"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

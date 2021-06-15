@@ -15,7 +15,7 @@ import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentSelectCountiesBinding
 
 
-class SelectCountiesFragment : Fragment(R.layout.fragment_select_counties) {
+class SelectCountiesFragment : Fragment() {
 
     val activityViewModel: GiftBoxViewModel by activityViewModels()
     val adapter = SelectCountiesAdapter()
