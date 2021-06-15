@@ -1,12 +1,12 @@
 package com.mycelium.wapi.wallet.fio.coins
 
+import com.mycelium.wapi.content.fio.isFioPublicKey
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.fio.FioAddress
 import com.mycelium.wapi.wallet.fio.FioAddressData
 import com.mycelium.wapi.wallet.fio.FioAddressSubtype
 import fiofoundation.io.fiosdk.isFioAddress
-import fiofoundation.io.fiosdk.isFioPublicKey
 
 fun String.isFioActor(): Boolean =
         isNotEmpty()
