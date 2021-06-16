@@ -112,7 +112,10 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         if (value.isEmpty()) {
             _amount = valueOf(_amount.type, BigInteger.ZERO)
         } else {
-            _amount = valueOf(_amount.type, value)
+            _amount = valueOf(
+                _amount.type,
+                _mbwManager.getDenomination(_amount.type).getAmount(BigDecimal(value).toBigInteger())
+            )
         }
     }
 
