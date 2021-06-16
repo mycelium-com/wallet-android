@@ -385,31 +385,22 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             val txid = HexUtils.toHex(signedTransaction.id)
 
-            if (fioRequestViewModel.memoTo.value?.isNotEmpty() == true) {
-                RecordObtTask(txid, fioRequestViewModel, fioModule) { success ->
-                    if (!success) {
-                        Toaster(this).toast("Failed to write memo", false)
-                    }
-                    val walletManager = mbwManager.getWalletManager(false)
-                    val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
+            RecordObtTask(txid, fioRequestViewModel, fioModule) { success ->
+                if (!success) {
+                    Toaster(this).toast("Failed to write obt", false)
+                }
+                val walletManager = mbwManager.getWalletManager(false)
+                val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
 
-                    walletManager.startSynchronization(SyncMode.NORMAL, fioModule.getAccounts())
+                walletManager.startSynchronization(SyncMode.NORMAL, fioModule.getAccounts())
 
-                    ApproveFioRequestSuccessActivity.start(this, fioRequestViewModel.amount.value!!,
-                            fioRequestViewModel.alternativeAmountFormatted.value!!,
-                            sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
-                            fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
-                            signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
-                    finish()
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-            } else {
                 ApproveFioRequestSuccessActivity.start(this, fioRequestViewModel.amount.value!!,
                         fioRequestViewModel.alternativeAmountFormatted.value!!,
                         sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
                         fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
                         signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
                 finish()
-            }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
     }
 
@@ -450,12 +441,12 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 (fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount).recordObtData(request.fioRequestId,
                         request.payerFioAddress, request.payeeFioAddress, fioRequestViewModel.payerTokenPublicAddress.value!!,
                         fioRequestViewModel.payeeTokenPublicAddress.value!!, amountInDouble, request.deserializedContent!!.chainCode,
-                        request.deserializedContent!!.tokenCode, txid, fioRequestViewModel.memoTo.value!!)
+                        request.deserializedContent!!.tokenCode, txid, fioRequestViewModel.memoTo.value ?: "")
             } catch (e: Exception) {
                 if (e is FIOError) {
                     fioModule.addFioServerLog(e.toJson())
                 }
-                Logger.getLogger(RecordObtTask::class.simpleName).log(Level.WARNING, "failed to write memo: ${e.localizedMessage}")
+                Logger.getLogger(RecordObtTask::class.simpleName).log(Level.WARNING, "failed to write obt: ${e.localizedMessage}")
                 false
             }
         }
