@@ -65,7 +65,7 @@ class StoresFragment : Fragment() {
                     if (getTab(it, tags) == null) {
                         val tab = tags.newTab().setCustomView(
                                 layoutInflater.inflate(R.layout.media_flow_tab_item, tags, false).apply {
-                                    this.text.text = it.replace("-", " ")
+                                    this.text.text = it.replace("-", " ").capitalize()
                                 })
                         tab.tag = it
                         tags.addTab(tab)
@@ -100,8 +100,8 @@ class StoresFragment : Fragment() {
         }
     }
 
-    private fun loadData(offset: Long = 0) {
-        if (offset == 0L) {
+    private fun loadData(offset: Long = -1) {
+        if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
         } else if (offset >= viewModel.productsSize) {
             return
@@ -111,14 +111,14 @@ class StoresFragment : Fragment() {
                 search = viewModel.search,
                 category = viewModel.category,
                 country = activityViewModel.selectedCountries.value,
-                offset = offset, limit = 30,
+                offset = if (offset == -1L) 0 else offset, limit = 30,
                 success = {
                     activityViewModel.categories.value = listOf("All") + (it?.categories
                             ?: emptyList())
                     activityViewModel.countries.value = it?.countries?.mapNotNull {
                         CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
                     }
-                    viewModel.setProductsResponse(it, offset != 0L)
+                    viewModel.setProductsResponse(it, offset != -1L)
                     adapter.submitList(viewModel.products.value)
                 },
                 error = { _, msg ->

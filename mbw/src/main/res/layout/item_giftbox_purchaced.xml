@@ -3,18 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
-    <ImageView
-        android:id="@+id/image"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/imageCard"
         android:layout_width="80dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop" />
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/title"
@@ -24,9 +33,9 @@
         android:layout_marginEnd="8dp"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@id/image"
+        app:layout_constraintLeft_toRightOf="@id/imageCard"
         app:layout_constraintRight_toLeftOf="@id/more"
-        app:layout_constraintTop_toTopOf="@id/image"
+        app:layout_constraintTop_toTopOf="@id/imageCard"
         tools:text="Amazon UK" />
 
     <TextView
@@ -34,13 +43,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
         android:layout_marginEnd="8dp"
         android:text="@string/gift_card_amount"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintBottom_toTopOf="@id/additional"
-        app:layout_constraintLeft_toRightOf="@id/image"
+        app:layout_constraintLeft_toRightOf="@id/imageCard"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
     <TextView
@@ -65,8 +75,8 @@
         android:text="Date:"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/image"
-        app:layout_constraintLeft_toRightOf="@id/image" />
+        app:layout_constraintBottom_toBottomOf="@id/imageCard"
+        app:layout_constraintLeft_toRightOf="@id/imageCard" />
 
     <TextView
         android:id="@+id/additional"

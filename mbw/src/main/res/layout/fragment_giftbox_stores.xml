@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:drawablePadding="6dp"
-            android:text="@{@plurals/d_countries(activityViewModel.selectedCountries.size, activityViewModel.selectedCountries.size)}"
+            android:text="@{activityViewModel.selectedCountries.isEmpty ? @string/all_countries : @plurals/d_countries(activityViewModel.selectedCountries.size, activityViewModel.selectedCountries.size)}"
             android:textColor="#60B687"
             android:textSize="12sp"
             app:drawableStartCompat="@drawable/ic_glyph"

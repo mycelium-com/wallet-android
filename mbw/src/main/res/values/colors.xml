@@ -95,4 +95,5 @@
     <color name="bequant_red_a1">#1ACE3C4E</color>
 
     <color name="giftbox_bg">#131418</color>
+    <color name="giftbox_page_bg">#050505</color>
 </resources>
