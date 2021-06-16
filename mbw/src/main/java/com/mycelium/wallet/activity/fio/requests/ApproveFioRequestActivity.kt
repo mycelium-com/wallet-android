@@ -115,7 +115,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         }
 
         val spendingAccounts = mbwManager.getWalletManager(false)
-                .getAllActiveAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
+                .getActiveSpendingAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
 
         if (spendingAccounts.isNotEmpty()) {
             val account = spendingAccounts.first()
