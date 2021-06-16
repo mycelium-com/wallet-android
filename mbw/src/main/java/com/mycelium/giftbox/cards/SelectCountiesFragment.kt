@@ -32,7 +32,8 @@ class SelectCountiesFragment : Fragment() {
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.selected.clear()
         adapter.selected.addAll(activityViewModel.selectedCountries.value ?: listOf())
-        adapter.submitList(activityViewModel.countries.value)
+        adapter.submitList(activityViewModel.countries.value
+                ?.sortedWith(compareBy({ activityViewModel.selectedCountries.value?.contains(it) != true }, { it.name })))
         binding?.search?.doAfterTextChanged { search ->
             adapter.submitList(activityViewModel.countries.value
                     ?.filter { it.name.contains(search.toString(), true) || it.acronym3.contains(search.toString(), true) })
