@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.client.models.Status
@@ -65,6 +68,8 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                 holder.itemView.isEnabled = !purchasedItem.redeemed
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
+                        .apply(RequestOptions()
+                                .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
                         .into(holder.itemView.image)
                 if (!purchasedItem.redeemed) {
                     holder.itemView.setOnClickListener {

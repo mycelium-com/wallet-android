@@ -7,6 +7,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.wallet.R
@@ -31,18 +34,20 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
             val item = getItem(position)
             Glide.with(holder.itemView.image)
                     .load(item?.cardImageUrl)
+                    .apply(RequestOptions()
+                            .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
                     .into(holder.itemView.image)
 
             holder.itemView.title.text = item.name
             holder.itemView.description.text = item.categories
                     ?.joinToString { it.replace("-", " ").capitalize() }
             holder.itemView.additional.text =
-                "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
-                        if (item.maximumValue != BigDecimal.ZERO) {
-                            " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
-                        } else {
-                            ""
-                        }
+                    "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
+                            if (item.maximumValue != BigDecimal.ZERO) {
+                                " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
+                            } else {
+                                ""
+                            }
             holder.itemView.setOnClickListener {
                 itemClickListener?.invoke(getItem(holder.adapterPosition))
             }
