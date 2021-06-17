@@ -152,6 +152,15 @@ class StoresFragment : Fragment() {
                 return true
             }
         })
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem?): Boolean = true
+
+            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                viewModel.search = null
+                loadData()
+                return true
+            }
+        })
     }
 
     override fun onDestroyView() {
