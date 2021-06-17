@@ -40,8 +40,6 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import androidx.annotation.NonNull;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
@@ -61,6 +59,7 @@ import com.mycelium.wapi.wallet.Util;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -429,6 +428,16 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
 
         requestRefresh();
+    }
+
+    public List<AssetInfo> getCurrencyList() {
+        synchronized (_requestLock) {
+            ArrayList<AssetInfo> result = new ArrayList<>();
+            for (String fiatCurrency : _fiatCurrencies) {
+                result.add(new FiatType(fiatCurrency));
+            }
+            return result;
+        }
     }
 
     class GetOfferCallback implements Callback<ChangellyAnswerDouble> {

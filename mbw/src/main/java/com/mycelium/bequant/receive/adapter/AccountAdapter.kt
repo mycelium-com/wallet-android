@@ -20,7 +20,7 @@ import com.mycelium.wapi.wallet.coins.Value
 
 open class AccountListItem(val viewType: Int)
 class AccountGroupItem(val isOpened: Boolean, val label: String, val value: ValueSum) : AccountListItem(ACCOUNT_GROUP_TYPE)
-class AccountItem(val label: String, val value: Value) : AccountListItem(ACCOUNT_TYPE)
+class AccountItem(val label: String, val value: Value?) : AccountListItem(ACCOUNT_TYPE)
 class TotalItem(val value: ValueSum) : AccountListItem(TOTAL_TYPE)
 
 class AccountAdapterConfig(val accountLayout: Int, val accountGroupLayout: Int, val totalLayout: Int)
@@ -53,7 +53,7 @@ class AccountAdapter(val config: AccountAdapterConfig = AccountAdapterConfig(
                 val accountHolder = viewHolder as AccountItemViewHolder
                 val accountItem = item as AccountItem
                 accountHolder.label.text = accountItem.label
-                accountHolder.value.text = accountItem.value.toStringWithUnit(Denomination.UNIT)
+                accountHolder.value.text = accountItem.value?.toStringWithUnit(Denomination.UNIT) ?: ""
                 accountHolder.itemView.setOnClickListener {
                     accountClickListener?.invoke(item)
                 }

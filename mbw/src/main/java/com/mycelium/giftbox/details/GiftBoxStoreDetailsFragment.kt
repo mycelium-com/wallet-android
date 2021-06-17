@@ -67,7 +67,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
     private fun setupDescription(description: String) {
         binding?.layoutDescription?.tvDescription?.let { view ->
             view.text = description
-            if (viewModel.more.value != true) {
+            if (viewModel.more.value != true && view.layout != null) {
                 val endIndex = view.layout.getLineEnd(3) - 3
                 if (0 < endIndex && endIndex < description.length) {
                     view.text = "${description.subSequence(0, endIndex)}..."
