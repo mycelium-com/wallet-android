@@ -48,6 +48,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         }
         val descriptionClick = { _: View ->
             viewModel.more.value = !(viewModel.more.value ?: false)
+            setupDescription(viewModel.description.value ?: "")
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
@@ -57,7 +58,22 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         binding?.layoutDescription?.terms?.setOnClickListener {
             Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
         }
+        viewModel.description.observe(viewLifecycleOwner) {
+            setupDescription(it)
+        }
         loadData()
+    }
+
+    private fun setupDescription(description: String) {
+        binding?.layoutDescription?.tvDescription?.let { view ->
+            view.text = description
+            if (viewModel.more.value != true) {
+                val endIndex = view.layout.getLineEnd(3) - 3
+                if (0 < endIndex && endIndex < description.length) {
+                    view.text = "${description.subSequence(0, endIndex)}..."
+                }
+            }
+        }
     }
 
     private fun loadData() {

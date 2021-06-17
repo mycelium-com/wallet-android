@@ -10,6 +10,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.getSpendableBalance
 import com.mycelium.wapi.wallet.Util
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_select_account.*
 
 
@@ -28,9 +29,9 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
     }
 
     private fun generateAccountList() {
-        val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
+        val mbwManager = MbwManager.getInstance(requireContext())
         val currencies = args.currencies.mapNotNull { it.name }
-        val accounts = walletManager.getActiveSpendingAccounts()
+        val accounts = mbwManager.getWalletManager(false).getActiveSpendingAccounts()
                 .filter { account ->
                     currencies.find { it.equals(Util.trimTestnetSymbolDecoration(account.coinType.symbol), true) } != null
                 }
@@ -41,7 +42,10 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         walletsAccounts.forEach {
             if (it.second.isNotEmpty()) {
                 accountsList.add(AccountGroupItem(true, it.first, it.second.getSpendableBalance()))
-                accountsList.addAll(it.second.map { AccountItem(it.label, it.accountBalance.confirmed) })
+                accountsList.addAll(it.second.map {
+                    AccountItem(it.label,
+                            mbwManager.exchangeRateManager.get(it.accountBalance.confirmed, FiatType(args.product.currencyCode)))
+                })
             }
         }
         adapter.submitList(accountsList)

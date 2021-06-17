@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/redeem_code"
-            android:textColor="@color/fio_white_alpha_0_8"
+            android:textColor="@color/giftbox_label"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/giftbox_pin_code"
-            android:textColor="@color/fio_white_alpha_0_8"
+            android:textColor="@color/giftbox_label"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/redeemCodeLabel" />

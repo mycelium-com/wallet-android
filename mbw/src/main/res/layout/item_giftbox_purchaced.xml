@@ -9,9 +9,10 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/imageCard"
-        android:layout_width="96dp"
-        android:layout_height="60dp"
+        android:layout_width="97dp"
+        android:layout_height="61dp"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:background="@drawable/giftcard_card_small_bg"
         app:cardCornerRadius="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -21,6 +22,7 @@
             android:id="@+id/image"
             android:layout_width="96dp"
             android:layout_height="60dp"
+            android:layout_margin="0.5dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop" />
     </androidx.cardview.widget.CardView>

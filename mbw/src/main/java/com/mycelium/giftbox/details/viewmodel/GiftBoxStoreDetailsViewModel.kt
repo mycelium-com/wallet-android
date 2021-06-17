@@ -26,8 +26,12 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
         country.value = product?.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
-        amount.value = "From ${product?.minimumValue?.stripTrailingZeros()?.toPlainString()} ${product?.currencyCode}" +
-                " to ${product?.maximumValue?.stripTrailingZeros()?.toPlainString()} ${product?.currencyCode}"
+        amount.value = if (product?.denominationType == ProductInfo.DenominationType.open) {
+            "From ${product.minimumValue.stripTrailingZeros()?.toPlainString()} ${product.currencyCode}" +
+                    " to ${product.maximumValue.stripTrailingZeros()?.toPlainString()} ${product.currencyCode}"
+        } else {
+            product?.availableDenominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${product.currencyCode}" }
+        }
         expire.value = if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
     }
 }

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.GiftboxPreference
@@ -52,6 +53,7 @@ class GiftBoxDetailsFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title = args.order.productName
         val descriptionClick = { _: View ->
             viewModel.more.value = !(viewModel.more.value ?: false)
+            setupDescription(viewModel.description.value ?: "")
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
@@ -65,8 +67,23 @@ class GiftBoxDetailsFragment : Fragment() {
             share()
         }
         viewModel.pinCode.value = args.order.items?.first()?.pin
+        viewModel.description.observe(viewLifecycleOwner) {
+            setupDescription(it)
+        }
         loadOrder()
         loadProduct()
+    }
+
+    private fun setupDescription(description: String) {
+        binding?.layoutDescription?.tvDescription?.let { view ->
+            view.text = description
+            if (viewModel.more.value != true) {
+                val endIndex = view.layout.getLineEnd(3) - 3
+                if (0 < endIndex && endIndex < description.length) {
+                    view.text = "${description.subSequence(0, endIndex)}..."
+                }
+            }
+        }
     }
 
     private fun loadProduct() {

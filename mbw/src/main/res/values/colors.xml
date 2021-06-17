@@ -96,4 +96,5 @@
 
     <color name="giftbox_bg">#131418</color>
     <color name="giftbox_page_bg">#050505</color>
+    <color name="giftbox_label">#9B9B9B</color>
 </resources>

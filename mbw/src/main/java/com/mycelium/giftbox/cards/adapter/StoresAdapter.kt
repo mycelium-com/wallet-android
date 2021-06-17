@@ -36,17 +36,13 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
             holder.itemView.title.text = item.name
             holder.itemView.description.text = item.categories
                     ?.joinToString { it.replace("-", " ").capitalize() }
-            holder.itemView.additional.text = if (item.denominationType == ProductInfo.DenominationType.open) {
+            holder.itemView.additional.text =
                 "from ${item.minimumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}" +
                         if (item.maximumValue != BigDecimal.ZERO) {
                             " to ${item.maximumValue.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
                         } else {
                             ""
                         }
-            } else {
-                item.availableDenominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${item.currencyCode}" }
-            }
-
             holder.itemView.setOnClickListener {
                 itemClickListener?.invoke(getItem(holder.adapterPosition))
             }

@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/description"
-            android:textColor="@color/fio_white_alpha_0_8"
+            android:textColor="@color/giftbox_label"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -32,15 +32,10 @@
             android:id="@+id/tvDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="@{viewModel.more ? 100 : 5}"
-            android:text="@{viewModel.description}"
             android:textColor="@color/white"
             android:textIsSelectable="true"
             android:textSize="14sp"
-            android:singleLine="false"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            tools:maxLines="5"
             tools:text="@tools:sample/lorem/random" />
 
         <TextView
@@ -50,7 +45,7 @@
             android:text="@string/more"
             android:textColor="#E503B3FF"
             android:visibility="@{viewModel.more ? View.GONE : View.VISIBLE}"
-            app:layout_constraintRight_toRightOf="@id/tvDescription"
+            app:layout_constraintLeft_toLeftOf="@id/tvDescription"
             app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
         <TextView

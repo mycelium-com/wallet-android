@@ -27,12 +27,14 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/giftcard_card_bg"
                 app:cardCornerRadius="14dp">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/ivImage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_margin="0.5dp"
                     android:gravity="center"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
