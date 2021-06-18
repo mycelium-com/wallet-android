@@ -22,6 +22,7 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.PriceResponse
+import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
@@ -47,7 +48,7 @@ class GiftboxBuyFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxBuyBinding
     val args by navArgs<GiftboxBuyFragmentArgs>()
 
-    val viewModel: GiftboxBuyViewModel by viewModels()
+    val viewModel: GiftboxBuyViewModel by viewModels { ViewModelFactory(args.product) }
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
@@ -182,9 +183,9 @@ class GiftboxBuyFragment : Fragment() {
     }
 }
 
-class GiftboxBuyViewModel : ViewModel() {
+class GiftboxBuyViewModel(val product:ProductInfo) : ViewModel() {
     val accountId = MutableLiveData<UUID>()
-    val amount = MutableLiveData<Value>()
+    val amount = MutableLiveData<Value>(zeroValue(product))
     val orderResponse = MutableLiveData<OrderResponse>()
     val quantity = MutableLiveData(1)
     val productResponse = MutableLiveData<ProductResponse>()
@@ -194,6 +195,8 @@ class GiftboxBuyViewModel : ViewModel() {
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
     }
+
+
 
     val quantityString = Transformations.map(quantity) {
         it.toString()
@@ -214,6 +217,10 @@ class GiftboxBuyViewModel : ViewModel() {
             account!!.basedOnCoinType,
             feeEstimation, MinerFee.NORMAL, estimateTxSize()
         )
+    }
+
+    fun zeroValue(product: ProductInfo): Value {
+        return Value.zeroValue(Utils.getTypeByName(product.currencyCode)!!)
     }
 
     private fun getFeeItem(): FeeItem {
@@ -306,4 +313,13 @@ class GiftboxBuyViewModel : ViewModel() {
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.confirmed!!
     }
+}
+
+class ViewModelFactory(param: ProductInfo) :
+    ViewModelProvider.Factory {
+    private val mParam: ProductInfo = param
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return GiftboxBuyViewModel(mParam) as T
+    }
+
 }

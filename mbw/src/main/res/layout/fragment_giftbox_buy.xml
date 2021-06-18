@@ -65,7 +65,6 @@
                         android:layout_marginEnd="12dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/roboto_mono_medium"
-                        android:hint="0.00 USD"
                         android:singleLine="true"
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
