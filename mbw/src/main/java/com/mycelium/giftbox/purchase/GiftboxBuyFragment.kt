@@ -196,8 +196,6 @@ class GiftboxBuyViewModel(val product:ProductInfo) : ViewModel() {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
     }
 
-
-
     val quantityString = Transformations.map(quantity) {
         it.toString()
     }
@@ -286,9 +284,9 @@ class GiftboxBuyViewModel(val product:ProductInfo) : ViewModel() {
         return Value.valueOf(Utils.getBtcCoinType()!!, cryptoUnit)
     }
 
-    val minerFeeFiat: MutableLiveData<String> by lazy { MutableLiveData(minerFeeFiat().toStringWithUnit()) }
+    val minerFeeFiatString: MutableLiveData<String> by lazy { MutableLiveData(minerFeeFiat().toStringWithUnit()) }
     fun minerFeeFiat() = getFeeItem().fiatValue
-    val minerFeeCrypto: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
+    val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
     fun minerFeeCrypto() = getFeeItem().value
 
     val isGrantedPlus =
