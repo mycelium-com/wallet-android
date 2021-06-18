@@ -35,6 +35,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
@@ -183,9 +184,10 @@ class GiftboxBuyFragment : Fragment() {
     }
 }
 
-class GiftboxBuyViewModel(val product:ProductInfo) : ViewModel() {
+class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val accountId = MutableLiveData<UUID>()
-    val amount = MutableLiveData<Value>(zeroValue(product))
+    val zeroFiatValue = zeroValue(product)
+    val amount = MutableLiveData<Value>(zeroFiatValue)
     val orderResponse = MutableLiveData<OrderResponse>()
     val quantity = MutableLiveData(1)
     val productResponse = MutableLiveData<ProductResponse>()
@@ -285,7 +287,10 @@ class GiftboxBuyViewModel(val product:ProductInfo) : ViewModel() {
     }
 
     val minerFeeFiatString: MutableLiveData<String> by lazy { MutableLiveData(minerFeeFiat().toStringWithUnit()) }
-    fun minerFeeFiat() = getFeeItem().fiatValue
+    fun minerFeeFiat(): Value {
+        return convert(minerFeeCrypto(), zeroFiatValue.type) ?: zeroFiatValue
+    }
+
     val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
     fun minerFeeCrypto() = getFeeItem().value
 
@@ -307,6 +312,12 @@ class GiftboxBuyViewModel(val product:ProductInfo) : ViewModel() {
     val isGranted = Transformations.map(totalAmountCrypto) {
         return@map it.lessOrEqualThan(getAccountBalance())
     }
+
+    private fun convert(value: Value, assetInfo: AssetInfo): Value? =
+        MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
+            value,
+            assetInfo
+        )
 
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.confirmed!!
