@@ -94,7 +94,7 @@ class GiftboxBuyFragment : Fragment() {
 
         loader(true)
 
-        viewModel.errorMessage.observe(viewLifecycleOwner) {
+        viewModel.errorQuantityMessage.observe(viewLifecycleOwner) {
             binding.tlQuanity.error = it
             binding.tvQuanity.setTextColor(
                 ContextCompat.getColor(
@@ -205,11 +205,15 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val amount = MutableLiveData<Value>(zeroFiatValue)
     val orderResponse = MutableLiveData<OrderResponse>()
     val productResponse = MutableLiveData<ProductResponse>()
-    val errorMessage: MutableLiveData<String> = MutableLiveData("")
+    val errorQuantityMessage: MutableLiveData<String> = MutableLiveData("")
     val totalProgress = MutableLiveData<Boolean>(false)
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
+    }
+
+    val errorAmountMessage = Transformations.map(amount){
+        if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
     }
 
     val quantityString: MutableLiveData<String> = MutableLiveData("1")
@@ -261,6 +265,9 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         }) {
         callbackFlow {
             val (amount, quantity) = it
+            if (quantity == 0 || amount.isZero()) {
+                return@callbackFlow
+            }
             if (!forSingleItem) {
                 totalAmountFiat.value = amount.times(quantity.toLong())
             }
@@ -272,15 +279,17 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                 currencyId = productResponse.value?.product?.currencyCode ?: "",
                 success = { priceResponse ->
                     if (!forSingleItem) {
-                        errorMessage.value = ""
+                        errorQuantityMessage.value = ""
                     }
-                    println(amount to priceResponse)
-                    offer(getBtcAmount(priceResponse!!))
+                    if (priceResponse!!.status == PriceResponse.Status.eRROR){
+                        return@getPrice
+                    }
+                    offer(getBtcAmount(priceResponse))
                 },
                 error = { _, error ->
                     if (!forSingleItem) {
                         val fromJson = gson.fromJson(error, ErrorMessage::class.java)
-                        errorMessage.value = fromJson.message
+                        errorQuantityMessage.value = fromJson.message
                     }
                     close()
                 },

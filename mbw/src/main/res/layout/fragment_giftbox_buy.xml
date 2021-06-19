@@ -36,7 +36,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/horizontal_page_margin"
                 android:orientation="vertical">
-
                 <include layout="@layout/fragment_giftbox_details_header" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -56,8 +55,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!--                    android:text="@{viewModel.requestedAmountFormatted}"-->
-                    <!--                    android:textAlignment="@{viewModel.requestedAmountFormatted.isEmpty() ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"-->
                     <TextView
                         android:id="@+id/tvAmount"
                         android:layout_width="0dp"
@@ -88,7 +85,6 @@
                         android:textColor="@color/white"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvAmount"
@@ -101,9 +97,22 @@
                         android:layout_marginTop="4dp"
                         android:layout_marginEnd="12dp"
                         android:background="#393939"
-                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintBottom_toBottomOf="@id/tvAmountCrypto"
                         app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                         app:layout_constraintStart_toStartOf="@id/tvAmount" />
+
+                    <TextView
+                        android:id="@+id/tvAmountError"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_mono_medium"
+                        android:text="@{vm.errorAmountMessage}"
+                        android:textColor="@color/red_error"
+                        android:textSize="12sp"
+                        tools:text="Amount error"
+                        app:layout_constraintTop_toBottomOf="@id/divider"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
 
                     <ImageButton
                         android:id="@+id/btEnterAmount"
@@ -146,27 +155,28 @@
                         app:layout_constraintEnd_toStartOf="@id/quantityControl"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@id/quantityControl">
+
                         <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/tvQuanity"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/roboto_mono_medium"
                             android:inputType="number"
-                            android:id="@+id/tvQuanity"
                             android:singleLine="true"
-                            android:text="@={vm.quantityString}"
-                            android:fontFamily="@font/roboto_mono_medium">
+                            android:text="@={vm.quantityString}">
 
                         </androidx.appcompat.widget.AppCompatEditText>
                     </com.google.android.material.textfield.TextInputLayout>
 
-<!--                    <View-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="1dp"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:layout_marginEnd="12dp"-->
-<!--                        android:background="#393939"-->
-<!--                        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                        app:layout_constraintEnd_toStartOf="@id/quantityControl"-->
-<!--                        app:layout_constraintStart_toStartOf="@id/tlQuanity" />-->
+                    <!--                    <View-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="1dp"-->
+                    <!--                        android:layout_marginTop="4dp"-->
+                    <!--                        android:layout_marginEnd="12dp"-->
+                    <!--                        android:background="#393939"-->
+                    <!--                        app:layout_constraintBottom_toBottomOf="parent"-->
+                    <!--                        app:layout_constraintEnd_toStartOf="@id/quantityControl"-->
+                    <!--                        app:layout_constraintStart_toStartOf="@id/tlQuanity" />-->
 
                     <LinearLayout
                         android:id="@+id/quantityControl"
