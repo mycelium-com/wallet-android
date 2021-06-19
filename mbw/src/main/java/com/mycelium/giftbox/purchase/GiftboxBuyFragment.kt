@@ -46,6 +46,7 @@ import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.*
 
 class GiftboxBuyFragment : Fragment() {
@@ -112,7 +113,7 @@ class GiftboxBuyFragment : Fragment() {
                     tvName.text = product?.name
                     tvExpire.text = product?.expiryDatePolicy
                     tvCardValueHeader.text =
-                        "From " + product?.minimumValue + " to " + product?.maximumValue
+                        """From ${product?.minimumValue} to ${product?.maximumValue} ${product?.currencyCode?.toUpperCase()}"""
                     tvCountry.text = product?.countries?.joinToString(separator = ", ")
                     btMinusQuantity.setOnClickListener {
                         viewModel.quantityString.value =
@@ -212,7 +213,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
     }
 
-    val errorAmountMessage = Transformations.map(amount){
+    val errorAmountMessage = Transformations.map(amount) {
         if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
     }
 
@@ -281,7 +282,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                     if (!forSingleItem) {
                         errorQuantityMessage.value = ""
                     }
-                    if (priceResponse!!.status == PriceResponse.Status.eRROR){
+                    if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice
                     }
                     offer(getBtcAmount(priceResponse))
