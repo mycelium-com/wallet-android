@@ -34,7 +34,7 @@
     <color name="fnbuttoncolor">#ff112639</color>
     <color name="fnbuttoncolor_border">#ff255179</color>
     <color name="buttonredcolor">#ffff1c1c</color>
-    <color name="red_error">#FF0000</color>
+    <color name="red_error">#EB582C</color>
     <drawable name="semi_black">#80000000</drawable>
 
     <!-- camera uses them -->
