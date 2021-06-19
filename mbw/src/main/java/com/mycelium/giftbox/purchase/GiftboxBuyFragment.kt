@@ -216,7 +216,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
     }
 
-    val quantityString: MutableLiveData<String> = MutableLiveData("1")
+    val quantityString: MutableLiveData<String> = MutableLiveData("0")
     val quantityInt = Transformations.map(quantityString) {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
     }
