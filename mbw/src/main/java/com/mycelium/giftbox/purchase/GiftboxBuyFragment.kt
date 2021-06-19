@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.text.isDigitsOnly
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -97,8 +98,9 @@ class GiftboxBuyFragment : Fragment() {
             binding.tlQuanity.error = it
             binding.tvQuanity.setTextColor(
                 ContextCompat.getColor(
-                    requireContext(),if (it.isNullOrEmpty()) R.color.white else R.color.red_error)
+                    requireContext(), if (it.isNullOrEmpty()) R.color.white else R.color.red_error
                 )
+            )
         }
 
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
@@ -113,10 +115,12 @@ class GiftboxBuyFragment : Fragment() {
                         "From " + product?.minimumValue + " to " + product?.maximumValue
                     tvCountry.text = product?.countries?.joinToString(separator = ", ")
                     btMinusQuantity.setOnClickListener {
-                        viewModel.quantityString.value = ((viewModel.quantityString.value?.toInt() ?: 0) - 1).toString()
+                        viewModel.quantityString.value =
+                            ((viewModel.quantityInt.value ?: 0) - 1).toString()
                     }
                     btPlusQuantity.setOnClickListener {
-                        viewModel.quantityString.value = ((viewModel.quantityString.value?.toInt() ?: 0) + 1).toString()
+                        viewModel.quantityString.value =
+                            ((viewModel.quantityInt.value ?: 0) + 1).toString()
                     }
                     amountRoot.setOnClickListener {
                         findNavController().navigate(
@@ -208,7 +212,10 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
     }
 
-    val quantityString : MutableLiveData<String> = MutableLiveData("1")
+    val quantityString: MutableLiveData<String> = MutableLiveData("1")
+    val quantityInt = Transformations.map(quantityString) {
+        if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
+    }
 
     private val feeItemsBuilder by lazy {
         FeeItemsBuilder(
@@ -245,7 +252,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
         zip2(
             amount,
-            quantityString.map { it.toInt() }.debounce(500)
+            quantityInt.debounce(500)
                 .map { if (forSingleItem) 1 else it.toInt() }) { amount: Value, quantity: Int ->
             Pair(
                 amount,
@@ -309,36 +316,24 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
     fun minerFeeCrypto() = getFeeItem().value
 
-    val totalAndSinglePair = zip2(
-        totalAmountCrypto,
-        totalAmountCryptoSingle
-    ) { total: Value, single: Value ->
-        Pair(total, single)
-    }
-
-    val amountError = zip2(
-        totalAndSinglePair, amount
-    ) { pair: Pair<Value, Value>, amount: Value ->
-        val (total, single) = pair
-        val maxSpendable = getAccountBalance() - minerFeeCrypto()
-        if (total.moreOrEqualThan(maxSpendable)) {
-            """Max available: ${maxSpendable.div(single).toInt()} cards"""
-        } else null
-    }
-
     val isGrantedPlus =
         Transformations.map(
-            totalAndSinglePair
+            zip2(
+                totalAmountCrypto,
+                totalAmountCryptoSingle
+            ) { total: Value, single: Value ->
+                Pair(total, single)
+            }
         ) {
             val (total, single) = it
             total.plus(single).lessOrEqualThan(getAccountBalance())
         }
 
-    val isGrantedMinus = Transformations.map(quantityString) {
-        return@map it.toInt() > 1
+    val isGrantedMinus = Transformations.map(quantityInt) {
+        return@map it > 1
     }
     val isGranted = Transformations.map(totalAmountCrypto) {
-        return@map it.lessOrEqualThan(getAccountBalance())
+        return@map it.lessOrEqualThan(getAccountBalance()) && it.moreThanZero()
     }
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
