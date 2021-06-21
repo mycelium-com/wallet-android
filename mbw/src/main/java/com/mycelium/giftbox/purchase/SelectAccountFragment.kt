@@ -3,6 +3,8 @@ package com.mycelium.giftbox.purchase
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -11,7 +13,9 @@ import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
-import com.mycelium.wallet.activity.util.getSpendableBalance
+import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
+import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
+import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
@@ -27,6 +31,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
             R.layout.item_giftbox_select_account_total
     ))
     val args by navArgs<SelectAccountFragmentArgs>()
+    private val listModel: AccountsListModel by activityViewModels()
 
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
 
@@ -44,34 +49,41 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        generateAccountList()
+        listModel.accountsData.observe(viewLifecycleOwner, Observer {
+            generateAccountList(it)
+        })
+        val accountsGroupsList = listModel.accountsData.value!!
+        generateAccountList(accountsGroupsList)
         list.adapter = adapter
     }
 
-    private fun generateAccountList() {
+    private fun generateAccountList(accountView: List<AccountsGroupModel>) {
         val currencies = args.currencies.mapNotNull { it.name }
-        val accounts = mbwManager.getWalletManager(false).getActiveSpendingAccounts()
-                .filter { account ->
-                    currencies.find { it.equals(Util.trimTestnetSymbolDecoration(account.coinType.symbol), true) } != null
-                }
-        val walletsAccounts = accounts.map { it.coinType }.toSet()
-                .map { coin -> coin.name to accounts.filter { it.coinType == coin } }
-
         val accountsList = mutableListOf<AccountListItem>()
-        walletsAccounts.forEach {
-            if (it.second.isNotEmpty()) {
-                accountsList.add(AccountGroupItem(true, it.first, it.second.getSpendableBalance()))
-                accountsList.addAll(it.second.map {
-                    AccountItem(it.label,
-                            mbwManager.exchangeRateManager.get(it.accountBalance.confirmed, FiatType(args.product.currencyCode)))
-                })
+        for (accountsGroup in accountView) {
+            if (accountsGroup.getType() == com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE) {
+                continue
+            }
+            val accounts = accountsGroup.accountsList
+                    .filterIsInstance(AccountViewModel::class.java)
+                    .filter {
+                        it.canSpend && it.balance?.spendable?.moreThanZero() == true
+                                && currencies.find { cur -> cur.equals(Util.trimTestnetSymbolDecoration(it.coinType.symbol), true) } != null
+                    }
+                    .map { AccountItem(it.label, it.balance?.spendable, it.accountId) }
+
+            if (accounts.isNotEmpty()) {
+                val groupModel = AccountGroupItem(!accountsGroup.isCollapsed, accountsGroup.getTitle(requireContext()), accountsGroup.sum!!)
+                accountsList.add(groupModel)
+                if (groupModel.isOpened) {
+                    accountsList.addAll(accounts)
+                }
             }
         }
         adapter.submitList(accountsList)
 
         adapter.accountClickListener = { accountItem ->
-            val selectedAccount = walletsAccounts.map { it.second }.flatten().find { it.label == accountItem.label }
-            findNavController().navigate(SelectAccountFragmentDirections.actionNext(selectedAccount?.id!!, args.product))
+            findNavController().navigate(SelectAccountFragmentDirections.actionNext(accountItem.accountId!!, args.product))
         }
     }
 
@@ -83,7 +95,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
     override fun refreshingExchangeRatesSucceeded() {
         lifecycleScope.launch(Dispatchers.Main) {
             loader(false)
-            generateAccountList()
+            generateAccountList(listModel.accountsData.value!!)
         }
     }
 
@@ -95,7 +107,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
 
     override fun exchangeSourceChanged() {
         lifecycleScope.launch(Dispatchers.Main) {
-            generateAccountList()
+            generateAccountList(listModel.accountsData.value!!)
         }
     }
 }

@@ -17,10 +17,11 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.coins.Value
+import java.util.*
 
 open class AccountListItem(val viewType: Int)
 class AccountGroupItem(val isOpened: Boolean, val label: String, val value: ValueSum) : AccountListItem(ACCOUNT_GROUP_TYPE)
-class AccountItem(val label: String, val value: Value?) : AccountListItem(ACCOUNT_TYPE)
+class AccountItem(val label: String, val value: Value?, val accountId: UUID? = null) : AccountListItem(ACCOUNT_TYPE)
 class TotalItem(val value: ValueSum) : AccountListItem(TOTAL_TYPE)
 
 class AccountAdapterConfig(val accountLayout: Int, val accountGroupLayout: Int, val totalLayout: Int)
