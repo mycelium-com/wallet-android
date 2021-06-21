@@ -36,7 +36,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/horizontal_page_margin"
                 android:orientation="vertical">
-
                 <include layout="@layout/fragment_giftbox_details_header" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -56,8 +55,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!--                    android:text="@{viewModel.requestedAmountFormatted}"-->
-                    <!--                    android:textAlignment="@{viewModel.requestedAmountFormatted.isEmpty() ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"-->
                     <TextView
                         android:id="@+id/tvAmount"
                         android:layout_width="0dp"
@@ -65,10 +62,9 @@
                         android:layout_marginEnd="12dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/roboto_mono_medium"
-                        android:hint="0.00 USD"
                         android:singleLine="true"
                         android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
+                        android:textColorHint="@color/giftbox_label"
                         android:textSize="20sp"
                         app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                         app:layout_constraintStart_toStartOf="parent"
@@ -80,20 +76,20 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="12dp"
+                        android:layout_marginBottom="5dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="~0.00 BTC"
                         android:singleLine="true"
                         android:text="@{vm.totalAmountCryptoSingleString}"
-                        android:textColor="@color/white"
+                        android:textColor="@color/darkgrey"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="12sp"
-                        android:layout_marginBottom="5dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvAmount"
                         tools:hint="0.00 USD" />
+
                     <View
                         android:id="@+id/divider"
                         android:layout_width="0dp"
@@ -101,9 +97,22 @@
                         android:layout_marginTop="4dp"
                         android:layout_marginEnd="12dp"
                         android:background="#393939"
-                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintBottom_toBottomOf="@id/tvAmountCrypto"
                         app:layout_constraintEnd_toStartOf="@id/btEnterAmount"
                         app:layout_constraintStart_toStartOf="@id/tvAmount" />
+
+                    <TextView
+                        android:id="@+id/tvAmountError"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_mono_medium"
+                        android:text="@{vm.errorAmountMessage}"
+                        android:textColor="@color/red_error"
+                        android:textSize="12sp"
+                        tools:text="Amount error"
+                        app:layout_constraintTop_toBottomOf="@id/divider"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
 
                     <ImageButton
                         android:id="@+id/btEnterAmount"
@@ -138,35 +147,36 @@
 
                     <!--                    android:text="@{viewModel.requestedAmountFormatted}"-->
                     <!--                    android:textAlignment="@{viewModel.requestedAmountFormatted.isEmpty() ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"-->
-                    <TextView
-                        android:id="@+id/tvQuanity"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tlQuanity"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        android:digits="0123456789"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/roboto_mono_medium"
-                        android:hint="0"
-                        android:inputType="number"
-                        android:singleLine="true"
-                        android:text="@{vm.quantityString}"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="20sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/quantityControl"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/quantityControl" />
+                        app:layout_constraintTop_toTopOf="@id/quantityControl">
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginEnd="12dp"
-                        android:background="#393939"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/quantityControl"
-                        app:layout_constraintStart_toStartOf="@id/tvQuanity" />
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/tvQuanity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/roboto_mono_medium"
+                            android:inputType="number"
+                            android:singleLine="true"
+                            android:text="@={vm.quantityString}">
+
+                        </androidx.appcompat.widget.AppCompatEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!--                    <View-->
+                    <!--                        android:layout_width="0dp"-->
+                    <!--                        android:layout_height="1dp"-->
+                    <!--                        android:layout_marginTop="4dp"-->
+                    <!--                        android:layout_marginEnd="12dp"-->
+                    <!--                        android:background="#393939"-->
+                    <!--                        app:layout_constraintBottom_toBottomOf="parent"-->
+                    <!--                        app:layout_constraintEnd_toStartOf="@id/quantityControl"-->
+                    <!--                        app:layout_constraintStart_toStartOf="@id/tlQuanity" />-->
 
                     <LinearLayout
                         android:id="@+id/quantityControl"
@@ -190,10 +200,10 @@
                             android:id="@+id/btPlusQuantity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:clickable="@{vm.isGrantedPlus}"
                             android:layout_marginLeft="8dp"
                             android:layout_marginTop="4dp"
                             android:background="@null"
+                            android:clickable="@{vm.isGrantedPlus}"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
                             app:srcCompat="@drawable/ic_plus" />
@@ -231,8 +241,8 @@
                         android:hint="0.00 USD"
                         android:singleLine="true"
                         android:text="@{vm.totalAmountFiatString}"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
+                        android:textColor="@color/giftbox_label"
+                        android:textColorHint="@color/giftbox_label"
                         android:textSize="20sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -250,7 +260,7 @@
                         android:hint="~ 0.00 BTC"
                         android:singleLine="true"
                         android:text="@{vm.totalAmountCryptoString}"
-                        android:textColor="@color/white"
+                        android:textColor="@color/darkgrey"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"
                         app:layout_constraintBaseline_toBaselineOf="@id/tvTotalAmountFiat"
@@ -260,10 +270,10 @@
                         android:id="@+id/totalProgress"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:visibility="@{vm.totalProgress ? View.VISIBLE : View.GONE}"
                         android:layout_marginStart="16dp"
-                        app:layout_constraintLeft_toRightOf="@id/tvTotalAmountCrypto"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
+                        android:visibility="@{vm.totalProgress ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@id/tvTotalAmountCrypto" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
                 <!--                android:text="@{vm.totalAmountCryptoString}"-->
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -293,9 +303,9 @@
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="0.00 USD"
                         android:singleLine="true"
-                        android:text="@{vm.minerFeeFiat}"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
+                        android:text="@{vm.minerFeeFiatString}"
+                        android:textColor="@color/giftbox_label"
+                        android:textColorHint="@color/giftbox_label"
                         android:textSize="14sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -313,8 +323,8 @@
                         android:fontFamily="@font/roboto_mono_medium"
                         android:hint="~ 0.00 BTC"
                         android:singleLine="true"
-                        android:text="@{vm.minerFeeCrypto}"
-                        android:textColor="@color/white"
+                        android:text="@{vm.minerFeeCryptoString}"
+                        android:textColor="@color/darkgrey"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"
                         app:layout_constraintBaseline_toBaselineOf="@id/tvMinerFeeAmount"
@@ -327,7 +337,7 @@
             <Button
                 android:id="@+id/btSend"
                 style="@style/MyceliumButton.FIO"
-                android:layout_width="220dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="@dimen/horizontal_page_margin"

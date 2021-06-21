@@ -14,7 +14,6 @@ import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxAmountBinding
-import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
@@ -28,13 +27,11 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private lateinit var _mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
-    private val zeroUsd =
-        Value(Utils.getTypeByName(CurrencyCode.USD.shortString)!!, 0.toBigInteger())
-    private var _amount: Value =
-        zeroUsd
+
+    private var _amount: Value? = null
         set(value) {
             field = value
-            binding.tvAmount.text = value.toStringWithUnit()
+            binding.tvAmount.text = value?.toStringWithUnit()
         }
 
 
@@ -72,6 +69,10 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         initNumberEntry(savedInstanceState)
     }
 
+    fun zeroValue(): Value {
+        return Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
+    }
+
     private fun toUnits(amount: BigDecimal): BigInteger =
         amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
 
@@ -85,14 +86,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         if (savedInstanceState != null) {
             _amount = savedInstanceState.getSerializable(ENTERED_AMOUNT) as Value
         } else {
-            _amount = args.amount ?: zeroUsd
+            _amount = args.amount ?: zeroValue()
         }
 
         // Init the number pad
         val amountString: String
         if (!isNullOrZero(_amount)) {
-            val denomination = _mbwManager.getDenomination(_amount.type)
-            amountString = _amount.toString(denomination)
+            val denomination = _mbwManager.getDenomination(_amount?.type)
+            amountString = _amount?.toString(denomination)?:""
         } else {
             amountString = ""
         }
@@ -110,26 +111,27 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private fun setEnteredAmount(value: String) {
         if (value.isEmpty()) {
-            _amount = valueOf(_amount.type, BigInteger.ZERO)
+            _amount = zeroValue()
         } else {
             _amount = valueOf(
-                _amount.type,
-                _mbwManager.getDenomination(_amount.type).getAmount(BigDecimal(value).toBigInteger())
+                _amount?.type!!,
+                _mbwManager.getDenomination(_amount?.type)
+                    .getAmount(BigDecimal(value).toBigInteger())
             )
         }
     }
 
     private fun checkEntry() {
         val valid = !isNullOrZero(_amount)
-                && _amount.moreOrEqualThan(
+                && _amount!!.moreOrEqualThan(
             valueOf(
-                _amount.type,
+                _amount!!.type,
                 toUnits(args.product.minimumValue)
             )
         )
-                && _amount.lessOrEqualThan(
+                && _amount!!.lessOrEqualThan(
             valueOf(
-                _amount.type,
+                _amount!!.type,
                 toUnits(args.product.maximumValue)
             )
         )
