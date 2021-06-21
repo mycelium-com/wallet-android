@@ -28,8 +28,10 @@ class RegisterFioDomainViewModel : ViewModel() {
     fun registerDomain(fioModule: FioModule, doOnSuccess: (String) -> Unit, doOnError: (String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val expiration = fioAccountToRegisterName.value!!.registerFIOAddress(domain.value!!)!!
-                doOnSuccess(expiration)
+                val expiration = fioAccountToRegisterName.value!!.registerFIODomain(domain.value!!)!!
+                withContext(Dispatchers.Main) {
+                    doOnSuccess(expiration)
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Logger.getLogger(RegisterFioDomainViewModel::class.simpleName).log(Level.WARNING, "failed to register fio domain: ${e.localizedMessage}")

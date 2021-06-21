@@ -112,6 +112,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.fio.FIOOBTransaction;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.FioModule;
 import com.squareup.otto.Subscribe;
 
@@ -502,7 +503,8 @@ public class TransactionHistoryFragment extends Fragment {
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
                      if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
                              || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
-                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
+                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account
+                             || _mbwManager.getSelectedAccount() instanceof FioAccount) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);

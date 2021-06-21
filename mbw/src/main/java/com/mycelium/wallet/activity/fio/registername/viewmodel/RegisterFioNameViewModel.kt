@@ -33,7 +33,9 @@ class RegisterFioNameViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val expiration = fioAccountToRegisterName.value!!.registerFIOAddress(addressWithDomain.value!!)!!
-                doOnSuccess(expiration)
+                withContext(Dispatchers.Main) {
+                    doOnSuccess(expiration)
+                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Logger.getLogger(RegisterFioNameViewModel::class.simpleName).log(Level.WARNING, "failed to register fio name: ${e.localizedMessage}")
