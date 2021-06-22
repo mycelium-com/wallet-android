@@ -126,7 +126,7 @@ class GiftboxBuyFragment : Fragment() {
                     amountRoot.setOnClickListener {
                         findNavController().navigate(
                             GiftboxBuyFragmentDirections.enterAmount(
-                                product!!, viewModel.amount.value
+                                product!!, viewModel.maxSpendableAmount.value!!,viewModel.amount.value
                             )
                         )
                     }
@@ -322,6 +322,13 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     fun minerFeeFiat(): Value {
         return convert(minerFeeCrypto(), zeroFiatValue.type) ?: zeroFiatValue
     }
+    val maxSpendableAmount: MutableLiveData<Value> by lazy { MutableLiveData(maxSpendableAmount()) }
+    fun maxSpendableAmount(): Value {
+        return convert(getMaxSpendable(), zeroFiatValue.type) ?: zeroFiatValue
+    }
+
+    private fun getMaxSpendable() = mbwManager.getWalletManager(false)
+        .getAccount(accountId.value!!)?.accountBalance?.spendable!!
 
     val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
     fun minerFeeCrypto() = getFeeItem().value
