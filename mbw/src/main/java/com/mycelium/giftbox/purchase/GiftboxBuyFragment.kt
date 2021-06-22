@@ -192,6 +192,7 @@ class GiftboxBuyFragment : Fragment() {
                     viewModel.totalAmountCrypto.value!!,
                     viewModel.minerFeeFiat(),
                     viewModel.minerFeeCrypto(),
+                    viewModel.quantityInt.value!!,
                     viewModel.orderResponse.value!!
                 )
             )

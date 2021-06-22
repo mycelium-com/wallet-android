@@ -147,8 +147,26 @@
                         app:layout_constraintLeft_toRightOf="@id/tvMinerFeeAmount" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/more"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{vm.moreText}"
+                    android:textColor="@color/fio_prm_btn_line"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="12dp"
+                    tools:text="Show transaction details"
+                    app:layout_constraintLeft_toLeftOf="@id/tvDescription"
+                    app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
-                <include layout="@layout/details_common" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{vm.more ? View.GONE : View.VISIBLE}">
+                    <include layout="@layout/details_common" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <Button
@@ -161,7 +179,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="@dimen/horizontal_page_margin"
                 android:layout_marginBottom="60dp"
-                android:text="@string/ok"
+                android:text="Gift card"
                 android:textSize="20sp" />
         </LinearLayout>
     </ScrollView>

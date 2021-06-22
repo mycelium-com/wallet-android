@@ -139,8 +139,16 @@
             android:name="minerFeeCrypto"
             app:argType="com.mycelium.wapi.wallet.coins.Value" />
         <argument
+            android:name="quantity"
+            app:argType="integer" />
+        <argument
             android:name="orderResponse"
             app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
+
+        <action
+            android:id="@+id/toGiftBox"
+            app:destination="@id/giftboxFragment"
+            app:popUpTo="@+id/giftboxFragment" />
     </fragment>
     <fragment
         android:id="@+id/redeemInstructionsFragment"

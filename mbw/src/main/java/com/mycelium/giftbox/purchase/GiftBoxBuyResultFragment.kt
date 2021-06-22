@@ -9,7 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.giftbox.loadImage
@@ -53,12 +55,17 @@ class GiftBoxBuyResultFragment : Fragment() {
         viewModel.minerFeeFiat.value = args.minerFeeFiat.toStringWithUnit()
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto.toStringWithUnit()
         val product = args.productResponse.product
-        with(binding){
+        with(binding) {
             ivImage.loadImage(product?.cardImageUrl)
             tvName.text = product?.name
             tvExpire.text = product?.expiryDatePolicy
             tvCardValueHeader.text =
-                "From " + product?.minimumValue + " to " + product?.maximumValue
+                """From ${product?.minimumValue} to ${product?.maximumValue} ${product?.currencyCode?.toUpperCase()}"""
+            tvQuantity.text = args.quantity.toString()
+        }
+        view.findViewById<TextView>(R.id.tvCountry).text = product?.countries?.joinToString { "," }
+        binding?.btSend?.setOnClickListener {
+            findNavController().navigate(GiftBoxBuyResultFragmentDirections.toGiftBox())
         }
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         val accountId = args.accountId
@@ -101,6 +108,9 @@ class GiftBoxBuyResultFragment : Fragment() {
         (binding?.root?.findViewById<View>(R.id.tvConfirmed) as TextView).text =
             confirmed
 
+        binding?.more?.setOnClickListener {
+            viewModel.more.value = !viewModel.more.value!!
+        }
         // Set Date & Time
         val date: Date = Date(tx.getTimestamp() * 1000L)
         val locale = resources.configuration.locale
@@ -124,4 +134,12 @@ class GiftboxBuyResultViewModel : ViewModel() {
     val totalAmountCryptoString = MutableLiveData("")
     val minerFeeFiat = MutableLiveData("")
     val minerFeeCrypto = MutableLiveData("")
+    val more = MutableLiveData(true)
+    val moreText = Transformations.map(more) {
+        if (it){
+            "Show transaction details >"
+        } else {
+            "Show transaction details (hide)"
+        }
+    }
 }

@@ -52,7 +52,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/country"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/tvCountryLabel"
@@ -88,6 +87,28 @@
                 tools:text="From $1 to $100" />
 
             <TextView
+                android:id="@+id/tvQuantityLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/quantity"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvCardValueHeader" />
+
+            <TextView
+                android:id="@+id/tvQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/tvQuantityLabel"
+                app:layout_constraintStart_toEndOf="@id/tvQuantityLabel"
+                tools:text="5" />
+
+            <TextView
                 android:id="@+id/tvExpireTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -96,7 +117,7 @@
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvCardValueHeader" />
+                app:layout_constraintTop_toBottomOf="@id/tvQuantityLabel" />
 
             <TextView
                 android:id="@+id/tvExpire"
