@@ -149,6 +149,11 @@
             android:id="@+id/toGiftBox"
             app:destination="@id/giftboxFragment"
             app:popUpTo="@+id/giftboxFragment" />
+
+        <action
+            android:id="@+id/toDetails"
+            app:destination="@id/purchasedDetails"
+            app:popUpTo="@+id/giftboxFragment" />
     </fragment>
     <fragment
         android:id="@+id/redeemInstructionsFragment"

@@ -11,16 +11,21 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.details.MODE
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment.Companion.newInstance
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -65,7 +70,10 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
         view.findViewById<TextView>(R.id.tvCountry).text = product?.countries?.joinToString { "," }
         binding?.btSend?.setOnClickListener {
-            findNavController().navigate(GiftBoxBuyResultFragmentDirections.toGiftBox())
+            if (args.quantity == 1) {
+                loadOrder()
+            } else gotoMainPage()
+
         }
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         val accountId = args.accountId
@@ -76,6 +84,12 @@ class GiftBoxBuyResultFragment : Fragment() {
         transaction.add(R.id.spec_details_fragment, newInstance(tx, false, accountId))
         transaction.commit()
         updateUi()
+    }
+
+    private fun gotoMainPage() {
+        findNavController().navigate(
+            GiftBoxBuyResultFragmentDirections.toGiftBox()
+        )
     }
 
     private fun updateUi() {
@@ -122,6 +136,24 @@ class GiftBoxBuyResultFragment : Fragment() {
         (binding?.root?.findViewById<View>(R.id.tvTime) as TextView).text = timeString
     }
 
+    private fun loadOrder() {
+        loader(true)
+        GitboxAPI.giftRepository.getOrders(scope = lifecycleScope, success = {
+            val order = it?.items?.sortedBy { it.timestamp }?.reversed()?.firstOrNull()
+            order?.let {
+                findNavController().navigate(
+                    GiftBoxBuyResultFragmentDirections.toDetails(it, MODE.STATUS)
+                )
+            } ?: run {
+                gotoMainPage()
+            }
+        }, error = { _, msg ->
+            Toaster(this).toast(msg, true)
+            gotoMainPage()
+        }, finally = {
+            loader(false)
+        })
+    }
 
     override fun onDestroyView() {
         binding = null
@@ -136,7 +168,7 @@ class GiftboxBuyResultViewModel : ViewModel() {
     val minerFeeCrypto = MutableLiveData("")
     val more = MutableLiveData(true)
     val moreText = Transformations.map(more) {
-        if (it){
+        if (it) {
             "Show transaction details >"
         } else {
             "Show transaction details (hide)"
