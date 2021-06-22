@@ -66,6 +66,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 setEnteredAmount(toUnits(args.product.maximumValue).toString())
                 checkEntry()
             }
+
+            tvSpendableAmount.text = args.maxSpendableAmount.toStringWithUnit()
         }
 
         initNumberEntry(savedInstanceState)
