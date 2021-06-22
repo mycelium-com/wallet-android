@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/fragment_giftbox_buy">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -70,7 +69,6 @@
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
                 android:background="#33FFFFFF" />
-
             <!-- Balance -->
 
             <LinearLayout
@@ -78,16 +76,16 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/tvDiscountTitle"
+                    android:id="@+id/tvSpendableTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="Discount: "
-                    android:textColor="@color/fio_white_alpha_0_8"
-                    android:textSize="14sp" />
+                    android:text="Spendable: "
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
 
                 <TextView
-                    android:id="@+id/tvDiscount"
+                    android:id="@+id/tvSpendableAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"

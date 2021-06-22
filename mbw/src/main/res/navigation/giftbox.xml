@@ -88,7 +88,10 @@
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
-
+        <argument
+            android:name="maxSpendableAmount"
+            app:argType="com.mycelium.wapi.wallet.coins.Value"
+            />
         <argument
             android:name="amount"
             app:argType="com.mycelium.wapi.wallet.coins.Value"

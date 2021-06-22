@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.wallet.*
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxAmountBinding
@@ -64,6 +66,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 setEnteredAmount(toUnits(args.product.maximumValue).toString())
                 checkEntry()
             }
+
+            tvSpendableAmount.text = args.maxSpendableAmount.toStringWithUnit()
         }
 
         initNumberEntry(savedInstanceState)
@@ -93,7 +97,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         val amountString: String
         if (!isNullOrZero(_amount)) {
             val denomination = _mbwManager.getDenomination(_amount?.type)
-            amountString = _amount?.toString(denomination)?:""
+            amountString = _amount?.toString(denomination) ?: ""
         } else {
             amountString = ""
         }
@@ -119,6 +123,39 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                     .getAmount(BigDecimal(value).toBigInteger())
             )
         }
+
+        val insufficientFounds = _amount!!.moreThan(args.maxSpendableAmount)
+        val exceedCardPrice = _amount!!.moreThan(
+            valueOf(
+                _amount!!.type,
+                toUnits(args.product.maximumValue)
+            )
+        )
+        val minimumPrice = valueOf(
+            _amount!!.type,
+            toUnits(args.product.minimumValue)
+        )
+        val lessMinimumCardPrice = _amount!!.lessThan(
+            minimumPrice
+        )
+
+        binding.tvAmount.setTextColor(
+            ResourcesCompat.getColor(
+                resources,
+                if (insufficientFounds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
+                null
+            )
+        )
+        if (insufficientFounds) {
+            Toaster(requireContext()).toast("Insufficient funds", true)
+        }
+        if (exceedCardPrice) {
+            Toaster(requireContext()).toast("Exceed card value", true)
+        }
+        if (lessMinimumCardPrice) {
+            Toaster(requireContext()).toast("Minimal card value: " + minimumPrice.toStringWithUnit(), true)
+        }
+
     }
 
     private fun checkEntry() {
