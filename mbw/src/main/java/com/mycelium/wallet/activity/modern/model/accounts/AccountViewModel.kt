@@ -33,6 +33,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
     val privateKeyCount = if (account is HDAccount) account.getPrivateKeyCount() else -1
     val canSpend = account.canSpend()
     val externalAccountType = if (account is HDAccountExternalSignature) account.accountType else -1
+    val additional = mutableMapOf<String, Any?>()
 
     init {
         val receivingAddress = account.receiveAddress
@@ -74,6 +75,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
         if (label != other.label) return false
         if (displayAddress != other.displayAddress) return false
         if (isSyncing != other.isSyncing) return false
+        if (additional != other.additional) return false
 
         return true
     }
@@ -89,6 +91,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
         result = 31 * result + label.hashCode()
         result = 31 * result + displayAddress.hashCode()
         result = 31 * result + isSyncing.hashCode()
+        result = 31 * result + additional.hashCode()
         return result
     }
 

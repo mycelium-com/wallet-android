@@ -8,31 +8,31 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.receive.adapter.*
+import com.mycelium.giftbox.GiftboxPreference
+import com.mycelium.giftbox.purchase.adapter.AccountAdapter
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.activity.view.loader
+import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
-import kotlinx.android.synthetic.main.fragment_bequant_select_account.*
+import kotlinx.android.synthetic.main.fragment_giftbox_select_account.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account), ExchangeRateManager.Observer {
-    val adapter = AccountAdapter(AccountAdapterConfig(
-            R.layout.item_giftbox_select_account,
-            R.layout.item_giftbox_select_account_group,
-            R.layout.item_giftbox_select_account_total
-    ))
+    val adapter = AccountAdapter()
     val args by navArgs<SelectAccountFragmentArgs>()
     private val listModel: AccountsListModel by activityViewModels()
-
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,13 +55,22 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         val accountsGroupsList = listModel.accountsData.value!!
         generateAccountList(accountsGroupsList)
         list.adapter = adapter
+        list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
+        adapter.accountClickListener = { accountItem ->
+            findNavController().navigate(SelectAccountFragmentDirections.actionNext(accountItem.accountId, args.product))
+        }
+        adapter.groupClickListener = {
+            val title = it.getTitle(requireContext())
+            GiftboxPreference.setGroupOpen(title, !GiftboxPreference.isGroupOpen(title))
+            MbwManager.getEventBus().post(AccountListChanged())
+        }
     }
 
     private fun generateAccountList(accountView: List<AccountsGroupModel>) {
         val currencies = args.currencies.mapNotNull { it.name }
         val accountsList = mutableListOf<AccountListItem>()
         for (accountsGroup in accountView) {
-            if (accountsGroup.getType() == com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE) {
+            if (accountsGroup.getType() == AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE) {
                 continue
             }
             val accounts = accountsGroup.accountsList
@@ -70,21 +79,21 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
                         it.canSpend && it.balance?.spendable?.moreThanZero() == true
                                 && currencies.find { cur -> cur.equals(Util.trimTestnetSymbolDecoration(it.coinType.symbol), true) } != null
                     }
-                    .map { AccountItem(it.label, it.balance?.spendable, it.accountId) }
-
             if (accounts.isNotEmpty()) {
-                val groupModel = AccountGroupItem(!accountsGroup.isCollapsed, accountsGroup.getTitle(requireContext()), accountsGroup.sum!!)
-                accountsList.add(groupModel)
-                if (groupModel.isOpened) {
+                accountsGroup.isCollapsed = !GiftboxPreference.isGroupOpen(accountsGroup.getTitle(requireContext()))
+                accountsList.add(accountsGroup)
+                if (!accountsGroup.isCollapsed) {
+                    val fiatType = FiatType(args.product.currencyCode)
+                    accounts.forEach { model ->
+                        mbwManager.exchangeRateManager.get(model.balance?.spendable, fiatType)?.let {
+                            model.additional["fiat"] = it.toStringWithUnit()
+                        }
+                    }
                     accountsList.addAll(accounts)
                 }
             }
         }
         adapter.submitList(accountsList)
-
-        adapter.accountClickListener = { accountItem ->
-            findNavController().navigate(SelectAccountFragmentDirections.actionNext(accountItem.accountId!!, args.product))
-        }
     }
 
     override fun onDestroy() {
@@ -95,8 +104,9 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
     override fun refreshingExchangeRatesSucceeded() {
         lifecycleScope.launch(Dispatchers.Main) {
             loader(false)
-            generateAccountList(listModel.accountsData.value!!)
+            MbwManager.getEventBus().post(AccountListChanged())
         }
+
     }
 
     override fun refreshingExchangeRatesFailed() {
@@ -107,7 +117,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
 
     override fun exchangeSourceChanged() {
         lifecycleScope.launch(Dispatchers.Main) {
-            generateAccountList(listModel.accountsData.value!!)
+            MbwManager.getEventBus().post(AccountListChanged())
         }
     }
 }
