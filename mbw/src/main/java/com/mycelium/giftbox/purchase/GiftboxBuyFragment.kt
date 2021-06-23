@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,8 +20,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.model.BitcoinTransaction
-import com.mrd.bitlib.util.HashUtils
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
@@ -41,15 +40,12 @@ import com.mycelium.wallet.activity.send.model.SendCoinsModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
-import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.manager.State
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
@@ -126,6 +122,8 @@ class GiftboxBuyFragment : Fragment(), BroadcastResultListener {
                     ivImage.loadImage(product?.cardImageUrl)
                     tvName.text = product?.name
                     tvExpire.text = product?.expiryDatePolicy
+                    tvQuantityLabel.isVisible = false
+                    tvQuantity.isVisible = false
                     tvCardValueHeader.text =
                         """From ${product?.minimumValue} to ${product?.maximumValue} ${product?.currencyCode?.toUpperCase()}"""
                     tvCountry.text = product?.countries?.joinToString(separator = ", ")

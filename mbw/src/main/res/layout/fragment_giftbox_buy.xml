@@ -136,7 +136,7 @@
                     android:layout_marginTop="24dp">
 
                     <TextView
-                        android:id="@+id/tvQuantityLabel"
+                        android:id="@+id/tvQuantityLabelView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/quantity"
