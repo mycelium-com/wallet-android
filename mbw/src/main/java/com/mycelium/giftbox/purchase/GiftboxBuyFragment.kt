@@ -1,6 +1,5 @@
 package com.mycelium.giftbox.purchase
 
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -20,7 +19,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.util.HexUtils
+import com.mrd.bitlib.model.BitcoinTransaction
+import com.mrd.bitlib.util.HashUtils
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
@@ -32,7 +32,6 @@ import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
@@ -42,12 +41,15 @@ import com.mycelium.wallet.activity.send.model.SendCoinsModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.manager.State
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
@@ -56,8 +58,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
 import java.util.*
 
-class GiftboxBuyFragment : Fragment() , BroadcastResultListener {
-    private var activityResultDialog: BroadcastDialog? = null
+class GiftboxBuyFragment : Fragment(), BroadcastResultListener {
     private lateinit var binding: FragmentGiftboxBuyBinding
     val args by navArgs<GiftboxBuyFragmentArgs>()
 
@@ -167,7 +168,10 @@ class GiftboxBuyFragment : Fragment() , BroadcastResultListener {
                     viewModel.orderResponse.value = orderResponse
                     //TODO tBTC for debug for send test, do we need BTC instead?
                     val address =
-                        BtcAddress(Utils.getBtcCoinType(), BitcoinAddress.fromString(orderResponse?.payinAddress))
+                        BtcAddress(
+                            Utils.getBtcCoinType(),
+                            BitcoinAddress.fromString(orderResponse?.payinAddress)
+                        )
 
                     val intent = SendCoinsActivity.getIntent(
                         requireActivity(),
@@ -188,7 +192,7 @@ class GiftboxBuyFragment : Fragment() , BroadcastResultListener {
                             }
                             SendCoinsModel.TransactionStatus.BUILDING -> loader(true)
                             else -> {
-                                Toaster(this).toast("!!!! " + it.toString(), false)
+                                Toaster(this).toast("Error occured: $it", false)
                             }
                         }
                     }
@@ -209,15 +213,14 @@ class GiftboxBuyFragment : Fragment() , BroadcastResultListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        sendBtcViewModel.processReceivedResults(requestCode, resultCode, data, requireActivity())
-
-        if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val signedTransaction =
-                data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION) as Transaction
-            activityResultDialog = BroadcastDialog.create(
-                    sendBtcViewModel.getAccount(),
-                    isColdStorage = false,
-                    transaction = signedTransaction)
+        with(sendBtcViewModel) {
+            processReceivedResults(
+                requestCode,
+                resultCode,
+                data,
+                requireActivity()
+            )
+            activityResultDialog?.setTargetFragment(this@GiftboxBuyFragment, 107)
             activityResultDialog?.show(parentFragmentManager, "ActivityResultDialog")
         }
 
@@ -231,11 +234,10 @@ class GiftboxBuyFragment : Fragment() , BroadcastResultListener {
 
     override fun broadcastResult(broadcastResult: BroadcastResult) {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
-            val txHash = HexUtils.toHex(activityResultDialog?.transaction?.txBytes())
             findNavController().navigate(
                 GiftboxBuyFragmentDirections.toResult(
                     args.accountId,
-                    txHash!!,
+                    sendBtcViewModel.getSignedTransaction() as BtcTransaction,
                     viewModel.productResponse.value!!,
                     viewModel.totalAmountFiat.value!!,
                     viewModel.totalAmountCrypto.value!!,
@@ -245,9 +247,8 @@ class GiftboxBuyFragment : Fragment() , BroadcastResultListener {
                     viewModel.orderResponse.value!!
                 )
             )
+
         }
-
-
     }
 }
 

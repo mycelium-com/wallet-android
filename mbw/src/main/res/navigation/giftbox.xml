@@ -121,8 +121,8 @@
             android:name="accountId"
             app:argType="java.util.UUID" />
         <argument
-            android:name="txHash"
-            app:argType="string" />
+            android:name="transaction"
+            app:argType="com.mycelium.wapi.wallet.btc.BtcTransaction" />
         <argument
             android:name="productResponse"
             app:argType="com.mycelium.giftbox.client.models.ProductResponse" />

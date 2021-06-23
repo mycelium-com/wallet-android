@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.details.MODE
 import com.mycelium.giftbox.loadImage
@@ -27,8 +26,10 @@ import com.mycelium.wallet.activity.util.TransactionDetailsLabel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.tvExpire
 import kotlinx.android.synthetic.main.giftcard_send_info.*
@@ -42,6 +43,7 @@ class GiftBoxBuyResultFragment : Fragment() {
     private var binding: FragmentGiftboxBuyResultBinding? = null
 
     val args by navArgs<GiftBoxBuyResultFragmentArgs>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -75,10 +77,15 @@ class GiftBoxBuyResultFragment : Fragment() {
             } else gotoMainPage()
 
         }
-        val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
+        binding?.more?.setOnClickListener {
+            viewModel.more.value = !viewModel.more.value!!
+        }
         val accountId = args.accountId
+        val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
         val account = walletManager.getAccount(accountId) as AbstractBtcAccount
-        val transactionSummary = account.getTransactionSummary(Sha256Hash.fromString(args.txHash))
+        val fromUnconfirmedTransaction =
+            TransactionEx.fromUnconfirmedTransaction(args.transaction.tx)
+        val transactionSummary = account.getTransactionSummary(fromUnconfirmedTransaction.txid)
         tx = account.getTxSummary(transactionSummary.txid.bytes)!!
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
         transaction.add(R.id.spec_details_fragment, newInstance(tx, false, accountId))
@@ -122,9 +129,6 @@ class GiftBoxBuyResultFragment : Fragment() {
         (binding?.root?.findViewById<View>(R.id.tvConfirmed) as TextView).text =
             confirmed
 
-        binding?.more?.setOnClickListener {
-            viewModel.more.value = !viewModel.more.value!!
-        }
         // Set Date & Time
         val date: Date = Date(tx.getTimestamp() * 1000L)
         val locale = resources.configuration.locale
