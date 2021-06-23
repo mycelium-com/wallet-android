@@ -30,14 +30,15 @@ import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
-import com.mycelium.wallet.Constants.TRANSACTION_ID_INTENT_KEY
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
 import com.mycelium.wallet.activity.send.model.FeeItem
 import com.mycelium.wallet.activity.send.model.SendBtcViewModel
+import com.mycelium.wallet.activity.send.model.SendCoinsModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
@@ -179,8 +180,18 @@ class GiftboxBuyFragment : Fragment() , BroadcastResultListener {
                     val account =
                         mbwManager.getWalletManager(false).getAccount(viewModel.accountId.value!!)!!
                     sendBtcViewModel.init(account, intent)
-                    sendBtcViewModel.sendTransaction(requireActivity())
-
+                    sendBtcViewModel.getTransactionStatus().observe(viewLifecycleOwner) {
+                        when (it) {
+                            SendCoinsModel.TransactionStatus.OK -> {
+                                loader(false)
+                                sendBtcViewModel.sendTransaction(requireActivity())
+                            }
+                            SendCoinsModel.TransactionStatus.BUILDING -> loader(true)
+                            else -> {
+                                Toaster(this).toast("!!!! " + it.toString(), false)
+                            }
+                        }
+                    }
                 }, error = { _, error ->
                     ErrorHandler(requireContext()).handle(error)
                     loader(false)
