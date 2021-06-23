@@ -11,6 +11,10 @@
         android:label="Gift cards"
         tools:layout="@layout/fragment_gift_box">
 
+        <argument
+            app:argType="boolean"
+            android:name="startWithPurchased"
+            android:defaultValue="false" />
         <action
             android:id="@+id/actionSelectCountries"
             app:destination="@id/selectCountiesFragment" />

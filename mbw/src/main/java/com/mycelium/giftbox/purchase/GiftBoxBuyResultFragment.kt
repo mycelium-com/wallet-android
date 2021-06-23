@@ -95,7 +95,7 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     private fun gotoMainPage() {
         findNavController().navigate(
-            GiftBoxBuyResultFragmentDirections.toGiftBox()
+            GiftBoxBuyResultFragmentDirections.toGiftBox(true)
         )
     }
 
