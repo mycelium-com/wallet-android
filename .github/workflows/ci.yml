@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+    branches:
+    - develop
+jobs:
+  build:
+    if: >
+      !contains(github.event.head_commit.message, '#skip-ci')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          #ssh-key: ${{ secrets.DEPLOYER_GITHUB_SSH_KEY }}
+
+      - name: Set up JDK environment
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: |
+            mbw/build/outputs/apk/
