@@ -229,10 +229,10 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                         Utils.getBtcCoinType(),
                         BitcoinAddress.fromString(orderResponse.value!!.payinAddress)
                     )
-                val fee = Value.valueOf(account?.basedOnCoinType!!, getFeeItemList()[getFeeItemList().size / 2].feePerKb)
+
                 val createTx = account?.createTx(
                     address, totalAmountCrypto.value!!,
-                    FeePerKbFee(fee), null
+                    FeePerKbFee(feeEstimation.normal), null
                 )
                 account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                 offer(createTx!! as BtcTransaction to account!!.broadcastTx(createTx))
@@ -261,19 +261,9 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
     }
 
-    private fun getFeeItemList(): List<FeeItem> {
-        return feeItemsBuilder.getFeeItemList(
-            account!!.basedOnCoinType,
-            feeEstimation, MinerFee.NORMAL, estimateTxSize()
-        )
-    }
 
     fun zeroValue(product: ProductInfo): Value {
         return Value.zeroValue(Utils.getTypeByName(product.currencyCode)!!)
-    }
-
-    fun getFeeItem(): FeeItem {
-        return getFeeItemList()[0]
     }
 
     private fun estimateTxSize() = account!!.typicalEstimatedTransactionSize
@@ -361,7 +351,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         .getAccount(accountId.value!!)?.accountBalance?.spendable!!
 
     val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
-    fun minerFeeCrypto() = getFeeItem().value
+    fun minerFeeCrypto() = feeEstimation.normal
 
     val isGrantedPlus =
         Transformations.map(
