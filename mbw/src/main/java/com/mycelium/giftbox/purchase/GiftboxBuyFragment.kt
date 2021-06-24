@@ -20,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.model.BitcoinTransaction
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
@@ -30,31 +31,32 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.send.SendCoinsActivity
-import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
 import com.mycelium.wallet.activity.send.model.FeeItem
-import com.mycelium.wallet.activity.send.model.SendBtcViewModel
-import com.mycelium.wallet.activity.send.model.SendCoinsModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
+import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
 import java.util.*
 
-class GiftboxBuyFragment : Fragment(), BroadcastResultListener {
+class GiftboxBuyFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxBuyBinding
     val args by navArgs<GiftboxBuyFragmentArgs>()
 
@@ -68,14 +70,9 @@ class GiftboxBuyFragment : Fragment(), BroadcastResultListener {
         }
     }
 
-    val sendBtcViewModel by lazy { SendBtcViewModel(requireActivity().application) }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.accountId.value = args.accountId
-        if (savedInstanceState != null) {
-            sendBtcViewModel.loadInstance(savedInstanceState)
-        }
         LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(receiver, IntentFilter(AmountInputFragment.ACTION_AMOUNT_SELECTED))
     }
@@ -164,42 +161,21 @@ class GiftboxBuyFragment : Fragment(), BroadcastResultListener {
                 currencyId = "btc",//Utils.getBtcCoinType().symbol
                 success = { orderResponse ->
                     viewModel.orderResponse.value = orderResponse
-                    //TODO tBTC for debug for send test, do we need BTC instead?
-                    val address =
-                        BtcAddress(
-                            Utils.getBtcCoinType(),
-                            BitcoinAddress.fromString(orderResponse?.payinAddress)
-                        )
-
-                    val intent = SendCoinsActivity.getIntent(
-                        requireActivity(),
-                        viewModel.accountId.value!!,
-                        viewModel.totalAmountCrypto.value?.valueAsLong!!,
-                        address,
-                        false
-                    )
-                    val mbwManager = MbwManager.getInstance(requireContext())
-                    val account =
-                        mbwManager.getWalletManager(false).getAccount(viewModel.accountId.value!!)!!
-                    sendBtcViewModel.init(account, intent)
-                    sendBtcViewModel.getTransactionStatus().observe(viewLifecycleOwner) {
-                        when (it) {
-                            SendCoinsModel.TransactionStatus.OK -> {
-                                loader(false)
-                                sendBtcViewModel.sendTransaction(requireActivity())
-                            }
-                            SendCoinsModel.TransactionStatus.BUILDING -> loader(true)
-                            else -> {
-                                Toaster(this).toast("Error occured: $it", false)
-                            }
-                        }
-                    }
+                    //TODO tBTC for debug for send test, do we need BTC instead
+                    loader(true)
+                    viewModel.sendTransactionAction.value = Unit
                 }, error = { _, error ->
                     ErrorHandler(requireContext()).handle(error)
                     loader(false)
                 }, finally = {
                     loader(false)
                 })
+
+            viewModel.sendTransaction.observe(viewLifecycleOwner) {
+                loader(false)
+                val (transaction, broadcastResult) = it
+                broadcastResult(transaction, broadcastResult)
+            }
         }
     }
 
@@ -209,33 +185,12 @@ class GiftboxBuyFragment : Fragment(), BroadcastResultListener {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        with(sendBtcViewModel) {
-            processReceivedResults(
-                requestCode,
-                resultCode,
-                data,
-                requireActivity()
-            )
-            activityResultDialog?.setTargetFragment(this@GiftboxBuyFragment, 107)
-            activityResultDialog?.show(parentFragmentManager, "ActivityResultDialog")
-        }
-
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-
-        sendBtcViewModel.saveInstance(outState)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun broadcastResult(broadcastResult: BroadcastResult) {
+    fun broadcastResult(transaction: BtcTransaction, broadcastResult: BroadcastResult) {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             findNavController().navigate(
                 GiftboxBuyFragmentDirections.toResult(
                     args.accountId,
-                    sendBtcViewModel.getSignedTransaction() as BtcTransaction,
+                    transaction,
                     viewModel.productResponse.value!!,
                     viewModel.totalAmountFiat.value!!,
                     viewModel.totalAmountCrypto.value!!,
@@ -264,6 +219,28 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
     }
 
+    val sendTransactionAction = MutableLiveData<Unit>()
+    val sendTransaction = Transformations.switchMap(sendTransactionAction) {
+        callbackFlow<Pair<BtcTransaction,BroadcastResult>> {
+            try {
+                val address =
+                    BtcAddress(
+                        Utils.getBtcCoinType(),
+                        BitcoinAddress.fromString(orderResponse.value!!.payinAddress)
+                    )
+                val fee = Value.valueOf(account?.basedOnCoinType!!, getFeeItemList()[getFeeItemList().size / 2].feePerKb)
+                val createTx = account?.createTx(
+                    address, totalAmountCrypto.value!!,
+                    FeePerKbFee(fee), null
+                )
+                account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
+                offer(createTx!! as BtcTransaction to account!!.broadcastTx(createTx))
+                channel.close()
+            } catch (ex: Exception) {
+                cancel(CancellationException("Tx", ex))
+            }
+        }.asLiveData(IO)
+    }
     val errorAmountMessage = Transformations.map(amount) {
         if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
     }
@@ -294,7 +271,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         return Value.zeroValue(Utils.getTypeByName(product.currencyCode)!!)
     }
 
-    private fun getFeeItem(): FeeItem {
+    fun getFeeItem(): FeeItem {
         return getFeeItemList()[0]
     }
 

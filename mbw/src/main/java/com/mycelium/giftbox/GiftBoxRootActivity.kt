@@ -30,13 +30,4 @@ class GiftBoxRootActivity : AppCompatActivity(R.layout.activity_gift_box_root) {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        supportFragmentManager.fragments.forEach {
-            if (it is NavHostFragment){
-                it.getChildFragmentManager().fragments[0].onActivityResult(requestCode, resultCode, data)
-            }
-        }
-    }
 }
