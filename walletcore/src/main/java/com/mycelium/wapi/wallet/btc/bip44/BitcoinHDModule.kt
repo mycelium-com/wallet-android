@@ -62,8 +62,8 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         val contexts = backing.loadBip44AccountContexts()
         var counter = 1
         for (context in contexts) {
-            if (loadingProgressUpdater.status is LoadingProgressStatus.Loading) {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.Migrating())
+            if (loadingProgressUpdater.status.state == LoadingProgressStatus.State.LOADING) {
+                LoadingProgressTracker.setStatus(LoadingProgressStatus(LoadingProgressStatus.State.MIGRATING))
             }
             val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
 
@@ -92,11 +92,13 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             account.setEventHandler(eventHandler)
             LoadingProgressTracker.clearLastFullUpdateTime()
 
-            if (loadingProgressUpdater.status is LoadingProgressStatus.Migrating || loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMHD) {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.MigratingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size)))
+            val state = if (loadingProgressUpdater.status.state == LoadingProgressStatus.State.MIGRATING ||
+                loadingProgressUpdater.status.state == LoadingProgressStatus.State.MIGRATING_N_OF_M_HD) {
+                LoadingProgressStatus.State.MIGRATING_N_OF_M_HD
             } else {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.LoadingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size)))
+                LoadingProgressStatus.State.LOADING_N_OF_M_HD
             }
+            LoadingProgressTracker.setStatus(LoadingProgressStatus(state, counter++, contexts.size))
         }
         return result
     }

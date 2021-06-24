@@ -10,7 +10,6 @@ class ColuAccountContext(val id: UUID, val coinType: ColuMain
                          , val address: Map<AddressType, BtcAddress>? = null
                          , private var isArchived: Boolean, var blockHeight: Int) {
 
-
     /**
      * Is this account archived?
      */
