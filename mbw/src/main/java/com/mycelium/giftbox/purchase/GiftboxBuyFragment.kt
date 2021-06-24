@@ -20,7 +20,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.model.BitcoinTransaction
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
@@ -31,15 +30,13 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
-import com.mycelium.wallet.activity.send.model.FeeItem
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -65,7 +62,7 @@ class GiftboxBuyFragment : Fragment() {
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, intent: Intent?) {
             intent?.getSerializableExtra(AmountInputFragment.AMOUNT_KEY)?.let {
-                viewModel.amount.value = it as Value
+                viewModel.totalAmountFiatSingle.value = it as Value
             }
         }
     }
@@ -97,8 +94,8 @@ class GiftboxBuyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btSend.isEnabled = viewModel.amount.value != null
-        binding.tvAmount.text = viewModel.amount.value?.toStringWithUnit()
+        binding.btSend.isEnabled = viewModel.totalAmountFiatSingle.value != null
+        viewModel.totalAmountFiatSingle.value = viewModel.totalAmountFiatSingle.value
 
         loader(true)
 
@@ -137,7 +134,7 @@ class GiftboxBuyFragment : Fragment() {
                             GiftboxBuyFragmentDirections.enterAmount(
                                 product!!,
                                 viewModel.maxSpendableAmount.value!!,
-                                viewModel.amount.value
+                                viewModel.totalAmountFiatSingle.value
                             )
                         )
                     }
@@ -201,7 +198,7 @@ class GiftboxBuyFragment : Fragment() {
                 )
             )
         } else {
-            ErrorHandler(requireContext()).handle(broadcastResult.errorMessage)
+            Toaster(requireActivity()).toast(broadcastResult.errorMessage, false)
         }
     }
 }
@@ -210,7 +207,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val gson = Gson()
     val accountId = MutableLiveData<UUID>()
     val zeroFiatValue = zeroValue(product)
-    val amount = MutableLiveData<Value>(zeroFiatValue)
+
     val orderResponse = MutableLiveData<OrderResponse>()
     val productResponse = MutableLiveData<ProductResponse>()
     val errorQuantityMessage: MutableLiveData<String> = MutableLiveData("")
@@ -222,7 +219,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
 
     val sendTransactionAction = MutableLiveData<Unit>()
     val sendTransaction = Transformations.switchMap(sendTransactionAction) {
-        callbackFlow<Pair<BtcTransaction,BroadcastResult>> {
+        callbackFlow<Pair<BtcTransaction, BroadcastResult>> {
             try {
                 val address =
                     BtcAddress(
@@ -236,14 +233,11 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                 )
                 account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                 offer(createTx!! as BtcTransaction to account!!.broadcastTx(createTx))
-                channel.close()
+                close()
             } catch (ex: Exception) {
                 cancel(CancellationException("Tx", ex))
             }
         }.asLiveData(IO)
-    }
-    val errorAmountMessage = Transformations.map(amount) {
-        if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
     }
 
     val quantityString: MutableLiveData<String> = MutableLiveData("0")
@@ -251,22 +245,19 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
     }
 
-    private val feeItemsBuilder by lazy {
-        FeeItemsBuilder(
-            mbwManager.exchangeRateManager,
-            mbwManager.getFiatCurrency(account?.coinType)
-        )
-    }
     private val feeEstimation by lazy {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
     }
-
 
     fun zeroValue(product: ProductInfo): Value {
         return Value.zeroValue(Utils.getTypeByName(product.currencyCode)!!)
     }
 
-    private fun estimateTxSize() = account!!.typicalEstimatedTransactionSize
+    val totalAmountFiatSingle = MutableLiveData<Value>(zeroFiatValue)
+    val totalAmountFiatSingleString = Transformations.map(totalAmountFiatSingle) {
+        it.toStringWithUnit()
+    }
+
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
     val totalAmountCryptoSingle: LiveData<Value> = totalAmountCrypto(forSingleItem = true)
     val totalAmountCryptoSingleString = Transformations.map(totalAmountCryptoSingle) {
@@ -275,7 +266,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
 
     private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
         zip2(
-            amount,
+            totalAmountFiatSingle,
             quantityInt.debounce(500)
                 .map { if (forSingleItem) 1 else it.toInt() }) { amount: Value, quantity: Int ->
             Pair(
@@ -382,6 +373,48 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.confirmed!!
     }
+
+    //TODO not sure if we need this at all
+    var wasEmpty = true
+    val errorAmountMessage = Transformations.map(totalAmountFiatSingle) {
+        if (wasEmpty) {
+            wasEmpty = !wasEmpty
+            return@map null
+        }
+        if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
+    }
+
+    //colors
+    val totalAmountSingleCryptoColor = Transformations.map(totalAmountCryptoSingle) {
+        getColorByCryptoValue(it)
+    }
+
+    val totalAmountCryptoColor = Transformations.map(totalAmountCrypto) {
+        getColorByCryptoValue(it)
+    }
+
+    val minerFeeCryptoColor by lazy { MutableLiveData(getColorByCryptoValue(minerFeeCrypto())) }
+
+    val totalAmountFiatColor = Transformations.map(totalAmountFiat) {
+        getColorByFiatValue(it)
+    }
+
+    val totalAmountFiatSingleColor = Transformations.map(totalAmountFiatSingle) {
+        getColorByFiatValue(it)
+    }
+
+    val minerFeeFiatColor by lazy { MutableLiveData(getColorByCryptoValue(minerFeeFiat())) }
+
+    private fun getColorByCryptoValue(it: Value) =
+        ContextCompat.getColor(WalletApplication.getInstance(),
+            if (it.moreThanZero()) R.color.white_alpha_0_6 else R.color.darkgrey)
+
+    private fun getColorByFiatValue(it: Value) =
+        ContextCompat.getColor(WalletApplication.getInstance(),
+            if (it.moreThanZero()) R.color.white else R.color.darkgrey)
+
+
+
 }
 
 data class ErrorMessage(val message: String)

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
@@ -57,6 +58,7 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupNavigation()
         viewModel.totalAmountFiatString.value = args.totalFiat.toStringWithUnit()
         viewModel.totalAmountCryptoString.value = "~" + args.totalCrypto.toStringWithUnit()
         viewModel.minerFeeFiat.value = args.minerFeeFiat.toStringWithUnit()
@@ -91,6 +93,15 @@ class GiftBoxBuyResultFragment : Fragment() {
         transaction.add(R.id.spec_details_fragment, newInstance(tx, false, accountId))
         transaction.commit()
         updateUi()
+    }
+
+    private fun setupNavigation() {
+        val callback: OnBackPressedCallback =
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                }
+            }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
     }
 
     private fun gotoMainPage() {

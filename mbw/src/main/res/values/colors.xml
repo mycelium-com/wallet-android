@@ -20,6 +20,7 @@
 
     <color name="greenblue">#0FF</color>
     <color name="darkgrey">#444</color>
+    <color name="white_alpha_0_6">#99ffffff</color>
     <color name="darkdarkgrey">#222</color>
     <color name="lightgrey">#bbb</color>
     <color name="lightgrey_transparent">#77555555</color>
