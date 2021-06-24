@@ -60,6 +60,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
+import com.mycelium.giftbox.GiftBoxRootActivity;
+import com.mycelium.giftbox.cards.GiftBoxFragment;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
@@ -428,6 +430,7 @@ public class ModernMain extends AppCompatActivity {
         if (!((FioModule) _mbwManager.getWalletManager(false).getModuleById(FioModule.ID)).getAllRegisteredFioNames().isEmpty()) {
             inflater.inflate(R.menu.record_fio_options, menu);
         }
+        inflater.inflate(R.menu.giftbox, menu);
         return true;
     }
 
@@ -542,6 +545,9 @@ public class ModernMain extends AppCompatActivity {
                 break;
             case R.id.miFIORequests:
                 selectRequestTab();
+                break;
+            case R.id.miGiftBox:
+                startActivity(new Intent(this, GiftBoxRootActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="model"
+            type="com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/giftcard_card_bg"
+                app:cardCornerRadius="14dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/ivImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.5dp"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:minHeight="250dp" />
+            </androidx.cardview.widget.CardView>
+
+            <include
+                android:id="@+id/layoutDescription"
+                layout="@layout/layout_giftbox_card_description"
+                app:viewModel="@{model}" />
+
+            <include
+                android:id="@+id/layoutProductInfo"
+                layout="@layout/giftcard_send_info"
+                app:viewModel="@{model}" />
+
+            <TextView
+                android:id="@+id/cardValueLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/card_value"
+                android:textColor="@color/giftbox_label"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/cardValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@{model.amount}"
+                android:textSize="18sp"
+                tools:text="From 1$ to 20$" />
+
+            <Button
+                android:id="@+id/btSend"
+                style="@style/MyceliumButton.FIO"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="32dp"
+                android:text="@string/proceed"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </ScrollView>
+</layout>

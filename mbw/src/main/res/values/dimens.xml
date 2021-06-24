@@ -48,4 +48,6 @@
     <dimen name="otp_view_item_spacing">4dp</dimen>
     <dimen name="otp_view_item_line_width">2dp</dimen>
     <dimen name="otp_view_cursor_width">2dp</dimen>
+
+    <dimen name="giftbox_small_corner">4dp</dimen>
 </resources>

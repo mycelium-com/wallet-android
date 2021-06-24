@@ -29,7 +29,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
-    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback(fragment.requireContext())) {
+    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
     private val context = fragment.requireContext()
 
     private var focusedAccountId: UUID? = null
@@ -258,7 +258,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         fun onItemClick(account: WalletAccount<out Address>)
     }
 
-    class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {
+    open class ItemListDiffCallback() : DiffUtil.ItemCallback<AccountListItem>() {
         override fun areItemsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean {
             return when {
                 oldItem.getType() != newItem.getType() -> false

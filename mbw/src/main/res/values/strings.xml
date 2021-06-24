@@ -1608,7 +1608,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="i_warrant_that_i_do_fall_under_fatca">I warrant that I do fall under FATCA</string>
     <string name="i_warrant_that_i_do_not_fall_under_fatca">I warrant that I do not fall under FATCA</string>
     <string name="fatca_legislations_requires">FATCA legislations requires certain U.S. taxpayers, who hold foreign financial assets, to report information about those assets on their annual income tax return. More information on eligibility can be found on <font color="#F2E868">www.irs.gov/fatca.</font> Please verify whether you fall under FATCA legislation.</string>
-    <string name="country">Country</string>
+    <string name="country">Country:</string>
     <string name="resend_verification_code">Resend verification code...</string>
     <string name="nothing_happened">Nothing happened?</string>
     <string name="delete_document">Do you want to delete the document?</string>
@@ -1656,4 +1656,33 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="buy_sell_s_button">BUY / SELL %s</string>
     <string name="boost_look_ahead_button_label">Missing Transactions?</string>
     <string name="btcv_hd_accounts_name">Bitcoin Vault HD</string>
+    <string name="gift_card_amount">Gift card amount:</string>
+    <string name="gift_cards_with_discount">Gift cards</string>
+    <string name="select_account_to_pay_with">Select account to pay with:</string>
+    <string name="expire_date">Expire date:</string>
+    <string name="card_value">Card value:</string>
+    <string name="total_amount">Total amount:</string>
+    <string name="quantity">Quantity:</string>
+    <string name="miner_fee">Miner Fee:</string>
+    <string name="expires_at">Expires at:</string>
+    <string name="currency">Currency:</string>
+    <string name="description">Description:</string>
+    <string name="available_country">Available country:</string>
+    <string name="buy">Buy</string>
+    <string name="redeem_instructions">Redeem instructions</string>
+    <string name="terms_and_conditions">Terms and conditions</string>
+    <string name="less">less</string>
+    <string name="proceed">Proceed</string>
+    <string name="more">more</string>
+    <string name="redeem_code">Redeem Code:</string>
+    <string name="giftbox_pin_code">Pin Code:</string>
+    <string name="delete_gift_card">Delete gift card?</string>
+    <string name="delete_gift_card_msg">Are you sure you want to delete this gift card?</string>
+    <string name="redeemed_gift_cards">REDEEMED GIFT CARDS</string>
+    <string name="all_countries">All countries</string>
+    <plurals name="d_countries">
+        <item quantity="zero"><u>All countries</u></item>
+        <item quantity="one"><u>%d country</u></item>
+        <item quantity="other"><u>%d countries</u></item>
+    </plurals>
 </resources>
