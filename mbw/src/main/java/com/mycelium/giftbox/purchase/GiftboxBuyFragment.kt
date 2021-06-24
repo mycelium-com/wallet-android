@@ -200,7 +200,8 @@ class GiftboxBuyFragment : Fragment() {
                     viewModel.orderResponse.value!!
                 )
             )
-
+        } else {
+            ErrorHandler(requireContext()).handle(broadcastResult.errorMessage)
         }
     }
 }
