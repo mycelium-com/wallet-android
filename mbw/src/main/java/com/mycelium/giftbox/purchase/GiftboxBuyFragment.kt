@@ -374,7 +374,13 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         return account?.accountBalance?.confirmed!!
     }
 
+    //TODO not sure if we need this at all
+    var wasEmpty = true
     val errorAmountMessage = Transformations.map(totalAmountFiatSingle) {
+        if (wasEmpty) {
+            wasEmpty = !wasEmpty
+            return@map null
+        }
         if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
     }
 
