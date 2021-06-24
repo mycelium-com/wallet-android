@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.layout_loading.view.*
 class LoaderFragment(val message: String? = null) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
-            window?.requestFeature(Window.FEATURE_NO_TITLE);
+            window?.requestFeature(Window.FEATURE_NO_TITLE)
         }
     }
 

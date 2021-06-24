@@ -36,7 +36,9 @@
     <string name="insufficient_funds">Недостаточно средств</string>
     <string name="insufficient_funds_for_fee">Недостаточно средств для оплаты вознаграждения майнерам</string>
     <string name="amount_too_small">Сумма, которую вы отправляете, слишком мала</string>
-    <string name="unable_to_build_tx">Не удаётся построить транзакцию</string>
+    <string name="unable_to_build_tx">Не удаётся построить транзакцию. %s</string>
+    <string name="no_utxo">У транзакции отсутствует UTXO, которое можно было бы использовать, или оно уже было потрачено</string>
+    <string name="parent_needs_no_boosting">Родительская транзакция не требует ускорения</string>
     <string name="amount_too_small_short">Сумма слишком мала</string>
     <string name="miner_fee_label">Вознаграждение</string>
     <string name="miner_fee_title">Вознаграждение майнера</string>

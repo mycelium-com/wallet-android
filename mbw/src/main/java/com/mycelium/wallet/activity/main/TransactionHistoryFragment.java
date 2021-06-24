@@ -112,6 +112,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.fio.FIOOBTransaction;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.FioModule;
 import com.squareup.otto.Subscribe;
 
@@ -502,7 +503,8 @@ public class TransactionHistoryFragment extends Fragment {
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
                      if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
                              || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
-                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
+                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account
+                             || _mbwManager.getSelectedAccount() instanceof FioAccount) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
@@ -765,7 +767,18 @@ public class TransactionHistoryFragment extends Fragment {
       } catch (InsufficientBtcException e) {
          new Toaster(getActivity()).toast(R.string.insufficient_funds, false);
       } catch (UnableToBuildTransactionException e) {
-         new Toaster(getActivity()).toast(getResources().getString(R.string.unable_to_build_tx), false);
+         String message;
+         switch (e.getCode()) {
+            case NO_UTXO:
+               message = getResources().getString(R.string.no_utxo);
+               break;
+            case PARENT_NEEDS_NO_BOOSTING:
+               message = getResources().getString(R.string.parent_needs_no_boosting);
+               break;
+            default:
+               message = getResources().getString(R.string.unable_to_build_tx, e.getMessage());
+         }
+         new Toaster(getActivity()).toast(message, false);
       }
       return null;
    }
