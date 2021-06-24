@@ -30,6 +30,7 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
@@ -197,7 +198,7 @@ class GiftboxBuyFragment : Fragment() {
                 )
             )
         } else {
-            ErrorHandler(requireContext()).handle(broadcastResult.errorMessage)
+            Toaster(requireActivity()).toast(broadcastResult.errorMessage,false)
         }
     }
 }
