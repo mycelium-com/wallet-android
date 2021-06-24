@@ -158,6 +158,8 @@
 
                         <androidx.appcompat.widget.AppCompatEditText
                             android:id="@+id/tvQuanity"
+                            android:translationX="-5dp"
+                            tools:text="8"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/roboto_mono_medium"
@@ -179,11 +181,14 @@
                     <!--                        app:layout_constraintStart_toStartOf="@id/tlQuanity" />-->
 
                     <LinearLayout
+                        android:paddingLeft="13dp"
                         android:id="@+id/quantityControl"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        android:gravity="center_vertical"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvQuantityLabel">
+                        app:layout_constraintTop_toTopOf="@id/quantityRoot"
+                        app:layout_constraintBottom_toBottomOf="@id/quantityRoot">
 
                         <ImageButton
                             android:id="@+id/btMinusQuantity"
