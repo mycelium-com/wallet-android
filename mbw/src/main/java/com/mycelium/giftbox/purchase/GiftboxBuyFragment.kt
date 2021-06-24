@@ -20,7 +20,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.model.BitcoinTransaction
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
@@ -31,15 +30,12 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
-import com.mycelium.wallet.activity.send.model.FeeItem
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -236,7 +232,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                 )
                 account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                 offer(createTx!! as BtcTransaction to account!!.broadcastTx(createTx))
-                channel.close()
+                close()
             } catch (ex: Exception) {
                 cancel(CancellationException("Tx", ex))
             }
@@ -251,22 +247,14 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
     }
 
-    private val feeItemsBuilder by lazy {
-        FeeItemsBuilder(
-            mbwManager.exchangeRateManager,
-            mbwManager.getFiatCurrency(account?.coinType)
-        )
-    }
     private val feeEstimation by lazy {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
     }
-
 
     fun zeroValue(product: ProductInfo): Value {
         return Value.zeroValue(Utils.getTypeByName(product.currencyCode)!!)
     }
 
-    private fun estimateTxSize() = account!!.typicalEstimatedTransactionSize
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
     val totalAmountCryptoSingle: LiveData<Value> = totalAmountCrypto(forSingleItem = true)
     val totalAmountCryptoSingleString = Transformations.map(totalAmountCryptoSingle) {
