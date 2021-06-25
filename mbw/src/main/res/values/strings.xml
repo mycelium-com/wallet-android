@@ -1680,6 +1680,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="delete_gift_card_msg">Are you sure you want to delete this gift card?</string>
     <string name="redeemed_gift_cards">REDEEMED GIFT CARDS</string>
     <string name="all_countries">All countries</string>
+    <string name="gift_card">Gift card</string>
     <string name="gift_cards">Gift cards</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
