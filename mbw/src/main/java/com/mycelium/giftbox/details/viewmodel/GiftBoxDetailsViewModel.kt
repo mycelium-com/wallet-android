@@ -1,8 +1,10 @@
 package com.mycelium.giftbox.details.viewmodel
 
 import android.app.Application
+import android.webkit.URLUtil
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.mycelium.giftbox.client.models.Ecode
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.ProductResponse
@@ -15,8 +17,8 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     val cardAmount = MutableLiveData<String>()
     val expireDate = MutableLiveData<String>()
 
-    val redeemCode = MutableLiveData<String>()
-    val pinCode = MutableLiveData<String>()
+    val redeemCode = MutableLiveData<String>("")
+    val pinCode = MutableLiveData<String>("")
 
     override val amount = MutableLiveData<String>()
     override val amountFiat = MutableLiveData<String>()
@@ -30,7 +32,6 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
 
     fun setOrder(order: OrderResponse) {
         cardAmount.value = "${order.amount} ${order.currencyCode}"
-        expireDate.value = "Does not expire" //TODO find where we can get expire date
         amount.value = "${order.amount} ${order.currencyCode}"
         date.value = order.timestamp?.getDateTimeString(getApplication<Application>().resources)
     }
@@ -39,5 +40,28 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
         productInfo = product.product
         description.value = product.product?.description
         expiry.value = if (product.product?.expiryInMonths != null) "${product.product?.expiryDatePolicy} (${product.product?.expiryInMonths} months)" else "Does not expire"
+        expireDate.value = expiry.value
+    }
+
+    fun setCodes(code: Ecode) {
+        when {
+            code.deliveryUrl?.isNotEmpty() == true -> {
+                redeemCode.value = code.deliveryUrl
+            }
+            URLUtil.isValidUrl(code.code) -> {
+                redeemCode.value = code.code
+            }
+            code.code?.isNotEmpty() == true -> {
+                redeemCode.value = code.code
+            }
+            else -> {
+                redeemCode.value = ""
+            }
+        }
+        pinCode.value = if (code.pin?.isNullOrEmpty() == true) {
+            code.pin
+        } else {
+            ""
+        }
     }
 }

@@ -66,7 +66,9 @@ class GiftBoxDetailsFragment : Fragment() {
         binding?.share?.setOnClickListener {
             share()
         }
-        viewModel.pinCode.value = args.order.items?.first()?.pin
+        args.order.items?.first()?.let {
+            viewModel.setCodes(it)
+        }
         viewModel.description.observe(viewLifecycleOwner) {
             setupDescription(it)
         }
