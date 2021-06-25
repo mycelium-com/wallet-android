@@ -228,7 +228,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                     )
 
                 val createTx = account?.createTx(
-                    address, totalAmountCrypto.value!!,
+                    address, getBtcAmount(orderResponse.value?.amountExpectedFrom!!),
                     FeePerKbFee(feeEstimation.normal), null
                 )
                 account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
@@ -295,7 +295,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                     if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice
                     }
-                    offer(getBtcAmount(priceResponse))
+                    offer(getBtcAmount(priceResponse.priceOffer!!))
                 },
                 error = { _, error ->
                     if (!forSingleItem) {
@@ -321,9 +321,9 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         return@map "~" + it.toStringWithUnit()
     }
 
-    private fun getBtcAmount(priceResponse: PriceResponse): Value {
+    private fun getBtcAmount(price: String): Value {
         val cryptoUnit =
-            BigDecimal(priceResponse.priceOffer).movePointRight(Utils.getBtcCoinType().unitExponent)
+            BigDecimal(price).movePointRight(Utils.getBtcCoinType().unitExponent)
                 .toBigInteger()
         return Value.valueOf(Utils.getBtcCoinType()!!, cryptoUnit)
     }
