@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="@string/card_value"
-                android:textColor="@color/fio_white_alpha_0_8"
+                android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -92,7 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/quantity"
-                android:textColor="@color/fio_white_alpha_0_8"
+                android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvCardValueHeader" />
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/expires_at"
-                android:textColor="@color/fio_white_alpha_0_8"
+                android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvQuantityLabel" />
