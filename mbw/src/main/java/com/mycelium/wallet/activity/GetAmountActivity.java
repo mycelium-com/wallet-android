@@ -286,11 +286,11 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          currencyListMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-               for (AssetInfo AssetInfo : currencyList) {
-                  if (menuItem.getItemId() == AssetInfo.hashCode()) {
-                     _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), AssetInfo);
+               for (AssetInfo assetInfo : currencyList) {
+                  if (menuItem.getItemId() == assetInfo.hashCode()) {
+                     _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), assetInfo);
                      if (_amount != null) {
-                        _amount = convert(_amount, AssetInfo);
+                        _amount = convert(_amount, assetInfo);
                      }
                      updateUI();
                      return true;
@@ -477,6 +477,8 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          }
          if(convertedAmount != null) {
             tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getDenomination(_account.getCoinType())));
+         } else {
+            tvAlternateAmount.setText(null);
          }
       }
    }
@@ -593,9 +595,9 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       });
    }
 
-   private Value convert(Value value, AssetInfo AssetInfo) {
+   private Value convert(Value value, AssetInfo assetInfo) {
       return ExchangeValueKt.get(_mbwManager.getExchangeRateManager(),
-              _mbwManager.getWalletManager(false), value, AssetInfo);
+              _mbwManager.getWalletManager(false), value, assetInfo);
    }
 
    @Subscribe

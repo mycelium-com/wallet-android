@@ -40,8 +40,6 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import androidx.annotation.NonNull;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
@@ -342,6 +340,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * the currently chosen exchange source is not available.
      */
     public ExchangeRate getExchangeRate(String source, String destination, String exchangeSource) {
+        if(source.equals(destination)) {
+            return new ExchangeRate(exchangeSource, System.currentTimeMillis(), 1.0, destination);
+        }
         Map<String, GetExchangeRatesResponse> latestRatesForSourceCurrency = _latestRates.get(source);
 
         // TODO need some refactoring for this

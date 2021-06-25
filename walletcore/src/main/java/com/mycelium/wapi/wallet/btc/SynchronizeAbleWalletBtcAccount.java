@@ -11,6 +11,7 @@ import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.SyncPausableAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
@@ -20,7 +21,7 @@ import java.util.List;
 
 import kotlin.jvm.Volatile;
 
-public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccount {
+public abstract class SynchronizeAbleWalletBtcAccount extends SyncPausableAccount implements WalletBtcAccount {
    private static final ImmutableMap<SyncMode.Mode, Integer> MIN_SYNC_INTERVAL = ImmutableMap.of(
          SyncMode.Mode.FAST_SYNC, 1000,
          SyncMode.Mode.ONE_ADDRESS, 1000,
@@ -80,14 +81,16 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public boolean synchronize(SyncMode mode){
       if (needsSynchronization(mode)){
          isSyncing = true;
-         boolean synced =  doSynchronization(mode);
-         isSyncing = false;
-         // if sync went well, remember current time for this sync mode
-         if (synced){
-            _lastSync.put(mode.mode, new Date());
+         try {
+            boolean synced = doSynchronization(mode);
+            // if sync went well, remember current time for this sync mode
+            if (synced) {
+               _lastSync.put(mode.mode, new Date());
+            }
+            return synced;
+         } finally {
+            isSyncing = false;
          }
-
-         return synced;
       } else {
          return true;
       }
@@ -95,7 +98,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    @Override
    public boolean isSyncing() {
-      return isSyncing;
+      return isSyncing && getMaySync();
    }
 
    public boolean isVisible() {

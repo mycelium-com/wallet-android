@@ -250,13 +250,13 @@ public class BalanceFragment extends Fragment {
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                                SendInitializationActivity.callMe(BalanceFragment.this.requireActivity(), _mbwManager.getSelectedAccount().getId(), false);
                             }
                         })
                         .create()
                         .show();
             } else {
-                SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                SendInitializationActivity.callMe(BalanceFragment.this.requireActivity(), _mbwManager.getSelectedAccount().getId(), false);
             }
         } else {
             new AlertDialog.Builder(getActivity())
@@ -413,7 +413,7 @@ public class BalanceFragment extends Fragment {
                                     }
 
                                     //we dont know yet where at what to send
-                                    SendInitializationActivity.callMeWithResult(getActivity(), account, true,
+                                    SendInitializationActivity.callMeWithResult(requireActivity(), account, true,
                                             StringHandlerActivity.SEND_INITIALIZATION_CODE);
                                 })
                                 .setNegativeButton(this.getString(R.string.cancel), null)

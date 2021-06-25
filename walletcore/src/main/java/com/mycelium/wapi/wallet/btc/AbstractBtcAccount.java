@@ -315,7 +315,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Get the current unspent outputs as dictated by the block chain
       QueryUnspentOutputsResponse unspentOutputResponse;
       try {
-         unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
+         QueryUnspentOutputsRequest request = new QueryUnspentOutputsRequest(Wapi.VERSION, addresses);
+         addCancelableRequest(request);
+         unspentOutputResponse = _wapi.queryUnspentOutputs(request)
                  .getResult();
       } catch (WapiException e) {
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
@@ -714,7 +716,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     */
    @Override
    public synchronized boolean broadcastOutgoingTransactions() {
-      checkNotArchived();
+      if(isArchived()) return false;
       List<Sha256Hash> broadcastedIds = new LinkedList<>();
       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
@@ -1254,7 +1256,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
       }
       if (!haveOutputToBump) {
-         throw new StandardTransactionBuilder.UnableToBuildTransactionException("We have no UTXO");
+         throw new StandardTransactionBuilder.UnableToBuildTransactionException(StandardTransactionBuilder.UnableToBuildTransactionException.BuildError.NO_UTXO);
       }
       BitcoinAddress changeAddress = getChangeAddress();
       long parentChildFeeSat;
@@ -1265,7 +1267,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
       if (parentChildFeeSat < childSize * minerFeeToUse / 1000) {
          // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
-         throw new StandardTransactionBuilder.UnableToBuildTransactionException("parent needs no boosting");
+         throw new StandardTransactionBuilder.UnableToBuildTransactionException(StandardTransactionBuilder.UnableToBuildTransactionException.BuildError.PARENT_NEEDS_NO_BOOSTING);
       }
       do {
          UnspentTransactionOutput utxo = utxos.remove(0);
