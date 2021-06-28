@@ -89,7 +89,7 @@ class StoresFragment : Fragment() {
                 val layoutManager = binding?.list?.layoutManager
                 if (layoutManager is LinearLayoutManager) {
                     if (layoutManager.findLastCompletelyVisibleItemPosition() > adapter.itemCount - 10 &&
-                            viewModel.loading.value == false) {
+                            viewModel.loading.value == false && !viewModel.quickSearch) {
                         loadData(viewModel.products.value?.size?.toLong() ?: 0)
                     }
                 }
@@ -135,17 +135,20 @@ class StoresFragment : Fragment() {
         val searchView = searchItem.actionView as SearchView
         searchView.setOnCloseListener {
             viewModel.search = null
+            viewModel.quickSearch = false
             loadData()
             true
         }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String): Boolean {
                 viewModel.search = s
+                viewModel.quickSearch = false
                 loadData()
                 return true
             }
 
             override fun onQueryTextChange(s: String): Boolean {
+                viewModel.quickSearch = true
                 adapter.submitList(viewModel.products.value?.filter {
                     it.name?.contains(s, true) ?: false
                 })
@@ -157,6 +160,7 @@ class StoresFragment : Fragment() {
 
             override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
                 viewModel.search = null
+                viewModel.quickSearch = false
                 loadData()
                 return true
             }
