@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.isVisible
@@ -54,9 +52,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
-import androidx.constraintlayout.widget.ConstraintSet
-
-
 
 
 class GiftboxBuyFragment : Fragment() {
@@ -98,6 +93,20 @@ class GiftboxBuyFragment : Fragment() {
         return binding.root
     }
 
+    val preselectedClickListener: (View) -> Unit = {
+        showChoicePreselectedValuesDialog()
+    }
+
+    val defaultClickListener: (View) -> Unit = {
+        findNavController().navigate(
+            GiftboxBuyFragmentDirections.enterAmount(
+                args.product!!,
+                viewModel.maxSpendableAmount.value!!,
+                viewModel.totalAmountFiatSingle.value
+            )
+        )
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.btSend.isEnabled = viewModel.totalAmountFiatSingle.value != null
@@ -109,15 +118,7 @@ class GiftboxBuyFragment : Fragment() {
             btEnterAmount.isVisible = false
             btEnterAmountPreselected.isVisible = true
             btEnterAmountPreselected.background = null
-            val list = args.product.availableDenominations!!.map {
-                Value.valueOf(getAssetInfo(), toUnits(it))
-            }.filter { it.lessThan(viewModel.maxSpendableAmount()) }
-            viewModel.totalAmountFiatSingle.value = list.minBy { it.value }
-            btEnterAmountPreselected.setOnClickListener {
-                showChoicePreselectedValuesDialog(
-                    list, viewModel.totalAmountFiatSingle.value
-                )
-            }
+            btEnterAmountPreselected.setOnClickListener(preselectedClickListener)
         } else {
             btEnterAmountPreselected.isVisible = false
         }
@@ -168,15 +169,9 @@ class GiftboxBuyFragment : Fragment() {
                             ((viewModel.quantityInt.value ?: 0) + 1).toString()
                     }
                     if (args.product.availableDenominations == null) {
-                        amountRoot.setOnClickListener {
-                            findNavController().navigate(
-                                GiftboxBuyFragmentDirections.enterAmount(
-                                    product!!,
-                                    viewModel.maxSpendableAmount.value!!,
-                                    viewModel.totalAmountFiatSingle.value
-                                )
-                            )
-                        }
+                        amountRoot.setOnClickListener(defaultClickListener)
+                    } else {
+                        amountRoot.setOnClickListener(preselectedClickListener)
                     }
                 }
             },
@@ -216,21 +211,27 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
+    private fun getPreseletedValues() : List<Value>? {
+        return args.product.availableDenominations?.map {
+            Value.valueOf(getAssetInfo(), toUnits(it))
+        }?.filter { it.lessThan(viewModel.maxSpendableAmount()) }
+    }
     private fun getAssetInfo() = Utils.getTypeByName(args.product.currencyCode)!!
 
     private fun showChoicePreselectedValuesDialog(
-        list: List<Value>,
-        preseletedValue: Value? = null
     ) {
-        val sortedBy = list.sortedBy { it.value }
-        val selectedIndex = if (preseletedValue != null) {
-            sortedBy.indexOfFirst { it.equalsTo(preseletedValue) }
+        val list = getPreseletedValues()
+        val sortedBy = list?.sortedBy { it.value }
+        val preselectedValue = sortedBy?.minBy { it.value }
+        viewModel.totalAmountFiatSingle.value = preselectedValue
+        val selectedIndex = if (preselectedValue != null) {
+            sortedBy.indexOfFirst { it.equalsTo(preselectedValue) }
         } else -1
         AlertDialog.Builder(requireContext())
             .setSingleChoiceItems(
-                sortedBy.map { it.toStringWithUnit() }.toTypedArray(), selectedIndex
+                sortedBy?.map { it.toStringWithUnit() }?.toTypedArray(), selectedIndex
             ) { dialog, which ->
-                viewModel.totalAmountFiatSingle.value = sortedBy[which]
+                viewModel.totalAmountFiatSingle.value = sortedBy?.get(which)
                 dialog.dismiss()
             }
             .create().show()
