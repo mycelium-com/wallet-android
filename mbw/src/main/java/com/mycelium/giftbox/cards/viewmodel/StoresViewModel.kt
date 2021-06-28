@@ -14,6 +14,7 @@ class StoresViewModel : ViewModel() {
     val loading = MutableLiveData<Boolean>(false)
     var category: String? = null
     var search: String? = null
+    var quickSearch = false
 
     fun setProductsResponse(it: ProductsResponse?, append: Boolean = false) {
         if (append) {
