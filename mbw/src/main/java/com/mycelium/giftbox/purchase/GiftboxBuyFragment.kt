@@ -1,13 +1,13 @@
 package com.mycelium.giftbox.purchase
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.isVisible
@@ -42,6 +42,7 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
@@ -51,7 +52,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.*
+import androidx.constraintlayout.widget.ConstraintSet
+
+
+
 
 class GiftboxBuyFragment : Fragment() {
     private lateinit var binding: FragmentGiftboxBuyBinding
@@ -99,6 +105,23 @@ class GiftboxBuyFragment : Fragment() {
 
         loader(true)
 
+        if (args.product.availableDenominations != null) {
+            btEnterAmount.isVisible = false
+            btEnterAmountPreselected.isVisible = true
+            btEnterAmountPreselected.background = null
+            val list = args.product.availableDenominations!!.map {
+                Value.valueOf(getAssetInfo(), toUnits(it))
+            }.filter { it.lessThan(viewModel.maxSpendableAmount()) }
+            viewModel.totalAmountFiatSingle.value = list.minBy { it.value }
+            btEnterAmountPreselected.setOnClickListener {
+                showChoicePreselectedValuesDialog(
+                    list, viewModel.totalAmountFiatSingle.value
+                )
+            }
+        } else {
+            btEnterAmountPreselected.isVisible = false
+        }
+
         viewModel.errorQuantityMessage.observe(viewLifecycleOwner) {
             binding.tlQuanity.error = it
             binding.tvQuanity.setTextColor(
@@ -115,11 +138,26 @@ class GiftboxBuyFragment : Fragment() {
                 with(binding) {
                     ivImage.loadImage(product?.cardImageUrl)
                     tvName.text = product?.name
-                    tvExpire.text = product?.expiryDatePolicy
                     tvQuantityLabel.isVisible = false
                     tvQuantity.isVisible = false
                     tvCardValueHeader.text =
-                        """From ${product?.minimumValue} to ${product?.maximumValue} ${product?.currencyCode?.toUpperCase()}"""
+                        if (product?.denominationType == ProductInfo.DenominationType.fixed && product.availableDenominations?.size ?: 100 < 6) {
+                            product.availableDenominations?.joinToString {
+                                "${
+                                    it.stripTrailingZeros().toPlainString()
+                                } ${product.currencyCode}"
+                            }
+                        } else {
+                            "From ${
+                                product?.minimumValue?.stripTrailingZeros()?.toPlainString()
+                            } ${product?.currencyCode}" +
+                                    " to ${
+                                        product?.maximumValue?.stripTrailingZeros()?.toPlainString()
+                                    } ${product?.currencyCode}"
+                        }
+                    tvExpire.text =
+                        if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
+
                     tvCountry.text = product?.countries?.joinToString(separator = ", ")
                     btMinusQuantity.setOnClickListener {
                         viewModel.quantityString.value =
@@ -129,14 +167,16 @@ class GiftboxBuyFragment : Fragment() {
                         viewModel.quantityString.value =
                             ((viewModel.quantityInt.value ?: 0) + 1).toString()
                     }
-                    amountRoot.setOnClickListener {
-                        findNavController().navigate(
-                            GiftboxBuyFragmentDirections.enterAmount(
-                                product!!,
-                                viewModel.maxSpendableAmount.value!!,
-                                viewModel.totalAmountFiatSingle.value
+                    if (args.product.availableDenominations == null) {
+                        amountRoot.setOnClickListener {
+                            findNavController().navigate(
+                                GiftboxBuyFragmentDirections.enterAmount(
+                                    product!!,
+                                    viewModel.maxSpendableAmount.value!!,
+                                    viewModel.totalAmountFiatSingle.value
+                                )
                             )
-                        )
+                        }
                     }
                 }
             },
@@ -176,6 +216,25 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
+    private fun getAssetInfo() = Utils.getTypeByName(args.product.currencyCode)!!
+
+    private fun showChoicePreselectedValuesDialog(
+        list: List<Value>,
+        preseletedValue: Value? = null
+    ) {
+        val sortedBy = list.sortedBy { it.value }
+        val selectedIndex = if (preseletedValue != null) {
+            sortedBy.indexOfFirst { it.equalsTo(preseletedValue) }
+        } else -1
+        AlertDialog.Builder(requireContext())
+            .setSingleChoiceItems(
+                sortedBy.map { it.toStringWithUnit() }.toTypedArray(), selectedIndex
+            ) { dialog, which ->
+                viewModel.totalAmountFiatSingle.value = sortedBy[which]
+                dialog.dismiss()
+            }
+            .create().show()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -201,6 +260,9 @@ class GiftboxBuyFragment : Fragment() {
             Toaster(requireActivity()).toast(broadcastResult.errorMessage, false)
         }
     }
+
+    private fun toUnits(amount: BigDecimal): BigInteger =
+        amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
 }
 
 class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
@@ -406,13 +468,16 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val minerFeeFiatColor by lazy { MutableLiveData(getColorByCryptoValue(minerFeeFiat())) }
 
     private fun getColorByCryptoValue(it: Value) =
-        ContextCompat.getColor(WalletApplication.getInstance(),
-            if (it.moreThanZero()) R.color.white_alpha_0_6 else R.color.darkgrey)
+        ContextCompat.getColor(
+            WalletApplication.getInstance(),
+            if (it.moreThanZero()) R.color.white_alpha_0_6 else R.color.darkgrey
+        )
 
     private fun getColorByFiatValue(it: Value) =
-        ContextCompat.getColor(WalletApplication.getInstance(),
-            if (it.moreThanZero()) R.color.white else R.color.darkgrey)
-
+        ContextCompat.getColor(
+            WalletApplication.getInstance(),
+            if (it.moreThanZero()) R.color.white else R.color.darkgrey
+        )
 
 
 }

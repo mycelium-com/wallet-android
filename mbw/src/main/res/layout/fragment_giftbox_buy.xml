@@ -127,6 +127,19 @@
                         android:src="@drawable/keyboard_icon"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvAmountLabel" />
+
+                    <ImageButton
+                        android:id="@+id/btEnterAmountPreselected"
+                        style="@style/MyceliumSlimButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:clickable="false"
+                        android:contentDescription="@string/enter_amount_title"
+                        android:scaleType="fitCenter"
+                        app:srcCompat="@drawable/ic_preselected"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvAmountLabel" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
