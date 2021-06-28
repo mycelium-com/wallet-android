@@ -81,7 +81,7 @@ class GiftBoxDetailsFragment : Fragment() {
             view.text = description
             if (viewModel.more.value != true) {
                 val endIndex = view.layout.getLineEnd(3) - 3
-                if (0 < endIndex && endIndex < description.length) {
+                if (0 < endIndex && endIndex < description.length - 3) {
                     view.text = "${description.subSequence(0, endIndex)}..."
                 }
             }
