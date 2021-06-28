@@ -80,9 +80,13 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
                                 && currencies.find { cur -> cur.equals(Util.trimTestnetSymbolDecoration(it.coinType.symbol), true) } != null
                     }
             if (accounts.isNotEmpty()) {
-                accountsGroup.isCollapsed = !GiftboxPreference.isGroupOpen(accountsGroup.getTitle(requireContext()))
-                accountsList.add(accountsGroup)
-                if (!accountsGroup.isCollapsed) {
+                val group = AccountsGroupModel(
+                        accountsGroup.titleId, accountsGroup.getType(), accountsGroup.sum, accounts,
+                        accountsGroup.coinType, accountsGroup.isInvestmentAccount
+                )
+                group.isCollapsed = !GiftboxPreference.isGroupOpen(accountsGroup.getTitle(requireContext()))
+                accountsList.add(group)
+                if (!group.isCollapsed) {
                     val fiatType = FiatType(args.product.currencyCode)
                     accounts.forEach { model ->
                         mbwManager.exchangeRateManager.get(model.balance?.spendable, fiatType)?.let {
