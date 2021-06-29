@@ -81,7 +81,7 @@
 
             <TextView
                 android:id="@+id/tvCardValueHeader"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="4dp"
@@ -104,7 +104,7 @@
 
             <TextView
                 android:id="@+id/tvQuantity"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
@@ -127,7 +127,7 @@
 
             <TextView
                 android:id="@+id/tvExpire"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
@@ -135,7 +135,7 @@
                 android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvExpireTitle"
                 app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
-                tools:text="Does not expire" />
+                tools:text="Does not expire " />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
