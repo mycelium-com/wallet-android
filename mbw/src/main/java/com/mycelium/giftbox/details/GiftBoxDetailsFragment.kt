@@ -69,7 +69,7 @@ class GiftBoxDetailsFragment : Fragment() {
         binding?.share?.setOnClickListener {
             share()
         }
-        args.order.items?.first()?.let {
+        args.order.items?.firstOrNull()?.let {
             viewModel.setCodes(it)
         }
         viewModel.description.observe(viewLifecycleOwner) {

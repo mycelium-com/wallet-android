@@ -90,9 +90,10 @@ class GiftBoxBuyResultFragment : Fragment() {
 
         binding?.btSend?.setOnClickListener {
             if (args.quantity == 1) {
-                loadOrder()
+                findNavController().navigate(
+                        GiftBoxBuyResultFragmentDirections.toDetails(args.orderResponse, MODE.STATUS)
+                )
             } else gotoMainPage()
-
         }
         binding?.btSend?.text =
             if (args.quantity == 1) getString(R.string.gift_card) else getString(R.string.gift_cards)
@@ -174,25 +175,6 @@ class GiftBoxBuyResultFragment : Fragment() {
         val hourFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale)
         val timeString = hourFormat.format(date)
         (binding?.root?.findViewById<View>(R.id.tvTime) as TextView).text = timeString
-    }
-
-    private fun loadOrder() {
-        loader(true)
-        GitboxAPI.giftRepository.getOrders(scope = lifecycleScope, success = {
-            val order = it?.items?.sortedBy { it.timestamp }?.reversed()?.firstOrNull()
-            order?.let {
-                findNavController().navigate(
-                    GiftBoxBuyResultFragmentDirections.toDetails(it, MODE.STATUS)
-                )
-            } ?: run {
-                gotoMainPage()
-            }
-        }, error = { _, msg ->
-            Toaster(this).toast(msg, true)
-            gotoMainPage()
-        }, finally = {
-            loader(false)
-        })
     }
 
     override fun onDestroyView() {
