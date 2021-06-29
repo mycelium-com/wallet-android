@@ -129,7 +129,7 @@
             app:argType="com.mycelium.wapi.wallet.Transaction" />
         <argument
             android:name="productResponse"
-            app:argType="com.mycelium.giftbox.client.models.ProductResponse" />
+            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
         <argument
             android:name="totalFiat"
             app:argType="com.mycelium.wapi.wallet.coins.Value" />

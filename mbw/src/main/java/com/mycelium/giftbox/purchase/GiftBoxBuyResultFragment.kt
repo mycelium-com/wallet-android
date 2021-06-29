@@ -64,11 +64,11 @@ class GiftBoxBuyResultFragment : Fragment() {
         viewModel.totalAmountCryptoString.value = "~" + args.totalCrypto.toStringWithUnit()
         viewModel.minerFeeFiat.value = args.minerFeeFiat.toStringWithUnit()
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto.toStringWithUnit()
-        val product = args.productResponse.product
+        val product = args.productResponse
         with(binding) {
-            ivImage.loadImage(product?.cardImageUrl)
-            tvName.text = product?.name
-            tvExpire.text = product?.expiryDatePolicy
+            ivImage.loadImage(product.cardImageUrl)
+            tvName.text = product.name
+            tvExpire.text = product.expiryDatePolicy
             tvCardValueHeader.text =
                 """From ${product?.minimumValue} to ${product?.maximumValue} ${product?.currencyCode?.toUpperCase()}"""
             tvQuantity.text = args.quantity.toString()

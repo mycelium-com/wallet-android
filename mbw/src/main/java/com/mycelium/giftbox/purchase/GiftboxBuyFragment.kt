@@ -24,7 +24,6 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductInfo
-import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
@@ -103,7 +102,7 @@ class GiftboxBuyFragment : Fragment() {
     val defaultClickListener: (View) -> Unit = {
         findNavController().navigate(
             GiftboxBuyFragmentDirections.enterAmount(
-                args.product!!,
+                args.product,
                 viewModel.maxSpendableAmount.value!!,
                 viewModel.totalAmountFiatSingle.value
             )
@@ -142,7 +141,6 @@ class GiftboxBuyFragment : Fragment() {
 
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
             productId = args.product.code!!, success = { productResponse ->
-                viewModel.productResponse.value = productResponse
                 val product = productResponse?.product
                 with(binding) {
                     ivImage.loadImage(product?.cardImageUrl)
@@ -256,7 +254,7 @@ class GiftboxBuyFragment : Fragment() {
                 GiftboxBuyFragmentDirections.toResult(
                     args.accountId,
                     transaction,
-                    viewModel.productResponse.value!!,
+                    viewModel.productInfo,
                     viewModel.totalAmountFiat.value!!,
                     viewModel.totalAmountCrypto.value!!,
                     viewModel.minerFeeFiat(),
@@ -274,12 +272,11 @@ class GiftboxBuyFragment : Fragment() {
         amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
 }
 
-class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
+class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
     val gson = Gson()
     val accountId = MutableLiveData<UUID>()
-    val zeroFiatValue = zeroFiatValue(product)
+    val zeroFiatValue = zeroFiatValue(productInfo)
     val orderResponse = MutableLiveData<OrderResponse>()
-    val productResponse = MutableLiveData<ProductResponse>()
     val errorQuantityMessage: MutableLiveData<String> = MutableLiveData("")
     val totalProgress = MutableLiveData<Boolean>(false)
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
@@ -319,7 +316,8 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         }.asLiveData(IO)
     }
 
-    val quantityString: MutableLiveData<String> = MutableLiveData("0")
+    val hasDenominations = productInfo.availableDenominations.isNullOrEmpty().not()
+    val quantityString: MutableLiveData<String> = MutableLiveData(if (hasDenominations) "1" else "0")
     val quantityInt = Transformations.map(quantityString) {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
     }
@@ -364,10 +362,10 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
             }
             totalProgress.value = true
             GitboxAPI.giftRepository.getPrice(viewModelScope,
-                code = productResponse.value?.product?.code ?: "",
+                code = productInfo?.code ?: "",
                 quantity = quantity,
                 amount = amount.valueAsBigDecimal.toInt(),
-                currencyId = productResponse.value?.product?.currencyCode ?: "",
+                currencyId = productInfo?.currencyCode ?: "",
                 success = { priceResponse ->
                     if (!forSingleItem) {
                         errorQuantityMessage.value = ""
