@@ -33,7 +33,7 @@
             android:layout_marginLeft="8dp"
             android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="22sp"
-            android:maxLines="1"
+            android:maxLines="2"
             app:layout_constraintStart_toEndOf="@id/imageRoot"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/imageRoot"
@@ -46,7 +46,6 @@
             android:text="@string/country"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@id/imageRoot"
             app:layout_constraintStart_toStartOf="@id/tvName"
             app:layout_constraintTop_toBottomOf="@id/tvName" />
 
@@ -58,7 +57,6 @@
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             android:ellipsize="end"
-            android:maxLines="1"
             app:layout_constraintBaseline_toBaselineOf="@id/tvCountryLabel"
             app:layout_constraintStart_toEndOf="@id/tvCountryLabel"
             app:layout_constraintEnd_toEndOf="parent"
@@ -68,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/imageRoot">
+            app:layout_constraintTop_toBottomOf="@id/tvCountry">
 
             <TextView
                 android:id="@+id/tvCardValueHeaderTitle"
