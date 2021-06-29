@@ -369,7 +369,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
                 code = productInfo?.code ?: "",
                 quantity = quantity,
                 amount = amount.valueAsBigDecimal.toInt(),
-                currencyId = productInfo?.currencyCode ?: "",
+                currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t") ?: "",
                 success = { priceResponse ->
                     if (!forSingleItem) {
                         errorQuantityMessage.value = ""
