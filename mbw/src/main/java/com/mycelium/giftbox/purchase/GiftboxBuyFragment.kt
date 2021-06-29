@@ -375,7 +375,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         }.asLiveData()
     }
 
-    val totalAmountFiat = MutableLiveData<Value>()
+    val totalAmountFiat = MutableLiveData<Value>(zeroFiatValue)
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {
         return@map it?.toStringWithUnit()
     }
