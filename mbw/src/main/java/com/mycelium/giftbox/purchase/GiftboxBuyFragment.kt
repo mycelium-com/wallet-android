@@ -121,6 +121,11 @@ class GiftboxBuyFragment : Fragment() {
             btEnterAmount.isVisible = false
             btEnterAmountPreselected.isVisible = true
             btEnterAmountPreselected.background = null
+            val isNotSetYet =
+                viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
+            if (isNotSetYet && getPreseletedValues().isNotEmpty()) {
+                viewModel.totalAmountFiatSingle.value = getPreseletedValues()[0]
+            }
             btEnterAmountPreselected.setOnClickListener(preselectedClickListener)
         } else {
             btEnterAmountPreselected.isVisible = false
@@ -214,27 +219,27 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
-    private fun getPreseletedValues() : List<Value>? {
+    private fun getPreseletedValues(): List<Value> {
         return args.product.availableDenominations?.map {
             Value.valueOf(getAssetInfo(), toUnits(it))
         }?.filter { it.lessThan(viewModel.maxSpendableAmount()) }
+            ?.sortedBy { it.value } ?: listOf()
     }
+
     private fun getAssetInfo() = Utils.getTypeByName(args.product.currencyCode)!!
 
     private fun showChoicePreselectedValuesDialog(
     ) {
-        val list = getPreseletedValues()
-        val sortedBy = list?.sortedBy { it.value }
-        val preselectedValue = sortedBy?.minBy { it.value }
-        viewModel.totalAmountFiatSingle.value = preselectedValue
+        val preselectedList = getPreseletedValues()
+        val preselectedValue = viewModel.totalAmountFiatSingle.value
         val selectedIndex = if (preselectedValue != null) {
-            sortedBy.indexOfFirst { it.equalsTo(preselectedValue) }
+            preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
         } else -1
         AlertDialog.Builder(requireContext())
             .setSingleChoiceItems(
-                sortedBy?.map { it.toStringWithUnit() }?.toTypedArray(), selectedIndex
+                preselectedList.map { it.toStringWithUnit() }.toTypedArray(), selectedIndex
             ) { dialog, which ->
-                viewModel.totalAmountFiatSingle.value = sortedBy?.get(which)
+                viewModel.totalAmountFiatSingle.value = preselectedList[which]
                 dialog.dismiss()
             }
             .create().show()
@@ -289,9 +294,9 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val sendTransaction = Transformations.switchMap(sendTransactionAction) {
         callbackFlow<Pair<Transaction, BroadcastResult>> {
             try {
-                val address = when(account){
+                val address = when (account) {
                     is EthAccount -> {
-                        EthAddress(Utils.getEthCoinType(),orderResponse.value!!.payinAddress!!)
+                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
                     }
                     is AbstractBtcAccount -> {
                         BtcAddress(
