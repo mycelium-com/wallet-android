@@ -16,6 +16,7 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.CurrencyInfos
 import com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel
 import com.mycelium.giftbox.loadImage
+import com.mycelium.giftbox.setupDescription
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
 import kotlinx.android.synthetic.main.giftcard_send_info.*
@@ -46,9 +47,11 @@ class GiftBoxStoreDetailsFragment : Fragment() {
                         addAll(viewModel.currencies!!)
                     }))
         }
-        val descriptionClick = { _: View ->
+        val descriptionClick: (View) -> Unit = {
             viewModel.more.value = !(viewModel.more.value ?: false)
-            setupDescription(viewModel.description.value ?: "")
+            binding?.layoutDescription?.tvDescription?.setupDescription(
+                    viewModel.description.value ?: "",
+                    viewModel.more.value ?: false)
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
@@ -59,21 +62,10 @@ class GiftBoxStoreDetailsFragment : Fragment() {
             Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
         }
         viewModel.description.observe(viewLifecycleOwner) {
-            setupDescription(it)
+            binding?.layoutDescription?.tvDescription?.setupDescription(it,
+                    viewModel.more.value ?: false)
         }
         loadData()
-    }
-
-    private fun setupDescription(description: String) {
-        binding?.layoutDescription?.tvDescription?.let { view ->
-            view.text = description
-            if (viewModel.more.value != true && view.layout != null) {
-                val endIndex = view.layout.getLineEnd(3) - 3
-                if (0 < endIndex && endIndex < description.length - 3) {
-                    view.text = "${description.subSequence(0, endIndex)}..."
-                }
-            }
-        }
     }
 
     private fun loadData() {

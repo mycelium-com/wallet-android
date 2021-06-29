@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
+import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.giftbox.cards.adapter.*
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
@@ -30,7 +31,6 @@ class PurchasedFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        loadData()
     }
 
     override fun onCreateView(
@@ -72,10 +72,14 @@ class PurchasedFragment : Fragment() {
                     }
                     .create().show()
         }
-        adapter.groupListener = {
-            GiftboxPreference.setGroupOpen(it, !GiftboxPreference.isGroupOpen(it))
+        adapter.groupListener = { group ->
+            GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
+            binding?.list?.postDelayed({
+                binding?.list?.layoutManager?.scrollToPosition(adapter.currentList.indexOfFirst { it is PurchasedGroupItem && it.title == group })
+            }, 300)
         }
+        loadData()
     }
 
     private fun loadData(offset: Long = 0) {

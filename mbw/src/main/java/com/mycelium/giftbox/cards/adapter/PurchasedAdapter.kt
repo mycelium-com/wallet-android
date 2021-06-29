@@ -75,29 +75,29 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                     holder.itemView.setOnClickListener {
                         itemClickListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
                     }
-                    holder.itemView.more.setOnClickListener { view ->
-                        PopupMenu(view.context, view).run {
-                            menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
-                            setOnMenuItemClickListener { menuItem ->
-                                when (menuItem.itemId) {
-                                    R.id.share -> {
-                                        itemShareListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                    }
-                                    R.id.delete -> {
-                                        itemDeleteListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                    }
-                                    R.id.redeem -> {
-                                        itemRedeemListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                    }
-                                }
-                                true
-                            }
-                            show()
-                        }
-                    }
                 } else {
                     holder.itemView.setOnClickListener(null)
-                    holder.itemView.more.setOnClickListener(null)
+                }
+                holder.itemView.more.setOnClickListener { view ->
+                    PopupMenu(view.context, view).apply {
+                        menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
+                        menu.findItem(R.id.share).isVisible = !purchasedItem.redeemed
+                        menu.findItem(R.id.redeem).isVisible = !purchasedItem.redeemed
+                        setOnMenuItemClickListener { menuItem ->
+                            when (menuItem.itemId) {
+                                R.id.share -> {
+                                    itemShareListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                                }
+                                R.id.delete -> {
+                                    itemDeleteListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                                }
+                                R.id.redeem -> {
+                                    itemRedeemListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                                }
+                            }
+                            true
+                        }
+                    }.show()
                 }
             }
             TYPE_GROUP -> {

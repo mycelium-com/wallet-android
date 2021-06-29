@@ -16,6 +16,7 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
 import com.mycelium.giftbox.loadImage
+import com.mycelium.giftbox.setupDescription
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
@@ -51,9 +52,11 @@ class GiftBoxDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding?.ivImage?.loadImage(args.order.productImg)
         (activity as AppCompatActivity).supportActionBar?.title = args.order.productName
-        val descriptionClick = { _: View ->
+        val descriptionClick: (View) -> Unit = {
             viewModel.more.value = !(viewModel.more.value ?: false)
-            setupDescription(viewModel.description.value ?: "")
+            binding?.layoutDescription?.tvDescription?.setupDescription(
+                    viewModel.description.value ?: "",
+                    viewModel.more.value ?: false)
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
@@ -70,22 +73,11 @@ class GiftBoxDetailsFragment : Fragment() {
             viewModel.setCodes(it)
         }
         viewModel.description.observe(viewLifecycleOwner) {
-            setupDescription(it)
+            binding?.layoutDescription?.tvDescription?.setupDescription(it,
+                    viewModel.more.value ?: false)
         }
         loadOrder()
         loadProduct()
-    }
-
-    private fun setupDescription(description: String) {
-        binding?.layoutDescription?.tvDescription?.let { view ->
-            view.text = description
-            if (viewModel.more.value != true) {
-                val endIndex = view.layout.getLineEnd(3) - 3
-                if (0 < endIndex && endIndex < description.length - 3) {
-                    view.text = "${description.subSequence(0, endIndex)}..."
-                }
-            }
-        }
     }
 
     private fun loadProduct() {
