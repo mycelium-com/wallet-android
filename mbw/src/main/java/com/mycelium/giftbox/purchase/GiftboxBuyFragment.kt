@@ -20,6 +20,7 @@ import com.google.gson.Gson
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.PriceResponse
@@ -165,7 +166,10 @@ class GiftboxBuyFragment : Fragment() {
                     tvExpire.text =
                         if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
-                    tvCountry.text = product?.countries?.joinToString(separator = ", ")
+                    tvCountry.text = product?.countries?.mapNotNull {
+                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+                    }?.joinToString { it.name }
+
                     btMinusQuantity.setOnClickListener {
                         viewModel.quantityString.value =
                             ((viewModel.quantityInt.value ?: 0) - 1).toString()

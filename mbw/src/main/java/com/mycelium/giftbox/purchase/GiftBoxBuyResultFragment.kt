@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.details.MODE
 import com.mycelium.giftbox.loadImage
@@ -68,12 +69,15 @@ class GiftBoxBuyResultFragment : Fragment() {
         with(binding) {
             ivImage.loadImage(product.cardImageUrl)
             tvName.text = product.name
-            tvExpire.text = product.expiryDatePolicy
+            tvExpire.text = if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
             tvCardValueHeader.text =
                 """From ${product?.minimumValue} to ${product?.maximumValue} ${product?.currencyCode?.toUpperCase()}"""
             tvQuantity.text = args.quantity.toString()
         }
-        view.findViewById<TextView>(R.id.tvCountry).text = product?.countries?.joinToString { "," }
+        view.findViewById<TextView>(R.id.tvCountry).text = product?.countries?.mapNotNull {
+            CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+        }?.joinToString { it.name }
+
         binding?.btSend?.setOnClickListener {
             if (args.quantity == 1) {
                 loadOrder()
