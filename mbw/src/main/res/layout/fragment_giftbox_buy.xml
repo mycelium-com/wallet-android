@@ -203,28 +203,26 @@
                         app:layout_constraintTop_toTopOf="@id/quantityRoot"
                         app:layout_constraintBottom_toBottomOf="@id/quantityRoot">
 
-                        <ImageButton
+                        <TextView
                             android:id="@+id/btMinusQuantity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:background="@null"
-                            android:clickable="@{vm.isGrantedMinus}"
+                            android:enabled="@{vm.isGrantedMinus}"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
-                            app:srcCompat="@drawable/ic_minus" />
+                            android:background="@drawable/ic_minus_states" />
 
-                        <ImageButton
+                        <TextView
                             android:id="@+id/btPlusQuantity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="8dp"
                             android:layout_marginTop="4dp"
-                            android:background="@null"
-                            android:clickable="@{vm.isGrantedPlus}"
+                            android:enabled="@{vm.isGrantedPlus}"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
-                            app:srcCompat="@drawable/ic_plus" />
+                            android:background="@drawable/ic_plus_states" />
                     </LinearLayout>
 
                     <!--                    android:clickable="@{vm.isGrantedPlus}"-->
