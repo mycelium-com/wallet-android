@@ -76,7 +76,7 @@ class PurchasedFragment : Fragment() {
             GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
             binding?.list?.postDelayed({
-                binding?.list?.layoutManager?.scrollToPosition(adapter.currentList.indexOfFirst { it is PurchasedGroupItem && it.title == group })
+                binding?.list?.smoothScrollToPosition(adapter.currentList.indexOfFirst { it is PurchasedGroupItem && it.title == group } + 5)
             }, 300)
         }
         loadData()
