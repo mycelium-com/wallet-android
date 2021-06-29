@@ -30,6 +30,7 @@ import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.tvExpire
@@ -85,14 +86,17 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
         val accountId = args.accountId
         val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
-        val account = walletManager.getAccount(accountId) as AbstractBtcAccount
-        val fromUnconfirmedTransaction =
-            TransactionEx.fromUnconfirmedTransaction(args.transaction.tx)
-        val transactionSummary = account.getTransactionSummary(fromUnconfirmedTransaction.txid)
-        tx = account.getTxSummary(transactionSummary.txid.bytes)!!
-        val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
-        transaction.add(R.id.spec_details_fragment, newInstance(tx, false, accountId))
-        transaction.commit()
+        val transaction = args.transaction
+        if (transaction is BtcTransaction) {
+            val account = walletManager.getAccount(accountId) as AbstractBtcAccount
+            val fromUnconfirmedTransaction =
+                TransactionEx.fromUnconfirmedTransaction(transaction.tx)
+            val transactionSummary = account.getTransactionSummary(fromUnconfirmedTransaction.txid)
+            tx = account.getTxSummary(transactionSummary.txid.bytes)!!
+            val transactionFragmentTransaction: FragmentTransaction = childFragmentManager.beginTransaction()
+            transactionFragmentTransaction.add(R.id.spec_details_fragment, newInstance(tx, false, accountId))
+            transactionFragmentTransaction.commit()
+        }
         updateUi()
     }
 

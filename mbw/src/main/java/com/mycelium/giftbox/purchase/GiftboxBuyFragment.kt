@@ -35,11 +35,14 @@ import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthAddress
 import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
@@ -242,7 +245,7 @@ class GiftboxBuyFragment : Fragment() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
 
-    fun broadcastResult(transaction: BtcTransaction, broadcastResult: BroadcastResult) {
+    fun broadcastResult(transaction: Transaction, broadcastResult: BroadcastResult) {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             findNavController().navigate(
                 GiftboxBuyFragmentDirections.toResult(
@@ -269,8 +272,7 @@ class GiftboxBuyFragment : Fragment() {
 class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val gson = Gson()
     val accountId = MutableLiveData<UUID>()
-    val zeroFiatValue = zeroValue(product)
-
+    val zeroFiatValue = zeroFiatValue(product)
     val orderResponse = MutableLiveData<OrderResponse>()
     val productResponse = MutableLiveData<ProductResponse>()
     val errorQuantityMessage: MutableLiveData<String> = MutableLiveData("")
@@ -279,23 +281,32 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
     }
+    val zeroCryptoValue by lazy {
+        account?.basedOnCoinType?.value(0)
+    }
 
     val sendTransactionAction = MutableLiveData<Unit>()
     val sendTransaction = Transformations.switchMap(sendTransactionAction) {
-        callbackFlow<Pair<BtcTransaction, BroadcastResult>> {
+        callbackFlow<Pair<Transaction, BroadcastResult>> {
             try {
-                val address =
-                    BtcAddress(
-                        Utils.getBtcCoinType(),
-                        BitcoinAddress.fromString(orderResponse.value!!.payinAddress)
-                    )
-
+                val address = when(account){
+                    is EthAccount -> {
+                        EthAddress(Utils.getEthCoinType(),orderResponse.value!!.payinAddress!!)
+                    }
+                    is AbstractBtcAccount -> {
+                        BtcAddress(
+                            Utils.getBtcCoinType(),
+                            BitcoinAddress.fromString(orderResponse.value!!.payinAddress)
+                        )
+                    }
+                    else -> TODO("Account not supported yet")
+                }
                 val createTx = account?.createTx(
-                    address, getBtcAmount(orderResponse.value?.amountExpectedFrom!!),
+                    address, getCryptoAmount(orderResponse.value?.amountExpectedFrom!!),
                     FeePerKbFee(feeEstimation.normal), null
                 )
                 account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                offer(createTx!! as BtcTransaction to account!!.broadcastTx(createTx))
+                offer(createTx!! as Transaction to account!!.broadcastTx(createTx))
                 close()
             } catch (ex: Exception) {
                 cancel(CancellationException("Tx", ex))
@@ -312,7 +323,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
     }
 
-    fun zeroValue(product: ProductInfo): Value {
+    fun zeroFiatValue(product: ProductInfo): Value {
         return Value.zeroValue(Utils.getTypeByName(product.currencyCode)!!)
     }
 
@@ -340,6 +351,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         callbackFlow {
             val (amount, quantity) = it
             if (quantity == 0 || amount.isZero()) {
+                offer(zeroCryptoValue!!)
                 return@callbackFlow
             }
             if (!forSingleItem) {
@@ -358,7 +370,7 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
                     if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice
                     }
-                    offer(getBtcAmount(priceResponse.priceOffer!!))
+                    offer(getCryptoAmount(priceResponse.priceOffer!!))
                 },
                 error = { _, error ->
                     if (!forSingleItem) {
@@ -384,11 +396,11 @@ class GiftboxBuyViewModel(val product: ProductInfo) : ViewModel() {
         return@map "~" + it.toStringWithUnit()
     }
 
-    private fun getBtcAmount(price: String): Value {
+    private fun getCryptoAmount(price: String): Value {
         val cryptoUnit =
-            BigDecimal(price).movePointRight(Utils.getBtcCoinType().unitExponent)
+            BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
                 .toBigInteger()
-        return Value.valueOf(Utils.getBtcCoinType()!!, cryptoUnit)
+        return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
     }
 
     val minerFeeFiatString: MutableLiveData<String> by lazy { MutableLiveData(minerFeeFiat().toStringWithUnit()) }
