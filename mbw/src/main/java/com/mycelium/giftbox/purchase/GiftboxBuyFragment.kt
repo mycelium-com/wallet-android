@@ -297,7 +297,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
             try {
                 val address = when (account) {
                     is EthAccount -> {
-                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
+                        //TODO for tests, until back returns BTC addresses
+                        account!!.dummyAddress
+//                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
                     }
                     is AbstractBtcAccount -> {
                         BtcAddress(
