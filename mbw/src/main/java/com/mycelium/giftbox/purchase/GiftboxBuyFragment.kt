@@ -211,11 +211,9 @@ class GiftboxBuyFragment : Fragment() {
                 code = args.product.code!!,
                 amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
                 quantity = viewModel.quantityString.value?.toInt()!!,
-                //TODO Do we need to hardcode this
                 currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
                 success = { orderResponse ->
                     viewModel.orderResponse.value = orderResponse
-                    //TODO tBTC for debug for send test, do we need BTC instead
                     loader(true)
                     viewModel.sendTransactionAction.value = Unit
                 }, error = { _, error ->
