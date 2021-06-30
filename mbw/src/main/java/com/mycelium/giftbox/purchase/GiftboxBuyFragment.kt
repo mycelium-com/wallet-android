@@ -40,12 +40,10 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
-import com.mycelium.wapi.wallet.eth.coins.EthMain
 import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
@@ -249,7 +247,10 @@ class GiftboxBuyFragment : Fragment() {
         val valueAndEnableMap =
             preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount()) }
         AlertDialog.Builder(requireContext())
-            .setSingleChoiceItems(CustomSimpleAdapter(requireContext(),valueAndEnableMap),selectedIndex)
+            .setSingleChoiceItems(
+                CustomSimpleAdapter(requireContext(), valueAndEnableMap),
+                selectedIndex
+            )
             { dialog, which ->
                 val candidateToSelectIsOk = valueAndEnableMap[preselectedList[which]]
                 if (candidateToSelectIsOk == true) {
@@ -335,7 +336,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
 
     val hasDenominations = productInfo.availableDenominations.isNullOrEmpty().not()
     val quantityString: MutableLiveData<String> =
-        MutableLiveData(if (hasDenominations) "1" else "0")
+        MutableLiveData("1")
     val quantityInt = Transformations.map(quantityString) {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
     }
@@ -467,14 +468,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
             assetInfo
         )
 
-    fun cryptoValueToReal(value: Value):Value{
-        val assetInfo = when(value.type.symbol){
-            "tBTC" -> BitcoinMain.get()
-            "tETH"-> EthMain
-            else -> value.type
-        }
-        return Value.valueOf(assetInfo, value.value)
-    }
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.confirmed!!
     }

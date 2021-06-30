@@ -36,8 +36,10 @@ class CustomSimpleAdapter(
         textView.text = item.toStringWithUnit()
         val isEnabled = data[item] ?: false
         textView.isEnabled = isEnabled
-        textView.isFocusable = data[item] ?: false
-        textView.isFocusableInTouchMode = data[item] ?: false
+        if (!isEnabled) {
+            textView.isFocusable = true
+            textView.isFocusableInTouchMode = true
+        }
         return inflate
     }
 }
