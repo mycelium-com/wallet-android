@@ -463,7 +463,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
         MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
-            cryptoValueToReal(value),
+            value,
             assetInfo
         )
 
