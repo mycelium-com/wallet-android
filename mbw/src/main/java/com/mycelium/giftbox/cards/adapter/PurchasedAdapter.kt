@@ -81,7 +81,7 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                 holder.itemView.more.setOnClickListener { view ->
                     PopupMenu(view.context, view).apply {
                         menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
-                        menu.findItem(R.id.share).isVisible = !purchasedItem.redeemed
+                        menu.findItem(R.id.share).isVisible = !purchasedItem.redeemed && purchasedItem.order.status == Status.sUCCESS
                         menu.findItem(R.id.redeem).isVisible = !purchasedItem.redeemed
                         setOnMenuItemClickListener { menuItem ->
                             when (menuItem.itemId) {

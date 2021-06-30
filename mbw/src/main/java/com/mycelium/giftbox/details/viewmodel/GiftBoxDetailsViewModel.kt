@@ -29,8 +29,10 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     override val more = MutableLiveData<Boolean>(false)
     val expiry = MutableLiveData<String>()
     var productInfo: ProductInfo? = null
+    var orderResponse: OrderResponse? = null
 
     fun setOrder(order: OrderResponse) {
+        this.orderResponse = order
         cardAmount.value = "${order.amount} ${order.currencyCode}"
         amount.value = "${order.amount} ${order.currencyCode}"
         date.value = order.timestamp?.getDateTimeString(getApplication<Application>().resources)
@@ -58,7 +60,7 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
                 redeemCode.value = ""
             }
         }
-        pinCode.value = if (code.pin?.isNullOrEmpty() == true) {
+        pinCode.value = if (code.pin?.isNotEmpty() == true) {
             code.pin
         } else {
             ""
