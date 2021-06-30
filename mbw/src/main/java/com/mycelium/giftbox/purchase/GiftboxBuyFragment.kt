@@ -42,7 +42,6 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.eth.EthAddress
 import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
@@ -133,11 +132,15 @@ class GiftboxBuyFragment : Fragment() {
 
         viewModel.errorQuantityMessage.observe(viewLifecycleOwner) {
             binding.tlQuanity.error = it
+            val isError = !it.isNullOrEmpty()
             binding.tvQuanity.setTextColor(
                 ContextCompat.getColor(
-                    requireContext(), if (it.isNullOrEmpty()) R.color.white else R.color.red_error
+                    requireContext(), if (isError) R.color.red_error else R.color.white
                 )
             )
+            amountRoot.isEnabled = !isError
+            btEnterAmountPreselected.isEnabled = !isError
+            btEnterAmount.isEnabled = !isError
         }
 
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
@@ -167,7 +170,12 @@ class GiftboxBuyFragment : Fragment() {
                         if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
                     tvCountry.text = product?.countries?.mapNotNull {
-                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+                        CountriesSource.countryModels.find { model ->
+                            model.acronym.equals(
+                                it,
+                                true
+                            )
+                        }
                     }?.joinToString { it.name }
 
                     btMinusQuantity.setOnClickListener {
@@ -323,7 +331,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
     }
 
     val hasDenominations = productInfo.availableDenominations.isNullOrEmpty().not()
-    val quantityString: MutableLiveData<String> = MutableLiveData(if (hasDenominations) "1" else "0")
+    val quantityString: MutableLiveData<String> =
+        MutableLiveData(if (hasDenominations) "1" else "0")
     val quantityInt = Transformations.map(quantityString) {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
     }
@@ -438,7 +447,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
             }
         ) {
             val (total, single) = it
-            total.plus(single).lessOrEqualThan(getAccountBalance())
+            total.plus(single)
+                .lessOrEqualThan(getAccountBalance()) && errorQuantityMessage.value.isNullOrEmpty()
         }
 
     val isGrantedMinus = Transformations.map(quantityInt) {
