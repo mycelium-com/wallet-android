@@ -39,10 +39,12 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.eth.coins.EthMain
 import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
@@ -133,11 +135,15 @@ class GiftboxBuyFragment : Fragment() {
 
         viewModel.errorQuantityMessage.observe(viewLifecycleOwner) {
             binding.tlQuanity.error = it
+            val isError = !it.isNullOrEmpty()
             binding.tvQuanity.setTextColor(
                 ContextCompat.getColor(
-                    requireContext(), if (it.isNullOrEmpty()) R.color.white else R.color.red_error
+                    requireContext(), if (isError) R.color.red_error else R.color.white
                 )
             )
+            amountRoot.isEnabled = !isError
+            btEnterAmountPreselected.isEnabled = !isError
+            btEnterAmount.isEnabled = !isError
         }
 
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
@@ -167,7 +173,12 @@ class GiftboxBuyFragment : Fragment() {
                         if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
                     tvCountry.text = product?.countries?.mapNotNull {
-                        CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
+                        CountriesSource.countryModels.find { model ->
+                            model.acronym.equals(
+                                it,
+                                true
+                            )
+                        }
                     }?.joinToString { it.name }
 
                     btMinusQuantity.setOnClickListener {
@@ -200,7 +211,7 @@ class GiftboxBuyFragment : Fragment() {
                 amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
                 quantity = viewModel.quantityString.value?.toInt()!!,
                 //TODO Do we need to hardcode this
-                currencyId = "btc",//Utils.getBtcCoinType().symbol
+                currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
                 success = { orderResponse ->
                     viewModel.orderResponse.value = orderResponse
                     //TODO tBTC for debug for send test, do we need BTC instead
@@ -297,9 +308,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
             try {
                 val address = when (account) {
                     is EthAccount -> {
-                        //TODO for tests, until back returns BTC addresses
-                        account!!.dummyAddress
-//                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
+                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
                     }
                     is AbstractBtcAccount -> {
                         BtcAddress(
@@ -323,7 +332,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
     }
 
     val hasDenominations = productInfo.availableDenominations.isNullOrEmpty().not()
-    val quantityString: MutableLiveData<String> = MutableLiveData(if (hasDenominations) "1" else "0")
+    val quantityString: MutableLiveData<String> =
+        MutableLiveData(if (hasDenominations) "1" else "0")
     val quantityInt = Transformations.map(quantityString) {
         if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
     }
@@ -438,7 +448,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
             }
         ) {
             val (total, single) = it
-            total.plus(single).lessOrEqualThan(getAccountBalance())
+            total.plus(single)
+                .lessOrEqualThan(getAccountBalance()) && errorQuantityMessage.value.isNullOrEmpty()
         }
 
     val isGrantedMinus = Transformations.map(quantityInt) {
@@ -450,10 +461,18 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
         MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
-            value,
+            cryptoValueToReal(value),
             assetInfo
         )
 
+    fun cryptoValueToReal(value: Value):Value{
+        val assetInfo = when(value.type.symbol){
+            "tBTC" -> BitcoinMain.get()
+            "tETH"-> EthMain
+            else -> value.type
+        }
+        return Value.valueOf(assetInfo, value.value)
+    }
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.confirmed!!
     }
