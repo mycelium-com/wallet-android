@@ -9,13 +9,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
-import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.giftbox.cards.adapter.*
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.details.MODE
+import com.mycelium.giftbox.shareGiftcard
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
@@ -55,7 +55,7 @@ class PurchasedFragment : Fragment() {
             findNavController().navigate(GiftBoxFragmentDirections.actionDetails(it, MODE.INFO))
         }
         adapter.itemShareListener = {
-
+            shareGiftcard(it)
         }
         adapter.itemRedeemListener = {
             GiftboxPreference.redeem(it)

@@ -11,12 +11,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.giftbox.GiftboxPreference
+import com.mycelium.giftbox.*
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
-import com.mycelium.giftbox.loadImage
-import com.mycelium.giftbox.setupDescription
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
@@ -67,7 +65,7 @@ class GiftBoxDetailsFragment : Fragment() {
             Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
         }
         binding?.share?.setOnClickListener {
-            share()
+            shareGiftcard(viewModel.orderResponse!!)
         }
         args.order.items?.firstOrNull()?.let {
             viewModel.setCodes(it)
@@ -132,8 +130,7 @@ class GiftBoxDetailsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.share -> {
-                    //TODO fill share text
-                    share()
+                    shareGiftcard(viewModel.orderResponse!!)
                     true
                 }
                 R.id.delete -> {
@@ -150,17 +147,6 @@ class GiftBoxDetailsFragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
-    private fun share() {
-        startActivity(
-                Intent.createChooser(
-                        Intent(Intent.ACTION_SEND)
-                                .putExtra(Intent.EXTRA_SUBJECT, "")
-                                .putExtra(Intent.EXTRA_TEXT, "")
-                                .setType("text/plain"), "share gift card"
-                )
-        )
-    }
 
     override fun onDestroyView() {
         binding = null
