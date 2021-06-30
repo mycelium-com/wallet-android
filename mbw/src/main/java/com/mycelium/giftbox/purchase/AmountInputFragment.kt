@@ -64,6 +64,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             }
             btMax.setOnClickListener {
                 setEnteredAmount(toUnits(args.product.maximumValue).toString())
+                _numberEntry!!.setEntry(_amount?.valueAsBigDecimal?.multiply(100.toBigDecimal()), 2)
                 checkEntry()
             }
 
