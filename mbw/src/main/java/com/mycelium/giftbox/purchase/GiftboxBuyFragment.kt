@@ -26,6 +26,7 @@ import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.loadImage
+import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -235,8 +236,7 @@ class GiftboxBuyFragment : Fragment() {
     private fun getPreseletedValues(): List<Value> {
         return args.product.availableDenominations?.map {
             Value.valueOf(getAssetInfo(), toUnits(it))
-        }?.filter { it.lessThan(viewModel.maxSpendableAmount()) }
-            ?.sortedBy { it.value } ?: listOf()
+        }?.sortedBy { it.value } ?: listOf()
     }
 
     private fun getAssetInfo() = Utils.getTypeByName(args.product.currencyCode)!!
@@ -248,12 +248,16 @@ class GiftboxBuyFragment : Fragment() {
         val selectedIndex = if (preselectedValue != null) {
             preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
         } else -1
+        val valueAndEnableMap =
+            preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount()) }
         AlertDialog.Builder(requireContext())
-            .setSingleChoiceItems(
-                preselectedList.map { it.toStringWithUnit() }.toTypedArray(), selectedIndex
-            ) { dialog, which ->
-                viewModel.totalAmountFiatSingle.value = preselectedList[which]
-                dialog.dismiss()
+            .setSingleChoiceItems(CustomSimpleAdapter(requireContext(),valueAndEnableMap),selectedIndex)
+            { dialog, which ->
+                val candidateToSelectIsOk = valueAndEnableMap[preselectedList[which]]
+                if (candidateToSelectIsOk == true) {
+                    viewModel.totalAmountFiatSingle.value = preselectedList[which]
+                    dialog.dismiss()
+                }
             }
             .create().show()
     }
