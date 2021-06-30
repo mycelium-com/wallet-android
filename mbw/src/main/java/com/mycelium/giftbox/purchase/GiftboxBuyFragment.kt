@@ -39,9 +39,12 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.eth.coins.EthMain
 import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
@@ -208,7 +211,7 @@ class GiftboxBuyFragment : Fragment() {
                 amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
                 quantity = viewModel.quantityString.value?.toInt()!!,
                 //TODO Do we need to hardcode this
-                currencyId = "btc",//Utils.getBtcCoinType().symbol
+                currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
                 success = { orderResponse ->
                     viewModel.orderResponse.value = orderResponse
                     //TODO tBTC for debug for send test, do we need BTC instead
@@ -305,9 +308,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
             try {
                 val address = when (account) {
                     is EthAccount -> {
-                        //TODO for tests, until back returns BTC addresses
-                        account!!.dummyAddress
-//                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
+                        EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
                     }
                     is AbstractBtcAccount -> {
                         BtcAddress(
@@ -460,10 +461,18 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
         MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
-            value,
+            cryptoValueToReal(value),
             assetInfo
         )
 
+    fun cryptoValueToReal(value: Value):Value{
+        val assetInfo = when(value.type.symbol){
+            "tBTC" -> BitcoinMain.get()
+            "tETH"-> EthMain
+            else -> value.type
+        }
+        return Value.valueOf(assetInfo, value.value)
+    }
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.confirmed!!
     }
