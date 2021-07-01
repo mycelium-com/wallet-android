@@ -256,6 +256,8 @@ class GiftboxBuyFragment : Fragment() {
                 if (candidateToSelectIsOk == true) {
                     viewModel.totalAmountFiatSingle.value = preselectedList[which]
                     dialog.dismiss()
+                } else {
+                    Toaster(requireContext()).toast("Insufficient funds", true)
                 }
             }
             .create().show()
