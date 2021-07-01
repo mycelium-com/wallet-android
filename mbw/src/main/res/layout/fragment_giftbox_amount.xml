@@ -47,20 +47,9 @@
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     app:layout_constraintBaseline_toBaselineOf="@id/tvAmount"
-                    app:layout_constraintEnd_toStartOf="@id/currency_dropdown_image_view"
+                    app:layout_constraintEnd_toEndOf="parent"
                     tools:ignore="RtlSymmetry"
                     tools:text="USD" />
-
-                <ImageView
-                    android:id="@+id/currency_dropdown_image_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:contentDescription="Arrow"
-                    app:layout_constraintBottom_toBottomOf="@id/btCurrency"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/btCurrency"
-                    app:srcCompat="@drawable/ic_arrow_drop_down" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
