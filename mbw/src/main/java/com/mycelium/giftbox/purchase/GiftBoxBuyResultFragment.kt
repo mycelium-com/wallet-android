@@ -80,8 +80,7 @@ class GiftBoxBuyResultFragment : Fragment() {
             tvName.text = product.name
             tvExpire.text =
                 if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
-            tvCardValueHeader.text =
-                """From ${product?.minimumValue} to ${product?.maximumValue} ${product?.currencyCode?.toUpperCase()}"""
+            tvCardValueHeader.text = "${args.orderResponse.amount} ${args.orderResponse.currencyCode}"
             tvQuantity.text = args.quantity.toString()
         }
         view.findViewById<TextView>(R.id.tvCountry).text = product?.countries?.mapNotNull {
