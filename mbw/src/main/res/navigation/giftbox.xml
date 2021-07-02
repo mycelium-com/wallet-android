@@ -100,6 +100,13 @@
             android:name="amount"
             app:argType="com.mycelium.wapi.wallet.coins.Value"
             app:nullable="true" />
+        <argument
+            android:name="fromTo"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="accountId"
+            app:argType="java.util.UUID" />
     </fragment>
     <fragment
         android:id="@+id/purchasedDetails"

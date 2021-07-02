@@ -106,7 +106,9 @@ class GiftboxBuyFragment : Fragment() {
             GiftboxBuyFragmentDirections.enterAmount(
                 args.product,
                 viewModel.maxSpendableAmount.value!!,
-                viewModel.totalAmountFiatSingle.value
+                viewModel.totalAmountFiatSingle.value,
+                getFromTo(args.product),
+                args.accountId
             )
         )
     }
@@ -161,12 +163,7 @@ class GiftboxBuyFragment : Fragment() {
                                 } ${product.currencyCode}"
                             }
                         } else {
-                            "From ${
-                                product?.minimumValue?.stripTrailingZeros()?.toPlainString()
-                            } ${product?.currencyCode}" +
-                                    " to ${
-                                        product?.maximumValue?.stripTrailingZeros()?.toPlainString()
-                                    } ${product?.currencyCode}"
+                            getFromTo(product)
                         }
                     tvExpire.text =
                         if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
@@ -228,6 +225,13 @@ class GiftboxBuyFragment : Fragment() {
             }
         }
     }
+
+    private fun getFromTo(product: ProductInfo?) = "From ${
+        product?.minimumValue?.stripTrailingZeros()?.toPlainString()
+    } ${product?.currencyCode}" +
+            " to ${
+                product?.maximumValue?.stripTrailingZeros()?.toPlainString()
+            } ${product?.currencyCode}"
 
     private fun getPreseletedValues(): List<Value> {
         return args.product.availableDenominations?.map {

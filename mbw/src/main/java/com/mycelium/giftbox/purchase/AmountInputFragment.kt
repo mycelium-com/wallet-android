@@ -32,9 +32,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var _mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
 
+    val assetInfo by lazy {
+        _mbwManager.getWalletManager(false).getAccount(args.accountId)!!.coinType
+    }
     private var _amount: Value? = null
         set(value) {
             field = value
+            val convert = convert(value!!, assetInfo)
+            //print cryptp here (task was postponed)
         }
 
 
@@ -189,6 +194,11 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         binding.btOk.isEnabled = valid
     }
 
+    private fun convert(value: Value, assetInfo: AssetInfo): Value? =
+        MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
+            value,
+            assetInfo
+        )
 
     companion object {
         const val ACTION_AMOUNT_SELECTED: String = "action_amount"
