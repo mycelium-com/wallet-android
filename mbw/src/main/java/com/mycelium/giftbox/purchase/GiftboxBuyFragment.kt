@@ -147,6 +147,10 @@ class GiftboxBuyFragment : Fragment() {
             btEnterAmount.isEnabled = !isError
         }
 
+        viewModel.quantityString.observe(viewLifecycleOwner) {
+            viewModel.errorAmountMessage.value = null
+        }
+
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
             productId = args.product.code!!, success = { productResponse ->
                 val product = productResponse?.product
@@ -178,12 +182,21 @@ class GiftboxBuyFragment : Fragment() {
                     }?.joinToString { it.name }
 
                     btMinusQuantity.setOnClickListener {
-                        viewModel.quantityString.value =
-                            ((viewModel.quantityInt.value ?: 0) - 1).toString()
+                        if (viewModel.isGrantedMinus.value!!) {
+                            viewModel.quantityString.value =
+                                ((viewModel.quantityInt.value ?: 0) - 1).toString()
+                        } else {
+
+                        }
                     }
                     btPlusQuantity.setOnClickListener {
-                        viewModel.quantityString.value =
-                            ((viewModel.quantityInt.value ?: 0) + 1).toString()
+                        if (viewModel.isGrantedPlus.value!!) {
+                            viewModel.quantityString.value =
+                                ((viewModel.quantityInt.value ?: 0) + 1).toString()
+                        } else {
+                            viewModel.errorAmountMessage.value =
+                                getString(R.string.gift_insufficient_funds)
+                        }
                     }
                     if (args.product.availableDenominations == null) {
                         amountRoot.setOnClickListener(defaultClickListener)
@@ -261,7 +274,7 @@ class GiftboxBuyFragment : Fragment() {
                     viewModel.totalAmountFiatSingle.value = preselectedList[which]
                     dialog.dismiss()
                 } else {
-                    Toaster(requireContext()).toast("Insufficient funds", true)
+                    Toaster(requireContext()).toast(R.string.gift_insufficient_funds, true)
                 }
             }
             .create().show()
@@ -464,8 +477,23 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
     val isGrantedMinus = Transformations.map(quantityInt) {
         return@map it > 1
     }
+
     val isGranted = Transformations.map(totalAmountCrypto) {
         return@map it.lessOrEqualThan(getAccountBalance()) && it.moreThanZero()
+    }
+
+    val plusBackground = Transformations.map(isGrantedPlus) {
+        ContextCompat.getDrawable(
+            WalletApplication.getInstance(),
+            if (!it) R.drawable.ic_plus_disabled else R.drawable.ic_plus
+        )
+    }
+
+    val minusBackground = Transformations.map(isGrantedMinus) {
+        ContextCompat.getDrawable(
+            WalletApplication.getInstance(),
+            if (!it) R.drawable.ic_minus_disabled else R.drawable.ic_minus
+        )
     }
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
@@ -478,15 +506,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
         return account?.accountBalance?.confirmed!!
     }
 
-    //TODO not sure if we need this at all
-    var wasEmpty = true
-    val errorAmountMessage = Transformations.map(totalAmountFiatSingle) {
-        if (wasEmpty) {
-            wasEmpty = !wasEmpty
-            return@map null
-        }
-        if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
-    }
+    val errorAmountMessage = MutableLiveData<String>(null)
 
     //colors
     val totalAmountSingleCryptoColor = Transformations.map(totalAmountCryptoSingle) {
