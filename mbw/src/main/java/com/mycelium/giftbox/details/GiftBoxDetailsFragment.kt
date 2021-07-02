@@ -1,6 +1,5 @@
 package com.mycelium.giftbox.details
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
@@ -66,6 +65,12 @@ class GiftBoxDetailsFragment : Fragment() {
         }
         binding?.share?.setOnClickListener {
             shareGiftcard(viewModel.orderResponse!!)
+        }
+        binding?.layoutCode?.redeemCode?.setOnClickListener {
+            Utils.setClipboardString(viewModel.redeemCode.value, it.context)
+        }
+        binding?.layoutCode?.pinCode?.setOnClickListener {
+            Utils.setClipboardString(viewModel.pinCode.value, it.context)
         }
         args.order.items?.firstOrNull()?.let {
             viewModel.setCodes(it)

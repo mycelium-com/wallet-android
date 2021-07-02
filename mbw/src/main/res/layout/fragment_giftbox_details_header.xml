@@ -88,6 +88,7 @@
                 android:maxLines="2"
                 android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvCardValueHeaderTitle"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
                 tools:text="From $1 to $100" />
 
@@ -134,6 +135,7 @@
                 android:maxLines="2"
                 android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvExpireTitle"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
                 tools:text="Does not expire " />
 
