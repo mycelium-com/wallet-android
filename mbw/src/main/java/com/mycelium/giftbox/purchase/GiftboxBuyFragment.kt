@@ -32,6 +32,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.zip2
+import com.mycelium.wallet.activity.util.zip3
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
@@ -194,8 +195,10 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) + 1).toString()
                         } else {
-                            viewModel.errorAmountMessage.value =
-                                getString(R.string.gift_insufficient_funds)
+                            if (viewModel.errorQuantityMessage.value.isNullOrEmpty()) {
+                                viewModel.errorAmountMessage.value =
+                                    getString(R.string.gift_insufficient_funds)
+                            }
                         }
                     }
                     if (args.product.availableDenominations == null) {
@@ -416,7 +419,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
                 error = { _, error ->
                     if (!forSingleItem) {
                         val fromJson = gson.fromJson(error, ErrorMessage::class.java)
-                        errorQuantityMessage.value = fromJson.message
+                        val digit = fromJson.message.split(" ").lastOrNull()
+                        errorQuantityMessage.value = "Max available cards: $digit cards"
                     }
                     close()
                 },
@@ -462,16 +466,17 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
 
     val isGrantedPlus =
         Transformations.map(
-            zip2(
+            zip3(
                 totalAmountCrypto,
-                totalAmountCryptoSingle
-            ) { total: Value, single: Value ->
-                Pair(total, single)
+                totalAmountCryptoSingle,
+                        errorQuantityMessage,
+            ) { total: Value, single: Value, quantityError ->
+                Triple(total, single,quantityError)
             }
         ) {
-            val (total, single) = it
+            val (total, single, quantityError) = it
             total.plus(single)
-                .lessOrEqualThan(getAccountBalance()) && errorQuantityMessage.value.isNullOrEmpty()
+                .lessOrEqualThan(getAccountBalance()) && quantityError.isNullOrEmpty()
         }
 
     val isGrantedMinus = Transformations.map(quantityInt) {
