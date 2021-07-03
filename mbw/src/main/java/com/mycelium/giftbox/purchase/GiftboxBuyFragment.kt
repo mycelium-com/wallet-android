@@ -448,7 +448,14 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
         return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
     }
 
-    val minerFeeFiatString: MutableLiveData<String> by lazy { MutableLiveData(minerFeeFiat().toStringWithUnit()) }
+    val minerFeeFiatString: MutableLiveData<String> by lazy {
+        val value = minerFeeFiat()
+        val asString = if (value.lessThan(Value(value.type, 1.toBigInteger()))) {
+            "<0.01 " + value.type.symbol
+        } else value.toStringWithUnit()
+        MutableLiveData(asString)
+    }
+
     fun minerFeeFiat(): Value {
         return convert(minerFeeCrypto(), zeroFiatValue.type) ?: zeroFiatValue
     }
@@ -469,9 +476,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
             zip3(
                 totalAmountCrypto,
                 totalAmountCryptoSingle,
-                        errorQuantityMessage,
+                errorQuantityMessage,
             ) { total: Value, single: Value, quantityError ->
-                Triple(total, single,quantityError)
+                Triple(total, single, quantityError)
             }
         ) {
             val (total, single, quantityError) = it
@@ -532,7 +539,15 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
         getColorByFiatValue(it)
     }
 
-    val minerFeeFiatColor by lazy { MutableLiveData(getColorByCryptoValue(minerFeeFiat())) }
+    val minerFeeFiatColor by lazy {
+        val value = minerFeeFiat()
+        MutableLiveData(
+            ContextCompat.getColor(
+                WalletApplication.getInstance(),
+                if (value.moreOrEqualThanZero()) R.color.white_alpha_0_6 else R.color.darkgrey
+            )
+        )
+    }
 
     private fun getColorByCryptoValue(it: Value) =
         ContextCompat.getColor(
