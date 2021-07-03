@@ -267,6 +267,7 @@ class GiftboxBuyFragment : Fragment() {
         val valueAndEnableMap =
             preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount()) }
         AlertDialog.Builder(requireContext())
+            .setTitle(R.string.select_card_value_dialog)
             .setSingleChoiceItems(
                 CustomSimpleAdapter(requireContext(), valueAndEnableMap),
                 selectedIndex
