@@ -27,52 +27,54 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintRight_toLeftOf="@id/more"
         app:layout_constraintTop_toTopOf="@id/image"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
         tools:text="Amazon UK" />
 
     <TextView
         android:id="@+id/descriptionLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="2dp"
         android:layout_marginEnd="8dp"
         android:text="@string/gift_card_amount"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/additional"
-        app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintTop_toBottomOf="@id/title" />
+        app:layout_constraintBaseline_toBaselineOf="@id/description"
+        app:layout_constraintStart_toStartOf="@id/title" />
 
     <TextView
         android:id="@+id/description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"
         android:layout_marginEnd="8dp"
         android:textColor="@color/fio_white_alpha_0_9"
         android:textSize="12sp"
-        app:layout_constraintBaseline_toBaselineOf="@id/descriptionLabel"
+        app:layout_constraintBottom_toTopOf="@id/additional"
         app:layout_constraintLeft_toRightOf="@id/descriptionLabel"
         app:layout_constraintRight_toLeftOf="@id/more"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
+        app:layout_goneMarginStart="0dp"
         tools:text="100 USD" />
 
     <TextView
         android:id="@+id/additionalLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:text="Date:"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/image"
-        app:layout_constraintLeft_toRightOf="@id/image" />
+        app:layout_constraintBaseline_toBaselineOf="@id/additional"
+        app:layout_constraintStart_toStartOf="@id/title" />
 
     <TextView
         android:id="@+id/additional"
@@ -83,10 +85,11 @@
         android:drawablePadding="4dp"
         android:textColor="@color/fio_white_alpha_0_9"
         android:textSize="12sp"
-        app:layout_constraintBaseline_toBaselineOf="@id/additionalLabel"
+        app:layout_constraintBottom_toBottomOf="@id/image"
         app:layout_constraintLeft_toRightOf="@id/additionalLabel"
         app:layout_constraintRight_toLeftOf="@id/more"
-        app:layout_goneMarginLeft="8dp"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
+        app:layout_goneMarginStart="0dp"
         tools:text="September 18" />
 
     <ImageView

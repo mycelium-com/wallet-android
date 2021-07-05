@@ -33,6 +33,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
             when (viewType) {
                 TYPE_CARD -> CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false)).apply {
                     itemView.more.visibility = GONE
+                    itemView.descriptionLabel.visibility = GONE
                 }
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced_group, parent, false))
                 TYPE_LOADING -> LoadingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_loading, parent, false))
@@ -49,13 +50,13 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                 holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
                 holder.itemView.additional.text = when (item.status) {
                     Status.pROCESSING -> {
-                        holder.itemView.additionalLabel.visibility = View.GONE
+                        holder.itemView.additionalLabel.visibility = GONE
                         holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
                         "Processing"
                     }
                     Status.eRROR -> {
-                        holder.itemView.additionalLabel.visibility = View.GONE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
+                        holder.itemView.additionalLabel.visibility = GONE
+                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_close, 0, 0, 0)
                         "Failed"
                     }
                     else -> {

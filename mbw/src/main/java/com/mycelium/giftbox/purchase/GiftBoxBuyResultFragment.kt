@@ -83,16 +83,6 @@ class GiftBoxBuyResultFragment : Fragment() {
         view.findViewById<TextView>(R.id.tvCountry).text = product?.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
-
-        binding?.btSend?.setOnClickListener {
-//            if (args.quantity == 1) {
-//                findNavController().navigate(
-//                        GiftBoxBuyResultFragmentDirections.toDetails(args.orderResponse, MODE.STATUS)
-//                )
-//            } else gotoMainPage()
-        }
-        binding?.btSend?.text =
-            if (args.quantity == 1) getString(R.string.gift_card) else getString(R.string.gift_cards)
         binding?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
         }
