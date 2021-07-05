@@ -515,7 +515,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
         )
 
     private fun getAccountBalance(): Value {
-        return account?.accountBalance?.confirmed!!
+        return account?.accountBalance?.spendable!!
     }
 
     val errorAmountMessage = MutableLiveData<String>(null)
