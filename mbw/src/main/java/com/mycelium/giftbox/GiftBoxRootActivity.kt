@@ -1,13 +1,10 @@
 package com.mycelium.giftbox
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_gift_box_root.*
@@ -20,11 +17,7 @@ class GiftBoxRootActivity : AppCompatActivity(R.layout.activity_gift_box_root) {
         val inflater = (nav_host_fragment as NavHostFragment).navController.navInflater
         val graph = inflater.inflate(R.navigation.giftbox)
         nav_host_fragment.findNavController().setGraph(graph, intent.extras)
-        //deactivate back button for fragments
-        val appBarConfiguration = AppBarConfiguration
-            .Builder(R.id.giftBoxBuyResultFragment)
-            .build()
-        setupActionBarWithNavController(navController,appBarConfiguration)
+        setupActionBarWithNavController(navController)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
