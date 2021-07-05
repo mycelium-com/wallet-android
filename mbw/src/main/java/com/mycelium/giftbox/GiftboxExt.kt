@@ -9,8 +9,10 @@ import androidx.core.text.HtmlCompat
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.mycelium.giftbox.client.models.Order
+import com.mrd.bitlib.model.AddressType
+import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
+import com.squareup.sqldelight.ColumnAdapter
 import java.text.DateFormat
 import java.util.*
 
@@ -39,33 +41,38 @@ fun TextView.setupDescription(description: String, more: Boolean): Unit {
     }
 }
 
-fun Order.shareText(resources: Resources): String {
+fun Card.shareText(resources: Resources): String {
     var text = resources.getString(R.string.share_gift_card_text, productName, amount, currencyCode)
-    val code = items?.firstOrNull()
     when {
-        code?.deliveryUrl?.isNotEmpty() == true -> {
-            text += "\nUrl: " + code.deliveryUrl
+        deliveryUrl.isNotEmpty() -> {
+            text += "\nUrl: $deliveryUrl"
         }
-        URLUtil.isValidUrl(code?.code) -> {
-            text += "\nUrl: " + code?.code
+        URLUtil.isValidUrl(code) -> {
+            text += "\nUrl: $code"
         }
-        code?.code?.isNotEmpty() == true -> {
-            text += "\nCode: " + code.code
+        code.isNotEmpty() -> {
+            text += "\nCode: $code"
         }
     }
-    if (code?.pin?.isNotEmpty() == true) {
-        text += "\nPin: " + code.pin
+    if (pin.isNotEmpty()) {
+        text += "\nPin: $pin"
     }
     return text
 }
 
-fun Fragment.shareGiftcard(order: Order) {
+fun Fragment.shareGiftcard(card: Card) {
     startActivity(
             Intent.createChooser(
                     Intent(Intent.ACTION_SEND)
                             .putExtra(Intent.EXTRA_SUBJECT, "Gift Card information")
-                            .putExtra(Intent.EXTRA_TEXT, order.shareText(resources))
+                            .putExtra(Intent.EXTRA_TEXT, card.shareText(resources))
                             .setType("text/plain"), "share gift card"
             )
     )
+}
+
+val dateAdapter = object : ColumnAdapter<Date, String> {
+    override fun decode(databaseValue: String): Date = DateFormat.getDateTimeInstance().parse(databaseValue)
+
+    override fun encode(value: Date): String = DateFormat.getDateTimeInstance().format(value)
 }

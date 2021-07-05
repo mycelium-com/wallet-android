@@ -19,8 +19,11 @@
             android:id="@+id/actionSelectCountries"
             app:destination="@id/selectCountiesFragment" />
         <action
-            android:id="@+id/actionDetails"
-            app:destination="@id/purchasedDetails" />
+            android:id="@+id/actionOrderDetails"
+            app:destination="@id/giftBoxBuyResultFragment" />
+        <action
+            android:id="@+id/actionCardDetails"
+            app:destination="@id/cardsFragment" />
         <action
             android:id="@+id/actionStoreDetails"
             app:destination="@id/storeDetails" />
@@ -114,11 +117,8 @@
         android:label="GiftBoxDetailsFragment"
         tools:layout="@layout/fragment_giftbox_details">
         <argument
-            android:name="order"
-            app:argType="com.mycelium.giftbox.client.models.Order" />
-        <argument
-            android:name="mode"
-            app:argType="com.mycelium.giftbox.details.MODE" />
+            android:name="card"
+            app:argType="com.mycelium.giftbox.model.Card" />
         <action
             android:id="@+id/actionRedeem"
             app:destination="@id/redeemInstructionsFragment" />
@@ -174,5 +174,17 @@
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+    </fragment>
+    <fragment
+        android:id="@+id/cardsFragment"
+        android:name="com.mycelium.giftbox.cards.CardsFragment"
+        android:label="CardsFragment"
+        tools:layout="@layout/fragment_giftbox_details" >
+        <argument
+            android:name="card"
+            app:argType="com.mycelium.giftbox.model.Card" />
+        <action
+            android:id="@+id/actionRedeem"
+            app:destination="@id/redeemInstructionsFragment" />
     </fragment>
 </navigation>

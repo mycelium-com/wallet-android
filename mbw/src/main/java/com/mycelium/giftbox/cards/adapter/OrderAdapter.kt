@@ -2,8 +2,8 @@ package com.mycelium.giftbox.cards.adapter
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
-import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,28 +13,25 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.Order
-import com.mycelium.giftbox.client.models.Status
-import com.mycelium.giftbox.getDateString
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
 import kotlinx.android.synthetic.main.item_giftbox_purchaced_group.view.*
 
 abstract class PurchasedItem(val type: Int)
-data class PurchasedOrderItem(val order: Order, val redeemed: Boolean = false) : PurchasedItem(PurchasedAdapter.TYPE_CARD)
-data class PurchasedGroupItem(val title: String, val isOpened: Boolean = true) : PurchasedItem(PurchasedAdapter.TYPE_GROUP)
-object PurchasedLoadingItem : PurchasedItem(PurchasedAdapter.TYPE_LOADING)
+data class PurchasedOrderItem(val order: Order, val redeemed: Boolean = false) : PurchasedItem(OrderAdapter.TYPE_CARD)
+data class PurchasedGroupItem(val title: String, val isOpened: Boolean = true) : PurchasedItem(OrderAdapter.TYPE_GROUP)
+object PurchasedLoadingItem : PurchasedItem(OrderAdapter.TYPE_LOADING)
 
-class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCallback()) {
+class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
     var itemClickListener: ((Order) -> Unit)? = null
-    var itemShareListener: ((Order) -> Unit)? = null
-    var itemRedeemListener: ((Order) -> Unit)? = null
-    var itemDeleteListener: ((Order) -> Unit)? = null
     var groupListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
-                TYPE_CARD -> CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false))
+                TYPE_CARD -> CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false)).apply {
+                    itemView.additional.visibility = GONE
+                }
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced_group, parent, false))
                 TYPE_LOADING -> LoadingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_loading, parent, false))
                 else -> TODO("not implemented")
@@ -48,23 +45,6 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                 val item = purchasedItem.order
                 holder.itemView.title.text = item.productName
                 holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
-                holder.itemView.additional.text = when (item.status) {
-                    Status.pROCESSING -> {
-                        holder.itemView.additionalLabel.visibility = View.GONE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
-                        "Processing"
-                    }
-                    Status.eRROR -> {
-                        holder.itemView.additionalLabel.visibility = View.GONE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
-                        "Failed"
-                    }
-                    else -> {
-                        holder.itemView.additionalLabel.visibility = View.VISIBLE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-                        item.timestamp?.getDateString(holder.itemView.resources)
-                    }
-                }
                 holder.itemView.isEnabled = !purchasedItem.redeemed
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
@@ -77,27 +57,6 @@ class PurchasedAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(Dif
                     }
                 } else {
                     holder.itemView.setOnClickListener(null)
-                }
-                holder.itemView.more.setOnClickListener { view ->
-                    PopupMenu(view.context, view).apply {
-                        menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
-                        menu.findItem(R.id.share).isVisible = !purchasedItem.redeemed && purchasedItem.order.status == Status.sUCCESS
-                        menu.findItem(R.id.redeem).isVisible = !purchasedItem.redeemed
-                        setOnMenuItemClickListener { menuItem ->
-                            when (menuItem.itemId) {
-                                R.id.share -> {
-                                    itemShareListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                }
-                                R.id.delete -> {
-                                    itemDeleteListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                }
-                                R.id.redeem -> {
-                                    itemRedeemListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
-                                }
-                            }
-                            true
-                        }
-                    }.show()
                 }
             }
             TYPE_GROUP -> {

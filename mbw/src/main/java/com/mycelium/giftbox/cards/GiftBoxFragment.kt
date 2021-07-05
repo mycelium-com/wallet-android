@@ -28,7 +28,8 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
         mediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = "Stores"
-                1 -> tab.text = "Purchased cards"
+                1 -> tab.text = "Purchases"
+                2 -> tab.text = "Gift cards"
             }
         }
         mediator?.attach()

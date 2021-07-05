@@ -12,12 +12,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
-import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.details.MODE
 import com.mycelium.giftbox.loadImage
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -88,11 +85,11 @@ class GiftBoxBuyResultFragment : Fragment() {
         }?.joinToString { it.name }
 
         binding?.btSend?.setOnClickListener {
-            if (args.quantity == 1) {
-                findNavController().navigate(
-                        GiftBoxBuyResultFragmentDirections.toDetails(args.orderResponse, MODE.STATUS)
-                )
-            } else gotoMainPage()
+//            if (args.quantity == 1) {
+//                findNavController().navigate(
+//                        GiftBoxBuyResultFragmentDirections.toDetails(args.orderResponse, MODE.STATUS)
+//                )
+//            } else gotoMainPage()
         }
         binding?.btSend?.text =
             if (args.quantity == 1) getString(R.string.gift_card) else getString(R.string.gift_cards)

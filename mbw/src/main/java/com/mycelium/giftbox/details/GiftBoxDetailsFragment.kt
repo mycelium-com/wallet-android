@@ -11,6 +11,7 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.*
+import com.mycelium.giftbox.client.GiftboxApi
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
@@ -21,13 +22,10 @@ import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxDetailsBinding
 import com.mycelium.wallet.startCoroutineTimer
 
-enum class MODE { STATUS, INFO }
-
 class GiftBoxDetailsFragment : Fragment() {
     private var binding: FragmentGiftboxDetailsBinding? = null
     private val args by navArgs<GiftBoxDetailsFragmentArgs>()
     private val viewModel: GiftBoxDetailsViewModel by viewModels()
-    private val repeatMillis: Long = 10000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +45,8 @@ class GiftBoxDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.ivImage?.loadImage(args.order.productImg)
-        (activity as AppCompatActivity).supportActionBar?.title = args.order.productName
+        binding?.ivImage?.loadImage(args.card.productImg)
+        (activity as AppCompatActivity).supportActionBar?.title = args.card.productName
         val descriptionClick: (View) -> Unit = {
             viewModel.more.value = !(viewModel.more.value ?: false)
             binding?.layoutDescription?.tvDescription?.setupDescription(
@@ -72,61 +70,22 @@ class GiftBoxDetailsFragment : Fragment() {
         binding?.layoutCode?.pinCode?.setOnClickListener {
             Utils.setClipboardString(viewModel.pinCode.value, it.context)
         }
-        args.order.items?.firstOrNull()?.let {
-            viewModel.setCodes(it)
-        }
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,
                     viewModel.more.value ?: false)
         }
-        loadOrder()
+        viewModel.setCard(args.card)
         loadProduct()
     }
 
     private fun loadProduct() {
-        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.order.productCode!!, {
+        GitboxAPI.giftRepository.getProduct(lifecycleScope, args.card.productCode!!, {
             viewModel.setProduct(it!!)
         }, { _, msg ->
             Toaster(this).toast(msg, true)
         })
     }
 
-    private fun loadOrder() {
-        when (args.mode) {
-            MODE.STATUS -> {
-                startCoroutineTimer(
-                        scope = this.lifecycleScope,
-                        delayMillis = 0,
-                        repeatMillis = repeatMillis
-                ) {
-                    load(true)
-                }
-            }
-            MODE.INFO -> {
-                load(false)
-            }
-        }
-    }
-
-    private fun load(showStatus: Boolean = false) {
-        loader(true)
-        GitboxAPI.giftRepository.getOrder(lifecycleScope, args.order.clientOrderId!!, {
-            if (showStatus) {
-                when (it?.status) {
-                    Status.sUCCESS -> setTitle("Success")
-                    Status.eRROR -> setTitle("Error")
-                    Status.pROCESSING -> setTitle("Processing")
-                    null -> {
-                    }
-                }
-            }
-            viewModel.setOrder(it!!)
-        }, { _, msg ->
-            Toaster(this).toast(msg, true)
-        }, {
-            loader(false)
-        })
-    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.giftbox_details, menu)
@@ -144,8 +103,9 @@ class GiftBoxDetailsFragment : Fragment() {
                             .setMessage(getString(R.string.delete_gift_card_msg))
                             .setNegativeButton(R.string.button_cancel) { _, _ -> }
                             .setPositiveButton(R.string.delete) { _, _ ->
-                                GiftboxPreference.remove(args.order)
-                                findNavController().popBackStack()
+                                GitboxAPI.giftRepository.remove(args.card, lifecycleScope) {
+                                    findNavController().popBackStack()
+                                }
                             }
                             .create().show()
                     true
@@ -157,10 +117,4 @@ class GiftBoxDetailsFragment : Fragment() {
         binding = null
         super.onDestroyView()
     }
-
-    fun setTitle(title: String) {
-        (activity as AppCompatActivity?)!!.supportActionBar!!.title = title
-    }
-
-
 }

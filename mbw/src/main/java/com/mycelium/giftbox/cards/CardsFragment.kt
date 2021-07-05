@@ -1,0 +1,127 @@
+package com.mycelium.giftbox.cards
+
+import android.os.Bundle
+import android.view.*
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
+import com.mycelium.giftbox.GiftboxPreference
+import com.mycelium.giftbox.cards.adapter.CardAdapter
+import com.mycelium.giftbox.cards.adapter.CardItem
+import com.mycelium.giftbox.cards.adapter.CardListItem
+import com.mycelium.giftbox.cards.adapter.GroupItem
+import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.model.Card
+import com.mycelium.giftbox.shareGiftcard
+import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
+
+
+class CardsFragment : Fragment() {
+    private val cards = mutableListOf<Card>()
+    private val adapter = CardAdapter()
+    private var binding: FragmentGiftboxPurchasedBinding? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View =
+            FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
+                binding = this
+            }.root
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding?.list?.adapter = adapter
+        binding?.list?.addItemDecoration(
+                com.mycelium.wallet.activity.view.DividerItemDecoration(
+                        resources.getDrawable(R.drawable.divider_bequant),
+                        DividerItemDecoration.VERTICAL
+                )
+        )
+        adapter.itemClickListener = {
+            findNavController().navigate(GiftBoxFragmentDirections.actionCardDetails(it))
+        }
+        adapter.itemShareListener = {
+            shareGiftcard(it)
+        }
+        adapter.itemRedeemListener = {
+            GitboxAPI.giftRepository.redeem(it, lifecycleScope) {
+                loadData()
+            }
+        }
+        adapter.groupListener = { group ->
+            GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))
+            adapter.submitList(generateList(cards))
+            binding?.list?.postDelayed({
+                binding?.list?.smoothScrollToPosition(adapter.currentList.indexOfFirst { it is GroupItem && it.title == group } + 5)
+            }, 300)
+        }
+        loadData()
+    }
+
+    fun loadData() {
+        GitboxAPI.giftRepository.getCards(lifecycleScope, { data ->
+            cards.clear()
+            cards.addAll(data ?: emptyList())
+            adapter.submitList(generateList(data ?: emptyList()))
+        }, { _, msg ->
+            Toaster(this).toast(msg, true)
+        })
+    }
+
+    private fun generateList(data: List<Card>) = mutableListOf<CardListItem>().apply {
+        addAll(data.filter { !it.isRedeemed }.map { CardItem(it) })
+        val redeemed = data.filter { it.isRedeemed }.map {
+            CardItem(it, true)
+        }
+        if (redeemed.isNotEmpty()) {
+            val redeemedGroup = getString(R.string.redeemed_gift_cards)
+            val isOpened = GiftboxPreference.isGroupOpen(redeemedGroup)
+            add(GroupItem(redeemedGroup, isOpened))
+            if (isOpened) {
+                addAll(redeemed)
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.giftbox_store, menu)
+        val searchItem = menu.findItem(R.id.actionSearch)
+        val searchView = searchItem.actionView as SearchView
+        searchView.setOnCloseListener {
+            adapter.submitList(generateList(cards))
+            false
+        }
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(s: String): Boolean {
+                findSearchResult(s)
+                return true
+            }
+
+            override fun onQueryTextChange(s: String): Boolean {
+                findSearchResult(s)
+                return true
+            }
+
+            private fun findSearchResult(s: String) {
+                adapter.submitList(generateList(cards.filter {
+                    it.productName?.contains(s, true) ?: false
+                }))
+            }
+        })
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
+}
