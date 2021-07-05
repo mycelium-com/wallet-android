@@ -30,8 +30,7 @@ import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.activity.util.zip2
+import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
@@ -147,6 +146,10 @@ class GiftboxBuyFragment : Fragment() {
             btEnterAmount.isEnabled = !isError
         }
 
+        viewModel.quantityString.observe(viewLifecycleOwner) {
+            viewModel.errorAmountMessage.value = null
+        }
+
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
             productId = args.product.code!!, success = { productResponse ->
                 val product = productResponse?.product
@@ -178,12 +181,23 @@ class GiftboxBuyFragment : Fragment() {
                     }?.joinToString { it.name }
 
                     btMinusQuantity.setOnClickListener {
-                        viewModel.quantityString.value =
-                            ((viewModel.quantityInt.value ?: 0) - 1).toString()
+                        if (viewModel.isGrantedMinus.value!!) {
+                            viewModel.quantityString.value =
+                                ((viewModel.quantityInt.value ?: 0) - 1).toString()
+                        } else {
+
+                        }
                     }
                     btPlusQuantity.setOnClickListener {
-                        viewModel.quantityString.value =
-                            ((viewModel.quantityInt.value ?: 0) + 1).toString()
+                        if (viewModel.isGrantedPlus.value!!) {
+                            viewModel.quantityString.value =
+                                ((viewModel.quantityInt.value ?: 0) + 1).toString()
+                        } else {
+                            if (viewModel.errorQuantityMessage.value.isNullOrEmpty() && !viewModel.totalProgress.value!!) {
+                                viewModel.errorAmountMessage.value =
+                                    getString(R.string.gift_insufficient_funds)
+                            }
+                        }
                     }
                     if (args.product.availableDenominations == null) {
                         amountRoot.setOnClickListener(defaultClickListener)
@@ -251,6 +265,7 @@ class GiftboxBuyFragment : Fragment() {
         val valueAndEnableMap =
             preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount()) }
         AlertDialog.Builder(requireContext())
+            .setTitle(R.string.select_card_value_dialog)
             .setSingleChoiceItems(
                 CustomSimpleAdapter(requireContext(), valueAndEnableMap),
                 selectedIndex
@@ -261,7 +276,7 @@ class GiftboxBuyFragment : Fragment() {
                     viewModel.totalAmountFiatSingle.value = preselectedList[which]
                     dialog.dismiss()
                 } else {
-                    Toaster(requireContext()).toast("Insufficient funds", true)
+                    Toaster(requireContext()).toast(R.string.gift_insufficient_funds, true)
                 }
             }
             .create().show()
@@ -403,7 +418,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
                 error = { _, error ->
                     if (!forSingleItem) {
                         val fromJson = gson.fromJson(error, ErrorMessage::class.java)
-                        errorQuantityMessage.value = fromJson.message
+                        val digit = fromJson.message.split(" ").lastOrNull()
+                        errorQuantityMessage.value = "Max available cards: $digit cards"
                     }
                     close()
                 },
@@ -431,7 +447,14 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
         return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
     }
 
-    val minerFeeFiatString: MutableLiveData<String> by lazy { MutableLiveData(minerFeeFiat().toStringWithUnit()) }
+    val minerFeeFiatString: MutableLiveData<String> by lazy {
+        val value = minerFeeFiat()
+        val asString = if (value.lessThan(Value(value.type, 1.toBigInteger()))) {
+            "<0.01 " + value.type.symbol
+        } else value.toStringWithUnit()
+        MutableLiveData(asString)
+    }
+
     fun minerFeeFiat(): Value {
         return convert(minerFeeCrypto(), zeroFiatValue.type) ?: zeroFiatValue
     }
@@ -449,23 +472,40 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
 
     val isGrantedPlus =
         Transformations.map(
-            zip2(
+            zip4(
                 totalAmountCrypto,
-                totalAmountCryptoSingle
-            ) { total: Value, single: Value ->
-                Pair(total, single)
+                totalAmountCryptoSingle,
+                errorQuantityMessage,
+                totalProgress
+            ) { total: Value, single: Value, quantityError:String, progress: Boolean ->
+                Quad(total, single, quantityError, progress)
             }
         ) {
-            val (total, single) = it
+            val (total, single, quantityError, progress) = it
             total.plus(single)
-                .lessOrEqualThan(getAccountBalance()) && errorQuantityMessage.value.isNullOrEmpty()
+                .lessOrEqualThan(getAccountBalance()) && quantityError.isNullOrEmpty() && !progress
         }
 
     val isGrantedMinus = Transformations.map(quantityInt) {
         return@map it > 1
     }
+
     val isGranted = Transformations.map(totalAmountCrypto) {
         return@map it.lessOrEqualThan(getAccountBalance()) && it.moreThanZero()
+    }
+
+    val plusBackground = Transformations.map(isGrantedPlus) {
+        ContextCompat.getDrawable(
+            WalletApplication.getInstance(),
+            if (!it) R.drawable.ic_plus_disabled else R.drawable.ic_plus
+        )
+    }
+
+    val minusBackground = Transformations.map(isGrantedMinus) {
+        ContextCompat.getDrawable(
+            WalletApplication.getInstance(),
+            if (!it) R.drawable.ic_minus_disabled else R.drawable.ic_minus
+        )
     }
 
     private fun convert(value: Value, assetInfo: AssetInfo): Value? =
@@ -475,18 +515,10 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
         )
 
     private fun getAccountBalance(): Value {
-        return account?.accountBalance?.confirmed!!
+        return account?.accountBalance?.spendable!!
     }
 
-    //TODO not sure if we need this at all
-    var wasEmpty = true
-    val errorAmountMessage = Transformations.map(totalAmountFiatSingle) {
-        if (wasEmpty) {
-            wasEmpty = !wasEmpty
-            return@map null
-        }
-        if (it.lessOrEqualThanZero()) "Amount should me more than 0" else null
-    }
+    val errorAmountMessage = MutableLiveData<String>(null)
 
     //colors
     val totalAmountSingleCryptoColor = Transformations.map(totalAmountCryptoSingle) {
@@ -507,7 +539,15 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
         getColorByFiatValue(it)
     }
 
-    val minerFeeFiatColor by lazy { MutableLiveData(getColorByCryptoValue(minerFeeFiat())) }
+    val minerFeeFiatColor by lazy {
+        val value = minerFeeFiat()
+        MutableLiveData(
+            ContextCompat.getColor(
+                WalletApplication.getInstance(),
+                if (value.moreOrEqualThanZero()) R.color.white_alpha_0_6 else R.color.darkgrey
+            )
+        )
+    }
 
     private fun getColorByCryptoValue(it: Value) =
         ContextCompat.getColor(

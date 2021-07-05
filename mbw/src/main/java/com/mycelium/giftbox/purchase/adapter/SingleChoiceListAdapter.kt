@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.CheckedTextView
+import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -29,7 +30,7 @@ class CustomSimpleAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val inflate = LayoutInflater.from(context)
-            .inflate(android.R.layout.simple_list_item_single_choice, null)
+            .inflate(R.layout.simple_list_item_single_choice, null)
 
         val textView = inflate.findViewById<CheckedTextView>(android.R.id.text1)
         val item = getItem(position)
