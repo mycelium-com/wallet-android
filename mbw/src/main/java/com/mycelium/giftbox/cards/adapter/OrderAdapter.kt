@@ -13,6 +13,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.client.models.Order
+import com.mycelium.giftbox.client.models.Status
+import com.mycelium.giftbox.getDateString
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
 import kotlinx.android.synthetic.main.item_giftbox_purchaced_group.view.*
@@ -30,7 +32,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 TYPE_CARD -> CardViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced, parent, false)).apply {
-                    itemView.additional.visibility = GONE
+                    itemView.more.visibility = GONE
                 }
                 TYPE_GROUP -> GroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_purchaced_group, parent, false))
                 TYPE_LOADING -> LoadingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_giftbox_loading, parent, false))
@@ -45,6 +47,23 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                 val item = purchasedItem.order
                 holder.itemView.title.text = item.productName
                 holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
+                holder.itemView.additional.text = when (item.status) {
+                    Status.pROCESSING -> {
+                        holder.itemView.additionalLabel.visibility = View.GONE
+                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
+                        "Processing"
+                    }
+                    Status.eRROR -> {
+                        holder.itemView.additionalLabel.visibility = View.GONE
+                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
+                        "Failed"
+                    }
+                    else -> {
+                        holder.itemView.additionalLabel.visibility = View.VISIBLE
+                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+                        item.timestamp?.getDateString(holder.itemView.resources)
+                    }
+                }
                 holder.itemView.isEnabled = !purchasedItem.redeemed
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
