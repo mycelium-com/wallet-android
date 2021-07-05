@@ -23,7 +23,7 @@
             app:destination="@id/giftBoxBuyResultFragment" />
         <action
             android:id="@+id/actionCardDetails"
-            app:destination="@id/cardsFragment" />
+            app:destination="@id/purchasedDetails" />
         <action
             android:id="@+id/actionStoreDetails"
             app:destination="@id/storeDetails" />
@@ -60,7 +60,9 @@
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
         <action
             android:id="@+id/toResult"
-            app:destination="@id/giftBoxBuyResultFragment" />
+            app:destination="@id/giftBoxBuyResultFragment"
+            app:popUpTo="@id/giftboxFragment"
+            app:popUpToInclusive="true"/>
 
         <action
             android:id="@+id/enterAmount"
@@ -130,40 +132,39 @@
         tools:layout="@layout/fragment_giftbox_buy_result">
         <argument
             android:name="accountId"
-            app:argType="java.util.UUID" />
+            app:argType="java.util.UUID"
+            app:nullable="true"/>
         <argument
             android:name="transaction"
-            app:argType="com.mycelium.wapi.wallet.Transaction" />
+            app:argType="com.mycelium.wapi.wallet.Transaction"
+            app:nullable="true"/>
         <argument
             android:name="productResponse"
-            app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+            app:argType="com.mycelium.giftbox.client.models.ProductInfo"
+            app:nullable="true"/>
         <argument
             android:name="totalFiat"
-            app:argType="com.mycelium.wapi.wallet.coins.Value" />
+            app:argType="com.mycelium.wapi.wallet.coins.Value"
+            app:nullable="true"/>
         <argument
             android:name="totalCrypto"
-            app:argType="com.mycelium.wapi.wallet.coins.Value" />
+            app:argType="com.mycelium.wapi.wallet.coins.Value"
+            app:nullable="true"/>
         <argument
             android:name="minerFeeFiat"
-            app:argType="com.mycelium.wapi.wallet.coins.Value" />
+            app:argType="com.mycelium.wapi.wallet.coins.Value"
+            app:nullable="true"/>
         <argument
             android:name="minerFeeCrypto"
-            app:argType="com.mycelium.wapi.wallet.coins.Value" />
-        <argument
-            android:name="quantity"
-            app:argType="integer" />
+            app:argType="com.mycelium.wapi.wallet.coins.Value"
+            app:nullable="true"/>
         <argument
             android:name="orderResponse"
-            app:argType="com.mycelium.giftbox.client.models.OrderResponse" />
+            app:argType="com.mycelium.giftbox.client.models.Order" />
 
         <action
             android:id="@+id/toGiftBox"
             app:destination="@id/giftboxFragment"
-            app:popUpTo="@+id/giftboxFragment" />
-
-        <action
-            android:id="@+id/toDetails"
-            app:destination="@id/purchasedDetails"
             app:popUpTo="@+id/giftboxFragment" />
     </fragment>
     <fragment
@@ -174,17 +175,5 @@
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
-    </fragment>
-    <fragment
-        android:id="@+id/cardsFragment"
-        android:name="com.mycelium.giftbox.cards.CardsFragment"
-        android:label="CardsFragment"
-        tools:layout="@layout/fragment_giftbox_details" >
-        <argument
-            android:name="card"
-            app:argType="com.mycelium.giftbox.model.Card" />
-        <action
-            android:id="@+id/actionRedeem"
-            app:destination="@id/redeemInstructionsFragment" />
     </fragment>
 </navigation>

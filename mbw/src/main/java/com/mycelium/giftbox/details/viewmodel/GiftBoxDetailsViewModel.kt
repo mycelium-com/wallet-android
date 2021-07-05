@@ -37,6 +37,7 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
         cardAmount.value = "${card.amount} ${card.currencyCode}"
         amount.value = "${card.amount} ${card.currencyCode}"
         date.value = card.timestamp?.getDateTimeString(getApplication<Application>().resources)
+        setCodes(card)
     }
 
     fun setProduct(product: ProductResponse) {

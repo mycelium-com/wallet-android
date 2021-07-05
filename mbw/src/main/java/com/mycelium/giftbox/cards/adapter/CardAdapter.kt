@@ -12,7 +12,6 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
-import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.getDateString
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
@@ -46,10 +45,7 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                 val item = purchasedItem.card
                 holder.itemView.title.text = item.productName
                 holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
-
-                holder.itemView.additionalLabel.visibility = View.VISIBLE
-                holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-                item.timestamp?.getDateString(holder.itemView.resources)
+                holder.itemView.additional.text = item.timestamp?.getDateString(holder.itemView.resources)
                 holder.itemView.isEnabled = !purchasedItem.redeemed
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
@@ -107,7 +103,8 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                         when (oldItem.type) {
                             TYPE_CARD ->
                                 equalsValuesBy(oldItem as CardItem, newItem as CardItem,
-                                        { it.card.clientOrderId }, { it.card.pin }, { it.card.deliveryUrl }, { it.card.code })
+                                        { it.card.clientOrderId }, { it.card.pin },
+                                        { it.card.deliveryUrl }, { it.card.code }, { it.redeemed })
                             TYPE_GROUP -> equalsValuesBy(oldItem as GroupItem, newItem as GroupItem,
                                     { it.title })
                             else -> true
@@ -119,7 +116,7 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                     TYPE_CARD ->
                         equalsValuesBy(oldItem as CardItem, newItem as CardItem,
                                 { it.card.productImg }, { it.card.productName },
-                                { it.card.amount }, { it.card.expiryDate })
+                                { it.card.amount }, { it.card.timestamp })
                     TYPE_GROUP -> equalsValuesBy(oldItem as GroupItem, newItem as GroupItem,
                             { it.title }, { it.isOpened })
                     else -> true

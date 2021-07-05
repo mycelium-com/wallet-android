@@ -11,16 +11,12 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.*
-import com.mycelium.giftbox.client.GiftboxApi
 import com.mycelium.giftbox.client.GitboxAPI
-import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.details.viewmodel.GiftBoxDetailsViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxDetailsBinding
-import com.mycelium.wallet.startCoroutineTimer
 
 class GiftBoxDetailsFragment : Fragment() {
     private var binding: FragmentGiftboxDetailsBinding? = null
@@ -66,9 +62,11 @@ class GiftBoxDetailsFragment : Fragment() {
         }
         binding?.layoutCode?.redeemCode?.setOnClickListener {
             Utils.setClipboardString(viewModel.redeemCode.value, it.context)
+            Toaster(this).toast(R.string.copied_to_clipboard, true)
         }
         binding?.layoutCode?.pinCode?.setOnClickListener {
             Utils.setClipboardString(viewModel.pinCode.value, it.context)
+            Toaster(this).toast(R.string.copied_to_clipboard, true)
         }
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,

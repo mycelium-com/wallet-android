@@ -11,7 +11,7 @@
 
         <variable
             name="vm"
-            type="com.mycelium.giftbox.purchase.GiftboxBuyResultViewModel" />
+            type="com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel" />
     </data>
 
 
@@ -25,16 +25,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="8dp">
+            android:paddingHorizontal="@dimen/horizontal_page_margin"
+            android:paddingVertical="@dimen/activity_vertical_margin">
 
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
-                android:orientation="vertical">
-
-                <include layout="@layout/fragment_giftbox_details_header" />
+                <include
+                    android:id="@+id/detailsHeader"
+                    layout="@layout/fragment_giftbox_details_header"
+                    app:viewModel="@{vm}"/>
 
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -91,7 +88,7 @@
                         app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-                <!--                android:text="@{vm.totalAmountCryptoString}"-->
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/minerFeeRoot"
                     android:layout_width="match_parent"
@@ -164,10 +161,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="@{vm.more ? View.GONE : View.VISIBLE}">
-                    <include layout="@layout/details_common" />
+                    <include
+                        android:id="@+id/txDetails"
+                        layout="@layout/details_common" />
                 </LinearLayout>
-
-            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </layout>
