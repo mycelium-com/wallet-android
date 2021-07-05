@@ -27,7 +27,6 @@ class GiftboxApiRepository {
         mbwManager.masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
             .getPrivateKeyForWebsite(Constants.WEBSITE, AesKeyCipher.defaultKeyCipher())
             .publicKey.toString()
-        "03115505e4794baf865652610762087264b20cd04fc8309aec032f7363863ce597"
     }
 
     private fun updateOrderId(): String {

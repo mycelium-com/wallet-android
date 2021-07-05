@@ -61,8 +61,7 @@
         <action
             android:id="@+id/toResult"
             app:destination="@id/giftBoxBuyResultFragment"
-            app:popUpTo="@id/giftboxFragment"
-            app:popUpToInclusive="true"/>
+            app:popUpTo="@id/giftboxFragment" />
 
         <action
             android:id="@+id/enterAmount"
@@ -161,11 +160,6 @@
         <argument
             android:name="orderResponse"
             app:argType="com.mycelium.giftbox.client.models.Order" />
-
-        <action
-            android:id="@+id/toGiftBox"
-            app:destination="@id/giftboxFragment"
-            app:popUpTo="@+id/giftboxFragment" />
     </fragment>
     <fragment
         android:id="@+id/redeemInstructionsFragment"
