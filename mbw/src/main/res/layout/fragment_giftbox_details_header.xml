@@ -2,7 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/rect_background_rounded"
     tools:showIn="@layout/fragment_giftbox_buy">
 
     <data>
@@ -11,12 +10,13 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel" />
+            type="com.mycelium.giftbox.common.OrderHeaderViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/rect_background_rounded">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/imageRoot"

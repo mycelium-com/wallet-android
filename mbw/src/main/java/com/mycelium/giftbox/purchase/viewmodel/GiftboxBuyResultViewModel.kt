@@ -6,9 +6,10 @@ import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.client.models.ProductInfo
+import com.mycelium.giftbox.common.OrderHeaderViewModel
 
 
-class GiftboxBuyResultViewModel : ViewModel() {
+class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     val totalAmountFiatString = MutableLiveData("")
     val totalAmountCryptoString = MutableLiveData("")
     val minerFeeFiat = MutableLiveData("")
@@ -23,9 +24,9 @@ class GiftboxBuyResultViewModel : ViewModel() {
     }
 
 
-    val productName = MutableLiveData("")
-    val expire = MutableLiveData("")
-    val country = MutableLiveData("")
+    override val productName = MutableLiveData("")
+    override val expire = MutableLiveData("")
+    override val country = MutableLiveData("")
 
     fun setProduct(product: ProductInfo) {
         productName.value = product.name
@@ -35,8 +36,8 @@ class GiftboxBuyResultViewModel : ViewModel() {
         }?.joinToString { it.name }
     }
 
-    val cardValue = MutableLiveData("")
-    val quantity = MutableLiveData(0)
+    override val cardValue = MutableLiveData("")
+    override val quantity = MutableLiveData(0)
 
     fun setOrder(orderResponse: Order) {
         val cardAmount = orderResponse.amount?.toFloat()?:0f / (orderResponse.quantity?.toFloat() ?: 1f)

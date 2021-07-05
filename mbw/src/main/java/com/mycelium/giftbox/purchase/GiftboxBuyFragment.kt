@@ -9,7 +9,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
@@ -25,6 +24,7 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductInfo
+import com.mycelium.giftbox.common.OrderHeaderViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.wallet.*
@@ -58,8 +58,8 @@ import java.util.*
 
 
 class GiftboxBuyFragment : Fragment() {
-    private lateinit var binding: FragmentGiftboxBuyBinding
-    val args by navArgs<GiftboxBuyFragmentArgs>()
+    private var binding: FragmentGiftboxBuyBinding? = null
+    private val args by navArgs<GiftboxBuyFragmentArgs>()
 
     val viewModel: GiftboxBuyViewModel by viewModels { ViewModelFactory(args.product) }
 
@@ -82,19 +82,12 @@ class GiftboxBuyFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        binding = DataBindingUtil.inflate<FragmentGiftboxBuyBinding>(
-            inflater,
-            R.layout.fragment_giftbox_buy,
-            container,
-            false
-        )
-            .apply {
+    ): View =
+         FragmentGiftboxBuyBinding.inflate(inflater).apply {
+                binding = this
                 vm = viewModel
                 lifecycleOwner = this@GiftboxBuyFragment
-            }
-        return binding.root
-    }
+            }.root
 
     val preselectedClickListener: (View) -> Unit = {
         showChoicePreselectedValuesDialog()
@@ -114,7 +107,7 @@ class GiftboxBuyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btSend.isEnabled = viewModel.totalAmountFiatSingle.value != null
+        binding?.btSend?.isEnabled = viewModel.totalAmountFiatSingle.value != null
         viewModel.totalAmountFiatSingle.value = viewModel.totalAmountFiatSingle.value
 
         loader(true)
@@ -134,9 +127,9 @@ class GiftboxBuyFragment : Fragment() {
         }
 
         viewModel.errorQuantityMessage.observe(viewLifecycleOwner) {
-            binding.tlQuanity.error = it
+            binding?.tlQuanity?.error = it
             val isError = !it.isNullOrEmpty()
-            binding.tvQuanity.setTextColor(
+            binding?.tvQuanity?.setTextColor(
                 ContextCompat.getColor(
                     requireContext(), if (isError) R.color.red_error else R.color.white
                 )
@@ -213,7 +206,7 @@ class GiftboxBuyFragment : Fragment() {
                 loader(false)
             })
 
-        binding.btSend.setOnClickListener {
+        binding?.btSend?.setOnClickListener {
             loader(true)
             GitboxAPI.giftRepository.createOrder(
                 viewModel.viewModelScope,
@@ -282,6 +275,11 @@ class GiftboxBuyFragment : Fragment() {
             .create().show()
     }
 
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
@@ -310,7 +308,7 @@ class GiftboxBuyFragment : Fragment() {
         amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
 }
 
-class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
+class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHeaderViewModel {
     val gson = Gson()
     val accountId = MutableLiveData<UUID>()
     val zeroFiatValue = zeroFiatValue(productInfo)
@@ -324,6 +322,11 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
     val zeroCryptoValue by lazy {
         account?.basedOnCoinType?.value(0)
     }
+    override val productName = MutableLiveData("")
+    override val expire = MutableLiveData("")
+    override val country = MutableLiveData("")
+    override val cardValue = MutableLiveData("")
+    override val quantity = MutableLiveData(0)
 
     val sendTransactionAction = MutableLiveData<Unit>()
     val sendTransaction = Transformations.switchMap(sendTransactionAction) {
