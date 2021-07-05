@@ -2,6 +2,7 @@ package com.mycelium.giftbox.cards
 
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -58,6 +59,25 @@ class CardsFragment : Fragment() {
                 loadData()
             }
         }
+        adapter.itemDeleteListener = {
+            AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                    .setTitle(getString(R.string.delete_gift_card))
+                    .setMessage(getString(R.string.delete_gift_card_msg))
+                    .setNegativeButton(R.string.button_cancel) { _, _ -> }
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                                .setTitle(getString(R.string.delete_gift_card))
+                                .setMessage(getString(R.string.delete_gift_card_msg))
+                                .setNegativeButton(R.string.button_cancel) { _, _ -> }
+                                .setPositiveButton(R.string.delete) { _, _ ->
+                                    GitboxAPI.giftRepository.remove(it, lifecycleScope) {
+                                        loadData()
+                                    }
+                                }
+                                .create().show()
+                    }
+                    .create().show()
+        }
         adapter.groupListener = { group ->
             GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))
             adapter.submitList(generateList(cards))
@@ -80,9 +100,7 @@ class CardsFragment : Fragment() {
 
     private fun generateList(data: List<Card>) = mutableListOf<CardListItem>().apply {
         addAll(data.filter { !it.isRedeemed }.map { CardItem(it) })
-        val redeemed = data.filter { it.isRedeemed }.map {
-            CardItem(it, true)
-        }
+        val redeemed = data.filter { it.isRedeemed }.map { CardItem(it, true) }
         if (redeemed.isNotEmpty()) {
             val redeemedGroup = getString(R.string.redeemed_gift_cards)
             val isOpened = GiftboxPreference.isGroupOpen(redeemedGroup)

@@ -26,6 +26,14 @@ insertCard:
 INSERT OR REPLACE INTO GiftboxCard(clientOrderId, productCode, productName, productImg, currencyCode, amount, expiryDate, code, deliveryUrl, pin, timestamp)
 VALUES (?, ?, ?, ?, ?, ?, ? , ? , ? , ?, ?);
 
+updateCard:
+UPDATE GiftboxCard
+SET productCode = (?), productName = (?), productImg= (?), currencyCode= (?), amount= (?), expiryDate= (?),timestamp= (?)
+WHERE clientOrderId = (?) AND code = (?) AND deliveryUrl = (?) AND pin = (?);
+
+isCardUpdated:
+SELECT changes();
+
 deleteCard:
 UPDATE GiftboxCard
 SET deleted = 1

@@ -2,14 +2,17 @@ package com.mycelium.giftbox.cards
 
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import com.mycelium.giftbox.GiftboxPreference
-import com.mycelium.giftbox.cards.adapter.*
+import com.mycelium.giftbox.cards.adapter.OrderAdapter
+import com.mycelium.giftbox.cards.adapter.PurchasedGroupItem
+import com.mycelium.giftbox.cards.adapter.PurchasedLoadingItem
+import com.mycelium.giftbox.cards.adapter.PurchasedOrderItem
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Order
@@ -48,7 +51,7 @@ class OrdersFragment : Fragment() {
                 )
         )
         adapter.itemClickListener = {
-//            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(it))
+            findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
         }
         adapter.groupListener = { group ->
             GiftboxPreference.setGroupOpen(group, !GiftboxPreference.isGroupOpen(group))

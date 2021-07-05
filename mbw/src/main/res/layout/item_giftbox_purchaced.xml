@@ -42,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="@string/gift_card_amount"
+        android:text="@string/gift_card_d"
         android:textColor="@color/fio_white_alpha_0_6"
         android:textSize="12sp"
         app:layout_constraintBaseline_toBaselineOf="@id/description"

@@ -180,9 +180,16 @@ class GiftboxApiRepository {
     private fun updateCards(orders: List<Order>?) {
         orders?.forEach { order ->
             order.items?.forEach {
-                giftbxDB.giftboxCardQueries.insertCard(order.clientOrderId ?: "", order.productCode,
-                        order.productName, order.productImg, order.currencyCode, it.amount, it.expiryDate,
-                        it.code ?: "", it.deliveryUrl ?: "", it.pin ?: "", order.timestamp)
+                giftbxDB.giftboxCardQueries.updateCard(order.productCode, order.productName, order.productImg,
+                        order.currencyCode, it.amount, it.expiryDate, order.timestamp,
+                        order.clientOrderId ?: "", it.code ?: "",
+                        it.deliveryUrl ?: "", it.pin ?: "")
+                if (giftbxDB.giftboxCardQueries.isCardUpdated().executeAsOne() == 0L) {
+                    giftbxDB.giftboxCardQueries.insertCard(order.clientOrderId ?: "",
+                            order.productCode, order.productName, order.productImg, order.currencyCode,
+                            it.amount, it.expiryDate, it.code ?: "", it.deliveryUrl ?: "",
+                            it.pin ?: "", order.timestamp)
+                }
             }
         }
     }
