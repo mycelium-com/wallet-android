@@ -30,9 +30,7 @@ import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.activity.util.zip2
-import com.mycelium.wallet.activity.util.zip3
+import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
@@ -195,7 +193,7 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) + 1).toString()
                         } else {
-                            if (viewModel.errorQuantityMessage.value.isNullOrEmpty()) {
+                            if (viewModel.errorQuantityMessage.value.isNullOrEmpty() && !viewModel.totalProgress.value!!) {
                                 viewModel.errorAmountMessage.value =
                                     getString(R.string.gift_insufficient_funds)
                             }
@@ -474,17 +472,18 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
 
     val isGrantedPlus =
         Transformations.map(
-            zip3(
+            zip4(
                 totalAmountCrypto,
                 totalAmountCryptoSingle,
                 errorQuantityMessage,
-            ) { total: Value, single: Value, quantityError ->
-                Triple(total, single, quantityError)
+                totalProgress
+            ) { total: Value, single: Value, quantityError:String, progress: Boolean ->
+                Quad(total, single, quantityError, progress)
             }
         ) {
-            val (total, single, quantityError) = it
+            val (total, single, quantityError, progress) = it
             total.plus(single)
-                .lessOrEqualThan(getAccountBalance()) && quantityError.isNullOrEmpty()
+                .lessOrEqualThan(getAccountBalance()) && quantityError.isNullOrEmpty() && !progress
         }
 
     val isGrantedMinus = Transformations.map(quantityInt) {
