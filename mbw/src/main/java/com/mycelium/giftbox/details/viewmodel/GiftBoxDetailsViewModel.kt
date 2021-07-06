@@ -11,6 +11,7 @@ import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.common.AmountViewModel
 import com.mycelium.giftbox.common.DescriptionViewModel
 import com.mycelium.giftbox.getDateTimeString
+import com.mycelium.giftbox.model.Card
 
 
 class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(application), AmountViewModel, DescriptionViewModel {
@@ -29,13 +30,14 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     override val more = MutableLiveData<Boolean>(false)
     val expiry = MutableLiveData<String>()
     var productInfo: ProductInfo? = null
-    var orderResponse: OrderResponse? = null
+    var orderResponse: Card? = null
 
-    fun setOrder(order: OrderResponse) {
-        this.orderResponse = order
-        cardAmount.value = "${order.amount} ${order.currencyCode}"
-        amount.value = "${order.amount} ${order.currencyCode}"
-        date.value = order.timestamp?.getDateTimeString(getApplication<Application>().resources)
+    fun setCard(card: Card) {
+        this.orderResponse = card
+        cardAmount.value = "${card.amount} ${card.currencyCode}"
+        amount.value = "${card.amount} ${card.currencyCode}"
+        date.value = card.timestamp?.getDateTimeString(getApplication<Application>().resources)
+        setCodes(card)
     }
 
     fun setProduct(product: ProductResponse) {
@@ -45,22 +47,22 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
         expireDate.value = expiry.value
     }
 
-    fun setCodes(code: Ecode) {
+    fun setCodes(code: Card) {
         when {
-            code.deliveryUrl?.isNotEmpty() == true -> {
+            code.deliveryUrl.isNotEmpty() -> {
                 redeemCode.value = code.deliveryUrl
             }
             URLUtil.isValidUrl(code.code) -> {
                 redeemCode.value = code.code
             }
-            code.code?.isNotEmpty() == true -> {
+            code.code.isNotEmpty() -> {
                 redeemCode.value = code.code
             }
             else -> {
                 redeemCode.value = ""
             }
         }
-        pinCode.value = if (code.pin?.isNotEmpty() == true) {
+        pinCode.value = if (code.pin.isNotEmpty()) {
             code.pin
         } else {
             ""

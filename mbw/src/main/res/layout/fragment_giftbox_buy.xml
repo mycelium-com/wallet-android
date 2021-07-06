@@ -4,14 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
-        <import type="androidx.lifecycle.AndroidViewModel" />
-
         <import type="android.view.View" />
-
-        <variable
-            name="activity"
-            type="com.mycelium.giftbox.purchase.GiftboxBuyFragment" />
 
         <variable
             name="vm"
@@ -20,7 +13,6 @@
 
 
     <ScrollView
-        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical">
@@ -37,7 +29,10 @@
                 android:layout_marginHorizontal="@dimen/horizontal_page_margin"
                 android:orientation="vertical">
 
-                <include layout="@layout/fragment_giftbox_details_header" />
+                <include
+                    android:id="@+id/detailsHeader"
+                    layout="@layout/fragment_giftbox_details_header"
+                    app:viewModel="@{vm}" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/amountRoot"
