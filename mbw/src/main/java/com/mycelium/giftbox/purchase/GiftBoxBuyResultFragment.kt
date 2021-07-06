@@ -52,7 +52,6 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.totalAmountFiatString.value = args.totalFiat?.toStringWithUnit()
         viewModel.totalAmountCryptoString.value = "~" + args.totalCrypto?.toStringWithUnit()
         viewModel.minerFeeFiat.value = args.minerFeeFiat?.toStringWithUnit()
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()

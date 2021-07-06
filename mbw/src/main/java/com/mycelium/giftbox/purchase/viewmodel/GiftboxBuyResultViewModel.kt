@@ -44,5 +44,6 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
                 (orderResponse.quantity?.toFloat() ?: 1f)
         cardValue.value = "$cardAmount ${orderResponse.currencyCode}"
         quantity.value = orderResponse.quantity?.toInt() ?: 0
+        totalAmountFiatString.value = "${orderResponse.amount} ${orderResponse.currencyCode}"
     }
 }
