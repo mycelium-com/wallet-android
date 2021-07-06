@@ -40,12 +40,25 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
             }
         }
         mediator?.attach()
-        pager.currentItem = tabMap.inverse()[activityViewModel.currentTab.value] ?: 0
-        pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                activityViewModel.currentTab.value = tabMap[position] ?: STORES
-            }
-        })
+    }
+
+    val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            activityViewModel.currentTab.value = tabMap[position] ?: STORES
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        pager.postDelayed({
+            pager.currentItem = tabMap.inverse()[activityViewModel.currentTab.value] ?: 0
+            pager.registerOnPageChangeCallback(pageChangeCallback)
+        }, 10)
+    }
+
+    override fun onPause() {
+        pager.unregisterOnPageChangeCallback(pageChangeCallback)
+        super.onPause()
     }
 
     companion object {
