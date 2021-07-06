@@ -54,6 +54,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.util.*
 
 
@@ -313,6 +314,7 @@ class GiftboxBuyFragment : Fragment() {
 
 class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
     val gson = Gson()
+    val MAX_SCALE = 10
     val accountId = MutableLiveData<UUID>()
     val zeroFiatValue = zeroFiatValue(productInfo)
     val orderResponse = MutableLiveData<OrderResponse>()
@@ -441,8 +443,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
     }
 
     private fun getCryptoAmount(price: String): Value {
+        val scale = BigDecimal(price).setScale(MAX_SCALE, RoundingMode.HALF_UP)
         val cryptoUnit =
-            BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
+            scale.movePointRight(account?.basedOnCoinType?.unitExponent!!)
                 .toBigInteger()
         return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
     }
@@ -477,7 +480,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel() {
                 totalAmountCryptoSingle,
                 errorQuantityMessage,
                 totalProgress
-            ) { total: Value, single: Value, quantityError:String, progress: Boolean ->
+            ) { total: Value, single: Value, quantityError: String, progress: Boolean ->
                 Quad(total, single, quantityError, progress)
             }
         ) {
