@@ -6,9 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.giftbox.cards.GiftBoxFragment
+import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.loadImage
@@ -34,6 +38,7 @@ import java.util.*
 class GiftBoxBuyResultFragment : Fragment() {
     private lateinit var tx: TransactionSummary
     private val viewModel: GiftboxBuyResultViewModel by viewModels()
+    private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxBuyResultBinding? = null
 
     val args by navArgs<GiftBoxBuyResultFragmentArgs>()
@@ -81,6 +86,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         }?:run {
             binding?.more?.visibility = View.GONE
         }
+        activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
     }
 
     private fun loadProduct() {
