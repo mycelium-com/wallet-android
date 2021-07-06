@@ -40,7 +40,8 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     override val quantity = MutableLiveData(0)
 
     fun setOrder(orderResponse: Order) {
-        val cardAmount = orderResponse.amount?.toFloat()?:0f / (orderResponse.quantity?.toFloat() ?: 1f)
+        val cardAmount = (orderResponse.amount?.toFloat() ?: 0f) /
+                (orderResponse.quantity?.toFloat() ?: 1f)
         cardValue.value = "$cardAmount ${orderResponse.currencyCode}"
         quantity.value = orderResponse.quantity?.toInt() ?: 0
     }
