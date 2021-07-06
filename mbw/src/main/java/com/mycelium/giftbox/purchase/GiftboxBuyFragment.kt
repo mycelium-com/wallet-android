@@ -445,7 +445,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     private fun getCryptoAmount(price: String): Value {
-        val cryptoUnit =  BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
+        val scale = BigDecimal(price).setScale(MAX_SCALE, RoundingMode.HALF_UP)val cryptoUnit =  scale.movePointRight(account?.basedOnCoinType?.unitExponent!!)
                 .toBigInteger()
         return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
     }
