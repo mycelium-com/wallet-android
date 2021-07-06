@@ -4,14 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel
 import com.mycelium.wallet.MbwManager
@@ -52,11 +51,10 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.totalAmountCryptoString.value = "~" + args.totalCrypto?.toStringWithUnit()
         viewModel.minerFeeFiat.value = args.minerFeeFiat?.toStringWithUnit()
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()
         loadProduct()
-        viewModel.setOrder(args.orderResponse)
+        loadOrder()
         binding?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
         }
@@ -95,6 +93,18 @@ class GiftBoxBuyResultFragment : Fragment() {
         }, { _, msg ->
             Toaster(this).toast(msg, true)
         })
+    }
+
+    private fun loadOrder() {
+        if(args.orderResponse is OrderResponse) {
+            viewModel.setOrder(args.orderResponse as OrderResponse)
+        }else {
+            GitboxAPI.giftRepository.getOrder(lifecycleScope, args.orderResponse.clientOrderId!!, {
+                viewModel.setOrder(it!!)
+            }, { _, msg ->
+                Toaster(this).toast(msg, true)
+            })
+        }
     }
 
     private fun updateUi() {

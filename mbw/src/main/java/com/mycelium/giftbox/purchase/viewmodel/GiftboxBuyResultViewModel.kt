@@ -5,6 +5,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.models.Order
+import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel
 
@@ -39,11 +40,12 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     override val cardValue = MutableLiveData("")
     override val quantity = MutableLiveData(0)
 
-    fun setOrder(orderResponse: Order) {
+    fun setOrder(orderResponse: OrderResponse) {
         val cardAmount = (orderResponse.amount?.toFloat() ?: 0f) /
                 (orderResponse.quantity?.toFloat() ?: 1f)
         cardValue.value = "$cardAmount ${orderResponse.currencyCode}"
         quantity.value = orderResponse.quantity?.toInt() ?: 0
         totalAmountFiatString.value = "${orderResponse.amount} ${orderResponse.currencyCode}"
+        totalAmountCryptoString.value = "${orderResponse.amountExpectedFrom} ${orderResponse.currencyFromInfo?.name}"
     }
 }

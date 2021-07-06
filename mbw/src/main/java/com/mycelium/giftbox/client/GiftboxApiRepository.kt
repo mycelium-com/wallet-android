@@ -170,7 +170,7 @@ class GiftboxApiRepository {
         clientOrderId: String = lastOrderId,
         success: (OrderResponse?) -> Unit,
         error: (Int, String) -> Unit,
-        finally: () -> Unit
+        finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
             api.order(clientUserIdFromMasterSeed, clientOrderId)
