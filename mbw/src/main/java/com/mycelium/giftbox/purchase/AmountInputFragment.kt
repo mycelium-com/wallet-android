@@ -8,9 +8,13 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.PriceResponse
+import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
@@ -23,8 +27,17 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_giftbox_amount.*
 import kotlinx.android.synthetic.main.layout_fio_request_notification.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 
 class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var binding: FragmentGiftboxAmountBinding
@@ -32,14 +45,47 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var _mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
 
-    val assetInfo by lazy {
-        _mbwManager.getWalletManager(false).getAccount(args.accountId)!!.coinType
+    val zeroFiatValue by lazy {
+        Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
     }
+
+    private val account by lazy {
+        MbwManager.getInstance(requireContext()).getWalletManager(false)
+            .getAccount(args.accountId)
+    }
+
     private var _amount: Value? = null
         set(value) {
             field = value
-            val convert = convert(value!!, assetInfo)
-            //print cryptp here (task was postponed)
+            lifecycleScope.launch(IO) {
+                getPriceResponse(value!!).collect {
+                    withContext(Dispatchers.Main) {
+                        val exchangeRate = BigDecimal(it!!.exchangeRate)
+                        //update crypto amount
+                        val cryptoAmountFromFiat =
+                            value.valueAsLong.toBigDecimal()
+                                .setScale(account?.coinType?.unitExponent!!) / toUnits(
+                                Utils.getTypeByName(
+                                    args.product.currencyCode!!
+                                )!!, exchangeRate
+                            ).toBigDecimal()
+                        val cryptoAmountValue =
+                            valueOf(
+                                account?.basedOnCoinType!!,
+                                toUnits(account?.basedOnCoinType!!, cryptoAmountFromFiat)
+                            )
+                        tvCryptoAmount.text = cryptoAmountValue.toStringWithUnit()
+
+                        //update spendable
+                        val maxSpendable = getMaxSpendable()
+                        val fiatSpendable = maxSpendable?.valueAsBigDecimal?.multiply(exchangeRate)
+                        tvSpendableAmount.text = valueOf(
+                            zeroFiatValue.type,
+                            toUnits(zeroFiatValue.type, fiatSpendable!!)
+                        ).toStringWithUnit()
+                    }
+                }
+            }
         }
 
 
@@ -74,12 +120,13 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 _numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
                 checkEntry()
             }
-
-            tvSpendableAmount.text = args.maxSpendableAmount.toStringWithUnit()
+            tvCardValue.text = args.product?.getCardValue()
         }
 
         initNumberEntry(savedInstanceState)
     }
+
+    private fun getMaxSpendable() = account?.accountBalance?.spendable
 
     private fun getMaxDecimal(assetInfo: AssetInfo): Int {
         return (assetInfo as? FiatType)?.unitExponent
@@ -90,8 +137,12 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         return Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
     }
 
-    private fun toUnits(amount: BigDecimal): BigInteger =
-        amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
+    private fun toUnits(assetInfo: String, amount: BigDecimal): BigInteger =
+        toUnits(Utils.getTypeByName(args.product.currencyCode)!!, amount)
+
+    private fun toUnits(assetInfo: AssetInfo, amount: BigDecimal): BigInteger =
+        amount.movePointRight(assetInfo.unitExponent).setScale(0, RoundingMode.HALF_UP)
+            .toBigIntegerExact()
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
@@ -143,16 +194,16 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             _amount = _amount?.type?.value(value)
         }
 
-        val insufficientFounds = _amount!!.moreThan(args.maxSpendableAmount)
+        val insufficientFounds = _amount!!.moreThan(getMaxSpendable()!!)
         val exceedCardPrice = _amount!!.moreThan(
             valueOf(
                 _amount!!.type,
-                toUnits(args.product.maximumValue)
+                toUnits(args.product.currencyCode!!, args.product.maximumValue)
             )
         )
         val minimumPrice = valueOf(
             _amount!!.type,
-            toUnits(args.product.minimumValue)
+            toUnits(args.product.currencyCode!!, args.product.minimumValue)
         )
         val lessMinimumCardPrice = _amount!!.lessThan(
             minimumPrice
@@ -172,7 +223,10 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             Toaster(requireContext()).toast("Exceed card value", true)
         }
         if (lessMinimumCardPrice) {
-            Toaster(requireContext()).toast("Minimal card value: " + minimumPrice.toStringWithUnit(), true)
+            Toaster(requireContext()).toast(
+                "Minimal card value: " + minimumPrice.toStringWithUnit(),
+                true
+            )
         }
 
     }
@@ -182,23 +236,47 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 && _amount!!.moreOrEqualThan(
             valueOf(
                 _amount!!.type,
-                toUnits(args.product.minimumValue)
+                toUnits(args.product.currencyCode!!, args.product.minimumValue)
             )
         )
                 && _amount!!.lessOrEqualThan(
             valueOf(
                 _amount!!.type,
-                toUnits(args.product.maximumValue)
+                toUnits(args.product.currencyCode!!, args.product.maximumValue)
             )
         )
         binding.btOk.isEnabled = valid
     }
 
-    private fun convert(value: Value, assetInfo: AssetInfo): Value? =
-        MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
-            value,
-            assetInfo
-        )
+    private fun getPriceResponse(value: Value): Flow<PriceResponse?> {
+        return callbackFlow {
+            GitboxAPI.giftRepository.getPrice(lifecycleScope,
+                code = args.product.code!!,
+                quantity = args.quantity,
+                amount = value.valueAsBigDecimal.toInt(),
+                currencyId = account?.basedOnCoinType?.symbol?.removePrefix("t") ?: "",
+                success = { priceResponse ->
+                    if (priceResponse!!.status == PriceResponse.Status.eRROR) {
+                        return@getPrice
+                    }
+                    offer(priceResponse)
+                },
+                error = { _, error ->
+//                    val fromJson = Gson().fromJson(error, ErrorMessage::class.java)
+                    close()
+                },
+                finally = {
+                    close()
+                })
+            awaitClose { }
+        }
+    }
+
+    private fun getCryptoAmount(price: String): Value {
+        val cryptoUnit = BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
+            .toBigInteger()
+        return valueOf(account?.basedOnCoinType!!, cryptoUnit)
+    }
 
     companion object {
         const val ACTION_AMOUNT_SELECTED: String = "action_amount"

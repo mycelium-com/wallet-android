@@ -15,6 +15,7 @@ package com.mycelium.giftbox.client.models
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
+import java.math.BigDecimal
 
 /**
  * Price offer for a given product quantity, amount and currency
@@ -29,7 +30,9 @@ data class PriceResponse(
     var priceOffer: kotlin.String? = null,
     /* Status - success or failure of request */
     @JsonProperty("status")
-    var status: Status? = null
+    var status: Status? = null,
+    @JsonProperty("exchangeRate")
+    var exchangeRate: kotlin.String? = null
 ) : Parcelable {
 
     /**

@@ -24,6 +24,7 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.ProductInfo
+import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.common.OrderHeaderViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
@@ -39,7 +40,6 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
-import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
@@ -54,7 +54,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.math.RoundingMode
 import java.util.*
 
 
@@ -84,11 +83,11 @@ class GiftboxBuyFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View =
-         FragmentGiftboxBuyBinding.inflate(inflater).apply {
-                binding = this
-                vm = viewModel
-                lifecycleOwner = this@GiftboxBuyFragment
-            }.root
+        FragmentGiftboxBuyBinding.inflate(inflater).apply {
+            binding = this
+            vm = viewModel
+            lifecycleOwner = this@GiftboxBuyFragment
+        }.root
 
     val preselectedClickListener: (View) -> Unit = {
         showChoicePreselectedValuesDialog()
@@ -98,9 +97,8 @@ class GiftboxBuyFragment : Fragment() {
         findNavController().navigate(
             GiftboxBuyFragmentDirections.enterAmount(
                 args.product,
-                viewModel.maxSpendableAmount.value!!,
                 viewModel.totalAmountFiatSingle.value,
-                getFromTo(args.product),
+                viewModel.quantityInt.value!!,
                 args.accountId
             )
         )
@@ -152,16 +150,7 @@ class GiftboxBuyFragment : Fragment() {
                     tvName.text = product?.name
                     tvQuantityLabel.isVisible = false
                     tvQuantity.isVisible = false
-                    tvCardValueHeader.text =
-                        if (product?.denominationType == ProductInfo.DenominationType.fixed && product.availableDenominations?.size ?: 100 < 6) {
-                            product.availableDenominations?.joinToString {
-                                "${
-                                    it.stripTrailingZeros().toPlainString()
-                                } ${product.currencyCode}"
-                            }
-                        } else {
-                            getFromTo(product)
-                        }
+                    tvCardValueHeader.text = product?.getCardValue()
                     tvExpire.text =
                         if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
@@ -234,16 +223,10 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
-    private fun getFromTo(product: ProductInfo?) = "From ${
-        product?.minimumValue?.stripTrailingZeros()?.toPlainString()
-    } ${product?.currencyCode}" +
-            " to ${
-                product?.maximumValue?.stripTrailingZeros()?.toPlainString()
-            } ${product?.currencyCode}"
 
     private fun getPreseletedValues(): List<Value> {
         return args.product.availableDenominations?.map {
-            Value.valueOf(getAssetInfo(), toUnits(it))
+            Value.valueOf(getAssetInfo(), viewModel.toUnits(it))
         }?.sortedBy { it.value } ?: listOf()
     }
 
@@ -305,8 +288,7 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
-    private fun toUnits(amount: BigDecimal): BigInteger =
-        amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
+
 }
 
 class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHeaderViewModel {
@@ -317,6 +299,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     val orderResponse = MutableLiveData<OrderResponse>()
     val errorQuantityMessage: MutableLiveData<String> = MutableLiveData("")
     val totalProgress = MutableLiveData<Boolean>(false)
+    val lastPriceResponse = MutableLiveData<PriceResponse>()
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)
@@ -346,8 +329,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     }
                     else -> TODO("Account not supported yet")
                 }
+                val price = orderResponse.value?.amountExpectedFrom!!
                 val createTx = account?.createTx(
-                    address, getCryptoAmount(orderResponse.value?.amountExpectedFrom!!),
+                    address, getCryptoAmount(price),
                     FeePerKbFee(feeEstimation.normal), null
                 )
                 account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
@@ -360,10 +344,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     val hasDenominations = productInfo.availableDenominations.isNullOrEmpty().not()
-    val quantityString: MutableLiveData<String> =
-        MutableLiveData("1")
+    val quantityString: MutableLiveData<String> = MutableLiveData("1")
     val quantityInt = Transformations.map(quantityString) {
-        if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 0
+        if (it.isDigitsOnly() && !it.isNullOrBlank()) it.toInt() else 1
     }
 
     private val feeEstimation by lazy {
@@ -417,7 +400,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice
                     }
-                    offer(getCryptoAmount(priceResponse.priceOffer!!))
+                    lastPriceResponse.value = priceResponse
+                    offer(getCryptoAmount(priceResponse))
                 },
                 error = { _, error ->
                     if (!forSingleItem) {
@@ -444,8 +428,10 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         return@map "~" + it.toStringWithUnit()
     }
 
+    private fun getCryptoAmount(price: PriceResponse): Value = getCryptoAmount(price.priceOffer!!)
+
     private fun getCryptoAmount(price: String): Value {
-        val cryptoUnit =  BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
+        val cryptoUnit = BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
             .toBigInteger()
         return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
     }
@@ -459,12 +445,12 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     fun minerFeeFiat(): Value {
-        return convert(minerFeeCrypto(), zeroFiatValue.type) ?: zeroFiatValue
+        return convertToFiat(minerFeeCrypto()) ?: zeroFiatValue
     }
 
     val maxSpendableAmount: MutableLiveData<Value> by lazy { MutableLiveData(maxSpendableAmount()) }
     fun maxSpendableAmount(): Value {
-        return convert(getMaxSpendable(), zeroFiatValue.type) ?: zeroFiatValue
+        return convertToFiat(getMaxSpendable()) ?: zeroFiatValue
     }
 
     private fun getMaxSpendable() = mbwManager.getWalletManager(false)
@@ -511,11 +497,14 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         )
     }
 
-    private fun convert(value: Value, assetInfo: AssetInfo): Value? =
-        MbwManager.getInstance(WalletApplication.getInstance()).exchangeRateManager.get(
-            value,
-            assetInfo
-        )
+    private fun convertToFiat(value: Value): Value? {
+        lastPriceResponse.value?.exchangeRate?.let {
+            val multiply =
+                BigDecimal(it).multiply(BigDecimal(value.valueAsLong))
+            return Value.valueOf(zeroFiatValue.type, toUnits(multiply))
+        }
+        return null
+    }
 
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.spendable!!
@@ -551,6 +540,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             )
         )
     }
+
+    fun toUnits(amount: BigDecimal): BigInteger =
+        amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
 
     private fun getColorByCryptoValue(it: Value) =
         ContextCompat.getColor(

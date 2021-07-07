@@ -93,7 +93,25 @@ data class ProductInfo(
     enum class DenominationType(val value: String) {
         @JsonProperty(value = "fixed")
         fixed("fixed"),
-        @JsonProperty(value = "open") `open` ("open")
+
+        @JsonProperty(value = "open")
+        `open`("open")
     }
 }
 
+fun ProductInfo.getCardValue(): String {
+    if (denominationType == ProductInfo.DenominationType.fixed && availableDenominations?.size ?: 100 < 6) {
+        return availableDenominations!!.joinToString {
+            "${
+                it.stripTrailingZeros().toPlainString()
+            } $currencyCode"
+        }
+    } else {
+        return "From ${
+            minimumValue?.stripTrailingZeros()?.toPlainString()
+        } ${currencyCode}" +
+                " to ${
+                    maximumValue?.stripTrailingZeros()?.toPlainString()
+                } ${currencyCode}"
+    }
+}
