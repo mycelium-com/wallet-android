@@ -56,7 +56,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                     }
                     Status.eRROR -> {
                         holder.itemView.additionalLabel.visibility = GONE
-                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_close, 0, 0, 0)
+                        holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_failed, 0, 0, 0)
                         "Failed"
                     }
                     else -> {

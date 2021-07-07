@@ -1,16 +1,24 @@
 package com.mycelium.giftbox.purchase
 
+import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import com.mycelium.giftbox.cards.GiftBoxFragment
+import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
+import com.mycelium.giftbox.client.models.Status
+import com.mycelium.giftbox.getDateString
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel
 import com.mycelium.wallet.MbwManager
@@ -34,6 +42,7 @@ import java.util.*
 class GiftBoxBuyResultFragment : Fragment() {
     private lateinit var tx: TransactionSummary
     private val viewModel: GiftboxBuyResultViewModel by viewModels()
+    private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxBuyResultBinding? = null
 
     val args by navArgs<GiftBoxBuyResultFragmentArgs>()
@@ -81,6 +90,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         }?:run {
             binding?.more?.visibility = View.GONE
         }
+        activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
     }
 
     private fun loadProduct() {
@@ -96,14 +106,53 @@ class GiftBoxBuyResultFragment : Fragment() {
     }
 
     private fun loadOrder() {
-        if(args.orderResponse is OrderResponse) {
-            viewModel.setOrder(args.orderResponse as OrderResponse)
-        }else {
+        if (args.orderResponse is OrderResponse) {
+            updateOrder(args.orderResponse as OrderResponse)
+        } else {
             GitboxAPI.giftRepository.getOrder(lifecycleScope, args.orderResponse.clientOrderId!!, {
-                viewModel.setOrder(it!!)
+                updateOrder(it!!)
             }, { _, msg ->
                 Toaster(this).toast(msg, true)
             })
+        }
+    }
+
+    private fun updateOrder(order: OrderResponse) {
+        viewModel.setOrder(order)
+        when (order.status) {
+            Status.pROCESSING -> {
+                binding?.orderStatus?.let {
+                    it.text = "Processing..."
+                    val color = resources.getColor(R.color.giftbox_processing)
+                    it.setTextColor(color)
+                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        it.compoundDrawableTintList = ColorStateList.valueOf(color)
+                    }
+                }
+            }
+            Status.sUCCESS -> {
+                binding?.orderStatus?.let {
+                    it.text = "Success, " + order.timestamp?.getDateString(resources)
+                    val color = resources.getColor(R.color.bequant_green)
+                    it.setTextColor(color)
+                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_fio_name_ok, 0, 0, 0)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        it.compoundDrawableTintList = ColorStateList.valueOf(color)
+                    }
+                }
+            }
+            Status.eRROR -> {
+                binding?.orderStatus?.let {
+                    it.text = "Purchase Failed"
+                    val color = resources.getColor(R.color.sender_recyclerview_background_red)
+                    it.setTextColor(color)
+                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_bequant_clear_24, 0, 0, 0)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        it.compoundDrawableTintList = ColorStateList.valueOf(color)
+                    }
+                }
+            }
         }
     }
 

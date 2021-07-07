@@ -4,9 +4,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mrd.bitlib.crypto.toBiMap
 import com.mycelium.giftbox.cards.adapter.CardsFragmentAdapter
+import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_main.*
 
@@ -15,6 +19,11 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
     var mediator: TabLayoutMediator? = null
 
     val args by navArgs<GiftBoxFragmentArgs>()
+    val activityViewModel: GiftBoxViewModel by activityViewModels()
+    val tabMap = mapOf(0 to STORES,
+            1 to PURCHASES,
+            2 to CARDS).toBiMap()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.let {
@@ -31,6 +40,30 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
             }
         }
         mediator?.attach()
-        pager.setCurrentItem(if (args.startWithPurchased) 1 else 0, false)
+    }
+
+    val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            activityViewModel.currentTab.value = tabMap[position] ?: STORES
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        pager.postDelayed({
+            pager.currentItem = tabMap.inverse()[activityViewModel.currentTab.value] ?: 0
+            pager.registerOnPageChangeCallback(pageChangeCallback)
+        }, 10)
+    }
+
+    override fun onPause() {
+        pager.unregisterOnPageChangeCallback(pageChangeCallback)
+        super.onPause()
+    }
+
+    companion object {
+        const val STORES = "stores"
+        const val PURCHASES = "purchases"
+        const val CARDS = "cards"
     }
 }
