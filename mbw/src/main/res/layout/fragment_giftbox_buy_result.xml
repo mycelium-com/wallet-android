@@ -30,13 +30,23 @@
                     layout="@layout/fragment_giftbox_details_header"
                     app:viewModel="@{vm}"/>
 
+            <TextView
+                android:id="@+id/orderStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:drawablePadding="8dp"
+                android:textColor="#BABABA"
+                android:textSize="14sp"
+                tools:text="Processing" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/totalAmountRoot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="24dp">
+                    android:layout_marginTop="16dp">
 
                     <TextView
                         android:id="@+id/tvTotalAmountLabel"
