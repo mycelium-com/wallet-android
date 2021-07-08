@@ -105,12 +105,6 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
             fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress) != null }
         } else {
             fetchTransactions(address)
-                    .filter {
-                        it.tokenTransfers.isEmpty() ||
-                                (it.tokenTransfers.isNotEmpty() && it.tokenTransfers.any { transfer ->
-                                    isOutgoing(address, transfer)
-                                })
-                    }
         }
     }
 
@@ -119,10 +113,6 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
     }
     class SendResult(val success: Boolean, val message: String?)
 }
-
-private fun isOutgoing(address: String, transfer: TokenTransfer) =
-        transfer.from.equals(address, true) && !transfer.to.equals(address, true) ||
-                transfer.from.equals(address, true) && transfer.to.equals(address, true)
 
 private class ApiResponse {
     val blockbook: BlockbookInfo? = null
