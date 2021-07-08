@@ -540,7 +540,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         MutableLiveData(
             ContextCompat.getColor(
                 WalletApplication.getInstance(),
-                if (value.moreOrEqualThanZero()) R.color.white_alpha_0_6 else R.color.darkgrey
+                if (value.moreOrEqualThanZero()) R.color.white else R.color.darkgrey
             )
         )
     }
