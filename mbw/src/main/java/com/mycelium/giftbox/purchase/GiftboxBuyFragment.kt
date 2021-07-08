@@ -40,6 +40,7 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
@@ -54,6 +55,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.util.*
 
 
@@ -117,8 +119,8 @@ class GiftboxBuyFragment : Fragment() {
             btEnterAmountPreselected.background = null
             val isNotSetYet =
                 viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
-            if (isNotSetYet && getPreseletedValues().isNotEmpty()) {
-                viewModel.totalAmountFiatSingle.value = getPreseletedValues()[0]
+            if (isNotSetYet && viewModel.getPreseletedValues().isNotEmpty()) {
+                viewModel.totalAmountFiatSingle.value = viewModel.getPreseletedValues()[0]
             }
             btEnterAmountPreselected.setOnClickListener(preselectedClickListener)
         } else {
@@ -224,17 +226,9 @@ class GiftboxBuyFragment : Fragment() {
     }
 
 
-    private fun getPreseletedValues(): List<Value> {
-        return args.product.availableDenominations?.map {
-            Value.valueOf(getAssetInfo(), viewModel.toUnits(it))
-        }?.sortedBy { it.value } ?: listOf()
-    }
-
-    private fun getAssetInfo() = Utils.getTypeByName(args.product.currencyCode)!!
-
     private fun showChoicePreselectedValuesDialog(
     ) {
-        val preselectedList = getPreseletedValues()
+        val preselectedList = viewModel.getPreseletedValues()
         val preselectedValue = viewModel.totalAmountFiatSingle.value
         val selectedIndex = if (preselectedValue != null) {
             preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
@@ -307,6 +301,14 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     val zeroCryptoValue by lazy {
         account?.basedOnCoinType?.value(0)
     }
+
+    fun getPreseletedValues(): List<Value> {
+        return productInfo.availableDenominations?.map {
+            Value.valueOf(getAssetInfo(), toUnits(zeroFiatValue.type, it))
+        }?.sortedBy { it.value } ?: listOf()
+    }
+
+
     override val productName = MutableLiveData("")
     override val expire = MutableLiveData("")
     override val country = MutableLiveData("")
@@ -371,7 +373,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
         zip2(
             totalAmountFiatSingle,
-            quantityInt.debounce(500)
+            quantityInt
+//                .debounce(500)
                 .map { if (forSingleItem) 1 else it.toInt() }) { amount: Value, quantity: Int ->
             Pair(
                 amount,
@@ -436,6 +439,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
     }
 
+    fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
+
     val minerFeeFiatString: MutableLiveData<String> by lazy {
         val value = minerFeeFiat()
         val asString = if (value.lessThan(Value(value.type, 1.toBigInteger()))) {
@@ -499,9 +504,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     private fun convertToFiat(value: Value): Value? {
         lastPriceResponse.value?.exchangeRate?.let {
-            val multiply =
-                BigDecimal(it).multiply(BigDecimal(value.valueAsLong))
-            return Value.valueOf(zeroFiatValue.type, toUnits(multiply))
+            val fiat = value.valueAsBigDecimal.multiply(BigDecimal(it))
+            return Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
         }
         return null
     }
@@ -541,8 +545,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         )
     }
 
-    fun toUnits(amount: BigDecimal): BigInteger =
-        amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
+    private fun toUnits(assetInfo: AssetInfo, amount: BigDecimal): BigInteger =
+        amount.movePointRight(assetInfo.unitExponent).setScale(0, RoundingMode.HALF_UP)
+            .toBigIntegerExact()
 
     private fun getColorByCryptoValue(it: Value) =
         ContextCompat.getColor(
