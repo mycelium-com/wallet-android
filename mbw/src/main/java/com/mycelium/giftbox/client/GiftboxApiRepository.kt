@@ -13,6 +13,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import kotlinx.coroutines.CoroutineScope
 import retrofit2.Response
+import java.math.BigDecimal
 import java.util.*
 
 class GiftboxApiRepository {

@@ -103,7 +103,7 @@ fun <T1, T2, T3,T4, R> zip4(
 
         fun updateValueIfNeeded() {
             if ((src1Version > 0 || src2Version > 0 || src3Version > 0 || src4Version > 0) &&
-                lastSrc1 != null && lastSrc2 != null && lastSrc3 != null
+                lastSrc1 != null && lastSrc2 != null && lastSrc3 != null && lastSrc4 != null
             ) {
                 value = zipper(lastSrc1!!, lastSrc2!!, lastSrc3!!,lastSrc4!!)
                 src1Version = 0

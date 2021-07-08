@@ -7,7 +7,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public class BitcoinTest extends CryptoCurrency {
     private BitcoinTest() {
-        super("bitcoin.test", "Bitcoin Test", "tBTC", 8, 2, true);
+        super("bitcoin.test", "Bitcoin Test", "tBTC", 8, 8, true);
     }
 
     private static BitcoinTest instance = new BitcoinTest();
