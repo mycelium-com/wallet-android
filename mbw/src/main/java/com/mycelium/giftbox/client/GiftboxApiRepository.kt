@@ -153,13 +153,16 @@ class GiftboxApiRepository {
         offset: Long = 0,
         limit: Long = 100,
         success: (OrdersHistoryResponse?) -> Unit,
-        error: (Int, String) -> Unit,
+        error: ((Int, String) -> Unit)? = null,
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
             api.orders(clientUserIdFromMasterSeed, offset, limit).apply {
                 if(this.isSuccessful) {
                     updateCards(this.body()?.items)
+                    if (offset == 0L) {
+                        fetchAllOrders(scope, limit, this.body()?.size ?: 0)
+                    }
                 }
             }
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
@@ -175,6 +178,13 @@ class GiftboxApiRepository {
         doRequest(scope, {
             api.order(clientUserIdFromMasterSeed, clientOrderId)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
+    }
+
+    private fun fetchAllOrders(scope: CoroutineScope, offset: Long, count: Long) {
+        for (i in offset..count step 100) {
+            getOrders(scope, i, 100, success = {
+            })
+        }
     }
 
     private fun updateCards(orders: List<Order>?) {

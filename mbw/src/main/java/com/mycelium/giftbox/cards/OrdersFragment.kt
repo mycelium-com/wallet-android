@@ -69,7 +69,7 @@ class OrdersFragment : Fragment() {
         } else if (offset >= viewModel.ordersSize) {
             return
         }
-        GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, 30, {
+        GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
         }, error = { _, msg ->
