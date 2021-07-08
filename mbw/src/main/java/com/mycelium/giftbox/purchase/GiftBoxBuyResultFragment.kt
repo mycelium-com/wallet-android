@@ -34,6 +34,9 @@ import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
+import kotlinx.android.synthetic.main.details_common.*
+import kotlinx.android.synthetic.main.details_common.view.*
+import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 import java.text.DateFormat
 import java.util.*
@@ -158,7 +161,7 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     private fun updateUi() {
         // Set Hash
-        binding?.txDetails?.tvHash?.run {
+        tvHash?.run {
             setColuMode(false)
             setTransaction(tx)
         }
@@ -173,25 +176,25 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
 
         // check if tx is in outgoing queue
-        if (tx != null && tx.isQueuedOutgoing()) {
-            binding?.txDetails?.tcdConfirmations?.setNeedsBroadcast()
-            binding?.txDetails?.tvConfirmations?.text = ""
+        if (tx.isQueuedOutgoing()) {
+            tcdConfirmations?.setNeedsBroadcast()
+            tvConfirmations?.text = ""
             confirmed = resources.getString(R.string.transaction_not_broadcasted_info)
         } else {
-            binding?.txDetails?.tcdConfirmations?.setConfirmations(confirmations)
-            binding?.txDetails?.tvConfirmations?.text = confirmations.toString()
+            tcdConfirmations?.setConfirmations(confirmations)
+            tvConfirmations?.text = confirmations.toString()
         }
-        binding?.txDetails?.tvConfirmed?.text = confirmed
+        tvConfirmed?.text = confirmed
 
         // Set Date & Time
         val date = Date(tx.getTimestamp() * 1000L)
         val locale = resources.configuration.locale
         val dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale)
         val dateString = dayFormat.format(date)
-        binding?.txDetails?.tvDate?.text = dateString
+        tvDate?.text = dateString
         val hourFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale)
         val timeString = hourFormat.format(date)
-        binding?.txDetails?.tvTime?.text = timeString
+        tvTime?.text = timeString
     }
 
     override fun onDestroyView() {
