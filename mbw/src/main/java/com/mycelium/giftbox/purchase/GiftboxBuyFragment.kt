@@ -359,13 +359,13 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     val totalAmountFiatSingle = MutableLiveData<Value>(zeroFiatValue)
     val totalAmountFiatSingleString = Transformations.map(totalAmountFiatSingle) {
-        it.toStringWithUnit()
+        it.toStringFriendlyWithUnit()
     }
 
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
     val totalAmountCryptoSingle: LiveData<Value> = totalAmountCrypto(forSingleItem = true)
     val totalAmountCryptoSingleString = Transformations.map(totalAmountCryptoSingle) {
-        it.toStringWithUnit()
+        it.toStringFriendlyWithUnit()
     }
 
     private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
@@ -421,11 +421,11 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     val totalAmountFiat = MutableLiveData<Value>(zeroFiatValue)
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {
-        return@map it?.toStringWithUnit()
+        return@map it?.toStringFriendlyWithUnit()
     }
 
     val totalAmountCryptoString = Transformations.map(totalAmountCrypto) {
-        return@map "~" + it.toStringWithUnit()
+        return@map "~" + it.toStringFriendlyWithUnit()
     }
 
     private fun getCryptoAmount(price: PriceResponse): Value = getCryptoAmount(price.priceOffer!!)
@@ -440,7 +440,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         val value = minerFeeFiat()
         val asString = if (value.lessThan(Value(value.type, 1.toBigInteger()))) {
             "<0.01 " + value.type.symbol
-        } else value.toStringWithUnit()
+        } else value.toStringFriendlyWithUnit()
         MutableLiveData(asString)
     }
 
@@ -456,7 +456,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getMaxSpendable() = mbwManager.getWalletManager(false)
         .getAccount(accountId.value!!)?.accountBalance?.spendable!!
 
-    val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringWithUnit()) }
+    val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringFriendlyWithUnit()) }
     fun minerFeeCrypto() = feeEstimation.normal
 
     val isGrantedPlus =

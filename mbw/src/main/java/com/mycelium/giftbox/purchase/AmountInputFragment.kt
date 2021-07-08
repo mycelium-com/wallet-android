@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -18,7 +19,7 @@ import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
-import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxAmountBinding
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
@@ -74,15 +75,17 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                                 account?.basedOnCoinType!!,
                                 toUnits(account?.basedOnCoinType!!, cryptoAmountFromFiat)
                             )
-                        tvCryptoAmount.text = cryptoAmountValue.toStringWithUnit()
+                        tvCryptoAmount.isVisible = true
+                        tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
 
                         //update spendable
                         val maxSpendable = getMaxSpendable()
                         val fiatSpendable = maxSpendable?.valueAsBigDecimal?.multiply(exchangeRate)
+                        spendableLayout.isVisible = true
                         tvSpendableAmount.text = valueOf(
                             zeroFiatValue.type,
                             toUnits(zeroFiatValue.type, fiatSpendable!!)
-                        ).toStringWithUnit()
+                        ).toStringFriendlyWithUnit()
                     }
                 }
             }
@@ -224,7 +227,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         }
         if (lessMinimumCardPrice) {
             Toaster(requireContext()).toast(
-                "Minimal card value: " + minimumPrice.toStringWithUnit(),
+                "Minimal card value: " + minimumPrice.toStringFriendlyWithUnit(),
                 true
             )
         }

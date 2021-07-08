@@ -7,7 +7,7 @@ import org.web3j.abi.datatypes.Address as W3jAddress
 import org.web3j.crypto.WalletUtils
 
 abstract class EthCoin(id: String?, name: String?, symbol: String?)
-        : CryptoCurrency(id, name, symbol, 18, 2, false) {
+        : CryptoCurrency(id, name, symbol, 18, 10, false) {
 
     override fun parseAddress(addressString: String?): Address? = parseAddress(this, addressString)
 

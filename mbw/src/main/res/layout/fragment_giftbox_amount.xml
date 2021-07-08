@@ -58,6 +58,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginTop="4dp"
                     android:layout_weight="1"
+                    android:visibility="invisible"
+                    tools:visibility="visible"
                     android:fontFamily="@font/roboto_mono_medium"
                     android:gravity="end"
                     tools:hint="@string/amount_hint"
@@ -103,6 +105,9 @@
             </LinearLayout>
 
             <LinearLayout
+                android:visibility="invisible"
+                tools:visibility="visible"
+                android:id="@+id/spendableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp">
