@@ -23,6 +23,7 @@ import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
+import kotlinx.coroutines.Job
 
 
 class StoresFragment : Fragment() {
@@ -35,7 +36,6 @@ class StoresFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        loadData()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -90,24 +90,24 @@ class StoresFragment : Fragment() {
                 if (layoutManager is LinearLayoutManager) {
                     if (layoutManager.findLastCompletelyVisibleItemPosition() > adapter.itemCount - 10 &&
                             viewModel.loading.value == false && !viewModel.quickSearch) {
-                        loadData(viewModel.products.value?.size?.toLong() ?: 0)
+                        loadData(viewModel.products.size.toLong())
                     }
                 }
             }
         })
-        activityViewModel.selectedCountries.observe(viewLifecycleOwner) {
-            loadData()
-        }
+        loadData()
     }
 
+    private var productsJob : Job? = null
     private fun loadData(offset: Long = -1) {
         if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
+            productsJob?.cancel()
         } else if (offset >= viewModel.productsSize) {
             return
         }
         viewModel.loading.value = true
-        GitboxAPI.giftRepository.getProducts(lifecycleScope,
+        productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
                 search = viewModel.search,
                 category = viewModel.category,
                 country = activityViewModel.selectedCountries.value,
@@ -119,7 +119,7 @@ class StoresFragment : Fragment() {
                         CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
                     }
                     viewModel.setProductsResponse(it, offset != -1L)
-                    adapter.submitList(viewModel.products.value)
+                    adapter.submitList(viewModel.products)
                 },
                 error = { _, msg ->
                     Toaster(this).toast(msg, true)
@@ -149,7 +149,7 @@ class StoresFragment : Fragment() {
 
             override fun onQueryTextChange(s: String): Boolean {
                 viewModel.quickSearch = true
-                adapter.submitList(viewModel.products.value?.filter {
+                adapter.submitList(viewModel.products.filter {
                     it.name?.contains(s, true) ?: false
                 })
                 return true

@@ -33,6 +33,9 @@ class SelectCountiesFragment : Fragment() {
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL))
         adapter.selected.clear()
         adapter.selected.addAll(activityViewModel.selectedCountries.value ?: listOf())
+        adapter.selectedChangeListener = {
+            activityViewModel.selectedCountries.value = it.filter { it.code != 0 }
+        }
         adapter.submitList(listOf(CountryModel("All Countries", "", "", 0)) +
                 activityViewModel.countries.value
                         ?.sortedWith(compareBy({ activityViewModel.selectedCountries.value?.contains(it) != true }, { it.name }))!!)
@@ -43,11 +46,6 @@ class SelectCountiesFragment : Fragment() {
         binding?.clear?.setOnClickListener {
             binding?.search?.text = null
         }
-    }
-
-    override fun onPause() {
-        activityViewModel.selectedCountries.value = adapter.selected.filter { it.code != 0 }
-        super.onPause()
     }
 
     override fun onDestroyView() {

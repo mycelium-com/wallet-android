@@ -12,6 +12,7 @@ import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import retrofit2.Response
 import java.math.BigDecimal
 import java.util.*
@@ -87,9 +88,9 @@ class GiftboxApiRepository {
         success: (ProductsResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
-    ) {
+    ) : Job {
         val countryString = country?.joinToString(",") { it.acronym }
-        doRequest(scope, {
+        return doRequest(scope, {
             api.products(
                 clientUserIdFromMasterSeed,
                 lastOrderId,

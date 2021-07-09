@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.listview_item_with_checkbox.view.*
 
 class SelectCountiesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>(DiffCallback()) {
     val selected = mutableSetOf<CountryModel>()
+    var selectedChangeListener: ((Set<CountryModel>) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.listview_item_with_checkbox, parent, false))
@@ -41,6 +42,7 @@ class SelectCountiesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>
                 selected.clear()
             }
         }
+        selectedChangeListener?.invoke(selected)
         notifyDataSetChanged()
     }
 
