@@ -140,10 +140,6 @@ class GiftboxBuyFragment : Fragment() {
             btEnterAmount.isEnabled = !isError
         }
 
-        viewModel.quantityString.observe(viewLifecycleOwner) {
-            viewModel.errorAmountMessage.value = null
-        }
-
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
             productId = args.product.code!!, success = { productResponse ->
                 val product = productResponse?.product
@@ -177,11 +173,6 @@ class GiftboxBuyFragment : Fragment() {
                         if (viewModel.isGrantedPlus.value!!) {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) + 1).toString()
-                        } else {
-                            if (viewModel.errorQuantityMessage.value.isNullOrEmpty() && !viewModel.totalProgress.value!!) {
-                                viewModel.errorAmountMessage.value =
-                                    getString(R.string.gift_insufficient_funds)
-                            }
                         }
                     }
                     if (args.product.availableDenominations == null) {
@@ -234,7 +225,7 @@ class GiftboxBuyFragment : Fragment() {
             preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
         } else -1
         val valueAndEnableMap =
-            preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount()) }
+            preselectedList.associateWith { it.lessOrEqualThan(viewModel.maxSpendableAmount.value!!) }
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.select_card_value_dialog)
             .setSingleChoiceItems(
@@ -287,7 +278,7 @@ class GiftboxBuyFragment : Fragment() {
 
 class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHeaderViewModel {
     val gson = Gson()
-    val MAX_SCALE = 10
+    val MAX_QUANTITY = 19
     val accountId = MutableLiveData<UUID>()
     val zeroFiatValue = zeroFiatValue(productInfo)
     val orderResponse = MutableLiveData<OrderResponse>()
@@ -374,7 +365,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         zip2(
             totalAmountFiatSingle,
             quantityInt
-//                .debounce(500)
+                .debounce(300)
                 .map { if (forSingleItem) 1 else it.toInt() }) { amount: Value, quantity: Int ->
             Pair(
                 amount,
@@ -390,16 +381,21 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             if (!forSingleItem) {
                 totalAmountFiat.value = amount.times(quantity.toLong())
             }
+            if (quantity > MAX_QUANTITY) {
+                errorQuantityMessage.value = "Max available cards: $MAX_QUANTITY cards"
+                return@callbackFlow
+            } else {
+                if (!forSingleItem) {
+                    errorQuantityMessage.value = ""
+                }
+            }
             totalProgress.value = true
             GitboxAPI.giftRepository.getPrice(viewModelScope,
                 code = productInfo?.code ?: "",
                 quantity = quantity,
                 amount = amount.valueAsBigDecimal.toInt(),
-                currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t") ?: "",
+                currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
                 success = { priceResponse ->
-                    if (!forSingleItem) {
-                        errorQuantityMessage.value = ""
-                    }
                     if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice
                     }
@@ -407,11 +403,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     offer(getCryptoAmount(priceResponse))
                 },
                 error = { _, error ->
-                    if (!forSingleItem) {
-                        val fromJson = gson.fromJson(error, ErrorMessage::class.java)
-                        val digit = fromJson.message.split(" ").lastOrNull()
-                        errorQuantityMessage.value = "Max available cards: $digit cards"
-                    }
                     close()
                 },
                 finally = {
@@ -422,6 +413,11 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         }.asLiveData()
     }
 
+    val errorAmountMessage: LiveData<String> = Transformations.map(totalAmountCrypto) {
+        val enough = it.lessOrEqualThan(getMaxSpendable())
+        return@map if (enough) "" else WalletApplication.getInstance()
+            .getString(R.string.gift_insufficient_funds)
+    }
     val totalAmountFiat = MutableLiveData<Value>(zeroFiatValue)
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {
         return@map it?.toStringFriendlyWithUnit()
@@ -453,8 +449,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         return convertToFiat(minerFeeCrypto()) ?: zeroFiatValue
     }
 
-    val maxSpendableAmount: MutableLiveData<Value> by lazy { MutableLiveData(maxSpendableAmount()) }
-    fun maxSpendableAmount(): Value {
+    val maxSpendableAmount: MutableLiveData<Value> by lazy { MutableLiveData(maxFiatSpendableAmount()) }
+    fun maxFiatSpendableAmount(): Value {
         return convertToFiat(getMaxSpendable()) ?: zeroFiatValue
     }
 
@@ -480,12 +476,17 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                 .lessOrEqualThan(getAccountBalance()) && quantityError.isNullOrEmpty() && !progress
         }
 
-    val isGrantedMinus = Transformations.map(quantityInt) {
+    val isGrantedMinus = Transformations.map(quantityInt.debounce(300)) {
         return@map it > 1
     }
 
-    val isGranted = Transformations.map(totalAmountCrypto) {
-        return@map it.lessOrEqualThan(getAccountBalance()) && it.moreThanZero()
+    val isGranted = Transformations.map(
+        zip2(
+            totalAmountCrypto,
+            totalProgress
+        ) { total: Value, progress: Boolean -> Pair(total, progress) }) {
+        val (total, progress) = it
+        return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && !progress
     }
 
     val plusBackground = Transformations.map(isGrantedPlus) {
@@ -513,8 +514,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getAccountBalance(): Value {
         return account?.accountBalance?.spendable!!
     }
-
-    val errorAmountMessage = MutableLiveData<String>(null)
 
     //colors
     val totalAmountSingleCryptoColor = Transformations.map(totalAmountCryptoSingle) {
