@@ -30,7 +30,7 @@
 
         <TextView
             android:id="@+id/redeemCode"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
@@ -41,6 +41,7 @@
             app:drawableRightCompat="@drawable/ic_content_copy_white"
             app:layout_constraintBaseline_toBaselineOf="@id/redeemCodeLabel"
             app:layout_constraintStart_toEndOf="@id/redeemCodeLabel"
+            app:layout_constraintEnd_toEndOf="parent"
             tools:text="@tools:sample/lorem" />
 
         <TextView
@@ -53,11 +54,11 @@
             android:textSize="14sp"
             android:visibility="@{viewModel.pinCode.isEmpty() ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/redeemCodeLabel" />
+            app:layout_constraintTop_toBottomOf="@id/redeemCode" />
 
         <TextView
             android:id="@+id/pinCode"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
@@ -68,6 +69,7 @@
             app:drawableRightCompat="@drawable/ic_content_copy_white"
             app:layout_constraintBaseline_toBaselineOf="@id/pinCodeLabel"
             app:layout_constraintStart_toEndOf="@id/pinCodeLabel"
-            tools:text="4589rhjkflt7ehJUG806504HH" />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="4589rhjkf\nlt7ehJUG806504HH" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
