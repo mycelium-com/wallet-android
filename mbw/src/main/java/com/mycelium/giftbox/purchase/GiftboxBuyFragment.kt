@@ -27,6 +27,7 @@ import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.common.OrderHeaderViewModel
 import com.mycelium.giftbox.loadImage
+import com.mycelium.giftbox.purchase.GiftboxBuyViewModel.Companion.MAX_QUANTITY
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
@@ -127,7 +128,7 @@ class GiftboxBuyFragment : Fragment() {
             btEnterAmountPreselected.isVisible = false
         }
 
-        viewModel.errorQuantityMessage.observe(viewLifecycleOwner) {
+        viewModel.warningQuantityMessage.observe(viewLifecycleOwner) {
             binding?.tlQuanity?.error = it
             val isError = !it.isNullOrEmpty()
             binding?.tvQuanity?.setTextColor(
@@ -135,9 +136,6 @@ class GiftboxBuyFragment : Fragment() {
                     requireContext(), if (isError) R.color.red_error else R.color.white
                 )
             )
-            amountRoot.isEnabled = !isError
-            btEnterAmountPreselected.isEnabled = !isError
-            btEnterAmount.isEnabled = !isError
         }
 
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
@@ -173,6 +171,11 @@ class GiftboxBuyFragment : Fragment() {
                         if (viewModel.isGrantedPlus.value!!) {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) + 1).toString()
+                        } else {
+                            if (viewModel.quantityInt.value == 19) {
+                                viewModel.warningQuantityMessage.value =
+                                    "Max available cards: $MAX_QUANTITY cards"
+                            }
                         }
                     }
                     if (args.product.availableDenominations == null) {
@@ -278,11 +281,15 @@ class GiftboxBuyFragment : Fragment() {
 
 class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHeaderViewModel {
     val gson = Gson()
-    val MAX_QUANTITY = 19
+
+    companion object {
+        val MAX_QUANTITY = 19
+    }
+
     val accountId = MutableLiveData<UUID>()
     val zeroFiatValue = zeroFiatValue(productInfo)
     val orderResponse = MutableLiveData<OrderResponse>()
-    val errorQuantityMessage: MutableLiveData<String> = MutableLiveData("")
+    val warningQuantityMessage: MutableLiveData<String> = MutableLiveData("")
     val totalProgress = MutableLiveData<Boolean>(false)
     val lastPriceResponse = MutableLiveData<PriceResponse>()
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
@@ -381,13 +388,15 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             if (!forSingleItem) {
                 totalAmountFiat.value = amount.times(quantity.toLong())
             }
-            if (quantity > MAX_QUANTITY) {
-                errorQuantityMessage.value = "Max available cards: $MAX_QUANTITY cards"
-                return@callbackFlow
+            if (quantity >= MAX_QUANTITY) {
+                warningQuantityMessage.value = "Max available cards: $MAX_QUANTITY cards"
             } else {
                 if (!forSingleItem) {
-                    errorQuantityMessage.value = ""
+                    warningQuantityMessage.value = ""
                 }
+            }
+            if (quantity > MAX_QUANTITY) {
+                return@callbackFlow
             }
             totalProgress.value = true
             GitboxAPI.giftRepository.getPrice(viewModelScope,
@@ -465,7 +474,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             zip4(
                 totalAmountCrypto,
                 totalAmountCryptoSingle,
-                errorQuantityMessage,
+                warningQuantityMessage,
                 totalProgress
             ) { total: Value, single: Value, quantityError: String, progress: Boolean ->
                 Quad(total, single, quantityError, progress)
@@ -481,12 +490,13 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     val isGranted = Transformations.map(
-        zip2(
+        zip3(
             totalAmountCrypto,
-            totalProgress
-        ) { total: Value, progress: Boolean -> Pair(total, progress) }) {
-        val (total, progress) = it
-        return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && !progress
+            totalProgress,
+            quantityInt
+        ) { total: Value, progress: Boolean, quantity: Int -> Triple(total, progress,quantity) }) {
+        val (total, progress,quantity) = it
+        return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && quantity <= MAX_QUANTITY && !progress
     }
 
     val plusBackground = Transformations.map(isGrantedPlus) {
