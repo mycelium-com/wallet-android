@@ -257,12 +257,12 @@ class GiftboxBuyFragment : Fragment() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
 
-    fun broadcastResult(transaction: Transaction, broadcastResult: BroadcastResult) {
+    fun broadcastResult(transaction: Transaction?, broadcastResult: BroadcastResult) {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             findNavController().navigate(
                 GiftboxBuyFragmentDirections.toResult(
                     args.accountId,
-                    transaction,
+                    transaction!!,
                     viewModel.productInfo,
                     viewModel.totalAmountFiat.value!!,
                     viewModel.totalAmountCrypto.value!!,
@@ -315,7 +315,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     val sendTransactionAction = MutableLiveData<Unit>()
     val sendTransaction = Transformations.switchMap(sendTransactionAction) {
-        callbackFlow<Pair<Transaction, BroadcastResult>> {
+        callbackFlow {
             try {
                 val address = when (account) {
                     is EthAccount -> {
@@ -338,6 +338,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                 offer(createTx!! as Transaction to account!!.broadcastTx(createTx))
                 close()
             } catch (ex: Exception) {
+                offer( null to BroadcastResult(ex.localizedMessage, BroadcastResultType.REJECTED))
                 cancel(CancellationException("Tx", ex))
             }
         }.asLiveData(IO)
