@@ -49,13 +49,11 @@ import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
 import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -114,7 +112,6 @@ class GiftboxBuyFragment : Fragment() {
         binding?.btSend?.isEnabled = viewModel.totalAmountFiatSingle.value != null
         viewModel.totalAmountFiatSingle.value = viewModel.totalAmountFiatSingle.value
 
-        loader(true)
 
         if (args.product.availableDenominations != null) {
             btEnterAmount.isVisible = false
@@ -140,6 +137,7 @@ class GiftboxBuyFragment : Fragment() {
             )
         }
 
+        loader(true)
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
             productId = args.product.code!!, success = { productResponse ->
                 val product = productResponse?.product
@@ -204,7 +202,6 @@ class GiftboxBuyFragment : Fragment() {
                 currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
                 success = { orderResponse ->
                     viewModel.orderResponse.value = orderResponse
-                    loader(true)
                     viewModel.sendTransactionAction.value = Unit
                 }, error = { _, error ->
                     ErrorHandler(requireContext()).handle(error)
@@ -415,11 +412,21 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     lastPriceResponse.value = priceResponse
 
                     val cryptoAmount = getCryptoAmount(priceResponse)
-                    launch(IO) {
-                        val checkValidTransaction = checkValidTransaction(account, cryptoAmount)
-                        if (checkValidTransaction == AmountValidation.Ok) {
-                            offer(cryptoAmount)
+                    if (!forSingleItem) {
+                        launch(IO) {
+                            val (checkValidTransaction, transaction) = checkValidTransaction(
+                                account,
+                                cryptoAmount
+                            )
+                            if (checkValidTransaction == AmountValidation.Ok) {
+                                launch(Main) {
+                                    tempTransaction.value = transaction
+                                }
+                                offer(cryptoAmount)
+                            }
                         }
+                    } else {
+                        offer(cryptoAmount)
                     }
                 },
                 error = { _, error ->
@@ -592,28 +599,29 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     fun checkValidTransaction(
         account: WalletAccount<*>,
         value: Value
-    ): AmountValidation {
+    ): Pair<AmountValidation, Transaction?> {
+        var transaction: Transaction? = null
         if (value.equalZero()) {
-            return AmountValidation.Ok; //entering a fiat value + exchange is not availible
+            return AmountValidation.Ok to null; //entering a fiat value + exchange is not availible
         }
         try {
-            tempTransaction.value = account.createTx(
+            transaction = account.createTx(
                 account.dummyAddress,
                 value,
                 FeePerKbFee(feeEstimation.normal),
                 null
             )
         } catch (e: OutputTooSmallException) {
-            return AmountValidation.ValueTooSmall;
+            return AmountValidation.ValueTooSmall to null;
         } catch (e: InsufficientFundsException) {
-            return AmountValidation.NotEnoughFunds;
+            return AmountValidation.NotEnoughFunds to null;
         } catch (e: BuildTransactionException) {
             mbwManager.reportIgnoredException("MinerFeeException", e);
-            return AmountValidation.Invalid;
+            return AmountValidation.Invalid to null;
         } catch (e: Exception) {
-            return AmountValidation.Invalid;
+            return AmountValidation.Invalid to null;
         }
-        return AmountValidation.Ok;
+        return AmountValidation.Ok to transaction;
     }
 
     enum class AmountValidation {

@@ -14,6 +14,7 @@ package com.mycelium.giftbox.client.models
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
+import java.math.BigDecimal
 
 /**
  * Product info, price offer, similar products
@@ -25,6 +26,8 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 
 data class ProductResponse(
+    @JsonProperty("exchangeRate")
+    var exchangeRate: BigDecimal?,
     /* Currency of price offer. By default BTC. */
     @JsonProperty("priceCurrency")
     var priceCurrency: kotlin.String? = null,
