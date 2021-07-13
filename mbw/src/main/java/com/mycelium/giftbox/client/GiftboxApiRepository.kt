@@ -68,8 +68,8 @@ class GiftboxApiRepository {
         success: (ProductResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit = {}
-    ) {
-        doRequest(scope, {
+    ): Job {
+        return doRequest(scope, {
             api.product(
                 clientUserIdFromMasterSeed,
                 Constants.CLIENT_ORDER_ID, //TODO check why client order id need for product
