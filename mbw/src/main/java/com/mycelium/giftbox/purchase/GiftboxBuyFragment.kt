@@ -433,7 +433,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     close()
                 },
                 finally = {
-                    close()
                     totalProgress.value = false
                 })
             awaitClose { }
