@@ -35,14 +35,16 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:drawablePadding="8dp"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="@{viewModel.redeemCode}"
             android:textSize="14sp"
             android:visibility="@{viewModel.redeemCode.isEmpty() ? View.GONE : View.VISIBLE}"
             app:drawableRightCompat="@drawable/ic_content_copy_white"
             app:layout_constraintBaseline_toBaselineOf="@id/redeemCodeLabel"
-            app:layout_constraintStart_toEndOf="@id/redeemCodeLabel"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="@tools:sample/lorem" />
+            app:layout_constraintStart_toEndOf="@id/redeemCodeLabel"
+            tools:text="@tools:sample/lorem/random" />
 
         <TextView
             android:id="@+id/pinCodeLabel"
@@ -63,13 +65,15 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:drawablePadding="8dp"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="@{viewModel.pinCode}"
             android:textSize="14sp"
             android:visibility="@{viewModel.pinCode.isEmpty() ? View.GONE : View.VISIBLE}"
             app:drawableRightCompat="@drawable/ic_content_copy_white"
             app:layout_constraintBaseline_toBaselineOf="@id/pinCodeLabel"
-            app:layout_constraintStart_toEndOf="@id/pinCodeLabel"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="4589rhjkf\nlt7ehJUG806504HH" />
+            app:layout_constraintStart_toEndOf="@id/pinCodeLabel"
+            tools:text="4589rhjkfasdflaksdjflkasdjflasdfkjaldskadsfasdlt7ehJUG806504HH" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
