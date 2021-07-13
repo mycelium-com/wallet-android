@@ -43,7 +43,7 @@ import java.math.RoundingMode
 class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var binding: FragmentGiftboxAmountBinding
     private var _numberEntry: NumberEntry? = null
-    private lateinit var _mbwManager: MbwManager
+    private lateinit var mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
 
     val zeroFiatValue by lazy {
@@ -108,7 +108,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _mbwManager = MbwManager.getInstance(activity?.applicationContext)
+        mbwManager = MbwManager.getInstance(activity?.applicationContext)
 
         with(binding) {
             btOk.setOnClickListener {
@@ -129,11 +129,16 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         initNumberEntry(savedInstanceState)
     }
 
-    private fun getMaxSpendable() = account?.accountBalance?.spendable
+    private fun getMaxSpendable() =
+        account?.calculateMaxSpendableAmount(feeEstimation.normal, null)!!
+
+    private val feeEstimation by lazy {
+        mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
+    }
 
     private fun getMaxDecimal(assetInfo: AssetInfo): Int {
         return (assetInfo as? FiatType)?.unitExponent
-            ?: assetInfo.unitExponent - _mbwManager.getDenomination(_amount?.type).scale
+            ?: assetInfo.unitExponent - mbwManager.getDenomination(_amount?.type).scale
     }
 
     fun zeroValue(): Value {
@@ -163,7 +168,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         // Init the number pad
         val amountString: String
         if (!isNullOrZero(_amount)) {
-            val denomination = _mbwManager.getDenomination(_amount?.type)
+            val denomination = mbwManager.getDenomination(_amount?.type)
             amountString = _amount?.toString(denomination) ?: ""
         } else {
             amountString = ""

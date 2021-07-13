@@ -34,10 +34,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
-import com.mycelium.wapi.wallet.AesKeyCipher
-import com.mycelium.wapi.wallet.BroadcastResult
-import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -45,6 +42,9 @@ import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
 import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
 import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
@@ -54,6 +54,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -266,8 +268,8 @@ class GiftboxBuyFragment : Fragment() {
                     viewModel.productInfo,
                     viewModel.totalAmountFiat.value!!,
                     viewModel.totalAmountCrypto.value!!,
-                    viewModel.minerFeeFiat(),
-                    viewModel.minerFeeCrypto(),
+                    viewModel.minerFeeFiat.value,
+                    viewModel.minerFeeCrypto.value,
                     viewModel.orderResponse.value!!
                 )
             )
@@ -294,7 +296,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     val lastPriceResponse = MutableLiveData<PriceResponse>()
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     val account by lazy {
-        mbwManager.getWalletManager(false).getAccount(accountId.value!!)
+        mbwManager.getWalletManager(false).getAccount(accountId.value!!)!!
     }
     val zeroCryptoValue by lazy {
         account?.basedOnCoinType?.value(0)
@@ -330,15 +332,16 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     else -> TODO("Account not supported yet")
                 }
                 val price = orderResponse.value?.amountExpectedFrom!!
-                val createTx = account?.createTx(
+
+                val createTx = account.createTx(
                     address, getCryptoAmount(price),
                     FeePerKbFee(feeEstimation.normal), null
                 )
-                account?.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                offer(createTx!! as Transaction to account!!.broadcastTx(createTx))
+                account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
+                offer(createTx!! to account.broadcastTx(createTx))
                 close()
             } catch (ex: Exception) {
-                offer( null to BroadcastResult(ex.localizedMessage, BroadcastResultType.REJECTED))
+                offer(null to BroadcastResult(ex.localizedMessage, BroadcastResultType.REJECTED))
                 cancel(CancellationException("Tx", ex))
             }
         }.asLiveData(IO)
@@ -351,7 +354,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     private val feeEstimation by lazy {
-        mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
+        mbwManager.getFeeProvider(account.basedOnCoinType).estimation
     }
 
     fun zeroFiatValue(product: ProductInfo): Value {
@@ -410,7 +413,14 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                         return@getPrice
                     }
                     lastPriceResponse.value = priceResponse
-                    offer(getCryptoAmount(priceResponse))
+
+                    val cryptoAmount = getCryptoAmount(priceResponse)
+                    launch(IO) {
+                        val checkValidTransaction = checkValidTransaction(account, cryptoAmount)
+                        if (checkValidTransaction == AmountValidation.Ok) {
+                            offer(cryptoAmount)
+                        }
+                    }
                 },
                 error = { _, error ->
                     close()
@@ -437,6 +447,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         return@map "~" + it.toStringFriendlyWithUnit()
     }
 
+    private val tempTransaction = MutableLiveData<Transaction>()
+
     private fun getCryptoAmount(price: PriceResponse): Value = getCryptoAmount(price.priceOffer!!)
 
     private fun getCryptoAmount(price: String): Value {
@@ -447,28 +459,31 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
 
-    val minerFeeFiatString: MutableLiveData<String> by lazy {
-        val value = minerFeeFiat()
-        val asString = if (value.lessThan(Value(value.type, 1.toBigInteger()))) {
-            "<0.01 " + value.type.symbol
-        } else value.toStringFriendlyWithUnit()
-        MutableLiveData(asString)
-    }
 
-    fun minerFeeFiat(): Value {
-        return convertToFiat(minerFeeCrypto()) ?: zeroFiatValue
+    val minerFeeCrypto = Transformations.map(tempTransaction) {
+        feeEstimation.normal.times(it.estimatedTransactionSize.toLong())
     }
-
+    val minerFeeCryptoString = Transformations.map(minerFeeCrypto) {
+        "~" + it.toStringFriendlyWithUnit()
+    }
+    val minerFeeFiat = Transformations.map(minerFeeCrypto) {
+        convertToFiat(it) ?: zeroFiatValue
+    }
+    val minerFeeFiatString = Transformations.map(minerFeeFiat) {
+        if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
+            "<0.01 " + it.type.symbol
+        } else it.toStringFriendlyWithUnit()
+    }
     val maxSpendableAmount: MutableLiveData<Value> by lazy { MutableLiveData(maxFiatSpendableAmount()) }
     fun maxFiatSpendableAmount(): Value {
         return convertToFiat(getMaxSpendable()) ?: zeroFiatValue
     }
 
-    private fun getMaxSpendable() = mbwManager.getWalletManager(false)
-        .getAccount(accountId.value!!)?.accountBalance?.spendable!!
+    private fun getMaxSpendable() =
+        mbwManager.getWalletManager(false)
+            .getAccount(accountId.value!!)
+            ?.calculateMaxSpendableAmount(feeEstimation.normal, null)!!
 
-    val minerFeeCryptoString: MutableLiveData<String> by lazy { MutableLiveData("~" + minerFeeCrypto().toStringFriendlyWithUnit()) }
-    fun minerFeeCrypto() = feeEstimation.normal
 
     val isGrantedPlus =
         Transformations.map(
@@ -495,8 +510,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             totalAmountCrypto,
             totalProgress,
             quantityInt
-        ) { total: Value, progress: Boolean, quantity: Int -> Triple(total, progress,quantity) }) {
-        val (total, progress,quantity) = it
+        ) { total: Value, progress: Boolean, quantity: Int -> Triple(total, progress, quantity) }) {
+        val (total, progress, quantity) = it
         return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && quantity <= MAX_QUANTITY && !progress
     }
 
@@ -535,7 +550,12 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         getColorByCryptoValue(it)
     }
 
-    val minerFeeCryptoColor by lazy { MutableLiveData(getColorByCryptoValue(minerFeeCrypto())) }
+    val minerFeeCryptoColor = Transformations.map(minerFeeCrypto) {
+        MutableLiveData(
+            getColorByCryptoValue(it)
+        )
+    }
+
 
     val totalAmountFiatColor = Transformations.map(totalAmountFiat) {
         getColorByFiatValue(it)
@@ -545,13 +565,10 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         getColorByFiatValue(it)
     }
 
-    val minerFeeFiatColor by lazy {
-        val value = minerFeeFiat()
-        MutableLiveData(
-            ContextCompat.getColor(
-                WalletApplication.getInstance(),
-                if (value.moreOrEqualThanZero()) R.color.white else R.color.darkgrey
-            )
+    val minerFeeFiatColor = Transformations.map(minerFeeFiat) {
+        ContextCompat.getColor(
+            WalletApplication.getInstance(),
+            if (it.moreOrEqualThanZero()) R.color.white else R.color.darkgrey
         )
     }
 
@@ -572,6 +589,36 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         )
 
 
+    fun checkValidTransaction(
+        account: WalletAccount<*>,
+        value: Value
+    ): AmountValidation {
+        if (value.equalZero()) {
+            return AmountValidation.Ok; //entering a fiat value + exchange is not availible
+        }
+        try {
+            tempTransaction.value = account.createTx(
+                account.dummyAddress,
+                value,
+                FeePerKbFee(feeEstimation.normal),
+                null
+            )
+        } catch (e: OutputTooSmallException) {
+            return AmountValidation.ValueTooSmall;
+        } catch (e: InsufficientFundsException) {
+            return AmountValidation.NotEnoughFunds;
+        } catch (e: BuildTransactionException) {
+            mbwManager.reportIgnoredException("MinerFeeException", e);
+            return AmountValidation.Invalid;
+        } catch (e: Exception) {
+            return AmountValidation.Invalid;
+        }
+        return AmountValidation.Ok;
+    }
+
+    enum class AmountValidation {
+        Ok, ValueTooSmall, Invalid, NotEnoughFunds, ExchangeRateNotAvailable
+    }
 }
 
 data class ErrorMessage(val message: String)
