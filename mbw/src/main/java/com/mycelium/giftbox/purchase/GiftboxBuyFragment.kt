@@ -468,6 +468,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     val minerFeeCrypto = Transformations.map(tempTransaction) {
         feeEstimation.normal.times(it.estimatedTransactionSize.toLong())
+            .div((if (account is AbstractBtcAccount) 1000 else 1).toBigInteger())
     }
     val minerFeeCryptoString = Transformations.map(minerFeeCrypto) {
         "~" + it.toStringFriendlyWithUnit()
