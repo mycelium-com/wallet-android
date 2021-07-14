@@ -42,7 +42,7 @@ import java.math.RoundingMode
 
 class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var binding: FragmentGiftboxAmountBinding
-    private var _numberEntry: NumberEntry? = null
+    private var numberEntry: NumberEntry? = null
     private lateinit var mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
 
@@ -120,7 +120,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             }
             btMax.setOnClickListener {
                 setEnteredAmount(args.product.maximumValue.toPlainString()!!)
-                _numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
+                numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
                 checkEntry()
             }
             tvCardValue.text = args.product?.getCardValue()
@@ -173,7 +173,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         } else {
             amountString = ""
         }
-        _numberEntry = NumberEntry(getMaxDecimal(_amount?.type!!), this, activity, amountString)
+        numberEntry = NumberEntry(getMaxDecimal(_amount?.type!!), this, activity, amountString)
 
         updateAmountsDisplay(amountString)
     }
