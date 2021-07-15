@@ -175,6 +175,9 @@ class GiftboxBuyFragment : Fragment() {
                             if (viewModel.quantityInt.value == MAX_QUANTITY) {
                                 viewModel.warningQuantityMessage.value =
                                     "Max available cards: $MAX_QUANTITY cards"
+                            } else {
+                                viewModel.warningQuantityMessage.value =
+                                    getString(R.string.gift_insufficient_funds)
                             }
                         }
                     }
