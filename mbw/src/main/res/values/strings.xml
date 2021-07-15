@@ -1687,6 +1687,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="select_card_value_dialog">Select card value:</string>
     <string name="gift_card_d">Gift card:</string>
     <string name="spendable">Spendable:</string>
+    <string name="search_store">Search store</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

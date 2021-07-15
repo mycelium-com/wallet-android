@@ -8,6 +8,9 @@
         <import type="android.view.View" />
 
         <variable
+            name="viewModel"
+            type="com.mycelium.giftbox.cards.viewmodel.StoresViewModel" />
+        <variable
             name="activityViewModel"
             type="com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel" />
     </data>
@@ -16,17 +19,54 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <FrameLayout
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="18dp"
+            android:padding="0dp"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:background="@drawable/rect_background_rounded"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:drawablePadding="12dp"
+                android:hint="@string/search_store"
+                android:imeOptions="actionSearch"
+                android:paddingTop="12dp"
+                android:paddingStart="12dp"
+                android:paddingBottom="12dp"
+                android:paddingEnd="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFD"
+                android:textSize="16sp"
+                android:text="@={viewModel.search}"
+                app:drawableStartCompat="@drawable/ic_search" />
+
+            <ImageView
+                android:id="@+id/search_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center"
+                android:layout_marginEnd="8dp"
+                app:srcCompat="@drawable/ic_close" />
+        </FrameLayout>
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tags"
             android:layout_width="match_parent"
             android:layout_height="24dp"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="18dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:paddingBottom="1dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:tabGravity="center"
             app:tabIndicatorHeight="0dp"
             app:tabMode="scrollable"
@@ -34,6 +74,7 @@
             app:tabPaddingStart="4dp"
             app:tabRippleColor="#ff272727"
             app:tabTextAppearance="@style/MediaFlowTabTextAppearance"
+            app:layout_constraintTop_toBottomOf="@id/search"
             tools:listitem="@layout/item_gift_box_tag" />
 
         <TextView
