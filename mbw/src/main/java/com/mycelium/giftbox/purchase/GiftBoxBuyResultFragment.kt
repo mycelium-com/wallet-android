@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
@@ -29,6 +28,7 @@ import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment.Companion.newIn
 import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment.Companion.newInstance
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
+import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
@@ -70,6 +70,15 @@ class GiftBoxBuyResultFragment : Fragment() {
         binding?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
         }
+
+        startCoroutineTimer(lifecycleScope, repeatMillis = 10 * 1000) {
+            updateAllUi()
+        }
+
+        activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
+    }
+
+    private fun updateAllUi() {
         args.accountId?.let { accountId ->
             val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
             val account = walletManager.getAccount(accountId)
@@ -78,22 +87,30 @@ class GiftBoxBuyResultFragment : Fragment() {
                 if (childFragmentManager.findFragmentById(R.id.spec_details_fragment) == null) {
                     val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
                     if (account is EthAccount || account is ERC20Account) {
-                        transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx))
+                        transaction.add(
+                            R.id.spec_details_fragment,
+                            EthDetailsFragment.newInstance(tx)
+                        )
                     } else if (account is FioAccount) {
-                        transaction.add(R.id.spec_details_fragment, FioDetailsFragment.newInstance(tx))
+                        transaction.add(
+                            R.id.spec_details_fragment,
+                            FioDetailsFragment.newInstance(tx)
+                        )
                     } else if (account is BitcoinVaultHdAccount) {
                         transaction.add(R.id.spec_details_fragment, newInstance(tx, accountId))
                     } else {
-                        transaction.add(R.id.spec_details_fragment, newInstance(tx, false, accountId))
+                        transaction.add(
+                            R.id.spec_details_fragment,
+                            newInstance(tx, false, accountId)
+                        )
                     }
                     transaction.commit()
                 }
                 updateUi()
             }
-        }?:run {
+        } ?: run {
             binding?.more?.visibility = View.GONE
         }
-        activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
     }
 
     private fun loadProduct() {
