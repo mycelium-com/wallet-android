@@ -1,7 +1,9 @@
 package com.mycelium.giftbox.cards
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -22,6 +24,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
+import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 import kotlinx.coroutines.Job
 
@@ -33,14 +36,10 @@ class StoresFragment : Fragment() {
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxStoresBinding? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             FragmentGiftboxStoresBinding.inflate(inflater).apply {
                 binding = this
+                this.viewModel = this@StoresFragment.viewModel
                 this.activityViewModel = this@StoresFragment.activityViewModel
                 this.lifecycleOwner = this@StoresFragment
             }.root
@@ -95,7 +94,19 @@ class StoresFragment : Fragment() {
                 }
             }
         })
+        viewModel.search.observe(viewLifecycleOwner) {
+            loadData()
+        }
+        binding?.searchClose?.setOnClickListener {
+            viewModel.search.value = null
+            hideKeyboard()
+        }
         loadData()
+    }
+
+    private fun hideKeyboard() {
+        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .hideSoftInputFromWindow(binding?.searchInput?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     private var productsJob : Job? = null
@@ -108,7 +119,7 @@ class StoresFragment : Fragment() {
         }
         viewModel.loading.value = true
         productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
-                search = viewModel.search,
+                search = viewModel.search.value,
                 category = viewModel.category,
                 country = activityViewModel.selectedCountries.value,
                 offset = if (offset == -1L) 0 else offset, limit = 30,
@@ -127,44 +138,6 @@ class StoresFragment : Fragment() {
                 finally = {
                     viewModel.loading.value = false
                 })
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.giftbox_store, menu)
-        val searchItem = menu.findItem(R.id.actionSearch)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setOnCloseListener {
-            viewModel.search = null
-            viewModel.quickSearch = false
-            loadData()
-            true
-        }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(s: String): Boolean {
-                viewModel.search = s
-                viewModel.quickSearch = false
-                loadData()
-                return true
-            }
-
-            override fun onQueryTextChange(s: String): Boolean {
-                viewModel.quickSearch = true
-                adapter.submitList(viewModel.products.filter {
-                    it.name?.contains(s, true) ?: false
-                })
-                return true
-            }
-        })
-        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionExpand(item: MenuItem?): Boolean = true
-
-            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                viewModel.search = null
-                viewModel.quickSearch = false
-                loadData()
-                return true
-            }
-        })
     }
 
     override fun onDestroyView() {

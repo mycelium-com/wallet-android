@@ -25,10 +25,6 @@ class CardsFragment : Fragment() {
     private val cards = mutableListOf<Card>()
     private val adapter = CardAdapter()
     private var binding: FragmentGiftboxPurchasedBinding? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -109,33 +105,6 @@ class CardsFragment : Fragment() {
                 addAll(redeemed)
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.giftbox_store, menu)
-        val searchItem = menu.findItem(R.id.actionSearch)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setOnCloseListener {
-            adapter.submitList(generateList(cards))
-            false
-        }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(s: String): Boolean {
-                findSearchResult(s)
-                return true
-            }
-
-            override fun onQueryTextChange(s: String): Boolean {
-                findSearchResult(s)
-                return true
-            }
-
-            private fun findSearchResult(s: String) {
-                adapter.submitList(generateList(cards.filter {
-                    it.productName?.contains(s, true) ?: false
-                }))
-            }
-        })
     }
 
     override fun onDestroyView() {

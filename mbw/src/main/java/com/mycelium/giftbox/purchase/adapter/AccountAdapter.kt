@@ -11,6 +11,7 @@ import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 
 
@@ -37,7 +38,7 @@ class AccountAdapter() : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(D
                 accountHolder.label.text = account.label
                 accountHolder.coinType.text = account.coinType.symbol
                 accountHolder.value.text = account.additional["fiat"]?.toString()
-                accountHolder.value2.text = account.balance?.spendable?.toStringWithUnit()
+                accountHolder.value2.text = account.balance?.spendable?.toStringFriendlyWithUnit()
                 accountHolder.itemView.setOnClickListener {
                     accountClickListener?.invoke(account)
                 }

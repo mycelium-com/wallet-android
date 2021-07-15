@@ -27,11 +27,6 @@ class OrdersFragment : Fragment() {
     private val viewModel: PurchasedViewModel by viewModels()
     private var binding: FragmentGiftboxPurchasedBinding? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -78,33 +73,6 @@ class OrdersFragment : Fragment() {
     }
 
     private fun generateList(data: List<Order>) = data.map { PurchasedOrderItem(it) }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.giftbox_store, menu)
-        val searchItem = menu.findItem(R.id.actionSearch)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setOnCloseListener {
-            adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
-            false
-        }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(s: String): Boolean {
-                findSearchResult(s)
-                return true
-            }
-
-            override fun onQueryTextChange(s: String): Boolean {
-                findSearchResult(s)
-                return true
-            }
-
-            private fun findSearchResult(s: String) {
-                adapter.submitList(generateList(viewModel.orders.value?.filter {
-                    it.productName?.contains(s, true) ?: false
-                } ?: emptyList()))
-            }
-        })
-    }
 
     override fun onDestroyView() {
         binding = null
