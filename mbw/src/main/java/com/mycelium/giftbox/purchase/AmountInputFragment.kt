@@ -42,12 +42,15 @@ import java.math.RoundingMode
 
 class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var binding: FragmentGiftboxAmountBinding
-    private var _numberEntry: NumberEntry? = null
+    private var numberEntry: NumberEntry? = null
     private lateinit var mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
 
     val zeroFiatValue by lazy {
         Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
+    }
+    val zeroCryptoValue by lazy {
+        account?.basedOnCoinType?.value(0)
     }
 
     private val account by lazy {
@@ -120,7 +123,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             }
             btMax.setOnClickListener {
                 setEnteredAmount(args.product.maximumValue.toPlainString()!!)
-                _numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
+                numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
                 checkEntry()
             }
             tvCardValue.text = args.product?.getCardValue()
@@ -173,7 +176,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         } else {
             amountString = ""
         }
-        _numberEntry = NumberEntry(getMaxDecimal(_amount?.type!!), this, activity, amountString)
+        numberEntry = NumberEntry(getMaxDecimal(_amount?.type!!), this, activity, amountString)
 
         updateAmountsDisplay(amountString)
     }
@@ -202,40 +205,55 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             _amount = _amount?.type?.value(value)
         }
 
-        val insufficientFounds = _amount!!.moreThan(getMaxSpendable()!!)
-        val exceedCardPrice = _amount!!.moreThan(
-            valueOf(
-                _amount!!.type,
-                toUnits(args.product.currencyCode!!, args.product.maximumValue)
-            )
-        )
-        val minimumPrice = valueOf(
-            _amount!!.type,
-            toUnits(args.product.currencyCode!!, args.product.minimumValue)
-        )
-        val lessMinimumCardPrice = _amount!!.lessThan(
-            minimumPrice
-        )
+        GitboxAPI.giftRepository.getPrice(lifecycleScope,
+            code = args.product.code ?: "",
+            quantity = 1,
+            amount = _amount?.valueAsLong?.div(100)?.toInt()!!,
+            currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
+            success = { priceResponse ->
+                val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
+                val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable()!!)
+                val insufficientFounds = _amount!!.moreThan(maxSpendableFiat!!)
 
-        binding.tvAmount.setTextColor(
-            ResourcesCompat.getColor(
-                resources,
-                if (insufficientFounds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
-                null
-            )
-        )
-        if (insufficientFounds) {
-            Toaster(requireContext()).toast("Insufficient funds", true)
-        }
-        if (exceedCardPrice) {
-            Toaster(requireContext()).toast("Exceed card value", true)
-        }
-        if (lessMinimumCardPrice) {
-            Toaster(requireContext()).toast(
-                "Minimal card value: " + minimumPrice.toStringFriendlyWithUnit(),
-                true
-            )
-        }
+                val exceedCardPrice = _amount!!.moreThan(
+                    valueOf(
+                        _amount!!.type,
+                        toUnits(args.product.currencyCode!!, args.product.maximumValue)
+                    )
+                )
+                val minimumPrice = valueOf(
+                    _amount!!.type,
+                    toUnits(args.product.currencyCode!!, args.product.minimumValue)
+                )
+                val lessMinimumCardPrice = _amount!!.lessThan(
+                    minimumPrice
+                )
+
+
+                if (exceedCardPrice) {
+                    Toaster(requireContext()).toast("Exceed card value", true)
+                }
+                if (lessMinimumCardPrice) {
+                    Toaster(requireContext()).toast(
+                        "Minimal card value: " + minimumPrice.toStringFriendlyWithUnit(),
+                        true
+                    )
+                }
+                binding.tvAmount.setTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        if (conversionError || insufficientFounds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
+                        null
+                    )
+                )
+                if (insufficientFounds && !conversionError) {
+                    Toaster(requireContext()).toast("Insufficient funds", true)
+                }
+            }, error = { _, error ->
+
+            },
+            finally = {
+            })
 
     }
 
@@ -254,6 +272,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             )
         )
         binding.btOk.isEnabled = valid
+    }
+
+    private fun convertToFiat(priceResponse: PriceResponse, value: Value): Value? {
+        priceResponse.exchangeRate?.let {
+            val fiat = value.valueAsBigDecimal.multiply(BigDecimal(it))
+            return Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
+        }
+        return null
     }
 
     private fun getPriceResponse(value: Value): Flow<PriceResponse?> {

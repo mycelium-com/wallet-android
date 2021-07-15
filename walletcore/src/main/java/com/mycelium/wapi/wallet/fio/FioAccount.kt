@@ -185,7 +185,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             throw InsufficientFundsException(Throwable("Invalid amount"))
         }
 
-        return FioTransaction(coinType, address.toString(), amount, fee)
+        return FioTransaction(coinType, address.toString(), amount, fee.feePerKb)
     }
 
     override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
@@ -194,14 +194,14 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     override fun broadcastTx(tx: Transaction?): BroadcastResult {
         val fioTx = tx as FioTransaction
         return try {
-            val response = getFioSdk()!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.feePerKb.value)
+            val response = getFioSdk()!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.value)
             val actionTraceResponse = response.getActionTraceResponse()
             if (actionTraceResponse != null && actionTraceResponse.status == "OK") {
                 tx.txId = HexUtils.toBytes(response.transactionId)
                 backing.putTransaction(-1, System.currentTimeMillis() / 1000, response.transactionId, "",
                         receivingAddress.toString(), fioTx.toAddress, fioTx.value, 0,
-                        fioTx.fee.feePerKb, if (fioTx.toAddress == receivingAddress.toString()) -fioTx.fee.feePerKb else
-                    -(fioTx.value + fioTx.fee.feePerKb))
+                        fioTx.fee, if (fioTx.toAddress == receivingAddress.toString()) -fioTx.fee else
+                    -(fioTx.value + fioTx.fee))
                 BroadcastResult(BroadcastResultType.SUCCESS)
             } else {
                 BroadcastResult("Status: ${actionTraceResponse?.status}", BroadcastResultType.REJECT_INVALID_TX_PARAMS)

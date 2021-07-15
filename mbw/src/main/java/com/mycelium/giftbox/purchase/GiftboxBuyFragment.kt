@@ -172,9 +172,12 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) + 1).toString()
                         } else {
-                            if (viewModel.quantityInt.value == 19) {
+                            if (viewModel.quantityInt.value == MAX_QUANTITY) {
                                 viewModel.warningQuantityMessage.value =
                                     "Max available cards: $MAX_QUANTITY cards"
+                            } else {
+                                viewModel.warningQuantityMessage.value =
+                                    getString(R.string.gift_insufficient_funds)
                             }
                         }
                     }
@@ -197,7 +200,7 @@ class GiftboxBuyFragment : Fragment() {
             GitboxAPI.giftRepository.createOrder(
                 viewModel.viewModelScope,
                 code = args.product.code!!,
-                amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
+                amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
                 quantity = viewModel.quantityString.value?.toInt()!!,
                 currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
                 success = { orderResponse ->
@@ -433,7 +436,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     close()
                 },
                 finally = {
-                    close()
                     totalProgress.value = false
                 })
             awaitClose { }
@@ -468,7 +470,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
 
     val minerFeeCrypto = Transformations.map(tempTransaction) {
-        feeEstimation.normal.times(it.estimatedTransactionSize.toLong())
+        it.totalFee()
     }
     val minerFeeCryptoString = Transformations.map(minerFeeCrypto) {
         "~" + it.toStringFriendlyWithUnit()
