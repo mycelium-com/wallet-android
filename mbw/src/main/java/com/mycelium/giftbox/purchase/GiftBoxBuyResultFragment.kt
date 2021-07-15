@@ -84,28 +84,32 @@ class GiftBoxBuyResultFragment : Fragment() {
             val account = walletManager.getAccount(accountId)
             args.transaction?.id?.let { txId ->
                 tx = account?.getTxSummary(txId)!!
-                if (childFragmentManager.findFragmentById(R.id.spec_details_fragment) == null) {
-                    val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
-                    if (account is EthAccount || account is ERC20Account) {
-                        transaction.add(
-                            R.id.spec_details_fragment,
-                            EthDetailsFragment.newInstance(tx)
-                        )
-                    } else if (account is FioAccount) {
-                        transaction.add(
-                            R.id.spec_details_fragment,
-                            FioDetailsFragment.newInstance(tx)
-                        )
-                    } else if (account is BitcoinVaultHdAccount) {
-                        transaction.add(R.id.spec_details_fragment, newInstance(tx, accountId))
-                    } else {
-                        transaction.add(
-                            R.id.spec_details_fragment,
-                            newInstance(tx, false, accountId)
-                        )
-                    }
-                    transaction.commit()
+                val findFragmentById =
+                    childFragmentManager.findFragmentById(R.id.spec_details_fragment)
+                val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
+                if (findFragmentById != null) {
+                    transaction.remove(findFragmentById)
                 }
+                if (account is EthAccount || account is ERC20Account) {
+                    transaction.add(
+                        R.id.spec_details_fragment,
+                        EthDetailsFragment.newInstance(tx)
+                    )
+                } else if (account is FioAccount) {
+                    transaction.add(
+                        R.id.spec_details_fragment,
+                        FioDetailsFragment.newInstance(tx)
+                    )
+                } else if (account is BitcoinVaultHdAccount) {
+                    transaction.add(R.id.spec_details_fragment, newInstance(tx, accountId))
+                } else {
+                    transaction.add(
+                        R.id.spec_details_fragment,
+                        newInstance(tx, false, accountId)
+                    )
+                }
+                transaction.commit()
+
                 updateUi()
             }
         } ?: run {
@@ -145,7 +149,12 @@ class GiftBoxBuyResultFragment : Fragment() {
                     it.text = "Processing..."
                     val color = resources.getColor(R.color.giftbox_processing)
                     it.setTextColor(color)
-                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
+                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        R.drawable.ic_history,
+                        0,
+                        0,
+                        0
+                    )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         it.compoundDrawableTintList = ColorStateList.valueOf(color)
                     }
@@ -156,7 +165,12 @@ class GiftBoxBuyResultFragment : Fragment() {
                     it.text = "Success, " + order.timestamp?.getDateString(resources)
                     val color = resources.getColor(R.color.bequant_green)
                     it.setTextColor(color)
-                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_fio_name_ok, 0, 0, 0)
+                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        R.drawable.ic_fio_name_ok,
+                        0,
+                        0,
+                        0
+                    )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         it.compoundDrawableTintList = ColorStateList.valueOf(color)
                     }
@@ -167,7 +181,12 @@ class GiftBoxBuyResultFragment : Fragment() {
                     it.text = "Purchase Failed"
                     val color = resources.getColor(R.color.sender_recyclerview_background_red)
                     it.setTextColor(color)
-                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_bequant_clear_24, 0, 0, 0)
+                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        R.drawable.ic_bequant_clear_24,
+                        0,
+                        0,
+                        0
+                    )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         it.compoundDrawableTintList = ColorStateList.valueOf(color)
                     }

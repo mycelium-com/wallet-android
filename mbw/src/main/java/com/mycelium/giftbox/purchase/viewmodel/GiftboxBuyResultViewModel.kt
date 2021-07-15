@@ -42,11 +42,10 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     override val quantity = MutableLiveData(0)
 
     fun setOrder(orderResponse: OrderResponse) {
-        val cardAmount = (orderResponse.amount?.toBigDecimal() ?: BigDecimal.ZERO) /
-                (orderResponse.quantity ?: BigDecimal.ONE)
+        val cardAmount = (orderResponse.amount?.toBigDecimal() ?: BigDecimal.ZERO)
         cardValue.value = "${cardAmount.stripTrailingZeros().toPlainString()} ${orderResponse.currencyCode}"
         quantity.value = orderResponse.quantity?.toInt() ?: 0
-        totalAmountFiatString.value = "${orderResponse.amount} ${orderResponse.currencyCode}"
+        totalAmountFiatString.value = "${orderResponse.amount?.toBigDecimal()?.times(orderResponse.quantity!!)} ${orderResponse.currencyCode}"
         totalAmountCryptoString.value = "${orderResponse.amountExpectedFrom} ${orderResponse.currencyFromInfo?.name?.toUpperCase()}"
     }
 }
