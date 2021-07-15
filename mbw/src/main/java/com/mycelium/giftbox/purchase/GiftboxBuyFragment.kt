@@ -172,7 +172,7 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) + 1).toString()
                         } else {
-                            if (viewModel.quantityInt.value == 19) {
+                            if (viewModel.quantityInt.value == MAX_QUANTITY) {
                                 viewModel.warningQuantityMessage.value =
                                     "Max available cards: $MAX_QUANTITY cards"
                             }
@@ -197,7 +197,7 @@ class GiftboxBuyFragment : Fragment() {
             GitboxAPI.giftRepository.createOrder(
                 viewModel.viewModelScope,
                 code = args.product.code!!,
-                amount = viewModel.totalAmountFiat.value?.valueAsBigDecimal?.toInt()!!,
+                amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
                 quantity = viewModel.quantityString.value?.toInt()!!,
                 currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
                 success = { orderResponse ->
