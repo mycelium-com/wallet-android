@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -24,6 +23,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
+import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 import kotlinx.coroutines.Job
@@ -63,9 +63,9 @@ class StoresFragment : Fragment() {
                 categories.forEach {
                     if (getTab(it, tags) == null) {
                         val tab = tags.newTab().setCustomView(
-                                layoutInflater.inflate(R.layout.media_flow_tab_item, tags, false).apply {
+                                ItemGiftBoxTagBinding.inflate(layoutInflater).apply {
                                     this.text.text = it.replace("-", " ").capitalize()
-                                })
+                                }.root)
                         tab.tag = it
                         tags.addTab(tab)
                     }
