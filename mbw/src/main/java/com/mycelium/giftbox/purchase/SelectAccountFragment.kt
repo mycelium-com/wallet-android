@@ -61,7 +61,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         list.adapter = adapter
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         accounts.setOnClickListener {
-            requireActivity().finish()
+            requireActivity().finishAffinity()
             startActivity(Intent(requireContext(), ModernMain::class.java))
         }
         adapter.accountClickListener = { accountItem ->
