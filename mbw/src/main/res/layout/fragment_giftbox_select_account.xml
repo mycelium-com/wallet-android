@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/selectAccountLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -24,6 +25,44 @@
         android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_giftbox_select_account" />
+        tools:listitem="@layout/item_giftbox_select_account"
+        tools:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/emptyList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="120dp"
+            android:gravity="center"
+            android:text="No funds"
+            android:textSize="22dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:gravity="center"
+            android:text="You don’t have any BTC or ETH accounts with funds. Please top-up any of your BTC or ETH account and try again."
+            android:textSize="14dp" />
+
+        <Button
+            android:id="@+id/accounts"
+            style="@style/MyceliumButtonModern"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:text="@string/accounts"
+            android:textColor="@color/white" />
+    </LinearLayout>
 
 </LinearLayout>
