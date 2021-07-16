@@ -101,7 +101,7 @@
                 android:text="@{viewModel.cardValue}"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvCardValueHeaderTitle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+                app:layout_constraintStart_toEndOf="@id/tvCardValueHeaderTitle"
                 tools:text="From $1 to $100" />
 
             <TextView
