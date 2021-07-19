@@ -18,6 +18,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
@@ -62,7 +63,8 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         list.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.fio_list_item_space)))
         accounts.setOnClickListener {
             requireActivity().finishAffinity()
-            startActivity(Intent(requireContext(), ModernMain::class.java))
+            startActivity(Intent(requireContext(), ModernMain::class.java)
+                    .apply { setAction(MainActions.ACTION_ACCOUNTS) })
         }
         adapter.accountClickListener = { accountItem ->
             findNavController().navigate(SelectAccountFragmentDirections.actionNext(accountItem.accountId, args.product))

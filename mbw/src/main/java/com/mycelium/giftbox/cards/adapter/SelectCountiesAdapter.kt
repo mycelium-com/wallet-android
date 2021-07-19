@@ -10,10 +10,11 @@ import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.listview_item_with_checkbox.view.*
 
+val ALL_COUNTRIES = CountryModel("All Countries", "", "", 0)
 
 class SelectCountiesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>(DiffCallback()) {
-    val selected = mutableSetOf<CountryModel>()
-    var selectedChangeListener: ((Set<CountryModel>) -> Unit)? = null
+    var selected: CountryModel = ALL_COUNTRIES
+    var selectedChangeListener: ((CountryModel) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.listview_item_with_checkbox, parent, false))
@@ -22,26 +23,14 @@ class SelectCountiesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>
         val item = getItem(position)
         holder.itemView.tv_currency_name.text = item.name
         holder.itemView.tv_currency_short.text = item.acronym3
-        holder.itemView.checkbox_currency.isChecked = selected.contains(item)
+        holder.itemView.checkbox_currency.isChecked = selected == item
         holder.itemView.setOnClickListener {
             toggleChecked(getItem(holder.adapterPosition))
         }
     }
 
     fun toggleChecked(countryModel: CountryModel) {
-        if (selected.contains(countryModel)) {
-            selected.removeAll { it.code == 0 }
-            selected.remove(countryModel)
-        } else {
-            selected.add(countryModel)
-        }
-        if (countryModel.code == 0) {
-            if (selected.contains(countryModel)) {
-                selected.addAll(currentList)
-            } else {
-                selected.clear()
-            }
-        }
+        selected = countryModel
         selectedChangeListener?.invoke(selected)
         notifyDataSetChanged()
     }
