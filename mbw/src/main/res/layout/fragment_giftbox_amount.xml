@@ -122,13 +122,22 @@
                     android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/tvSpendableAmount"
+                    android:id="@+id/tvSpendableCryptoAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:layout_marginStart="8dp"
                     android:textSize="14sp"
-                    tools:text="0 USD" />
+                    tools:text="0 BTC" />
+
+                <TextView
+                    android:id="@+id/tvSpendableFiatAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    tools:text="~0 USD" />
             </LinearLayout>
 
 

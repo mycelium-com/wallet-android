@@ -83,9 +83,11 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
                         //update spendable
                         val maxSpendable = getMaxSpendable()
-                        val fiatSpendable = maxSpendable?.valueAsBigDecimal?.multiply(exchangeRate)
+                        val fiatSpendable = maxSpendable.valueAsBigDecimal.multiply(exchangeRate)
                         spendableLayout.isVisible = true
-                        tvSpendableAmount.text = valueOf(
+                        tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
+
+                        tvSpendableFiatAmount.text = "~" + valueOf(
                             zeroFiatValue.type,
                             toUnits(zeroFiatValue.type, fiatSpendable!!)
                         ).toStringFriendlyWithUnit()
