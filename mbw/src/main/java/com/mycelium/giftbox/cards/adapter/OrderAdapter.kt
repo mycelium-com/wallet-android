@@ -18,6 +18,7 @@ import com.mycelium.giftbox.getDateString
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_giftbox_purchaced.view.*
 import kotlinx.android.synthetic.main.item_giftbox_purchaced_group.view.*
+import java.math.BigDecimal
 
 abstract class PurchasedItem(val type: Int)
 data class PurchasedOrderItem(val order: Order, val redeemed: Boolean = false) : PurchasedItem(OrderAdapter.TYPE_CARD)
@@ -47,7 +48,9 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                 val purchasedItem = getItem(position) as PurchasedOrderItem
                 val item = purchasedItem.order
                 holder.itemView.title.text = item.productName
-                holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
+                val amount = (item.amount?.toBigDecimal() ?: BigDecimal.ZERO) *
+                        (item.quantity ?: BigDecimal.ZERO)
+                holder.itemView.description.text = "${amount.stripTrailingZeros().toPlainString()} ${item.currencyCode}"
                 holder.itemView.additional.text = when (item.status) {
                     Status.pROCESSING -> {
                         holder.itemView.additionalLabel.visibility = GONE
