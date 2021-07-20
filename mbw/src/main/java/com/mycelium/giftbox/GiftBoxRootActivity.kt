@@ -1,5 +1,7 @@
 package com.mycelium.giftbox
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +13,11 @@ import kotlinx.android.synthetic.main.activity_gift_box_root.*
 
 class GiftBoxRootActivity : AppCompatActivity(R.layout.activity_gift_box_root) {
 
+    companion object {
+        fun start(context: Context){
+            context.startActivity(Intent(context, GiftBoxRootActivity::class.java))
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val navController = (nav_host_fragment as NavHostFragment).navController
