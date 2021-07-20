@@ -551,7 +551,7 @@ public class ModernMain extends AppCompatActivity {
                 selectRequestTab();
                 break;
             case R.id.miGiftBox:
-                startActivity(new Intent(this, GiftBoxRootActivity.class));
+                GiftBoxRootActivity.Companion.start(this);
                 break;
         }
         return super.onOptionsItemSelected(item);
