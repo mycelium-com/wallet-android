@@ -34,6 +34,11 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -76,7 +81,7 @@ import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
-import com.mycelium.wallet.activity.main.FioProtocolBannerFragment;
+import com.mycelium.wallet.activity.main.GiftboxBannerFragment;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
@@ -143,11 +148,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
-import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
-import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
-
 public class AccountsFragment extends Fragment {
     public static final int ADD_RECORD_RESULT_CODE = 0;
 
@@ -181,7 +181,9 @@ public class AccountsFragment extends Fragment {
             root = inflater.inflate(R.layout.fragment_accounts, container, false);
         }
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.phFragmentFioBanner, FioProtocolBannerFragment.newInstance(true));
+        if (GiftboxBannerFragment.Companion.isShouldBeShown(requireContext())) {
+            fragmentTransaction.replace(R.id.phFragmentFioBanner, GiftboxBannerFragment.newInstance());
+        }
         fragmentTransaction.commitAllowingStateLoss();
         return root;
     }
