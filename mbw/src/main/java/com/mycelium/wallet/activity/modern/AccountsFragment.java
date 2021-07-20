@@ -77,7 +77,6 @@ import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
 import com.mycelium.wallet.activity.main.FioProtocolBannerFragment;
-import com.mycelium.wallet.activity.main.GiftboxBannerFragment;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
@@ -182,9 +181,7 @@ public class AccountsFragment extends Fragment {
             root = inflater.inflate(R.layout.fragment_accounts, container, false);
         }
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        if (GiftboxBannerFragment.Companion.isShouldBeShown(requireContext())) {
-            fragmentTransaction.replace(R.id.phFragmentFioBanner, GiftboxBannerFragment.newInstance());
-        }
+        fragmentTransaction.replace(R.id.phFragmentFioBanner, FioProtocolBannerFragment.newInstance(true));
         fragmentTransaction.commitAllowingStateLoss();
         return root;
     }
