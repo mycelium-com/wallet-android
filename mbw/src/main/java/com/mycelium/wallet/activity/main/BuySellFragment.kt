@@ -58,6 +58,7 @@ import com.mycelium.wallet.external.BuySellSelectActivity
 import com.mycelium.wallet.external.changelly.ChangellyActivity
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity
 import com.mycelium.wallet.external.partner.model.BuySellButton
+import com.mycelium.wallet.external.partner.startContentLink
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
@@ -174,10 +175,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
             ACTION.FIO -> openFio(requireContext())
             ACTION.ADS -> if (actionButton.args.containsKey("data")) {
                 (actionButton.args.getSerializable("data") as BuySellButton?)?.let { data ->
-                    try {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(data.link)))
-                    } catch (ignored: ActivityNotFoundException) {
-                    }
+                    startContentLink(data.link)
                 }
             }
         }
