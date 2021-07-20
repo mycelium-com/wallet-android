@@ -54,6 +54,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.startWith
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -175,7 +177,7 @@ class GiftboxBuyFragment : Fragment() {
                             if (viewModel.quantityInt.value == MAX_QUANTITY) {
                                 viewModel.warningQuantityMessage.value =
                                     "Max available cards: $MAX_QUANTITY cards"
-                            } else {
+                            } else if (viewModel.totalProgress.value != true) {
                                 viewModel.warningQuantityMessage.value =
                                     getString(R.string.gift_insufficient_funds)
                             }
@@ -376,7 +378,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         zip2(
             totalAmountFiatSingle,
             quantityInt
-                .debounce(300)
                 .map { if (forSingleItem) 1 else it.toInt() }) { amount: Value, quantity: Int ->
             Pair(
                 amount,
@@ -434,12 +435,13 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                 },
                 error = { _, error ->
                     close()
+                    totalProgress.value = false
                 },
                 finally = {
                     totalProgress.value = false
                 })
             awaitClose { }
-        }.asLiveData()
+        }.onStart { emit(zeroCryptoValue!!) }.asLiveData()
     }
 
     val errorAmountMessage: LiveData<String> = Transformations.map(totalAmountCrypto) {
