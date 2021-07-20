@@ -1,5 +1,7 @@
 package com.mycelium.wallet.activity.main
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,29 +19,10 @@ class GiftboxBannerFragment : Fragment() {
     ): View? =
         inflater.inflate(R.layout.giftbox_banner_fragment, container, false)
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        setHasOptionsMenu(false)
-//        super.onCreate(savedInstanceState)
-//    }
-//
-//    override fun onStart() {
-//        MbwManager.getEventBus().register(this)
-//        super.onStart()
-//    }
-//
-//    override fun onStop() {
-//        MbwManager.getEventBus().unregister(this)
-//        super.onStop()
-//    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         icClose.setOnClickListener {
-//            sharedPreferences.edit()
-//                    .putBoolean(if (isAccountsListBanner) SHOW_FIO_CREATE_ACCOUNT_BANNER else
-//                        "$SHOW_FIO_CREATE_NAME_BANNER${mbwManager.selectedAccount.label}", false)
-//                    .apply()
-//            recheckBanner()
+           hide(requireContext())
         }
         btCreate.setOnClickListener {
             start(requireActivity())
@@ -47,8 +30,25 @@ class GiftboxBannerFragment : Fragment() {
     }
 
     companion object {
+        private const val BANNER_PREF: String = "banner_pref"
+        private const val BANNER_CLOSED: String = "banner_closed"
+
+        fun hide(context: Context){
+            val sharedPreferences =
+                context.getSharedPreferences(BANNER_PREF, Context.MODE_PRIVATE)
+            sharedPreferences.edit()
+                .putBoolean(BANNER_CLOSED, true)
+                .apply()
+        }
+
+        fun isShouldBeShown(context: Context): Boolean {
+            val sharedPreferences =
+                context.getSharedPreferences(BANNER_PREF, Context.MODE_PRIVATE)
+            return !sharedPreferences
+                .getBoolean(BANNER_CLOSED, false)
 
 
+        }
         @JvmStatic
         fun newInstance(): GiftboxBannerFragment {
             return GiftboxBannerFragment()
