@@ -130,7 +130,7 @@
             <Button
                 android:id="@+id/btSharePdf"
                 android:layout_width="130dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_blue"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
@@ -140,7 +140,7 @@
             <Button
                 android:id="@+id/btVerify"
                 android:layout_width="130dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:background="@drawable/btn_blue"
                 android:layout_marginStart="@dimen/margin_large"
                 android:paddingStart="10dp"
