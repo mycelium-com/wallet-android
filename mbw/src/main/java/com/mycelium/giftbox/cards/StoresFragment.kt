@@ -12,7 +12,6 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
@@ -21,11 +20,10 @@ import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
-import kotlinx.android.synthetic.main.fragment_bequant_markets.*
-import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 import kotlinx.coroutines.Job
 
 
@@ -82,17 +80,14 @@ class StoresFragment : Fragment() {
         binding?.counties?.setOnClickListener {
             findNavController().navigate(GiftBoxFragmentDirections.actionSelectCountries())
         }
-        binding?.list?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = binding?.list?.layoutManager
-                if (layoutManager is LinearLayoutManager) {
-                    if (layoutManager.findLastCompletelyVisibleItemPosition() > adapter.itemCount - 10 &&
-                            viewModel.loading.value == false && !viewModel.quickSearch) {
-                        loadData(viewModel.products.size.toLong())
-                    }
-                }
+        binding?.list?.addOnScrollListener(object : PaginationScrollListener(binding!!.list.layoutManager as LinearLayoutManager) {
+            override fun loadMoreItems() {
+                loadData(viewModel.products.size.toLong())
             }
+
+            override fun isLastPage() = viewModel.productsSize <= viewModel.products.size
+
+            override fun isLoading() = viewModel.loading.value?:false
         })
         viewModel.search.observe(viewLifecycleOwner) {
             loadData()
@@ -116,6 +111,8 @@ class StoresFragment : Fragment() {
             productsJob?.cancel()
         } else if (offset >= viewModel.productsSize) {
             return
+        } else {
+            adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
         }
         viewModel.loading.value = true
         productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
