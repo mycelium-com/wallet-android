@@ -1,13 +1,15 @@
 package com.mycelium.giftbox.cards
 
 import android.os.Bundle
-import android.view.*
-import androidx.appcompat.widget.SearchView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.giftbox.cards.adapter.OrderAdapter
 import com.mycelium.giftbox.cards.adapter.PurchasedGroupItem
@@ -18,6 +20,7 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Order
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
 import com.mycelium.wallet.startCoroutineTimer
@@ -47,6 +50,15 @@ class OrdersFragment : Fragment() {
                         VERTICAL
                 )
         )
+        binding?.list?.addOnScrollListener(object : PaginationScrollListener(binding!!.list.layoutManager as LinearLayoutManager) {
+            override fun loadMoreItems() {
+                loadData(viewModel.orders.value?.size?.toLong() ?: 0)
+            }
+
+            override fun isLastPage() = viewModel.orders.value?.size ?: 0 <= viewModel.ordersSize
+
+            override fun isLoading() = viewModel.loading.value ?: false
+        })
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
         }
@@ -67,12 +79,17 @@ class OrdersFragment : Fragment() {
             adapter.submitList(List(8) { PurchasedLoadingItem })
         } else if (offset >= viewModel.ordersSize) {
             return
+        } else {
+            adapter.submitList(adapter.currentList + PurchasedLoadingItem)
         }
+        viewModel.loading.value = true
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
         }, error = { _, msg ->
             Toaster(this).toast(msg, true)
+        }, finally = {
+            viewModel.loading.value = false
         })
     }
 

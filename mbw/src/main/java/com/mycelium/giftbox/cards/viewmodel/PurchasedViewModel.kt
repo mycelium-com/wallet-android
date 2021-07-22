@@ -7,6 +7,7 @@ import com.mycelium.giftbox.client.models.OrdersHistoryResponse
 
 
 class PurchasedViewModel : ViewModel() {
+    val loading = MutableLiveData<Boolean>(false)
     val orders = MutableLiveData<List<Order>>(emptyList())
     var ordersSize = 0L
 
