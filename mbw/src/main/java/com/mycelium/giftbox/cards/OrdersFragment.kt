@@ -20,6 +20,8 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
+import com.mycelium.wallet.startCoroutineTimer
+import java.util.concurrent.TimeUnit
 
 
 class OrdersFragment : Fragment() {
@@ -55,7 +57,9 @@ class OrdersFragment : Fragment() {
                 binding?.list?.smoothScrollToPosition(adapter.currentList.indexOfFirst { it is PurchasedGroupItem && it.title == group } + 5)
             }, 300)
         }
-        loadData()
+        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(1)) {
+            loadData()
+        }
     }
 
     private fun loadData(offset: Long = 0) {

@@ -19,6 +19,8 @@ import com.mycelium.giftbox.shareGiftcard
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
+import com.mycelium.wallet.startCoroutineTimer
+import java.util.concurrent.TimeUnit
 
 
 class CardsFragment : Fragment() {
@@ -81,14 +83,16 @@ class CardsFragment : Fragment() {
                 binding?.list?.smoothScrollToPosition(adapter.currentList.indexOfFirst { it is GroupItem && it.title == group } + 5)
             }, 300)
         }
-        loadData()
+        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(1)) {
+            loadData()
+        }
     }
 
     fun loadData() {
         GitboxAPI.giftRepository.getCards(lifecycleScope, { data ->
             cards.clear()
-            cards.addAll(data ?: emptyList())
-            adapter.submitList(generateList(data ?: emptyList()))
+            cards.addAll((data ?: emptyList()).sortedByDescending { it.timestamp })
+            adapter.submitList(generateList(cards))
         }, { _, msg ->
             Toaster(this).toast(msg, true)
         })

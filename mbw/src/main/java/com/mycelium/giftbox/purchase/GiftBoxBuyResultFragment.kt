@@ -40,6 +40,7 @@ import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
 import kotlinx.android.synthetic.main.giftcard_send_info.*
 import java.text.DateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class GiftBoxBuyResultFragment : Fragment() {
@@ -71,7 +72,7 @@ class GiftBoxBuyResultFragment : Fragment() {
             viewModel.more.value = !viewModel.more.value!!
         }
 
-        startCoroutineTimer(lifecycleScope, repeatMillis = 10 * 1000) {
+        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(10)) {
             updateAllUi()
         }
 
@@ -146,7 +147,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         when (order.status) {
             Status.pROCESSING -> {
                 binding?.orderStatus?.let {
-                    it.text = "Processing..."
+                    it.text = getString(R.string.processing)
                     val color = resources.getColor(R.color.giftbox_processing)
                     it.setTextColor(color)
                     it.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -162,7 +163,7 @@ class GiftBoxBuyResultFragment : Fragment() {
             }
             Status.sUCCESS -> {
                 binding?.orderStatus?.let {
-                    it.text = "Success, " + order.timestamp?.getDateString(resources)
+                    it.text = getString(R.string.success_s, order.timestamp?.getDateString(resources))
                     val color = resources.getColor(R.color.bequant_green)
                     it.setTextColor(color)
                     it.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -178,7 +179,7 @@ class GiftBoxBuyResultFragment : Fragment() {
             }
             Status.eRROR -> {
                 binding?.orderStatus?.let {
-                    it.text = "Purchase Failed"
+                    it.text = getString(R.string.purchase_failed)
                     val color = resources.getColor(R.color.sender_recyclerview_background_red)
                     it.setTextColor(color)
                     it.setCompoundDrawablesRelativeWithIntrinsicBounds(
