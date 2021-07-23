@@ -82,7 +82,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             }
             val groupModel = AccountsGroupModel(accountsGroup)
             itemList.add(groupModel)
-            groupModel.isCollapsed = !pagePrefs.getBoolean(accountsGroup.getTitle(context), true)
+            groupModel.isCollapsed = !pagePrefs.getBoolean(accountsGroup.getTitle(context), false)
             if (!groupModel.isCollapsed) {
                 itemList.addAll(accountsGroup.accountsList)
             }
@@ -227,7 +227,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         groupHolder.tvAccountsCount.text = "($count)"
         groupHolder.itemView.setOnClickListener {
             //Should be here as initial state in model is wrong
-            val isGroupVisible = !pagePrefs.getBoolean(title, true)
+            val isGroupVisible = !pagePrefs.getBoolean(title, false)
             pagePrefs.edit().putBoolean(title, isGroupVisible).apply()
             refreshList(listModel.accountsData.value!!)
         }
