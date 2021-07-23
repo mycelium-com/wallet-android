@@ -203,7 +203,7 @@ public class ModernMain extends AppCompatActivity {
                 addressBookConfig, TAB_ADDRESS_BOOK);
         addAdsTabs(tabLayout);
         mBalanceTab.select();
-        mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
+        mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_ACCOUNTS));
         _toaster = new Toaster(this);
 
         ChangeLog cl = new DarkThemeChangeLog(this);
