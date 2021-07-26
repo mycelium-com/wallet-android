@@ -13,13 +13,16 @@ import com.mycelium.giftbox.cards.adapter.CardAdapter
 import com.mycelium.giftbox.cards.adapter.CardItem
 import com.mycelium.giftbox.cards.adapter.CardListItem
 import com.mycelium.giftbox.cards.adapter.GroupItem
+import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.model.Card
 import com.mycelium.giftbox.shareGiftcard
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
 import com.mycelium.wallet.startCoroutineTimer
+import com.squareup.otto.Subscribe
 import java.util.concurrent.TimeUnit
 
 
@@ -86,6 +89,7 @@ class CardsFragment : Fragment() {
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(1)) {
             loadData()
         }
+        MbwManager.getEventBus().register(this)
     }
 
     fun loadData() {
@@ -112,7 +116,13 @@ class CardsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        MbwManager.getEventBus().unregister(this)
         binding = null
         super.onDestroyView()
+    }
+
+    @Subscribe
+    internal fun updateOrder(request: RefreshOrdersRequest) {
+        loadData()
     }
 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -15,21 +16,26 @@ import com.mycelium.giftbox.cards.adapter.OrderAdapter
 import com.mycelium.giftbox.cards.adapter.PurchasedGroupItem
 import com.mycelium.giftbox.cards.adapter.PurchasedLoadingItem
 import com.mycelium.giftbox.cards.adapter.PurchasedOrderItem
+import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
+import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Order
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxPurchasedBinding
 import com.mycelium.wallet.startCoroutineTimer
+import com.squareup.otto.Subscribe
 import java.util.concurrent.TimeUnit
 
 
 class OrdersFragment : Fragment() {
     private val adapter = OrderAdapter()
     private val viewModel: PurchasedViewModel by viewModels()
+    private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxPurchasedBinding? = null
 
     override fun onCreateView(
@@ -72,11 +78,13 @@ class OrdersFragment : Fragment() {
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(1)) {
             loadData()
         }
+        MbwManager.getEventBus().register(this)
     }
 
     private fun loadData(offset: Long = 0) {
         if (offset == 0L) {
             adapter.submitList(List(8) { PurchasedLoadingItem })
+            activityViewModel.orderLoading.value = true
         } else if (offset >= viewModel.ordersSize) {
             return
         } else {
@@ -90,13 +98,20 @@ class OrdersFragment : Fragment() {
             Toaster(this).toast(msg, true)
         }, finally = {
             viewModel.loading.value = false
+            activityViewModel.orderLoading.value = false
         })
     }
 
     private fun generateList(data: List<Order>) = data.map { PurchasedOrderItem(it) }
 
     override fun onDestroyView() {
+        MbwManager.getEventBus().unregister(this)
         binding = null
         super.onDestroyView()
+    }
+
+    @Subscribe
+    internal fun updateOrder(request: RefreshOrdersRequest) {
+        loadData()
     }
 }
