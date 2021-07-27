@@ -14,6 +14,9 @@ class GiftBoxViewModel(application: Application) : AndroidViewModel(application)
     val selectedCountries = MutableLiveData<List<CountryModel>>(GiftboxPreference.selectedCountries())
     val countries = MutableLiveData<List<CountryModel>>(emptyList())
     val categories = MutableLiveData<List<String>>(emptyList())
+    val currentTab = MutableLiveData<String>()
+
+    val orderLoading = MutableLiveData<Boolean>()
 
     fun currentCountries(): LiveData<String> =
             Transformations.switchMap(selectedCountries) {

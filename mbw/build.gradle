@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: 'com.squareup.sqldelight'
 
 repositories {
     google()
@@ -18,6 +19,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$gradleVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
     }
 }
 
@@ -153,6 +155,12 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
     androidTestImplementation project(includePrefix + ':testhelper')
+}
+
+sqldelight {
+    GiftboxDB {
+        packageName = "com.mycelium.generated.giftbox.database"
+    }
 }
 
 android {

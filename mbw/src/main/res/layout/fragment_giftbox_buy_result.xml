@@ -5,18 +5,15 @@
 
     <data>
 
-        <import type="androidx.lifecycle.AndroidViewModel" />
-
         <import type="android.view.View" />
 
         <variable
             name="vm"
-            type="com.mycelium.giftbox.purchase.GiftboxBuyResultViewModel" />
+            type="com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel" />
     </data>
 
 
     <ScrollView
-        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical">
@@ -25,31 +22,38 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="8dp">
+            android:paddingHorizontal="@dimen/horizontal_page_margin"
+            android:paddingVertical="@dimen/activity_vertical_margin">
 
+                <include
+                    android:id="@+id/detailsHeader"
+                    layout="@layout/fragment_giftbox_details_header"
+                    app:viewModel="@{vm}"/>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/orderStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
-                android:orientation="vertical">
+                android:layout_marginTop="16dp"
+                android:drawablePadding="8dp"
+                android:textColor="#BABABA"
+                android:textSize="14sp"
+                tools:text="Processing" />
 
-                <include layout="@layout/fragment_giftbox_details_header" />
 
-
-                <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/totalAmountRoot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="24dp">
+                    android:layout_marginTop="16dp">
 
                     <TextView
                         android:id="@+id/tvTotalAmountLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/total_amount"
-                        android:textColor="@color/fio_white_alpha_0_6"
+                        android:textColor="@color/fio_white_alpha_0_8"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -91,12 +95,13 @@
                         app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-                <!--                android:text="@{vm.totalAmountCryptoString}"-->
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/minerFeeRoot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:visibility="@{vm.minerFeeFiat == null ? View.GONE : View.VISIBLE}"
                     android:layout_marginTop="24dp">
 
                     <TextView
@@ -104,7 +109,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/miner_fee"
-                        android:textColor="@color/fio_white_alpha_0_6"
+                        android:textColor="@color/fio_white_alpha_0_8"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -112,6 +117,7 @@
                     <TextView
                         android:id="@+id/tvMinerFeeAmount"
                         android:layout_width="wrap_content"
+                        android:layout_marginStart="4dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="12dp"
@@ -120,19 +126,18 @@
                         android:hint="0.00 USD"
                         android:singleLine="true"
                         android:text="@{vm.minerFeeFiat}"
-                        android:textColor="@color/white"
+                        android:textColor="@color/fio_white_alpha_0_8"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvMinerFeeLabel" />
+                        app:layout_constraintBottom_toBottomOf="@id/tvMinerFeeLabel"
+                        app:layout_constraintStart_toEndOf="@id/tvMinerFeeLabel"/>
 
 
                     <TextView
                         android:id="@+id/tvMinerFeeAmountCrypto"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="12dp"
                         android:ellipsize="end"
@@ -140,7 +145,7 @@
                         android:hint="~ 0.00 BTC"
                         android:singleLine="true"
                         android:text="@{vm.minerFeeCrypto}"
-                        android:textColor="@color/white"
+                        android:textColor="@color/fio_white_alpha_0_8"
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"
                         app:layout_constraintBaseline_toBaselineOf="@id/tvMinerFeeAmount"
@@ -164,23 +169,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="@{vm.more ? View.GONE : View.VISIBLE}">
-                    <include layout="@layout/details_common" />
+                    <include
+                        android:id="@+id/txDetails"
+                        layout="@layout/details_common" />
                 </LinearLayout>
-
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btSend"
-                style="@style/MyceliumButton.FIO"
-                android:layout_width="220dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="@dimen/horizontal_page_margin"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="@dimen/horizontal_page_margin"
-                android:layout_marginBottom="60dp"
-                android:text="Gift card"
-                android:textSize="20sp" />
         </LinearLayout>
     </ScrollView>
 </layout>

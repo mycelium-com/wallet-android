@@ -1664,7 +1664,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="total_amount">Total amount:</string>
     <string name="quantity">Quantity:</string>
     <string name="miner_fee">Miner Fee:</string>
-    <string name="expires_at">Expires at:</string>
+    <string name="expires_at">Expiration date:</string>
     <string name="currency">Currency:</string>
     <string name="description">Description:</string>
     <string name="available_country">Available country:</string>
@@ -1680,9 +1680,28 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="delete_gift_card_msg">Are you sure you want to delete this gift card?</string>
     <string name="redeemed_gift_cards">REDEEMED GIFT CARDS</string>
     <string name="all_countries">All countries</string>
+    <string name="gift_card">Gift card</string>
+    <string name="gift_cards">Gift cards</string>
+    <string name="share_gift_card_text">Hello there!\nYou recently purchased gift cards:\n%s\nAmount: %s %s</string>
+    <string name="gift_insufficient_funds">Insufficient funds</string>
+    <string name="select_card_value_dialog">Select card value:</string>
+    <string name="gift_card_d">Gift card:</string>
+    <string name="spendable">Spendable:</string>
+    <string name="search_store">Search store</string>
+    <string name="accounts">Accounts</string>
+    <string name="giftbox_promo_action">Buy Gift Card</string>
+    <string name="giftbox_promo_title">Save on buying with\nBTC and ETH!</string>
+    <string name="giftbox_promo_mark">New</string>
+    <string name="purchase_failed">Purchase Failed</string>
+    <string name="processing">Processing...</string>
+    <string name="success_s">Success, %s</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
         <item quantity="other"><u>%d countries</u></item>
+    </plurals>
+    <plurals name="cards">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d cards</item>
     </plurals>
 </resources>

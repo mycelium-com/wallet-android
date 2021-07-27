@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.main
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -17,6 +18,7 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.external.Ads
 import com.mycelium.wallet.external.partner.model.Partner
+import com.mycelium.wallet.external.partner.startContentLink
 import kotlinx.android.synthetic.main.main_recommendations_view.*
 
 class RecommendationsFragment : Fragment() {
@@ -55,19 +57,13 @@ class RecommendationsFragment : Fragment() {
                             .setTitle(warning_partner)
                             .setIcon(bean.smallIcon)
                             .setPositiveButton(ok) { dialog, id ->
-                                if (bean.uri != null) {
-                                    val intent = Intent(Intent.ACTION_VIEW)
-                                            .setData(Uri.parse(bean.uri))
-                                    startActivity(intent)
-                                }
+                                startContentLink(bean.uri)
                             }
                             .setNegativeButton(cancel, null)
                             .create()
                     alertDialog?.show()
                 } else {
-                    if (bean.uri != null) {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(bean.uri)))
-                    }
+                    startContentLink(bean.uri)
                 }
             }
 

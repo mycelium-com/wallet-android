@@ -2,17 +2,27 @@ package com.mycelium.giftbox.client
 
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.doRequest
+import com.mycelium.generated.giftbox.database.GiftboxCard
+import com.mycelium.generated.giftbox.database.GiftboxDB
 import com.mycelium.giftbox.client.models.*
+import com.mycelium.giftbox.dateAdapter
+import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.squareup.sqldelight.android.AndroidSqliteDriver
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import retrofit2.Response
+import java.math.BigDecimal
 import java.util.*
 
 class GiftboxApiRepository {
     private var lastOrderId: String = updateOrderId()
 
     private val api = GiftboxApi.create()
+    private val giftbxDB = GiftboxDB.invoke(AndroidSqliteDriver(GiftboxDB.Schema, WalletApplication.getInstance(), "giftbox.db"),
+             GiftboxCard.Adapter(dateAdapter))
 
     private val clientUserIdFromMasterSeed by lazy {
         val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
@@ -58,8 +68,8 @@ class GiftboxApiRepository {
         success: (ProductResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit = {}
-    ) {
-        doRequest(scope, {
+    ): Job {
+        return doRequest(scope, {
             api.product(
                 clientUserIdFromMasterSeed,
                 Constants.CLIENT_ORDER_ID, //TODO check why client order id need for product
@@ -78,9 +88,9 @@ class GiftboxApiRepository {
         success: (ProductsResponse?) -> Unit,
         error: (Int, String) -> Unit,
         finally: () -> Unit
-    ) {
+    ) : Job {
         val countryString = country?.joinToString(",") { it.acronym }
-        doRequest(scope, {
+        return doRequest(scope, {
             api.products(
                 clientUserIdFromMasterSeed,
                 lastOrderId,
@@ -145,11 +155,18 @@ class GiftboxApiRepository {
         offset: Long = 0,
         limit: Long = 100,
         success: (OrdersHistoryResponse?) -> Unit,
-        error: (Int, String) -> Unit,
+        error: ((Int, String) -> Unit)? = null,
         finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
-            api.orders(clientUserIdFromMasterSeed, offset, limit)
+            api.orders(clientUserIdFromMasterSeed, offset, limit).apply {
+                if(this.isSuccessful) {
+                    updateCards(this.body()?.items)
+                    if (offset == 0L) {
+                        fetchAllOrders(scope, limit, this.body()?.size ?: 0)
+                    }
+                }
+            }
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
@@ -158,10 +175,72 @@ class GiftboxApiRepository {
         clientOrderId: String = lastOrderId,
         success: (OrderResponse?) -> Unit,
         error: (Int, String) -> Unit,
-        finally: () -> Unit
+        finally: (() -> Unit)? = null
     ) {
         doRequest(scope, {
             api.order(clientUserIdFromMasterSeed, clientOrderId)
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
+    }
+
+    private fun fetchAllOrders(scope: CoroutineScope, offset: Long, count: Long) {
+        for (i in offset..count step 100) {
+            getOrders(scope, i, 100, success = {
+            })
+        }
+    }
+
+    private fun updateCards(orders: List<Order>?) {
+        orders?.forEach { order ->
+            order.items?.forEach {
+                giftbxDB.giftboxCardQueries.updateCard(order.productCode, order.productName, order.productImg,
+                        order.currencyCode, it.amount, it.expiryDate, order.timestamp,
+                        order.clientOrderId ?: "", it.code ?: "",
+                        it.deliveryUrl ?: "", it.pin ?: "")
+                if (giftbxDB.giftboxCardQueries.isCardUpdated().executeAsOne() == 0L) {
+                    giftbxDB.giftboxCardQueries.insertCard(order.clientOrderId ?: "",
+                            order.productCode, order.productName, order.productImg, order.currencyCode,
+                            it.amount, it.expiryDate, it.code ?: "", it.deliveryUrl ?: "",
+                            it.pin ?: "", order.timestamp)
+                }
+            }
+        }
+    }
+
+    fun getCards(scope: CoroutineScope,
+                 success: (List<Card>?) -> Unit,
+                 error: (Int, String) -> Unit,
+                 finally: (() -> Unit)? = null) {
+        doRequest(scope, {
+            Response.success(giftbxDB.giftboxCardQueries.selectCards(mapper = { clientOrderId: String,
+                                                                                productCode: String?,
+                                                                                productName: String?,
+                                                                                productImg: String?,
+                                                                                currencyCode: String?,
+                                                                                amount: String?,
+                                                                                expiryDate: String?,
+                                                                                code: String,
+                                                                                deliveryUrl: String,
+                                                                                pin: String,
+                                                                                timestamp: Date?,
+                                                                                redeemed: Boolean ->
+                Card(clientOrderId, productCode, productName, productImg, currencyCode, amount, expiryDate, code, deliveryUrl, pin, timestamp, redeemed)
+            }).executeAsList())
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
+    }
+
+    fun redeem(card: Card, scope: CoroutineScope,
+               success: (Boolean?) -> Unit) {
+        doRequest(scope, {
+            giftbxDB.giftboxCardQueries.redeemCard(card.clientOrderId, card.code, card.deliveryUrl, card.pin)
+            Response.success(true)
+        }, successBlock = success)
+    }
+
+    fun remove(card: Card, scope: CoroutineScope,
+               success: (Boolean?) -> Unit) {
+        doRequest(scope, {
+            giftbxDB.giftboxCardQueries.deleteCard(card.clientOrderId, card.code, card.deliveryUrl, card.pin)
+            Response.success(true)
+        }, successBlock = success)
     }
 }

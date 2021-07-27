@@ -9,7 +9,7 @@ import com.mycelium.wapi.wallet.coins.Value
 
 import java.io.Serializable
 
-class BtcTransaction constructor(type: CryptoCurrency, val destination: BtcAddress?, val amount: Value?, val feePerKb: Value?)
+class BtcTransaction constructor(type: CryptoCurrency, val destination: BtcAddress?, val amount: Value?, feePerKb: Value?)
     : BitcoinBasedTransaction(type, feePerKb), Serializable {
     fun setTransaction(tx: BitcoinTransaction) {
         this.tx = tx

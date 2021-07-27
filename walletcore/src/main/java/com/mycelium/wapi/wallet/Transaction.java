@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
 
@@ -23,4 +24,6 @@ public abstract class Transaction implements Serializable {
     public abstract byte[] txBytes();
 
     public abstract int getEstimatedTransactionSize();
+
+    public abstract Value totalFee();
 }

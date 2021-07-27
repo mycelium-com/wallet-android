@@ -14,6 +14,7 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBuySellContent
 import com.mycelium.wallet.external.adapter.BuySellSelectAdapter
 import com.mycelium.wallet.external.adapter.BuySellSelectItem
+import com.mycelium.wallet.external.partner.startContentLink
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
@@ -46,10 +47,7 @@ class BuySellSelectActivity : AppCompatActivity() {
                 } +
                 (getBuySellContent()?.listItem?.filter { it.isActive() && SettingsPreference.isContentEnabled(it.parentId) }?.map {
                     BuySellSelectItem(it.title, it.description, null, it.iconUrl) {
-                        try {
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.link)))
-                        } catch (ignored: ActivityNotFoundException) {
-                        }
+                        startContentLink(it.link)
                     }
                 } ?: listOf())
         adapter.submitList(items)
