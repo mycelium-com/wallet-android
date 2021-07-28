@@ -15,6 +15,7 @@ object SettingsPreference {
     private const val FIO_ENABLE = "fio_enable"
     private const val PARTNER_KEY = "partner-info"
     private const val MEDIAFLOW_KEY = "mediaflow"
+    private const val ACCOUNTS_KEY = "accounts"
     private const val MAIN_MENU_KEY = "mainmenu"
     private const val BUY_SELL_KEY = "buysell"
     private const val BALANCE_KEY = "balance"
@@ -67,6 +68,9 @@ object SettingsPreference {
 
     @JvmStatic
     fun getMediaFlowContent() = load(MEDIAFLOW_KEY, MediaFlowContent::class.java)
+
+    @JvmStatic
+    fun getAccountsContent() = load(ACCOUNTS_KEY, AccountsContent::class.java)
 
     @JvmStatic
     fun getMainMenuContent() = load(MAIN_MENU_KEY, MainMenuContent::class.java)
