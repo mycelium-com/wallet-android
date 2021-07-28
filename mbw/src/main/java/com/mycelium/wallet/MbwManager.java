@@ -228,7 +228,6 @@ import fiofoundation.io.fiosdk.errors.FIOError;
 import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.mycelium.wallet.activity.modern.adapter.AccountListAdapter.ACCOUNT_LIST;
 import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -433,7 +432,6 @@ public class MbwManager {
 
         _blockExplorerManager = getBlockExplorerManager(preferences);
 
-        _applicationContext.getSharedPreferences(ACCOUNT_LIST, Context.MODE_PRIVATE).edit().clear().apply();
         startLogger();
     }
 
