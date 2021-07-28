@@ -7,7 +7,7 @@
     android:orientation="horizontal"
     android:padding="16dp">
 
-    <CheckBox
+    <RadioButton
         android:id="@+id/checkbox_currency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

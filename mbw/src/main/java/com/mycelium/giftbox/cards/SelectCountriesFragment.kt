@@ -9,17 +9,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import com.mycelium.giftbox.cards.adapter.ALL_COUNTRIES
-import com.mycelium.giftbox.cards.adapter.SelectCountiesAdapter
+import com.mycelium.giftbox.cards.adapter.SelectCountriesAdapter
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentSelectCountiesBinding
 
 
-class SelectCountiesFragment : Fragment() {
+class SelectCountriesFragment : Fragment() {
 
     val activityViewModel: GiftBoxViewModel by activityViewModels()
-    val adapter = SelectCountiesAdapter()
+    val adapter = SelectCountriesAdapter()
     var binding: FragmentSelectCountiesBinding? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =

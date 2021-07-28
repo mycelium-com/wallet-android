@@ -12,12 +12,12 @@ import kotlinx.android.synthetic.main.listview_item_with_checkbox.view.*
 
 val ALL_COUNTRIES = CountryModel("All Countries", "", "", 0)
 
-class SelectCountiesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>(DiffCallback()) {
+class SelectCountriesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>(DiffCallback()) {
     var selected: CountryModel = ALL_COUNTRIES
     var selectedChangeListener: ((CountryModel) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.listview_item_with_checkbox, parent, false))
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.listview_item_with_radiobutton, parent, false))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
