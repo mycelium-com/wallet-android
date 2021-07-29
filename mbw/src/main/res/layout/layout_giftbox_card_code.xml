@@ -24,22 +24,27 @@
             android:text="@string/redeem_code"
             android:textColor="@color/giftbox_label"
             android:textSize="14sp"
+            android:visibility="@{viewModel.redeemCode.isEmpty() ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/redeemCode"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:drawablePadding="8dp"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="@{viewModel.redeemCode}"
             android:textSize="14sp"
+            android:visibility="@{viewModel.redeemCode.isEmpty() ? View.GONE : View.VISIBLE}"
             app:drawableRightCompat="@drawable/ic_content_copy_white"
             app:layout_constraintBaseline_toBaselineOf="@id/redeemCodeLabel"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/redeemCodeLabel"
-            tools:text="@tools:sample/lorem" />
+            tools:text="@tools:sample/lorem/random" />
 
         <TextView
             android:id="@+id/pinCodeLabel"
@@ -49,21 +54,26 @@
             android:text="@string/giftbox_pin_code"
             android:textColor="@color/giftbox_label"
             android:textSize="14sp"
+            android:visibility="@{viewModel.pinCode.isEmpty() ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/redeemCodeLabel" />
+            app:layout_constraintTop_toBottomOf="@id/redeemCode" />
 
         <TextView
             android:id="@+id/pinCode"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:drawablePadding="8dp"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="@{viewModel.pinCode}"
             android:textSize="14sp"
+            android:visibility="@{viewModel.pinCode.isEmpty() ? View.GONE : View.VISIBLE}"
             app:drawableRightCompat="@drawable/ic_content_copy_white"
             app:layout_constraintBaseline_toBaselineOf="@id/pinCodeLabel"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/pinCodeLabel"
-            tools:text="4589rhjkflt7ehJUG806504HH" />
+            tools:text="4589rhjkfasdflaksdjflkasdjflasdfkjaldskadsfasdlt7ehJUG806504HH" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

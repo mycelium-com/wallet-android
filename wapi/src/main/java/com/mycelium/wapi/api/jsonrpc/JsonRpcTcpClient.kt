@@ -388,6 +388,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
         private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(30)
         private const val WAITING_FOR_CONNECTED_INTERVAL = 300L
-        private const val ELECTRUMX_THUMBPRINT = "E7:4E:48:56:94:EF:A6:9E:2A:9A:30:BD:1B:9A:CF:59:31:FB:66:24"
+        private const val ELECTRUMX_THUMBPRINT = "0D:31:88:C6:35:16:2C:72:7C:54:0C:24:58:DA:62:A9:C1:E5:E0:CD"
     }
 }

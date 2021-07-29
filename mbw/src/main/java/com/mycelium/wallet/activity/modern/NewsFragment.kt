@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.modern
 import android.content.*
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
-import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.*
@@ -31,8 +30,11 @@ import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.external.mediaflow.*
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
+import com.mycelium.wallet.external.partner.startContentLink
+import com.mycelium.wallet.randomOrNull
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_news.*
+import kotlinx.android.synthetic.main.layout_top_banner.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 
 
@@ -107,9 +109,7 @@ class NewsFragment : Fragment() {
             startActivity(Intent(requireContext(), ModernMain::class.java))
         }
         adapter.bannerClickListener = {
-            it?.link?.run {
-                openLink(this)
-            }
+            startContentLink(it?.link)
         }
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
@@ -145,8 +145,6 @@ class NewsFragment : Fragment() {
         updateUI()
     }
 
-    private fun <E> List<E>.randomOrNull(): E? = if (size > 0) random() else null
-
     private fun initTopBanner() {
         if (currentNews == null) {
             SettingsPreference.getMediaFlowContent()?.bannersTop
@@ -158,7 +156,7 @@ class NewsFragment : Fragment() {
                                 .load(banner.imageUrl)
                                 .into(banner_image)
                         top_banner.setOnClickListener {
-                            openLink(banner.link)
+                            startContentLink(banner.link)
                         }
                         banner_close.setOnClickListener {
                             top_banner.visibility = GONE
@@ -176,10 +174,6 @@ class NewsFragment : Fragment() {
         if (event.tag == "tab_news") {
             initTopBanner()
         }
-    }
-
-    private fun openLink(link: String) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
     }
 
     override fun onResume() {

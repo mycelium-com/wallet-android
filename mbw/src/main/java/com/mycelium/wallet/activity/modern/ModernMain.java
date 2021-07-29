@@ -76,6 +76,7 @@ import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wallet.activity.modern.helper.MainActions;
 import com.mycelium.wallet.activity.news.NewsActivity;
 import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
@@ -244,6 +245,9 @@ public class ModernMain extends AppCompatActivity {
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
             startActivity(new Intent(this, ApproveFioRequestActivity.class)
                     .putExtras(getIntent().getExtras()));
+        } else if(Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
+            mAccountsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_ACCOUNTS));
         }
     }
 
@@ -547,7 +551,7 @@ public class ModernMain extends AppCompatActivity {
                 selectRequestTab();
                 break;
             case R.id.miGiftBox:
-                startActivity(new Intent(this, GiftBoxRootActivity.class));
+                GiftBoxRootActivity.Companion.start(this);
                 break;
         }
         return super.onOptionsItemSelected(item);

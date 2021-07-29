@@ -1,8 +1,9 @@
 package com.mycelium.giftbox.cards
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.widget.SearchView
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -11,7 +12,6 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
@@ -20,9 +20,11 @@ import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
-import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
+import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
+import kotlinx.coroutines.Job
 
 
 class StoresFragment : Fragment() {
@@ -32,15 +34,10 @@ class StoresFragment : Fragment() {
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxStoresBinding? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-        loadData()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             FragmentGiftboxStoresBinding.inflate(inflater).apply {
                 binding = this
+                this.viewModel = this@StoresFragment.viewModel
                 this.activityViewModel = this@StoresFragment.activityViewModel
                 this.lifecycleOwner = this@StoresFragment
             }.root
@@ -64,9 +61,9 @@ class StoresFragment : Fragment() {
                 categories.forEach {
                     if (getTab(it, tags) == null) {
                         val tab = tags.newTab().setCustomView(
-                                layoutInflater.inflate(R.layout.media_flow_tab_item, tags, false).apply {
+                                ItemGiftBoxTagBinding.inflate(layoutInflater).apply {
                                     this.text.text = it.replace("-", " ").capitalize()
-                                })
+                                }.root)
                         tab.tag = it
                         tags.addTab(tab)
                     }
@@ -83,32 +80,43 @@ class StoresFragment : Fragment() {
         binding?.counties?.setOnClickListener {
             findNavController().navigate(GiftBoxFragmentDirections.actionSelectCountries())
         }
-        binding?.list?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = binding?.list?.layoutManager
-                if (layoutManager is LinearLayoutManager) {
-                    if (layoutManager.findLastCompletelyVisibleItemPosition() > adapter.itemCount - 10 &&
-                            viewModel.loading.value == false) {
-                        loadData(viewModel.products.value?.size?.toLong() ?: 0)
-                    }
-                }
+        binding?.list?.addOnScrollListener(object : PaginationScrollListener(binding!!.list.layoutManager as LinearLayoutManager) {
+            override fun loadMoreItems() {
+                loadData(viewModel.products.size.toLong())
             }
+
+            override fun isLastPage() = viewModel.productsSize <= viewModel.products.size
+
+            override fun isLoading() = viewModel.loading.value?:false
         })
-        activityViewModel.selectedCountries.observe(viewLifecycleOwner) {
+        viewModel.search.observe(viewLifecycleOwner) {
             loadData()
         }
+        binding?.searchClose?.setOnClickListener {
+            viewModel.search.value = null
+            hideKeyboard()
+        }
+        loadData()
     }
 
+    private fun hideKeyboard() {
+        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .hideSoftInputFromWindow(binding?.searchInput?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+    }
+
+    private var productsJob : Job? = null
     private fun loadData(offset: Long = -1) {
         if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
+            productsJob?.cancel()
         } else if (offset >= viewModel.productsSize) {
             return
+        } else {
+            adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
         }
         viewModel.loading.value = true
-        GitboxAPI.giftRepository.getProducts(lifecycleScope,
-                search = viewModel.search,
+        productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
+                search = viewModel.search.value,
                 category = viewModel.category,
                 country = activityViewModel.selectedCountries.value,
                 offset = if (offset == -1L) 0 else offset, limit = 30,
@@ -119,7 +127,7 @@ class StoresFragment : Fragment() {
                         CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
                     }
                     viewModel.setProductsResponse(it, offset != -1L)
-                    adapter.submitList(viewModel.products.value)
+                    adapter.submitList(viewModel.products)
                 },
                 error = { _, msg ->
                     Toaster(this).toast(msg, true)
@@ -127,40 +135,6 @@ class StoresFragment : Fragment() {
                 finally = {
                     viewModel.loading.value = false
                 })
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.giftbox_store, menu)
-        val searchItem = menu.findItem(R.id.actionSearch)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setOnCloseListener {
-            viewModel.search = null
-            loadData()
-            true
-        }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(s: String): Boolean {
-                viewModel.search = s
-                loadData()
-                return true
-            }
-
-            override fun onQueryTextChange(s: String): Boolean {
-                adapter.submitList(viewModel.products.value?.filter {
-                    it.name?.contains(s, true) ?: false
-                })
-                return true
-            }
-        })
-        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionExpand(item: MenuItem?): Boolean = true
-
-            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                viewModel.search = null
-                loadData()
-                return true
-            }
-        })
     }
 
     override fun onDestroyView() {

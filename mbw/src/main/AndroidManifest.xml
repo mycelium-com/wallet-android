@@ -350,7 +350,12 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity" />
+        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity">
+            <intent-filter>
+                <action android:name="action.GIFTBOX" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

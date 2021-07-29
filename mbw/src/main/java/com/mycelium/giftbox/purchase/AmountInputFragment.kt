@@ -6,34 +6,94 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.client.models.PriceResponse
+import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
-import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxAmountBinding
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
+import kotlinx.android.synthetic.main.fragment_giftbox_amount.*
 import kotlinx.android.synthetic.main.layout_fio_request_notification.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.math.RoundingMode
 
 class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     private lateinit var binding: FragmentGiftboxAmountBinding
-    private var _numberEntry: NumberEntry? = null
-
-    private lateinit var _mbwManager: MbwManager
+    private var numberEntry: NumberEntry? = null
+    private lateinit var mbwManager: MbwManager
     val args by navArgs<AmountInputFragmentArgs>()
+
+    val zeroFiatValue by lazy {
+        Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
+    }
+    val zeroCryptoValue by lazy {
+        account?.basedOnCoinType?.value(0)
+    }
+
+    private val account by lazy {
+        MbwManager.getInstance(requireContext()).getWalletManager(false)
+            .getAccount(args.accountId)
+    }
 
     private var _amount: Value? = null
         set(value) {
             field = value
-            binding.tvAmount.text = value?.toStringWithUnit()
+            lifecycleScope.launch(IO) {
+                getPriceResponse(value!!).collect {
+                    withContext(Dispatchers.Main) {
+                        val exchangeRate = BigDecimal(it!!.exchangeRate)
+                        //update crypto amount
+                        val cryptoAmountFromFiat =
+                            value.valueAsLong.toBigDecimal()
+                                .setScale(account?.coinType?.unitExponent!!) / toUnits(
+                                Utils.getTypeByName(
+                                    args.product.currencyCode!!
+                                )!!, exchangeRate
+                            ).toBigDecimal()
+                        val cryptoAmountValue =
+                            valueOf(
+                                account?.basedOnCoinType!!,
+                                toUnits(account?.basedOnCoinType!!, cryptoAmountFromFiat)
+                            )
+                        tvCryptoAmount.isVisible = true
+                        tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
+
+                        //update spendable
+                        val maxSpendable = getMaxSpendable()
+                        val fiatSpendable = maxSpendable.valueAsBigDecimal.multiply(exchangeRate)
+                        spendableLayout.isVisible = true
+                        tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
+
+                        tvSpendableFiatAmount.text = "~" + valueOf(
+                            zeroFiatValue.type,
+                            toUnits(zeroFiatValue.type, fiatSpendable!!)
+                        ).toStringFriendlyWithUnit()
+                    }
+                }
+            }
         }
 
 
@@ -53,7 +113,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _mbwManager = MbwManager.getInstance(activity?.applicationContext)
+        mbwManager = MbwManager.getInstance(activity?.applicationContext)
+
         with(binding) {
             btOk.setOnClickListener {
                 LocalBroadcastManager.getInstance(requireContext())
@@ -63,22 +124,38 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 findNavController().navigateUp()
             }
             btMax.setOnClickListener {
-                setEnteredAmount(toUnits(args.product.maximumValue).toString())
+                setEnteredAmount(args.product.maximumValue.toPlainString()!!)
+                numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
                 checkEntry()
             }
-
-            tvSpendableAmount.text = args.maxSpendableAmount.toStringWithUnit()
+            tvCardValue.text = args.product?.getCardValue()
         }
 
         initNumberEntry(savedInstanceState)
+    }
+
+    private fun getMaxSpendable() =
+        account?.calculateMaxSpendableAmount(feeEstimation.normal, null)!!
+
+    private val feeEstimation by lazy {
+        mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
+    }
+
+    private fun getMaxDecimal(assetInfo: AssetInfo): Int {
+        return (assetInfo as? FiatType)?.unitExponent
+            ?: assetInfo.unitExponent - mbwManager.getDenomination(_amount?.type).scale
     }
 
     fun zeroValue(): Value {
         return Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
     }
 
-    private fun toUnits(amount: BigDecimal): BigInteger =
-        amount.multiply(100.toBigDecimal()).setScale(0).toBigIntegerExact()
+    private fun toUnits(assetInfo: String, amount: BigDecimal): BigInteger =
+        toUnits(Utils.getTypeByName(args.product.currencyCode)!!, amount)
+
+    private fun toUnits(assetInfo: AssetInfo, amount: BigDecimal): BigInteger =
+        amount.movePointRight(assetInfo.unitExponent).setScale(0, RoundingMode.HALF_UP)
+            .toBigIntegerExact()
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
@@ -96,12 +173,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         // Init the number pad
         val amountString: String
         if (!isNullOrZero(_amount)) {
-            val denomination = _mbwManager.getDenomination(_amount?.type)
+            val denomination = mbwManager.getDenomination(_amount?.type)
             amountString = _amount?.toString(denomination) ?: ""
         } else {
             amountString = ""
         }
-        _numberEntry = NumberEntry(2, this, activity, amountString)
+        numberEntry = NumberEntry(getMaxDecimal(_amount?.type!!), this, activity, amountString)
+
+        updateAmountsDisplay(amountString)
     }
 
 
@@ -110,51 +189,73 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             // if it was change by the user pressing buttons (show it unformatted)
             setEnteredAmount(entry)
         }
+        updateAmountsDisplay(entry)
         checkEntry()
     }
+
+    private fun updateAmountsDisplay(amountText: String) {
+        binding.tvAmount.text = amountText
+
+        binding.btCurrency.text = _amount?.currencySymbol?.toUpperCase()
+    }
+
 
     private fun setEnteredAmount(value: String) {
         if (value.isEmpty()) {
             _amount = zeroValue()
         } else {
-            _amount = valueOf(
-                _amount?.type!!,
-                _mbwManager.getDenomination(_amount?.type)
-                    .getAmount(BigDecimal(value).toBigInteger())
-            )
+            _amount = _amount?.type?.value(value)
         }
 
-        val insufficientFounds = _amount!!.moreThan(args.maxSpendableAmount)
-        val exceedCardPrice = _amount!!.moreThan(
-            valueOf(
-                _amount!!.type,
-                toUnits(args.product.maximumValue)
-            )
-        )
-        val minimumPrice = valueOf(
-            _amount!!.type,
-            toUnits(args.product.minimumValue)
-        )
-        val lessMinimumCardPrice = _amount!!.lessThan(
-            minimumPrice
-        )
+        GitboxAPI.giftRepository.getPrice(lifecycleScope,
+            code = args.product.code ?: "",
+            quantity = 1,
+            amount = _amount?.valueAsLong?.div(100)?.toInt()!!,
+            currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
+            success = { priceResponse ->
+                val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
+                val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable()!!)
+                val insufficientFounds = _amount!!.moreThan(maxSpendableFiat!!)
 
-        binding.tvAmount.setTextColor(
-            ResourcesCompat.getColor(
-                resources,
-                if (insufficientFounds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
-                null
-            )
-        )
-        if (insufficientFounds) {
-            Toaster(requireContext()).toast("Insufficient funds", true)
-        }
-        if (exceedCardPrice) {
-            Toaster(requireContext()).toast("Exceed card value", true)
-        }
-        if (lessMinimumCardPrice) {
-            Toaster(requireContext()).toast("Minimal card value: " + minimumPrice.toStringWithUnit(), true)
-        }
+                val exceedCardPrice = _amount!!.moreThan(
+                    valueOf(
+                        _amount!!.type,
+                        toUnits(args.product.currencyCode!!, args.product.maximumValue)
+                    )
+                )
+                val minimumPrice = valueOf(
+                    _amount!!.type,
+                    toUnits(args.product.currencyCode!!, args.product.minimumValue)
+                )
+                val lessMinimumCardPrice = _amount!!.lessThan(
+                    minimumPrice
+                )
+
+
+                if (exceedCardPrice) {
+                    Toaster(requireContext()).toast("Exceed card value", true)
+                }
+                if (lessMinimumCardPrice) {
+                    Toaster(requireContext()).toast(
+                        "Minimal card value: " + minimumPrice.toStringFriendlyWithUnit(),
+                        true
+                    )
+                }
+                binding.tvAmount.setTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        if (conversionError || insufficientFounds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
+                        null
+                    )
+                )
+                if (insufficientFounds && !conversionError) {
+                    Toaster(requireContext()).toast("Insufficient funds", true)
+                }
+            }, error = { _, error ->
+
+            },
+            finally = {
+            })
 
     }
 
@@ -163,18 +264,55 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 && _amount!!.moreOrEqualThan(
             valueOf(
                 _amount!!.type,
-                toUnits(args.product.minimumValue)
+                toUnits(args.product.currencyCode!!, args.product.minimumValue)
             )
         )
                 && _amount!!.lessOrEqualThan(
             valueOf(
                 _amount!!.type,
-                toUnits(args.product.maximumValue)
+                toUnits(args.product.currencyCode!!, args.product.maximumValue)
             )
         )
         binding.btOk.isEnabled = valid
     }
 
+    private fun convertToFiat(priceResponse: PriceResponse, value: Value): Value? {
+        priceResponse.exchangeRate?.let {
+            val fiat = value.valueAsBigDecimal.multiply(BigDecimal(it))
+            return Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
+        }
+        return null
+    }
+
+    private fun getPriceResponse(value: Value): Flow<PriceResponse?> {
+        return callbackFlow {
+            GitboxAPI.giftRepository.getPrice(lifecycleScope,
+                code = args.product.code!!,
+                quantity = args.quantity,
+                amount = value.valueAsBigDecimal.toInt(),
+                currencyId = account?.basedOnCoinType?.symbol?.removePrefix("t") ?: "",
+                success = { priceResponse ->
+                    if (priceResponse!!.status == PriceResponse.Status.eRROR) {
+                        return@getPrice
+                    }
+                    offer(priceResponse)
+                },
+                error = { _, error ->
+//                    val fromJson = Gson().fromJson(error, ErrorMessage::class.java)
+                    close()
+                },
+                finally = {
+                    close()
+                })
+            awaitClose { }
+        }
+    }
+
+    private fun getCryptoAmount(price: String): Value {
+        val cryptoUnit = BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
+            .toBigInteger()
+        return valueOf(account?.basedOnCoinType!!, cryptoUnit)
+    }
 
     companion object {
         const val ACTION_AMOUNT_SELECTED: String = "action_amount"

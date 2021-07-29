@@ -51,6 +51,7 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?,
                             @SerializedName("Business") val partners: Map<String, PartnersLocalized>?,
                             @SerializedName("MediaFlow") val mediaFlowSettings: Map<String, MediaFlowContent>,
+                            @SerializedName("Accounts") val accountsSettings: Map<String, AccountsContent>,
                             @SerializedName("MainMenu") val mainMenuSettings: Map<String, MainMenuContent>,
                             @SerializedName("Balance") val balanceSettings: Map<String, BalanceContent>,
                             @SerializedName("Buy-Sell") val buySellSettings: Map<String, BuySellContent>)
@@ -192,6 +193,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     myceliumNodesResponse?.run {
                         partners?.store("partners")
                         mediaFlowSettings.store("mediaflow")
+                        accountsSettings.store("accounts")
                         mainMenuSettings.store("mainmenu")
                         balanceSettings.store("balance")
                         buySellSettings.store("buysell")
@@ -386,6 +388,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             ERC20Token("LAtoken", "LA", 18, "0xE50365f5D679CB98a1dd62D6F6e58e59321BcdDf"),
             ERC20Token("Bread", "BRD", 18, "0x558EC3152e2eb2174905cd19AeA4e34A23DE9aD6"),
             ERC20Token("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
+            ERC20Token("Mycelium Token", "MT", 7, "0x364f56e35e75227516878cc249f11ea9b3e41b09"),
             when (BuildConfig.FLAVOR) {
                 "prodnet" -> ERC20Token("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498")
                 // for testing purposes

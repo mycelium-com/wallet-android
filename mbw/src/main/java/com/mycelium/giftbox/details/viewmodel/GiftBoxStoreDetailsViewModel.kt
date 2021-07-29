@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.models.CurrencyInfo
 import com.mycelium.giftbox.client.models.ProductInfo
+import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.common.DescriptionViewModel
 
 
@@ -26,12 +27,7 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
         country.value = product?.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }
-        amount.value = if (product?.denominationType == ProductInfo.DenominationType.open) {
-            "From ${product.minimumValue.stripTrailingZeros()?.toPlainString()} ${product.currencyCode}" +
-                    " to ${product.maximumValue.stripTrailingZeros()?.toPlainString()} ${product.currencyCode}"
-        } else {
-            product?.availableDenominations?.joinToString { "${it.stripTrailingZeros().toPlainString()} ${product.currencyCode}" }
-        }
+        amount.value = product?.getCardValue()
         expire.value = if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
     }
 }

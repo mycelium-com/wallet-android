@@ -20,3 +20,5 @@ inline fun startCoroutineTimer(
         action()
     }
 }
+
+fun <E> List<E>.randomOrNull(): E? = if (size > 0) random() else null

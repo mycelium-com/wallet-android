@@ -784,6 +784,7 @@
     <string name="rmc_add_to_google_calendar">Добавить в календарь Google</string>
     <string name="create_backup">Создать резервную копию</string>
     <string name="rmc_account">Аккаунт:</string>
+    <string name="verify">Проверить</string>
     <string name="share_x_address">Поделиться %s адресом</string>
     <string name="save">Сохранить</string>
     <string name="your_privacy_out_priority">Ваша конфиденциальность является нашим главным приоритетом</string>
@@ -892,4 +893,7 @@
     <string name="search_country">Найти страну</string>
     <string name="trusted_providers">Проверенные провайдеры</string>
     <string name="buy_crypto_safely">Простой и безопасный способ покупки %s с помощью дебетовой / кредитной карты</string>
+    <string name="giftbox_promo_action">Купить товары</string>
+    <string name="giftbox_promo_title">Экономь, покупая\nза BTC и ETH!</string>
+    <string name="giftbox_promo_mark">New</string>
 </resources>

@@ -32,39 +32,35 @@ import java.util.*
  */
 @Parcelize
 
-data class Order(
+open class Order(
     /* Value of product in product currency */
     @JsonProperty("amount")
-    var amount: String? = null,
+    open var amount: String? = null,
     /* Product currency code */
     @JsonProperty("currency_code")
-    var currencyCode: String? = null,
+    open var currencyCode: String? = null,
     /* Unique client order id */
     @JsonProperty("client_order_id")
-    var clientOrderId: String? = null,
+    open var clientOrderId: String? = null,
     /* List of giftcard codes */
     @JsonProperty("items")
-    var items: List<Ecode>? = null,
+    open var items: List<Ecode>? = null,
     /* Product code */
     @JsonProperty("product_code")
-    var productCode: String? = null,
+    open var productCode: String? = null,
     /* Url of card image */
     @JsonProperty("product_img")
-    var productImg: String? = null,
+    open var productImg: String? = null,
     /* Product name */
     @JsonProperty("product_name")
-    var productName: String? = null,
+    open var productName: String? = null,
     /* Number of products in purchase */
     @JsonProperty("quantity")
-    var quantity: BigDecimal? = null,
+    open var quantity: BigDecimal? = null,
     /* Order status */
     @JsonProperty("status")
-    var status: Status? = null,
+    open var status: Status? = null,
     /* Date time of order creation */
     @JsonProperty("timestamp")
-    var timestamp: Date? = null
-) : Parcelable {
-
-
-}
-
+    open var timestamp: Date? = null
+) : Parcelable

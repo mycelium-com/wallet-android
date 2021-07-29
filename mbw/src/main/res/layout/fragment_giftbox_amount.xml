@@ -47,20 +47,29 @@
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     app:layout_constraintBaseline_toBaselineOf="@id/tvAmount"
-                    app:layout_constraintEnd_toStartOf="@id/currency_dropdown_image_view"
+                    app:layout_constraintEnd_toEndOf="parent"
                     tools:ignore="RtlSymmetry"
                     tools:text="USD" />
 
-                <ImageView
-                    android:id="@+id/currency_dropdown_image_view"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/tvCryptoAmount"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:contentDescription="Arrow"
-                    app:layout_constraintBottom_toBottomOf="@id/btCurrency"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/btCurrency"
-                    app:srcCompat="@drawable/ic_arrow_drop_down" />
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_weight="1"
+                    android:visibility="invisible"
+                    tools:visibility="visible"
+                    android:fontFamily="@font/roboto_mono_medium"
+                    android:gravity="end"
+                    tools:hint="@string/amount_hint"
+                    android:lines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="@id/btCurrency"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvAmount"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -71,27 +80,64 @@
                 android:background="#33FFFFFF" />
             <!-- Balance -->
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvCardValueHeaderTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/card_value"
+                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvCardValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:maxLines="2"
+                    android:textSize="14sp"
+                    tools:text="From $1 to $100" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:visibility="invisible"
+                tools:visibility="visible"
+                android:id="@+id/spendableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
 
                 <TextView
                     android:id="@+id/tvSpendableTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="Spendable: "
-                    android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:text="@string/spendable"
+                    android:textColor="@color/fio_white_alpha_0_6"
+                    android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/tvSpendableAmount"
+                    android:id="@+id/tvSpendableCryptoAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:layout_marginStart="8dp"
-                    android:textSize="18sp"
-                    tools:text="0 USD" />
+                    android:textSize="14sp"
+                    tools:text="0 BTC" />
+
+                <TextView
+                    android:id="@+id/tvSpendableFiatAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="8dp"
+                    android:textSize="14sp"
+                    tools:text="~0 USD" />
             </LinearLayout>
 
 

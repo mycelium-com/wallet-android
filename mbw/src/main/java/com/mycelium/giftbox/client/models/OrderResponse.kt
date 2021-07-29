@@ -40,19 +40,22 @@ import java.util.*
  */
 @Parcelize
 
-data class OrderResponse(
+class OrderResponse(
     /* Value of product in product currency */
     @JsonProperty("amount")
-    var amount: String? = null,
+    override var amount: String? = null,
     /* Price of selected amount and quantity in given currency_id */
     @JsonProperty("amount_expected_from")
     var amountExpectedFrom: String? = null,
     /* Unique client order id */
     @JsonProperty("client_order_id")
-    var clientOrderId: String? = null,
-    /* Product currency code */
+    override var clientOrderId: String? = null,
+    /* List of giftcard codes */
+    @JsonProperty("items")
+    override var items: List<Ecode>? = null,
+        /* Product currency code */
     @JsonProperty("currency_code")
-    var currencyCode: String? = null,
+    override var currencyCode: String? = null,
     /* Payment currency code */
     @JsonProperty("currency_from")
     var currencyFrom: String? = null,
@@ -78,22 +81,20 @@ data class OrderResponse(
     var paymentStatus: String? = null,
     /* Product code */
     @JsonProperty("product_code")
-    var productCode: String? = null,
+    override var productCode: String? = null,
     /* Url of card image */
     @JsonProperty("product_img")
-    var productImg: String? = null,
+    override var productImg: String? = null,
     /* Product name */
     @JsonProperty("product_name")
-    var productName: String? = null,
+    override var productName: String? = null,
     /* Number of products in purchase */
     @JsonProperty("quantity")
-    var quantity: java.math.BigDecimal? = null,
+    override var quantity: java.math.BigDecimal? = null,
     /* Order status */
     @JsonProperty("status")
-    var status: Status? = null,
+    override var status: Status? = null,
     /* Date time of order creation */
     @JsonProperty("timestamp")
-    var timestamp: Date? = null
-) : Parcelable {
-}
-
+    override var timestamp: Date? = null
+) : Order(amount, currencyCode, clientOrderId, items, productCode, productImg, productName, quantity, status, timestamp)
