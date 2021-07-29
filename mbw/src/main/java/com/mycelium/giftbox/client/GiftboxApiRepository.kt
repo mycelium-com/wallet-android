@@ -14,30 +14,25 @@ import com.squareup.sqldelight.android.AndroidSqliteDriver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import retrofit2.Response
-import java.math.BigDecimal
 import java.util.*
 
 class GiftboxApiRepository {
-    private var lastOrderId: String = updateOrderId()
+    private var lastOrderId = updateOrderId()
 
     private val api = GiftboxApi.create()
     private val giftbxDB = GiftboxDB.invoke(AndroidSqliteDriver(GiftboxDB.Schema, WalletApplication.getInstance(), "giftbox.db"),
              GiftboxCard.Adapter(dateAdapter))
 
     private val clientUserIdFromMasterSeed by lazy {
-        val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
-        mbwManager.masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
-            .getPrivateKeyForWebsite(Constants.WEBSITE, AesKeyCipher.defaultKeyCipher())
-            .publicKey.toString()
+        MbwManager.getInstance(WalletApplication.getInstance())
+                .masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
+                .getPrivateKeyForWebsite(Constants.WEBSITE, AesKeyCipher.defaultKeyCipher())
+                .publicKey.toString()
     }
 
     private fun updateOrderId(): String {
         lastOrderId = UUID.randomUUID().toString()
         return lastOrderId
-    }
-
-    init {
-        updateOrderId()
     }
 
     fun getPrice(
@@ -53,7 +48,7 @@ class GiftboxApiRepository {
         doRequest(scope, {
             api.price(
                 clientUserIdFromMasterSeed,
-                lastOrderId!!,
+                lastOrderId,
                 amount,
                 quantity,
                 code,
@@ -72,7 +67,7 @@ class GiftboxApiRepository {
         return doRequest(scope, {
             api.product(
                 clientUserIdFromMasterSeed,
-                Constants.CLIENT_ORDER_ID, //TODO check why client order id need for product
+                lastOrderId,
                 productId
             )
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
