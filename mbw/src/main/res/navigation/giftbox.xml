@@ -17,7 +17,7 @@
             android:defaultValue="false" />
         <action
             android:id="@+id/actionSelectCountries"
-            app:destination="@id/selectCountiesFragment" />
+            app:destination="@id/selectCountriesFragment" />
         <action
             android:id="@+id/actionOrderDetails"
             app:destination="@id/giftBoxBuyResultFragment" />
@@ -68,10 +68,10 @@
             app:destination="@id/amountInputFragment" />
     </fragment>
     <fragment
-        android:id="@+id/selectCountiesFragment"
+        android:id="@+id/selectCountriesFragment"
         android:name="com.mycelium.giftbox.cards.SelectCountriesFragment"
         android:label="Select country"
-        tools:layout="@layout/fragment_select_counties" />
+        tools:layout="@layout/fragment_select_countries" />
     <fragment
         android:id="@+id/selectAccountFragment2"
         android:name="com.mycelium.giftbox.purchase.SelectAccountFragment"

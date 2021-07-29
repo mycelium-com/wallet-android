@@ -13,7 +13,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.mycelium.bequant.BequantConstants as Constants
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.layout_loading.*
 import kotlinx.android.synthetic.main.layout_loading.view.*
 
 
@@ -42,7 +41,7 @@ class LoaderFragment(val message: String? = null) : DialogFragment() {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT));
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 }
 

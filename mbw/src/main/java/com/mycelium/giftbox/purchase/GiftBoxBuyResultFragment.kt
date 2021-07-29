@@ -24,8 +24,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.txdetails.*
-import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment.Companion.newInstance
-import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment.Companion.newInstance
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wallet.startCoroutineTimer
@@ -102,11 +100,11 @@ class GiftBoxBuyResultFragment : Fragment() {
                         FioDetailsFragment.newInstance(tx)
                     )
                 } else if (account is BitcoinVaultHdAccount) {
-                    transaction.add(R.id.spec_details_fragment, newInstance(tx, accountId))
+                    transaction.add(R.id.spec_details_fragment, BtcvDetailsFragment.newInstance(tx, accountId))
                 } else {
                     transaction.add(
                         R.id.spec_details_fragment,
-                        newInstance(tx, false, accountId)
+                        BtcDetailsFragment.newInstance(tx, false, accountId)
                     )
                 }
                 transaction.commit()
@@ -204,16 +202,16 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
 
         // Set Confirmed
-        val confirmations = tx.getConfirmations()
+        val confirmations = tx.confirmations
         var confirmed: String
         confirmed = if (confirmations > 0) {
-            resources.getString(R.string.confirmed_in_block, tx.getHeight())
+            resources.getString(R.string.confirmed_in_block, tx.height)
         } else {
             resources.getString(R.string.no)
         }
 
         // check if tx is in outgoing queue
-        if (tx.isQueuedOutgoing()) {
+        if (tx.isQueuedOutgoing) {
             tcdConfirmations?.setNeedsBroadcast()
             tvConfirmations?.text = ""
             confirmed = resources.getString(R.string.transaction_not_broadcasted_info)
@@ -224,7 +222,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         tvConfirmed?.text = confirmed
 
         // Set Date & Time
-        val date = Date(tx.getTimestamp() * 1000L)
+        val date = Date(tx.timestamp * 1000L)
         val locale = resources.configuration.locale
         val dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale)
         val dateString = dayFormat.format(date)

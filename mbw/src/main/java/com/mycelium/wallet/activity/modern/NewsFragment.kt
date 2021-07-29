@@ -129,7 +129,7 @@ class NewsFragment : Fragment() {
                 activity?.invalidateOptionsMenu()
                 updateUI()
                 val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(search_input.applicationWindowToken, 0);
+                inputMethodManager.hideSoftInputFromWindow(search_input.applicationWindowToken, 0)
             } else {
                 search_input.text = null
             }
@@ -288,7 +288,7 @@ class NewsFragment : Fragment() {
                         unable_to_load.visibility = GONE
                         media_flow_loading.visibility = VISIBLE
                         media_flow_loading.postOnAnimationDelayed(object : Runnable {
-                            var tick = 0;
+                            var tick = 0
                             override fun run() {
                                 media_flow_loading?.text = getString(R.string.loading_media_flow_feed_please_wait,
                                         when (tick++ % 3) {
@@ -296,7 +296,7 @@ class NewsFragment : Fragment() {
                                             1 -> ".. "
                                             else -> "..."
                                         })
-                                media_flow_loading?.postOnAnimationDelayed(this, 1000);
+                                media_flow_loading?.postOnAnimationDelayed(this, 1000)
                             }
                         }, 1000)
                     }

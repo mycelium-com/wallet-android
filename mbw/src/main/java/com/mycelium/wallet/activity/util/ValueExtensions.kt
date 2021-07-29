@@ -22,11 +22,11 @@ fun Value.toStringWithUnit(denomination: Denomination = Denomination.UNIT): Stri
 @JvmOverloads
 fun Value.toStringFriendlyWithUnit(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.friendlyDigits
-    var value = type.symbol
+    var symbol = type.symbol
     if (type !is FiatType) {
-        value = denomination.getUnicodeString(type.symbol)
+        symbol = denomination.getUnicodeString(type.symbol)
     }
-    return String.format("%s %s", toFriendlyString(denomination), value)
+    return String.format("%s %s", toFriendlyString(denomination), symbol)
 }
 
 @JvmOverloads

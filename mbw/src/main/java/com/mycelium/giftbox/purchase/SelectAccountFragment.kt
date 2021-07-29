@@ -64,7 +64,7 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         accounts.setOnClickListener {
             requireActivity().finishAffinity()
             startActivity(Intent(requireContext(), ModernMain::class.java)
-                    .apply { setAction(MainActions.ACTION_ACCOUNTS) })
+                    .apply { action = MainActions.ACTION_ACCOUNTS })
         }
         adapter.accountClickListener = { accountItem ->
             findNavController().navigate(SelectAccountFragmentDirections.actionNext(accountItem.accountId, args.product))

@@ -1,3 +1,4 @@
+
 package com.mycelium.giftbox.purchase
 
 import android.content.Intent
@@ -49,7 +50,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     val zeroFiatValue by lazy {
         Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
     }
-    val zeroCryptoValue by lazy {
+    private val zeroCryptoValue by lazy {
         account?.basedOnCoinType?.value(0)
     }
 
@@ -164,19 +165,18 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private fun initNumberEntry(savedInstanceState: Bundle?) {
         // Load saved state
-        if (savedInstanceState != null) {
-            _amount = savedInstanceState.getSerializable(ENTERED_AMOUNT) as Value
+        _amount = if (savedInstanceState != null) {
+            savedInstanceState.getSerializable(ENTERED_AMOUNT) as Value
         } else {
-            _amount = args.amount ?: zeroValue()
+            args.amount ?: zeroValue()
         }
 
         // Init the number pad
-        val amountString: String
-        if (!isNullOrZero(_amount)) {
+        val amountString: String = if (!isNullOrZero(_amount)) {
             val denomination = mbwManager.getDenomination(_amount?.type)
-            amountString = _amount?.toString(denomination) ?: ""
+            _amount?.toString(denomination) ?: ""
         } else {
-            amountString = ""
+            ""
         }
         numberEntry = NumberEntry(getMaxDecimal(_amount?.type!!), this, activity, amountString)
 
@@ -201,10 +201,10 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
 
     private fun setEnteredAmount(value: String) {
-        if (value.isEmpty()) {
-            _amount = zeroValue()
+        _amount = if (value.isEmpty()) {
+            zeroValue()
         } else {
-            _amount = _amount?.type?.value(value)
+            _amount?.type?.value(value)
         }
 
         GitboxAPI.giftRepository.getPrice(lifecycleScope,
@@ -214,9 +214,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
             success = { priceResponse ->
                 val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
-                val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable()!!)
-                val insufficientFounds = _amount!!.moreThan(maxSpendableFiat!!)
-
+                val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable())
+                val insufficientFunds = _amount!!.moreThan(maxSpendableFiat!!)
                 val exceedCardPrice = _amount!!.moreThan(
                     valueOf(
                         _amount!!.type,
@@ -230,8 +229,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 val lessMinimumCardPrice = _amount!!.lessThan(
                     minimumPrice
                 )
-
-
                 if (exceedCardPrice) {
                     Toaster(requireContext()).toast("Exceed card value", true)
                 }
@@ -244,11 +241,11 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 binding.tvAmount.setTextColor(
                     ResourcesCompat.getColor(
                         resources,
-                        if (conversionError || insufficientFounds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
+                        if (conversionError || insufficientFunds || exceedCardPrice || lessMinimumCardPrice) R.color.red_error else R.color.white,
                         null
                     )
                 )
-                if (insufficientFounds && !conversionError) {
+                if (insufficientFunds && !conversionError) {
                     Toaster(requireContext()).toast("Insufficient funds", true)
                 }
             }, error = { _, error ->
@@ -256,11 +253,10 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             },
             finally = {
             })
-
     }
 
     private fun checkEntry() {
-        val valid = !isNullOrZero(_amount)
+        val isValid = !isNullOrZero(_amount)
                 && _amount!!.moreOrEqualThan(
             valueOf(
                 _amount!!.type,
@@ -273,16 +269,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 toUnits(args.product.currencyCode!!, args.product.maximumValue)
             )
         )
-        binding.btOk.isEnabled = valid
+        binding.btOk.isEnabled = isValid
     }
 
-    private fun convertToFiat(priceResponse: PriceResponse, value: Value): Value? {
+    private fun convertToFiat(priceResponse: PriceResponse, value: Value): Value? =
         priceResponse.exchangeRate?.let {
             val fiat = value.valueAsBigDecimal.multiply(BigDecimal(it))
-            return Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
+            Value.valueOf(zeroFiatValue.type, toUnits(zeroFiatValue.type, fiat))
         }
-        return null
-    }
 
     private fun getPriceResponse(value: Value): Flow<PriceResponse?> {
         return callbackFlow {
@@ -298,7 +292,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                     offer(priceResponse)
                 },
                 error = { _, error ->
-//                    val fromJson = Gson().fromJson(error, ErrorMessage::class.java)
                     close()
                 },
                 finally = {
@@ -308,16 +301,9 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         }
     }
 
-    private fun getCryptoAmount(price: String): Value {
-        val cryptoUnit = BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
-            .toBigInteger()
-        return valueOf(account?.basedOnCoinType!!, cryptoUnit)
-    }
-
     companion object {
-        const val ACTION_AMOUNT_SELECTED: String = "action_amount"
+        const val ACTION_AMOUNT_SELECTED = "action_amount"
         const val AMOUNT_KEY = "amount"
-        const val ENTERED_AMOUNT = "enteredamount"
+        const val ENTERED_AMOUNT = "entered_amount"
     }
-
 }

@@ -61,7 +61,6 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.giftbox.GiftBoxRootActivity;
-import com.mycelium.giftbox.cards.GiftBoxFragment;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;

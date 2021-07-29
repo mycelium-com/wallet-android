@@ -109,9 +109,9 @@ fun ProductInfo.getCardValue(): String {
     } else {
         return "From ${
             minimumValue?.stripTrailingZeros()?.toPlainString()
-        } ${currencyCode}" +
+        } $currencyCode" +
                 " to ${
                     maximumValue?.stripTrailingZeros()?.toPlainString()
-                } ${currencyCode}"
+                } $currencyCode"
     }
 }
