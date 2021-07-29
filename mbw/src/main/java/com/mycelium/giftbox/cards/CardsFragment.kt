@@ -1,9 +1,10 @@
 package com.mycelium.giftbox.cards
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -66,16 +67,9 @@ class CardsFragment : Fragment() {
                     .setMessage(getString(R.string.delete_gift_card_msg))
                     .setNegativeButton(R.string.button_cancel) { _, _ -> }
                     .setPositiveButton(R.string.delete) { _, _ ->
-                        AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                                .setTitle(getString(R.string.delete_gift_card))
-                                .setMessage(getString(R.string.delete_gift_card_msg))
-                                .setNegativeButton(R.string.button_cancel) { _, _ -> }
-                                .setPositiveButton(R.string.delete) { _, _ ->
-                                    GitboxAPI.giftRepository.remove(it, lifecycleScope) {
-                                        loadData()
-                                    }
-                                }
-                                .create().show()
+                        GitboxAPI.giftRepository.remove(it, lifecycleScope) {
+                            loadData()
+                        }
                     }
                     .create().show()
         }

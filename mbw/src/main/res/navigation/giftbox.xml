@@ -69,7 +69,7 @@
     </fragment>
     <fragment
         android:id="@+id/selectCountiesFragment"
-        android:name="com.mycelium.giftbox.cards.SelectCountiesFragment"
+        android:name="com.mycelium.giftbox.cards.SelectCountriesFragment"
         android:label="Select country"
         tools:layout="@layout/fragment_select_counties" />
     <fragment

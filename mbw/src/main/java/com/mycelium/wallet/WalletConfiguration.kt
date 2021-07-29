@@ -51,6 +51,7 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?,
                             @SerializedName("Business") val partners: Map<String, PartnersLocalized>?,
                             @SerializedName("MediaFlow") val mediaFlowSettings: Map<String, MediaFlowContent>,
+                            @SerializedName("Accounts") val accountsSettings: Map<String, AccountsContent>,
                             @SerializedName("MainMenu") val mainMenuSettings: Map<String, MainMenuContent>,
                             @SerializedName("Balance") val balanceSettings: Map<String, BalanceContent>,
                             @SerializedName("Buy-Sell") val buySellSettings: Map<String, BuySellContent>)
@@ -192,6 +193,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     myceliumNodesResponse?.run {
                         partners?.store("partners")
                         mediaFlowSettings.store("mediaflow")
+                        accountsSettings.store("accounts")
                         mainMenuSettings.store("mainmenu")
                         balanceSettings.store("balance")
                         buySellSettings.store("buysell")

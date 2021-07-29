@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.modern
 import android.content.*
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
-import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.*
@@ -32,8 +31,10 @@ import com.mycelium.wallet.external.mediaflow.*
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 import com.mycelium.wallet.external.partner.startContentLink
+import com.mycelium.wallet.randomOrNull
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_news.*
+import kotlinx.android.synthetic.main.layout_top_banner.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 
 
@@ -143,8 +144,6 @@ class NewsFragment : Fragment() {
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
     }
-
-    private fun <E> List<E>.randomOrNull(): E? = if (size > 0) random() else null
 
     private fun initTopBanner() {
         if (currentNews == null) {
