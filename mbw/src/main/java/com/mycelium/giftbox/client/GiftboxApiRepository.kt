@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import java.util.*
 
 class GiftboxApiRepository {
-    private var lastOrderId: String = updateOrderId()
+    private var lastOrderId = updateOrderId()
 
     private val api = GiftboxApi.create()
 
@@ -24,10 +24,6 @@ class GiftboxApiRepository {
     private fun updateOrderId(): String {
         lastOrderId = UUID.randomUUID().toString()
         return lastOrderId
-    }
-
-    init {
-        updateOrderId()
     }
 
     fun getPrice(
