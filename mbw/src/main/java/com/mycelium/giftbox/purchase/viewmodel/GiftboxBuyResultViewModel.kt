@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
-import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel

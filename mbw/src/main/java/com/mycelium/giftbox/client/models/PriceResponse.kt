@@ -15,7 +15,6 @@ package com.mycelium.giftbox.client.models
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.android.parcel.Parcelize
-import java.math.BigDecimal
 
 /**
  * Price offer for a given product quantity, amount and currency

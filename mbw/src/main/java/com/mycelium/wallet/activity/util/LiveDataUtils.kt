@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.util
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import kotlin.Triple
 
 fun <T1, T2, R> zip2(
     src1: LiveData<T1>, src2: LiveData<T2>,
@@ -139,12 +138,12 @@ fun <T1, T2, T3,T4, R> zip4(
     }
 }
 
-public data class Quad<out A, out B, out C, out D>(
-    public val first: A,
-    public val second: B,
-    public val third: C,
-    public val forth: D
+data class Quad<out A, out B, out C, out D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val forth: D
 )  {
 
-    public override fun toString(): String = "($first, $second, $third, $forth)"
+    override fun toString(): String = "($first, $second, $third, $forth)"
 }

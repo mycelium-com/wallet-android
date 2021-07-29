@@ -113,7 +113,6 @@ class GiftboxBuyFragment : Fragment() {
         binding?.btSend?.isEnabled = viewModel.totalAmountFiatSingle.value != null
         viewModel.totalAmountFiatSingle.value = viewModel.totalAmountFiatSingle.value
 
-
         if (args.product.availableDenominations != null) {
             btEnterAmount.isVisible = false
             btEnterAmountPreselected.isVisible = true
@@ -278,15 +277,13 @@ class GiftboxBuyFragment : Fragment() {
             Toaster(requireActivity()).toast(broadcastResult.errorMessage, false)
         }
     }
-
-
 }
 
 class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHeaderViewModel {
     val gson = Gson()
 
     companion object {
-        val MAX_QUANTITY = 19
+        const val MAX_QUANTITY = 19
     }
 
     val accountId = MutableLiveData<UUID>()
@@ -300,7 +297,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)!!
     }
     val zeroCryptoValue by lazy {
-        account?.basedOnCoinType?.value(0)
+        account.basedOnCoinType?.value(0)
     }
 
     fun getPreseletedValues(): List<Value> {
@@ -308,7 +305,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             Value.valueOf(getAssetInfo(), toUnits(zeroFiatValue.type, it))
         }?.sortedBy { it.value } ?: listOf()
     }
-
 
     override val productName = MutableLiveData("")
     override val expire = MutableLiveData("")
@@ -404,7 +400,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             }
             totalProgress.value = true
             GitboxAPI.giftRepository.getPrice(viewModelScope,
-                code = productInfo?.code ?: "",
+                code = productInfo.code ?: "",
                 quantity = quantity,
                 amount = amount.valueAsBigDecimal.toInt(),
                 currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
@@ -462,9 +458,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getCryptoAmount(price: PriceResponse): Value = getCryptoAmount(price.priceOffer!!)
 
     private fun getCryptoAmount(price: String): Value {
-        val cryptoUnit = BigDecimal(price).movePointRight(account?.basedOnCoinType?.unitExponent!!)
+        val cryptoUnit = BigDecimal(price).movePointRight(account.basedOnCoinType?.unitExponent!!)
             .toBigInteger()
-        return Value.valueOf(account?.basedOnCoinType!!, cryptoUnit)
+        return Value.valueOf(account.basedOnCoinType!!, cryptoUnit)
     }
 
     fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
@@ -508,7 +504,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         ) {
             val (total, single, quantityError, progress) = it
             total.plus(single)
-                .lessOrEqualThan(getAccountBalance()) && quantityError.isNullOrEmpty() && !progress
+                .lessOrEqualThan(getAccountBalance()) && quantityError.isEmpty() && !progress
         }
 
     val isGrantedMinus = Transformations.map(quantityInt.debounce(300)) {
@@ -548,7 +544,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     private fun getAccountBalance(): Value {
-        return account?.accountBalance?.spendable!!
+        return account.accountBalance?.spendable!!
     }
 
     //colors
@@ -565,7 +561,6 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             getColorByCryptoValue(it)
         )
     }
-
 
     val totalAmountFiatColor = Transformations.map(totalAmountFiat) {
         getColorByFiatValue(it)
@@ -598,14 +593,13 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             if (it.moreThanZero()) R.color.white else R.color.darkgrey
         )
 
-
     fun checkValidTransaction(
         account: WalletAccount<*>,
         value: Value
     ): Pair<AmountValidation, Transaction?> {
-        var transaction: Transaction? = null
+        val transaction: Transaction?
         if (value.equalZero()) {
-            return AmountValidation.Ok to null; //entering a fiat value + exchange is not availible
+            return AmountValidation.Ok to null //entering a fiat value + exchange is not available
         }
         try {
             transaction = account.createTx(
@@ -615,20 +609,20 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                 null
             )
         } catch (e: OutputTooSmallException) {
-            return AmountValidation.ValueTooSmall to null;
+            return AmountValidation.ValueTooSmall to null
         } catch (e: InsufficientFundsException) {
-            return AmountValidation.NotEnoughFunds to null;
+            return AmountValidation.NotEnoughFunds to null
         } catch (e: BuildTransactionException) {
-            mbwManager.reportIgnoredException("MinerFeeException", e);
-            return AmountValidation.Invalid to null;
+            mbwManager.reportIgnoredException("MinerFeeException", e)
+            return AmountValidation.Invalid to null
         } catch (e: Exception) {
-            return AmountValidation.Invalid to null;
+            return AmountValidation.Invalid to null
         }
-        return AmountValidation.Ok to transaction;
+        return AmountValidation.Ok to transaction
     }
 
     enum class AmountValidation {
-        Ok, ValueTooSmall, Invalid, NotEnoughFunds, ExchangeRateNotAvailable
+        Ok, ValueTooSmall, Invalid, NotEnoughFunds
     }
 }
 
@@ -640,5 +634,4 @@ class ViewModelFactory(param: ProductInfo) :
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return GiftboxBuyViewModel(mParam) as T
     }
-
 }

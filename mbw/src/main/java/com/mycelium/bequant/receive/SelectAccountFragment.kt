@@ -70,6 +70,6 @@ class SelectAccountFragment : Fragment(R.layout.fragment_bequant_select_account)
     data class AccountData(val label: String?) : Parcelable
 
     companion object {
-        val ACCOUNT_KEY = "chooseAccount"
+        const val ACCOUNT_KEY = "chooseAccount"
     }
 }

@@ -14,8 +14,7 @@ import com.mycelium.wapi.wallet.coins.Value
 class CustomSimpleAdapter(
     private val context: Context,
     val data: Map<Value, Boolean>
-) :
-    BaseAdapter() {
+) : BaseAdapter() {
     override fun getCount(): Int {
         return data.size
     }

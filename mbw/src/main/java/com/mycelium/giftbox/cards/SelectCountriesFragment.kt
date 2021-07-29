@@ -13,17 +13,17 @@ import com.mycelium.giftbox.cards.adapter.SelectCountriesAdapter
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
-import com.mycelium.wallet.databinding.FragmentSelectCountiesBinding
+import com.mycelium.wallet.databinding.FragmentSelectCountriesBinding
 
 
 class SelectCountriesFragment : Fragment() {
 
     val activityViewModel: GiftBoxViewModel by activityViewModels()
     val adapter = SelectCountriesAdapter()
-    var binding: FragmentSelectCountiesBinding? = null
+    var binding: FragmentSelectCountriesBinding? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            FragmentSelectCountiesBinding.inflate(inflater).apply {
+            FragmentSelectCountriesBinding.inflate(inflater).apply {
                 binding = this
             }.root
 

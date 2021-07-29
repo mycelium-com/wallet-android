@@ -17,7 +17,6 @@ class StoresViewModel : ViewModel() {
     fun setProductsResponse(it: ProductsResponse?, append: Boolean = false) {
         if (!append) {
             products.clear()
-
         }
         products.addAll(it?.products ?: emptyList())
         productsSize = it?.size ?: 0
