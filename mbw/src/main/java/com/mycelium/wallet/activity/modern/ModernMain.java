@@ -60,6 +60,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
+import com.mycelium.giftbox.GiftBoxRootActivity;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
@@ -74,6 +75,7 @@ import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wallet.activity.modern.helper.MainActions;
 import com.mycelium.wallet.activity.news.NewsActivity;
 import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
@@ -242,6 +244,9 @@ public class ModernMain extends AppCompatActivity {
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
             startActivity(new Intent(this, ApproveFioRequestActivity.class)
                     .putExtras(getIntent().getExtras()));
+        } else if(Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
+            mAccountsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_ACCOUNTS));
         }
     }
 
@@ -428,6 +433,7 @@ public class ModernMain extends AppCompatActivity {
         if (!((FioModule) _mbwManager.getWalletManager(false).getModuleById(FioModule.ID)).getAllRegisteredFioNames().isEmpty()) {
             inflater.inflate(R.menu.record_fio_options, menu);
         }
+        inflater.inflate(R.menu.giftbox, menu);
         return true;
     }
 
@@ -542,6 +548,9 @@ public class ModernMain extends AppCompatActivity {
                 break;
             case R.id.miFIORequests:
                 selectRequestTab();
+                break;
+            case R.id.miGiftBox:
+                GiftBoxRootActivity.Companion.start(this);
                 break;
         }
         return super.onOptionsItemSelected(item);

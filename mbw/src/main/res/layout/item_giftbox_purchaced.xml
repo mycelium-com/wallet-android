@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="96dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:adjustViewBounds="true"
+        android:background="@drawable/giftcard_card_small_bg"
+        android:padding="0.5dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@id/image"
+        app:layout_constraintRight_toLeftOf="@id/more"
+        app:layout_constraintTop_toTopOf="@id/image"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
+        tools:text="Amazon UK" />
+
+    <TextView
+        android:id="@+id/descriptionLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/gift_card_d"
+        android:textColor="@color/fio_white_alpha_0_6"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/description"
+        app:layout_constraintStart_toStartOf="@id/title" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="8dp"
+        android:textColor="@color/fio_white_alpha_0_9"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@id/additional"
+        app:layout_constraintLeft_toRightOf="@id/descriptionLabel"
+        app:layout_constraintRight_toLeftOf="@id/more"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
+        app:layout_goneMarginStart="0dp"
+        tools:text="100 USD" />
+
+    <TextView
+        android:id="@+id/additionalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="Date:"
+        android:textColor="@color/fio_white_alpha_0_6"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/additional"
+        app:layout_constraintStart_toStartOf="@id/title" />
+
+    <TextView
+        android:id="@+id/additional"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="8dp"
+        android:drawablePadding="4dp"
+        android:textColor="@color/fio_white_alpha_0_9"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/image"
+        app:layout_constraintLeft_toRightOf="@id/additionalLabel"
+        app:layout_constraintRight_toLeftOf="@id/more"
+        app:layout_goneMarginEnd="@dimen/activity_horizontal_margin"
+        app:layout_goneMarginStart="0dp"
+        tools:text="September 18" />
+
+    <ImageView
+        android:id="@+id/more"
+        android:layout_width="32dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:scaleType="fitStart"
+        app:layout_constraintBottom_toBottomOf="@id/additional"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/title"
+        app:srcCompat="@drawable/ic_more_horiz" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

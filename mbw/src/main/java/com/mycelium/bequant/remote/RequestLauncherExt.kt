@@ -1,17 +1,20 @@
 package com.mycelium.bequant.remote
 
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import retrofit2.Response
 
-fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Response<T>,
-                  successBlock: (T?) -> Unit,
-                  errorBlock: ((Int, String) -> Unit)? = null,
-                  finallyBlock: (() -> Unit)? = null,
-                  responseModifier: ((T?) -> T?)? = null) {
+fun <T> doRequest(
+    coroutineScope: CoroutineScope, request: suspend () -> Response<T>,
+    successBlock: (T?) -> Unit,
+    errorBlock: ((Int, String) -> Unit)? = null,
+    finallyBlock: (() -> Unit)? = null,
+    responseModifier: ((T?) -> T?)? = null
+) : Job =
     coroutineScope.launch {
         withContext(Dispatchers.IO) {
             try {
@@ -31,7 +34,8 @@ fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Respons
                 }
             }
         }
-    }.invokeOnCompletion {
-        finallyBlock?.invoke()
+    }.apply {
+        invokeOnCompletion {
+            finallyBlock?.invoke()
+        }
     }
-}

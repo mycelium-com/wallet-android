@@ -54,7 +54,7 @@ class ERC20Account(private val chainId: Byte,
             throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
-        return EthTransaction(coinType, address.toString(), Value.zeroValue(basedOnCoinType),
+        return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
                 gasPrice, nonce, gasLimit, inputData)
     }
 
