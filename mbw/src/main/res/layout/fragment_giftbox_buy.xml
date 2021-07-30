@@ -154,8 +154,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!--                    android:text="@{viewModel.requestedAmountFormatted}"-->
-                    <!--                    android:textAlignment="@{viewModel.requestedAmountFormatted.isEmpty() ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"-->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tlQuanity"
                         android:layout_width="0dp"
@@ -179,22 +177,12 @@
                         </androidx.appcompat.widget.AppCompatEditText>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!--                    <View-->
-                    <!--                        android:layout_width="0dp"-->
-                    <!--                        android:layout_height="1dp"-->
-                    <!--                        android:layout_marginTop="4dp"-->
-                    <!--                        android:layout_marginEnd="12dp"-->
-                    <!--                        android:background="#393939"-->
-                    <!--                        app:layout_constraintBottom_toBottomOf="parent"-->
-                    <!--                        app:layout_constraintEnd_toStartOf="@id/quantityControl"-->
-                    <!--                        app:layout_constraintStart_toStartOf="@id/tlQuanity" />-->
-
                     <LinearLayout
                         android:id="@+id/quantityControl"
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
                         android:gravity="center_vertical"
-                        android:paddingLeft="13dp"
+                        android:paddingStart="13dp"
                         app:layout_constraintBottom_toBottomOf="@id/quantityRoot"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/quantityRoot">
@@ -213,15 +201,13 @@
                             android:id="@+id/btPlusQuantity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginStart="8dp"
                             android:layout_marginTop="4dp"
                             android:background="@{vm.plusBackground}"
                             android:contentDescription="@string/enter_amount_title"
                             android:scaleType="fitCenter"
                             tools:background="@drawable/ic_plus" />
                     </LinearLayout>
-
-                    <!--                    android:clickable="@{vm.isGrantedPlus}"-->
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -287,7 +273,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toRightOf="@id/tvTotalAmountCrypto" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
-                <!--                android:text="@{vm.totalAmountCryptoString}"-->
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/minerFeeRoot"
                     android:layout_width="match_parent"
