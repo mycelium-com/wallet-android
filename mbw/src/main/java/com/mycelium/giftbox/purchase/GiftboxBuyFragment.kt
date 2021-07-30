@@ -170,7 +170,7 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) + 1).toString()
                         } else {
-                            if (viewModel.quantityInt.value >= MAX_QUANTITY) {
+                            if (viewModel.quantityInt.value!! >= MAX_QUANTITY) {
                                 viewModel.warningQuantityMessage.value =
                                     "Max available cards: $MAX_QUANTITY cards"
                             } else if (viewModel.totalProgress.value != true) {
