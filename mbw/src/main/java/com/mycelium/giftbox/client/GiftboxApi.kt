@@ -7,8 +7,6 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
-//curl -s -v -G -H 'Content-Type: application/json' -H 'Authorization: Basic VEFrbmdDVkRiRURJMHluSTNsNzBnb1Vya1l0eHFiNW46Y2dwQ3NlOVVaaXFQcHg1cmRFUDhONW53akJ5NG8xc2s=' --data-urlencode 'search=' --data-urlencode 'country=RU' --data-urlencode 'offset=0' --data-urlencode 'limit=10' 'https://apps-api.giftbox.tech/api/products'
-
 interface GiftboxApi {
     @GET("products")
     suspend fun products(
