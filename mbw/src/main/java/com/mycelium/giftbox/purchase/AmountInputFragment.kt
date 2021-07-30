@@ -1,4 +1,3 @@
-
 package com.mycelium.giftbox.purchase
 
 import android.content.Intent
