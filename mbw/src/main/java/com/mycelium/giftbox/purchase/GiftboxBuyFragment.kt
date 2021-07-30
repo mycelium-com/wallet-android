@@ -164,8 +164,6 @@ class GiftboxBuyFragment : Fragment() {
                         if (viewModel.isGrantedMinus.value!!) {
                             viewModel.quantityString.value =
                                 ((viewModel.quantityInt.value ?: 0) - 1).toString()
-                        } else {
-
                         }
                     }
                     btPlusQuantity.setOnClickListener {
