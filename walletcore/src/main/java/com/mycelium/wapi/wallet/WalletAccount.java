@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mycelium.wapi.SyncStatusInfo;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;

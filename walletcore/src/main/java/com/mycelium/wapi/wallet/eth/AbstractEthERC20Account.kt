@@ -1,6 +1,8 @@
 package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -9,6 +11,7 @@ import java.io.IOException
 import java.math.BigInteger
 import java.util.logging.Level
 import java.util.logging.Logger
+import java.util.*
 
 abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val credentials: Credentials? = null,
@@ -44,7 +47,11 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         syncing = true
         if (!maySync) { return false }
         updateBlockHeight()
+        if (!maySync) { return false }
         val synced = doSynchronization(mode)
+        if(synced) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
+        }
         syncing = false
         return synced
     }
@@ -101,6 +108,8 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     override fun canSpend() = credentials != null
 
     override fun isSyncing() = syncing
+
+    override fun lastSyncStatus(): SyncStatusInfo = lastSyncInfo
 
     override fun isActive() = !isArchived
 
