@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet;
 
+import javax.annotation.Nullable;
+
 public class BroadcastResult {
     private String errorMessage = null;
     private final BroadcastResultType resultType;
@@ -12,6 +14,7 @@ public class BroadcastResult {
         this.resultType = resultType;
     }
 
+    @Nullable
     public String getErrorMessage() {
         return errorMessage;
     }
