@@ -51,6 +51,9 @@ class RecordRowBuilder(private val mbwManager: MbwManager, private val resources
         holder.tvAddress.text = model.displayAddress
         holder.tvAddress.setTextColor(textColor)
         holder.lastSyncState.visibility = if (model.isSyncError) VISIBLE else GONE
+        holder.lastSyncState.setOnClickListener {
+            Toaster(it.context).toastSyncFailed(mbwManager.getWalletManager(false).getAccount(model.accountId)?.lastSyncStatus())
+        }
         updateSyncing(holder, model)
         updateBalance(holder, model, textColor)
         // Show/hide trader account message

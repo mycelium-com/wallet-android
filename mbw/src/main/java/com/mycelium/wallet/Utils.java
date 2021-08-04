@@ -92,6 +92,8 @@ import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.SyncStatus;
+import com.mycelium.wapi.SyncStatusInfo;
 import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;

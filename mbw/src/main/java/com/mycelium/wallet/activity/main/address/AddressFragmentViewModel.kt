@@ -51,4 +51,6 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     abstract fun qrClickReaction(activity: FragmentActivity)
 
     fun isInitialized() = ::model.isInitialized
+
+    fun syncStatusClick() = Toaster(context).toastSyncFailed(model.account.lastSyncStatus())
 }
