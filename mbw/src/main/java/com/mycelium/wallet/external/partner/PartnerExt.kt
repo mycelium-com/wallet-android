@@ -7,25 +7,24 @@ import android.net.Uri
 import androidx.fragment.app.Fragment
 
 fun Fragment.startContentLink(link: String?) {
-    if (link != null) {
-        try {
-            if (link.startsWith("action.")) {
-                startActivity(Intent(link))
-            } else {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
-            }
-        } catch (ignored: ActivityNotFoundException) {
-        }
+    startContentLink(link) {
+        startActivity(it)
     }
 }
 
 fun Activity.startContentLink(link: String?) {
+    startContentLink(link) {
+        startActivity(it)
+    }
+}
+
+private fun startContentLink(link: String?, startAction: (Intent) -> Unit) {
     if (link != null) {
         try {
-            if (link.startsWith("action.")) {
-                startActivity(Intent(link))
+            if (link.startsWith("mycelium://action.")) {
+                startAction(Intent(Uri.parse(link).host))
             } else {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+                startAction(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
             }
         } catch (ignored: ActivityNotFoundException) {
         }
