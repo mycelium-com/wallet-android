@@ -41,6 +41,16 @@
             android:lines="1"
             android:textSize="16sp"
             tools:text="(1)" />
+
+        <ImageView
+            android:id="@+id/lastSyncState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            custom:srcCompat="@drawable/ic_warning"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <com.mycelium.wallet.activity.util.ToggleableCurrencyButton

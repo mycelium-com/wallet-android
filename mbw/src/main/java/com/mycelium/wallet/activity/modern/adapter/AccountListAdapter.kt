@@ -37,7 +37,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private var itemClickListener: ItemClickListener? = null
     var investmentAccountClickListener: ItemClickListener? = null
-    private val layoutInflater: LayoutInflater
+    private val layoutInflater = LayoutInflater.from(context)
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
     private val walletManager = mbwManager.getWalletManager(false)
@@ -46,7 +46,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         get() = focusedAccountId?.let { walletManager.getAccount(it) }
 
     init {
-        layoutInflater = LayoutInflater.from(context)
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
             accountsGroupModels!!
             val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it is AccountViewModel && it.accountId == selectedAccountId } }
@@ -185,9 +184,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val groupHolder = holder as GroupTitleViewHolder
                 val group = item as AccountsGroupModel
                 buildGroupBase(group, groupHolder)
-                groupHolder.tvBalance.coinType = group.coinType
-                groupHolder.tvBalance.setValue(group.sum!!, false)
-                groupHolder.tvBalance.visibility = View.VISIBLE
+                groupHolder.tvBalance?.coinType = group.coinType
+                groupHolder.tvBalance?.setValue(group.sum!!, false)
+                groupHolder.tvBalance?.visibility = View.VISIBLE
+                groupHolder.lastSyncStatus?.visibility = if (group.isSyncError) View.VISIBLE else View.GONE
             }
             GROUP_ARCHIVED_TITLE_TYPE -> {
                 val groupHolder = holder as ArchivedGroupTitleViewHolder

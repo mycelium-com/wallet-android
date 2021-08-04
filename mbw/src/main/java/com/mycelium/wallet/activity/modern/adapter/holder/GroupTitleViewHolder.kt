@@ -1,25 +1,16 @@
-package com.mycelium.wallet.activity.modern.adapter.holder;
+package com.mycelium.wallet.activity.modern.adapter.holder
 
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.util.ToggleableCurrencyButton
 
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
-
-
-public class GroupTitleViewHolder extends RecyclerView.ViewHolder {
-    public TextView tvTitle;
-    public TextView tvAccountsCount;
-    public ToggleableCurrencyButton tvBalance;
-    public ImageView expandIcon;
-
-    public GroupTitleViewHolder(View itemView) {
-        super(itemView);
-        tvTitle = itemView.findViewById(R.id.tvTitle);
-        tvBalance = itemView.findViewById(R.id.tvBalance);
-        tvAccountsCount = itemView.findViewById(R.id.tvAccountsCount);
-        expandIcon = itemView.findViewById(R.id.expand);
-    }
+open class GroupTitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
+    val tvAccountsCount: TextView = itemView.findViewById(R.id.tvAccountsCount)
+    val tvBalance: ToggleableCurrencyButton? = itemView.findViewById(R.id.tvBalance)
+    val expandIcon: ImageView = itemView.findViewById(R.id.expand)
+    val lastSyncStatus: View? = itemView.findViewById(R.id.lastSyncState)
 }

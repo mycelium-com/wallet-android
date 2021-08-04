@@ -1,269 +1,199 @@
-/*
- * Copyright 2013, 2014 Megion Research and Development GmbH
- *
- * Licensed under the Microsoft Reference Source License (MS-RSL)
- *
- * This license governs use of the accompanying software. If you use the software, you accept this license.
- * If you do not accept the license, do not use the software.
- *
- * 1. Definitions
- * The terms "reproduce," "reproduction," and "distribution" have the same meaning here as under U.S. copyright law.
- * "You" means the licensee of the software.
- * "Your company" means the company you worked for when you downloaded the software.
- * "Reference use" means use of the software within your company as a reference, in read only form, for the sole purposes
- * of debugging your products, maintaining your products, or enhancing the interoperability of your products with the
- * software, and specifically excludes the right to distribute the software outside of your company.
- * "Licensed patents" means any Licensor patent claims which read directly on the software as distributed by the Licensor
- * under this license.
- *
- * 2. Grant of Rights
- * (A) Copyright Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free copyright license to reproduce the software for reference use.
- * (B) Patent Grant- Subject to the terms of this license, the Licensor grants you a non-transferable, non-exclusive,
- * worldwide, royalty-free patent license under licensed patents for reference use.
- *
- * 3. Limitations
- * (A) No Trademark License- This license does not grant you any rights to use the Licensor’s name, logo, or trademarks.
- * (B) If you begin patent litigation against the Licensor over patents that you think may apply to the software
- * (including a cross-claim or counterclaim in a lawsuit), your license to the software ends automatically.
- * (C) The software is licensed "as-is." You bear the risk of using it. The Licensor gives no express warranties,
- * guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot
- * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
- * fitness for a particular purpose and non-infringement.
- */
+package com.mycelium.wallet.activity.modern
 
-package com.mycelium.wallet.activity.modern;
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.res.Resources
+import android.text.Html
+import android.view.View.*
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder
+import com.mycelium.wallet.activity.modern.model.ViewAccountModel
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.persistence.MetadataStorage.BackupState
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
+import com.mycelium.wapi.wallet.colu.getColuAccounts
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.text.Html;
-import android.view.View;
-
-import androidx.annotation.NonNull;
-
-import com.google.common.base.Optional;
-import com.mrd.bitlib.model.BitcoinAddress;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
-import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
-import com.mycelium.wallet.activity.util.ValueExtensionsKt;
-import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
-import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
-
-
-public class RecordRowBuilder {
-    private final MbwManager mbwManager;
-    private final Resources resources;
-
-    public RecordRowBuilder(MbwManager mbwManager, Resources resources) {
-        this.mbwManager = mbwManager;
-        this.resources = resources;
-    }
-
-    public void buildRecordView(AccountViewHolder holder, ViewAccountModel model, boolean isSelected, boolean hasFocus) {
+class RecordRowBuilder(private val mbwManager: MbwManager, private val resources: Resources) {
+    fun buildRecordView(holder: AccountViewHolder, model: ViewAccountModel, isSelected: Boolean, hasFocus: Boolean) {
         // Make grey if not part of the balance
-        Utils.setAlpha(holder.llAddress, !isSelected ? 0.5f : 1f);
+        Utils.setAlpha(holder.llAddress, if (!isSelected) 0.5f else 1f)
 
         // Show focus if applicable
-        holder.llAddress.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
+        holder.llAddress.setBackgroundColor(resources.getColor(if (hasFocus) R.color.selectedrecord else R.color.transparent))
 
         // Show/hide key icon
-        Drawable drawableForAccount = isSelected ? model.drawableForAccountSelected : model.drawableForAccount;
+        val drawableForAccount = if (isSelected) model.drawableForAccountSelected else model.drawableForAccount
         if (drawableForAccount == null) {
-            holder.icon.setVisibility(View.INVISIBLE);
+            holder.icon.visibility = INVISIBLE
         } else {
-            holder.icon.setVisibility(VISIBLE);
-            holder.icon.setImageDrawable(drawableForAccount);
+            holder.icon.visibility = VISIBLE
+            holder.icon.setImageDrawable(drawableForAccount)
         }
-
-        updateRMCInfo(holder, model);
-        int textColor = resources.getColor(R.color.white);
-        if (model.label.length() == 0) {
-            holder.tvLabel.setVisibility(GONE);
+        updateRMCInfo(holder, model)
+        val textColor = resources.getColor(R.color.white)
+        if (model.label.isEmpty()) {
+            holder.tvLabel.visibility = GONE
         } else {
             // Display name
-            holder.tvLabel.setVisibility(VISIBLE);
-            holder.tvLabel.setText(Html.fromHtml(model.label));
-            holder.tvLabel.setTextColor(textColor);
+            holder.tvLabel.visibility = VISIBLE
+            holder.tvLabel.text = Html.fromHtml(model.label)
+            holder.tvLabel.setTextColor(textColor)
         }
-
-        holder.tvAddress.setText(model.displayAddress);
-        holder.tvAddress.setTextColor(textColor);
-        updateSyncing(holder, model);
-        updateBalance(holder, model, textColor);
+        holder.tvAddress.text = model.displayAddress
+        holder.tvAddress.setTextColor(textColor)
+        holder.lastSyncState.visibility = if (model.isSyncError) VISIBLE else GONE
+        updateSyncing(holder, model)
+        updateBalance(holder, model, textColor)
         // Show/hide trader account message
-        holder.tvTraderKey.setVisibility(model.accountId.equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())
-                ? VISIBLE : GONE);
+        holder.tvTraderKey.visibility = if (model.accountId == mbwManager.localTraderManager.localTraderAccountId) VISIBLE else GONE
     }
 
-    private void updateRMCInfo(AccountViewHolder holder, ViewAccountModel model) {
+    private fun updateRMCInfo(holder: AccountViewHolder, model: ViewAccountModel) {
         if (model.isRMCLinkedAccount) {
-            holder.tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    new AlertDialog.Builder(view.getContext())
-                            .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it))
-                            .setPositiveButton(R.string.button_ok, null)
-                            .create()
-                            .show();
-                }
-            });
-            holder.tvWhatIsIt.setVisibility(VISIBLE);
+            holder.tvWhatIsIt.setOnClickListener { view ->
+                AlertDialog.Builder(view.context)
+                        .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it))
+                        .setPositiveButton(R.string.button_ok, null)
+                        .create()
+                        .show()
+            }
+            holder.tvWhatIsIt.visibility = VISIBLE
         } else {
-            holder.tvWhatIsIt.setVisibility(GONE);
+            holder.tvWhatIsIt.visibility = GONE
         }
     }
 
-    private void updateSyncing(AccountViewHolder holder, ViewAccountModel model) {
+    private fun updateSyncing(holder: AccountViewHolder, model: ViewAccountModel) {
         if (model.isSyncing) {
-            holder.tvProgressLayout.setVisibility(VISIBLE);
+            holder.tvProgressLayout.visibility = VISIBLE
             if (model.syncTotalRetrievedTransactions == 0) {
-                holder.layoutProgressTxRetreived.setVisibility(GONE);
+                holder.layoutProgressTxRetreived.visibility = GONE
             } else {
-                holder.layoutProgressTxRetreived.setVisibility(VISIBLE);
-                holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
-                        model.syncTotalRetrievedTransactions));
-                holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
+                holder.layoutProgressTxRetreived.visibility = VISIBLE
+                holder.tvProgress.text = resources.getString(R.string.sync_total_retrieved_transactions,
+                        model.syncTotalRetrievedTransactions)
+                holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler)
             }
         } else {
-            holder.tvProgressLayout.setVisibility(GONE);
+            holder.tvProgressLayout.visibility = GONE
         }
     }
 
-    private void updateBalance(AccountViewHolder holder, ViewAccountModel model, int textColor) {
+    private fun updateBalance(holder: AccountViewHolder, model: ViewAccountModel, textColor: Int) {
         if (model.isActive) {
-            Balance balance = model.balance;
-            holder.tvBalance.setVisibility(VISIBLE);
-            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(),
-                    mbwManager.getDenomination(model.coinType));
-            holder.tvBalance.setText(balanceString);
-            holder.tvBalance.setTextColor(textColor);
+            val balance = model.balance
+            holder.tvBalance.visibility = VISIBLE
+            val balanceString = balance.spendable.toStringWithUnit(mbwManager.getDenomination(model.coinType))
+            holder.tvBalance.text = balanceString
+            holder.tvBalance.setTextColor(textColor)
 
             // Show legacy account with funds warning if necessary
-            holder.backupMissing.setVisibility(model.showBackupMissingWarning ? VISIBLE : GONE);
-            if (mbwManager.getMetadataStorage().getOtherAccountBackupState(model.accountId) == MetadataStorage.BackupState.NOT_VERIFIED) {
-                holder.backupMissing.setText(R.string.backup_not_verified);
+            holder.backupMissing.visibility = if (model.showBackupMissingWarning) VISIBLE else GONE
+            if (mbwManager.metadataStorage.getOtherAccountBackupState(model.accountId) === BackupState.NOT_VERIFIED) {
+                holder.backupMissing.setText(R.string.backup_not_verified)
             } else {
-                holder.backupMissing.setText(R.string.backup_missing);
+                holder.backupMissing.setText(R.string.backup_missing)
             }
-            holder.tvAccountType.setVisibility(GONE);
+            holder.tvAccountType.visibility = GONE
         } else {
             // We don't show anything if the account is archived
-            holder.tvBalance.setVisibility(GONE);
-            holder.backupMissing.setVisibility(GONE);
-            if (model.accountType.isInstance(Bip44BCHAccount.class)
-                    || model.accountType.isInstance(SingleAddressBCHAccount.class)) {
-                holder.tvAccountType.setText(Html.fromHtml(holder.tvAccountType.getResources().getString(R.string.bitcoin_cash)));
-                holder.tvAccountType.setVisibility(VISIBLE);
+            holder.tvBalance.visibility = GONE
+            holder.backupMissing.visibility = GONE
+            if (model.accountType.isInstance(Bip44BCHAccount::class.java)
+                    || model.accountType.isInstance(SingleAddressBCHAccount::class.java)) {
+                holder.tvAccountType.text = Html.fromHtml(holder.tvAccountType.resources.getString(R.string.bitcoin_cash))
+                holder.tvAccountType.visibility = VISIBLE
             } else {
-                holder.tvAccountType.setVisibility(GONE);
+                holder.tvAccountType.visibility = GONE
             }
         }
     }
 
-    private View.OnClickListener whatIsSyncHandler = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog_BlueButtons)
-                    .setTitle(resources.getString(R.string.what_is_sync))
-                    .setMessage(resources.getString(R.string.what_is_sync_description))
-                    .setPositiveButton(R.string.button_ok, null)
-                    .create()
-                    .show();
-        }
-    };
+    private val whatIsSyncHandler = OnClickListener { view ->
+        AlertDialog.Builder(view.context, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setTitle(resources.getString(R.string.what_is_sync))
+                .setMessage(resources.getString(R.string.what_is_sync_description))
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
+    }
 
     @SuppressLint("StringFormatMatches")
-    private ViewAccountModel convert(WalletAccount walletAccount) {
-        ViewAccountModel result = new ViewAccountModel();
-        result.accountId = walletAccount.getId();
-        result.coinType = walletAccount.getCoinType();
+    private fun convert(walletAccount: WalletAccount<*>): ViewAccountModel =
+            ViewAccountModel().apply {
+                accountId = walletAccount.id
+                coinType = walletAccount.coinType
+                drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources)
+                drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources)
+                accountType = walletAccount.javaClass
+                syncTotalRetrievedTransactions = walletAccount.syncTotalRetrievedTransactions
+                val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getColuAccounts())
+                isRMCLinkedAccount = linked?.coinType == RMCCoin || linked?.coinType == RMCCoinTest
 
-        result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
-        result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
-        result.accountType = walletAccount.getClass();
-        result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
-
-        WalletAccount linked = Utils.getLinkedAccount(walletAccount, getColuAccounts(mbwManager.getWalletManager(false)));
-        if (linked != null && (linked.getCoinType().equals(RMCCoin.INSTANCE) || linked.getCoinType().equals(RMCCoinTest.INSTANCE))) {
-            result.isRMCLinkedAccount = true;
-        }
-        result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
-        if (walletAccount.isActive()) {
-            if (walletAccount instanceof HDPubOnlyAccount) {
-                int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
-                result.displayAddress = resources.getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
-            } else if (walletAccount instanceof HDAccount) {
-                int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
-                result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
-            } else {
-                Optional<BitcoinAddress> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
-                if (receivingAddress.isPresent()) {
-                    if (result.label.length() == 0) {
-                        // Display address in it's full glory, chopping it into three
-                        result.displayAddress = receivingAddress.get().toMultiLineString();
-                    } else {
-                        // Display address in short form
-                        result.displayAddress = receivingAddress.get().getShortAddress();
+                label = mbwManager.metadataStorage.getLabelByAccount(walletAccount.id)
+                displayAddress = if (walletAccount.isActive) {
+                    when (walletAccount) {
+                        is HDPubOnlyAccount -> {
+                            walletAccount.getPrivateKeyCount().let { numKeys ->
+                                resources.getQuantityString(R.plurals.contains_addresses, numKeys, numKeys)
+                            }
+                        }
+                        is HDAccount -> {
+                            walletAccount.getPrivateKeyCount().let { numKeys ->
+                                resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys)
+                            }
+                        }
+                        else -> {
+                            val receivingAddress = (walletAccount as WalletBtcAccount).receivingAddress
+                            if (receivingAddress.isPresent) {
+                                if (label.isEmpty()) {
+                                    // Display address in it's full glory, chopping it into three
+                                    receivingAddress.get().toMultiLineString()
+                                } else {
+                                    // Display address in short form
+                                    receivingAddress.get().shortAddress
+                                }
+                            } else {
+                                ""
+                            }
+                        }
                     }
                 } else {
-                    result.displayAddress = "";
+                    "" //dont show key count of archived accs
+                }
+                isActive = walletAccount.isActive
+                if (isActive) {
+                    balance = walletAccount.accountBalance
+                    showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager)
                 }
             }
-        } else {
-            result.displayAddress = ""; //dont show key count of archived accs
-        }
-        result.isActive = walletAccount.isActive();
-        if (result.isActive) {
-            result.balance = walletAccount.getAccountBalance();
-            result.showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
-        }
-        return result;
-    }
 
-    @NonNull
-    public List<ViewAccountModel> convertList(List<WalletAccount<?>> accounts) {
-        List<ViewAccountModel> viewAccountList = new ArrayList<>();
-        for (WalletAccount account : accounts) {
-            viewAccountList.add(convert(account));
-        }
-        return viewAccountList;
-    }
+    fun convertList(accounts: List<WalletAccount<*>>): List<ViewAccountModel> = accounts.map { convert(it) }
 
-    private static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {
-        if (account.isArchived()) {
-            return false;
-        }
-
-        boolean showBackupMissingWarning = false;
-        if (account.canSpend()) {
-            if (account.isDerivedFromInternalMasterseed()) {
-                showBackupMissingWarning = mbwManager.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED;
+    companion object {
+        private fun showBackupMissingWarning(account: WalletAccount<*>, mbwManager: MbwManager): Boolean {
+            if (account.isArchived) {
+                return false
+            }
+            return if (account.canSpend()) {
+                if (account.isDerivedFromInternalMasterseed) {
+                    mbwManager.metadataStorage.masterSeedBackupState !== BackupState.VERIFIED
+                } else {
+                    val backupState = mbwManager.metadataStorage.getOtherAccountBackupState(account.id)
+                    backupState !== BackupState.VERIFIED && backupState !== BackupState.IGNORED
+                }
             } else {
-                MetadataStorage.BackupState backupState = mbwManager.getMetadataStorage().getOtherAccountBackupState(account.getId());
-                showBackupMissingWarning = (backupState != MetadataStorage.BackupState.VERIFIED) && (backupState != MetadataStorage.BackupState.IGNORED);
+                false
             }
         }
-
-        return showBackupMissingWarning;
     }
 }

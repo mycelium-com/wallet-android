@@ -16,6 +16,7 @@ class AccountsGroupModel(val titleId: Int, private val groupType: AccountListIte
             model.accountsList, model.coinType, model.isInvestmentAccount)
 
     var isCollapsed = false // Is only used to handle state between updates.
+    var isSyncError = accountsList.filterIsInstance<SyncStatusItem>().all { it.isSyncError }
 
     /**
      * @param context - context must be passed, as with language change title might change.

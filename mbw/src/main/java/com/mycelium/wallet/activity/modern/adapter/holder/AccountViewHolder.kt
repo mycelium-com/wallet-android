@@ -1,46 +1,26 @@
-package com.mycelium.wallet.activity.modern.adapter.holder;
+package com.mycelium.wallet.activity.modern.adapter.holder
 
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.view.View
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.record_row.view.*
 
-import com.mycelium.wallet.R;
-
-
-public class AccountViewHolder extends RecyclerView.ViewHolder {
-    public View llAddress;
-    public TextView tvLabel;
-    public TextView tvWhatIsIt;
-    public ImageView icon;
-    public TextView tvAddress;
-    public TextView tvAccountType;
-    public TextView tvBalance;
-    public TextView backupMissing;
-    public TextView tvProgress;
-    public View layoutProgressTxRetreived;
-    public View tvProgressLayout;
-    public ImageView ivWhatIsSync;
-    public ProgressBar progressBar;
-
-    public View tvTraderKey;
-
-    public AccountViewHolder(View itemView) {
-        super(itemView);
-        llAddress = itemView.findViewById(R.id.llAddress);
-        tvLabel = itemView.findViewById(R.id.tvLabel);
-        tvWhatIsIt = itemView.findViewById(R.id.tvWhatIsIt);
-        icon = itemView.findViewById(R.id.ivIcon);
-        tvAddress = itemView.findViewById(R.id.tvAddress);
-        tvAccountType = itemView.findViewById(R.id.tvAccountType);
-        tvBalance = itemView.findViewById(R.id.tvBalance);
-        backupMissing = itemView.findViewById(R.id.tvBackupMissingWarning);
-        tvTraderKey = itemView.findViewById(R.id.tvTraderKey);
-        tvProgress = itemView.findViewById(R.id.tvProgress);
-        tvProgressLayout = itemView.findViewById(R.id.tvProgressLayout);
-        ivWhatIsSync = itemView.findViewById(R.id.ivWhatIsSync);
-        progressBar = itemView.findViewById(R.id.progress_bar);
-        layoutProgressTxRetreived = itemView.findViewById(R.id.progressTxRetreived);
-    }
+class AccountViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val llAddress: View = itemView.llAddress
+    val tvLabel: TextView = itemView.tvLabel
+    val tvWhatIsIt: TextView = itemView.tvWhatIsIt
+    val icon: ImageView = itemView.ivIcon
+    val tvAddress: TextView = itemView.tvAddress
+    val tvAccountType: TextView = itemView.tvAccountType
+    val tvBalance: TextView = itemView.tvBalance
+    val backupMissing: TextView = itemView.tvBackupMissingWarning
+    val tvProgress: TextView = itemView.tvProgress
+    val layoutProgressTxRetreived: View = itemView.progressTxRetreived
+    val tvProgressLayout: View = itemView.tvProgressLayout
+    val ivWhatIsSync: ImageView = itemView.ivWhatIsSync
+    val progressBar: ProgressBar = itemView.progress_bar
+    val lastSyncState: View = itemView.lastSyncState
+    val tvTraderKey: View = itemView.tvTraderKey
 }
