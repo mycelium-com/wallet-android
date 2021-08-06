@@ -351,9 +351,19 @@
             </intent-filter>
         </activity>
         <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity">
-            <intent-filter>
+            <intent-filter android:label="GiftBox">
                 <action android:name="action.GIFTBOX" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:label="GiftBox">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="action.giftbox"
+                    android:scheme="mycelium" />
             </intent-filter>
         </activity>
     </application>
