@@ -44,6 +44,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         syncing = true
         if (!maySync) { return false }
         updateBlockHeight()
+        if (!maySync) { return false }
         val synced = doSynchronization(mode)
         syncing = false
         return synced
