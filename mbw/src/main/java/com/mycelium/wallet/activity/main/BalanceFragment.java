@@ -376,7 +376,7 @@ public class BalanceFragment extends Fragment {
                 Value converted = _mbwManager.getExchangeRateManager().get(value,
                         _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
                 tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
-            } catch (IllegalArgumentException ex) {
+            } catch (IllegalArgumentException | NullPointerException ex) {
                 // something failed while calculating the bitcoin amount
                 tv.setVisibility(View.GONE);
             }
