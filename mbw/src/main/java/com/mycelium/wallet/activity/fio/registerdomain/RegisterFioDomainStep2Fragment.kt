@@ -117,8 +117,9 @@ class RegisterFioDomainStep2Fragment : Fragment() {
         val mbwManager = MbwManager.getInstance(context)
         viewModel.registrationFee.observe(viewLifecycleOwner, Observer {
             binding?.tvFeeInfo?.text = resources.getString(R.string.fio_annual_fee_domain, it.toStringWithUnit())
-            binding?.tvAnnualFeeFiat?.text = "~ ${mbwManager.exchangeRateManager.get(viewModel.registrationFee.value!!,
-                    mbwManager.getFiatCurrency(viewModel.registrationFee.value!!.type)).toStringWithUnit()}"
+            val feeFiat = mbwManager.exchangeRateManager.get(viewModel.registrationFee.value!!,
+                mbwManager.getFiatCurrency(viewModel.registrationFee.value!!.type))
+            binding?.tvAnnualFeeFiat?.text = if (feeFiat != null) "~ ${feeFiat.toStringWithUnit()}" else ""
         })
         binding?.tvFioName?.text = "@${viewModel.domain.value}"
         binding?.tvNotEnoughFundsError?.visibility = View.GONE
