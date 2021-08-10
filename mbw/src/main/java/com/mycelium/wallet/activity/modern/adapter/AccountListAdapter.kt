@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -282,38 +283,25 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
                 when (oldItem.getType()) {
                     GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE -> {
-                        newItem as AccountsGroupModel
-                        oldItem as AccountsGroupModel
-                        newItem.isCollapsed == oldItem.isCollapsed
-                                && newItem.coinType == oldItem.coinType
-                                && newItem.accountsList.size == oldItem.accountsList.size
-                                && newItem.sum == oldItem.sum
+                        equalsValuesBy(newItem as AccountsGroupModel, oldItem as AccountsGroupModel,
+                                { it.isCollapsed }, { it.coinType }, { it.accountsList.size },
+                                { it.sum }, { it.isSyncError })
                     }
                     ACCOUNT_TYPE -> {
-                        newItem as AccountViewModel
-                        oldItem as AccountViewModel
-                        newItem.displayAddress == oldItem.displayAddress
-                                && newItem.isActive == oldItem.isActive
-                                && newItem.canSpend == oldItem.canSpend
-                                && newItem.externalAccountType == oldItem.externalAccountType
-                                && newItem.isRMCLinkedAccount == oldItem.isRMCLinkedAccount
-                                && newItem.label == oldItem.label
-                                && newItem.showBackupMissingWarning == oldItem.showBackupMissingWarning
-                                && newItem.syncTotalRetrievedTransactions == oldItem.syncTotalRetrievedTransactions
-                                && newItem.isSyncing == oldItem.isSyncing
-                                && newItem.privateKeyCount == oldItem.privateKeyCount
-                                && newItem.balance?.spendable == oldItem.balance?.spendable
+                        equalsValuesBy(newItem as AccountViewModel, oldItem as AccountViewModel,
+                                { it.displayAddress }, { it.isActive }, { it.canSpend },
+                                { it.externalAccountType }, { it.isRMCLinkedAccount }, { it.label },
+                                { it.showBackupMissingWarning }, { it.syncTotalRetrievedTransactions },
+                                { it.isSyncing }, { it.privateKeyCount }, { it.balance?.spendable },
+                                { it.isSyncError })
                     }
                     TOTAL_BALANCE_TYPE -> {
-                        newItem as TotalViewModel
-                        oldItem as TotalViewModel
-                        newItem.balance.values == oldItem.balance.values
+                        equalsValuesBy(newItem as TotalViewModel, oldItem as TotalViewModel,
+                                {it.balance.values})
                     }
                     INVESTMENT_TYPE -> {
-                        newItem as AccountInvestmentViewModel
-                        oldItem as AccountInvestmentViewModel
-                        newItem.accountId == oldItem.accountId
-                                && newItem.balance == oldItem.balance
+                        equalsValuesBy(newItem as AccountInvestmentViewModel, oldItem as AccountInvestmentViewModel,
+                                { it.accountId }, { it.balance })
                     }
                     else -> oldItem == newItem
                 }
