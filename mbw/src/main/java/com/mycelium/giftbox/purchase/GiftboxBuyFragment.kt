@@ -272,7 +272,8 @@ class GiftboxBuyFragment : Fragment() {
                 )
             )
         } else {
-            Toaster(requireActivity()).toast(broadcastResult.errorMessage, false)
+            Toaster(requireActivity())
+                .toast(broadcastResult.errorMessage ?: broadcastResult.resultType.toString(), false)
         }
     }
 }
