@@ -26,7 +26,7 @@ class GiftboxApiRepository {
     private val clientUserIdFromMasterSeed by lazy {
         MbwManager.getInstance(WalletApplication.getInstance())
                 .masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher())
-                .getPrivateKeyForWebsite(Constants.WEBSITE, AesKeyCipher.defaultKeyCipher())
+                .getPrivateKeyForWebsite(GiftboxConstants.WEBSITE, AesKeyCipher.defaultKeyCipher())
                 .publicKey.toString()
     }
 
