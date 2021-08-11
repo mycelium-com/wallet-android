@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.Toaster
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
@@ -52,5 +53,5 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     fun isInitialized() = ::model.isInitialized
 
-    fun syncStatusClick() = Toaster(context).toastSyncFailed(model.account.lastSyncStatus())
+    fun syncStatusClick() = Toaster(WalletApplication.getInstance()).toastSyncFailed(model.account.lastSyncStatus())
 }
