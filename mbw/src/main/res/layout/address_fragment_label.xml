@@ -32,11 +32,11 @@
                 android:visibility="@{viewModel.isLabelNullOrEmpty() ? View.GONE : View.VISIBLE}"
                 android:text="@{viewModel.accountLabel}"/>
         <ImageView
+            android:id="@+id/syncStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_warning"
             android:layout_gravity="center"
-            android:onClick="@{_ -> viewModel.syncStatusClick()}"
             android:visibility="@{viewModel.isSyncError() ? View.VISIBLE : View.GONE}" />
     </LinearLayout>
 </layout>
