@@ -35,7 +35,6 @@ class ERC20Account(private val chainId: Byte,
                    private val accountListener: AccountListener?,
                    blockchainService: EthBlockchainService) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, blockchainService, ERC20Account::class.simpleName), SyncPausable {
-    private var removed = false
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
@@ -115,9 +114,6 @@ class ERC20Account(private val chainId: Byte,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived || !maySync) {
-            return false
-        }
         syncTransactions()
         return updateBalanceCache()
     }
