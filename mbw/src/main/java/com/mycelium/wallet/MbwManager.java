@@ -336,9 +336,6 @@ public class MbwManager {
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
         List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
-        for (TcpEndpoint btcvEndpoint : btcvEndpoints) {
-            btcvEndpoint.setUseSsl(getNetwork().isProdnet());
-        }
         btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
         configuration.setElectrumVServerListChangedListener(btcvWapi);
