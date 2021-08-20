@@ -210,9 +210,9 @@ class ERC20Account(private val chainId: Byte,
         try {
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.forEach { tx ->
-                tx.getTokenTransfer(token.contractAddress)?.also { transfer ->
-                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                            transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                tx.getTokenTransfer(token.contractAddress)?.also { tokenTransfer ->
+                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
+                            tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
                             Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
                                     ?: typicalEstimatedTransactionSize.toBigInteger())),
                             tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
