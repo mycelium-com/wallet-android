@@ -644,6 +644,9 @@ public class MbwManager {
         if (currencySettings != null) {
             currencySettings.setChangeAddressMode(changeAddressMode);
             _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
+            // TODO refactor
+            // so far currency settings (that consist of only the change mode) are the same for BTC/BTCV currencies
+            _walletManager.setCurrencySettings(BitcoinVaultHDModule.ID, currencySettings);
             getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
         }
     }
