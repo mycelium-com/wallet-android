@@ -56,5 +56,5 @@ object RetrofitFactory {
 
 }
 
-inline fun <reified T> createApi(url: String = Constants.ENDPOINT): T =
+inline fun <reified T> createApi(url: String = GiftboxConstants.ENDPOINT): T =
     RetrofitFactory.getRetrofit(url).create(T::class.java)
