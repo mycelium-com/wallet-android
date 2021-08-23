@@ -43,12 +43,6 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import java.util.ArrayList
 import java.util.Collections
-import kotlin.Boolean
-import kotlin.Comparator
-import kotlin.Double
-import kotlin.String
-import kotlin.let
-import kotlin.takeIf
 
 
 class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
