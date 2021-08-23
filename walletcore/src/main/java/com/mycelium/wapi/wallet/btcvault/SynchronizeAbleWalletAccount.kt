@@ -71,8 +71,6 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : SyncPausableAc
 
     override fun isSyncing(): Boolean = isSyncing
 
-    override fun lastSyncStatus(): SyncStatusInfo = lastSyncInfo
-
     override fun isVisible(): Boolean = true
 
     /**

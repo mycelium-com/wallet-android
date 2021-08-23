@@ -507,8 +507,6 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isSyncing(): Boolean = syncing
 
-    override fun lastSyncStatus(): SyncStatusInfo = lastSyncInfo
-
     override fun isArchived(): Boolean = accountContext.archived
 
     override fun isActive(): Boolean = !isArchived

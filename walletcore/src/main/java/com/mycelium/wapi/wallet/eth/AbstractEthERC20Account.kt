@@ -11,7 +11,6 @@ import java.io.IOException
 import java.math.BigInteger
 import java.util.logging.Level
 import java.util.logging.Logger
-import java.util.*
 
 abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val credentials: Credentials? = null,
@@ -108,8 +107,6 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     override fun canSpend() = credentials != null
 
     override fun isSyncing() = syncing
-
-    override fun lastSyncStatus(): SyncStatusInfo = lastSyncInfo
 
     override fun isActive() = !isArchived
 

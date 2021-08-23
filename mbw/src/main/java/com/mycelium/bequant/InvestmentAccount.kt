@@ -27,7 +27,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
                 Value.zeroValue(Utils.getBtcCoinType()),
                 Value.zeroValue(Utils.getBtcCoinType()))
 
-    private var lastSyncInfo = SyncStatusInfo(SyncStatus.UNKNOWN, Date())
+    private var lastSyncInfo = SyncStatusInfo(SyncStatus.UNKNOWN)
 
     @Volatile
     private var syncing = false
