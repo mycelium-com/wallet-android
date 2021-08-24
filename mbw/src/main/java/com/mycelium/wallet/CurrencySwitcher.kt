@@ -37,7 +37,6 @@ package com.mycelium.wallet
 import com.google.api.client.util.Lists
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
@@ -111,11 +110,11 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         return currentCurrencyMap[coinType]
     }
 
-    fun getCurrentFiatCurrency(coinType: AssetInfo): AssetInfo? {
-        return currentFiatCurrencyMap[coinType]
+    fun getCurrentFiatCurrency(coinType: AssetInfo): AssetInfo {
+        return currentFiatCurrencyMap[coinType] ?: FiatType(Constants.DEFAULT_CURRENCY)
     }
 
-    fun getDenomination(coinType: AssetInfo): Denomination? = denominationMap[coinType] ?: Denomination.UNIT
+    fun getDenomination(coinType: AssetInfo): Denomination = denominationMap[coinType] ?: Denomination.UNIT
 
     fun getCurrentCurrencyIncludingDenomination(coinType: AssetInfo): String {
         return if (currentCurrencyMap[coinType] is FiatType) {
@@ -223,8 +222,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
      */
     @Synchronized
     fun getExchangeRatePrice(fromCurrency: AssetInfo): Double? {
-        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol,
-                currentFiatCurrencyMap[fromCurrency]?.symbol ?: CurrencyCode.USD.shortString)
+        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol, getCurrentFiatCurrency(fromCurrency).symbol)
         return rate?.price
     }
 
