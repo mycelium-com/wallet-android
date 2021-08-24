@@ -35,6 +35,10 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     private val coinType = if (networkParameters.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
+    init {
+        assetsList.add(coinType)
+    }
+
     override val id: String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
@@ -51,7 +55,6 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             is AdditionalMasterseedAccountConfig -> {
                 val masterSeed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
                 val accountIndex = getCurrentBip44Index() + 1
-
 
                 // Create the base keys for the account
                 val keyManagerMap = BipDerivationType.values().associate { derivationType ->

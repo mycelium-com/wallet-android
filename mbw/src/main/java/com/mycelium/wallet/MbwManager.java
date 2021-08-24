@@ -336,9 +336,6 @@ public class MbwManager {
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
         List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
-        for (TcpEndpoint btcvEndpoint : btcvEndpoints) {
-            btcvEndpoint.setUseSsl(getNetwork().isProdnet());
-        }
         btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
         configuration.setElectrumServerListChangedListener(_wapi);
         configuration.setElectrumVServerListChangedListener(btcvWapi);
@@ -647,6 +644,9 @@ public class MbwManager {
         if (currencySettings != null) {
             currencySettings.setChangeAddressMode(changeAddressMode);
             _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
+            // TODO refactor
+            // so far currency settings (that consist of only the change mode) are the same for BTC/BTCV currencies
+            _walletManager.setCurrencySettings(BitcoinVaultHDModule.ID, currencySettings);
             getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
         }
     }
