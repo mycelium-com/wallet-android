@@ -1,4 +1,4 @@
-package com.mycelium.wapi.fio
+package com.mycelium.wapi.wallet.fio
 
 import com.mycelium.wapi.content.fio.isFioPublicKey
 import org.junit.Test

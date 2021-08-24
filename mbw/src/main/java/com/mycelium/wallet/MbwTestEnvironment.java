@@ -116,7 +116,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
             add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.testnet.fioprotocol.io/account/", "https://explorer.testnet.fioprotocol.io/transaction/", null, null));
          }});
          put(BitcoinVaultTest.INSTANCE.getName(), Arrays.asList(
-                 new BlockExplorer("BVE", "explorer.bitcoinvault.global", "http://18.196.199.105/address/", "http://18.196.199.105/tx/", null, null)
+                 new BlockExplorer("BVE", "explorer.bitcoinvault.global", "http://explorer.testnet.btcv.stage.rnd.land/address/", "http://explorer.testnet.btcv.stage.rnd.land/tx/", null, null)
          ));
       }
    };
