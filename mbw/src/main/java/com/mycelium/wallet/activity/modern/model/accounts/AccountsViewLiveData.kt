@@ -85,7 +85,13 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 if (accounts.isNotEmpty()) {
                     val sum = getSpendableBalance(accounts)
                     accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, sum, accountsToViewModel(accounts),
-                            accounts[0].basedOnCoinType, it.second.first() is InvestmentAccount))
+                            accounts[0].basedOnCoinType, it.second.first() is InvestmentAccount).apply {
+                        if (this.isSyncError) {
+                            this.accountsList.filterIsInstance<SyncStatusItem>().forEach { item ->
+                                item.isSyncError = false
+                            }
+                        }
+                    })
                 }
             }
             if (value!!.isEmpty()) {
@@ -115,12 +121,12 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         private fun getInvestmentAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getInvestmentAccounts()
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>) =
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>): List<AccountListItem> =
                 accounts.map {
                     if (it is InvestmentAccount) {
                         BQExchangeRateManager.requestOptionalRefresh()
                         AccountInvestmentViewModel(it, it.accountBalance.confirmed.toStringWithUnit())
-                    } else AccountViewModel(it, mbwManager)
+                    } else AccountViewModel(it, mbwManager) as AccountListItem
                 }
 
         private fun sortAccounts(accounts: Collection<WalletAccount<out Address>>) =

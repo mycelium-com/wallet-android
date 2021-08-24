@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 
 /**
  * Helper class that makes it easy to let a new toast replace another if they
@@ -47,6 +49,23 @@ class Toaster(val context: Context) {
         } else {
             toast(R.string.no_network_connection, true)
         }
+    }
+
+    fun toastSyncFailed(syncStatusInfo: SyncStatusInfo? = null) {
+        toast(when {
+            !Utils.isConnected(context) -> {
+                context.getString(R.string.no_network_connection)
+            }
+            syncStatusInfo?.status == SyncStatus.INTERRUPT -> {
+                context.getString(R.string.sync_failed_s, "Reason: Interrupted by application")
+            }
+            syncStatusInfo?.status == SyncStatus.ERROR -> {
+                context.getString(R.string.sync_failed_s, "Reason: " + context.getString(R.string.no_server_connection, ""))
+            }
+            else -> {
+                context.getString(R.string.sync_failed_s, "")
+            }
+        }, false)
     }
 
     companion object {

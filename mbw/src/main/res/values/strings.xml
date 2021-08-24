@@ -1695,6 +1695,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="purchase_failed">Purchase Failed</string>
     <string name="processing">Processing...</string>
     <string name="success_s">Success, %s</string>
+    <string name="sync_failed_s">Synchronization failed. %s</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.modern.model.accounts
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.persistence.MetadataStorage
+import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
@@ -17,7 +18,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 /**
  * Model for the account item on the accounts tab.
  */
-class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManager?) : AccountListItem {
+class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManager?) : AccountListItem, SyncStatusItem {
     val accountId = account.id!!
     val accountType = account::class.java
     val coinType = account.coinType
@@ -29,6 +30,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
     var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
     val isSyncing = account.isSyncing
+    override var isSyncError = account.lastSyncStatus()?.status in arrayOf(SyncStatus.INTERRUPT, SyncStatus.ERROR)
     // if need key count for other classes add count logic
     val privateKeyCount = if (account is HDAccount) account.getPrivateKeyCount() else -1
     val canSpend = account.canSpend()
@@ -54,7 +56,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
     }
 
     constructor(account: HDAccount, mbwManager: MbwManager) : this(account as WalletBtcAccount, mbwManager) {
-        displayAddress = Integer.toString(account.getPrivateKeyCount())
+        displayAddress = account.getPrivateKeyCount().toString()
     }
 
     override fun getType() = AccountListItem.Type.ACCOUNT_TYPE
@@ -75,6 +77,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
         if (label != other.label) return false
         if (displayAddress != other.displayAddress) return false
         if (isSyncing != other.isSyncing) return false
+        if (isSyncError != other.isSyncError) return false
         if (additional != other.additional) return false
 
         return true
@@ -91,6 +94,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
         result = 31 * result + label.hashCode()
         result = 31 * result + displayAddress.hashCode()
         result = 31 * result + isSyncing.hashCode()
+        result = 31 * result + isSyncError.hashCode()
         result = 31 * result + additional.hashCode()
         return result
     }

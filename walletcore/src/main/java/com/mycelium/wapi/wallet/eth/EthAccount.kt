@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -128,8 +130,9 @@ class EthAccount(private val chainId: Byte,
     override fun doSynchronization(mode: SyncMode?): Boolean {
         if (removed || isArchived || !maySync) { return false }
 
-        syncTransactions()
-        return updateBalanceCache()
+        val syncTx = syncTransactions()
+        updateBalanceCache()
+        return syncTx
     }
 
     override fun updateBalanceCache(): Boolean {
@@ -174,7 +177,7 @@ class EthAccount(private val chainId: Byte,
                         .fold(BigInteger.ZERO, BigInteger::add)
     }
 
-    private fun syncTransactions() {
+    private fun syncTransactions(): Boolean {
         try {
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString)
             remoteTransactions.forEach { tx ->
@@ -195,8 +198,11 @@ class EthAccount(private val chainId: Byte,
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
             }
+            return true
         } catch (e: IOException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
+            return false
         }
     }
 

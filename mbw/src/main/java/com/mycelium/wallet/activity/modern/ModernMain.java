@@ -643,12 +643,6 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void synchronizationFailed(SyncFailed event) {
         hideRefresh();
-        String type = "";
-        WalletAccount account = _mbwManager.getWalletManager(false).getAccount(event.accountId);
-        if(account != null) {
-            type = account.getCoinType().getName();
-        }
-        _toaster.toastConnectionError(type);
     }
 
     @Subscribe
