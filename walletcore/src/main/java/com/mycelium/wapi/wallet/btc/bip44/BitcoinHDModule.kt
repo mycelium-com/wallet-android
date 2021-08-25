@@ -299,7 +299,10 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
     /**
      * To create an additional HD account from the master seed, the master seed must be present and
-     * all existing master seed accounts must have had transactions (no gap accounts)
+     * all existing master seed accounts must have had transactions (no gap accounts) or be archived
+     * (we may archive only used accounts therefore if account is archived it has had activity by definition.
+     * But at the same time we clear all the information regardless if the account was used when we archive it
+     * so we cannot rely on the according method for archived accounts)
      */
     fun canCreateAdditionalBip44Account(): Boolean =
             hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed }
