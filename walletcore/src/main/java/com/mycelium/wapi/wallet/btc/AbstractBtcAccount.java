@@ -1125,7 +1125,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public synchronized Value calculateMaxSpendableAmount(Value minerFeePerKbToUse, BtcAddress destinationAddress) {
+   public Value calculateMaxSpendableAmount(Value minerFeePerKbToUse, BtcAddress destinationAddress) {
 
       BitcoinAddress destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
 
@@ -1150,7 +1150,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       satoshis -= feeToUse;
       if (satoshis <= 0) {
-         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
+         return Value.zeroValue(getCoinType());
       }
 
       // Create transaction builder
@@ -1168,7 +1168,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          stb.addOutput(BitcoinAddress.getNullAddress(_network, destinationAddressType), satoshis);
       } catch (BtcOutputTooSmallException e1) {
          // The amount we try to send is lower than what the network allows
-         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
+         return Value.zeroValue(getCoinType());
       }
 
       // Try to create an unsigned transaction
@@ -1176,9 +1176,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(BitcoinAddress.getNullAddress(_network, destinationAddressType)),
                  new PublicKeyRing(), _network, minerFeePerKbToUse.getValueAsLong());
          // We have enough to pay the fees, return the amount as the maximum
-         return Value.valueOf(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), satoshis);
+         return Value.valueOf(getCoinType(), satoshis);
       } catch (InsufficientBtcException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
+         return Value.zeroValue(getCoinType());
       }
    }
 

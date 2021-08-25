@@ -1,0 +1,480 @@
+package com.mycelium.wallet.activity
+
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.Intent
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.Window
+import android.widget.PopupMenu
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import butterknife.ButterKnife
+import butterknife.OnClick
+import com.google.common.base.Preconditions
+import com.mycelium.view.Denomination
+import com.mycelium.wallet.*
+import com.mycelium.wallet.NumberEntry.NumberEntryListener
+import com.mycelium.wallet.activity.getamount.AmountValidation
+import com.mycelium.wallet.activity.getamount.GetAmountViewModel
+import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.databinding.GetAmountActivityBinding
+import com.mycelium.wallet.event.ExchangeRatesRefreshed
+import com.mycelium.wallet.event.SelectedCurrencyChanged
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
+import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
+import com.squareup.otto.Subscribe
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.math.BigDecimal
+import java.util.*
+
+class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
+
+    private lateinit var binding: GetAmountActivityBinding
+    private val viewModel: GetAmountViewModel by viewModels()
+    private var isSendMode = false
+    private var _numberEntry: NumberEntry? = null
+    private var _mbwManager: MbwManager? = null
+    private var destinationAddress: Address? = null
+    private var _kbMinerFee: Value? = null
+    private var mainCurrencyType: AssetInfo? = null
+
+    @SuppressLint("ShowToast")
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        super.onCreate(savedInstanceState)
+        setContentView(GetAmountActivityBinding.inflate(layoutInflater).apply {
+            binding = this
+            lifecycleOwner = this@GetAmountActivity
+            viewModel = this@GetAmountActivity.viewModel
+        }.root)
+        ButterKnife.bind(this)
+        _mbwManager = MbwManager.getInstance(application)
+        isSendMode = intent.getBooleanExtra(SEND_MODE, false)
+        if (isSendMode) {
+            initSendModeAccount()
+        } else {
+            viewModel.account = _mbwManager!!.selectedAccount
+        }
+        mainCurrencyType = viewModel.account!!.coinType
+        _mbwManager!!.currencySwitcher.defaultCurrency = mainCurrencyType!!
+        _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, mainCurrencyType)
+        initNumberEntry(savedInstanceState)
+        if (isSendMode) {
+            initSendMode()
+        }
+        updateUI()
+        checkEntry()
+        setupActionBar()
+    }
+
+    private fun setupActionBar() {
+        supportActionBar?.run {
+            title = "Amount"
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
+    private fun getMaxDecimal(assetInfo: AssetInfo?): Int =
+            (assetInfo as? FiatType)?.unitExponent
+                    ?: assetInfo!!.unitExponent - _mbwManager!!.getDenomination(viewModel.account!!.coinType).scale
+
+    private fun initSendMode() {
+        // Calculate the maximum amount that can be spent where we send everything we got to another address
+        _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
+        destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
+                ?: viewModel.account!!.dummyAddress
+        lifecycleScope.launch(Dispatchers.Default) {
+            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress))
+        }
+
+        // if no amount is set, create an null amount with the correct currency
+        if (viewModel.amount.value == null) {
+            viewModel.amount.value = valueOf(viewModel.account!!.coinType, 0)
+        }
+    }
+
+    private fun initSendModeAccount() {
+        //we need to have an account, fee, etc to be able to calculate sending related stuff
+        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
+        val accountId = Preconditions.checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
+        //TODO check all WalletAccount return type in walletmanager, should be some like WalletAccount<Address>
+        viewModel.account = _mbwManager!!.getWalletManager(isColdStorage).getAccount(accountId) as WalletAccount<Address>
+    }
+
+    private fun initNumberEntry(savedInstanceState: Bundle?) {
+        // Load saved state
+        viewModel.amount.value = if (savedInstanceState != null) {
+            savedInstanceState.getSerializable(ENTERED_AMOUNT) as Value?
+        } else {
+            intent.getSerializableExtra(ENTERED_AMOUNT) as Value?
+        }
+
+        // Init the number pad
+        val amountString = if (!isNullOrZero(viewModel.amount.value))
+            viewModel.amount.value!!.toString(_mbwManager!!.getDenomination(viewModel.account!!.coinType)) else ""
+        val asset = if (viewModel.amount.value?.currencySymbol != null) viewModel.amount.value!!.type else viewModel.account!!.coinType
+        _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, asset)
+        _numberEntry = NumberEntry(getMaxDecimal(asset), this, this, amountString)
+    }
+
+    @OnClick(R.id.btOk)
+    fun onOkClick() {
+        if (isNullOrZero(viewModel.amount.value) && isSendMode) {
+            return
+        }
+
+        // Return the entered value and set a positive result code
+        setResult(RESULT_OK, Intent().putExtra(AMOUNT, viewModel.amount.value))
+        finish()
+    }
+
+    @OnClick(R.id.btMax)
+    fun onMaxButtonClick() {
+        if (isNullOrZero(viewModel.maxSpendableAmount.value)) {
+            Toaster(this).toast(R.string.insufficient_funds, true)
+        } else {
+            viewModel.amount.value = viewModel.maxSpendableAmount.value
+            // set the current shown currency to the amount's currency
+            _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, viewModel.amount.value!!.type)
+            updateUI()
+            checkEntry()
+        }
+    }
+
+    @OnClick(R.id.btCurrency)
+    fun onSwitchCurrencyClick() {
+        val currencyList = availableCurrencyList()
+        if (currencyList.size > 1) {
+            val currencyListMenu = PopupMenu(this, binding.btCurrency)
+            val cryptocurrencies = _mbwManager!!.getWalletManager(false).getCryptocurrenciesSymbols()
+            currencyList.forEach { asset ->
+                var itemTitle = asset.symbol
+                // we want to display cryptocurrency items as "Symbol (denomination if it differs from UNIT)", e.g. "BTC (bits)"
+                val denomination = _mbwManager!!.getDenomination(viewModel.account!!.coinType)
+                if (cryptocurrencies.contains(asset.symbol) && denomination !== Denomination.UNIT) {
+                    itemTitle += " (" + denomination.getUnicodeString(asset.symbol) + ")"
+                }
+                currencyListMenu.menu.add(Menu.NONE, asset.hashCode(), Menu.NONE, itemTitle)
+            }
+            currencyListMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { menuItem ->
+                currencyList.find { it.hashCode() == menuItem.itemId }?.let { assetInfo ->
+                    _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, assetInfo)
+                    if (viewModel.amount.value != null) {
+                        viewModel.amount.value = viewModel.convert(viewModel.amount.value, assetInfo)
+                    }
+                    updateUI()
+                    return@OnMenuItemClickListener true
+                }
+                false
+            })
+            currencyListMenu.show()
+        }
+    }
+
+    private fun availableCurrencyList(): List<AssetInfo> = mutableListOf<AssetInfo>().apply {
+        _mbwManager!!.currencySwitcher.getCurrencyList(mainCurrencyType!!).forEach { asset ->
+            if (viewModel.convert(asset.oneCoin(), mainCurrencyType) != null) {
+                add(asset)
+            }
+        }
+    }
+
+    @OnClick(R.id.btPaste)
+    fun onPasteButtonClick() {
+        amountFromClipboard()?.let {
+            setEnteredAmount(it)
+            _numberEntry!!.setEntry(viewModel.amount.value!!.valueAsBigDecimal,
+                    getMaxDecimal(_mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)))
+        }
+    }
+
+    @OnClick(R.id.tvHowIsItCalculated)
+    fun howIsItCalculatedClick() {
+        AlertDialog.Builder(this)
+                .setMessage(getString(R.string.how_is_it_calculated_text))
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
+    }
+
+    private fun enablePaste(): Boolean = amountFromClipboard() != null
+
+    private fun amountFromClipboard(): String? {
+        val content = Utils.getClipboardString(this)
+        if (content.isEmpty()) {
+            return null
+        }
+        val number = Utils.truncateAndConvertDecimalString(content.trim { it <= ' ' }, getMaxDecimal(mainCurrencyType))
+                ?: return null
+        return if (BigDecimal(number).compareTo(BigDecimal.ZERO) < 1) null else number
+    }
+
+    private fun updateUI() {
+        //update buttons and views
+
+        binding.currencyDropdownImageView.visibility = if (availableCurrencyList().size > 1) View.VISIBLE else View.GONE
+        val currencySwitcher = _mbwManager!!.currencySwitcher
+        binding.btCurrency.text = currencySwitcher.getCurrentCurrencyIncludingDenomination(viewModel.account!!.coinType)
+        if (viewModel.amount.value != null) {
+            // Set current currency name button
+            //update amount
+            val newAmount = if (currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType) is FiatType) {
+                viewModel.amount.value!!.valueAsBigDecimal
+            } else {
+                val toTargetUnit = _mbwManager!!.getDenomination(viewModel.account!!.coinType).scale
+                viewModel.amount.value!!.valueAsBigDecimal.multiply(BigDecimal.TEN.pow(toTargetUnit))
+            }
+            _numberEntry!!.setEntry(newAmount, getMaxDecimal(viewModel.amount.value!!.type))
+        } else {
+            binding.tvAmount.text = ""
+        }
+
+
+        // Check whether we can show the paste button
+        binding.btPaste.visibility = if (enablePaste()) View.VISIBLE else View.GONE
+    }
+
+    public override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+        savedInstanceState.putSerializable(ENTERED_AMOUNT, viewModel.amount.value)
+    }
+
+    override fun onResume() {
+        MbwManager.getEventBus().register(this)
+        _mbwManager!!.exchangeRateManager.requestOptionalRefresh()
+        binding.btPaste.visibility = if (enablePaste()) View.VISIBLE else View.GONE
+        super.onResume()
+    }
+
+    override fun onPause() {
+        MbwManager.getEventBus().unregister(this)
+        val currencySwitcher = _mbwManager!!.currencySwitcher
+        currencySwitcher.setCurrency(viewModel.account!!.coinType, currencySwitcher.currentCurrencyMap[viewModel.account!!.coinType])
+        super.onPause()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                R.id.home -> {
+                    onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
+    override fun onEntryChanged(entry: String, wasSet: Boolean) {
+        if (!wasSet) {
+            // if it was change by the user pressing buttons (show it unformatted)
+            setEnteredAmount(entry)
+        }
+        updateAmountsDisplay(entry)
+        checkEntry()
+    }
+
+    private fun setEnteredAmount(value: String) {
+        viewModel.amount.value = try {
+            val value1 = _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)!!.value(value)
+            val currencySwitcher = _mbwManager!!.currencySwitcher
+            if (currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType) is FiatType) {
+                value1
+            } else {
+                valueOf(value1.type, _mbwManager!!.getDenomination(viewModel.account!!.coinType).getAmount(value1.value))
+            }
+        } catch (e: NumberFormatException) {
+            _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)!!.value(0)
+        }
+        if (isSendMode) {
+            // enable/disable Max button
+            binding.btMax.isEnabled = viewModel.maxSpendableAmount.value?.notEqualsTo(viewModel.amount.value!!)
+                    ?: false
+        }
+    }
+
+    private fun updateAmountsDisplay(amountText: String) {
+        // update main-currency display
+        binding.tvAmount.text = amountText
+        // Set alternate amount if we can
+        if (!_mbwManager!!.hasFiatCurrency()
+                || !_mbwManager!!.currencySwitcher.isFiatExchangeRateAvailable(viewModel.account!!.coinType)) {
+            binding.tvAlternateAmount.text = ""
+        } else {
+            binding.tvAlternateAmount.text = if (mainCurrencyType == _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)) {
+                // Show Fiat as alternate amount
+                val currency = _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType)
+                viewModel.convert(viewModel.amount.value, currency)
+            } else {
+                try {
+                    viewModel.convert(viewModel.amount.value, mainCurrencyType)
+                } catch (ex: IllegalArgumentException) {
+                    // something failed while calculating the amount
+                    null
+                }
+            }?.toStringWithUnit(_mbwManager!!.getDenomination(viewModel.account!!.coinType))
+        }
+    }
+
+    private fun checkEntry() {
+        if (isSendMode) {
+            if (isNullOrZero(viewModel.amount.value)) {
+                // Nothing entered
+                binding.tvAmount.setTextColor(resources.getColor(R.color.white))
+                binding.btOk.isEnabled = false
+            } else {
+                Handler(Looper.myLooper()).post { checkTransaction() }
+            }
+        } else {
+            binding.btOk.isEnabled = true
+        }
+    }
+
+    /**
+     * Check that the amount is large enough for the network to accept it, and
+     * that we have enough funds to send it.
+     */
+    @SuppressLint("StaticFieldLeak")
+    private fun checkSendAmount(value: Value?, listener: (value: Value?, result: AmountValidation) -> Unit) {
+        lifecycleScope.launch(Dispatchers.Default) {
+            val result = validateAmount(value)
+            withContext(Dispatchers.Main) {
+                listener(value, result)
+            }
+        }
+    }
+
+    private fun validateAmount(value: Value?): AmountValidation {
+        if (value == null) {
+            return AmountValidation.ExchangeRateNotAvailable
+        } else if (value.equalZero()) {
+            return AmountValidation.Ok //entering a fiat value + exchange is not availible
+        }
+        try {
+            viewModel.account!!.createTx(viewModel.account!!.getDummyAddress(destinationAddress!!.getSubType()), value, FeePerKbFee(_kbMinerFee!!), null)
+        } catch (e: OutputTooSmallException) {
+            return AmountValidation.ValueTooSmall
+        } catch (e: InsufficientFundsException) {
+            return AmountValidation.NotEnoughFunds
+        } catch (e: BuildTransactionException) {
+            // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
+            // debug it
+            _mbwManager!!.reportIgnoredException("MinerFeeException", e)
+            return AmountValidation.Invalid
+        } catch (e: Exception) {
+            Log.e("GetAmountActivity", "validateAmount", e)
+            return AmountValidation.Invalid
+        }
+        return AmountValidation.Ok
+    }
+
+    private fun checkTransaction() {
+        // Check whether we have sufficient funds, and whether the output is too small
+        var amount = viewModel.amount.value
+        // if _amount is not in account's currency then convert to account's currency before checking amount
+        if (mainCurrencyType != _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)) {
+            amount = viewModel.convert(viewModel.amount.value, mainCurrencyType)
+        }
+        checkSendAmount(amount) { amount, result ->
+            if (result == AmountValidation.Ok) {
+                binding.tvAmount.setTextColor(resources.getColor(R.color.white))
+            } else {
+                binding.tvAmount.setTextColor(resources.getColor(R.color.red))
+                if (result == AmountValidation.NotEnoughFunds) {
+                    // We do not have enough funds
+                    if (amount!!.equalZero() || viewModel.account!!.accountBalance.spendable.lessThan(amount)) {
+                        // We do not have enough funds for sending the requested amount
+                        Toaster(this@GetAmountActivity).toast(R.string.insufficient_funds, true)
+                    } else {
+                        // We do have enough funds for sending the requested amount, but
+                        // not for the required fee
+                        Toaster(this@GetAmountActivity).toast(R.string.insufficient_funds_for_fee, true)
+                    }
+                } else if (result == AmountValidation.ExchangeRateNotAvailable) {
+                    Toaster(this@GetAmountActivity).toast(com.mycelium.wallet.R.string.exchange_rate_unavailable, true)
+                }
+                // else {
+                // The amount we want to send is not large enough for the network to
+                // accept it. Don't Toast about it, it's just annoying
+                // }
+            }
+            // Enable/disable Ok button
+            binding.btOk.isEnabled = result == AmountValidation.Ok && !viewModel.amount.value!!.isZero()
+        }
+    }
+
+
+    @Subscribe
+    fun exchangeRatesRefreshed(event: ExchangeRatesRefreshed) {
+        updateExchangeRateDisplay()
+    }
+
+    @Subscribe
+    fun selectedCurrencyChanged(event: SelectedCurrencyChanged) {
+        updateExchangeRateDisplay()
+    }
+
+    private fun updateExchangeRateDisplay() {
+        if (viewModel.amount.value != null && _mbwManager!!.currencySwitcher.getExchangeRatePrice(viewModel.account!!.coinType) != null) {
+            updateAmountsDisplay(_numberEntry!!.entry)
+        }
+    }
+
+    companion object {
+        const val AMOUNT = "amount"
+        const val ENTERED_AMOUNT = "enteredamount"
+        const val ACCOUNT = "account"
+        const val KB_MINER_FEE = "kbMinerFee"
+        const val IS_COLD_STORAGE = "isColdStorage"
+        const val DESTINATION_ADDRESS = "destinationAddress"
+        const val SEND_MODE = "sendmode"
+
+        /**
+         * Get Amount for spending
+         */
+        fun callMeToSend(currentActivity: Activity, requestCode: Int, account: UUID?, amountToSend: Value?, kbMinerFee: Value?,
+                         isColdStorage: Boolean, destinationAddress: Address?) {
+            val intent = Intent(currentActivity, GetAmountActivity::class.java)
+                    .putExtra(ACCOUNT, account)
+                    .putExtra(ENTERED_AMOUNT, amountToSend)
+                    .putExtra(KB_MINER_FEE, kbMinerFee)
+                    .putExtra(IS_COLD_STORAGE, isColdStorage)
+                    .putExtra(SEND_MODE, true)
+            if (destinationAddress != null) {
+                intent.putExtra(DESTINATION_ADDRESS, destinationAddress)
+            }
+            currentActivity.startActivityForResult(intent, requestCode)
+        }
+
+        /**
+         * Get Amount for receiving
+         */
+        fun callMeToReceive(currentActivity: Activity, amountToReceive: Value?, requestCode: Int, currencyType: CryptoCurrency?) {
+            val intent = Intent(currentActivity, GetAmountActivity::class.java)
+                    .putExtra(ENTERED_AMOUNT, amountToReceive)
+                    .putExtra(SEND_MODE, false)
+            currentActivity.startActivityForResult(intent, requestCode)
+        }
+    }
+}
