@@ -54,9 +54,9 @@
                     android:singleLine="true"
                     android:textColor="@color/white"
                     android:textSize="20sp"
+                    android:text="@{viewModel.currencyCurrencyText}"
                     app:layout_constraintBaseline_toBaselineOf="@id/tvAmount"
                     app:layout_constraintEnd_toStartOf="@id/currency_dropdown_image_view"
-                    tools:ignore="RtlSymmetry"
                     tools:text="BTC" />
 
                 <ImageView

@@ -1197,7 +1197,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected abstract PublicKey getPublicKeyForAddress(BitcoinAddress address);
 
    @Override
-   public synchronized UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
+   public UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
            throws BtcOutputTooSmallException, InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
 

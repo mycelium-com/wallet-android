@@ -1,10 +1,7 @@
 package com.mycelium.wallet.activity.getamount
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -22,12 +19,29 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
 
     val maxSpendableAmount = MutableLiveData<Value>()
     val amount = MutableLiveData<Value>()
+    val currentCurrency = MutableLiveData<AssetInfo>()
 
     val maxAmount: LiveData<String> =
-            Transformations.switchMap(maxSpendableAmount) {
-                val maxSpendable = convert(it, mbwManager.currencySwitcher.getCurrentCurrency(account!!.coinType))
-                MutableLiveData<String>(getApplication<Application>().resources.getString(R.string.max_btc, maxSpendable
-                        ?: Value.zeroValue(mbwManager.currencySwitcher.getCurrentCurrency(account!!.coinType)!!).toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
+            Transformations.switchMap(MediatorLiveData<Pair<Value?, AssetInfo?>>().apply {
+                addSource(maxSpendableAmount) {
+                    value = Pair(it, currentCurrency.value)
+                }
+                addSource(currentCurrency) {
+                    value = Pair(maxSpendableAmount.value, it)
+                }
+            }) {
+                if (it.first != null && it.second != null) {
+                    MutableLiveData<String>(getApplication<Application>().resources.getString(R.string.max_btc,
+                            convert(it.first!!, it.second!!)
+                                    ?: Value.zeroValue(it.second!!).toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
+                } else {
+                    MutableLiveData("")
+                }
+            }
+
+    val currencyCurrencyText: LiveData<String> =
+            Transformations.switchMap(currentCurrency) {
+                MutableLiveData(mbwManager.currencySwitcher.getCurrentCurrencyIncludingDenomination(account!!.coinType))
             }
 
     val howMaxSpendableCalculated: LiveData<Boolean> =
@@ -35,7 +49,7 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
                 MutableLiveData<Boolean>(account?.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
             }
 
-    fun convert(value: Value?, assetInfo: AssetInfo?): Value? =
-            mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), value!!, assetInfo!!)
+    fun convert(value: Value, assetInfo: AssetInfo): Value? =
+            mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), value, assetInfo)
 
 }

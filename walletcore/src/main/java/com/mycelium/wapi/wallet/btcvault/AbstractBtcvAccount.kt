@@ -938,7 +938,6 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
     protected abstract fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey?
 
-    @Synchronized
     @Throws(StandardTransactionBuilder.BtcOutputTooSmallException::class, StandardTransactionBuilder.InsufficientBtcException::class, StandardTransactionBuilder.UnableToBuildTransactionException::class)
     fun createUnsignedTransaction(receivers: List<BtcvReceiver>, minerFeeToUse: Long): UnsignedTransaction {
         checkNotArchived()

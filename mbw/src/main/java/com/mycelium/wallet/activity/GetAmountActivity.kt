@@ -15,6 +15,7 @@ import android.view.Window
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -58,7 +59,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     private var _mbwManager: MbwManager? = null
     private var destinationAddress: Address? = null
     private var _kbMinerFee: Value? = null
-    private var mainCurrencyType: AssetInfo? = null
+    private lateinit var mainCurrencyType: AssetInfo
 
     @SuppressLint("ShowToast")
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +78,12 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         } else {
             viewModel.account = _mbwManager!!.selectedAccount
         }
+        viewModel.currentCurrency.observe(this, Observer {
+            _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, it)
+        })
         mainCurrencyType = viewModel.account!!.coinType
-        _mbwManager!!.currencySwitcher.defaultCurrency = mainCurrencyType!!
-        _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, mainCurrencyType)
+        _mbwManager!!.currencySwitcher.defaultCurrency = mainCurrencyType
+        viewModel.currentCurrency.value = mainCurrencyType
         initNumberEntry(savedInstanceState)
         if (isSendMode) {
             initSendMode()
@@ -91,7 +95,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     private fun setupActionBar() {
         supportActionBar?.run {
-            title = "Amount"
+            title = getString(R.string.amount_title)
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setHomeButtonEnabled(true)
             setDisplayHomeAsUpEnabled(true)
@@ -137,7 +141,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         val amountString = if (!isNullOrZero(viewModel.amount.value))
             viewModel.amount.value!!.toString(_mbwManager!!.getDenomination(viewModel.account!!.coinType)) else ""
         val asset = if (viewModel.amount.value?.currencySymbol != null) viewModel.amount.value!!.type else viewModel.account!!.coinType
-        _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, asset)
+        viewModel.currentCurrency.value = asset
         _numberEntry = NumberEntry(getMaxDecimal(asset), this, this, amountString)
     }
 
@@ -159,17 +163,17 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         } else {
             viewModel.amount.value = viewModel.maxSpendableAmount.value
             // set the current shown currency to the amount's currency
-            _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, viewModel.amount.value!!.type)
+            viewModel.currentCurrency.value = viewModel.amount.value!!.type
             updateUI()
             checkEntry()
         }
     }
 
     @OnClick(R.id.btCurrency)
-    fun onSwitchCurrencyClick() {
+    fun onSwitchCurrencyClick(view: View) {
         val currencyList = availableCurrencyList()
         if (currencyList.size > 1) {
-            val currencyListMenu = PopupMenu(this, binding.btCurrency)
+            val currencyListMenu = PopupMenu(this, view)
             val cryptocurrencies = _mbwManager!!.getWalletManager(false).getCryptocurrenciesSymbols()
             currencyList.forEach { asset ->
                 var itemTitle = asset.symbol
@@ -182,9 +186,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             }
             currencyListMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { menuItem ->
                 currencyList.find { it.hashCode() == menuItem.itemId }?.let { assetInfo ->
-                    _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, assetInfo)
-                    if (viewModel.amount.value != null) {
-                        viewModel.amount.value = viewModel.convert(viewModel.amount.value, assetInfo)
+                    viewModel.currentCurrency.value = assetInfo
+                    viewModel.amount.value?.let {
+                        viewModel.amount.value = viewModel.convert(it, assetInfo)
                     }
                     updateUI()
                     return@OnMenuItemClickListener true
@@ -196,7 +200,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     }
 
     private fun availableCurrencyList(): List<AssetInfo> = mutableListOf<AssetInfo>().apply {
-        _mbwManager!!.currencySwitcher.getCurrencyList(mainCurrencyType!!).forEach { asset ->
+        _mbwManager!!.currencySwitcher.getCurrencyList(mainCurrencyType).forEach { asset ->
             if (viewModel.convert(asset.oneCoin(), mainCurrencyType) != null) {
                 add(asset)
             }
@@ -208,7 +212,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         amountFromClipboard()?.let {
             setEnteredAmount(it)
             _numberEntry!!.setEntry(viewModel.amount.value!!.valueAsBigDecimal,
-                    getMaxDecimal(_mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)))
+                    getMaxDecimal(viewModel.currentCurrency.value))
         }
     }
 
@@ -237,12 +241,10 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         //update buttons and views
 
         binding.currencyDropdownImageView.visibility = if (availableCurrencyList().size > 1) View.VISIBLE else View.GONE
-        val currencySwitcher = _mbwManager!!.currencySwitcher
-        binding.btCurrency.text = currencySwitcher.getCurrentCurrencyIncludingDenomination(viewModel.account!!.coinType)
         if (viewModel.amount.value != null) {
             // Set current currency name button
             //update amount
-            val newAmount = if (currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType) is FiatType) {
+            val newAmount = if (viewModel.currentCurrency.value is FiatType) {
                 viewModel.amount.value!!.valueAsBigDecimal
             } else {
                 val toTargetUnit = _mbwManager!!.getDenomination(viewModel.account!!.coinType).scale
@@ -272,14 +274,13 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     override fun onPause() {
         MbwManager.getEventBus().unregister(this)
-        val currencySwitcher = _mbwManager!!.currencySwitcher
-        currencySwitcher.setCurrency(viewModel.account!!.coinType, currencySwitcher.currentCurrencyMap[viewModel.account!!.coinType])
+        viewModel.currentCurrency.value = _mbwManager!!.currencySwitcher.currentCurrencyMap[viewModel.account!!.coinType]
         super.onPause()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
-                R.id.home -> {
+                android.R.id.home -> {
                     onBackPressed()
                     true
                 }
@@ -297,15 +298,14 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     private fun setEnteredAmount(value: String) {
         viewModel.amount.value = try {
-            val value1 = _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)!!.value(value)
-            val currencySwitcher = _mbwManager!!.currencySwitcher
-            if (currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType) is FiatType) {
+            val value1 = viewModel.currentCurrency.value!!.value(value)
+            if (viewModel.currentCurrency.value is FiatType) {
                 value1
             } else {
                 valueOf(value1.type, _mbwManager!!.getDenomination(viewModel.account!!.coinType).getAmount(value1.value))
             }
         } catch (e: NumberFormatException) {
-            _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)!!.value(0)
+            Value.zeroValue(viewModel.currentCurrency.value!!)
         }
         if (isSendMode) {
             // enable/disable Max button
@@ -322,13 +322,13 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 || !_mbwManager!!.currencySwitcher.isFiatExchangeRateAvailable(viewModel.account!!.coinType)) {
             binding.tvAlternateAmount.text = ""
         } else {
-            binding.tvAlternateAmount.text = if (mainCurrencyType == _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)) {
+            binding.tvAlternateAmount.text = if (mainCurrencyType == viewModel.currentCurrency.value) {
                 // Show Fiat as alternate amount
                 val currency = _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType)
-                viewModel.convert(viewModel.amount.value, currency)
+                viewModel.convert(viewModel.amount.value!!, currency)
             } else {
                 try {
-                    viewModel.convert(viewModel.amount.value, mainCurrencyType)
+                    viewModel.convert(viewModel.amount.value!!, mainCurrencyType)
                 } catch (ex: IllegalArgumentException) {
                     // something failed while calculating the amount
                     null
@@ -393,8 +393,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         // Check whether we have sufficient funds, and whether the output is too small
         var amount = viewModel.amount.value
         // if _amount is not in account's currency then convert to account's currency before checking amount
-        if (mainCurrencyType != _mbwManager!!.currencySwitcher.getCurrentCurrency(viewModel.account!!.coinType)) {
-            amount = viewModel.convert(viewModel.amount.value, mainCurrencyType)
+        if (mainCurrencyType != viewModel.currentCurrency.value) {
+            amount = viewModel.convert(viewModel.amount.value!!, mainCurrencyType)
         }
         checkSendAmount(amount) { amount, result ->
             if (result == AmountValidation.Ok) {
