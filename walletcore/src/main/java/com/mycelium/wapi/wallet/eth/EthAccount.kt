@@ -80,7 +80,7 @@ class EthAccount(private val chainId: Byte,
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher?) {
         val rawTransaction = (request as EthTransaction).run {
-            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
+            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, ethValue.value,
                     inputData)
         }
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
@@ -99,7 +99,7 @@ class EthAccount(private val chainId: Byte,
                 return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
                     valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)

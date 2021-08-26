@@ -54,7 +54,7 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-                gasPrice, nonce, gasLimit, inputData)
+                gasPrice, nonce, gasLimit, inputData, amount)
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -68,7 +68,7 @@ class ERC20Account(private val chainId: Byte,
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val ethTx = request as EthTransaction
         val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
-                token.contractAddress, ethTx.value.value, ethTx.inputData)
+                token.contractAddress, ethTx.ethValue.value, ethTx.inputData)
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
@@ -86,7 +86,7 @@ class ERC20Account(private val chainId: Byte,
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
-                    Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
+                    Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
                     accountContext.nonce, null, true, tx.gasLimit, tx.gasLimit)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
@@ -206,9 +206,9 @@ class ERC20Account(private val chainId: Byte,
         try {
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.forEach { tx ->
-                tx.getTokenTransfer(token.contractAddress)?.also { transfer ->
-                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                            transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                tx.getTokenTransfer(token.contractAddress)?.also { tokenTransfer ->
+                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
+                            tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
                             Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
                                     ?: typicalEstimatedTransactionSize.toBigInteger())),
                             tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
