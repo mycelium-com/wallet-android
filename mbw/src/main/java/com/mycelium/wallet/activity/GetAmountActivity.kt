@@ -344,7 +344,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 binding.tvAmount.setTextColor(resources.getColor(R.color.white))
                 binding.btOk.isEnabled = false
             } else {
-                Handler(Looper.myLooper()).post { checkTransaction() }
+                checkTransaction()
             }
         } else {
             binding.btOk.isEnabled = true
@@ -355,7 +355,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
      * Check that the amount is large enough for the network to accept it, and
      * that we have enough funds to send it.
      */
-    @SuppressLint("StaticFieldLeak")
     private fun checkSendAmount(value: Value?, listener: (value: Value?, result: AmountValidation) -> Unit) {
         lifecycleScope.launch(Dispatchers.Default) {
             val result = validateAmount(value)
