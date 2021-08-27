@@ -27,7 +27,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
                                  internal val eventHandler: AbstractBtcAccount.EventHandler?) : WalletModule(metaDataStorage) {
 
     init {
-        assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+        assetsList.add(if (networkParameters.isProdnet) BitcoinMain else BitcoinTest)
     }
 
     override fun getAccountById(id: UUID): WalletAccount<*>? {

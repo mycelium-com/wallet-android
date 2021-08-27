@@ -115,7 +115,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         return currentFiatCurrencyMap[coinType]
     }
 
-    fun getDenomination(coinType: AssetInfo): Denomination? = denominationMap[coinType] ?: Denomination.UNIT
+    fun getDenomination(coinType: AssetInfo): Denomination = denominationMap[coinType] ?: Denomination.UNIT
 
     fun getCurrentCurrencyIncludingDenomination(coinType: AssetInfo): String {
         return if (currentCurrencyMap[coinType] is FiatType) {

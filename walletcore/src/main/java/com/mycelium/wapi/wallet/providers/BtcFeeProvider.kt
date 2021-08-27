@@ -9,11 +9,7 @@ import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 
 open class BtcFeeProvider(testnet: Boolean, wapi: Wapi, feeBacking: FeeEstimationsBacking) :
         WapiFeeProvider(wapi, feeBacking) {
-    final override val coinType = if (testnet) {
-        BitcoinTest.get()!!
-    } else {
-        BitcoinMain.get()!!
-    }
+    final override val coinType = if (testnet) BitcoinTest else BitcoinMain
 
     override var estimation = feeBacking.getEstimationForCurrency(coinType)
             ?: FeeEstimationsGeneric(Value.valueOf(coinType, 1000),

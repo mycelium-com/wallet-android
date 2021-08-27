@@ -41,6 +41,7 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
 
     val currencyCurrencyText: LiveData<String> =
             Transformations.switchMap(currentCurrency) {
+                mbwManager.currencySwitcher.setCurrency(account!!.coinType, it)
                 MutableLiveData(mbwManager.currencySwitcher.getCurrentCurrencyIncludingDenomination(account!!.coinType))
             }
 

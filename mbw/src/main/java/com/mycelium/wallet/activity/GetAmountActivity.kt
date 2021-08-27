@@ -5,8 +5,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -78,9 +76,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         } else {
             viewModel.account = _mbwManager!!.selectedAccount
         }
-        viewModel.currentCurrency.observe(this, Observer {
-            _mbwManager!!.currencySwitcher.setCurrency(viewModel.account!!.coinType, it)
-        })
         mainCurrencyType = viewModel.account!!.coinType
         _mbwManager!!.currencySwitcher.defaultCurrency = mainCurrencyType
         viewModel.currentCurrency.value = mainCurrencyType
@@ -140,9 +135,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         // Init the number pad
         val amountString = if (!isNullOrZero(viewModel.amount.value))
             viewModel.amount.value!!.toString(_mbwManager!!.getDenomination(viewModel.account!!.coinType)) else ""
-        val asset = if (viewModel.amount.value?.currencySymbol != null) viewModel.amount.value!!.type else viewModel.account!!.coinType
-        viewModel.currentCurrency.value = asset
-        _numberEntry = NumberEntry(getMaxDecimal(asset), this, this, amountString)
+        viewModel.currentCurrency.value = viewModel.amount.value?.type ?: viewModel.account!!.coinType
+        _numberEntry = NumberEntry(getMaxDecimal(viewModel.currentCurrency.value), this, this, amountString)
     }
 
     @OnClick(R.id.btOk)

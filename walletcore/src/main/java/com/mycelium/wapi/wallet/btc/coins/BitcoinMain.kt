@@ -1,34 +1,23 @@
-package com.mycelium.wapi.wallet.btc.coins;
+package com.mycelium.wapi.wallet.btc.coins
 
-import com.mrd.bitlib.model.BitcoinAddress;
-import com.mycelium.wapi.wallet.Address;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mrd.bitlib.model.BitcoinAddress
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
-public class BitcoinMain extends CryptoCurrency {
-    private BitcoinMain() {
-        super("bitcoin.main", "Bitcoin", "BTC", 8, 8, true);
-    }
-
-    private static BitcoinMain instance = new BitcoinMain();
-    public static synchronized CryptoCurrency get() {
-        return instance;
-    }
-
-    @Override
-    public Address parseAddress(String addressString) {
-        BitcoinAddress address = BitcoinAddress.fromString(addressString);
-        if (address == null) {
-            return null;
-        }
-
+object BitcoinMain : CryptoCurrency("bitcoin.main", "Bitcoin", "BTC", 8, 8, true) {
+    override fun parseAddress(addressString: String?): Address? {
+        val address = BitcoinAddress.fromString(addressString) ?: return null
         try {
-            if (!address.getNetwork().isProdnet()) {
-                return null;
+            if (!address.network.isProdnet) {
+                return null
             }
-        } catch (IllegalStateException e) {
-            return null;
+        } catch (e: IllegalStateException) {
+            return null
         }
-        return new BtcAddress(this, address);
+        return BtcAddress(this, address)
     }
+
+    @JvmStatic
+    fun get() = this
 }

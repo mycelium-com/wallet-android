@@ -188,7 +188,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return isMineAddress(toBtcvAddress(script.getAddress(network)))
     }
     //    public boolean isMineAddress(String address) {
-    //        Address addr = AddressUtils.from(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), address);
+    //        Address addr = AddressUtils.from(_network.isProdnet() ? BitcoinMain : BitcoinTest, address);
     //        return isMineAddress(addr);
     //    }
     //    protected static UUID addressToUUID(BitcoinAddress address) {
