@@ -117,7 +117,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
         // if no amount is set, create an null amount with the correct currency
         if (viewModel.amount.value == null) {
-            viewModel.amount.value = valueOf(viewModel.account!!.coinType, 0)
+            viewModel.amount.value = Value.zeroValue(viewModel.account!!.coinType)
         }
     }
 
@@ -372,7 +372,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             return AmountValidation.Ok //entering a fiat value + exchange is not availible
         }
         try {
-            viewModel.account!!.createTx(viewModel.account!!.getDummyAddress(destinationAddress!!.getSubType()), value, FeePerKbFee(_kbMinerFee!!), null)
+            viewModel.account!!.createTx(destinationAddress!!, value, FeePerKbFee(_kbMinerFee!!), null)
         } catch (e: OutputTooSmallException) {
             return AmountValidation.ValueTooSmall
         } catch (e: InsufficientFundsException) {
