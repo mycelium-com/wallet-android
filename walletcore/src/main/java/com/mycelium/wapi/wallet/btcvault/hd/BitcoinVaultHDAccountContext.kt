@@ -46,7 +46,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
 
 
     fun getLastExternalIndexWithActivity(type: BipDerivationType): Int =
-            indexesMap[type]?.lastExternalIndexWithActivity ?: 0
+            indexesMap[type]?.lastExternalIndexWithActivity ?: -1
 
     internal fun setLastExternalIndexWithActivity(type: BipDerivationType, lastExternalIndexWithActivity: Int) {
         if (indexesMap[type]!!.lastExternalIndexWithActivity != lastExternalIndexWithActivity) {
@@ -56,7 +56,7 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
     }
 
     fun getLastInternalIndexWithActivity(type: BipDerivationType): Int =
-            indexesMap[type]?.lastInternalIndexWithActivity ?: 0
+            indexesMap[type]?.lastInternalIndexWithActivity ?: -1
 
     internal fun setLastInternalIndexWithActivity(type: BipDerivationType, lastInternalIndexWithActivity: Int) {
         if (indexesMap[type]!!.lastInternalIndexWithActivity != lastInternalIndexWithActivity) {
