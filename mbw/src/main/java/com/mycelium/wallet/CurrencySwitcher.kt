@@ -40,7 +40,6 @@ import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
-
 import java.util.ArrayList
 import java.util.Collections
 
@@ -111,8 +110,8 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         return currentCurrencyMap[coinType]
     }
 
-    fun getCurrentFiatCurrency(coinType: AssetInfo): AssetInfo? {
-        return currentFiatCurrencyMap[coinType]
+    fun getCurrentFiatCurrency(coinType: AssetInfo): AssetInfo {
+        return currentFiatCurrencyMap[coinType] ?: FiatType(Constants.DEFAULT_CURRENCY)
     }
 
     fun getDenomination(coinType: AssetInfo): Denomination = denominationMap[coinType] ?: Denomination.UNIT
@@ -223,7 +222,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
      */
     @Synchronized
     fun getExchangeRatePrice(fromCurrency: AssetInfo): Double? {
-        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol, currentFiatCurrencyMap[fromCurrency]?.symbol)
+        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol, getCurrentFiatCurrency(fromCurrency).symbol)
         return rate?.price
     }
 
