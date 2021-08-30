@@ -60,7 +60,7 @@ class EthAccount(private val chainId: Byte,
     override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = data as? EthTransactionData
-        val nonce = ethTxData?.nonce ?: getNewNonce()
+        val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
         val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
