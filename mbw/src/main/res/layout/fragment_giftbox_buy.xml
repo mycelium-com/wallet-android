@@ -343,7 +343,7 @@
                 android:layout_marginEnd="@dimen/horizontal_page_margin"
                 android:layout_marginBottom="60dp"
                 android:enabled="@{vm.isGranted}"
-                android:text="@string/buy"
+                android:text="@string/pay"
                 android:textSize="20sp" />
         </LinearLayout>
     </ScrollView>
