@@ -49,8 +49,8 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
         mediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.stores)
-                1 -> tab.text = getString(R.string.purchases)
-                2 -> tab.text = getString(R.string.mygiftcards)
+                1 -> tab.text = getString(R.string.mygiftcards)
+                2 -> tab.text = getString(R.string.purchases)
             }
         }
         mediator?.attach()
