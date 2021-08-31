@@ -99,6 +99,6 @@
     <color name="giftbox_page_bg">#050505</color>
     <color name="giftbox_label">#9B9B9B</color>
     <color name="giftbox_processing">#BABABA</color>
-    <color name="giftbox_yellow">#CCCC00</color>
+    <color name="giftbox_yellow">#EF9D44</color>
     <color name="giftbox_green">#2F9A41</color>
 </resources>
