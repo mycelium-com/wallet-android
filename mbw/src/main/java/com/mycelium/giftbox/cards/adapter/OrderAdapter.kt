@@ -58,7 +58,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                     Status.pROCESSING -> {
                         holder.itemView.additionalLabel.visibility = GONE
                         holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
-                        val color = Color.parseColor("#EB06FF")
+                        val color = holder.itemView.context.resources.getColor(R.color.giftbox_yellow)
                         holder.itemView.additional.setTextColor(color)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             holder.itemView.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
@@ -68,7 +68,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                     Status.eRROR -> {
                         holder.itemView.additionalLabel.visibility = GONE
                         holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_failed, 0, 0, 0)
-                        val color = Color.parseColor("#E5FFFFFF")
+                        val color = holder.itemView.context.resources.getColor(R.color.fio_white_alpha_0_9)
                         holder.itemView.additional.setTextColor(color)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             holder.itemView.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
@@ -78,7 +78,7 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                     else -> {
                         holder.itemView.additionalLabel.visibility = View.VISIBLE
                         holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-                        holder.itemView.additional.setTextColor(Color.parseColor("#2F9A41"))
+                        holder.itemView.additional.setTextColor(holder.itemView.context.resources.getColor(R.color.giftbox_green))
                         item.timestamp?.getDateString(holder.itemView.resources)
                     }
                 }
