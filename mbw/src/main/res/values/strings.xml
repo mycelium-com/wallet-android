@@ -1696,6 +1696,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="processing">Processing...</string>
     <string name="success_s">Success, %s</string>
     <string name="sync_failed_s">Synchronization failed. %s</string>
+    <string name="giftcard_order_title">Gift card order</string>
+    <string name="select_country">Select country</string>
+    <string name="buy_gift_card">Buy gift card</string>
+    <string name="giftbox_amount_title">Gift card amount</string>
+    <string name="giftcards">Gift cards</string>
+    <string name="redeem_instructions_title">Redeem instructions</string>
+    <string name="stores">Stores</string>
+    <string name="purchases">Purchases</string>
+    <string name="mygiftcards">My gift cards</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

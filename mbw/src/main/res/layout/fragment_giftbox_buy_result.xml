@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -25,154 +24,19 @@
             android:paddingHorizontal="@dimen/horizontal_page_margin"
             android:paddingVertical="@dimen/activity_vertical_margin">
 
-                <include
-                    android:id="@+id/detailsHeader"
-                    layout="@layout/fragment_giftbox_details_header"
-                    app:viewModel="@{vm}"/>
+            <include
+                android:id="@+id/detailsHeader"
+                layout="@layout/fragment_giftbox_details_header"
+                app:viewModel="@{vm}" />
 
-            <TextView
-                android:id="@+id/orderStatus"
+            <include layout="@layout/layout_giftbox_order_scheme" />
+
+            <Button
+                android:id="@+id/finish"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:drawablePadding="8dp"
-                android:textColor="#BABABA"
-                android:textSize="14sp"
-                tools:text="Processing" />
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/totalAmountRoot"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp">
-
-                    <TextView
-                        android:id="@+id/tvTotalAmountLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/total_amount"
-                        android:textColor="@color/fio_white_alpha_0_8"
-                        android:textSize="14sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvTotalAmountFiat"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="12dp"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/roboto_mono_medium"
-                        android:hint="0.00 USD"
-                        android:singleLine="true"
-                        android:text="@{vm.totalAmountFiatString}"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="24sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvTotalAmountLabel" />
-
-                    <TextView
-                        android:id="@+id/tvTotalAmountCrypto"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="12dp"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/roboto_mono_medium"
-                        android:hint="~ 0.00 BTC"
-                        android:singleLine="true"
-                        android:text="@{vm.totalAmountCryptoString}"
-                        android:textColor="@color/white"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="14sp"
-                        app:layout_constraintBaseline_toBaselineOf="@id/tvTotalAmountFiat"
-                        app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/minerFeeRoot"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="@{vm.minerFeeFiat == null ? View.GONE : View.VISIBLE}"
-                    android:layout_marginTop="24dp">
-
-                    <TextView
-                        android:id="@+id/tvMinerFeeLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/miner_fee"
-                        android:textColor="@color/fio_white_alpha_0_8"
-                        android:textSize="14sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tvMinerFeeAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="12dp"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/roboto_mono_medium"
-                        android:hint="0.00 USD"
-                        android:singleLine="true"
-                        android:text="@{vm.minerFeeFiat}"
-                        android:textColor="@color/fio_white_alpha_0_8"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/tvMinerFeeLabel"
-                        app:layout_constraintStart_toEndOf="@id/tvMinerFeeLabel"/>
-
-
-                    <TextView
-                        android:id="@+id/tvMinerFeeAmountCrypto"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="12dp"
-                        android:ellipsize="end"
-                        android:fontFamily="@font/roboto_mono_medium"
-                        android:hint="~ 0.00 BTC"
-                        android:singleLine="true"
-                        android:text="@{vm.minerFeeCrypto}"
-                        android:textColor="@color/fio_white_alpha_0_8"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="14sp"
-                        app:layout_constraintBaseline_toBaselineOf="@id/tvMinerFeeAmount"
-                        app:layout_constraintLeft_toRightOf="@id/tvMinerFeeAmount" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-                <TextView
-                    android:id="@+id/more"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{vm.moreText}"
-                    android:textColor="@color/fio_prm_btn_line"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginBottom="12dp"
-                    tools:text="Show transaction details"
-                    app:layout_constraintLeft_toLeftOf="@id/tvDescription"
-                    app:layout_constraintTop_toBottomOf="@id/tvDescription" />
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="@{vm.more ? View.GONE : View.VISIBLE}">
-                    <include
-                        android:id="@+id/txDetails"
-                        layout="@layout/details_common" />
-                </LinearLayout>
+                android:layout_height="match_parent"
+                android:layout_marginTop="32dp"
+                android:text="Ok" />
         </LinearLayout>
     </ScrollView>
 </layout>

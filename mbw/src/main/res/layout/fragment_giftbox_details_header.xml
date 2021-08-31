@@ -36,16 +36,16 @@
 
         <TextView
             android:id="@+id/tvName"
-            android:ellipsize="end"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:textColor="@color/fio_white_alpha_0_8"
-            android:textSize="22sp"
+            android:ellipsize="end"
             android:maxLines="2"
             android:text="@{viewModel.productName}"
-            app:layout_constraintStart_toEndOf="@id/imageRoot"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="22sp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageRoot"
             app:layout_constraintTop_toTopOf="@id/imageRoot"
             tools:text="Hotels super Hotels super Hotels super" />
 
@@ -64,16 +64,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:text="@{viewModel.country}"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
-            android:text="@{viewModel.country}"
-            android:ellipsize="end"
             app:layout_constraintBaseline_toBaselineOf="@id/tvCountryLabel"
-            app:layout_constraintStart_toEndOf="@id/tvCountryLabel"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvCountryLabel"
             tools:text="United States, United States, United States,United States" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cardData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -97,8 +98,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="4dp"
                 android:maxLines="2"
-                android:textSize="14sp"
                 android:text="@{viewModel.cardValue}"
+                android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvCardValueHeaderTitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvCardValueHeaderTitle"
@@ -122,8 +123,8 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:maxLines="2"
-                android:textSize="14sp"
                 android:text="@{viewModel.quantity != null ? @plurals/cards(viewModel.quantity, viewModel.quantity) : 0}"
+                android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvQuantityLabel"
                 app:layout_constraintStart_toEndOf="@id/tvQuantityLabel"
                 tools:text="5 cards" />
@@ -155,5 +156,157 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/cardData">
+
+            <TextView
+                android:id="@+id/orderStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:drawablePadding="8dp"
+                android:textColor="#BABABA"
+                android:textSize="14sp"
+                tools:text="Processing" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/totalAmountRoot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/tvTotalAmountLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_amount"
+                    android:textColor="@color/fio_white_alpha_0_8"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvTotalAmountFiat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="12dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/roboto_mono_medium"
+                    android:hint="0.00 USD"
+                    android:singleLine="true"
+
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/darkgrey"
+                    android:textSize="24sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvTotalAmountLabel" />
+<!--android:text="@{viewModel.totalAmountFiatString}"-->
+                <TextView
+                    android:id="@+id/tvTotalAmountCrypto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="12dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/roboto_mono_medium"
+                    android:hint="~ 0.00 BTC"
+                    android:singleLine="true"
+
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/darkgrey"
+                    android:textSize="14sp"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tvTotalAmountFiat"
+                    app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+<!--android:text="@{viewModel.totalAmountCryptoString}"-->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/minerFeeRoot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+>
+<!--                android:visibility="@{vm.minerFeeFiat == null ? View.GONE : View.VISIBLE}"-->
+                <TextView
+                    android:id="@+id/tvMinerFeeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/miner_fee"
+                    android:textColor="@color/fio_white_alpha_0_8"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvMinerFeeAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="12dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/roboto_mono_medium"
+                    android:hint="0.00 USD"
+                    android:singleLine="true"
+
+                    android:textColor="@color/fio_white_alpha_0_8"
+                    android:textColorHint="@color/darkgrey"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="@id/tvMinerFeeLabel"
+                    app:layout_constraintStart_toEndOf="@id/tvMinerFeeLabel" />
+<!--android:text="@{vm.minerFeeFiat}"-->
+
+                <TextView
+                    android:id="@+id/tvMinerFeeAmountCrypto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="12dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/roboto_mono_medium"
+                    android:hint="~ 0.00 BTC"
+                    android:singleLine="true"
+
+                    android:textColor="@color/fio_white_alpha_0_8"
+                    android:textColorHint="@color/darkgrey"
+                    android:textSize="14sp"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tvMinerFeeAmount"
+                    app:layout_constraintLeft_toRightOf="@id/tvMinerFeeAmount" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+<!--android:text="@{vm.minerFeeCrypto}"-->
+            <TextView
+                android:id="@+id/more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+
+                android:textColor="@color/fio_prm_btn_line"
+                app:layout_constraintLeft_toLeftOf="@id/tvDescription"
+                app:layout_constraintTop_toBottomOf="@id/tvDescription"
+                tools:text="Show transaction details" />
+<!--android:text="@{vm.moreText}"-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+<!--android:visibility="@{vm.more ? View.GONE : View.VISIBLE}"-->
+                <include
+                    android:id="@+id/txDetails"
+                    layout="@layout/details_common" />
+            </LinearLayout>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

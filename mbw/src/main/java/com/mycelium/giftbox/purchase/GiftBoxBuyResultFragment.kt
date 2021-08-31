@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.cards.GiftBoxFragment
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
@@ -66,7 +67,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()
         loadProduct()
         loadOrder()
-        binding?.more?.setOnClickListener {
+        binding?.detailsHeader?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
         }
 
@@ -75,6 +76,9 @@ class GiftBoxBuyResultFragment : Fragment() {
         }
 
         activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
+        binding?.finish?.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     private fun updateAllUi() {
@@ -112,7 +116,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 updateUi()
             }
         } ?: run {
-            binding?.more?.visibility = View.GONE
+            binding?.detailsHeader?.more?.visibility = View.GONE
         }
     }
 
@@ -144,7 +148,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         viewModel.setOrder(order)
         when (order.status) {
             Status.pROCESSING -> {
-                binding?.orderStatus?.let {
+                binding?.detailsHeader?.orderStatus?.let {
                     it.text = getString(R.string.processing)
                     val color = resources.getColor(R.color.giftbox_processing)
                     it.setTextColor(color)
@@ -160,7 +164,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 }
             }
             Status.sUCCESS -> {
-                binding?.orderStatus?.let {
+                binding?.detailsHeader?.orderStatus?.let {
                     it.text = getString(R.string.success_s, order.timestamp?.getDateString(resources))
                     val color = resources.getColor(R.color.bequant_green)
                     it.setTextColor(color)
@@ -176,7 +180,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 }
             }
             Status.eRROR -> {
-                binding?.orderStatus?.let {
+                binding?.detailsHeader?.orderStatus?.let {
                     it.text = getString(R.string.purchase_failed)
                     val color = resources.getColor(R.color.sender_recyclerview_background_red)
                     it.setTextColor(color)

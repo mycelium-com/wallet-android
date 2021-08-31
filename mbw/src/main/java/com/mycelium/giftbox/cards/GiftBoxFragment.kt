@@ -48,9 +48,9 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
         pager.offscreenPageLimit = 2
         mediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
-                0 -> tab.text = "Stores"
-                1 -> tab.text = "Purchases"
-                2 -> tab.text = "Gift cards"
+                0 -> tab.text = getString(R.string.stores)
+                1 -> tab.text = getString(R.string.purchases)
+                2 -> tab.text = getString(R.string.mygiftcards)
             }
         }
         mediator?.attach()

@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/giftboxFragment"
         android:name="com.mycelium.giftbox.cards.GiftBoxFragment"
-        android:label="Gift cards"
+        android:label="@string/giftcards"
         tools:layout="@layout/fragment_gift_box">
 
         <argument
@@ -32,7 +32,7 @@
     <fragment
         android:id="@+id/storeDetails"
         android:name="com.mycelium.giftbox.details.GiftBoxStoreDetailsFragment"
-        android:label="Gift card amount"
+        android:label="@string/giftbox_amount_title"
         tools:layout="@layout/fragment_giftbox_store_details">
         <argument
             android:name="product"
@@ -48,7 +48,7 @@
     <fragment
         android:id="@+id/cardBuyFragment"
         android:name="com.mycelium.giftbox.purchase.GiftboxBuyFragment"
-        android:label="Buy gift card"
+        android:label="@string/buy_gift_card"
         tools:layout="@layout/fragment_giftbox_buy">
 
         <argument
@@ -70,7 +70,7 @@
     <fragment
         android:id="@+id/selectCountriesFragment"
         android:name="com.mycelium.giftbox.cards.SelectCountriesFragment"
-        android:label="Select country"
+        android:label="@string/select_country"
         tools:layout="@layout/fragment_select_countries" />
     <fragment
         android:id="@+id/selectAccountFragment2"
@@ -122,7 +122,7 @@
     <fragment
         android:id="@+id/giftBoxBuyResultFragment"
         android:name="com.mycelium.giftbox.purchase.GiftBoxBuyResultFragment"
-        android:label="Purchase details"
+        android:label="@string/giftcard_order_title"
         tools:layout="@layout/fragment_giftbox_buy_result">
         <argument
             android:name="accountId"
@@ -159,7 +159,7 @@
     <fragment
         android:id="@+id/redeemInstructionsFragment"
         android:name="com.mycelium.giftbox.details.RedeemInstructionsFragment"
-        android:label="Redeem instructions"
+        android:label="@string/redeem_instructions_title"
         tools:layout="@layout/fragment_giftbox_redeem">
         <argument
             android:name="product"

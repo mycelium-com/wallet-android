@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/line1"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:src="@drawable/dash_green"
+        app:layout_constraintBottom_toTopOf="@id/paymentIcon"
+        app:layout_constraintEnd_toEndOf="@id/paidIcon"
+        app:layout_constraintStart_toStartOf="@id/paidIcon"
+        app:layout_constraintTop_toBottomOf="@id/paidIcon" />
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="@drawable/dash_green"
+        app:layout_constraintBottom_toTopOf="@id/successIcon"
+        app:layout_constraintEnd_toEndOf="@id/paidIcon"
+        app:layout_constraintStart_toStartOf="@id/paidIcon"
+        app:layout_constraintTop_toBottomOf="@id/paymentIcon" />
+
+    <ImageView
+        android:id="@+id/paidIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/vertical_stepper_view_item_circle_completed"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_vertical_stepper_done" />
+
+    <TextView
+        android:id="@+id/paidTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Paid"
+        android:textColor="#5EBA89"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/paidIcon"
+        app:layout_constraintTop_toTopOf="@id/paidIcon" />
+
+    <TextView
+        android:id="@+id/paidText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="You have successfully paid for the Gift card!"
+        android:textColor="#aaaaaa"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/paidTitle"
+        app:layout_constraintTop_toBottomOf="@id/paidTitle" />
+
+    <ImageView
+        android:id="@+id/paymentIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="47dp"
+        android:background="@drawable/vertical_stepper_view_item_circle_completed"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="@id/paidIcon"
+        app:layout_constraintTop_toBottomOf="@id/paidText"
+        app:srcCompat="@drawable/ic_vertical_stepper_done" />
+
+    <TextView
+        android:id="@+id/paymentTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Payment confirmed"
+        android:textColor="#5EBA89"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/paymentIcon"
+        app:layout_constraintTop_toTopOf="@id/paymentIcon" />
+
+    <TextView
+        android:id="@+id/paymentText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Your Gift card will become available after the transaction is confirmed by the network.\nPlease see confirmation status in the wallet transaction list."
+        android:textColor="#aaaaaa"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/paymentTitle"
+        app:layout_constraintTop_toBottomOf="@id/paymentTitle" />
+
+    <ImageView
+        android:id="@+id/successIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/vertical_stepper_view_item_circle_completed"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="@id/paidIcon"
+        app:layout_constraintTop_toBottomOf="@id/paymentText"
+        app:srcCompat="@drawable/ic_vertical_stepper_done" />
+
+    <TextView
+        android:id="@+id/successTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Success"
+        android:textColor="#5EBA89"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/paymentIcon"
+        app:layout_constraintTop_toTopOf="@id/successIcon" />
+
+    <TextView
+        android:id="@+id/successText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Your Gift card is ready for use!\nRedeem code and instructions are available via My Gift cards."
+        android:textColor="#aaaaaa"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/successTitle"
+        app:layout_constraintTop_toBottomOf="@id/successTitle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
