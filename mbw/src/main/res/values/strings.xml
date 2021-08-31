@@ -1705,6 +1705,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="stores">Stores</string>
     <string name="purchases">Purchases</string>
     <string name="mygiftcards">My gift cards</string>
+    <string name="payment_in_progress">Payment in process</string>
+    <string name="failed">Failed</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
