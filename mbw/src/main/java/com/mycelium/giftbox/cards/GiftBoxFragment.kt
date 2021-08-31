@@ -28,8 +28,8 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
     val args by navArgs<GiftBoxFragmentArgs>()
     val activityViewModel: GiftBoxViewModel by activityViewModels()
     val tabMap = mapOf(0 to STORES,
-            1 to PURCHASES,
-            2 to CARDS).toBiMap()
+            1 to CARDS,
+            2 to PURCHASES).toBiMap()
 
     private var refreshItem: MenuItem? = null
 
