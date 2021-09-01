@@ -162,6 +162,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
                 binding?.orderScheme?.successTitle?.setTextColor(grayColor)
                 binding?.orderScheme?.successText?.setTextColor(grayColor)
+                binding?.finish?.text = getString(R.string.ok)
             }
             Status.sUCCESS -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
@@ -172,10 +173,14 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.finish?.text = getString(R.string.mygiftcards)
             }
             Status.eRROR -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
                 binding?.orderScheme?.paidIcon?.background = null
+                binding?.orderScheme?.paidTitle?.text = getString(R.string.failed)
+                binding?.orderScheme?.paidTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+                binding?.orderScheme?.paidText?.text = getString(R.string.giftbox_failed_text)
                 binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_gray)
                 binding?.orderScheme?.paymentIcon?.setImageDrawable(TextDrawable(resources, "2").apply {
                     setFontSize(16f)
@@ -188,6 +193,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                     setFontColor(resources.getColor(R.color.giftbox_gray))
                 })
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
+                binding?.finish?.text = getString(R.string.return_to_payment)
             }
         }
     }
