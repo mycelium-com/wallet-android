@@ -4,11 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <View
         android:id="@+id/line1"
         android:layout_width="1dp"
         android:layout_height="0dp"
-        android:src="@drawable/dash_green"
+        android:background="@drawable/line_dash_green"
         app:layout_constraintBottom_toTopOf="@id/paymentIcon"
         app:layout_constraintEnd_toEndOf="@id/paidIcon"
         app:layout_constraintStart_toStartOf="@id/paidIcon"
@@ -18,7 +18,7 @@
         android:id="@+id/line2"
         android:layout_width="2dp"
         android:layout_height="0dp"
-        android:background="@drawable/dash_green"
+        android:background="@drawable/line_dash_green"
         app:layout_constraintBottom_toTopOf="@id/successIcon"
         app:layout_constraintEnd_toEndOf="@id/paidIcon"
         app:layout_constraintStart_toStartOf="@id/paidIcon"
@@ -26,10 +26,12 @@
 
     <ImageView
         android:id="@+id/paidIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/vertical_stepper_view_item_circle_completed"
-        android:padding="8dp"
+        android:padding="6dp"
+        android:scaleType="center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_vertical_stepper_done" />
@@ -39,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Paid"
+        android:text="@string/paid"
         android:textColor="#5EBA89"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@id/paidIcon"
@@ -50,7 +52,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="You have successfully paid for the Gift card!"
+        android:text="@string/successfully_paid_gift_card"
         android:textColor="#aaaaaa"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,11 +61,12 @@
 
     <ImageView
         android:id="@+id/paymentIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_marginTop="47dp"
         android:background="@drawable/vertical_stepper_view_item_circle_completed"
-        android:padding="8dp"
+        android:padding="6dp"
+        android:scaleType="center"
         app:layout_constraintStart_toStartOf="@id/paidIcon"
         app:layout_constraintTop_toBottomOf="@id/paidText"
         app:srcCompat="@drawable/ic_vertical_stepper_done" />
@@ -73,7 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Payment confirmed"
+        android:text="@string/payment_confirmed"
         android:textColor="#5EBA89"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@id/paymentIcon"
@@ -84,7 +87,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Your Gift card will become available after the transaction is confirmed by the network.\nPlease see confirmation status in the wallet transaction list."
+        android:text="@string/gift_card_after_confirmed"
         android:textColor="#aaaaaa"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -93,11 +96,13 @@
 
     <ImageView
         android:id="@+id/successIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/vertical_stepper_view_item_circle_completed"
-        android:padding="8dp"
+        android:padding="6dp"
+        android:scaleType="center"
+
         app:layout_constraintStart_toStartOf="@id/paidIcon"
         app:layout_constraintTop_toBottomOf="@id/paymentText"
         app:srcCompat="@drawable/ic_vertical_stepper_done" />
@@ -107,7 +112,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Success"
+        android:text="@string/success1"
         android:textColor="#5EBA89"
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@id/paymentIcon"
@@ -118,7 +123,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Your Gift card is ready for use!\nRedeem code and instructions are available via My Gift cards."
+        android:text="@string/gift_card_ready"
         android:textColor="#aaaaaa"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"

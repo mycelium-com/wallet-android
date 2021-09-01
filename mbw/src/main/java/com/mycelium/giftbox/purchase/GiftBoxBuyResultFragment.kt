@@ -1,7 +1,5 @@
 package com.mycelium.giftbox.purchase
 
-import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,9 +16,9 @@ import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.Status
-import com.mycelium.giftbox.getDateString
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel
+import com.mycelium.view.TextDrawable
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -51,15 +49,15 @@ class GiftBoxBuyResultFragment : Fragment() {
     val args by navArgs<GiftBoxBuyResultFragmentArgs>()
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View =
-        FragmentGiftboxBuyResultBinding.inflate(inflater).apply {
-            binding = this
-            lifecycleOwner = this@GiftBoxBuyResultFragment
-            vm = viewModel
-        }.root
+            FragmentGiftboxBuyResultBinding.inflate(inflater).apply {
+                binding = this
+                lifecycleOwner = this@GiftBoxBuyResultFragment
+                vm = viewModel
+            }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,14 +65,13 @@ class GiftBoxBuyResultFragment : Fragment() {
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()
         loadProduct()
         loadOrder()
-        binding?.detailsHeader?.more?.setOnClickListener {
+        binding?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
         }
 
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(10)) {
             updateAllUi()
         }
-
         activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
         binding?.finish?.setOnClickListener {
             findNavController().popBackStack()
@@ -88,27 +85,27 @@ class GiftBoxBuyResultFragment : Fragment() {
             args.transaction?.id?.let { txId ->
                 tx = account?.getTxSummary(txId)!!
                 val findFragmentById =
-                    childFragmentManager.findFragmentById(R.id.spec_details_fragment)
+                        childFragmentManager.findFragmentById(R.id.spec_details_fragment)
                 val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
                 if (findFragmentById != null) {
                     transaction.remove(findFragmentById)
                 }
                 if (account is EthAccount || account is ERC20Account) {
                     transaction.add(
-                        R.id.spec_details_fragment,
-                        EthDetailsFragment.newInstance(tx)
+                            R.id.spec_details_fragment,
+                            EthDetailsFragment.newInstance(tx)
                     )
                 } else if (account is FioAccount) {
                     transaction.add(
-                        R.id.spec_details_fragment,
-                        FioDetailsFragment.newInstance(tx)
+                            R.id.spec_details_fragment,
+                            FioDetailsFragment.newInstance(tx)
                     )
                 } else if (account is BitcoinVaultHdAccount) {
                     transaction.add(R.id.spec_details_fragment, BtcvDetailsFragment.newInstance(tx, accountId))
                 } else {
                     transaction.add(
-                        R.id.spec_details_fragment,
-                        BtcDetailsFragment.newInstance(tx, false, accountId)
+                            R.id.spec_details_fragment,
+                            BtcDetailsFragment.newInstance(tx, false, accountId)
                     )
                 }
                 transaction.commit()
@@ -116,7 +113,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 updateUi()
             }
         } ?: run {
-            binding?.detailsHeader?.more?.visibility = View.GONE
+            binding?.more?.visibility = View.GONE
         }
     }
 
@@ -148,52 +145,49 @@ class GiftBoxBuyResultFragment : Fragment() {
         viewModel.setOrder(order)
         when (order.status) {
             Status.pROCESSING -> {
-                binding?.detailsHeader?.orderStatus?.let {
-                    it.text = getString(R.string.processing)
-                    val color = resources.getColor(R.color.giftbox_processing)
-                    it.setTextColor(color)
-                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        R.drawable.ic_history,
-                        0,
-                        0,
-                        0
-                    )
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        it.compoundDrawableTintList = ColorStateList.valueOf(color)
-                    }
-                }
+                binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
+                binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_green)
+                binding?.orderScheme?.paymentIcon?.setImageDrawable(TextDrawable(resources, "2").apply {
+                    setFontSize(16f)
+                    setFontColor(resources.getColor(R.color.bequant_green))
+                })
+                binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.circle_dash_green)
+                binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
+                val grayColor = resources.getColor(R.color.giftbox_gray)
+                binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
+                    setFontSize(16f)
+                    setFontColor(grayColor)
+                })
+                binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
+                binding?.orderScheme?.successTitle?.setTextColor(grayColor)
+                binding?.orderScheme?.successText?.setTextColor(grayColor)
             }
             Status.sUCCESS -> {
-                binding?.detailsHeader?.orderStatus?.let {
-                    it.text = getString(R.string.success_s, order.timestamp?.getDateString(resources))
-                    val color = resources.getColor(R.color.bequant_green)
-                    it.setTextColor(color)
-                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        R.drawable.ic_fio_name_ok,
-                        0,
-                        0,
-                        0
-                    )
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        it.compoundDrawableTintList = ColorStateList.valueOf(color)
-                    }
-                }
+                binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
+                binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.line1?.setBackgroundColor(resources.getColor(R.color.bequant_green))
+                binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
+                binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
+                binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
+                binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
             }
             Status.eRROR -> {
-                binding?.detailsHeader?.orderStatus?.let {
-                    it.text = getString(R.string.purchase_failed)
-                    val color = resources.getColor(R.color.sender_recyclerview_background_red)
-                    it.setTextColor(color)
-                    it.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        R.drawable.ic_bequant_clear_24,
-                        0,
-                        0,
-                        0
-                    )
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        it.compoundDrawableTintList = ColorStateList.valueOf(color)
-                    }
-                }
+                binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
+                binding?.orderScheme?.paidIcon?.background = null
+                binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_gray)
+                binding?.orderScheme?.paymentIcon?.setImageDrawable(TextDrawable(resources, "2").apply {
+                    setFontSize(16f)
+                    setFontColor(resources.getColor(R.color.giftbox_gray))
+                })
+                binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
+                binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
+                binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
+                    setFontSize(16f)
+                    setFontColor(resources.getColor(R.color.giftbox_gray))
+                })
+                binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
             }
         }
     }
