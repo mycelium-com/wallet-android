@@ -24,6 +24,7 @@ import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
+import kotlin.math.roundToInt
 
 
 class ERC20Account(private val chainId: Byte,
@@ -42,6 +43,7 @@ class ERC20Account(private val chainId: Byte,
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val nonce = getNewNonce()
         val inputData = getInputData(address.toString(), amount.value)
+        val estimatedGasLimit = estimateGas()
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
@@ -54,7 +56,17 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-                gasPrice, nonce, gasLimit, inputData, amount)
+            gasPrice, nonce, gasLimit, inputData, estimatedGasLimit, amount
+        )
+    }
+
+    private fun estimateGas(): Int {
+        val txs = getTransactionSummaries(0, 10).filter { it.confirmations > 0 }
+        return if (txs.isEmpty()) {
+            typicalEstimatedTransactionSize
+        } else {
+            txs.map { (it as EthTransactionSummary).gasUsed.toDouble() }.average().roundToInt()
+        }
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -87,7 +99,7 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, null, true, tx.gasLimit, tx.gasLimit)
+                    accountContext.nonce, null, true, tx.gasLimit, tx.estimatedGasLimit.toBigInteger())
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
