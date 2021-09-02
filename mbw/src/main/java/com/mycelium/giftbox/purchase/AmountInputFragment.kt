@@ -15,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.getCardValue
+import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
@@ -121,7 +122,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
                 checkEntry()
             }
-            tvCardValue.text = args.product?.getCardValue()
+            tvCardValue.text = args.product.getCardValue()
         }
 
         initNumberEntry(savedInstanceState)
