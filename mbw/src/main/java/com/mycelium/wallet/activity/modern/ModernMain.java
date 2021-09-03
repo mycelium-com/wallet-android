@@ -142,6 +142,7 @@ public class ModernMain extends AppCompatActivity {
     private TabLayout.Tab mBalanceTab;
     private TabLayout.Tab mNewsTab;
     private TabLayout.Tab mAccountsTab;
+    private TabLayout.Tab mTransactionsTab;
     private TabLayout.Tab mRecommendationsTab;
     private TabLayout.Tab mFioRequestsTab;
     private MenuItem refreshItem;
@@ -185,7 +186,8 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null, TAB_ACCOUNTS);
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
         mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null, TAB_BALANCE);
-        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null, TAB_HISTORY);
+        mTransactionsTab = tabLayout.newTab().setText(getString(R.string.tab_transactions));
+        mTabsAdapter.addTab(mTransactionsTab, TransactionHistoryFragment.class, null, TAB_HISTORY);
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);
@@ -247,6 +249,9 @@ public class ModernMain extends AppCompatActivity {
         } else if(Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
             mAccountsTab.select();
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_ACCOUNTS));
+        } else if(Objects.equals(intent.getAction(), MainActions.ACTION_TXS)) {
+            mTransactionsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_HISTORY));
         }
     }
 

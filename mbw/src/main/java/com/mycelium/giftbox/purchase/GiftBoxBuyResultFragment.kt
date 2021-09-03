@@ -1,5 +1,6 @@
 package com.mycelium.giftbox.purchase
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,9 +25,12 @@ import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel
 import com.mycelium.view.TextDrawable
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.txdetails.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.TransactionSummary
@@ -78,6 +82,16 @@ class GiftBoxBuyResultFragment : Fragment() {
         activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
         binding?.finish?.setOnClickListener {
             findNavController().popBackStack()
+        }
+        binding?.orderScheme?.paymentText?.setOnClickListener {
+            requireActivity().finishAffinity()
+            startActivity(Intent(requireContext(), ModernMain::class.java).apply {
+                action = MainActions.ACTION_TXS
+            })
+        }
+        binding?.orderScheme?.successText?.setOnClickListener {
+            activityViewModel.currentTab.postValue(GiftBoxFragment.CARDS)
+            findNavController().navigate(GiftBoxBuyResultFragmentDirections.actionMyGiftCards())
         }
     }
 
@@ -140,10 +154,13 @@ class GiftBoxBuyResultFragment : Fragment() {
         if (args.orderResponse is OrderResponse) {
             updateOrder(args.orderResponse as OrderResponse)
         } else {
+            loader(true)
             GitboxAPI.giftRepository.getOrder(lifecycleScope, args.orderResponse.clientOrderId!!, {
                 updateOrder(it!!)
             }, { _, msg ->
                 Toaster(this).toast(msg, true)
+            }, {
+                loader(false)
             })
         }
     }

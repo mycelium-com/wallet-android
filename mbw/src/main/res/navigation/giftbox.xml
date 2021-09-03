@@ -156,6 +156,11 @@
         <argument
             android:name="orderResponse"
             app:argType="com.mycelium.giftbox.client.models.Order" />
+        <action
+            android:id="@+id/actionMyGiftCards"
+            app:destination="@id/giftboxFragment"
+            app:popUpTo="@id/giftboxFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/redeemInstructionsFragment"
