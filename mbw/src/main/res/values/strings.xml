@@ -1715,6 +1715,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gift_card_ready">Your Gift card is ready for use! Redeem code and instructions are available via <u>My Gift cards</u>.</string>
     <string name="return_to_payment">Return to Payment</string>
     <string name="giftbox_failed_text">"Transaction was not sent. Please check your account balance, verify Internet connection and try again. "</string>
+    <string name="card_value1">Card value</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

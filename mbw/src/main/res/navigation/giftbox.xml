@@ -75,7 +75,7 @@
     <fragment
         android:id="@+id/selectAccountFragment2"
         android:name="com.mycelium.giftbox.purchase.SelectAccountFragment"
-        android:label="Buy gift card"
+        android:label="@string/buy_gift_card"
         tools:layout="@layout/fragment_bequant_select_account">
         <argument
             android:name="product"
@@ -92,6 +92,7 @@
     <fragment
         android:id="@+id/amountInputFragment"
         android:name="com.mycelium.giftbox.purchase.AmountInputFragment"
+        android:label="@string/card_value1"
         tools:layout="@layout/fragment_giftbox_amount">
         <argument
             android:name="product"
