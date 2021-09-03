@@ -31,6 +31,7 @@ fun ImageView.loadImage(url: String?, options: RequestOptions?) {
     }
 }
 
+
 fun Date.getDateString(resources: Resources): String =
         DateFormat.getDateInstance(DateFormat.LONG, resources.configuration.locale).format(this)
 
