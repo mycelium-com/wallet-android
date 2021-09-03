@@ -11,6 +11,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.giftbox.cards.GiftBoxFragment
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
@@ -119,10 +122,14 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     private fun loadProduct() {
         args.productResponse?.let {
-            binding?.detailsHeader?.ivImage?.loadImage(it.cardImageUrl)
+            binding?.detailsHeader?.ivImage?.loadImage(it.cardImageUrl,
+                    RequestOptions().transforms(CenterCrop(),
+                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
             viewModel.setProduct(it)
         } ?: GitboxAPI.giftRepository.getProduct(lifecycleScope, args.orderResponse.productCode!!, {
-            binding?.detailsHeader?.ivImage?.loadImage(it?.product?.cardImageUrl)
+            binding?.detailsHeader?.ivImage?.loadImage(it?.product?.cardImageUrl,
+                    RequestOptions().transforms(CenterCrop(),
+                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
             viewModel.setProduct(it?.product!!)
         }, { _, msg ->
             Toaster(this).toast(msg, true)

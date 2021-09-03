@@ -9,7 +9,7 @@ import androidx.core.text.HtmlCompat
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.mrd.bitlib.model.AddressType
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
 import com.squareup.sqldelight.ColumnAdapter
@@ -18,9 +18,16 @@ import java.util.*
 
 @BindingAdapter("image")
 fun ImageView.loadImage(url: String?) {
+    loadImage(url, null)
+}
+
+fun ImageView.loadImage(url: String?, options: RequestOptions?) {
     if (!url.isNullOrEmpty()) {
-        Glide.with(context).load(url)
-                .into(this)
+        val builder = Glide.with(context).load(url)
+        options?.let {
+            builder.apply(options)
+        }
+        builder.into(this)
     }
 }
 

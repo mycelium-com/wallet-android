@@ -17,21 +17,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/imageRoot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="5dp"
+        <ImageView
+            android:id="@+id/ivImage"
+            android:layout_width="65dp"
+            android:layout_height="46dp"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:background="@drawable/giftcard_card_small_bg"
+            android:padding="0.5dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/recyclerview_item_rectangle_selected"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/ivImage"
-                android:layout_width="65dp"
-                android:layout_height="46dp"
-                android:src="@drawable/recyclerview_item_rectangle_selected" />
-
-        </androidx.cardview.widget.CardView>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvName"
@@ -44,8 +41,8 @@
             android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="22sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageRoot"
-            app:layout_constraintTop_toTopOf="@id/imageRoot"
+            app:layout_constraintStart_toEndOf="@id/ivImage"
+            app:layout_constraintTop_toTopOf="@id/ivImage"
             tools:text="Hotels super Hotels super Hotels super" />
 
         <TextView

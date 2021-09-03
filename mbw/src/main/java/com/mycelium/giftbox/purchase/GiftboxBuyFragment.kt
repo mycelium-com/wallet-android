@@ -14,6 +14,9 @@ import androidx.lifecycle.*
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
@@ -114,7 +117,9 @@ class GiftboxBuyFragment : Fragment() {
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
             productId = args.product.code!!, success = { productResponse ->
                 val product = productResponse?.product
-                    binding?.detailsHeader?.ivImage?.loadImage(product?.cardImageUrl)
+                    binding?.detailsHeader?.ivImage?.loadImage(product?.cardImageUrl,
+                            RequestOptions().transforms(CenterCrop(),
+                                    RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
                     binding?.detailsHeader?.tvName?.text = product?.name
                     binding?.detailsHeader?.tvQuantityLabel?.isVisible = false
                     binding?.detailsHeader?.tvQuantity?.isVisible = false
