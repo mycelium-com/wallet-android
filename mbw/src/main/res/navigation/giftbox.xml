@@ -161,6 +161,9 @@
             app:destination="@id/giftboxFragment"
             app:popUpTo="@id/giftboxFragment"
             app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/actionTransactionList"
+            app:destination="@id/transactionHistoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/redeemInstructionsFragment"
@@ -170,5 +173,14 @@
         <argument
             android:name="product"
             app:argType="com.mycelium.giftbox.client.models.ProductInfo" />
+    </fragment>
+    <fragment
+        android:id="@+id/transactionHistoryFragment"
+        android:name="com.mycelium.wallet.activity.main.TransactionHistoryFragment"
+        android:label="@string/transaction_history_title" >
+        <argument
+            android:name="accountId"
+            app:argType="java.util.UUID"
+            app:nullable="true" />
     </fragment>
 </navigation>

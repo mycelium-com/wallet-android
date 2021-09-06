@@ -1,6 +1,5 @@
 package com.mycelium.giftbox.purchase
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,9 +24,7 @@ import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel
 import com.mycelium.view.TextDrawable
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.txdetails.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
@@ -84,13 +81,12 @@ class GiftBoxBuyResultFragment : Fragment() {
             findNavController().popBackStack()
         }
         binding?.orderScheme?.paymentText?.setOnClickListener {
-            requireActivity().finishAffinity()
-            startActivity(Intent(requireContext(), ModernMain::class.java).apply {
-                action = MainActions.ACTION_TXS
-            })
+            if (args.accountId != null) {
+                findNavController().navigate(GiftBoxBuyResultFragmentDirections.actionTransactionList(args.accountId))
+            }
         }
         binding?.orderScheme?.successText?.setOnClickListener {
-            activityViewModel.currentTab.postValue(GiftBoxFragment.CARDS)
+            activityViewModel.currentTab.value = GiftBoxFragment.CARDS
             findNavController().navigate(GiftBoxBuyResultFragmentDirections.actionMyGiftCards())
         }
     }

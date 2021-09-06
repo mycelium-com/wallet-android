@@ -33,7 +33,7 @@ class BroadcastDialog : DialogFragment() {
         @JvmOverloads
         @JvmStatic
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
-                   , transactionSummary: TransactionSummary): BroadcastDialog? {
+                   , transactionSummary: TransactionSummary): BroadcastDialog {
             val transaction = account.getTx(transactionSummary.id)
             return create(account, isColdStorage, transaction)
         }
@@ -41,15 +41,14 @@ class BroadcastDialog : DialogFragment() {
         @JvmOverloads
         @JvmStatic
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
-                              , transaction: Transaction): BroadcastDialog? {
-            val dialog = BroadcastDialog()
-            val bundle = Bundle()
-            bundle.putSerializable(accountId, account.id)
-            bundle.putBoolean(coldStorage, isColdStorage)
-            bundle.putSerializable(tx, transaction)
-            dialog.arguments = bundle
-            return dialog
-        }
+                              , transaction: Transaction): BroadcastDialog =
+             BroadcastDialog().apply {
+                 arguments = Bundle().apply {
+                     putSerializable(accountId, account.id)
+                     putBoolean(coldStorage, isColdStorage)
+                     putSerializable(tx, transaction)
+                 }
+             }
     }
 
     lateinit var account: WalletAccount<*>
