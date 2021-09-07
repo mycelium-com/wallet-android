@@ -7,11 +7,13 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
@@ -29,7 +31,9 @@ import kotlinx.coroutines.Job
 
 class StoresFragment : Fragment() {
 
-    private val adapter = StoresAdapter()
+    private val adapter = StoresAdapter().apply {
+        stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
+    }
     private val viewModel: StoresViewModel by viewModels()
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxStoresBinding? = null
@@ -44,6 +48,10 @@ class StoresFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateCategories(activityViewModel.categories.value ?: listOf())
+        viewModel.category?.let {
+            getTab(it, binding?.tags!!)?.select()
+        }
         binding?.tags?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
@@ -57,19 +65,7 @@ class StoresFragment : Fragment() {
             }
         })
         activityViewModel.categories.observe(viewLifecycleOwner) { categories ->
-            binding?.tags?.let { tags ->
-                categories.forEach {
-                    if (getTab(it, tags) == null) {
-                        val tab = tags.newTab().setCustomView(
-                                ItemGiftBoxTagBinding.inflate(layoutInflater).apply {
-                                    this.text.text = it.replace("-", " ").capitalize()
-                                }.root)
-                        tab.tag = it
-                        tags.addTab(tab)
-                    }
-                }
-                cleanTabs(categories, tags)
-            }
+            updateCategories(categories)
         }
         binding?.list?.adapter = adapter
         binding?.list?.itemAnimator = null
@@ -87,16 +83,36 @@ class StoresFragment : Fragment() {
 
             override fun isLastPage() = viewModel.productsSize <= viewModel.products.size
 
-            override fun isLoading() = viewModel.loading.value?:false
+            override fun isLoading() = viewModel.loading.value ?: false
         })
         viewModel.search.observe(viewLifecycleOwner) {
-            loadData()
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                loadData()
+            }
         }
         binding?.searchClose?.setOnClickListener {
             viewModel.search.value = null
             hideKeyboard()
         }
-        loadData()
+        if (viewModel.products.isEmpty()) {
+            loadData()
+        }
+    }
+
+    private fun updateCategories(categories: List<String>) {
+        binding?.tags?.let { tags ->
+            categories.forEach {
+                if (getTab(it, tags) == null) {
+                    val tab = tags.newTab().setCustomView(
+                            ItemGiftBoxTagBinding.inflate(layoutInflater).apply {
+                                this.text.text = it.replace("-", " ").capitalize()
+                            }.root)
+                    tab.tag = it
+                    tags.addTab(tab)
+                }
+            }
+            cleanTabs(categories, tags)
+        }
     }
 
     private fun hideKeyboard() {
@@ -104,7 +120,7 @@ class StoresFragment : Fragment() {
                 .hideSoftInputFromWindow(binding?.searchInput?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
-    private var productsJob : Job? = null
+    private var productsJob: Job? = null
     private fun loadData(offset: Long = -1) {
         if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })

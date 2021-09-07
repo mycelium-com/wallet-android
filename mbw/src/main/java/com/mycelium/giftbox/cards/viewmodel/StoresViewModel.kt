@@ -12,7 +12,7 @@ class StoresViewModel : ViewModel() {
     val loading = MutableLiveData<Boolean>(false)
     var category: String? = null
     var search = MutableLiveData<String>("")
-    var quickSearch = false
+//    var scrollPositionY = 0
 
     fun setProductsResponse(it: ProductsResponse?, append: Boolean = false) {
         if (!append) {
