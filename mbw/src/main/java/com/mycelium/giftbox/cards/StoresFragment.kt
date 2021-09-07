@@ -31,7 +31,6 @@ import kotlinx.coroutines.Job
 
 
 class StoresFragment : Fragment() {
-
     private val adapter = StoresAdapter().apply {
         stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
     }
