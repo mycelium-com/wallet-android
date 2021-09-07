@@ -1703,7 +1703,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="giftcards">Gift cards</string>
     <string name="redeem_instructions_title">Redeem instructions</string>
     <string name="stores">Stores</string>
-    <string name="purchases">Purchases</string>
+    <string name="purchases">Orders</string>
     <string name="mygiftcards">My gift cards</string>
     <string name="payment_in_progress">Payment in process</string>
     <string name="failed">Failed</string>
