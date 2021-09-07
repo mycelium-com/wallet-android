@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -81,11 +82,11 @@ class StoresFragment : Fragment() {
                 loadData(viewModel.products.size.toLong())
             }
 
-            override fun isLastPage() = viewModel.productsSize <= viewModel.products.size
+            override fun isLastPage() = viewModel.productsSize.value ?: 0 <= viewModel.products.size
 
             override fun isLoading() = viewModel.loading.value ?: false
         })
-        viewModel.search.observe(viewLifecycleOwner) {
+        binding?.searchInput?.doOnTextChanged { _, _, _, _ ->
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                 loadData()
             }
@@ -125,7 +126,7 @@ class StoresFragment : Fragment() {
         if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
             productsJob?.cancel()
-        } else if (offset >= viewModel.productsSize) {
+        } else if (offset >= viewModel.productsSize.value ?: 0) {
             return
         } else {
             adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)

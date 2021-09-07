@@ -9,7 +9,7 @@ import com.mycelium.giftbox.client.models.OrdersHistoryResponse
 class PurchasedViewModel : ViewModel() {
     val loading = MutableLiveData<Boolean>(false)
     val orders = MutableLiveData<List<Order>>(emptyList())
-    var ordersSize = 0L
+    var ordersSize = MutableLiveData(0L)
 
     fun setOrdersResponse(it: OrdersHistoryResponse?, append: Boolean = false) {
         orders.value = if (append) {
@@ -18,6 +18,6 @@ class PurchasedViewModel : ViewModel() {
         } else {
             it?.items ?: emptyList()
         }.sortedByDescending { it.timestamp }
-        ordersSize = it?.size ?: 0
+        ordersSize.value = it?.size ?: 0
     }
 }

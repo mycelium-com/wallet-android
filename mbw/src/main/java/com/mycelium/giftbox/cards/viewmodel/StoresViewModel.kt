@@ -8,7 +8,7 @@ import com.mycelium.giftbox.client.models.ProductsResponse
 
 class StoresViewModel : ViewModel() {
     var products = mutableListOf<ProductInfo>()
-    var productsSize = 0L
+    var productsSize = MutableLiveData<Long>(0L)
     val loading = MutableLiveData<Boolean>(false)
     var category: String? = null
     var search = MutableLiveData<String>("")
@@ -18,6 +18,6 @@ class StoresViewModel : ViewModel() {
             products.clear()
         }
         products.addAll(it?.products ?: emptyList())
-        productsSize = it?.size ?: 0
+        productsSize.value = it?.size ?: 0
     }
 }

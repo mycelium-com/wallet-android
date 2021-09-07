@@ -45,6 +45,8 @@ class OrdersFragment : Fragment() {
     ): View =
             FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
                 binding = this
+                this.viewModel = this@OrdersFragment.viewModel
+                this.lifecycleOwner = this@OrdersFragment
             }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,7 +63,7 @@ class OrdersFragment : Fragment() {
                 loadData(viewModel.orders.value?.size?.toLong() ?: 0)
             }
 
-            override fun isLastPage() = viewModel.orders.value?.size ?: 0 <= viewModel.ordersSize
+            override fun isLastPage() = viewModel.orders.value?.size ?: 0 <= viewModel.ordersSize.value ?: 0
 
             override fun isLoading() = viewModel.loading.value ?: false
         })
@@ -85,7 +87,7 @@ class OrdersFragment : Fragment() {
         if (offset == 0L) {
             adapter.submitList(List(8) { PurchasedLoadingItem })
             activityViewModel.orderLoading.value = true
-        } else if (offset >= viewModel.ordersSize) {
+        } else if (offset >= viewModel.ordersSize.value ?: 0) {
             return
         } else {
             adapter.submitList(adapter.currentList + PurchasedLoadingItem)
