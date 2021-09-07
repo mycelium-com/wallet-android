@@ -39,6 +39,7 @@ import kotlinx.android.synthetic.main.details_common.*
 import kotlinx.android.synthetic.main.details_common.view.*
 import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
 import kotlinx.android.synthetic.main.giftcard_send_info.*
+import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -49,7 +50,7 @@ class GiftBoxBuyResultFragment : Fragment() {
     private val viewModel: GiftboxBuyResultViewModel by viewModels()
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxBuyResultBinding? = null
-
+    var updateJob: Job? = null
     val args by navArgs<GiftBoxBuyResultFragmentArgs>()
 
     override fun onCreateView(
@@ -72,10 +73,6 @@ class GiftBoxBuyResultFragment : Fragment() {
         binding?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
         }
-
-        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(10)) {
-            updateAllUi()
-        }
         activityViewModel.currentTab.postValue(GiftBoxFragment.PURCHASES)
         binding?.finish?.setOnClickListener {
             findNavController().popBackStack()
@@ -89,6 +86,18 @@ class GiftBoxBuyResultFragment : Fragment() {
             activityViewModel.currentTab.value = GiftBoxFragment.CARDS
             findNavController().navigate(GiftBoxBuyResultFragmentDirections.actionMyGiftCards())
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(10)) {
+            updateAllUi()
+        }
+    }
+
+    override fun onPause() {
+        updateJob?.cancel()
+        super.onPause()
     }
 
     private fun updateAllUi() {

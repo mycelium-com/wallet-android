@@ -65,10 +65,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.logging.Level
 import java.util.logging.Logger
 
+// TODO move to recyclerview and redesign tx loading
 class TransactionHistoryFragment : Fragment() {
     private var currentActionMode: ActionMode? = null
     private val accountsWithPartialHistory: MutableSet<UUID> = HashSet()
-    private lateinit var account: WalletAccount<*>
 
     /**
      * This field shows if [Preloader] may be started (initial - true).
@@ -90,7 +90,7 @@ class TransactionHistoryFragment : Fragment() {
         // cache the addressbook for faster lookup
         model.cacheAddressBook()
         val accountId = arguments?.getSerializable("accountId") as UUID?
-        account = if (accountId != null) model.mbwManager.getWalletManager(false).getAccount(accountId)!! else model.mbwManager.selectedAccount
+        model.account.value = if (accountId != null) model.mbwManager.getWalletManager(false).getAccount(accountId)!! else model.mbwManager.selectedAccount
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -100,7 +100,7 @@ class TransactionHistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (adapter == null) {
-            adapter = TransactionHistoryAdapter(activity, history, model.transactionHistory.fioMetadataMap)
+            adapter = TransactionHistoryAdapter(activity, history, model.fioMetadataMap)
             updateWrapper(adapter)
             model.transactionHistory.observe(viewLifecycleOwner, Observer { transaction ->
                 history.clear()
@@ -122,9 +122,11 @@ class TransactionHistoryFragment : Fragment() {
             })
         }
         binding?.btRescan?.setOnClickListener {
-            account.dropCachedData()
-            model.mbwManager.getWalletManager(false)
-                    .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
+            model.account.value?.let { account ->
+                account.dropCachedData()
+                model.mbwManager.getWalletManager(false)
+                        .startSynchronization(SyncMode.NORMAL_FORCED, listOf(account))
+            }
         }
     }
 
@@ -144,7 +146,7 @@ class TransactionHistoryFragment : Fragment() {
             if (resultCode == Activity.RESULT_OK) {
                 val signedTransaction = Preconditions.checkNotNull(intent!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction
                 model.storage.storeTransactionLabel(HexUtils.toHex(signedTransaction.id), "CPFP")
-                BroadcastDialog.create(account, false, signedTransaction)
+                BroadcastDialog.create(model.account.value!!, false, signedTransaction)
                         .show(requireFragmentManager(), "ActivityResultDialog")
             }
         } else {
@@ -179,8 +181,8 @@ class TransactionHistoryFragment : Fragment() {
 
     @Subscribe
     fun selectedAccountChanged(event: SelectedAccountChanged?) {
-        if (arguments?.containsKey("accountId") == true) {
-            account = model.mbwManager.selectedAccount
+        if (arguments?.containsKey("accountId") != true) {
+            model.account.value = model.mbwManager.selectedAccount
         }
         isLoadingPossible.set(true)
         binding?.lvTransactionHistory?.setSelection(0)
@@ -205,13 +207,13 @@ class TransactionHistoryFragment : Fragment() {
         // Open transaction details
         startActivity(Intent(activity, TransactionDetailsActivity::class.java)
                 .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.id)
-                .putExtra(TransactionDetailsActivity.ACCOUNT_ID, account.id))
+                .putExtra(TransactionDetailsActivity.ACCOUNT_ID, model.account.value!!.id))
     }
 
     private fun showHistory(hasHistory: Boolean) {
         binding?.llNoRecords?.visibility = if (hasHistory) View.GONE else View.VISIBLE
         binding?.lvTransactionHistory?.visibility = if (hasHistory) View.VISIBLE else View.GONE
-        binding?.tvWarningNotFullHistory?.visibility = if (accountsWithPartialHistory.contains(account.id)) View.VISIBLE else View.GONE
+        binding?.tvWarningNotFullHistory?.visibility = if (accountsWithPartialHistory.contains(model.account.value!!.id)) View.VISIBLE else View.GONE
     }
 
     private fun updateWrapper(adapter: TransactionHistoryAdapter?) {
@@ -224,7 +226,7 @@ class TransactionHistoryFragment : Fragment() {
             override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
                 synchronized(toAdd) {
                     if (toAdd.isNotEmpty() && view.lastVisiblePosition == history.size - 1) {
-                        model.transactionHistory.appendList(toAdd)
+                        model.txs?.appendList(toAdd)
                         toAdd.clear()
                     }
                 }
@@ -237,12 +239,12 @@ class TransactionHistoryFragment : Fragment() {
                     var toAddEmpty: Boolean
                     synchronized(toAdd) { toAddEmpty = toAdd.isEmpty() }
                     if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                        Preloader(toAdd, model.transactionHistory.fioMetadataMap, account, model.mbwManager, totalItemCount,
+                        Preloader(toAdd, model.fioMetadataMap, model.account.value!!, model.mbwManager, totalItemCount,
                                 OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                     }
                     if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
                         synchronized(toAdd) {
-                            model.transactionHistory.appendList(toAdd)
+                            model.txs?.appendList(toAdd)
                             toAdd.clear()
                         }
                     }
@@ -334,8 +336,8 @@ class TransactionHistoryFragment : Fragment() {
                     private fun updateActionBar(actionMode: ActionMode, menu: Menu) {
                         Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails))
                         Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).isVisible = !record.isIncoming
-                        if (account is Bip44BCHAccount || account is SingleAddressBCHAccount
-                                || account is AbstractEthERC20Account || account is FioAccount) {
+                        if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
+                                || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).isVisible = false
                             Preconditions.checkNotNull(menu.findItem(R.id.miBumpFee)).isVisible = false
@@ -344,11 +346,11 @@ class TransactionHistoryFragment : Fragment() {
                         } else {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = record.canCancel()
                             Preconditions.checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).isVisible = record.confirmations == 0
-                            Preconditions.checkNotNull(menu.findItem(R.id.miBumpFee)).isVisible = record.confirmations == 0 && account.canSpend()
+                            Preconditions.checkNotNull(menu.findItem(R.id.miBumpFee)).isVisible = record.confirmations == 0 && model.account.value?.canSpend() ?: false
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                             Preconditions.checkNotNull(menu.findItem(R.id.miShare)).isVisible = true
                         }
-                        if (account is AbstractEthERC20Account) {
+                        if (model.account.value is AbstractEthERC20Account) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).isVisible = record.confirmations == 0
                         }
                         currentActionMode = actionMode
@@ -368,8 +370,8 @@ class TransactionHistoryFragment : Fragment() {
                             }
                             R.id.miAddToAddressBook -> {
                                 var defaultName: String? = ""
-                                if (account is ColuAccount) {
-                                    defaultName = (account as ColuAccount).coluLabel
+                                if (model.account.value is ColuAccount) {
+                                    defaultName = (model.account.value as ColuAccount).coluLabel
                                 }
                                 val address = record.destinationAddresses[0]
                                 EnterAddressLabelUtil.enterAddressLabel(requireContext(), model.storage,
@@ -379,7 +381,7 @@ class TransactionHistoryFragment : Fragment() {
                                     .setTitle(_context.getString(R.string.remove_queued_transaction_title))
                                     .setMessage(_context.getString(R.string.remove_queued_transaction))
                                     .setPositiveButton(R.string.yes) { dialog, which ->
-                                        val okay = (account as WalletBtcAccount).cancelQueuedTransaction(Sha256Hash.of(record.id))
+                                        val okay = (model.account.value as WalletBtcAccount).cancelQueuedTransaction(Sha256Hash.of(record.id))
                                         dialog.dismiss()
                                         if (okay) {
                                             Utils.showSimpleMessageDialog(context, _context.getString(R.string.remove_queued_transaction_hint))
@@ -394,12 +396,12 @@ class TransactionHistoryFragment : Fragment() {
                                     .setTitle(_context.getString(R.string.delete_unconfirmed_transaction_title))
                                     .setMessage(_context.getString(R.string.warning_delete_unconfirmed_transaction))
                                     .setPositiveButton(R.string.yes) { dialog, _ ->
-                                        if (account is WalletBtcAccount) {
-                                            (account as WalletBtcAccount).deleteTransaction(Sha256Hash.of(record.id))
+                                        if (model.account.value is WalletBtcAccount) {
+                                            (model.account.value as WalletBtcAccount).deleteTransaction(Sha256Hash.of(record.id))
                                             dialog.dismiss()
                                             finishActionMode()
-                                        } else if (account is AbstractEthERC20Account) {
-                                            (account as AbstractEthERC20Account).deleteTransaction("0x" + HexUtils.toHex(record.id))
+                                        } else if (model.account.value is AbstractEthERC20Account) {
+                                            (model.account.value as AbstractEthERC20Account).deleteTransaction("0x" + HexUtils.toHex(record.id))
                                             dialog.dismiss()
                                             finishActionMode()
                                         }
@@ -410,7 +412,7 @@ class TransactionHistoryFragment : Fragment() {
                                     .setTitle(_context.getString(R.string.rebroadcast_transaction_title))
                                     .setMessage(_context.getString(R.string.description_rebroadcast_transaction))
                                     .setPositiveButton(R.string.yes) { dialog, _ ->
-                                        BroadcastDialog.create(account, false, record)
+                                        BroadcastDialog.create(model.account.value!!, false, record)
                                                 .show(requireFragmentManager(), "broadcast")
                                         dialog.dismiss()
                                     }
@@ -432,7 +434,7 @@ class TransactionHistoryFragment : Fragment() {
                                     .setTitle(R.string.share_transaction_manually_title)
                                     .setMessage(R.string.share_transaction_manually_description)
                                     .setPositiveButton(R.string.yes) { dialog, _ ->
-                                        val transaction = HexUtils.toHex(account.getTx(record.id).txBytes())
+                                        val transaction = HexUtils.toHex(model.account.value!!.getTx(record.id).txBytes())
                                         val shareIntent = Intent(Intent.ACTION_SEND)
                                         shareIntent.type = "text/plain"
                                         shareIntent.putExtra(Intent.EXTRA_TEXT, transaction)
@@ -464,8 +466,8 @@ class TransactionHistoryFragment : Fragment() {
                                  private val context: Context) : AsyncTask<Void?, Void?, Boolean>() {
         private val logger = Logger.getLogger(UpdateParentTask::class.java.simpleName)
         override fun doInBackground(vararg params: Void?): Boolean {
-            if (account is AbstractBtcAccount) {
-                val currentAccount = account as AbstractBtcAccount
+            if (model.account.value is AbstractBtcAccount) {
+                val currentAccount = model.account.value as AbstractBtcAccount
                 val transactionEx = currentAccount.getTransaction(txid)
                 val transaction = TransactionEx.toTransaction(transactionEx)
                 try {
@@ -481,7 +483,7 @@ class TransactionHistoryFragment : Fragment() {
         override fun onPostExecute(isResultOk: Boolean) {
             super.onPostExecute(isResultOk)
             if (isResultOk) {
-                val fee = model.mbwManager.getFeeProvider(account.coinType)
+                val fee = model.mbwManager.getFeeProvider(model.account.value!!.coinType)
                         .estimation
                         .high
                         .valueAsLong
@@ -489,17 +491,17 @@ class TransactionHistoryFragment : Fragment() {
                 if (unsigned != null) {
                     val txFee = unsigned.calculateFee()
                     val txFeeBitcoinValue = valueOf(Utils.getBtcCoinType(), txFee)
-                    var txFeeString = txFeeBitcoinValue.toStringWithUnit(model.mbwManager.getDenomination(account.coinType))
-                    val txFeeCurrencyValue = model.mbwManager.exchangeRateManager[txFeeBitcoinValue, model.mbwManager.getFiatCurrency(account.coinType)]
+                    var txFeeString = txFeeBitcoinValue.toStringWithUnit(model.mbwManager.getDenomination(model.account.value!!.coinType))
+                    val txFeeCurrencyValue = model.mbwManager.exchangeRateManager[txFeeBitcoinValue, model.mbwManager.getFiatCurrency(model.account.value!!.coinType)]
                     if (!isNullOrZero(txFeeCurrencyValue)) {
-                        txFeeString += " (${txFeeCurrencyValue.toStringWithUnit(model.mbwManager.getDenomination(account.coinType))}"
+                        txFeeString += " (${txFeeCurrencyValue.toStringWithUnit(model.mbwManager.getDenomination(model.account.value!!.coinType))}"
                     }
                     alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString))
                     alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes)) { dialog: DialogInterface, which: Int ->
                         model.mbwManager.runPinProtectedFunction(activity) {
-                            val cryptoCurrency = account.coinType
+                            val cryptoCurrency = model.account.value!!.coinType
                             val unsignedTransaction = BtcTransaction(cryptoCurrency, unsigned)
-                            val intent = SignTransactionActivity.getIntent(activity, account.id, false, unsignedTransaction)
+                            val intent = SignTransactionActivity.getIntent(activity, model.account.value!!.id, false, unsignedTransaction)
                             startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE)
                             dialog.dismiss()
                             finishActionMode()
@@ -521,7 +523,7 @@ class TransactionHistoryFragment : Fragment() {
      * TODO: consider parallel attempts to PFP
      */
     private fun tryCreateBumpTransaction(txid: Sha256Hash, feePerKB: Long): UnsignedTransaction? {
-        val transaction = account.getTxSummary(txid.bytes)
+        val transaction = model.account.value!!.getTxSummary(txid.bytes)
         val txFee = transaction.inputs.map { it.value.valueAsLong }.sum() -
                 transaction.outputs.map { it.value.valueAsLong }.sum()
         if (txFee * 1000 / transaction.rawSize >= feePerKB) {
@@ -529,7 +531,7 @@ class TransactionHistoryFragment : Fragment() {
             return null
         }
         try {
-            return (account as AbstractBtcAccount).createUnsignedCPFPTransaction(txid, feePerKB, txFee)
+            return (model.account.value as AbstractBtcAccount).createUnsignedCPFPTransaction(txid, feePerKB, txFee)
         } catch (e: InsufficientBtcException) {
             Toaster(requireActivity()).toast(R.string.insufficient_funds, false)
         } catch (e: UnableToBuildTransactionException) {
@@ -551,10 +553,10 @@ class TransactionHistoryFragment : Fragment() {
     private val transactionLabelChanged = TransactionLabelChangedHandler { _, _ -> MbwManager.getEventBus().post(TransactionLabelChanged()) }
     private fun shareTransactionHistory() {
         try {
-            val accountLabel = model.storage.getLabelByAccount(account.id).replace("[^A-Za-z0-9]".toRegex(), "_")
+            val accountLabel = model.storage.getLabelByAccount(model.account.value!!.id).replace("[^A-Za-z0-9]".toRegex(), "_")
             val fileName = "MyceliumExport_" + accountLabel + "_" + System.currentTimeMillis() + ".csv"
-            val history = account.getTransactionSummaries(0, Int.MAX_VALUE)
-            val historyData = DataExport.getTxHistoryCsv(account, history, model.storage,
+            val history = model.account.value!!.getTransactionSummaries(0, Int.MAX_VALUE)
+            val historyData = DataExport.getTxHistoryCsv(model.account.value, history, model.storage,
                     requireActivity().getFileStreamPath(fileName))
             val packageManager = Preconditions.checkNotNull(requireActivity().packageManager)
             packageManager.getPackageInfo(requireActivity().packageName, PackageManager.GET_PROVIDERS)
