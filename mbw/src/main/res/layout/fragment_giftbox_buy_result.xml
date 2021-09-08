@@ -22,12 +22,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/horizontal_page_margin"
-            android:paddingVertical="@dimen/activity_vertical_margin">
+            android:paddingHorizontal="@dimen/horizontal_page_margin">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:background="@drawable/rect_background_rounded"
                 android:orientation="vertical">
 
@@ -179,7 +179,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="32dp"
-                android:text="Ok" />
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/button_ok" />
         </LinearLayout>
     </ScrollView>
 </layout>

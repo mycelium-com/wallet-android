@@ -191,7 +191,11 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
                 binding?.orderScheme?.successTitle?.setTextColor(grayColor)
                 binding?.orderScheme?.successText?.setTextColor(grayColor)
-                binding?.finish?.text = getString(R.string.ok)
+                binding?.finish?.text = getString(R.string.button_ok)
+                binding?.finish?.setOnClickListener {
+                    activityViewModel.currentTab.value = GiftBoxFragment.PURCHASES
+                    findNavController().popBackStack()
+                }
             }
             Status.sUCCESS -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
@@ -203,19 +207,20 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
                 binding?.finish?.text = getString(R.string.mygiftcards)
+                binding?.finish?.setOnClickListener {
+                    activityViewModel.currentTab.value = GiftBoxFragment.CARDS
+                    findNavController().popBackStack()
+                }
             }
             Status.eRROR -> {
-                binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
-                binding?.orderScheme?.paidIcon?.background = null
-                binding?.orderScheme?.paidTitle?.text = getString(R.string.failed)
-                binding?.orderScheme?.paidTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                binding?.orderScheme?.paidText?.text = getString(R.string.giftbox_failed_text)
+                binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
+                binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
                 binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_gray)
-                binding?.orderScheme?.paymentIcon?.setImageDrawable(TextDrawable(resources, "2").apply {
-                    setFontSize(16f)
-                    setFontColor(resources.getColor(R.color.giftbox_gray))
-                })
-                binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
+                binding?.orderScheme?.paymentTitle?.text = getString(R.string.failed)
+                binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+                binding?.orderScheme?.paymentText?.text = getString(R.string.giftbox_failed_text)
+                binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
+                binding?.orderScheme?.paymentIcon?.background = null
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
                 binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
                     setFontSize(16f)
