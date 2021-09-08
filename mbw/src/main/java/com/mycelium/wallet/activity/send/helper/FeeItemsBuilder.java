@@ -34,7 +34,7 @@ import static com.mycelium.wallet.activity.send.view.SelectableRecyclerView.SRVA
  */
 public class FeeItemsBuilder {
     private static final int MIN_NON_ZERO_FEE_PER_KB = 1000;
-    private static final long MIN_NON_ZERO_GAS_PER_KB = 100000000000L; // 0.1 Gwei * 1000
+    private static final long MIN_NON_ZERO_FEE_PER_GAS = 100000000L; // 0.1 Gwei
     private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
     private ExchangeRateManager exchangeRateManager;
@@ -46,7 +46,7 @@ public class FeeItemsBuilder {
     }
 
     public List<FeeItem> getFeeItemList(AssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
-        long min = asset instanceof EthCoin ? MIN_NON_ZERO_GAS_PER_KB : MIN_NON_ZERO_FEE_PER_KB;
+        long min = asset instanceof EthCoin ? MIN_NON_ZERO_FEE_PER_GAS : MIN_NON_ZERO_FEE_PER_KB;
         long current = 0;
         long previous = 0;
         long next = 0;
@@ -87,19 +87,19 @@ public class FeeItemsBuilder {
         }
 
         List<FeeItem> feeItems = new ArrayList<>();
-        addItemsInRange(asset, feeItems, algorithmLower, txSize);
+        addItemsInRange(asset, feeItems, algorithmLower, txSize, feeEstimation.getScale());
         if (minerFee == MinerFee.LOWPRIO) {
             algorithmUpper = new LinearAlgorithm(current, algorithmLower.getMaxPosition() + 1
                     , max, algorithmLower.getMaxPosition() + 4);
-            addItemsInRange(asset, feeItems, algorithmUpper, txSize);
+            addItemsInRange(asset, feeItems, algorithmUpper, txSize, feeEstimation.getScale());
         }
 
         return feeItems;
     }
 
-    private void addItemsInRange(AssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
+    private void addItemsInRange(AssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize, int scale) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
-            FeeItem currFeeItem = createFeeItem(asset, txSize, algorithm.computeValue(i));
+            FeeItem currFeeItem = createFeeItem(asset, txSize, algorithm.computeValue(i), scale);
             FeeItem prevFeeItem = !feeItems.isEmpty() ? feeItems.get(feeItems.size() - 1) : null;
             boolean canAdd = prevFeeItem == null || prevFeeItem.feePerKb < currFeeItem.feePerKb;
 
@@ -119,9 +119,9 @@ public class FeeItemsBuilder {
     }
 
     @NonNull
-    private FeeItem createFeeItem(AssetInfo asset, int txSize, long feePerKb) {
-        Value fee = Value.valueOf(asset, txSize * feePerKb / 1000);
+    private FeeItem createFeeItem(AssetInfo asset, int txSize, long feePerUnit, int scale) {
+        Value fee = Value.valueOf(asset, txSize * feePerUnit / scale);
         Value fiatFee = exchangeRateManager.get(fee, fiatType);
-        return new FeeItem(feePerKb, fee, fiatFee, VIEW_TYPE_ITEM);
+        return new FeeItem(feePerUnit, fee, fiatFee, VIEW_TYPE_ITEM);
     }
 }

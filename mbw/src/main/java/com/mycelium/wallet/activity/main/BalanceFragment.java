@@ -372,10 +372,14 @@ public class BalanceFragment extends Fragment {
             tv.setVisibility(View.GONE);
         } else {
             try {
-                tv.setVisibility(View.VISIBLE);
                 Value converted = _mbwManager.getExchangeRateManager().get(value,
                         _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
-                tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
+                if(converted != null) {
+                    tv.setVisibility(View.VISIBLE);
+                    tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
+                } else {
+                    tv.setVisibility(View.GONE);
+                }
             } catch (IllegalArgumentException ex) {
                 // something failed while calculating the bitcoin amount
                 tv.setVisibility(View.GONE);

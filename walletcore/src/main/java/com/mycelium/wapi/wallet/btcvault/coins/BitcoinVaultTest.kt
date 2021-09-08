@@ -16,6 +16,6 @@ object BitcoinVaultTest : CryptoCurrency("bitcoinvault.test", "BitcoinVault Test
         } catch (e: IllegalStateException) {
             return null
         }
-        return BtcvAddress(this, address.allAddressBytes)
+        return address
     }
 }

@@ -194,27 +194,29 @@ class GiftboxBuyFragment : Fragment() {
             })
 
         binding?.btSend?.setOnClickListener {
-            loader(true)
-            GitboxAPI.giftRepository.createOrder(
-                viewModel.viewModelScope,
-                code = args.product.code!!,
-                amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
-                quantity = viewModel.quantityString.value?.toInt()!!,
-                currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
-                success = { orderResponse ->
-                    viewModel.orderResponse.value = orderResponse
-                    viewModel.sendTransactionAction.value = Unit
-                }, error = { _, error ->
+            MbwManager.getInstance(WalletApplication.getInstance()).runPinProtectedFunction(activity) {
+                loader(true)
+                GitboxAPI.giftRepository.createOrder(
+                        viewModel.viewModelScope,
+                        code = args.product.code!!,
+                        amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
+                        quantity = viewModel.quantityString.value?.toInt()!!,
+                        currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
+                        success = { orderResponse ->
+                            viewModel.orderResponse.value = orderResponse
+                            viewModel.sendTransactionAction.value = Unit
+                        }, error = { _, error ->
                     ErrorHandler(requireContext()).handle(error)
                     loader(false)
                 }, finally = {
                     loader(false)
                 })
 
-            viewModel.sendTransaction.observe(viewLifecycleOwner) {
-                loader(false)
-                val (transaction, broadcastResult) = it
-                broadcastResult(transaction, broadcastResult)
+                viewModel.sendTransaction.observe(viewLifecycleOwner) {
+                    loader(false)
+                    val (transaction, broadcastResult) = it
+                    broadcastResult(transaction, broadcastResult)
+                }
             }
         }
     }
