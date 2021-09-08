@@ -187,7 +187,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private fun updateAmountsDisplay(amountText: String) {
         binding.tvAmount.text = amountText
-
         binding.btCurrency.text = _amount?.currencySymbol?.toUpperCase()
     }
 
