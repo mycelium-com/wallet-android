@@ -1,26 +1,13 @@
 package com.mycelium.wallet.activity.util
 
 import com.mycelium.view.Denomination
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.eth.coins.EthMain
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import org.web3j.utils.Convert
+import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.log10
+import kotlin.math.pow
 import kotlin.math.roundToLong
-
-class FeeFormattingUtil {
-    fun getFeeFormatter(coinType: CryptoCurrency): FeeFormatter? {
-        return when (coinType) {
-            is BitcoinMain, is BitcoinTest -> BtcFeeFormatter()
-            is EthMain, EthTest -> EthFeeFormatter()
-            else -> null
-        }
-    }
-}
 
 interface FeeFormatter {
     fun getFeeAbsValue(value: Value): String
@@ -39,8 +26,15 @@ class BtcFeeFormatter : FeeFormatter {
 }
 
 class EthFeeFormatter : FeeFormatter {
-    // value comes here in per kbyte, i.e. divided by 1000
-    override fun getFeeAbsValue(value: Value) = (value * 1000).toStringWithUnit(Denomination.MICRO)
+    override fun getFeeAbsValue(value: Value): String {
+        // value with more than 8 decimal digits converted to string with unit later doesn't fit the view and is cut poorly
+        val rounded = value.valueAsBigDecimal.setScale(8, BigDecimal.ROUND_HALF_EVEN)
+        val roundedValue = Value.valueOf(
+            value.type,
+            (rounded * 10.0.pow(value.type.unitExponent).toBigDecimal()).toBigInteger()
+        )
+        return roundedValue.toStringWithUnit(Denomination.MICRO)
+    }
 
     override fun getAltValue(value: Value) = if (value.isZero()) {
         "<" + (value + 1).toStringWithUnit()
