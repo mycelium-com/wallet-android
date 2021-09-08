@@ -207,7 +207,7 @@ val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapter
         Adapters.valueAdapter, Adapters.valueAdapter)
 
 val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
-        Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.valueAdapter)
+        Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.valueAdapter)
 
 val fioAccountBackingAdapter = FioAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.valueAdapter)
 

@@ -90,7 +90,7 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+                    accountContext.nonce, tx.gasPrice, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -215,7 +215,7 @@ class ERC20Account(private val chainId: Byte,
                             tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
                             Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
                                     ?: typicalEstimatedTransactionSize.toBigInteger())),
-                            tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
+                            tx.confirmations.toInt(), tx.nonce, tx.gasPrice, null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
             val localTxs = getUnconfirmedTransactions()
