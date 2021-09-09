@@ -55,6 +55,10 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                 return false
             }
             val synced = doSynchronization(mode)
+            if (!maySync) {
+                return false
+            }
+            getNewNonce()
             if (synced) {
                 lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
             }

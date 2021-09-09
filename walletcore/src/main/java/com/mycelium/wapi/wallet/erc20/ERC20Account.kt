@@ -43,7 +43,6 @@ class ERC20Account(private val chainId: Byte,
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
-        val nonce = getNewNonce()
         val inputData = getInputData(address.toString(), amount.value)
         val estimatedGasLimit = estimateGas()
 
@@ -58,7 +57,7 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice, nonce, gasLimit, inputData, estimatedGasLimit, amount
+            gasPrice, accountContext.nonce, gasLimit, inputData, estimatedGasLimit, amount
         )
     }
 
