@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.providers
 
+import com.mycelium.wapi.Constants.BTC_ELECTRUMX_FEE_ESTIMATIONS_SCALE
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
@@ -20,5 +21,7 @@ class BtcvFeeProvider(testnet: Boolean, wapi: Wapi, feeBacking: FeeEstimationsBa
                     Value.valueOf(coinType, 3000),
                     Value.valueOf(coinType, 6000),
                     Value.valueOf(coinType, 8000),
-                    0)
+                    0,
+                    BTC_ELECTRUMX_FEE_ESTIMATIONS_SCALE
+            )
 }

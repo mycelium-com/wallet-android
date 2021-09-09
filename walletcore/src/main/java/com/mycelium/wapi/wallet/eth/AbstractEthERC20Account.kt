@@ -43,17 +43,28 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
+        if (isArchived) { return false }
         syncing = true
-        if (!maySync) { return false }
-        updateBlockHeight()
-        if (!maySync) { return false }
-        val synced = doSynchronization(mode)
-        if (!maySync) { return false }
-        getNewNonce()
-        if(synced) {
-            lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
+        var synced = false
+        try {
+            if (!maySync) {
+                return false
+            }
+            updateBlockHeight()
+            if (!maySync) {
+                return false
+            }
+            val synced = doSynchronization(mode)
+            if (!maySync) {
+                return false
+            }
+            getNewNonce()
+            if (synced) {
+                lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
+            }
+        } finally {
+            syncing = false
         }
-        syncing = false
         return synced
     }
 
