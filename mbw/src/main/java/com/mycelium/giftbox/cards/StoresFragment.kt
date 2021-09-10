@@ -146,6 +146,7 @@ class StoresFragment : Fragment() {
                     adapter.submitList(viewModel.products)
                 },
                 error = { _, msg ->
+                    adapter.submitList(listOf())
                     Toaster(this).toast(msg, true)
                 },
                 finally = {
