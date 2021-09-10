@@ -1,6 +1,7 @@
 package com.mycelium.giftbox.purchase
 
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ import com.mycelium.giftbox.client.models.Status
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyResultViewModel
 import com.mycelium.view.TextDrawable
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -182,6 +184,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                     setFontColor(resources.getColor(R.color.bequant_green))
                 })
                 binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.circle_dash_green)
+                binding?.orderScheme?.paymentText?.text = if (args.accountId != null)
+                    Html.fromHtml(getString(R.string.gift_card_after_confirmed)) else getString(R.string.gift_card_after_confirmed)
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
                 val grayColor = resources.getColor(R.color.giftbox_gray)
                 binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
@@ -203,6 +207,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line1?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.paymentText?.text = if (args.accountId != null)
+                    Html.fromHtml(getString(R.string.gift_card_after_confirmed)) else getString(R.string.gift_card_after_confirmed)
                 binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
@@ -230,19 +236,24 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.finish?.text = getString(R.string.return_to_payment)
             }
         }
+        if(BuildConfig.DEBUG) {
+            binding?.orderScheme?.paidTitle?.setOnClickListener {
+                order.status = Status.eRROR
+                updateOrder(order)
+            }
+        }
     }
 
     private fun updateUi() {
         // Set Hash
-        tvHash?.run {
+        binding?.txDetails?.tvHash?.run {
             setColuMode(false)
             setTransaction(tx)
         }
 
         // Set Confirmed
         val confirmations = tx.confirmations
-        var confirmed: String
-        confirmed = if (confirmations > 0) {
+        var confirmed = if (confirmations > 0) {
             resources.getString(R.string.confirmed_in_block, tx.height)
         } else {
             resources.getString(R.string.no)
@@ -250,24 +261,20 @@ class GiftBoxBuyResultFragment : Fragment() {
 
         // check if tx is in outgoing queue
         if (tx.isQueuedOutgoing) {
-            tcdConfirmations?.setNeedsBroadcast()
-            tvConfirmations?.text = ""
+            binding?.txDetails?.tcdConfirmations?.setNeedsBroadcast()
+            binding?.txDetails?.tvConfirmations?.text = ""
             confirmed = resources.getString(R.string.transaction_not_broadcasted_info)
         } else {
-            tcdConfirmations?.setConfirmations(confirmations)
-            tvConfirmations?.text = confirmations.toString()
+            binding?.txDetails?.tcdConfirmations?.setConfirmations(confirmations)
+            binding?.txDetails?.tvConfirmations?.text = confirmations.toString()
         }
-        tvConfirmed?.text = confirmed
+        binding?.txDetails?.tvConfirmed?.text = confirmed
 
         // Set Date & Time
         val date = Date(tx.timestamp * 1000L)
         val locale = resources.configuration.locale
-        val dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale)
-        val dateString = dayFormat.format(date)
-        tvDate?.text = dateString
-        val hourFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale)
-        val timeString = hourFormat.format(date)
-        tvTime?.text = timeString
+        binding?.txDetails?.tvDate?.text = DateFormat.getDateInstance(DateFormat.LONG, locale).format(date)
+        binding?.txDetails?.tvTime?.text = DateFormat.getTimeInstance(DateFormat.LONG, locale).format(date)
     }
 
     override fun onDestroyView() {
