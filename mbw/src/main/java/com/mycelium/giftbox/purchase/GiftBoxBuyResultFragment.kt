@@ -174,6 +174,10 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     private fun updateOrder(order: OrderResponse) {
         viewModel.setOrder(order)
+        var paymentText = getString(R.string.gift_card_after_confirmed)
+        if (args.accountId == null) {
+            paymentText = paymentText.replace("<[^>]*>".toRegex(), "")
+        }
         when (order.status) {
             Status.pROCESSING -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
@@ -184,8 +188,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                     setFontColor(resources.getColor(R.color.bequant_green))
                 })
                 binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.circle_dash_green)
-                binding?.orderScheme?.paymentText?.text = if (args.accountId != null)
-                    Html.fromHtml(getString(R.string.gift_card_after_confirmed)) else getString(R.string.gift_card_after_confirmed)
+                binding?.orderScheme?.paymentText?.text = Html.fromHtml(paymentText)
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
                 val grayColor = resources.getColor(R.color.giftbox_gray)
                 binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
@@ -207,8 +210,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line1?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.paymentIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
-                binding?.orderScheme?.paymentText?.text = if (args.accountId != null)
-                    Html.fromHtml(getString(R.string.gift_card_after_confirmed)) else getString(R.string.gift_card_after_confirmed)
+                binding?.orderScheme?.paymentText?.text = Html.fromHtml(paymentText)
                 binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
@@ -236,7 +238,7 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.finish?.text = getString(R.string.return_to_payment)
             }
         }
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             binding?.orderScheme?.paidTitle?.setOnClickListener {
                 order.status = Status.eRROR
                 updateOrder(order)

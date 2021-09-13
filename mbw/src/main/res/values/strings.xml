@@ -1710,7 +1710,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="paid">Sent</string>
     <string name="successfully_paid_gift_card">You have successfully sent the transaction with Gift card payment order!</string>
     <string name="payment_confirmed">Transaction confirmed</string>
-    <string name="gift_card_after_confirmed">Your Gift card will become available after the transaction is confirmed by the network. Please see confirmation status in the wallet <u>transaction list</u>.</string>
+    <string name="gift_card_after_confirmed"><![CDATA[Your Gift card will become available after the transaction is confirmed by the network. Please see confirmation status in the wallet <u>transaction list</u>.]]></string>
     <string name="success1">Success</string>
     <string name="gift_card_ready">Your Gift card is ready for use! Redeem code and instructions are available via <u>My Gift cards</u>.</string>
     <string name="return_to_payment">Back to Orders</string>
