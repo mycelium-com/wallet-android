@@ -1720,6 +1720,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="no_stores_found">NO STORES FOUND</string>
     <string name="no_purchased_gift_card">YOU HAVE NOT PURCHASED\nANY GIFT CARD YET</string>
     <string name="no_gift_cards_linked">You currently have no gift cards linked to your account. Get started by exploring stores catalog.</string>
+    <string name="tx_not_sent">Transaction was not sent</string>
+    <string name="check_internet_and_try_again">Mycelium can not connect to the server due to poor internet connection.\nPlease verify your internet connection and try again.</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

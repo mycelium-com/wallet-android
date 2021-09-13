@@ -160,7 +160,6 @@ class GiftboxBuyFragment : Fragment() {
             },
             error = { _, error ->
                 ErrorHandler(requireContext()).handle(error)
-                loader(false)
             }, finally = {
                 loader(false)
             })
@@ -168,20 +167,28 @@ class GiftboxBuyFragment : Fragment() {
         binding?.btSend?.setOnClickListener {
             loader(true)
             GitboxAPI.giftRepository.createOrder(
-                viewModel.viewModelScope,
-                code = args.product.code!!,
-                amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
-                quantity = viewModel.quantityString.value?.toInt()!!,
-                currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
-                success = { orderResponse ->
-                    viewModel.orderResponse.value = orderResponse
-                    viewModel.sendTransactionAction.value = Unit
-                }, error = { _, error ->
-                    ErrorHandler(requireContext()).handle(error)
-                    loader(false)
-                }, finally = {
-                    loader(false)
-                })
+                    viewModel.viewModelScope,
+                    code = args.product.code!!,
+                    amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
+                    quantity = viewModel.quantityString.value?.toInt()!!,
+                    currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
+                    success = { orderResponse ->
+                        viewModel.orderResponse.value = orderResponse
+                        viewModel.sendTransactionAction.value = Unit
+                    },
+                    error = { _, error ->
+                        ErrorHandler(requireContext()).handle(error)
+                        AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                                .setTitle(getString(R.string.tx_not_sent))
+                                .setMessage(getString(R.string.check_internet_and_try_again))
+                                .setPositiveButton(R.string.try_again) { _, _ -> }
+                                .setNegativeButton(R.string.cancel) { _, _ ->
+                                    findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
+                                }
+                                .show()
+                    }, finally = {
+                loader(false)
+            })
 
             viewModel.sendTransaction.observe(viewLifecycleOwner) {
                 loader(false)
