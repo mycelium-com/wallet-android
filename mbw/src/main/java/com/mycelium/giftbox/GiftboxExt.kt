@@ -39,13 +39,15 @@ fun Date.getDateTimeString(resources: Resources): String =
         "${DateFormat.getDateInstance(DateFormat.LONG, resources.configuration.locale).format(this)} at " +
                 DateFormat.getTimeInstance(DateFormat.SHORT, resources.configuration.locale).format(this)
 
-fun TextView.setupDescription(description: String, more: Boolean): Unit {
+fun TextView.setupDescription(description: String, more: Boolean) {
     text = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY)
     if (!more && layout != null) {
         val endIndex = layout.getLineEnd(3) - 3
         if (0 < endIndex && endIndex < description.length - 3) {
             text = HtmlCompat.fromHtml("${description.subSequence(0, endIndex)}...", HtmlCompat.FROM_HTML_MODE_LEGACY)
         }
+    } else if (layout == null) {
+        postDelayed({ setupDescription(description, more) }, 100)
     }
 }
 
