@@ -24,7 +24,6 @@ import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
-import kotlin.math.roundToInt
 
 
 class ERC20Account(private val chainId: Byte,
@@ -39,11 +38,11 @@ class ERC20Account(private val chainId: Byte,
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
-        val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
+        val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val nonce = getNewNonce()
         val inputData = getInputData(address.toString(), amount.value)
-        val estimatedGasLimit = estimateGas()
+        val estimatedGasUsed = ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
@@ -56,17 +55,8 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice, nonce, gasLimit, inputData, estimatedGasLimit, amount
+            gasPrice, nonce, gasLimit, inputData, estimatedGasUsed, amount
         )
-    }
-
-    private fun estimateGas(): Int {
-        val txs = getTransactionSummaries(0, 10).filter { it.confirmations > 0 }
-        return if (txs.isEmpty()) {
-            typicalEstimatedTransactionSize
-        } else {
-            txs.map { (it as EthTransactionSummary).gasUsed.toDouble() }.average().roundToInt()
-        }
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -99,7 +89,7 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, null, true, tx.gasLimit, tx.estimatedGasLimit.toBigInteger())
+                    accountContext.nonce, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -261,5 +251,9 @@ class ERC20Account(private val chainId: Byte,
                 Value.valueOf(coinType, balance.pendingReceiving.value),
                 Value.valueOf(coinType, balance.pendingSending.value),
                 Value.valueOf(coinType, 0))
+    }
+
+    companion object {
+        private const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
     }
 }
