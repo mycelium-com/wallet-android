@@ -30,7 +30,10 @@ class DefaultCardDrawable(val res: Resources, val text: String) : Drawable() {
         val count = canvas.save()
         canvas.drawRect(bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(), bounds.bottom.toFloat(), gradientPaint)
         canvas.translate(textPadding, bounds.bottom.toFloat() - textPadding)
-        canvas.drawText(text, 0, text.length, bounds.left.toFloat(), 0f, paint)
+        val len = paint.breakText(text, true, bounds.right.toFloat() - 2 * textPadding, null)
+        canvas.drawText(text.substring(0, if (len < text.length) len - 1 else len) + if (len < text.length) "…" else "",
+                0, len,
+                bounds.left.toFloat(), 0f, paint)
         VectorDrawableCompat.create(res, R.drawable.ic_giftbox, null)?.apply {
             val bounds = Rect()
             paint.getTextBounds(text, 0, text.length, bounds)
