@@ -26,6 +26,7 @@ import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
+import kotlin.math.roundToInt
 
 
 class ERC20Account(private val chainId: Byte,
@@ -37,14 +38,13 @@ class ERC20Account(private val chainId: Byte,
                    private val accountListener: AccountListener?,
                    blockchainService: EthBlockchainService) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, blockchainService, ERC20Account::class.simpleName), SyncPausable {
-    private var removed = false
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
-        val nonce = getNewNonce()
         val inputData = getInputData(address.toString(), amount.value)
+        val estimatedGasLimit = estimateGas()
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
@@ -57,7 +57,17 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-                gasPrice, nonce, gasLimit, inputData)
+            gasPrice, accountContext.nonce, gasLimit, inputData, estimatedGasLimit, amount
+        )
+    }
+
+    private fun estimateGas(): Int {
+        val txs = getTransactionSummaries(0, 10).filter { it.confirmations > 0 }
+        return if (txs.isEmpty()) {
+            typicalEstimatedTransactionSize
+        } else {
+            txs.map { (it as EthTransactionSummary).gasUsed.toDouble() }.average().roundToInt()
+        }
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -71,7 +81,7 @@ class ERC20Account(private val chainId: Byte,
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val ethTx = request as EthTransaction
         val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
-                token.contractAddress, ethTx.value.value, ethTx.inputData)
+                token.contractAddress, ethTx.ethValue.value, ethTx.inputData)
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
         request.apply {
@@ -89,8 +99,8 @@ class ERC20Account(private val chainId: Byte,
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
-                    Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, null, true, tx.gasLimit, tx.gasLimit)
+                    Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
+                    accountContext.nonce, null, true, tx.gasLimit, tx.estimatedGasLimit.toBigInteger())
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -117,12 +127,9 @@ class ERC20Account(private val chainId: Byte,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived || !maySync) {
-            return false
-        }
         val syncTx = syncTransactions()
         updateBalanceCache()
-        return syncTx;
+        return syncTx
     }
 
     override fun getNonce() = accountContext.nonce
@@ -213,9 +220,9 @@ class ERC20Account(private val chainId: Byte,
         try {
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.forEach { tx ->
-                tx.getTokenTransfer(token.contractAddress)?.also { transfer ->
-                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                            transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                tx.getTokenTransfer(token.contractAddress)?.also { tokenTransfer ->
+                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
+                            tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
                             Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
                                     ?: typicalEstimatedTransactionSize.toBigInteger())),
                             tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)

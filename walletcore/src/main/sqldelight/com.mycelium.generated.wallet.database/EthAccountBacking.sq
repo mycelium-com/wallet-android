@@ -1,6 +1,4 @@
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.eth.EthAddress;
 import java.math.BigInteger;
 import java.util.UUID;
 

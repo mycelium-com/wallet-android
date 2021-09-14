@@ -7,8 +7,9 @@ import org.web3j.tx.Transfer
 import java.math.BigInteger
 
 
-class EthTransaction(type: CryptoCurrency, val toAddress: String, val value: Value, val gasPrice: BigInteger,
-                     val nonce: BigInteger, val gasLimit: BigInteger, val inputData: String) : Transaction(type) {
+class EthTransaction(type: CryptoCurrency, val toAddress: String, val ethValue: Value, val gasPrice: BigInteger,
+                     val nonce: BigInteger, val gasLimit: BigInteger, val inputData: String,
+                     val estimatedGasLimit: Int = Transfer.GAS_LIMIT.toInt(), val tokenValue: Value? = null) : Transaction(type) {
     var signedHex: String? = null
     var txHash: ByteArray? = null
     var txBinary: ByteArray? = null
@@ -17,6 +18,5 @@ class EthTransaction(type: CryptoCurrency, val toAddress: String, val value: Val
     override fun txBytes() = txBinary
     override fun totalFee(): Value = Value.valueOf(type, gasPrice.times(estimatedTransactionSize.toBigInteger()) )
 
-    // This only true for pure ETH transaction, without contracts.
-    override fun getEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
+    override fun getEstimatedTransactionSize() = estimatedGasLimit
 }

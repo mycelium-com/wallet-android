@@ -41,11 +41,13 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.title = args.product.name
         binding?.btSend?.setOnClickListener {
-            findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionNext(
-                    viewModel.productInfo!!,
-                    CurrencyInfos().apply {
-                        addAll(viewModel.currencies!!)
-                    }))
+            viewModel.productInfo.value?.let {
+                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionNext(
+                        it,
+                        CurrencyInfos().apply {
+                            addAll(viewModel.currencies!!)
+                        }))
+            }
         }
         val descriptionClick: (View) -> Unit = {
             viewModel.more.value = !(viewModel.more.value ?: false)
@@ -56,10 +58,12 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
-            findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))
+            viewModel.productInfo.value?.let {
+                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(it))
+            }
         }
         binding?.layoutDescription?.terms?.setOnClickListener {
-            Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
+            Utils.openWebsite(requireContext(), viewModel.productInfo.value?.termsAndConditionsPdfUrl)
         }
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,

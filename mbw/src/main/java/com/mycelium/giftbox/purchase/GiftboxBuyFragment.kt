@@ -165,7 +165,7 @@ class GiftboxBuyFragment : Fragment() {
             })
 
         binding?.btSend?.setOnClickListener {
-            loader(true)
+            MbwManager.getInstance(WalletApplication.getInstance()).runPinProtectedFunction(activity) {loader(true)
             GitboxAPI.giftRepository.createOrder(
                     viewModel.viewModelScope,
                     code = args.product.code!!,
@@ -190,10 +190,11 @@ class GiftboxBuyFragment : Fragment() {
                 loader(false)
             })
 
-            viewModel.sendTransaction.observe(viewLifecycleOwner) {
-                loader(false)
-                val (transaction, broadcastResult) = it
-                broadcastResult(transaction, broadcastResult)
+                viewModel.sendTransaction.observe(viewLifecycleOwner) {
+                    loader(false)
+                    val (transaction, broadcastResult) = it
+                    broadcastResult(transaction, broadcastResult)
+                }
             }
         }
     }

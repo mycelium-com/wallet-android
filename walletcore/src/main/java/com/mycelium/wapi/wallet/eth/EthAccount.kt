@@ -33,7 +33,6 @@ class EthAccount(private val chainId: Byte,
                  blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
-    private var removed = false
 
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
@@ -60,7 +59,7 @@ class EthAccount(private val chainId: Byte,
     override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = data as? EthTransactionData
-        val nonce = ethTxData?.nonce ?: getNewNonce()
+        val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
         val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
@@ -83,7 +82,7 @@ class EthAccount(private val chainId: Byte,
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher?) {
         val rawTransaction = (request as EthTransaction).run {
-            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
+            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, ethValue.value,
                     inputData)
         }
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
@@ -102,7 +101,7 @@ class EthAccount(private val chainId: Byte,
                 return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
                     valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
@@ -128,8 +127,6 @@ class EthAccount(private val chainId: Byte,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived || !maySync) { return false }
-
         val syncTx = syncTransactions()
         updateBalanceCache()
         return syncTx

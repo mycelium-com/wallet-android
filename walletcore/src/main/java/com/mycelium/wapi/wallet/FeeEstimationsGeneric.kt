@@ -8,5 +8,6 @@ class FeeEstimationsGeneric(low: Value,
                             economy: Value,
                             normal: Value,
                             high: Value,
-                            lastCheck: Long):
-        FeeEstimation by FeeEstimation.Impl(low.type, low, economy, normal, high, lastCheck)
+                            lastCheck: Long,
+                            scale: Int = 1):
+        FeeEstimation by FeeEstimation.Impl(low.type, low, economy, normal, high, lastCheck, scale)

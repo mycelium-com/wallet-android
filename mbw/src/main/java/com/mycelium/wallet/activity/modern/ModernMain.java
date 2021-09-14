@@ -59,8 +59,10 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.BitcoinAddress;
+import com.mycelium.bequant.BequantConstants;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.giftbox.GiftBoxRootActivity;
+import com.mycelium.giftbox.client.GiftboxConstants;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
@@ -167,7 +169,7 @@ public class ModernMain extends AppCompatActivity {
         findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
         findViewById(R.id.logoMenu).setOnClickListener(new LogoMenuClick());
         View investmentWallet = findViewById(R.id.investmentWallet);
-        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(com.mycelium.bequant.BequantConstants.PARTNER_ID) ?
+        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID) ?
                 VISIBLE : GONE);
         investmentWallet.setOnClickListener(view -> {
             findViewById(R.id.logoMenu).performClick(); // to hide menu
@@ -482,6 +484,8 @@ public class ModernMain extends AppCompatActivity {
 
         final boolean isAddressBook = TAB_ADDRESS_BOOK.equals(tabTag);
         checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
+
+        checkNotNull(menu.findItem(R.id.miGiftBox)).setVisible(SettingsPreference.isContentEnabled(GiftboxConstants.PARTNER_ID));
 
         return super.onPrepareOptionsMenu(menu);
     }
