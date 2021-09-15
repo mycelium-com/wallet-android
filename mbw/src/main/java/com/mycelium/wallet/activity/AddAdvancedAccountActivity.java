@@ -44,6 +44,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -53,6 +54,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.common.base.Optional;
@@ -115,7 +117,7 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
 
-public class AddAdvancedAccountActivity extends FragmentActivity implements ImportCoCoHDAccount.FinishListener {
+public class AddAdvancedAccountActivity extends AppCompatActivity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
    public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
@@ -148,6 +150,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       super.onCreate(savedInstanceState);
       setContentView(R.layout.add_advanced_account_activity);
       ButterKnife.bind(this);
+      getSupportActionBar().setTitle(R.string.add_unrelated_account_title);
+      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       final Activity activity = AddAdvancedAccountActivity.this;
       _mbwManager = MbwManager.getInstance(this);
       _network = _mbwManager.getNetwork();
@@ -284,6 +288,17 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
       NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
       return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+   }
+
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      switch (item.getItemId()) {
+         case android.R.id.home:
+            onBackPressed();
+            return true;
+         default:
+            return super.onOptionsItemSelected(item);
+      }
    }
 
    @Override

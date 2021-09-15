@@ -69,7 +69,6 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Logger;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -163,11 +162,15 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
+        setupLanguage();
+        super.onConfigurationChanged(newConfig);
+    }
+
+    public void setupLanguage() {
         String setLanguage = MbwManager.getInstance(this).getLanguage();
         if (!Locale.getDefault().getLanguage().equals(setLanguage)) {
             applyLanguageChange(getBaseContext(), setLanguage);
         }
-        super.onConfigurationChanged(newConfig);
     }
 
     public static void applyLanguageChange(Context context, String lang) {
@@ -226,6 +229,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
         @Override
         public void onActivityStarted(Activity activity) {
+            setupLanguage();
             if (numStarted == 0 && isBackground) {
                 // app returned from background
                 MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
