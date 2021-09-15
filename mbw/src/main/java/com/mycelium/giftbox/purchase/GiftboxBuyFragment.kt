@@ -177,13 +177,17 @@ class GiftboxBuyFragment : Fragment() {
                         viewModel.sendTransactionAction.value = Unit
                     },
                     error = { _, error ->
-                        ErrorHandler(requireContext()).handle(error)
                         AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
                                 .setTitle(getString(R.string.tx_not_sent))
                                 .setMessage(getString(R.string.check_internet_and_try_again))
                                 .setPositiveButton(R.string.try_again) { _, _ -> }
                                 .setNegativeButton(R.string.cancel) { _, _ ->
                                     findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
+                                }
+                                .create().apply {
+                                    setOnShowListener {
+                                        getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.bequant_green))
+                                    }
                                 }
                                 .show()
                     }, finally = {

@@ -97,6 +97,7 @@ class OrdersFragment : Fragment() {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
         }, error = { _, msg ->
+            adapter.submitList(listOf())
             Toaster(this).toast(msg, true)
         }, finally = {
             viewModel.loading.value = false
