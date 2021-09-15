@@ -42,7 +42,7 @@ class ERC20Account(private val chainId: Byte,
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val nonce = getNewNonce()
         val inputData = getInputData(address.toString(), amount.value)
-        val estimatedGasUsed = ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
+        val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
