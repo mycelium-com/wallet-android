@@ -141,58 +141,58 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             val (amount, quantity) = it
             if (quantity == 0 || amount.isZero()) {
                 offer(zeroCryptoValue!!)
-                return@callbackFlow
-            }
-            if (!forSingleItem) {
-                totalAmountFiat.value = amount.times(quantity.toLong())
-            }
-            if (quantity >= MAX_QUANTITY) {
-                warningQuantityMessage.value = "Max available cards: $MAX_QUANTITY cards"
             } else {
                 if (!forSingleItem) {
-                    warningQuantityMessage.value = ""
+                    totalAmountFiat.value = amount.times(quantity.toLong())
                 }
-            }
-            if (quantity > MAX_QUANTITY) {
-                return@callbackFlow
-            }
-            totalProgress.value = true
-            GitboxAPI.giftRepository.getPrice(viewModelScope,
-                    code = productInfo.code ?: "",
-                    quantity = quantity,
-                    amount = amount.valueAsBigDecimal.toInt(),
-                    currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
-                    success = { priceResponse ->
-                        if (priceResponse!!.status == PriceResponse.Status.eRROR) {
-                            return@getPrice
-                        }
-                        lastPriceResponse.value = priceResponse
+                if (quantity >= MAX_QUANTITY) {
+                    warningQuantityMessage.value = "Max available cards: $MAX_QUANTITY cards"
+                } else {
+                    if (!forSingleItem) {
+                        warningQuantityMessage.value = ""
+                    }
+                }
+                if (quantity > MAX_QUANTITY) {
+                } else {
+                    totalProgress.value = true
+                    GitboxAPI.giftRepository.getPrice(viewModelScope,
+                            code = productInfo.code ?: "",
+                            quantity = quantity,
+                            amount = amount.valueAsBigDecimal.toInt(),
+                            currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
+                            success = { priceResponse ->
+                                if (priceResponse!!.status == PriceResponse.Status.eRROR) {
+                                    return@getPrice
+                                }
+                                lastPriceResponse.value = priceResponse
 
-                        val cryptoAmount = getCryptoAmount(priceResponse)
-                        if (!forSingleItem) {
-                            launch(Dispatchers.IO) {
-                                val (checkValidTransaction, transaction) = checkValidTransaction(
-                                        account,
-                                        cryptoAmount
-                                )
-                                if (checkValidTransaction == AmountValidation.Ok) {
-                                    launch(Dispatchers.Main) {
-                                        tempTransaction.value = transaction
+                                val cryptoAmount = getCryptoAmount(priceResponse)
+                                if (!forSingleItem) {
+                                    launch(Dispatchers.IO) {
+                                        val (checkValidTransaction, transaction) = checkValidTransaction(
+                                                account,
+                                                cryptoAmount
+                                        )
+                                        if (checkValidTransaction == AmountValidation.Ok) {
+                                            launch(Dispatchers.Main) {
+                                                tempTransaction.value = transaction
+                                            }
+                                            offer(cryptoAmount)
+                                        }
                                     }
+                                } else {
                                     offer(cryptoAmount)
                                 }
-                            }
-                        } else {
-                            offer(cryptoAmount)
-                        }
-                    },
-                    error = { _, error ->
-                        close()
-                        totalProgress.value = false
-                    },
-                    finally = {
-                        totalProgress.value = false
-                    })
+                            },
+                            error = { _, error ->
+                                close()
+                                totalProgress.value = false
+                            },
+                            finally = {
+                                totalProgress.value = false
+                            })
+                }
+            }
             awaitClose { }
         }.onStart { emit(zeroCryptoValue!!) }.asLiveData()
     }
