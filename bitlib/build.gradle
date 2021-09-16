@@ -10,8 +10,8 @@ compileTestJava {
 }
 
 repositories {
+    mavenCentral()
     google()
-    jcenter()
 }
 
 dependencies {

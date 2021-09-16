@@ -4,8 +4,8 @@ apply from: 'integration-test.gradle'
 apply plugin: 'com.squareup.sqldelight'
 
 repositories {
+    mavenCentral()
     google()
-    jcenter()
 }
 
 dependencies {
