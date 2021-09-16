@@ -4,8 +4,8 @@ apply plugin: 'application'
 apply from: 'integration-test.gradle'
 
 repositories {
+    mavenCentral()
     google()
-    jcenter()
 }
 
 dependencies {
