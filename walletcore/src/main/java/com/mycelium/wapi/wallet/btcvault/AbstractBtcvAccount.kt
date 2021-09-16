@@ -188,7 +188,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return isMineAddress(toBtcvAddress(script.getAddress(network)))
     }
     //    public boolean isMineAddress(String address) {
-    //        Address addr = AddressUtils.from(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), address);
+    //        Address addr = AddressUtils.from(_network.isProdnet() ? BitcoinMain : BitcoinTest, address);
     //        return isMineAddress(addr);
     //    }
     //    protected static UUID addressToUUID(BitcoinAddress address) {
@@ -878,7 +878,6 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
     protected abstract fun getChangeAddress(vararg destinationAddresses: BtcvAddress): BtcvAddress
 
-    @Synchronized
     override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcvAddress?): Value? {
         checkNotArchived()
         val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.valueAsLong))
@@ -939,7 +938,6 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
     protected abstract fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey?
 
-    @Synchronized
     @Throws(StandardTransactionBuilder.BtcOutputTooSmallException::class, StandardTransactionBuilder.InsufficientBtcException::class, StandardTransactionBuilder.UnableToBuildTransactionException::class)
     fun createUnsignedTransaction(receivers: List<BtcvReceiver>, minerFeeToUse: Long): UnsignedTransaction {
         checkNotArchived()

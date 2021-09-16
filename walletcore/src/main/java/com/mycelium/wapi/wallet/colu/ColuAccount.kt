@@ -41,7 +41,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
-        return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
+        return if (networkParameters.isProdnet) BitcoinMain else BitcoinTest
     }
 
     var linkedAccount: SingleAddressAccount? = null

@@ -16,6 +16,7 @@ import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.interruptSync
+import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
@@ -110,6 +111,9 @@ class SendInitializationActivity : Activity() {
 
     private fun continueIfReadyOrNonUtxos() {
         if (isFinishing) {
+            return
+        }
+        if(mbwManager.getWalletManager(isColdStorage).state == State.SYNCHRONIZING) {
             return
         }
         if (account.isSyncing && (account.coinType.isUtxosBased || isColdStorage)) {

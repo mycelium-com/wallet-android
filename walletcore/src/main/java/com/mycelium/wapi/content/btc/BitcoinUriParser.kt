@@ -7,4 +7,4 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 
 
 class BitcoinUriParser(override val network: NetworkParameters)
-    : CryptoUriParser(network, "bitcoin", BitcoinMain.get(), BitcoinTest.get())
+    : CryptoUriParser(network, "bitcoin", BitcoinMain, BitcoinTest)
