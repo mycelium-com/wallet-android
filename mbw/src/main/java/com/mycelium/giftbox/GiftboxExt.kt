@@ -41,7 +41,7 @@ fun Date.getDateTimeString(resources: Resources): String =
 
 fun TextView.setupDescription(description: String, more: Boolean) {
     text = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY)
-    if (!more && layout != null) {
+    if (!more && layout != null && layout.lineCount > 3) {
         val endIndex = layout.getLineEnd(3) - 3
         if (0 < endIndex && endIndex < description.length - 3) {
             text = HtmlCompat.fromHtml("${description.subSequence(0, endIndex)}...", HtmlCompat.FROM_HTML_MODE_LEGACY)
