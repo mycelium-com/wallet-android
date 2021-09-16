@@ -17,7 +17,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
 
     override fun run() {
         logger.log(Level.INFO, "Synchronizing start")
-        walletManager.state = State.SYNCHRONIZING
+        walletManager.reportStartSync()
         walletManager.walletListener?.syncStarted()
 
         try {
@@ -40,7 +40,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 runSync(list)
             }
         } finally {
-            walletManager.state = State.READY
+            walletManager.reportStopSync()
             walletManager.walletListener?.syncStopped()
         }
     }

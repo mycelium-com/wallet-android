@@ -14,7 +14,7 @@ import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import java.util.*
 
 val COINS_SET = setOf<CryptoCurrency>(
-        BitcoinMain.get(), BitcoinTest.get(),
+        BitcoinMain, BitcoinTest,
         BchMain, BchTest,
         EthMain, EthTest,
         FIOMain, FIOTest,

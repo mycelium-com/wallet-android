@@ -43,7 +43,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
     }
 
     init {
-        assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+        assetsList.add(if (networkParameters.isProdnet) BitcoinMain else BitcoinTest)
     }
 
     override fun setCurrencySettings(currencySettings: CurrencySettings) {

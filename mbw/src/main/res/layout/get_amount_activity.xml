@@ -1,174 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:scrollbars="vertical">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.getamount.GetAmountViewModel" />
+    </data>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/horizontal_page_margin"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <!-- Amount: -->
-            <TextView
-                android:id="@+id/tvAmount"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_mono_medium"
-                android:gravity="end"
-                android:hint="@string/amount_hint"
-                android:lines="1"
-                android:singleLine="true"
-                android:textSize="20sp"
-                android:textColor="@color/white"
-                app:layout_constraintEnd_toStartOf="@id/btCurrency"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/btCurrency"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_mono_medium"
-                android:singleLine="true"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                app:layout_constraintBaseline_toBaselineOf="@id/tvAmount"
-                app:layout_constraintEnd_toStartOf="@id/currency_dropdown_image_view"
-                tools:ignore="RtlSymmetry"
-                tools:text="BTC" />
-
-            <ImageView
-                android:id="@+id/currency_dropdown_image_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:contentDescription="Arrow"
-                app:layout_constraintBottom_toBottomOf="@id/btCurrency"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/btCurrency"
-                app:srcCompat="@drawable/ic_arrow_drop_down" />
-
-            <!-- Paste Button -->
-
-            <Button
-                android:id="@+id/btPaste"
-                style="@style/MyceliumSlimButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="@string/paste"
-                android:textSize="22sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-
-            <!-- Alternative value -->
-
-            <TextView
-                android:id="@+id/tvAlternateAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/roboto_mono_regular"
-                android:textColor="@color/fio_white_alpha_0_8"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="@id/btCurrency"
-                app:layout_constraintTop_toBottomOf="@id/btCurrency"
-                tools:text="0.00 USD"
-                tools:visibility="visible"/>
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
-            android:background="#33FFFFFF" />
-
-        <!-- Balance -->
-
-        <TextView
-            android:id="@+id/tvMaxAmount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:text="@string/max_btc"
-            android:textSize="18sp"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <TextView
-            android:id="@+id/tvHowIsItCalculated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="2dp"
-            android:text="@string/how_is_it_calculated"
-            android:textColor="@color/fio_prm_btn_line"
-            android:textSize="16sp"
-            android:visibility="gone"
-            tools:visibility="visible" />
+        android:scrollbars="vertical">
 
         <LinearLayout
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_marginTop="@dimen/margin_large"
-            android:layout_marginBottom="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+            android:gravity="center"
             android:orientation="vertical">
 
-            <include
-                layout="@layout/number_entry"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent" />
-        </LinearLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <!-- Buttons -->
+                <!-- Amount: -->
+                <TextView
+                    android:id="@+id/tvAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto_mono_medium"
+                    android:gravity="end"
+                    android:hint="@string/amount_hint"
+                    android:lines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    app:layout_constraintEnd_toStartOf="@id/btCurrency"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/btCurrency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_mono_medium"
+                    android:singleLine="true"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:text="@{viewModel.currencyCurrencyText}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tvAmount"
+                    app:layout_constraintEnd_toStartOf="@id/currency_dropdown_image_view"
+                    tools:text="BTC" />
 
-            <Button
-                android:id="@+id/btMax"
+                <ImageView
+                    android:id="@+id/currency_dropdown_image_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:contentDescription="Arrow"
+                    app:layout_constraintBottom_toBottomOf="@id/btCurrency"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/btCurrency"
+                    app:srcCompat="@drawable/ic_arrow_drop_down" />
 
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="@string/max"
-                android:textSize="20sp"
-                android:visibility="gone" />
+                <!-- Paste Button -->
+
+                <Button
+                    android:id="@+id/btPaste"
+                    style="@style/MyceliumSlimButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="@string/paste"
+                    android:textSize="22sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+
+                <!-- Alternative value -->
+
+                <TextView
+                    android:id="@+id/tvAlternateAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/roboto_mono_regular"
+                    android:textColor="@color/fio_white_alpha_0_8"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="@id/btCurrency"
+                    app:layout_constraintTop_toBottomOf="@id/btCurrency"
+                    tools:text="0.00 USD"
+                    tools:visibility="visible" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
 
             <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#33FFFFFF" />
 
-            <Button
-                android:id="@+id/btOk"
+            <!-- Balance -->
 
-                android:layout_width="120dp"
+            <TextView
+                android:id="@+id/tvMaxAmount"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@{viewModel.maxAmount}"
+                android:textSize="18sp"
+                android:visibility="@{viewModel.maxAmount.isEmpty() ? View.GONE : View.VISIBLE}"
+                tools:text="@string/max_btc"
+                tools:visibility="visible" />
 
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="@string/button_ok"
-                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tvHowIsItCalculated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginTop="2dp"
+                android:text="@string/how_is_it_calculated"
+                android:textColor="@color/fio_prm_btn_line"
+                android:textSize="16sp"
+                android:visibility="@{viewModel.howMaxSpendableCalculated ? View.VISIBLE : View.GONE}"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_marginTop="@dimen/margin_large"
+                android:layout_marginBottom="20dp"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/number_entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+            <!-- Buttons -->
+
+            <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btMax"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/max"
+                    android:textSize="20sp"
+                    android:visibility="@{viewModel.maxAmount.isEmpty() ? View.GONE : View.VISIBLE}" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/btOk"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/button_ok"
+                    android:textSize="20sp" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+</layout>

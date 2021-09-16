@@ -56,7 +56,7 @@ fun Value.toString(denomination: Denomination = Denomination.UNIT): String {
 }
 
 fun AssetInfo.isBtc(): Boolean {
-    return this == BitcoinMain.get() || this == BitcoinTest.get()
+    return this == BitcoinMain || this == BitcoinTest
 }
 
 
