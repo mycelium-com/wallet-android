@@ -18,15 +18,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
+import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.common.ListState
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
+import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Job
 
 
@@ -83,7 +87,7 @@ class StoresFragment : Fragment() {
 
             override fun isLastPage() = viewModel.productsSize.value ?: 0 <= viewModel.products.size
 
-            override fun isLoading() = viewModel.loading.value ?: false
+            override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
         binding?.searchInput?.doOnTextChanged { _, _, _, _ ->
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
@@ -97,6 +101,7 @@ class StoresFragment : Fragment() {
         if (viewModel.products.isEmpty()) {
             loadData()
         }
+        MbwManager.getEventBus().register(this)
     }
 
     private fun updateCategories(categories: List<String>) {
@@ -130,7 +135,7 @@ class StoresFragment : Fragment() {
         } else {
             adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
         }
-        viewModel.loading.value = true
+        viewModel.state.value = ListState.LOADING
         productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
                 search = viewModel.search.value,
                 category = viewModel.category,
@@ -147,14 +152,13 @@ class StoresFragment : Fragment() {
                 },
                 error = { _, msg ->
                     adapter.submitList(listOf())
+                    viewModel.state.value = ListState.ERROR
                     Toaster(this).toast(msg, true)
-                },
-                finally = {
-                    viewModel.loading.value = false
                 })
     }
 
     override fun onDestroyView() {
+        MbwManager.getEventBus().unregister(this)
         binding?.list?.clearOnScrollListeners()
         binding = null
         super.onDestroyView()
@@ -175,5 +179,10 @@ class StoresFragment : Fragment() {
                 tabLayout.removeTab(tabLayout.getTabAt(i)!!)
             }
         }
+    }
+
+    @Subscribe
+    internal fun updateOrder(request: RefreshOrdersRequest) {
+        loadData()
     }
 }

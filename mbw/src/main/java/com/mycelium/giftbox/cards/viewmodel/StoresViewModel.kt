@@ -4,12 +4,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.ProductsResponse
+import com.mycelium.giftbox.common.ListState
 
 
 class StoresViewModel : ViewModel() {
     var products = mutableListOf<ProductInfo>()
     var productsSize = MutableLiveData<Long>(0L)
-    val loading = MutableLiveData<Boolean>(false)
+    val state = MutableLiveData<ListState>(ListState.OK)
     var category: String? = null
     var search = MutableLiveData<String>("")
 
@@ -19,5 +20,6 @@ class StoresViewModel : ViewModel() {
         }
         products.addAll(it?.products ?: emptyList())
         productsSize.value = it?.size ?: 0
+        state.value = if (products.isNotEmpty()) ListState.OK else ListState.NOT_FOUND
     }
 }

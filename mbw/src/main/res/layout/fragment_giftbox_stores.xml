@@ -7,6 +7,7 @@
 
         <import type="android.view.View" />
         <import type="android.text.Html"/>
+        <import type="com.mycelium.giftbox.common.ListState"/>
 
         <variable
             name="viewModel"
@@ -114,7 +115,7 @@
             android:text="@string/no_stores_found"
             android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="20sp"
-            android:visibility="@{viewModel.productsSize == 0 &amp;&amp; !viewModel.loading ? View.VISIBLE : View.GONE }"
+            android:visibility="@{viewModel.state == ListState.NOT_FOUND ? View.VISIBLE : View.GONE }"
             app:layout_constraintTop_toTopOf="@id/list" />
 
         <TextView
@@ -127,7 +128,7 @@
             android:text="@{Html.fromHtml(@string/no_results_found_for_s(viewModel.search))}"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
-            android:visibility="@{viewModel.productsSize == 0 &amp;&amp; !viewModel.loading ? View.VISIBLE : View.GONE }"
+            android:visibility="@{viewModel.state == ListState.NOT_FOUND ? View.VISIBLE : View.GONE }"
             app:layout_constraintTop_toBottomOf="@id/noResultTitle" />
 
         <androidx.recyclerview.widget.RecyclerView
