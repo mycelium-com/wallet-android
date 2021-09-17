@@ -8,7 +8,7 @@
 
         <variable
             name="vm"
-            type="com.mycelium.giftbox.purchase.GiftboxBuyViewModel" />
+            type="com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel" />
     </data>
 
 
