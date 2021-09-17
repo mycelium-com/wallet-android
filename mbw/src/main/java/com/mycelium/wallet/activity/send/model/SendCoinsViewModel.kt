@@ -311,7 +311,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
             // Get result from AmountEntry
             val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
             model.apply {
-                amount.value = enteredAmount
+                amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
                 updateAlternativeAmount(enteredAmount)
             }
         } else if (requestCode == SendCoinsActivity.SCAN_RESULT_CODE) {
