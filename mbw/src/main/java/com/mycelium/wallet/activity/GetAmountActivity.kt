@@ -30,6 +30,7 @@ import com.mycelium.wallet.databinding.GetAmountActivityBinding
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.TransactionData
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.AssetInfo
@@ -57,6 +58,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     private var _mbwManager: MbwManager? = null
     private var destinationAddress: Address? = null
     private var _kbMinerFee: Value? = null
+    private var txData: TransactionData? = null
     private lateinit var mainCurrencyType: AssetInfo
 
     @SuppressLint("ShowToast")
@@ -104,6 +106,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     private fun initSendMode() {
         // Calculate the maximum amount that can be spent where we send everything we got to another address
         _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
+        txData = intent.getSerializableExtra(TX_DATA) as TransactionData?
         destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
                 ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
@@ -365,7 +368,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             return AmountValidation.Ok //entering a fiat value + exchange is not availible
         }
         try {
-            viewModel.account!!.createTx(destinationAddress!!, value, FeePerKbFee(_kbMinerFee!!), null)
+            viewModel.account!!.createTx(destinationAddress!!, value, FeePerKbFee(_kbMinerFee!!), txData)
         } catch (e: OutputTooSmallException) {
             return AmountValidation.ValueTooSmall
         } catch (e: InsufficientFundsException) {
@@ -442,18 +445,20 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         const val IS_COLD_STORAGE = "isColdStorage"
         const val DESTINATION_ADDRESS = "destinationAddress"
         const val SEND_MODE = "sendmode"
+        const val TX_DATA = "txData"
 
         /**
          * Get Amount for spending
          */
         fun callMeToSend(currentActivity: Activity, requestCode: Int, account: UUID?, amountToSend: Value?, kbMinerFee: Value?,
-                         isColdStorage: Boolean, destinationAddress: Address?) {
+                         isColdStorage: Boolean, destinationAddress: Address?, txData: TransactionData?) {
             val intent = Intent(currentActivity, GetAmountActivity::class.java)
                     .putExtra(ACCOUNT, account)
                     .putExtra(ENTERED_AMOUNT, amountToSend)
                     .putExtra(KB_MINER_FEE, kbMinerFee)
                     .putExtra(IS_COLD_STORAGE, isColdStorage)
                     .putExtra(SEND_MODE, true)
+                    .putExtra(TX_DATA, txData)
             if (destinationAddress != null) {
                 intent.putExtra(DESTINATION_ADDRESS, destinationAddress)
             }
