@@ -32,8 +32,8 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
             }) {
                 if (it.first != null && it.second != null) {
                     MutableLiveData<String>(getApplication<Application>().resources.getString(R.string.max_btc,
-                            convert(it.first!!, it.second!!)
-                                    ?: Value.zeroValue(it.second!!).toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
+                            (convert(it.first!!, it.second!!) ?: Value.zeroValue(it.second!!))
+                            .toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
                 } else {
                     MutableLiveData("")
                 }
