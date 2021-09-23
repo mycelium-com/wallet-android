@@ -15,9 +15,9 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
 
     val amount = MutableLiveData<String>()
     val country = MutableLiveData<String>()
-    val currency = MutableLiveData<String>()
+    val currency = MutableLiveData<String?>()
     val expire = MutableLiveData<String>()
-    val productInfo = MutableLiveData<ProductInfo>()
+    val productInfo = MutableLiveData<ProductInfo?>()
     var currencies: Array<CurrencyInfo>? = null
 
     fun setProduct(product: ProductInfo?) {

@@ -27,6 +27,6 @@ class ReceiveCommonViewModel : ViewModel(), Serializable {
 
     val error = MutableLiveData<String>()
     val address = MutableLiveData<String>()
-    val tag = MutableLiveData<String>()
+    val tag = MutableLiveData<String?>()
     var currency = MutableLiveData(Utils.getBtcCoinType().symbol)
 }
