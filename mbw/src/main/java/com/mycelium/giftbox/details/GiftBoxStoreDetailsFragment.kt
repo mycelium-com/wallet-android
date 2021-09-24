@@ -53,10 +53,11 @@ class GiftBoxStoreDetailsFragment : Fragment() {
             viewModel.more.value = !(viewModel.more.value ?: false)
             binding?.layoutDescription?.tvDescription?.setupDescription(
                     viewModel.description.value ?: "",
-                    viewModel.more.value ?: false)
+                    viewModel.more.value ?: false) {
+                viewModel.moreVisible.value = it
+            }
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
-        binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
             viewModel.productInfo.value?.let {
                 findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(it))
@@ -67,7 +68,9 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         }
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,
-                    viewModel.more.value ?: false)
+                    viewModel.more.value ?: false) {
+                viewModel.moreVisible.value = it
+            }
         }
         loadData()
     }

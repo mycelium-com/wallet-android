@@ -12,6 +12,7 @@ import com.mycelium.giftbox.common.DescriptionViewModel
 class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
     override val description = MutableLiveData<String>()
     override val more = MutableLiveData<Boolean>(false)
+    override val moreVisible = MutableLiveData<Boolean>(false)
 
     val amount = MutableLiveData<String>()
     val country = MutableLiveData<String>()

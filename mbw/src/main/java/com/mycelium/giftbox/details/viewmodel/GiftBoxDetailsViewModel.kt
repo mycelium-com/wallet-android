@@ -28,6 +28,7 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
 
     override val description = MutableLiveData<String>()
     override val more = MutableLiveData<Boolean>(false)
+    override val moreVisible = MutableLiveData<Boolean>(false)
     val expiry = MutableLiveData<String>()
     var productInfo: ProductInfo? = null
     var orderResponse: Card? = null
