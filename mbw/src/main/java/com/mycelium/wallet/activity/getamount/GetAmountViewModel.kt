@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.get
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.Address
@@ -31,7 +32,7 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }) {
                 if (it.first != null && it.second != null) {
-                    MutableLiveData<String>(getApplication<Application>().resources.getString(R.string.max_btc,
+                    MutableLiveData(WalletApplication.getInstance().resources.getString(R.string.max_btc,
                             (convert(it.first!!, it.second!!) ?: Value.zeroValue(it.second!!))
                             .toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
                 } else {
