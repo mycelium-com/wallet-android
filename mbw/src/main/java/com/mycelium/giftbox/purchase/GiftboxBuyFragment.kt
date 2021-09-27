@@ -24,6 +24,7 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.loadImage
+import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel.Companion.MAX_QUANTITY
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel
 import com.mycelium.wallet.*

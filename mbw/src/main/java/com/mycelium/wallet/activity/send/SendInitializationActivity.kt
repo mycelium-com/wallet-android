@@ -113,9 +113,6 @@ class SendInitializationActivity : Activity() {
         if (isFinishing) {
             return
         }
-        if(mbwManager.getWalletManager(isColdStorage).state == State.SYNCHRONIZING) {
-            return
-        }
         if (account.isSyncing && (account.coinType.isUtxosBased || isColdStorage)) {
             // wait till its finished syncing
             // no need wait for non utxo's based accounts

@@ -307,7 +307,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         val account = viewModel.getAccount()
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, account.id,
                 viewModel.getAmount().value, viewModel.getSelectedFee().value,
-                viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
+                viewModel.isColdStorage(), viewModel.getReceivingAddress().value, viewModel.getTransactionData().value)
     }
 
     fun onClickScan() {
