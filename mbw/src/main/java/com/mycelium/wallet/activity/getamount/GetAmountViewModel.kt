@@ -17,7 +17,6 @@ import com.mycelium.wapi.wallet.coins.Value
 class GetAmountViewModel(application: Application) : AndroidViewModel(application) {
     val mbwManager = MbwManager.getInstance(application)
     var account: WalletAccount<Address>? = null
-
     val maxSpendableAmount = MutableLiveData<Value>()
     val amount = MutableLiveData<Value>()
     val currentCurrency = MutableLiveData<AssetInfo>()
