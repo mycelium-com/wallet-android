@@ -29,6 +29,8 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     override val description = MutableLiveData<String>()
     override val more = MutableLiveData<Boolean>(false)
     override val moreVisible = MutableLiveData<Boolean>(false)
+    override val termsLink = MutableLiveData<String?>()
+    override val redeemInstruction = MutableLiveData<String?>()
     val expiry = MutableLiveData<String>()
     var productInfo: ProductInfo? = null
     var orderResponse: Card? = null
@@ -44,6 +46,8 @@ class GiftBoxDetailsViewModel(application: Application) : AndroidViewModel(appli
     fun setProduct(product: ProductResponse) {
         productInfo = product.product
         description.value = product.product?.description
+        termsLink.value = product.product?.termsAndConditionsPdfUrl
+        redeemInstruction.value = product.product?.redeemInstructionsHtml
         expiry.value = if (product.product?.expiryInMonths != null) "${product.product?.expiryDatePolicy} (${product.product?.expiryInMonths} months)" else "Does not expire"
         expireDate.value = expiry.value
     }
