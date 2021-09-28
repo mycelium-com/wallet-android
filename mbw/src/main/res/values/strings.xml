@@ -1674,7 +1674,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="less">less</string>
     <string name="proceed">Proceed</string>
     <string name="more">more</string>
-    <string name="redeem_code">Redeem Code:</string>
+    <string name="redeem_code">Your Gift card:</string>
     <string name="giftbox_pin_code">Pin Code:</string>
     <string name="delete_gift_card">Delete gift card?</string>
     <string name="delete_gift_card_msg">Are you sure you want to delete this gift card?</string>
