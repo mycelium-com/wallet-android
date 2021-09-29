@@ -146,7 +146,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     totalAmountFiat.value = amount.times(quantity.toLong())
                 }
                 if (quantity >= MAX_QUANTITY) {
-                    warningQuantityMessage.value = "Max available cards: $MAX_QUANTITY cards"
+                    warningQuantityMessage.value = WalletApplication.getInstance()
+                            .getString(R.string.max_available_cards_d, MAX_QUANTITY)
                 } else {
                     if (!forSingleItem) {
                         warningQuantityMessage.value = ""
