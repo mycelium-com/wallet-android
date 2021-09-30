@@ -19,7 +19,7 @@ class ExchangeSourcesFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, arguments?.getString(ARG_PREFS_ROOT))
 
-        val mbwManager = MbwManager.getInstance(activity!!)
+        val mbwManager = MbwManager.getInstance(requireActivity())
         displayPreferenceDialogHandler = DisplayPreferenceDialogHandler(preferenceScreen.context)
         setHasOptionsMenu(true)
         (activity as SettingsActivity).supportActionBar!!.apply {
@@ -31,18 +31,18 @@ class ExchangeSourcesFragment : PreferenceFragmentCompat() {
 
         val prefCat = PreferenceCategory(preferenceScreen.context)
         preferenceScreen.addPreference(prefCat)
-        val cryptocurrencies = mbwManager.cryptocurrenciesSorted
-        for (name in cryptocurrencies) {
+        val cryptocurrencies = mbwManager.getWalletManager(false)
+                .getAssetTypes().sortedBy { it.name.toLowerCase() }
+        for (asset in cryptocurrencies) {
             val listPreference = ListPreference(preferenceScreen.context).apply {
-                title = name
-                val symbol = Utils.getTypeByName(name)!!.symbol
+                title = asset.name
                 val exchangeManager = mbwManager.exchangeRateManager
-                val exchangeSourceNamesList = exchangeManager.getExchangeSourceNames(symbol)
+                val exchangeSourceNamesList = exchangeManager.getExchangeSourceNames(asset.symbol)
                 val exchangeNames = exchangeSourceNamesList.toTypedArray()
                 if (exchangeNames.isEmpty()) {
                     isEnabled = false
                 } else {
-                    var currentName: String? = exchangeManager.getCurrentExchangeSourceName(symbol)
+                    var currentName: String? = exchangeManager.getCurrentExchangeSourceName(asset.symbol)
                     if (currentName == null) {
                         currentName = ""
                     }
@@ -52,12 +52,12 @@ class ExchangeSourcesFragment : PreferenceFragmentCompat() {
                     value = currentName
                 }
                 onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                    mbwManager.exchangeRateManager.setCurrentExchangeSourceName(symbol, newValue.toString())
+                    mbwManager.exchangeRateManager.setCurrentExchangeSourceName(asset.symbol, newValue.toString())
                     true
                 }
                 layoutResource = R.layout.preference_layout_no_icon
                 widgetLayoutResource = R.layout.preference_arrow
-                dialogTitle = "$name exchange source"
+                dialogTitle = "${asset.name} exchange source"
             }
             prefCat.addPreference(listPreference)
         }
