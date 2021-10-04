@@ -85,13 +85,17 @@ class OrdersFragment : Fragment() {
     }
 
     private fun loadData(offset: Long = 0) {
-        if (offset == 0L) {
-            adapter.submitList(List(8) { PurchasedLoadingItem })
-            activityViewModel.orderLoading.value = true
-        } else if (offset >= viewModel.ordersSize.value ?: 0) {
-            return
-        } else {
-            adapter.submitList(adapter.currentList + PurchasedLoadingItem)
+        when {
+            offset == 0L -> {
+                adapter.submitList(List(8) { PurchasedLoadingItem })
+                activityViewModel.orderLoading.value = true
+            }
+            offset >= viewModel.ordersSize.value ?: 0 -> {
+                return
+            }
+            else -> {
+                adapter.submitList(adapter.currentList + PurchasedLoadingItem)
+            }
         }
         viewModel.loading.value = true
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {

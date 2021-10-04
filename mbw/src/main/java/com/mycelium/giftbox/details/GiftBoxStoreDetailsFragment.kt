@@ -59,8 +59,8 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
-            viewModel.productInfo.value?.let {
-                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(it))
+            viewModel.productInfo.value?.let { productInto ->
+                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(productInto))
             }
         }
         binding?.layoutDescription?.terms?.setOnClickListener {

@@ -40,7 +40,7 @@ class DefaultCardDrawable(val res: Resources, val text: String) : Drawable() {
             canvas.translate(0f, -bounds.height() - intrinsicHeight - imagePadding)
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
         }?.draw(canvas)
-        canvas.restoreToCount(count);
+        canvas.restoreToCount(count)
     }
 
     override fun setAlpha(alpha: Int) {

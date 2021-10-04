@@ -1,7 +1,6 @@
 package com.mycelium.giftbox.cards.adapter
 
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View

@@ -26,7 +26,7 @@ class TextDrawable(val res: Resources, val text: String) : Drawable() {
         canvas.translate(bounds.left.toFloat(), bounds.top.toFloat())
         canvas.drawText(text, 0, text.length,
                 bounds.centerX().toFloat(), bounds.centerY().toFloat() - ((paint.descent() + paint.ascent()) / 2), paint)
-        canvas.restoreToCount(count);
+        canvas.restoreToCount(count)
     }
 
     override fun getOpacity(): Int = paint.alpha

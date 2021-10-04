@@ -19,7 +19,7 @@ import kotlin.math.max
  * This class is intended to manage transaction history for current selected account.
  */
 class TransactionHistoryLiveData(val mbwManager: MbwManager,
-                                 private var account:WalletAccount<*>,
+                                 private var account: WalletAccount<*>,
                                  private val fioMetadataMap : MutableMap<String, FIOOBTransaction>)
     : LiveData<Set<TransactionSummary>>() {
     private var historyList = mutableSetOf<TransactionSummary>()
@@ -68,9 +68,9 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager,
             }
         }
 
-        override fun doInBackground(vararg voids: Void): List<TransactionSummary>  =
-                (account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>)
-                        .onEach { txSummary ->
+        override fun doInBackground(vararg voids: Void): List<TransactionSummary> =
+            (account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>)
+                .onEach { txSummary ->
                     fioModule.getFioTxMetadata(txSummary.idHex)?.let {
                         fioMetadataMap[txSummary.idHex] = it
                     }

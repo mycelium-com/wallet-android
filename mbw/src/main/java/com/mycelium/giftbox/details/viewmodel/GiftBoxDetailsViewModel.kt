@@ -4,8 +4,6 @@ import android.app.Application
 import android.webkit.URLUtil
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.mycelium.giftbox.client.models.Ecode
-import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.ProductResponse
 import com.mycelium.giftbox.common.AmountViewModel
