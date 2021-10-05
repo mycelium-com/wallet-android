@@ -221,7 +221,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                     minimumPrice
                 )
                 if (exceedCardPrice) {
-                    Toaster(requireContext()).toast("Exceed card value", true)
+                    Toaster(requireContext()).toast(getString(R.string.exceed_card_value), true)
                 }
                 if (lessMinimumCardPrice) {
                     Toaster(requireContext()).toast(

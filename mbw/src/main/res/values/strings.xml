@@ -1661,6 +1661,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="select_account_to_pay_with">Select account to pay with:</string>
     <string name="expire_date">Expire date:</string>
     <string name="card_value">Card value:</string>
+    <string name="card_value2">Card value:</string>
     <string name="total_amount">Total amount:</string>
     <string name="quantity">Quantity:</string>
     <string name="miner_fee">Miner Fee:</string>
@@ -1683,7 +1684,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gift_card">Gift card</string>
     <string name="gift_cards">Gift cards</string>
     <string name="share_gift_card_text">Hello there!\nYou recently purchased gift cards:\n%s\nAmount: %s %s</string>
-    <string name="gift_insufficient_funds">Insufficient funds</string>
     <string name="select_card_value_dialog">Select card value:</string>
     <string name="gift_card_d">Gift card:</string>
     <string name="spendable">Spendable:</string>
@@ -1700,8 +1700,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="select_country">Select country</string>
     <string name="buy_gift_card">Buy gift card</string>
     <string name="giftbox_amount_title">Gift card amount</string>
-    <string name="giftcards">Gift cards</string>
-    <string name="redeem_instructions_title">Redeem instructions</string>
     <string name="stores">Stores</string>
     <string name="purchases">Orders</string>
     <string name="mygiftcards">My gift cards</string>
@@ -1719,6 +1717,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="no_results_found_for_s"><![CDATA[No results found for \"<font color="#ffffff">%s</font>\".<br/>Please check the spelling and try again.]]></string>
     <string name="no_stores_found">NO STORES FOUND</string>
     <string name="no_purchased_gift_card">YOU HAVE NOT PURCHASED\nANY GIFT CARD YET</string>
+    <string name="no_purchased_order">YOU HAVE NOT PURCHASED\nANY GIFT CARD YET</string>
     <string name="no_gift_cards_linked">You currently have no gift cards linked to your account. Get started by exploring stores catalog.</string>
     <string name="tx_not_sent">Transaction was not sent</string>
     <string name="check_internet_and_try_again">Mycelium can not connect to the server due to poor internet connection.\nPlease verify your internet connection and try again.</string>
@@ -1728,6 +1727,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="show_transaction_details"><![CDATA[Show transaction details >]]></string>
     <string name="show_transaction_details_hide">Show transaction details (hide)</string>
     <string name="max_available_cards_d">Max available cards: %s cards</string>
+    <string name="gift_card_info">Gift Card information</string>
+    <string name="exceed_card_value">Exceed card value</string>
+    <string name="from_s_to_s">From %s to %s</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

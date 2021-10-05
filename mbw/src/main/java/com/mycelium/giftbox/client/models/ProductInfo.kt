@@ -14,6 +14,8 @@ package com.mycelium.giftbox.client.models
 
 import android.os.Parcelable
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
 import kotlinx.android.parcel.Parcelize
 import java.math.BigDecimal
 
@@ -99,19 +101,13 @@ data class ProductInfo(
     }
 }
 
-fun ProductInfo.getCardValue(): String {
+fun ProductInfo.getCardValue(): String =
     if (denominationType == ProductInfo.DenominationType.fixed && availableDenominations?.size ?: 100 < 6) {
-        return availableDenominations!!.joinToString {
-            "${
-                it.stripTrailingZeros().toPlainString()
-            } $currencyCode"
+        availableDenominations!!.joinToString {
+            "${it.stripTrailingZeros().toPlainString()} $currencyCode"
         }
     } else {
-        return "From ${
-            minimumValue?.stripTrailingZeros()?.toPlainString()
-        } $currencyCode" +
-                " to ${
-                    maximumValue?.stripTrailingZeros()?.toPlainString()
-                } $currencyCode"
+        WalletApplication.getInstance().getString(R.string.from_s_to_s,
+                "${minimumValue?.stripTrailingZeros()?.toPlainString()} $currencyCode",
+                "${maximumValue?.stripTrailingZeros()?.toPlainString()} $currencyCode")
     }
-}

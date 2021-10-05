@@ -51,6 +51,7 @@ class OrdersFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding?.noResultTitle?.text = getString(R.string.no_purchased_order)
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(
                 DividerItemDecoration(

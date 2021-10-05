@@ -52,6 +52,7 @@ class CardsFragment : Fragment() {
                         DividerItemDecoration.VERTICAL
                 )
         )
+        binding?.noResultTitle?.text = getString(R.string.no_purchased_gift_card)
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionCardDetails(it))
         }

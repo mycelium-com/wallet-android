@@ -77,7 +77,7 @@ fun Fragment.shareGiftcard(card: Card) {
     startActivity(
             Intent.createChooser(
                     Intent(Intent.ACTION_SEND)
-                            .putExtra(Intent.EXTRA_SUBJECT, "Gift Card information")
+                            .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.gift_card_info))
                             .putExtra(Intent.EXTRA_TEXT, card.shareText(resources))
                             .setType("text/plain"), "share gift card"
             )

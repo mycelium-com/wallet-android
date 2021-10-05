@@ -152,7 +152,7 @@ class GiftboxBuyFragment : Fragment() {
                                     "Max available cards: ${GiftboxBuyViewModel.MAX_QUANTITY} cards"
                             } else if (viewModel.totalProgress.value != true) {
                                 viewModel.warningQuantityMessage.value =
-                                    getString(R.string.gift_insufficient_funds)
+                                    getString(R.string.insufficient_funds)
                             }
                         }
                     }
@@ -224,7 +224,7 @@ class GiftboxBuyFragment : Fragment() {
                     viewModel.totalAmountFiatSingle.value = preselectedList[which]
                     dialog.dismiss()
                 } else {
-                    Toaster(requireContext()).toast(R.string.gift_insufficient_funds, true)
+                    Toaster(requireContext()).toast(R.string.insufficient_funds, true)
                 }
             }
             .create().show()

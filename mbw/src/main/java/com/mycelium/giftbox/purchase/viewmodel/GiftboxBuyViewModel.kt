@@ -201,7 +201,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     val errorAmountMessage: LiveData<String> = Transformations.map(totalAmountCrypto) {
         val enough = it.lessOrEqualThan(getMaxSpendable())
         return@map if (enough) "" else WalletApplication.getInstance()
-                .getString(R.string.gift_insufficient_funds)
+                .getString(R.string.insufficient_funds)
     }
     val totalAmountFiat = MutableLiveData<Value>(zeroFiatValue)
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {
