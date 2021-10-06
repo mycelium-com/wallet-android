@@ -49,7 +49,7 @@ fun TextView.setupDescription(description: String, more: Boolean, hasMore: (Bool
                 text = HtmlCompat.fromHtml("${description.subSequence(0, endIndex)}...", HtmlCompat.FROM_HTML_MODE_LEGACY)
             }
         }
-    } else if (layout == null) {
+    } else {
         postDelayed({ setupDescription(description, more, hasMore) }, 100)
     }
 }

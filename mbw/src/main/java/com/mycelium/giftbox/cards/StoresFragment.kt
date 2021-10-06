@@ -35,9 +35,7 @@ import kotlinx.coroutines.Job
 
 
 class StoresFragment : Fragment() {
-    private val adapter = StoresAdapter().apply {
-        stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
-    }
+    private val adapter = StoresAdapter()
     private val viewModel: StoresViewModel by viewModels()
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
     private var binding: FragmentGiftboxStoresBinding? = null

@@ -94,7 +94,7 @@ class GiftboxBuyFragment : Fragment() {
             binding?.btEnterAmountPreselected?.isVisible = true
             binding?.btEnterAmountPreselected?.background = null
             val isNotSetYet =
-                viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
+                    viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
             if (isNotSetYet && viewModel.getPreseletedValues().isNotEmpty()) {
                 viewModel.totalAmountFiatSingle.value = viewModel.getPreseletedValues()[0]
             }
@@ -107,92 +107,93 @@ class GiftboxBuyFragment : Fragment() {
             binding?.tlQuanity?.error = it
             val isError = !it.isNullOrEmpty()
             binding?.tvQuanity?.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(), if (isError) R.color.red_error else R.color.white
-                )
+                    ContextCompat.getColor(
+                            requireContext(), if (isError) R.color.red_error else R.color.white
+                    )
             )
         }
 
         loader(true)
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
-            productId = args.product.code!!, success = { productResponse ->
-                val product = productResponse?.product
-                    binding?.detailsHeader?.ivImage?.loadImage(product?.cardImageUrl,
-                            RequestOptions().transforms(CenterCrop(),
-                                    RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
-                    binding?.detailsHeader?.tvName?.text = product?.name
-                    binding?.detailsHeader?.tvQuantityLabel?.isVisible = false
-                    binding?.detailsHeader?.tvQuantity?.isVisible = false
-                    binding?.detailsHeader?.tvCardValueHeader?.text = product?.getCardValue()
-                    binding?.detailsHeader?.tvExpire?.text =
-                        if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
+                productId = args.product.code!!, success = { productResponse ->
+            val product = productResponse?.product
+            binding?.detailsHeader?.ivImage?.loadImage(product?.cardImageUrl,
+                    RequestOptions().transforms(CenterCrop(),
+                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
+            binding?.detailsHeader?.tvName?.text = product?.name
+            binding?.detailsHeader?.tvQuantityLabel?.isVisible = false
+            binding?.detailsHeader?.tvQuantity?.isVisible = false
+            binding?.detailsHeader?.tvCardValueHeader?.text = product?.getCardValue()
+            binding?.detailsHeader?.tvExpire?.text =
+                    if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
-                    binding?.detailsHeader?.tvCountry?.text = product?.countries?.mapNotNull {
-                        CountriesSource.countryModels.find { model ->
-                            model.acronym.equals(
-                                it,
-                                true
-                            )
-                        }
-                    }?.joinToString { it.name }
+            binding?.detailsHeader?.tvCountry?.text = product?.countries?.mapNotNull {
+                CountriesSource.countryModels.find { model ->
+                    model.acronym.equals(
+                            it,
+                            true
+                    )
+                }
+            }?.joinToString { it.name }
 
-                    binding?.btMinusQuantity?.setOnClickListener {
-                        if (viewModel.isGrantedMinus.value!!) {
-                            viewModel.quantityString.value =
-                                ((viewModel.quantityInt.value ?: 0) - 1).toString()
-                        }
+            binding?.btMinusQuantity?.setOnClickListener {
+                if (viewModel.isGrantedMinus.value!!) {
+                    viewModel.quantityString.value =
+                            ((viewModel.quantityInt.value ?: 0) - 1).toString()
+                }
+            }
+            binding?.btPlusQuantity?.setOnClickListener {
+                if (viewModel.isGrantedPlus.value!!) {
+                    viewModel.quantityString.value =
+                            ((viewModel.quantityInt.value ?: 0) + 1).toString()
+                } else {
+                    if (viewModel.quantityInt.value!! >= GiftboxBuyViewModel.MAX_QUANTITY) {
+                        viewModel.warningQuantityMessage.value =
+                                "Max available cards: ${GiftboxBuyViewModel.MAX_QUANTITY} cards"
+                    } else if (viewModel.totalProgress.value != true) {
+                        viewModel.warningQuantityMessage.value =
+                                getString(R.string.insufficient_funds)
                     }
-                    binding?.btPlusQuantity?.setOnClickListener {
-                        if (viewModel.isGrantedPlus.value!!) {
-                            viewModel.quantityString.value =
-                                ((viewModel.quantityInt.value ?: 0) + 1).toString()
-                        } else {
-                            if (viewModel.quantityInt.value!! >= GiftboxBuyViewModel.MAX_QUANTITY) {
-                                viewModel.warningQuantityMessage.value =
-                                    "Max available cards: ${GiftboxBuyViewModel.MAX_QUANTITY} cards"
-                            } else if (viewModel.totalProgress.value != true) {
-                                viewModel.warningQuantityMessage.value =
-                                    getString(R.string.insufficient_funds)
-                            }
-                        }
-                    }
-                    binding?.amountRoot?.setOnClickListener(if (args.product.availableDenominations == null) defaultClickListener else preselectedClickListener)
-            },
-            error = { _, error ->
-                ErrorHandler(requireContext()).handle(error)
-            }, finally = {
-                loader(false)
-            })
+                }
+            }
+            binding?.amountRoot?.setOnClickListener(if (args.product.availableDenominations == null) defaultClickListener else preselectedClickListener)
+        },
+                error = { _, error ->
+                    ErrorHandler(requireContext()).handle(error)
+                }, finally = {
+            loader(false)
+        })
 
         binding?.btSend?.setOnClickListener {
-            MbwManager.getInstance(WalletApplication.getInstance()).runPinProtectedFunction(activity) {loader(true)
-            GitboxAPI.giftRepository.createOrder(
-                    viewModel.viewModelScope,
-                    code = args.product.code!!,
-                    amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
-                    quantity = viewModel.quantityString.value?.toInt()!!,
-                    currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
-                    success = { orderResponse ->
-                        viewModel.orderResponse.value = orderResponse
-                        viewModel.sendTransactionAction.value = Unit
-                    },
-                    error = { _, error ->
-                        AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
-                                .setTitle(getString(R.string.tx_not_sent))
-                                .setMessage(getString(R.string.check_internet_and_try_again))
-                                .setPositiveButton(R.string.try_again) { _, _ -> }
-                                .setNegativeButton(R.string.cancel) { _, _ ->
-                                    findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
-                                }
-                                .create().apply {
-                                    setOnShowListener {
-                                        getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.bequant_green))
+            MbwManager.getInstance(WalletApplication.getInstance()).runPinProtectedFunction(activity) {
+                loader(true)
+                GitboxAPI.giftRepository.createOrder(
+                        viewModel.viewModelScope,
+                        code = args.product.code!!,
+                        amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
+                        quantity = viewModel.quantityString.value?.toInt()!!,
+                        currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
+                        success = { orderResponse ->
+                            viewModel.orderResponse.value = orderResponse
+                            viewModel.sendTransactionAction.value = Unit
+                        },
+                        error = { _, error ->
+                            AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                                    .setTitle(getString(R.string.tx_not_sent))
+                                    .setMessage(getString(R.string.check_internet_and_try_again))
+                                    .setPositiveButton(R.string.try_again) { _, _ -> }
+                                    .setNegativeButton(R.string.cancel) { _, _ ->
+                                        findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
                                     }
-                                }
-                                .show()
-                    }, finally = {
-                loader(false)
-            })
+                                    .create().apply {
+                                        setOnShowListener {
+                                            getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.bequant_green))
+                                        }
+                                    }
+                                    .show()
+                        }, finally = {
+                    loader(false)
+                })
 
                 viewModel.sendTransaction.observe(viewLifecycleOwner) {
                     loader(false)

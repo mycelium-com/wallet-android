@@ -1726,7 +1726,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="mark_as_redeemed">Mark as redeemed</string>
     <string name="show_transaction_details"><![CDATA[Show transaction details >]]></string>
     <string name="show_transaction_details_hide">Show transaction details (hide)</string>
-    <string name="max_available_cards_d">Max available cards: %s cards</string>
+    <string name="max_available_cards_d">Max available cards: %d cards</string>
     <string name="gift_card_info">Gift Card information</string>
     <string name="exceed_card_value">Exceed card value</string>
     <string name="from_s_to_s">From %s to %s</string>
