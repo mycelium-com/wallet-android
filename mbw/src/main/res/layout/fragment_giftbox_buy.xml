@@ -48,7 +48,7 @@
                     android:id="@+id/tvAmountLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/card_value1"
+                    android:text="@{@string/card_value1+':'}"
                     android:textColor="@color/fio_white_alpha_0_6"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"

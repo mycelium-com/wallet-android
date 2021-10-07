@@ -926,7 +926,7 @@
     <string name="you_dont_have_btc_or_eth_accounts_with_funds">На ваших BTC или ETH аккаунтах нет средств.\nПожалуйста, пополните ваш BTC или ETH аккаунт и попробуйте ещё раз.</string>
     <string name="no_purchased_gift_card">У вас пока нет сертификатов</string>
     <string name="no_purchased_order">У вас пока нет размещенных заказов</string>
-    <string name="no_gift_cards_linked">У вас пока нет покупок.\nНачните с изучения каталога магазинов.</string>
+    <string name="no_gift_cards_linked">Начните с изучения каталога магазинов</string>
     <string name="no_stores_found">Магазины не найдены</string>
     <string name="no_results_found_for_s"><![CDATA[Ничего не найдено по запросу \"<font color="#ffffff">%s</font>\".<br/>Пожалуйста, проверьте написание и попробуйте ещё раз.]]></string>
     <string name="tx_not_sent">Не удалось отправить транзакцию</string>
@@ -959,4 +959,5 @@
     <string name="gift_cards_with_discount">Сертификаты</string>
     <string name="buy_gift_card">Покупка сертификата</string>
     <string name="from_s_to_s">От %s до %s</string>
+    <string name="paid">Транзакция отправлена</string>
 </resources>
