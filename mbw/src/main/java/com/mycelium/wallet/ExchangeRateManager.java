@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet;
 
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -80,6 +78,8 @@ import java.util.regex.Pattern;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 // import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC; gets shadowed by the local definition of the same value.
 
 public class ExchangeRateManager implements ExchangeRateProvider {
@@ -118,7 +118,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     private float rateBchBtc;
     // value hardcoded for now, but in future we need get from somewhere
     private static final float MSS_RATE = 3125f;
-    private static final float MT_RATE = 1f;
 
     private MetadataStorage storage;
 
@@ -162,16 +161,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 List<GetExchangeRatesResponse> responses = new ArrayList<>(cryptocurrencies.size() * selectedCurrencies.size());
                 for (String cryptocurrency : cryptocurrencies) {
                     for (String currency : selectedCurrencies) {
-                        if ("MT".equals(cryptocurrency)) {
-                            ExchangeRate rate = getExchangeRate(Utils.getBtcCoinType().getSymbol(), currency);
-                            if (rate != null) {
-                                responses.add(new GetExchangeRatesResponse(cryptocurrency, currency,
-                                        new ExchangeRate[]{ new ExchangeRate("Mycelium", System.currentTimeMillis(), rate.price, currency)}));
-                            }
-                        } else {
-                            responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION,
-                                    Util.trimTestnetSymbolDecoration(cryptocurrency), currency)).getResult());
-                        }
+                        responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION,
+                                Util.trimTestnetSymbolDecoration(cryptocurrency), currency)).getResult());
                     }
                 }
                 synchronized (_requestLock) {
