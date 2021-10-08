@@ -248,10 +248,10 @@ public class ModernMain extends AppCompatActivity {
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
             startActivity(new Intent(this, ApproveFioRequestActivity.class)
                     .putExtras(getIntent().getExtras()));
-        } else if(Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
+        } else if (Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
             mAccountsTab.select();
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_ACCOUNTS));
-        } else if(Objects.equals(intent.getAction(), MainActions.ACTION_TXS)) {
+        } else if (Objects.equals(intent.getAction(), MainActions.ACTION_TXS)) {
             mTransactionsTab.select();
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_HISTORY));
         }

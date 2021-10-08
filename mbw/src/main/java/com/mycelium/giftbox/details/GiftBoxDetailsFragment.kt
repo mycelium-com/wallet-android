@@ -69,8 +69,8 @@ class GiftBoxDetailsFragment : Fragment() {
             Utils.setClipboardString(viewModel.pinCode.value, it.context)
             Toaster(this).toast(R.string.copied_to_clipboard, true)
         }
-        viewModel.description.observe(viewLifecycleOwner) {
-            binding?.layoutDescription?.tvDescription?.setupDescription(it,
+        viewModel.description.observe(viewLifecycleOwner) { desc ->
+            binding?.layoutDescription?.tvDescription?.setupDescription(desc,
                     viewModel.more.value ?: false) {
                 viewModel.moreVisible.value = it
             }
