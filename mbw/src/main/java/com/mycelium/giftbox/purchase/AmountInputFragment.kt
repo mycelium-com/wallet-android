@@ -49,7 +49,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
     }
     private val zeroCryptoValue by lazy {
-        account?.basedOnCoinType?.value(0)
+        account?.coinType?.value(0)
     }
 
     private val account by lazy {
@@ -74,8 +74,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                             ).toBigDecimal()
                         val cryptoAmountValue =
                             valueOf(
-                                account?.basedOnCoinType!!,
-                                toUnits(account?.basedOnCoinType!!, cryptoAmountFromFiat)
+                                account?.coinType!!,
+                                toUnits(account?.coinType!!, cryptoAmountFromFiat)
                             )
                         tvCryptoAmount.isVisible = true
                         tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
@@ -202,7 +202,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             code = args.product.code ?: "",
             quantity = 1,
             amount = _amount?.valueAsLong?.div(100)?.toInt()!!,
-            currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
+            currencyId = zeroCryptoValue!!.getCurrencyId(),
             success = { priceResponse ->
                 val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
                 val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable())
@@ -276,7 +276,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 code = args.product.code!!,
                 quantity = args.quantity,
                 amount = value.valueAsBigDecimal.toInt(),
-                currencyId = account?.basedOnCoinType?.symbol?.removePrefix("t") ?: "",
+                currencyId = zeroCryptoValue!!.getCurrencyId(),
                 success = { priceResponse ->
                     if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice

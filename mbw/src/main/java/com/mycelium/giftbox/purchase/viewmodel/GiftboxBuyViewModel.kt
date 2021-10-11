@@ -22,7 +22,7 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
@@ -43,22 +43,21 @@ import java.util.*
 class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHeaderViewModel {
     val gson = Gson()
 
-
     val accountId = MutableLiveData<UUID>()
     val zeroFiatValue = zeroFiatValue(productInfo)
     val orderResponse = MutableLiveData<OrderResponse>()
     val warningQuantityMessage: MutableLiveData<String> = MutableLiveData("")
-    val totalProgress = MutableLiveData<Boolean>(false)
+    val totalProgress = MutableLiveData(false)
     val lastPriceResponse = MutableLiveData<PriceResponse>()
     private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     val account by lazy {
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)!!
     }
     val zeroCryptoValue by lazy {
-        account.basedOnCoinType?.value(0)
+        account.coinType?.value(0)
     }
 
-    fun getPreseletedValues(): List<Value> {
+    fun getPreselectedValues(): List<Value> {
         return productInfo.availableDenominations?.map {
             Value.valueOf(getAssetInfo(), toUnits(zeroFiatValue.type, it))
         }?.sortedBy { it.value } ?: listOf()
@@ -75,7 +74,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         callbackFlow {
             try {
                 val address = when (account) {
-                    is EthAccount -> {
+                    is AbstractEthERC20Account -> {
                         EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
                     }
                     is AbstractBtcAccount -> {
@@ -160,7 +159,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                             code = productInfo.code ?: "",
                             quantity = quantity,
                             amount = amount.valueAsBigDecimal.toInt(),
-                            currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
+                            currencyId = zeroCryptoValue!!.getCurrencyId(),
                             success = { priceResponse ->
                                 if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                                     return@getPrice
@@ -203,7 +202,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         return@map if (enough) "" else WalletApplication.getInstance()
                 .getString(R.string.insufficient_funds)
     }
-    val totalAmountFiat = MutableLiveData<Value>(zeroFiatValue)
+    val totalAmountFiat = MutableLiveData(zeroFiatValue)
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {
         return@map it?.toStringFriendlyWithUnit()
     }
@@ -217,9 +216,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getCryptoAmount(price: PriceResponse): Value = getCryptoAmount(price.priceOffer!!)
 
     private fun getCryptoAmount(price: String): Value {
-        val cryptoUnit = BigDecimal(price).movePointRight(account.basedOnCoinType?.unitExponent!!)
+        val cryptoUnit = BigDecimal(price).movePointRight(account.coinType?.unitExponent!!)
                 .toBigInteger()
-        return Value.valueOf(account.basedOnCoinType!!, cryptoUnit)
+        return Value.valueOf(account.coinType!!, cryptoUnit)
     }
 
     fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
@@ -232,7 +231,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         "~" + it.toStringFriendlyWithUnit()
     }
     val minerFeeFiat = Transformations.map(minerFeeCrypto) {
-        convertToFiat(it) ?: zeroFiatValue
+        val fiatFee = mbwManager.exchangeRateManager.get(it, zeroFiatValue.type)
+        fiatFee ?: zeroFiatValue
     }
     val minerFeeFiatString = Transformations.map(minerFeeFiat) {
         if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
@@ -387,4 +387,12 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     companion object {
         const val MAX_QUANTITY = 19
     }
+}
+
+fun Value.getCurrencyId(): String {
+    var currencyId = this.currencySymbol.removePrefix("t")
+    if (currencyId.equals("usdt", true)) {
+        currencyId = "usdt20"
+    }
+    return currencyId
 }
