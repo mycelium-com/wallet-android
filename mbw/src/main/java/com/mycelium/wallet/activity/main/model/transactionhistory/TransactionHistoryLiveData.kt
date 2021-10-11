@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
 import com.mycelium.wapi.wallet.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.fio.FIOOBTransaction
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.squareup.otto.Subscribe
@@ -17,10 +18,12 @@ import kotlin.math.max
 /**
  * This class is intended to manage transaction history for current selected account.
  */
-class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<TransactionSummary>>() {
-    private var account = mbwManager.selectedAccount!!
+class TransactionHistoryLiveData(val mbwManager: MbwManager,
+                                 private var account: WalletAccount<*>,
+                                 private val fioMetadataMap : MutableMap<String, FIOOBTransaction>)
+    : LiveData<Set<TransactionSummary>>() {
     private var historyList = mutableSetOf<TransactionSummary>()
-    val fioMetadataMap = mutableMapOf<String, FIOOBTransaction>()
+
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>>>? = null
@@ -42,10 +45,6 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
     override fun onActive() {
         super.onActive()
         MbwManager.getEventBus().register(this)
-        if (account !== mbwManager.selectedAccount) {
-            account = mbwManager.selectedAccount
-            updateValue(listOf())
-        }
         startHistoryUpdate()
     }
 
@@ -54,52 +53,37 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
     }
 
     private fun startHistoryUpdate(): AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>> =
-            UpdateTxHistoryTask().executeOnExecutor(executorService)
+            UpdateTxHistoryTask(account).executeOnExecutor(executorService)
 
 
     /**
      * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
      */
     @SuppressLint("StaticFieldLeak")
-    private inner class UpdateTxHistoryTask : AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>>() {
-        var account = mbwManager.selectedAccount!!
+    private inner class UpdateTxHistoryTask(val account: WalletAccount<*>) : AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>>() {
+
         override fun onPreExecute() {
             if (account.isArchived) {
                 cancel(true)
             }
         }
 
-        override fun doInBackground(vararg voids: Void): List<TransactionSummary>  =
-                (account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>).apply {
-                    forEach { txSummary ->
-                        fioModule.getFioTxMetadata(txSummary.idHex)?.let {
-                            fioMetadataMap[txSummary.idHex] = it
-                        }
+        override fun doInBackground(vararg voids: Void): List<TransactionSummary> =
+            (account.getTransactionSummaries(0, max(20, value!!.size)) as List<TransactionSummary>)
+                .onEach { txSummary ->
+                    fioModule.getFioTxMetadata(txSummary.idHex)?.let {
+                        fioMetadataMap[txSummary.idHex] = it
                     }
                 }
 
         override fun onPostExecute(transactions: List<TransactionSummary>) {
-            if (account === mbwManager.selectedAccount) {
-                updateValue(transactions)
-            }
+            updateValue(transactions)
         }
     }
 
     private fun updateValue(newValue: List<TransactionSummary>) {
         historyList = newValue.toMutableSet()
         value = historyList
-    }
-
-    @Subscribe
-    fun selectedAccountChanged(event: SelectedAccountChanged) {
-        val oldExecutor = executorService
-        executorService = Executors.newCachedThreadPool()
-        oldExecutor.shutdownNow()
-        if (event.account != account.id) {
-            account = mbwManager.selectedAccount
-            updateValue(listOf())
-            startHistoryUpdate()
-        }
     }
 
     @Subscribe

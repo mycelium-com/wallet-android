@@ -79,9 +79,9 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
     private fun generateAccountList(accountView: List<AccountsGroupModel>) {
         val currencies = args.currencies.mapNotNull { it.name }
         val accountsList = mutableListOf<AccountListItem>()
-        for (accountsGroup in accountView) {
+        accountView.forEach { accountsGroup->
             if (accountsGroup.getType() == AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE) {
-                continue
+                return@forEach
             }
             val accounts = accountsGroup.accountsList
                     .filterIsInstance(AccountViewModel::class.java)

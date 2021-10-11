@@ -146,7 +146,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     totalAmountFiat.value = amount.times(quantity.toLong())
                 }
                 if (quantity >= MAX_QUANTITY) {
-                    warningQuantityMessage.value = "Max available cards: $MAX_QUANTITY cards"
+                    warningQuantityMessage.value = WalletApplication.getInstance()
+                            .getString(R.string.max_available_cards_d, MAX_QUANTITY)
                 } else {
                     if (!forSingleItem) {
                         warningQuantityMessage.value = ""
@@ -200,7 +201,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     val errorAmountMessage: LiveData<String> = Transformations.map(totalAmountCrypto) {
         val enough = it.lessOrEqualThan(getMaxSpendable())
         return@map if (enough) "" else WalletApplication.getInstance()
-                .getString(R.string.gift_insufficient_funds)
+                .getString(R.string.insufficient_funds)
     }
     val totalAmountFiat = MutableLiveData<Value>(zeroFiatValue)
     val totalAmountFiatString = Transformations.map(totalAmountFiat) {

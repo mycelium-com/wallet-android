@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -98,18 +97,14 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = DataBindingUtil.inflate<FragmentGiftboxAmountBinding>(
-            inflater,
-            R.layout.fragment_giftbox_amount,
-            container,
-            false
-        ).apply { lifecycleOwner = this@AmountInputFragment }
-        return binding.root
-    }
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View =
+            FragmentGiftboxAmountBinding.inflate(inflater).apply {
+                binding = this
+                lifecycleOwner = this@AmountInputFragment
+            }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -118,9 +113,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         with(binding) {
             btOk.setOnClickListener {
                 LocalBroadcastManager.getInstance(requireContext())
-                    .sendBroadcast(Intent(ACTION_AMOUNT_SELECTED).apply {
-                        putExtra(AMOUNT_KEY, _amount)
-                    })
+                        .sendBroadcast(Intent(ACTION_AMOUNT_SELECTED).putExtra(AMOUNT_KEY, _amount))
                 findNavController().navigateUp()
             }
             btMax.setOnClickListener {
@@ -194,7 +187,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
 
     private fun updateAmountsDisplay(amountText: String) {
         binding.tvAmount.text = amountText
-
         binding.btCurrency.text = _amount?.currencySymbol?.toUpperCase()
     }
 
@@ -229,7 +221,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                     minimumPrice
                 )
                 if (exceedCardPrice) {
-                    Toaster(requireContext()).toast("Exceed card value", true)
+                    Toaster(requireContext()).toast(getString(R.string.exceed_card_value), true)
                 }
                 if (lessMinimumCardPrice) {
                     Toaster(requireContext()).toast(
@@ -244,6 +236,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                         null
                     )
                 )
+                binding.btOk.isEnabled = !(conversionError || insufficientFunds || exceedCardPrice || lessMinimumCardPrice)
                 if (insufficientFunds && !conversionError) {
                     Toaster(requireContext()).toast("Insufficient funds", true)
                 }

@@ -22,26 +22,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/horizontal_page_margin"
-            android:paddingVertical="@dimen/activity_vertical_margin">
+            android:paddingHorizontal="@dimen/horizontal_page_margin">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:background="@drawable/rect_background_rounded"
+                android:orientation="vertical">
 
                 <include
                     android:id="@+id/detailsHeader"
                     layout="@layout/fragment_giftbox_details_header"
-                    app:viewModel="@{vm}"/>
+                    app:viewModel="@{vm}" />
 
-            <TextView
-                android:id="@+id/orderStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:drawablePadding="8dp"
-                android:textColor="#BABABA"
-                android:textSize="14sp"
-                tools:text="Processing" />
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/totalAmountRoot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -93,7 +88,6 @@
                         android:textSize="14sp"
                         app:layout_constraintBaseline_toBaselineOf="@id/tvTotalAmountFiat"
                         app:layout_constraintLeft_toRightOf="@id/tvTotalAmountFiat" />
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -101,8 +95,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:visibility="@{vm.minerFeeFiat == null ? View.GONE : View.VISIBLE}"
-                    android:layout_marginTop="24dp">
+                    android:layout_marginTop="24dp"
+                    android:visibility="@{vm.minerFeeFiat == null ? View.GONE : View.VISIBLE}">
 
                     <TextView
                         android:id="@+id/tvMinerFeeLabel"
@@ -117,8 +111,8 @@
                     <TextView
                         android:id="@+id/tvMinerFeeAmount"
                         android:layout_width="wrap_content"
-                        android:layout_marginStart="4dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="12dp"
                         android:ellipsize="end"
@@ -130,8 +124,7 @@
                         android:textColorHint="@color/darkgrey"
                         android:textSize="14sp"
                         app:layout_constraintBottom_toBottomOf="@id/tvMinerFeeLabel"
-                        app:layout_constraintStart_toEndOf="@id/tvMinerFeeLabel"/>
-
+                        app:layout_constraintStart_toEndOf="@id/tvMinerFeeLabel" />
 
                     <TextView
                         android:id="@+id/tvMinerFeeAmountCrypto"
@@ -152,27 +145,42 @@
                         app:layout_constraintLeft_toRightOf="@id/tvMinerFeeAmount" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
                 <TextView
                     android:id="@+id/more"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{vm.moreText}"
-                    android:textColor="@color/fio_prm_btn_line"
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="12dp"
-                    tools:text="Show transaction details"
+                    android:text="@{vm.moreText}"
+                    android:textColor="@color/fio_prm_btn_line"
                     app:layout_constraintLeft_toLeftOf="@id/tvDescription"
-                    app:layout_constraintTop_toBottomOf="@id/tvDescription" />
+                    app:layout_constraintTop_toBottomOf="@id/tvDescription"
+                    tools:text="Show transaction details" />
 
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:visibility="@{vm.more ? View.GONE : View.VISIBLE}">
+
                     <include
                         android:id="@+id/txDetails"
                         layout="@layout/details_common" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <include
+                android:id="@+id/orderScheme"
+                layout="@layout/layout_giftbox_order_scheme" />
+
+            <Button
+                android:id="@+id/finish"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/button_ok" />
         </LinearLayout>
     </ScrollView>
 </layout>

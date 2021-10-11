@@ -45,10 +45,13 @@ class OrdersFragment : Fragment() {
     ): View =
             FragmentGiftboxPurchasedBinding.inflate(inflater).apply {
                 binding = this
+                this.viewModel = this@OrdersFragment.viewModel
+                this.lifecycleOwner = this@OrdersFragment
             }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding?.noResultTitle?.text = getString(R.string.no_purchased_order)
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(
                 DividerItemDecoration(
@@ -61,7 +64,7 @@ class OrdersFragment : Fragment() {
                 loadData(viewModel.orders.value?.size?.toLong() ?: 0)
             }
 
-            override fun isLastPage() = viewModel.orders.value?.size ?: 0 <= viewModel.ordersSize
+            override fun isLastPage() = viewModel.orders.value?.size ?: 0 <= viewModel.ordersSize.value ?: 0
 
             override fun isLoading() = viewModel.loading.value ?: false
         })
@@ -82,19 +85,24 @@ class OrdersFragment : Fragment() {
     }
 
     private fun loadData(offset: Long = 0) {
-        if (offset == 0L) {
-            adapter.submitList(List(8) { PurchasedLoadingItem })
-            activityViewModel.orderLoading.value = true
-        } else if (offset >= viewModel.ordersSize) {
-            return
-        } else {
-            adapter.submitList(adapter.currentList + PurchasedLoadingItem)
+        when {
+            offset == 0L -> {
+                adapter.submitList(List(8) { PurchasedLoadingItem })
+                activityViewModel.orderLoading.value = true
+            }
+            offset >= viewModel.ordersSize.value ?: 0 -> {
+                return
+            }
+            else -> {
+                adapter.submitList(adapter.currentList + PurchasedLoadingItem)
+            }
         }
         viewModel.loading.value = true
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
         }, error = { _, msg ->
+            adapter.submitList(listOf())
             Toaster(this).toast(msg, true)
         }, finally = {
             viewModel.loading.value = false

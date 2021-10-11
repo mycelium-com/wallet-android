@@ -14,6 +14,9 @@ import androidx.lifecycle.*
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
@@ -21,7 +24,6 @@ import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.loadImage
-import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel.Companion.MAX_QUANTITY
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel
 import com.mycelium.wallet.*
@@ -31,10 +33,6 @@ import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Value
-import kotlinx.android.synthetic.main.fragment_giftbox_buy.*
-import kotlinx.android.synthetic.main.fragment_giftbox_details_header.*
-import kotlinx.android.synthetic.main.giftcard_send_info.tvCountry
-import kotlinx.android.synthetic.main.giftcard_send_info.tvExpire
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -92,84 +90,79 @@ class GiftboxBuyFragment : Fragment() {
         viewModel.totalAmountFiatSingle.value = viewModel.totalAmountFiatSingle.value
 
         if (args.product.availableDenominations != null) {
-            btEnterAmount.isVisible = false
-            btEnterAmountPreselected.isVisible = true
-            btEnterAmountPreselected.background = null
+            binding?.btEnterAmount?.isVisible = false
+            binding?.btEnterAmountPreselected?.isVisible = true
+            binding?.btEnterAmountPreselected?.background = null
             val isNotSetYet =
-                viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
+                    viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
             if (isNotSetYet && viewModel.getPreseletedValues().isNotEmpty()) {
                 viewModel.totalAmountFiatSingle.value = viewModel.getPreseletedValues()[0]
             }
-            btEnterAmountPreselected.setOnClickListener(preselectedClickListener)
+            binding?.btEnterAmountPreselected?.setOnClickListener(preselectedClickListener)
         } else {
-            btEnterAmountPreselected.isVisible = false
+            binding?.btEnterAmountPreselected?.isVisible = false
         }
 
         viewModel.warningQuantityMessage.observe(viewLifecycleOwner) {
             binding?.tlQuanity?.error = it
             val isError = !it.isNullOrEmpty()
             binding?.tvQuanity?.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(), if (isError) R.color.red_error else R.color.white
-                )
+                    ContextCompat.getColor(
+                            requireContext(), if (isError) R.color.red_error else R.color.white
+                    )
             )
         }
 
         loader(true)
         GitboxAPI.giftRepository.getProduct(viewModel.viewModelScope,
-            productId = args.product.code!!, success = { productResponse ->
-                val product = productResponse?.product
-                with(binding) {
-                    ivImage.loadImage(product?.cardImageUrl)
-                    tvName.text = product?.name
-                    tvQuantityLabel.isVisible = false
-                    tvQuantity.isVisible = false
-                    tvCardValueHeader.text = product?.getCardValue()
-                    tvExpire.text =
-                        if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
+                productId = args.product.code!!, success = { productResponse ->
+            val product = productResponse?.product
+            binding?.detailsHeader?.ivImage?.loadImage(product?.cardImageUrl,
+                    RequestOptions().transforms(CenterCrop(),
+                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
+            binding?.detailsHeader?.tvName?.text = product?.name
+            binding?.detailsHeader?.tvQuantityLabel?.isVisible = false
+            binding?.detailsHeader?.tvQuantity?.isVisible = false
+            binding?.detailsHeader?.tvCardValueHeader?.text = product?.getCardValue()
+            binding?.detailsHeader?.tvExpire?.text =
+                    if (product?.expiryInMonths != null) "${product.expiryDatePolicy} (${product.expiryInMonths} months)" else "Does not expire"
 
-                    tvCountry.text = product?.countries?.mapNotNull {
-                        CountriesSource.countryModels.find { model ->
-                            model.acronym.equals(
-                                it,
-                                true
-                            )
-                        }
-                    }?.joinToString { it.name }
+            binding?.detailsHeader?.tvCountry?.text = product?.countries?.mapNotNull {
+                CountriesSource.countryModels.find { model ->
+                    model.acronym.equals(
+                            it,
+                            true
+                    )
+                }
+            }?.joinToString { it.name }
 
-                    btMinusQuantity.setOnClickListener {
-                        if (viewModel.isGrantedMinus.value!!) {
-                            viewModel.quantityString.value =
-                                ((viewModel.quantityInt.value ?: 0) - 1).toString()
-                        }
-                    }
-                    btPlusQuantity.setOnClickListener {
-                        if (viewModel.isGrantedPlus.value!!) {
-                            viewModel.quantityString.value =
-                                ((viewModel.quantityInt.value ?: 0) + 1).toString()
-                        } else {
-                            if (viewModel.quantityInt.value!! >= MAX_QUANTITY) {
-                                viewModel.warningQuantityMessage.value =
-                                    "Max available cards: $MAX_QUANTITY cards"
-                            } else if (viewModel.totalProgress.value != true) {
-                                viewModel.warningQuantityMessage.value =
-                                    getString(R.string.gift_insufficient_funds)
-                            }
-                        }
-                    }
-                    if (args.product.availableDenominations == null) {
-                        amountRoot.setOnClickListener(defaultClickListener)
-                    } else {
-                        amountRoot.setOnClickListener(preselectedClickListener)
+            binding?.btMinusQuantity?.setOnClickListener {
+                if (viewModel.isGrantedMinus.value!!) {
+                    viewModel.quantityString.value =
+                            ((viewModel.quantityInt.value ?: 0) - 1).toString()
+                }
+            }
+            binding?.btPlusQuantity?.setOnClickListener {
+                if (viewModel.isGrantedPlus.value!!) {
+                    viewModel.quantityString.value =
+                            ((viewModel.quantityInt.value ?: 0) + 1).toString()
+                } else {
+                    if (viewModel.quantityInt.value!! >= GiftboxBuyViewModel.MAX_QUANTITY) {
+                        viewModel.warningQuantityMessage.value =
+                                "Max available cards: ${GiftboxBuyViewModel.MAX_QUANTITY} cards"
+                    } else if (viewModel.totalProgress.value != true) {
+                        viewModel.warningQuantityMessage.value =
+                                getString(R.string.insufficient_funds)
                     }
                 }
-            },
-            error = { _, error ->
-                ErrorHandler(requireContext()).handle(error)
-                loader(false)
-            }, finally = {
-                loader(false)
-            })
+            }
+            binding?.amountRoot?.setOnClickListener(if (args.product.availableDenominations == null) defaultClickListener else preselectedClickListener)
+        },
+                error = { _, error ->
+                    ErrorHandler(requireContext()).handle(error)
+                }, finally = {
+            loader(false)
+        })
 
         binding?.btSend?.setOnClickListener {
             MbwManager.getInstance(WalletApplication.getInstance()).runPinProtectedFunction(activity) {
@@ -183,10 +176,22 @@ class GiftboxBuyFragment : Fragment() {
                         success = { orderResponse ->
                             viewModel.orderResponse.value = orderResponse
                             viewModel.sendTransactionAction.value = Unit
-                        }, error = { _, error ->
-                    ErrorHandler(requireContext()).handle(error)
-                    loader(false)
-                }, finally = {
+                        },
+                        error = { _, error ->
+                            AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
+                                    .setTitle(getString(R.string.tx_not_sent))
+                                    .setMessage(getString(R.string.check_internet_and_try_again))
+                                    .setPositiveButton(R.string.try_again) { _, _ -> }
+                                    .setNegativeButton(R.string.cancel) { _, _ ->
+                                        findNavController().navigate(GiftboxBuyFragmentDirections.actionGiftBox())
+                                    }
+                                    .create().apply {
+                                        setOnShowListener {
+                                            getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.bequant_green))
+                                        }
+                                    }
+                                    .show()
+                        }, finally = {
                     loader(false)
                 })
 
@@ -200,8 +205,7 @@ class GiftboxBuyFragment : Fragment() {
     }
 
 
-    private fun showChoicePreselectedValuesDialog(
-    ) {
+    private fun showChoicePreselectedValuesDialog() {
         val preselectedList = viewModel.getPreseletedValues()
         val preselectedValue = viewModel.totalAmountFiatSingle.value
         val selectedIndex = if (preselectedValue != null) {
@@ -221,7 +225,7 @@ class GiftboxBuyFragment : Fragment() {
                     viewModel.totalAmountFiatSingle.value = preselectedList[which]
                     dialog.dismiss()
                 } else {
-                    Toaster(requireContext()).toast(R.string.gift_insufficient_funds, true)
+                    Toaster(requireContext()).toast(R.string.insufficient_funds, true)
                 }
             }
             .create().show()
@@ -261,7 +265,5 @@ class GiftboxBuyFragment : Fragment() {
 class ViewModelFactory(param: ProductInfo) :
     ViewModelProvider.Factory {
     private val mParam: ProductInfo = param
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return GiftboxBuyViewModel(mParam) as T
-    }
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T = GiftboxBuyViewModel(mParam) as T
 }
