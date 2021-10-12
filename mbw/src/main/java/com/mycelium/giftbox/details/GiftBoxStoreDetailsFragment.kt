@@ -1,6 +1,7 @@
 package com.mycelium.giftbox.details
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,8 +19,11 @@ import com.mycelium.giftbox.client.models.CurrencyInfos
 import com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.setupDescription
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletConfiguration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
+import java.util.*
 
 class GiftBoxStoreDetailsFragment : Fragment() {
     private var binding: FragmentGiftboxStoreDetailsBinding? = null
@@ -83,6 +87,11 @@ class GiftBoxStoreDetailsFragment : Fragment() {
                 code = args.product.code!!,
                 success = { checkout ->
                     viewModel.currencies = checkout?.currencies
+                    if (BuildConfig.FLAVOR == "btctestnet") {
+                        changeToTestnetAddresses()
+                    }
+//                    Log.i("asdaf", "asdaf ${viewModel.currencies?.joinToString("\n")}")
+
                     viewModel.setProduct(checkout?.product)
                     binding?.ivImage?.loadImage(checkout?.product?.cardImageUrl,
                             RequestOptions()
@@ -95,6 +104,24 @@ class GiftBoxStoreDetailsFragment : Fragment() {
                 finally = {
                     loader(false)
                 })
+    }
+
+    private fun changeToTestnetAddresses() {
+        val currencies = viewModel.currencies?.clone() ?: return
+        val tokensWithTestnetAddress = WalletConfiguration.TOKENS.filter { it.testnetAddress != null }
+        Log.i("asdaf", "asdaf tokensWithTestnetAddress ${tokensWithTestnetAddress.joinToString("\n") { it.symbol }}")
+
+
+        val intersectedCurrencies = currencies.filter { currencyInfo ->
+            currencyInfo.contractAddress != null &&
+                    currencyInfo.contractAddress!!.toLowerCase(Locale.US) in tokensWithTestnetAddress.map { it.prodAddress.toLowerCase(Locale.US) }
+        }
+        Log.i("asdaf", "asdaf intersectedCurrencies ${intersectedCurrencies.map { it.name }.joinToString("\n")}")
+        intersectedCurrencies.forEach { currencyInfo ->
+            val testnetAddr = tokensWithTestnetAddress.first { it.prodAddress.equals(currencyInfo.contractAddress!!, ignoreCase = true) }.testnetAddress
+            currencyInfo.contractAddress = testnetAddr
+        }
+        viewModel.currencies = currencies
     }
 
     override fun onDestroyView() {

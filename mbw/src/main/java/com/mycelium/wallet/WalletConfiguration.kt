@@ -310,10 +310,46 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private var serverFioHistoryListChangedListeners: ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
     private var fioTpidChangedListeners: ArrayList<FioTpidChangedListener> = arrayListOf()
 
-    fun getSupportedERC20Tokens(): Map<String, ERC20Token> {
-        data class TokenData(val name: String, val symbol: String, val unitExponent: Int, val prodAddress: String, val testnetAddress: String = prodAddress)
+    fun getSupportedERC20Tokens(): Map<String, ERC20Token> = TOKENS
+            .map { ERC20Token(it.name, it.symbol, it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else (it.testnetAddress ?: it.prodAddress)) }
+            .associateBy { it.name }
 
-        val tokens = listOf(
+    fun setElectrumServerListChangedListener(serverElectrumListChangedListener: ServerElectrumListChangedListener) {
+        this.serverElectrumListChangedListener = serverElectrumListChangedListener
+    }
+
+    fun setElectrumVServerListChangedListener(serverElectrumVListChangedListener: ServerElectrumListChangedListener) {
+        this.serverElectrumVListChangedListener = serverElectrumVListChangedListener
+    }
+
+    fun addEthServerListChangedListener(serverEthListChangedListener: ServerEthListChangedListener) {
+        this.serverEthListChangedListeners.add(serverEthListChangedListener)
+    }
+
+    override fun setFioServerListChangedListeners(serverFioApiListChangedListener: ServerFioApiListChangedListener,
+                                                  serverFioHistoryListChangedListener: ServerFioHistoryListChangedListener) {
+        this.serverFioApiListChangedListeners.add(serverFioApiListChangedListener)
+        this.serverFioHistoryListChangedListeners.add(serverFioHistoryListChangedListener)
+    }
+
+    override fun setFioTpidChangedListener(fioTpidChangedListener: FioTpidChangedListener) {
+        this.fioTpidChangedListeners.add(fioTpidChangedListener)
+    }
+
+    companion object {
+        const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
+        const val PREFS_WAPI_SERVERS = "wapi_servers"
+        const val PREFS_ELECTRUM_BTCV_SERVERS = "electrum_btcv_servers"
+        const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
+        const val PREFS_FIO_API_SERVERS = "fio_api_servers"
+        const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
+        const val PREFS_FIO_TPID = "fio_tpid"
+        const val ONION_DOMAIN = ".onion"
+
+        const val TCP_TLS_PREFIX = "tcp-tls://"
+        const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
+
+        val TOKENS = listOf(
             TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498", "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
             TokenData("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7", "0x7c352ea63cefc099db667e848e1318878bbbcaaf"),
             TokenData("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0x07865c6e87b9f70255377e024ace6630c1eaa37f"),
@@ -394,45 +430,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
             TokenData("Mycelium Token", "MT", 7, "0x364f56e35e75227516878cc249f11ea9b3e41b09")
         )
-
-        return tokens
-            .map { ERC20Token(it.name, it.symbol, it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
-            .associateBy { it.name }
-    }
-
-    fun setElectrumServerListChangedListener(serverElectrumListChangedListener: ServerElectrumListChangedListener) {
-        this.serverElectrumListChangedListener = serverElectrumListChangedListener
-    }
-
-    fun setElectrumVServerListChangedListener(serverElectrumVListChangedListener: ServerElectrumListChangedListener) {
-        this.serverElectrumVListChangedListener = serverElectrumVListChangedListener
-    }
-
-    fun addEthServerListChangedListener(serverEthListChangedListener: ServerEthListChangedListener) {
-        this.serverEthListChangedListeners.add(serverEthListChangedListener)
-    }
-
-    override fun setFioServerListChangedListeners(serverFioApiListChangedListener: ServerFioApiListChangedListener,
-                                                  serverFioHistoryListChangedListener: ServerFioHistoryListChangedListener) {
-        this.serverFioApiListChangedListeners.add(serverFioApiListChangedListener)
-        this.serverFioHistoryListChangedListeners.add(serverFioHistoryListChangedListener)
-    }
-
-    override fun setFioTpidChangedListener(fioTpidChangedListener: FioTpidChangedListener) {
-        this.fioTpidChangedListeners.add(fioTpidChangedListener)
-    }
-
-    companion object {
-        const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
-        const val PREFS_WAPI_SERVERS = "wapi_servers"
-        const val PREFS_ELECTRUM_BTCV_SERVERS = "electrum_btcv_servers"
-        const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
-        const val PREFS_FIO_API_SERVERS = "fio_api_servers"
-        const val PREFS_FIO_HISTORY_SERVERS = "fio_history_servers"
-        const val PREFS_FIO_TPID = "fio_tpid"
-        const val ONION_DOMAIN = ".onion"
-
-        const val TCP_TLS_PREFIX = "tcp-tls://"
-        const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
     }
 }
+
+data class TokenData(val name: String, val symbol: String, val unitExponent: Int, val prodAddress: String, val testnetAddress: String? = null)
