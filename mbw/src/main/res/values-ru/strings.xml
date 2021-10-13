@@ -934,7 +934,7 @@
     <string name="gift_card_ready">Ваш Сертификат готов! Код активации и инструкция по использованию доступны в разделе <u>Мои сертификаты</u>.</string>
     <string name="giftbox_failed_text">Не удалось отправить транзакцию. Пожалуйста, проверьте ваш баланс, интернет-соединение и попробуйте ещё раз.</string>
     <string name="gift_card_after_confirmed"><![CDATA[Ваш Сертификат станет доступен после подтверждения транзакции сетью. Статус подтверждения можно отслеживать в <u>списке транзакций</u> вашего кошелька.]]></string>
-    <string name="payment_confirmed">Транзакция отправлена</string>
+    <string name="payment_confirmed">Транзакция подтверждена</string>
     <string name="mark_as_redeemed">Использован</string>
     <string name="failed">Ошибка</string>
     <string name="payment_in_progress">Платеж в обработке</string>
