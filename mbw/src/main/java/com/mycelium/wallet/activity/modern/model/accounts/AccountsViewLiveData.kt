@@ -95,7 +95,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 }
             }
             if (value!!.isEmpty()) {
-                publishProgress(accountsList)
+                publishProgress(accountsList.toList())
             }
 
             val archivedList = walletManager.getArchivedAccounts()
