@@ -53,9 +53,6 @@ class Toaster(val context: Context) {
 
     fun toastSyncFailed(syncStatusInfo: SyncStatusInfo? = null) {
         toast(when {
-            !Utils.isConnected(context) -> {
-                context.getString(R.string.no_network_connection)
-            }
             syncStatusInfo?.status == SyncStatus.INTERRUPT -> {
                 context.getString(R.string.sync_failed_s, "Reason: Interrupted by application")
             }
