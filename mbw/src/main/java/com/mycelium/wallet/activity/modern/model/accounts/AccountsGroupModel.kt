@@ -10,11 +10,10 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 class AccountsGroupModel(val titleId: Int, private val groupType: AccountListItem.Type,
                          val sum: ValueSum? = null,
                          val accountsList: List<AccountListItem>, val coinType: CryptoCurrency,
-                         val isInvestmentAccount: Boolean,
-                         val isSyncError: Boolean = accountsList.filterIsInstance<SyncStatusItem>().all { it.isSyncError }) : AccountListItem {
+                         val isInvestmentAccount: Boolean) : AccountListItem {
 
     constructor(model: AccountsGroupModel) : this(model.titleId, model.groupType, model.sum,
-            model.accountsList, model.coinType, model.isInvestmentAccount, model.isSyncError)
+            model.accountsList, model.coinType, model.isInvestmentAccount)
 
     var isCollapsed = false // Is only used to handle state between updates.
 
