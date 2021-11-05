@@ -42,23 +42,9 @@
         android:lines="1"
         android:textSize="16sp"
         custom:layout_constraintBaseline_toBaselineOf="@id/tvTitle"
-        custom:layout_constraintEnd_toStartOf="@id/lastSyncState"
+        custom:layout_constraintEnd_toStartOf="@id/tvBalance"
         custom:layout_constraintStart_toEndOf="@id/tvTitle"
         tools:text="(1)" />
-
-    <ImageView
-        android:id="@+id/lastSyncState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginStart="8dp"
-        android:visibility="gone"
-        custom:layout_constraintBottom_toBottomOf="@id/tvAccountsCount"
-        custom:layout_constraintEnd_toStartOf="@id/tvBalance"
-        custom:layout_constraintStart_toEndOf="@id/tvAccountsCount"
-        custom:layout_constraintTop_toTopOf="@id/tvAccountsCount"
-        custom:srcCompat="@drawable/ic_warning"
-        tools:visibility="visible" />
 
     <com.mycelium.wallet.activity.util.ToggleableCurrencyButton
         android:id="@+id/tvBalance"
