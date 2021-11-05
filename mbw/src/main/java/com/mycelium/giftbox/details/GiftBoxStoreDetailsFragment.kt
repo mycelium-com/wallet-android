@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.giftbox.client.GitboxAPI
@@ -19,7 +20,6 @@ import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.setupDescription
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
-import kotlinx.android.synthetic.main.giftcard_send_info.*
 
 class GiftBoxStoreDetailsFragment : Fragment() {
     private var binding: FragmentGiftboxStoreDetailsBinding? = null
@@ -53,13 +53,14 @@ class GiftBoxStoreDetailsFragment : Fragment() {
             viewModel.more.value = !(viewModel.more.value ?: false)
             binding?.layoutDescription?.tvDescription?.setupDescription(
                     viewModel.description.value ?: "",
-                    viewModel.more.value ?: false)
+                    viewModel.more.value ?: false) {
+                viewModel.moreVisible.value = it
+            }
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
-        binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
-            viewModel.productInfo.value?.let {
-                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(it))
+            viewModel.productInfo.value?.let { productInto ->
+                findNavController().navigate(GiftBoxStoreDetailsFragmentDirections.actionRedeem(productInto))
             }
         }
         binding?.layoutDescription?.terms?.setOnClickListener {
@@ -67,7 +68,9 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         }
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,
-                    viewModel.more.value ?: false)
+                    viewModel.more.value ?: false) {
+                viewModel.moreVisible.value = it
+            }
         }
         loadData()
     }
@@ -81,9 +84,12 @@ class GiftBoxStoreDetailsFragment : Fragment() {
                 success = { checkout ->
                     viewModel.currencies = checkout?.currencies
                     viewModel.setProduct(checkout?.product)
-                    binding?.ivImage?.loadImage(checkout?.product?.cardImageUrl)
+                    binding?.ivImage?.loadImage(checkout?.product?.cardImageUrl,
+                            RequestOptions()
+                                    .error(DefaultCardDrawable(resources, args.product.name ?: "")))
                 },
                 error = { _, error ->
+                    binding?.ivImage?.setImageDrawable(DefaultCardDrawable(resources, args.product.name ?: ""))
                     ErrorHandler(requireContext()).handle(error)
                 },
                 finally = {

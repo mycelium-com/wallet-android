@@ -1,6 +1,8 @@
 package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -43,14 +45,27 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     override fun synchronize(mode: SyncMode?): Boolean {
         if (isArchived) { return false }
         syncing = true
+        var synced = false
         try {
-            if (!maySync) { return false }
+            if (!maySync) {
+                return false
+            }
             updateBlockHeight()
-            if (!maySync) { return false }
-            return doSynchronization(mode)
+            if (!maySync) {
+                return false
+            }
+            val synced = doSynchronization(mode)
+            if (!maySync) {
+                return false
+            }
+            getNewNonce()
+            if (synced) {
+                lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
+            }
         } finally {
             syncing = false
         }
+        return synced
     }
 
     abstract fun doSynchronization(mode: SyncMode?): Boolean

@@ -8,6 +8,8 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
@@ -177,8 +179,10 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             accountBacking.putTransactions(json.transactions)
             cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
             listener?.balanceUpdated(this)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
             return true
         } catch (e: IOException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             return false
         }
     }

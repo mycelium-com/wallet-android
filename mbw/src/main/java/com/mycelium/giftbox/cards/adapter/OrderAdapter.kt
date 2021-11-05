@@ -1,5 +1,7 @@
 package com.mycelium.giftbox.cards.adapter
 
+import android.content.res.ColorStateList
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
@@ -55,16 +57,27 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                     Status.pROCESSING -> {
                         holder.itemView.additionalLabel.visibility = GONE
                         holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_history, 0, 0, 0)
-                        "Processing"
+                        val color = holder.itemView.context.resources.getColor(R.color.giftbox_yellow)
+                        holder.itemView.additional.setTextColor(color)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            holder.itemView.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
+                        }
+                        holder.itemView.context.getString(R.string.payment_in_progress)
                     }
                     Status.eRROR -> {
                         holder.itemView.additionalLabel.visibility = GONE
                         holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_failed, 0, 0, 0)
-                        "Failed"
+                        val color = holder.itemView.context.resources.getColor(R.color.fio_white_alpha_0_9)
+                        holder.itemView.additional.setTextColor(color)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            holder.itemView.additional.compoundDrawableTintList = ColorStateList.valueOf(color)
+                        }
+                        holder.itemView.context.getString(R.string.failed)
                     }
                     else -> {
                         holder.itemView.additionalLabel.visibility = View.VISIBLE
                         holder.itemView.additional.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+                        holder.itemView.additional.setTextColor(holder.itemView.context.resources.getColor(R.color.giftbox_green))
                         item.timestamp?.getDateString(holder.itemView.resources)
                     }
                 }

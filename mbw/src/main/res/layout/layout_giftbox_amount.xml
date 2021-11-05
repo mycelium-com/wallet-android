@@ -105,7 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_marginTop="16dp"
-            android:text="Show transaction details >"
+            android:text="@string/show_transaction_details"
             android:textColor="@color/fio_prm_btn_line"
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"

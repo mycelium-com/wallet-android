@@ -48,7 +48,7 @@ public class NumberEntry {
    private static final int MAX_DIGITS_BEFORE_DOT = 9;
 
    public interface NumberEntryListener {
-      public void onEntryChanged(String entry, boolean wasSet);
+      void onEntryChanged(String entry, boolean wasSet);
    }
 
    private NumberEntryListener _listener;
@@ -121,9 +121,8 @@ public class NumberEntry {
          }
       } else {
          // Append Digit
-         if (digit == 0 && _entry.equals("0")) {
-            // Only one leading zero
-            return;
+         if (_entry.equals("0")) {
+            _entry = _entry + ".";
          }
          if (hasDot()) {
             if (decimalsAfterDot() >= _maxDecimals) {

@@ -27,6 +27,8 @@ import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.WapiResponse
@@ -206,6 +208,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
             wapi.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, addresses)).result
         } catch (e: WapiException) {
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
             return -1
         }
@@ -303,6 +306,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 handleNewExternalTransactions(txs)
             } catch (e: WapiException) {
                 logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+                lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
                 postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
                 return -1
             }
@@ -636,6 +640,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                     BroadcastResult(BroadcastResultType.REJECT_DUPLICATE)
                 }
             } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
+                lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
                 postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
                 logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION")
                 BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
@@ -653,6 +658,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 BroadcastResult(BroadcastResultType.REJECTED)
             }
         } catch (e: WapiException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
@@ -1164,6 +1170,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         result = try {
             wapi.checkTransactions(CheckTransactionsRequest(txids)).result
         } catch (e: WapiException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             // We failed to check transactions

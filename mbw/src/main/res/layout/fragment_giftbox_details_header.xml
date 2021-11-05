@@ -15,38 +15,34 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rect_background_rounded">
+        android:layout_height="wrap_content">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/imageRoot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="5dp"
+        <ImageView
+            android:id="@+id/ivImage"
+            android:layout_width="65dp"
+            android:layout_height="46dp"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:background="@drawable/giftcard_card_small_bg"
+            android:padding="0.5dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/recyclerview_item_rectangle_selected"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/ivImage"
-                android:layout_width="65dp"
-                android:layout_height="46dp"
-                android:src="@drawable/recyclerview_item_rectangle_selected" />
-
-        </androidx.cardview.widget.CardView>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvName"
-            android:ellipsize="end"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:textColor="@color/fio_white_alpha_0_8"
-            android:textSize="22sp"
+            android:ellipsize="end"
             android:maxLines="2"
             android:text="@{viewModel.productName}"
-            app:layout_constraintStart_toEndOf="@id/imageRoot"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="22sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/imageRoot"
+            app:layout_constraintStart_toEndOf="@id/ivImage"
+            app:layout_constraintTop_toTopOf="@id/ivImage"
             tools:text="Hotels super Hotels super Hotels super" />
 
         <TextView
@@ -64,16 +60,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:text="@{viewModel.country}"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
-            android:text="@{viewModel.country}"
-            android:ellipsize="end"
             app:layout_constraintBaseline_toBaselineOf="@id/tvCountryLabel"
-            app:layout_constraintStart_toEndOf="@id/tvCountryLabel"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvCountryLabel"
             tools:text="United States, United States, United States,United States" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cardData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -84,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="@string/card_value"
+                android:text="@string/card_value2"
                 android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -97,8 +94,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="4dp"
                 android:maxLines="2"
-                android:textSize="14sp"
                 android:text="@{viewModel.cardValue}"
+                android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvCardValueHeaderTitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvCardValueHeaderTitle"
@@ -122,8 +119,8 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:maxLines="2"
-                android:textSize="14sp"
                 android:text="@{viewModel.quantity != null ? @plurals/cards(viewModel.quantity, viewModel.quantity) : 0}"
+                android:textSize="14sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvQuantityLabel"
                 app:layout_constraintStart_toEndOf="@id/tvQuantityLabel"
                 tools:text="5 cards" />
@@ -154,6 +151,5 @@
                 tools:text="Does not expire " />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

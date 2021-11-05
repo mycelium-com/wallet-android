@@ -7,6 +7,10 @@ import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel
+import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
+import com.mycelium.wapi.wallet.coins.toAssetInfo
 import java.math.BigDecimal
 
 
@@ -17,11 +21,12 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
     val minerFeeCrypto = MutableLiveData("")
     val more = MutableLiveData(true)
     val moreText = Transformations.map(more) {
-        if (it) {
-            "Show transaction details >"
-        } else {
-            "Show transaction details (hide)"
-        }
+        WalletApplication.getInstance().getString(
+                if (it) {
+                    R.string.show_transaction_details
+                } else {
+                    R.string.show_transaction_details_hide
+                })
     }
 
 
@@ -45,6 +50,7 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
         cardValue.value = "${cardAmount.stripTrailingZeros().toPlainString()} ${orderResponse.currencyCode}"
         quantity.value = orderResponse.quantity?.toInt() ?: 0
         totalAmountFiatString.value = "${orderResponse.amount?.toBigDecimal()?.times(orderResponse.quantity!!)} ${orderResponse.currencyCode}"
-        totalAmountCryptoString.value = "${orderResponse.amountExpectedFrom} ${orderResponse.currencyFromInfo?.name?.toUpperCase()}"
+        totalAmountCryptoString.value = orderResponse.currencyFromInfo?.name?.toAssetInfo()
+                ?.value(orderResponse.amountExpectedFrom ?: "")?.toStringFriendlyWithUnit()
     }
 }

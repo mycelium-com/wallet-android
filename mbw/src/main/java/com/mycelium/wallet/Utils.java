@@ -1159,7 +1159,7 @@ public class Utils {
          }
       }
       for (CryptoCurrency coin : CoinsKt.getCOINS().values()) {
-         if (coin.getName().equals(name)) {
+         if (coin.getName().equals(name) || coin.getSymbol().equals(name)) {
             return coin;
          }
       }

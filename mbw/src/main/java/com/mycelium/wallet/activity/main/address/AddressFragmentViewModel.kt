@@ -23,6 +23,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     }
 
     fun getAccountLabel() = model.accountLabel
+    fun isSyncError() = model.isSyncError
     fun getAccountAddress() = model.accountAddress
     fun getAddressPath() = model.addressPath
     fun isCompressedKey() = model.isCompressedKey

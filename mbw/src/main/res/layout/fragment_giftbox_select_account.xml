@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="120dp"
             android:gravity="center"
-            android:text="No funds"
+            android:text="@string/no_funds"
             android:textSize="22dp" />
 
         <TextView
@@ -51,7 +51,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:gravity="center"
-            android:text="You don’t have any BTC or ETH accounts with funds. Please top-up any of your BTC or ETH account and try again."
+            android:text="@string/you_dont_have_btc_or_eth_accounts_with_funds"
             android:textSize="14dp" />
 
         <Button

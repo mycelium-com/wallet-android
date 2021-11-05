@@ -11,7 +11,10 @@ import com.mycelium.giftbox.common.DescriptionViewModel
 
 class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
     override val description = MutableLiveData<String>()
-    override val more = MutableLiveData<Boolean>(false)
+    override val more = MutableLiveData(false)
+    override val moreVisible = MutableLiveData(false)
+    override val termsLink = MutableLiveData<String?>()
+    override val redeemInstruction = MutableLiveData<String?>()
 
     val amount = MutableLiveData<String>()
     val country = MutableLiveData<String>()
@@ -24,6 +27,8 @@ class GiftBoxStoreDetailsViewModel : ViewModel(), DescriptionViewModel {
         productInfo.value = product
         description.value = product?.description
         currency.value = product?.currencyCode
+        termsLink.value = product?.termsAndConditionsPdfUrl
+        redeemInstruction.value = product?.redeemInstructionsHtml
         country.value = product?.countries?.mapNotNull {
             CountriesSource.countryModels.find { model -> model.acronym.equals(it, true) }
         }?.joinToString { it.name }

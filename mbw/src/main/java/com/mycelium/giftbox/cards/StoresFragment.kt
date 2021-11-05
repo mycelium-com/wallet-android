@@ -4,31 +4,37 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
+import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.StoresViewModel
 import com.mycelium.giftbox.client.GitboxAPI
+import com.mycelium.giftbox.common.ListState
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
+import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Job
 
 
 class StoresFragment : Fragment() {
-
     private val adapter = StoresAdapter()
     private val viewModel: StoresViewModel by viewModels()
     private val activityViewModel: GiftBoxViewModel by activityViewModels()
@@ -44,6 +50,10 @@ class StoresFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateCategories(activityViewModel.categories.value ?: listOf())
+        viewModel.category?.let {
+            getTab(it, binding?.tags!!)?.select()
+        }
         binding?.tags?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
@@ -57,19 +67,7 @@ class StoresFragment : Fragment() {
             }
         })
         activityViewModel.categories.observe(viewLifecycleOwner) { categories ->
-            binding?.tags?.let { tags ->
-                categories.forEach {
-                    if (getTab(it, tags) == null) {
-                        val tab = tags.newTab().setCustomView(
-                                ItemGiftBoxTagBinding.inflate(layoutInflater).apply {
-                                    this.text.text = it.replace("-", " ").capitalize()
-                                }.root)
-                        tab.tag = it
-                        tags.addTab(tab)
-                    }
-                }
-                cleanTabs(categories, tags)
-            }
+            updateCategories(categories)
         }
         binding?.list?.adapter = adapter
         binding?.list?.itemAnimator = null
@@ -85,18 +83,39 @@ class StoresFragment : Fragment() {
                 loadData(viewModel.products.size.toLong())
             }
 
-            override fun isLastPage() = viewModel.productsSize <= viewModel.products.size
+            override fun isLastPage() = viewModel.productsSize.value ?: 0 <= viewModel.products.size
 
-            override fun isLoading() = viewModel.loading.value?:false
+            override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
-        viewModel.search.observe(viewLifecycleOwner) {
-            loadData()
+        binding?.searchInput?.doOnTextChanged { _, _, _, _ ->
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                loadData()
+            }
         }
         binding?.searchClose?.setOnClickListener {
             viewModel.search.value = null
             hideKeyboard()
         }
-        loadData()
+        if (viewModel.products.isEmpty()) {
+            loadData()
+        }
+        MbwManager.getEventBus().register(this)
+    }
+
+    private fun updateCategories(categories: List<String>) {
+        binding?.tags?.let { tags ->
+            categories.forEach {
+                if (getTab(it, tags) == null) {
+                    val tab = tags.newTab().setCustomView(
+                            ItemGiftBoxTagBinding.inflate(layoutInflater).apply {
+                                this.text.text = it.replace("-", " ").capitalize()
+                            }.root)
+                    tab.tag = it
+                    tags.addTab(tab)
+                }
+            }
+            cleanTabs(categories, tags)
+        }
     }
 
     private fun hideKeyboard() {
@@ -104,17 +123,17 @@ class StoresFragment : Fragment() {
                 .hideSoftInputFromWindow(binding?.searchInput?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
-    private var productsJob : Job? = null
+    private var productsJob: Job? = null
     private fun loadData(offset: Long = -1) {
         if (offset == -1L) {
             adapter.submitList(List(8) { StoresAdapter.LOADING_ITEM })
             productsJob?.cancel()
-        } else if (offset >= viewModel.productsSize) {
+        } else if (offset >= viewModel.productsSize.value ?: 0) {
             return
         } else {
             adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
         }
-        viewModel.loading.value = true
+        viewModel.state.value = ListState.LOADING
         productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
                 search = viewModel.search.value,
                 category = viewModel.category,
@@ -130,14 +149,14 @@ class StoresFragment : Fragment() {
                     adapter.submitList(viewModel.products)
                 },
                 error = { _, msg ->
+                    adapter.submitList(listOf())
+                    viewModel.state.value = ListState.ERROR
                     Toaster(this).toast(msg, true)
-                },
-                finally = {
-                    viewModel.loading.value = false
                 })
     }
 
     override fun onDestroyView() {
+        MbwManager.getEventBus().unregister(this)
         binding?.list?.clearOnScrollListeners()
         binding = null
         super.onDestroyView()
@@ -158,5 +177,10 @@ class StoresFragment : Fragment() {
                 tabLayout.removeTab(tabLayout.getTabAt(i)!!)
             }
         }
+    }
+
+    @Subscribe
+    internal fun updateOrder(request: RefreshOrdersRequest) {
+        loadData()
     }
 }
