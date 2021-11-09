@@ -21,6 +21,7 @@ import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.Order
+import com.mycelium.giftbox.common.ListState
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -52,7 +53,7 @@ class OrdersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.noResultTitle?.text = getString(R.string.no_purchased_order)
-        binding?.noResultText?.text = getString(R.string.no_gift_cards_linked)
+        binding?.noResultText?.text = getString(R.string.no_order_linked)
         binding?.list?.adapter = adapter
         binding?.list?.addItemDecoration(
                 DividerItemDecoration(
@@ -67,7 +68,7 @@ class OrdersFragment : Fragment() {
 
             override fun isLastPage() = viewModel.orders.value?.size ?: 0 <= viewModel.ordersSize.value ?: 0
 
-            override fun isLoading() = viewModel.loading.value ?: false
+            override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionOrderDetails(null, null, null, null, null, null, null, it))
@@ -98,15 +99,15 @@ class OrdersFragment : Fragment() {
                 adapter.submitList(adapter.currentList + PurchasedLoadingItem)
             }
         }
-        viewModel.loading.value = true
+        viewModel.state.value = ListState.LOADING
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
         }, error = { _, msg ->
             adapter.submitList(listOf())
+            viewModel.state.value = ListState.ERROR
             Toaster(this).toast(msg, true)
         }, finally = {
-            viewModel.loading.value = false
             activityViewModel.orderLoading.value = false
         })
     }
