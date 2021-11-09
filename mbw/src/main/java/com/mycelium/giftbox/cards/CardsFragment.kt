@@ -53,7 +53,7 @@ class CardsFragment : Fragment() {
                 )
         )
         binding?.noResultTitle?.text = getString(R.string.no_purchased_gift_card)
-        binding?.noResultText?.text = getString(R.string.no_order_linked)
+        binding?.noResultText?.text = getString(R.string.no_gift_cards_linked)
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionCardDetails(it))
         }
