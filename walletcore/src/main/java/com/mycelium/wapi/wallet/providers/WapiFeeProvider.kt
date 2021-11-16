@@ -19,7 +19,7 @@ abstract class WapiFeeProvider(private val wapi: Wapi, private val feeBacking: F
         // we try to get fee estimation from server
         estimation = withContext(Dispatchers.IO) {
             try {
-                val response = wapi.minerFeeEstimations
+                val response = wapi.getMinerFeeEstimations()
                 val oldStyleFeeEstimation = response.result.feeEstimation
                 fun convert(blocks: Int): Value {
                     val estimate = oldStyleFeeEstimation.getEstimation(blocks)
