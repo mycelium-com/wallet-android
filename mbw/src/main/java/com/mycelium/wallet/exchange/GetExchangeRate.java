@@ -84,7 +84,7 @@ public class GetExchangeRate {
                 targetPrice = BigDecimal.valueOf(targetExchangeRate.price);
             }
         }
-        if(sourcePrice == null && targetPrice ==null) {
+        if (sourcePrice == null && targetPrice == null) {
             priceAccross(Utils.getBtcCoinType().getSymbol());
         }
         return this;
