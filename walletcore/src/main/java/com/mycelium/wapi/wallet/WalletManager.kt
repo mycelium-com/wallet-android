@@ -153,8 +153,8 @@ constructor(val network: NetworkParameters,
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) : Boolean {
         if (isNetworkConnected) {
             feeEstimations.triggerRefresh()
-            Thread(Synchronizer(this, mode, accounts)).start()
         }
+        Thread(Synchronizer(this, mode, accounts)).start()
         return isNetworkConnected
     }
 
