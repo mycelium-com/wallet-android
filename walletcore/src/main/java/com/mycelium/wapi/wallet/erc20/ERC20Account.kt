@@ -45,7 +45,7 @@ class ERC20Account(private val chainId: Byte,
         val inputData = getInputData(address.toString(), amount.value)
         val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
-        if (calculateMaxSpendableAmount(null, null) < amount) {
+        if (calculateMaxSpendableAmount(fee.feePerKb, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
@@ -103,17 +103,20 @@ class ERC20Account(private val chainId: Byte,
         }
     }
 
-    override fun getCoinType() = token
+    override val coinType: ERC20Token
+        get() = token
 
-    override fun getBasedOnCoinType() = accountContext.currency
+    override val basedOnCoinType
+        get() = accountContext.currency
 
-    override fun getAccountBalance() = readBalance()
+    override val accountBalance: Balance
+        get() = readBalance()
 
-    override fun getLabel(): String = accountContext.accountName
-
-    override fun setLabel(label: String?) {
-        accountContext.accountName = label!!
-    }
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
+        }
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
@@ -134,9 +137,11 @@ class ERC20Account(private val chainId: Byte,
 
     override fun getBlockChainHeight() = accountContext.blockHeight
 
-    override fun isArchived() = accountContext.archived
+    override val isArchived: Boolean
+        get() = accountContext.archived
 
-    override fun isActive() = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
     override fun archiveAccount() {
         accountContext.archived = true
@@ -157,18 +162,19 @@ class ERC20Account(private val chainId: Byte,
 
     override fun isDerivedFromInternalMasterseed() = false
 
-    override fun getId(): UUID = accountContext.uuid
+    override val id: UUID
+        get() = accountContext.uuid
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: EthAddress?): Value =
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?): Value =
             accountBalance.spendable
 
-    override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
+    override val syncTotalRetrievedTransactions = 0 // TODO implement after full transaction history implementation
 
-    override fun getTypicalEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
+    override val typicalEstimatedTransactionSize = Transfer.GAS_LIMIT.toInt()
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

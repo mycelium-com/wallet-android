@@ -19,7 +19,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
  * Model for the account item on the accounts tab.
  */
 class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManager?) : AccountListItem, SyncStatusItem {
-    val accountId = account.id!!
+    val accountId = account.id
     val accountType = account::class.java
     val coinType = account.coinType
     val isActive = account.isActive
@@ -29,7 +29,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
     var showBackupMissingWarning = mbwManager != null && showBackupMissingWarning(account, mbwManager)
     var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
-    val isSyncing = account.isSyncing
+    val isSyncing = account.isSyncing()
     override var isSyncError = account.lastSyncStatus()?.status == SyncStatus.ERROR
     // if need key count for other classes add count logic
     val privateKeyCount = if (account is HDAccount) account.getPrivateKeyCount() else -1
@@ -113,7 +113,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
 
             var showBackupMissingWarning = false
             if (account.canSpend()) {
-                showBackupMissingWarning = if (account.isDerivedFromInternalMasterseed) {
+                showBackupMissingWarning = if (account.isDerivedFromInternalMasterseed()) {
                     mbwManager.metadataStorage.masterSeedBackupState != MetadataStorage.BackupState.VERIFIED
                 } else {
                     val backupState = mbwManager.metadataStorage.getOtherAccountBackupState(account.id)

@@ -178,7 +178,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          return false;
       }
       checkNotArchived();
-      syncTotalRetrievedTransactions = 0;
+      syncTotalRetrievedTxs = 0;
       try {
          if (synchronizeUnspentOutputs(_addressList) == -1) {
             return false;
@@ -210,7 +210,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          _context.persistIfNecessary(_backing);
          return true;
       } finally {
-         syncTotalRetrievedTransactions = 0;
+         syncTotalRetrievedTxs = 0;
       }
    }
 

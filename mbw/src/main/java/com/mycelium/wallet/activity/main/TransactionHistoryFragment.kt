@@ -440,7 +440,8 @@ class TransactionHistoryFragment : Fragment() {
                                     .setTitle(R.string.share_transaction_manually_title)
                                     .setMessage(R.string.share_transaction_manually_description)
                                     .setPositiveButton(R.string.yes) { dialog, _ ->
-                                        val transaction = HexUtils.toHex(model.account.value!!.getTx(record.id).txBytes())
+                                        // TODO refactor: exit dialog if getTx() returns null
+                                        val transaction = HexUtils.toHex(model.account.value!!.getTx(record.id)!!.txBytes())
                                         val shareIntent = Intent(Intent.ACTION_SEND)
                                         shareIntent.type = "text/plain"
                                         shareIntent.putExtra(Intent.EXTRA_TEXT, transaction)
@@ -588,8 +589,8 @@ class TransactionHistoryFragment : Fragment() {
      * TODO: consider parallel attempts to PFP
      */
     private fun tryCreateBumpTransaction(txid: Sha256Hash, feePerKB: Long): UnsignedTransaction? {
-        val transaction = model.account.value!!.getTxSummary(txid.bytes)
-        val txFee = transaction.inputs.map { it.value.valueAsLong }.sum() -
+        val transaction = model.account.value!!.getTxSummary(txid.bytes) // TODO refactor: return if getTxSummary() returns null
+        val txFee = transaction!!.inputs.map { it.value.valueAsLong }.sum() -
                 transaction.outputs.map { it.value.valueAsLong }.sum()
         if (txFee * 1000 / transaction.rawSize >= feePerKB) {
             Toaster(requireActivity()).toast(resources.getString(R.string.bumping_not_necessary), false)

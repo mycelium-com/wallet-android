@@ -36,7 +36,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     walletManager.getAllActiveAccounts()
                 } else {
                     accounts.filterNotNull().filter { it.isActive }
-                }.filter { !it.isSyncing }
+                }.filter { !it.isSyncing() }
                 runSync(list)
             }
         } finally {

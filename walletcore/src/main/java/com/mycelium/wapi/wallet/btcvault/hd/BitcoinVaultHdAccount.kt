@@ -85,24 +85,30 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             return addresses
         }
 
-    override fun getId(): UUID = accountContext.id
+    override val id: UUID
+        get() = accountContext.id
 
-    override fun isArchived(): Boolean = accountContext.isArchived()
+    override val isArchived: Boolean
+        get() = accountContext.isArchived()
 
-    override fun isActive(): Boolean = !accountContext.isArchived()
+    override val isActive: Boolean
+        get() = !accountContext.isArchived()
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         val btcTx: BtcvTransaction = tx as BtcvTransaction
         return broadcastTransaction(btcTx.tx!!)
     }
 
-    override fun getReceiveAddress(): BtcvAddress? = receivingAddressMap[accountContext.defaultAddressType]
+    override val receiveAddress: BtcvAddress?
+        get() = receivingAddressMap[accountContext.defaultAddressType]
 
     fun getReceiveAddress(addressType: AddressType): BtcvAddress? = receivingAddressMap[addressType]
 
-    override fun getCoinType(): CryptoCurrency = accountContext.currency
+    override val coinType: CryptoCurrency
+        get() = accountContext.currency
 
-    override fun getBasedOnCoinType(): CryptoCurrency = accountContext.currency
+    override val basedOnCoinType: CryptoCurrency
+        get() = accountContext.currency
 
     override fun isMineAddress(address: Address?): Boolean {
         return try {
@@ -126,7 +132,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         val result = wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
         if (!maySync) { return emptySet() }
-        blockChainHeight = result.height
+        setBlockChainHeight(result.height)
         val ids = result.txIds
         if (ids.isEmpty()) {
             // nothing found
@@ -162,11 +168,11 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }.toSet()
     }
 
-    override fun getLabel(): String = accountContext.accountName
-
-    override fun setLabel(label: String) {
-        accountContext.accountName = label
-    }
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
+        }
 
     @Synchronized
     override fun doSynchronization(proposedMode: SyncMode): Boolean {
@@ -391,7 +397,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         return null
     }
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         // This method should NOT be called for HD account since it has more than one private key
         throw RuntimeException("Calling getPrivateKey() is not supported for HD account")
     }
@@ -713,7 +719,8 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         return derivePaths.any { accountContext.getLastExternalIndexWithActivity(it) != -1 }
     }
 
-    override fun getDummyAddress(): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters)
+    override val dummyAddress: BtcvAddress
+        get() = BtcvAddress.getNullAddress(coinType, networkParameters)
 
     override fun getDummyAddress(subType: String): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters, AddressType.valueOf(subType))
 

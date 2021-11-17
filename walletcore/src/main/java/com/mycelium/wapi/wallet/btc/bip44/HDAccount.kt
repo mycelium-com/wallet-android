@@ -91,13 +91,16 @@ open class HDAccount(
         initSafeLastIndexes(false)
     }
 
-    override fun getId() = context.id
+    override val id: UUID
+        get() = context.id
 
     // public method that needs no synchronization
-    override fun isArchived() = context.isArchived()
+    override val isArchived: Boolean
+        get() = context.isArchived()
 
     // public method that needs no synchronization
-    override fun isActive() = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
     override fun archiveAccount() {
         if (context.isArchived()) {
@@ -298,7 +301,7 @@ open class HDAccount(
         }
         var mode = proposedMode
         checkNotArchived()
-        syncTotalRetrievedTransactions = 0
+        syncTotalRetrievedTxs = 0
         _logger.log(Level.INFO, "Starting sync: $mode")
         if (needsDiscovery()) {
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
@@ -316,7 +319,7 @@ open class HDAccount(
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } finally {
-            syncTotalRetrievedTransactions = 0
+            syncTotalRetrievedTxs = 0
         }
     }
 
@@ -386,7 +389,7 @@ open class HDAccount(
                     addCancelableRequest(this)
                 }).result
         if (!maySync) { return emptySet() }
-        blockChainHeight = result.height
+        setBlockChainHeight(result.height)
         val ids = result.txIds
         if (ids.isEmpty()) {
             // nothing found
@@ -791,7 +794,7 @@ open class HDAccount(
     }
 
     @Throws(InvalidKeyCipher::class)
-    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey? {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         // This method should NOT be called for HD account since it has more than one private key
         throw RuntimeException("Calling getPrivateKey() is not supported for HD account")
     }

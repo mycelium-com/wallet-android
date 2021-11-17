@@ -118,7 +118,7 @@ constructor(val network: NetworkParameters,
                     val account = it.createAccount(config)
                     result[account.id] = account
 
-                    account.dependentAccounts?.forEach { walletAccount ->
+                    account.dependentAccounts.forEach { walletAccount ->
                         result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){

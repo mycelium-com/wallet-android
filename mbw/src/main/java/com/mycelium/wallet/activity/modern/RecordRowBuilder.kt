@@ -188,7 +188,7 @@ class RecordRowBuilder(private val mbwManager: MbwManager, private val resources
                 return false
             }
             return if (account.canSpend()) {
-                if (account.isDerivedFromInternalMasterseed) {
+                if (account.isDerivedFromInternalMasterseed()) {
                     mbwManager.metadataStorage.masterSeedBackupState !== BackupState.VERIFIED
                 } else {
                     val backupState = mbwManager.metadataStorage.getOtherAccountBackupState(account.id)

@@ -113,7 +113,7 @@ class SendInitializationActivity : Activity() {
         if (isFinishing) {
             return
         }
-        if (account.isSyncing && (account.coinType.isUtxosBased || isColdStorage)) {
+        if (account.isSyncing() && (account.coinType.isUtxosBased || isColdStorage)) {
             // wait till its finished syncing
             // no need wait for non utxo's based accounts
             return

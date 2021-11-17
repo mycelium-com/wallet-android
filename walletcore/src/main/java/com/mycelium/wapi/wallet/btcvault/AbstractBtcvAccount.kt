@@ -214,7 +214,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         }
         val remoteUnspent = unspentOutputResponse.unspent
         // Store the current block height
-        blockChainHeight = unspentOutputResponse.height
+        setBlockChainHeight(unspentOutputResponse.height)
         // Make a map for fast lookup
         val remoteMap = toMap(remoteUnspent)
 
@@ -568,7 +568,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
             }
         }
         return BalanceSatoshis(confirmed, pendingReceiving, pendingSending, pendingChange, System.currentTimeMillis(),
-                blockChainHeight, true, allowZeroConfSpending)
+                               getBlockChainHeight(), true, allowZeroConfSpending)
     }
 
     abstract fun toBtcvAddress(bitcoinAddress: BitcoinAddress): BtcvAddress
@@ -683,7 +683,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         checkNotArchived()
         val list = accountBacking.getTransactionHistory(offset, limit)
         for (tex in list) {
-            val item = transform(tex, blockChainHeight)
+            val item = transform(tex, getBlockChainHeight())
             if (item != null) {
                 history.add(item)
             }
@@ -872,7 +872,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
             // we remove all outputs that don't cover their costs (dust)
             // coinbase outputs are not spendable and this should not be overridden
             // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
-            if (!skipDustCheck && output.value < satDustOutput || output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS
+            if (!skipDustCheck && output.value < satDustOutput || output.isCoinBase && getBlockChainHeight() - output.height < COINBASE_MIN_CONFIRMATIONS
                     || !allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
                 it.remove()
             }
@@ -884,7 +884,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
     protected abstract fun getChangeAddress(vararg destinationAddresses: BtcvAddress): BtcvAddress
 
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcvAddress?): Value? {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcvAddress?): Value {
         checkNotArchived()
         val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.valueAsLong))
         var satoshis: Long = 0
@@ -1046,7 +1046,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
             // might change right when we make a copy
             val b = cachedBalance
             return if (b != null) BalanceSatoshis(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
-                    b.blockHeight, isSyncing, b.allowsZeroConfSpending) else BalanceSatoshis(0, 0, 0, 0, 0, 0, isSyncing, false)
+                    b.blockHeight, isSyncing(), b.allowsZeroConfSpending) else BalanceSatoshis(0, 0, 0, 0, 0, 0, isSyncing(), false)
         }
 
     /**
@@ -1152,13 +1152,13 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                             if (it.height == -1) {
                                 0
                             } else {
-                                max(0, blockChainHeight - it.height + 1)
+                                max(0, getBlockChainHeight() - it.height + 1)
                             },
                             script?.getAddress(network) ?: dummyAddress)
                 }.sorted()
 
     protected fun monitorYoungTransactions(): Boolean {
-        val list = accountBacking.getYoungTransactions(5, blockChainHeight)
+        val list = accountBacking.getYoungTransactions(5, getBlockChainHeight())
         if (list.isEmpty()) {
             return true
         }
@@ -1390,7 +1390,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         confirmations = if (tex.height == -1) {
             0
         } else {
-            max(0, blockChainHeight - tex.height + 1)
+            max(0, getBlockChainHeight() - tex.height + 1)
         }
         val isQueuedOutgoing = accountBacking.isOutgoingTransaction(tx.id)
         return com.mycelium.wapi.wallet.TransactionSummary(coinType, tx.id.bytes, tx.hash.bytes, valueOf(coinType, satoshisTransferred), tex.time.toLong(), tex.height,
@@ -1398,25 +1398,28 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 tx.vsize(), valueOf(coinType, abs(satoshisReceived - satoshisSent)))
     }
 
-    override fun getCoinType(): CryptoCurrency =
-            if (network.isProdnet) BitcoinVaultMain else BitcoinVaultTest
+    override val coinType: CryptoCurrency
+        get() = if (network.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
-    override fun getBasedOnCoinType(): CryptoCurrency = coinType
+    override val basedOnCoinType: CryptoCurrency
+        get() = coinType
 
-    override fun getAccountBalance(): Balance = Balance(
+    override val accountBalance: Balance
+        get() = Balance(
             valueOf(coinType, cachedBalance!!.confirmed),
             valueOf(coinType, cachedBalance!!.pendingReceiving),
             valueOf(coinType, cachedBalance!!.pendingSending),
             valueOf(coinType, cachedBalance!!.pendingChange))
 
-    override fun getSyncTotalRetrievedTransactions(): Int = syncTotalRetrievedTxs
+    override val syncTotalRetrievedTransactions: Int
+        get() = syncTotalRetrievedTxs
 
     fun updateSyncProgress() {
         postEvent(WalletManager.Event.SYNC_PROGRESS_UPDATED)
     }
 
-    override fun getTypicalEstimatedTransactionSize(): Int =
-            FeeEstimatorBuilder().setLegacyInputs(1)
+    override val typicalEstimatedTransactionSize: Int
+        get() = FeeEstimatorBuilder().setLegacyInputs(1)
                     .setLegacyOutputs(2)
                     .createFeeEstimator().estimateTransactionSize()
 

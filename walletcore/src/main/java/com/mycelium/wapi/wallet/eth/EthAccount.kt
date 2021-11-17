@@ -80,7 +80,7 @@ class EthAccount(private val chainId: Byte,
         return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
     }
 
-    override fun signTx(request: Transaction, keyCipher: KeyCipher?) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val rawTransaction = (request as EthTransaction).run {
             RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, ethValue.value,
                     inputData)
@@ -109,15 +109,14 @@ class EthAccount(private val chainId: Byte,
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
-    override fun getCoinType() = accountContext.currency
+    override val coinType
+        get() = accountContext.currency
 
-    override fun getBasedOnCoinType() = coinType
+    override val basedOnCoinType
+        get() = coinType
 
-    override fun getAccountBalance() = accountContext.balance
-
-    override fun setLabel(label: String?) {
-        accountContext.accountName = label!!
-    }
+    override val accountBalance
+        get() = accountContext.balance
 
     override fun getNonce() = accountContext.nonce
 
@@ -222,7 +221,8 @@ class EthAccount(private val chainId: Byte,
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId(): UUID = credentials?.ecKeyPair?.toUUID()
+    override val id: UUID
+        get() = credentials?.ecKeyPair?.toUUID()
             ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
     override fun broadcastOutgoingTransactions() = true
@@ -232,7 +232,11 @@ class EthAccount(private val chainId: Byte,
         return max(spendable, Value.zeroValue(coinType))
     }
 
-    override fun getLabel() = accountContext.accountName
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
+        }
 
     override fun getBlockChainHeight() = accountContext.blockHeight
 
@@ -240,13 +244,14 @@ class EthAccount(private val chainId: Byte,
         accountContext.blockHeight = height
     }
 
-    override fun isArchived() = accountContext.archived
+    override val isArchived
+        get() = accountContext.archived
 
-    override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
+    override val syncTotalRetrievedTransactions: Int = 0 // TODO implement after full transaction history implementation
 
-    override fun getTypicalEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
+    override val typicalEstimatedTransactionSize = Transfer.GAS_LIMIT.toInt()
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

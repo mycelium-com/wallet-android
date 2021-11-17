@@ -190,10 +190,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         return FioTransaction(coinType, address.toString(), amount, fee.feePerKb)
     }
 
-    override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
     }
 
-    override fun broadcastTx(tx: Transaction?): BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         val fioTx = tx as FioTransaction
         return try {
             val response = getFioSdk()!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.value)
@@ -218,23 +218,27 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
     }
 
-    override fun getReceiveAddress(): FioAddress = receivingAddress
+    override val receiveAddress: FioAddress
+        get() = receivingAddress
 
-    override fun getCoinType(): CryptoCurrency = accountContext.currency
+    override val coinType: CryptoCurrency
+        get() = accountContext.currency
 
-    override fun getBasedOnCoinType(): CryptoCurrency = coinType
+    override val basedOnCoinType: CryptoCurrency
+        get() = coinType
 
-    override fun getAccountBalance(): Balance = accountContext.balance
+    override val accountBalance: Balance
+        get() = accountContext.balance
 
     override fun isMineAddress(address: Address?): Boolean = address == receiveAddress
 
     override fun isExchangeable(): Boolean = true
 
-    override fun getTx(transactionId: ByteArray?): Transaction {
+    override fun getTx(transactionId: ByteArray): Transaction? {
         TODO("Not yet implemented")
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
+    override fun getTxSummary(transactionId: ByteArray): TransactionSummary? =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
     fun getRequestsGroups() = backing.getRequestsGroups()
@@ -263,15 +267,13 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         return mutableListOf()
     }
 
-    override fun getLabel(): String = accountContext.accountName
-
-    override fun setLabel(label: String?) {
-        label?.let {
-            accountContext.accountName = it
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
         }
-    }
 
-    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false
+    override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
@@ -507,9 +509,11 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isSyncing(): Boolean = syncing
 
-    override fun isArchived(): Boolean = accountContext.archived
+    override val isArchived: Boolean
+        get() = accountContext.archived
 
-    override fun isActive(): Boolean = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
     override fun archiveAccount() {
         accountContext.archived = true
@@ -530,34 +534,32 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isDerivedFromInternalMasterseed(): Boolean = accountContext.accountType == FioAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
-    override fun getId(): UUID = accountContext.uuid
+    override val id: UUID
+        get() = accountContext.uuid
 
     override fun broadcastOutgoingTransactions(): Boolean = true
 
     override fun removeAllQueuedTransactions() {
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: FioAddress?): Value {
-        val spendableWithFee = accountBalance.spendable - (minerFeePerKilobyte
-                ?: Value.zeroValue(coinType))
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: FioAddress?): Value {
+        val spendableWithFee = accountBalance.spendable - minerFeePerKilobyte
         return if (spendableWithFee.isNegative()) Value.zeroValue(coinType) else spendableWithFee
     }
 
-    override fun getSyncTotalRetrievedTransactions(): Int = 0
+    override val syncTotalRetrievedTransactions: Int = 0
 
-    override fun getTypicalEstimatedTransactionSize(): Int = 0
+    override val typicalEstimatedTransactionSize: Int = 0
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("Not yet implemented")
     }
 
-    override fun getDummyAddress(): FioAddress = FioAddress(coinType, FioAddressData(""))
+    override val dummyAddress: FioAddress = FioAddress(coinType, FioAddressData(""))
 
-    override fun getDummyAddress(subType: String?): FioAddress = dummyAddress
+    override fun getDummyAddress(subType: String): FioAddress = dummyAddress
 
-    override fun getDependentAccounts(): MutableList<WalletAccount<Address>> {
-        return mutableListOf()
-    }
+    override val dependentAccounts: List<WalletAccount<Address>> = emptyList()
 
     override fun queueTransaction(transaction: Transaction) {
         TODO("Not yet implemented")

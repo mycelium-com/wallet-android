@@ -78,7 +78,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         // TODO("not implemented")
     }
 
-    override fun isSpendingUnconfirmed(tx: Transaction?) = false
+    override fun isSpendingUnconfirmed(tx: Transaction) = false
 
     override fun queueTransaction(transaction: Transaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -88,23 +88,25 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getReceiveAddress() = receivingAddress
+    override val receiveAddress
+        get() = receivingAddress
 
-    override fun getDummyAddress() = EthAddress.getDummyAddress(coinType)
+    override val dummyAddress = EthAddress.getDummyAddress(coinType)
 
-    override fun getDummyAddress(subType: String?): EthAddress = dummyAddress
+    override fun getDummyAddress(subType: String): EthAddress = dummyAddress
 
-    override fun getDependentAccounts() = emptyList<WalletAccount<Address>>()
+    override val dependentAccounts
+        get() = emptyList<WalletAccount<Address>>()
 
     override fun isMineAddress(address: Address?) = address == receivingAddress
 
     override fun isExchangeable() = true
 
-    override fun getTx(transactionId: ByteArray?): Transaction {
+    override fun getTx(transactionId: ByteArray): Transaction? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
+    override fun getTxSummary(transactionId: ByteArray): TransactionSummary? =
             backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)!!
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
@@ -121,13 +123,14 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     override fun isSyncing() = syncing
 
-    override fun isActive() = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
     private fun updateBlockHeight() {
         try {
             val latestBlockHeight = blockchainService.getBlockHeight()
 
-            blockChainHeight = latestBlockHeight.toInt()
+            setBlockChainHeight(latestBlockHeight.toInt())
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error synchronizing ETH/ERC-20, ${e.localizedMessage}")
         }

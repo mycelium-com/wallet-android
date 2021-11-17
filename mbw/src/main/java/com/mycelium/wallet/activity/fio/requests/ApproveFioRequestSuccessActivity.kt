@@ -73,14 +73,14 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         val txid = intent.getByteArrayExtra(TXID)
         btNextButton.setOnClickListener { finish() }
         try {
-            if (txid.isEmpty()) {
+            if (txid?.isNotEmpty() != true) {
                 if (date != -1L) {
                     tvDate.text = getDateString(date)
                 }
                 tvTxDetailsLink.isVisible = false
             } else {
-                val txTimestamp = account!!.getTxSummary(txid).timestamp
-                tvDate.text = getDateString(txTimestamp)
+                val txTimestamp = account!!.getTxSummary(txid)?.timestamp
+                tvDate.text = getDateString(txTimestamp!!)
                 tvTxDetailsLink.setOnClickListener {
                     val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
                             .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)

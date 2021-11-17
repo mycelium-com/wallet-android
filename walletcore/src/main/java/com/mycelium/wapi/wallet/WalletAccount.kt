@@ -1,37 +1,30 @@
-package com.mycelium.wapi.wallet;
+package com.mycelium.wapi.wallet
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.BuildTransactionException;
-import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException;
-import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mycelium.wapi.wallet.coins.Balance
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.exceptions.*
+import java.util.*
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+interface WalletAccount<A : Address> : SyncPausable {
+    fun setAllowZeroConfSpending(b: Boolean)
 
-import java.util.List;
-import java.util.UUID;
+    @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
+    fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction
 
+    @Throws(InvalidKeyCipher::class)
+    fun signTx(request: Transaction, keyCipher: KeyCipher)
 
-public interface WalletAccount<A extends Address> extends SyncPausable {
-    void setAllowZeroConfSpending(boolean b);
-
-    Transaction createTx(Address address, Value amount, Fee fee, @Nullable TransactionData data)
-            throws BuildTransactionException, InsufficientFundsException, OutputTooSmallException;
-
-    void signTx(Transaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
-
-    BroadcastResult broadcastTx(Transaction tx) throws TransactionBroadcastException;
+    @Throws(TransactionBroadcastException::class)
+    fun broadcastTx(tx: Transaction): BroadcastResult
 
     /**
      * Get current receive address
      */
-    A getReceiveAddress();
-
-    CryptoCurrency getCoinType();
+    val receiveAddress: A?
+    val coinType: CryptoCurrency
 
     /**
      * Some assets could base on another assets. For example Colu protocol is implemented
@@ -39,9 +32,8 @@ public interface WalletAccount<A extends Address> extends SyncPausable {
      * By default, based on coin type returns same as getCoinType
      * @return coin type based on
      */
-    CryptoCurrency getBasedOnCoinType();
-
-    Balance getAccountBalance();
+    val basedOnCoinType: CryptoCurrency
+    val accountBalance: Balance
 
     /**
      * Determine whether an address is one of our own addresses
@@ -49,43 +41,36 @@ public interface WalletAccount<A extends Address> extends SyncPausable {
      * @param address the address to check
      * @return true iff this address is one of our own
      */
-    boolean isMineAddress(Address address);
-
-    boolean isExchangeable();
-
-    Transaction getTx(byte[] transactionId);
-
-    TransactionSummary getTxSummary(byte[] transactionId);
+    fun isMineAddress(address: Address?): Boolean
+    fun isExchangeable(): Boolean
+    fun getTx(transactionId: ByteArray): Transaction?
+    fun getTxSummary(transactionId: ByteArray): TransactionSummary?
 
     /**
      * @return transactions in reversed order (last added goes first)
      */
-    List<TransactionSummary> getTransactionSummaries(int offset, int limit);
+    fun getTransactionSummaries(offset: Int, limit: Int): List<TransactionSummary>
 
     /**
      * Get the transaction history of this account since the stated timestamp in milliseconds
      * @param receivingSince only include tx younger than this
      */
-    List<TransactionSummary> getTransactionsSince(long receivingSince);
-
-    List<OutputViewModel> getUnspentOutputViewModels();
-
-    String getLabel();
-
-    void setLabel(String label);
-
-    boolean isSpendingUnconfirmed(Transaction tx);
+    fun getTransactionsSince(receivingSince: Long): List<TransactionSummary>
+    fun getUnspentOutputViewModels(): List<OutputViewModel>
+    var label: String
+    fun isSpendingUnconfirmed(tx: Transaction): Boolean
 
     /**
      * Synchronize this account
-     * <p/>
+     *
+     *
      * This method should only be called from the wallet manager
      *
      * @param mode synchronization parameter
      * @return false if synchronization failed due to failed blockchain
      * connection
      */
-    boolean synchronize(SyncMode mode);
+    fun synchronize(mode: SyncMode?): Boolean
 
     /**
      * Get the block chain height as it were last time this account was
@@ -94,124 +79,128 @@ public interface WalletAccount<A extends Address> extends SyncPausable {
      * @return the block chain height as it were last time this account was
      * synchronized;
      */
-    int getBlockChainHeight();
+    fun getBlockChainHeight(): Int
 
     /**
      * Can this account be used for spending, or is it read-only?
      */
-    boolean canSpend();
+    fun canSpend(): Boolean
 
     /**
      * Can this account be used for signing messages?
      */
-    boolean canSign();
+    fun canSign(): Boolean
 
     /**
      * Get is account sync in progress
      */
-    boolean isSyncing();
+    fun isSyncing(): Boolean
 
     /**
      * Is this account archived?
-     * <p/>
+     *
+     *
      * An archived account is not tracked, and cannot be used until it has been
      * activated.
      */
-    boolean isArchived();
+    val isArchived: Boolean
 
     /**
      * Is this account active?
-     * <p/>
+     *
+     *
      * An account is active if it is not archived
      * It is tracked and can be used.
      */
-    boolean isActive();
+    val isActive: Boolean
 
     /**
      * Archive the account.
-     * <p/>
+     *
+     *
      * An archived account is no longer tracked or monitored, and you cannot get
      * the current balance or transaction history from it. An end user would
      * archive an account to reduce network latency, storage, and CPU
      * requirements. This is in particular important for HD accounts, which
      * monitor an ever increasing set of addresses.
-     * <p/>
+     *
+     *
      * An account that has been archived can always be unarchived without loss of
      * funds. When unarchiving the account needs to be synchronized.
-     * <p/>
+     *
+     *
      * This method has no effect if the account is archived already.
      */
-    void archiveAccount();
+    fun archiveAccount()
 
     /**
      * Activate an account.
-     * <p/>
+     *
+     *
      * This puts an account into the active state. Only active accounts are
      * monitored and can be used. When activating an account that was archived is
      * needs to be synchronized before it can be used.
-     * <p/>
+     *
+     *
      * This method has no effect if the account is already active.
      */
-    void activateAccount();
+    fun activateAccount()
 
     /**
      * In order to rescan an account.
-     * <p/>
+     *
+     *
      * This causes the locally cached data to be dropped.
      * BalanceSatoshis and transaction history will get deleted.
      * Data will be re-created upon next synchronize.
      */
-    void dropCachedData();
+    fun dropCachedData()
 
     /**
      * Is the account visible in UI
      */
-    boolean isVisible();
+    fun isVisible(): Boolean
 
     /**
      * Returns true, if this account is based on the internal masterseed.
      */
-    boolean isDerivedFromInternalMasterseed();
+    fun isDerivedFromInternalMasterseed(): Boolean
 
     /**
      * Returns account id
      */
-    UUID getId();
-
-    boolean broadcastOutgoingTransactions();
-
-    void removeAllQueuedTransactions();
+    val id: UUID
+    fun broadcastOutgoingTransactions(): Boolean
+    fun removeAllQueuedTransactions()
 
     /**
      * Determine the maximum spendable amount you can send in a transaction
      * Destination address can be null
      */
-    Value calculateMaxSpendableAmount(Value minerFeePerKilobyte, A destinationAddress);
+    fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: A?): Value
 
     /**
      * Returns the number of retrieved transactions during synchronization
      */
-    int getSyncTotalRetrievedTransactions();
-
-    int getTypicalEstimatedTransactionSize();
+    val syncTotalRetrievedTransactions: Int
+    val typicalEstimatedTransactionSize: Int
 
     /**
      * Returns the private key used by the account to sign transactions
      */
-    InMemoryPrivateKey getPrivateKey(KeyCipher cipher)  throws KeyCipher.InvalidKeyCipher;
-
-    A getDummyAddress();
-
-    A getDummyAddress(String subType);
-
-    List<WalletAccount> getDependentAccounts();
+    @Throws(InvalidKeyCipher::class)
+    fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey
+    val dummyAddress: A
+    fun getDummyAddress(subType: String): A
+    val dependentAccounts: List<WalletAccount<*>>
 
     /**
      * Queue a transaction for broadcasting.
-     * <p/>
+     *
+     *
      * The transaction is broadcast on next synchronization.
      *
      * @param transaction     an transaction
      */
-    void queueTransaction(@NotNull Transaction transaction);
+    fun queueTransaction(transaction: Transaction)
 }

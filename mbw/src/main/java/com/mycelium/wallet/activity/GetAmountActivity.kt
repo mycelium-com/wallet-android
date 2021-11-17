@@ -13,7 +13,6 @@ import android.view.Window
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -110,7 +109,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
                 ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress))
+            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress))
         }
 
         // if no amount is set, create an null amount with the correct currency

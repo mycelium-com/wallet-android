@@ -135,7 +135,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    private EventHandler _eventHandler;
    private final BtcAccountBacking _backing;
-   protected int syncTotalRetrievedTransactions = 0;
+   protected int syncTotalRetrievedTxs = 0;
 
    protected AbstractBtcAccount(BtcAccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
@@ -509,7 +509,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Store transaction locally
       if (!allKnown) {
          _backing.putTransactions(transactions);
-         syncTotalRetrievedTransactions += transactions.size();
+         syncTotalRetrievedTxs += transactions.size();
       }
 
       for (BitcoinTransaction t : txArray) {
@@ -1826,7 +1826,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    public int getSyncTotalRetrievedTransactions() {
-      return syncTotalRetrievedTransactions;
+      return syncTotalRetrievedTxs;
    }
 
    public void updateSyncProgress() {
@@ -1863,7 +1863,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public List<WalletAccount> getDependentAccounts() {
+   public List<WalletAccount<?>> getDependentAccounts() {
       // BTC accounts do not have any dependent accounts
       return new ArrayList<>();
    }
