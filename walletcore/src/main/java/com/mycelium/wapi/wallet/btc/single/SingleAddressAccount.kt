@@ -45,7 +45,7 @@ import java.util.*
 import java.util.logging.Level
 
 open class SingleAddressAccount @JvmOverloads constructor(private var _context: SingleAddressAccountContext, keyStore: PublicPrivateKeyStore,
-                                                          network: NetworkParameters?, private val _backing: SingleAddressBtcAccountBacking, wapi: Wapi?,
+                                                          network: NetworkParameters, private val _backing: SingleAddressBtcAccountBacking, wapi: Wapi,
                                                           private val changeAddressModeReference: Reference<ChangeAddressMode>, shouldPersistAddress: Boolean = true) :
     AbstractBtcAccount(_backing, network, wapi), ExportableAccount {
     private val _addressList: MutableList<BitcoinAddress>
@@ -126,7 +126,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
             return false
         }
         checkNotArchived()
-        syncTotalRetrievedTxs = 0
+        syncTotalRetrievedTransactions = 0
         return try {
             if (synchronizeUnspentOutputs(_addressList) == -1) {
                 return false
@@ -158,7 +158,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
             _context.persistIfNecessary(_backing)
             true
         } finally {
-            syncTotalRetrievedTxs = 0
+            syncTotalRetrievedTransactions = 0
         }
     }
 
@@ -294,9 +294,8 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
     override val id: UUID
         get() = _context.id
 
-    override fun getChangeAddress(): BitcoinAddress {
-        return address
-    }
+    override val changeAddress: BitcoinAddress
+        get() = address
 
     override fun getChangeAddress(destinationAddress: BitcoinAddress): BitcoinAddress {
         return when (changeAddressModeReference.get()) {
@@ -454,12 +453,12 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         val btcTransaction = tx as BtcTransaction
-        return broadcastTransaction(btcTransaction.tx)
+        return broadcastTransaction(btcTransaction.tx!!)
     }
 
     companion object {
         @JvmStatic
-        fun calculateId(address: BitcoinAddress?): UUID {
+        fun calculateId(address: BitcoinAddress): UUID {
             return addressToUUID(address)
         }
     }
