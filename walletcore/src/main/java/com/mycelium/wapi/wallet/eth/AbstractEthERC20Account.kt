@@ -42,7 +42,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         return getNonce()
     }
 
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         if (isArchived) { return false }
         syncing = true
         var synced = false

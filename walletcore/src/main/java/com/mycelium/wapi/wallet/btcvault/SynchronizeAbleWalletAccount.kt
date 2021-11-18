@@ -53,7 +53,7 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address> : SyncPausableAcc
      * @return false if synchronization failed due to failed blockchain
      * connection
      */
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         val fixMode = mode ?: SyncMode.NORMAL
         return if (needsSynchronization(fixMode)) {
             isSyncing = true
@@ -82,7 +82,7 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address> : SyncPausableAcc
      * @param mode SyncMode
      * @return true if sync was successful
      */
-    protected abstract fun doSynchronization(mode: SyncMode): Boolean
+    protected abstract suspend fun doSynchronization(mode: SyncMode): Boolean
 
     override val dependentAccounts: List<WalletAccount<Address>>
         get() = listOf()

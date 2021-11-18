@@ -275,7 +275,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         var syncResult = false
         try {

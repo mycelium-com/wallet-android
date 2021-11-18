@@ -66,7 +66,7 @@ class WapiClientElectrumX(
         rpcClient.start()
     }
 
-    override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
+    override suspend fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
         if (!isNetworkConnected) {
             return WapiResponse<QueryUnspentOutputsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
@@ -108,7 +108,7 @@ class WapiClientElectrumX(
         rpcClient.cancel(rpcRequestOuts)
     }
 
-    override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
+    override suspend fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
         if (!isNetworkConnected) {
             return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
@@ -135,7 +135,7 @@ class WapiClientElectrumX(
         }
     }
 
-    override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
+    override suspend fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
         if (!isNetworkConnected) {
             return WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
@@ -204,7 +204,7 @@ class WapiClientElectrumX(
         }
     }
 
-    override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
+    override suspend fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
         if (!isNetworkConnected) {
             return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
@@ -228,7 +228,7 @@ class WapiClientElectrumX(
     }
 
     @Throws(CancellationException::class)
-    private fun <T> getTransactionsWithParentLookupConverted(
+    private suspend fun <T> getTransactionsWithParentLookupConverted(
             txids: Collection<String>,
             conversion: (tx: TransactionX, unconfirmedChainLength: Int, rbfRisk: Boolean) -> T): List<T> {
         val transactionsArray = getTransactionXs(txids)
@@ -268,7 +268,7 @@ class WapiClientElectrumX(
                 .map { it.outPoint.txid.toString() }
     }
 
-    private fun getTransactionXs(txids: Collection<String>): List<TransactionX> {
+    private suspend fun getTransactionXs(txids: Collection<String>): List<TransactionX> {
         if (txids.isEmpty()) {
             return emptyList()
         }
@@ -304,7 +304,7 @@ class WapiClientElectrumX(
 
     private fun isRbf(vin: Array<TransactionInput>) = vin.any { it.isMarkedForRbf }
 
-    override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
+    override suspend fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
             val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
             val requestsList = ArrayList<RpcRequestOut>()

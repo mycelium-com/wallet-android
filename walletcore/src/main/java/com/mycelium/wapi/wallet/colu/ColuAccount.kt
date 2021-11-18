@@ -152,7 +152,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     }
 
     @Synchronized
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
         try {
             if (!maySync) {

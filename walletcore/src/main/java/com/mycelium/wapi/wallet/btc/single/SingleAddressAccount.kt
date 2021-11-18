@@ -121,7 +121,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
     }
 
     @Synchronized
-    public override fun doSynchronization(mode: SyncMode): Boolean {
+    override suspend fun doSynchronization(mode: SyncMode): Boolean {
         if (!maySync) {
             return false
         }
@@ -176,7 +176,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         _context.persistIfNecessary(_backing)
     }
 
-    private fun discoverTransactions(): Boolean {
+    private suspend fun discoverTransactions(): Boolean {
         // Get the latest transactions
         val discovered: List<Sha256Hash>
         val txIds: MutableList<Sha256Hash> = ArrayList()
@@ -446,7 +446,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         return ExportableAccount.Data(privKey, publicDataMap)
     }
 
-    override fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType> {
+    override suspend fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType> {
         // not needed for SingleAddressAccount
         return emptySet()
     }

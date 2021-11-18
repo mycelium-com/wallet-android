@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity.txdetails
 
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -18,6 +17,7 @@ import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import kotlinx.android.synthetic.main.transaction_details_btc.*
+import kotlinx.coroutines.*
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -25,13 +25,14 @@ import java.util.logging.Logger
 
 class BtcDetailsFragment : DetailsFragment() {
     private var tx: TransactionSummary? = null
-
+    private var job: Job? = null
+    
     private val coluMode: Boolean by lazy {
-        arguments!!.getBoolean("coluMode")
+        requireArguments().getBoolean("coluMode")
     }
     private val account: AbstractBtcAccount by lazy {
         mbwManager!!.getWalletManager(false)
-                .getAccount(arguments!!.getSerializable("accountId") as UUID) as AbstractBtcAccount
+                .getAccount(requireArguments().getSerializable("accountId") as UUID) as AbstractBtcAccount
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -39,7 +40,7 @@ class BtcDetailsFragment : DetailsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tx = arguments!!.getSerializable("tx") as TransactionSummary
+        tx = requireArguments().getSerializable("tx") as TransactionSummary
         loadAndUpdate(false)
         listOf(btFeeRetry, btInputsRetry).forEach { it.setOnClickListener { startRemoteLoading() } }
         startRemoteLoading()
@@ -113,8 +114,33 @@ class BtcDetailsFragment : DetailsFragment() {
         }
     }
 
+    /**
+     * Async task to perform fetching parent transactions of current transaction from server
+     */
     private fun startRemoteLoading() {
-        UpdateParentTask().execute()
+        val logger = Logger.getLogger(BtcDetailsFragment::class.java.simpleName)
+
+        job = GlobalScope.launch(Dispatchers.Main) {
+            val isResultOk = withContext(Dispatchers.IO) {
+                try {
+                    account.updateParentOutputs(tx!!.id)
+                    true
+                } catch (e: WapiException) {
+                    logger.log(Level.SEVERE, "Can't load parent", e)
+                    false
+                }
+            }
+            if (isResultOk) {
+                loadAndUpdate(true)
+            } else {
+                updateUi(isAfterRemoteUpdate = true, suggestRetryIfError = true)
+            }
+        }
+    }
+
+    override fun onStop() {
+        job?.cancel()
+        super.onStop()
     }
 
     private fun loadAndUpdate(isAfterRemoteUpdate: Boolean) {
@@ -123,7 +149,7 @@ class BtcDetailsFragment : DetailsFragment() {
         updateUi(isAfterRemoteUpdate, false)
     }
 
-    private fun getItemView(item: OutputViewModel): View? { // Create vertical linear layout
+    private fun getItemView(item: OutputViewModel): View { // Create vertical linear layout
         return LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = TransactionDetailsActivity.WCWC
@@ -142,37 +168,12 @@ class BtcDetailsFragment : DetailsFragment() {
         }
     }
 
-    private fun getCoinbaseText(): View? {
+    private fun getCoinbaseText(): View {
         return TextView(requireContext()).apply {
             layoutParams = TransactionDetailsActivity.FPWC
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setText(R.string.newly_generated_coins_from_coinbase)
             setTextColor(whiteColor)
-        }
-    }
-
-    /**
-     * Async task to perform fetching parent transactions of current transaction from server
-     */
-    inner class UpdateParentTask : AsyncTask<Void?, Void?, Boolean>() {
-        private val logger = Logger.getLogger(UpdateParentTask::class.java.getSimpleName())
-        override fun doInBackground(vararg params: Void?): Boolean {
-            try {
-                account.updateParentOutputs(tx!!.id)
-            } catch (e: WapiException) {
-                logger.log(Level.SEVERE, "Can't load parent", e)
-                return false
-            }
-            return true
-        }
-
-        override fun onPostExecute(isResultOk: Boolean) {
-            super.onPostExecute(isResultOk)
-            if (isResultOk) {
-                loadAndUpdate(true)
-            } else {
-                updateUi(isAfterRemoteUpdate = true, suggestRetryIfError = true)
-            }
         }
     }
 

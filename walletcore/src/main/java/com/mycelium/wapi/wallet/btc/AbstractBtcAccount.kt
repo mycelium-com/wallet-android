@@ -243,7 +243,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
      * returns -1 if something went wrong or otherwise the number of new UTXOs added to the local
      * database
      */
-    protected fun synchronizeUnspentOutputs(addresses: Collection<BitcoinAddress?>): Int {
+    protected suspend fun synchronizeUnspentOutputs(addresses: Collection<BitcoinAddress?>): Int {
         // Get the current unspent outputs as dictated by the block chain
         val unspentOutputResponse: QueryUnspentOutputsResponse
         try {
@@ -388,18 +388,18 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         return newUtxos
     }
 
-    protected fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> {
+    protected suspend fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> {
         val fullRequest = GetTransactionsRequest(Wapi.VERSION, txids)
         return _wapi.getTransactions(fullRequest)
     }
 
     @Throws(WapiException::class)
-    protected abstract fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType>
+    protected abstract suspend fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType>
 
     // HACK: skipping local handling of known transactions breaks the sync process. This should
     // be fixed somewhere else to make allKnown obsolete.
     @Throws(WapiException::class)
-    protected fun handleNewExternalTransactions(transactions: Collection<TransactionEx>?, allKnown: Boolean = false) {
+    protected suspend fun handleNewExternalTransactions(transactions: Collection<TransactionEx>?, allKnown: Boolean = false) {
         val all = ArrayList(transactions)
         var i = 0
         while (i < all.size) {
@@ -412,7 +412,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     @Throws(WapiException::class)
-    private fun handleNewExternalTransactionsInt(@Nonnull transactions: Collection<TransactionEx>, allKnown: Boolean) {
+    private suspend fun handleNewExternalTransactionsInt(@Nonnull transactions: Collection<TransactionEx>, allKnown: Boolean) {
         // Transform and put into two arrays with matching indexes
         val txArray: MutableList<BitcoinTransaction> = ArrayList(transactions.size)
         for (tex in transactions) {
@@ -438,7 +438,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     @Throws(WapiException::class)
-    fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
+    suspend fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
         val parentTransactions: MutableMap<Sha256Hash, TransactionEx> = HashMap()
         val parentOutputs: MutableMap<OutPoint, TransactionOutputEx> = HashMap()
 
@@ -944,7 +944,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
 
     private fun isColuTransaction(tx: BitcoinTransaction): Boolean {
         return try {
-            !getColuOutputIndexes(tx).isEmpty()
+            getColuOutputIndexes(tx).isNotEmpty()
         } catch (e: ParseException) {
             // the current only use case is safe to be treated as not colored-coin even though we might misinterpret a colored-coin script.
             false
@@ -1311,7 +1311,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         return list
     }
 
-    protected fun monitorYoungTransactions(): Boolean {
+    protected suspend fun monitorYoungTransactions(): Boolean {
         val list = accountBacking.getYoungTransactions(5, getBlockChainHeight())
         if (list.isEmpty()) {
             return true
@@ -1676,7 +1676,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     @Throws(WapiException::class)
-    fun updateParentOutputs(txid: ByteArray?) {
+    suspend fun updateParentOutputs(txid: ByteArray?) {
         val transactionEx = getTransaction(Sha256Hash.of(txid))
         val transaction = TransactionEx.toTransaction(transactionEx)
         fetchStoreAndValidateParentOutputs(listOf(transaction), true)

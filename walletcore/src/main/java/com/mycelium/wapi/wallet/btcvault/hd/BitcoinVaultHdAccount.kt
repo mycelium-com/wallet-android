@@ -127,7 +127,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isExchangeable(): Boolean = true
 
-    override fun doDiscoveryForAddresses(addresses: List<BtcvAddress>): Set<BipDerivationType> {
+    override suspend fun doDiscoveryForAddresses(addresses: List<BtcvAddress>): Set<BipDerivationType> {
         // Do look ahead query
         val result = wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
@@ -175,7 +175,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }
 
     @Synchronized
-    override fun doSynchronization(proposedMode: SyncMode): Boolean {
+    override suspend fun doSynchronization(proposedMode: SyncMode): Boolean {
         if (!maySync) { return false }
         var mode = proposedMode
         checkNotArchived()
@@ -213,7 +213,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                 else -> BtcvAddress(coinType, bitcoinAddress.allAddressBytes)
             }
 
-    private fun discovery(): Boolean {
+    private suspend fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
             // thus, method is done once discovered is empty.
@@ -234,7 +234,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         return true
     }
 
-    private fun updateUnspentOutputs(mode: SyncMode): Boolean {
+    private suspend fun updateUnspentOutputs(mode: SyncMode): Boolean {
         var checkAddresses = getAddressesToSync(mode)
 
         val newUtxos = synchronizeUnspentOutputs(checkAddresses)
@@ -328,7 +328,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
+    private suspend fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })

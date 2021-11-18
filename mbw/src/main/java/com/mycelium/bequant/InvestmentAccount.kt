@@ -91,7 +91,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         val totalBalances = mutableListOf<BequantBalance>()
         if(BequantPreference.hasKeys()) {

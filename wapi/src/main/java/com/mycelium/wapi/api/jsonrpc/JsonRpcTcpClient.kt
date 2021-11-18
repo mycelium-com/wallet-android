@@ -22,6 +22,9 @@ import java.util.logging.Logger
 import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
 import kotlin.concurrent.timerTask
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 typealias Consumer<T> = (T) -> Unit
@@ -63,6 +66,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
     private val awaitingRequestsMap = ConcurrentHashMap<String, String>()
     private val awaitingLatches = ConcurrentHashMap<String, CountDownLatch>()
     private val callbacks = ConcurrentHashMap<String, Consumer<AbstractResponse>>()
+    private val continuations = ConcurrentHashMap<String, Continuation<AbstractResponse>>()
     private val subscriptions = ConcurrentHashMap<String, Subscription>()
 
     // Determines whether main connection thread execution should be paused or resumed
@@ -213,51 +217,40 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
     }
 
     @Throws(RpcResponseException::class)
-    fun write(requests: List<RpcRequestOut>, timeout: Long): BatchedRpcResponse {
+    suspend fun write(requests: List<RpcRequestOut>, timeout: Long): BatchedRpcResponse {
         if (!waitForConnected(timeout)) {
             throw RpcResponseException("Timeout")
         }
-        var response: BatchedRpcResponse? = null
-        val latch = CountDownLatch(1)
+        val response: AbstractResponse = suspendCoroutine { continuation ->
+            requests.forEach {
+                it.id = nextRequestId.getAndIncrement().toString()
+            }
 
-        requests.forEach {
-            it.id = nextRequestId.getAndIncrement().toString()
-        }
+            val compoundId = compoundId(requests.map {it.id.toString()}.toTypedArray())
+            continuations[compoundId] = continuation
 
-        val compoundId = compoundId(requests.map {it.id.toString()}.toTypedArray())
+            val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
+            if (!internalWrite(batchedRequest)) {
+                continuations.remove(compoundId)
+                throw RpcResponseException("Write error")
+            }
 
-        callbacks[compoundId] = {
-            response = it as BatchedRpcResponse
-            latch.countDown()
-        }
+            awaitingRequestsMap[compoundId] = batchedRequest
+        } // The case with response as NULL typically happens when wait() method is forced to stop
+        // by calling latch.await() manually inside setActive(), not using callback
+            ?: throw RpcResponseException("Request was cancelled")
 
-        val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
-        if (!internalWrite(batchedRequest)) {
-            callbacks.remove(compoundId)
-            throw RpcResponseException("Write error")
-        }
 
-        awaitingRequestsMap[compoundId] = batchedRequest
-        awaitingLatches[compoundId] = latch
-
-        if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
+/*        if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
             logger.log(Level.INFO, "Couldn't get reply for $timeout milliseconds.")
             // No need to keep request data anymore as we're done with it
             removeCurrentRequestData(compoundId)
 
             awaitingLatches.remove(compoundId)
             throw RpcResponseException("Timeout")
-        }
+        }*/
 
-        awaitingLatches.remove(compoundId)
-
-        // The case with response as NULL typically happens when wait() method is forced to stop
-        // by calling latch.await() manually inside setActive(), not using callback
-        if (response == null) {
-            throw RpcResponseException("Request was cancelled")
-        }
-
-        return response!!
+        return response as BatchedRpcResponse
     }
 
     private fun waitForConnected(timeout: Long): Boolean = runBlocking {
@@ -333,7 +326,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
             val response = BatchedRpcResponse.fromJson(message)
             val compoundId = compoundId(response.responses.map {it.id.toString()}.toTypedArray())
 
-            callbacks.remove(compoundId)?.invoke(response)
+            continuations.remove(compoundId)?.resume(response)
             awaitingRequestsMap.remove(compoundId)
         } else {
             val response = RpcResponse.fromJson(message)

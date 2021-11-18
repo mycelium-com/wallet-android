@@ -295,7 +295,7 @@ open class HDAccount(
     }
 
     @Synchronized
-    public override fun doSynchronization(proposedMode: SyncMode): Boolean {
+    override suspend fun doSynchronization(proposedMode: SyncMode): Boolean {
         if (!maySync) {
             return false
         }
@@ -327,7 +327,7 @@ open class HDAccount(
             context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
     @Synchronized
-    private fun discovery(): Boolean {
+    private suspend fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
             // thus, method is done once discovered is empty.
@@ -357,7 +357,7 @@ open class HDAccount(
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
+    private suspend fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
@@ -382,7 +382,7 @@ open class HDAccount(
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType> {
+    override suspend fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead).apply {
@@ -425,7 +425,7 @@ open class HDAccount(
         }.toSet()
     }
 
-    private fun updateUnspentOutputs(mode: SyncMode): Boolean {
+    private suspend fun updateUnspentOutputs(mode: SyncMode): Boolean {
         var checkAddresses = getAddressesToSync(mode)
 
         val newUtxos = synchronizeUnspentOutputs(checkAddresses)

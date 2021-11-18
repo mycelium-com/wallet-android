@@ -202,7 +202,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
      * returns -1 if something went wrong or otherwise the number of new UTXOs added to the local
      * database
      */
-    protected fun synchronizeUnspentOutputs(addresses: Collection<BtcvAddress?>): Int {
+    protected suspend fun synchronizeUnspentOutputs(addresses: Collection<BtcvAddress?>): Int {
         // Get the current unspent outputs as dictated by the block chain
         val unspentOutputResponse = try {
             wapi.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, addresses)).result
@@ -331,7 +331,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
         // if we removed some UTXO because of a sync, it means that there are transactions
         // we don't yet know about. Run a discover for all addresses related to the UTXOs we removed
-        if (!addressesToDiscover.isEmpty()) {
+        if (addressesToDiscover.isNotEmpty()) {
             try {
                 doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover))
             } catch (ignore: WapiException) {
@@ -340,16 +340,16 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return newUtxos
     }
 
-    protected fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> =
+    protected suspend fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> =
             wapi.getTransactions(GetTransactionsRequest(Wapi.VERSION, txids))
 
     @Throws(WapiException::class)
-    protected abstract fun doDiscoveryForAddresses(lookAhead: List<BtcvAddress>): Set<BipDerivationType>
+    protected abstract suspend fun doDiscoveryForAddresses(lookAhead: List<BtcvAddress>): Set<BipDerivationType>
 
     // HACK: skipping local handling of known transactions breaks the sync process. This should
     // be fixed somewhere else to make allKnown obsolete.
     @Throws(WapiException::class)
-    protected fun handleNewExternalTransactions(transactions: Collection<TransactionEx>?, allKnown: Boolean = false) {
+    protected suspend fun handleNewExternalTransactions(transactions: Collection<TransactionEx>?, allKnown: Boolean = false) {
         val all = ArrayList(transactions)
         var i = 0
         while (i < all.size) {
@@ -362,7 +362,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(WapiException::class)
-    private fun handleNewExternalTransactionsInt(@Nonnull transactions: Collection<TransactionEx>, allKnown: Boolean) {
+    private suspend fun handleNewExternalTransactionsInt(@Nonnull transactions: Collection<TransactionEx>, allKnown: Boolean) {
         // Transform and put into two arrays with matching indexes
         val txArray: MutableList<BitcoinTransaction> = ArrayList(transactions.size)
         for (tex in transactions) {
@@ -388,7 +388,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(WapiException::class)
-    fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
+    suspend fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
         val parentTransactions = hashMapOf<Sha256Hash, TransactionEx>()
         val parentOutputs = hashMapOf<OutPoint, TransactionOutputEx>()
 
@@ -1157,7 +1157,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                             script?.getAddress(network) ?: dummyAddress)
                 }.sorted()
 
-    protected fun monitorYoungTransactions(): Boolean {
+    protected suspend fun monitorYoungTransactions(): Boolean {
         val list = accountBacking.getYoungTransactions(5, getBlockChainHeight())
         if (list.isEmpty()) {
             return true
@@ -1166,8 +1166,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         for (tex in list) {
             txids.add(tex.txid)
         }
-        val result: CheckTransactionsResponse
-        result = try {
+        val result: CheckTransactionsResponse = try {
             wapi.checkTransactions(CheckTransactionsRequest(txids)).result
         } catch (e: WapiException) {
             lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
@@ -1178,8 +1177,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         }
         for (t in result.transactions) {
             val localTransactionEx = accountBacking.getTransaction(t.txid)
-            var parsedTransaction: BitcoinTransaction?
-            parsedTransaction = if (localTransactionEx != null) {
+            val parsedTransaction: BitcoinTransaction? = if (localTransactionEx != null) {
                 try {
                     BitcoinTransaction.fromBytes(localTransactionEx.binary)
                 } catch (ignore: BitcoinTransaction.TransactionParsingException) {
@@ -1445,7 +1443,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(WapiException::class)
-    fun updateParentOutputs(txid: ByteArray?) {
+    suspend fun updateParentOutputs(txid: ByteArray?) {
         val transactionEx = getTransaction(Sha256Hash.of(txid))
         val transaction = TransactionEx.toTransaction(transactionEx)
         fetchStoreAndValidateParentOutputs(listOf(transaction), true)

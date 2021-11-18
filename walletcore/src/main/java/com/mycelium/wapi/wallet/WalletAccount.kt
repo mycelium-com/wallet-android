@@ -70,7 +70,7 @@ interface WalletAccount<A : Address> : SyncPausable {
      * @return false if synchronization failed due to failed blockchain
      * connection
      */
-    fun synchronize(mode: SyncMode?): Boolean
+    suspend fun synchronize(mode: SyncMode?): Boolean
 
     /**
      * Get the block chain height as it were last time this account was

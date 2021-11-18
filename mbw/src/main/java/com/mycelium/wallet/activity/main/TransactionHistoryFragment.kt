@@ -427,7 +427,6 @@ class TransactionHistoryFragment : Fragment() {
                                         .setNegativeButton(R.string.no, null).create()
                                 val job = GlobalScope.launch(Dispatchers.Main) {
                                     val result = withContext(Dispatchers.IO) {
-                                        delay(5000)
                                         updateParentTask(Sha256Hash.of(record.id))
                                     }
                                     updateUI(result, Sha256Hash.of(record.id), alertDialog, _context)
@@ -464,12 +463,13 @@ class TransactionHistoryFragment : Fragment() {
         }
     }
 
-    private fun updateParentTask(txid: Sha256Hash): Boolean {
-        val logger = Logger.getLogger(UpdateParentTask::class.java.simpleName)
+    /**
+     * Async task to perform fetching parent transactions of current transaction from server
+     */
+    private suspend fun updateParentTask(txid: Sha256Hash): Boolean {
+        val logger = Logger.getLogger(TransactionHistoryFragment::class.java.simpleName)
 
         if (model.account.value is AbstractBtcAccount) {
-            logger.log(Level.INFO, "asdaf we were here")
-
             val currentAccount = model.account.value as AbstractBtcAccount
             val transactionEx = currentAccount.getTransaction(txid)
             val transaction = TransactionEx.toTransaction(transactionEx)
@@ -520,66 +520,6 @@ class TransactionHistoryFragment : Fragment() {
             }
         } else {
             alertDialog.dismiss()
-        }
-    }
-
-    /**
-     * Async task to perform fetching parent transactions of current transaction from server
-     */
-    @SuppressLint("StaticFieldLeak")
-    inner class UpdateParentTask(private val txid: Sha256Hash,
-                                 private val alertDialog: AlertDialog,
-                                 private val context: Context) : AsyncTask<Void?, Void?, Boolean>() {
-        private val logger = Logger.getLogger(UpdateParentTask::class.java.simpleName)
-        override fun doInBackground(vararg params: Void?): Boolean {
-            if (model.account.value is AbstractBtcAccount) {
-                val currentAccount = model.account.value as AbstractBtcAccount
-                val transactionEx = currentAccount.getTransaction(txid)
-                val transaction = TransactionEx.toTransaction(transactionEx)
-                try {
-                    currentAccount.fetchStoreAndValidateParentOutputs(listOf(transaction), true)
-                } catch (e: WapiException) {
-                    logger.log(Level.SEVERE, "Can't load parent", e)
-                    return false
-                }
-            }
-            return true
-        }
-
-        override fun onPostExecute(isResultOk: Boolean) {
-            super.onPostExecute(isResultOk)
-            if (isResultOk) {
-                val fee = model.mbwManager.getFeeProvider(model.account.value!!.coinType)
-                        .estimation
-                        .high
-                        .valueAsLong
-                val unsigned = tryCreateBumpTransaction(txid, fee)
-                if (unsigned != null) {
-                    val txFee = unsigned.calculateFee()
-                    val txFeeBitcoinValue = valueOf(Utils.getBtcCoinType(), txFee)
-                    var txFeeString = txFeeBitcoinValue.toStringWithUnit(model.mbwManager.getDenomination(model.account.value!!.coinType))
-                    val txFeeCurrencyValue = model.mbwManager.exchangeRateManager[txFeeBitcoinValue, model.mbwManager.getFiatCurrency(model.account.value!!.coinType)]
-                    if (!isNullOrZero(txFeeCurrencyValue)) {
-                        txFeeString += " (${txFeeCurrencyValue.toStringWithUnit(model.mbwManager.getDenomination(model.account.value!!.coinType))}"
-                    }
-                    alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString))
-                    alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes)) { dialog: DialogInterface, which: Int ->
-                        model.mbwManager.runPinProtectedFunction(activity) {
-                            val cryptoCurrency = model.account.value!!.coinType
-                            val unsignedTransaction = BtcTransaction(cryptoCurrency, unsigned)
-                            val intent = SignTransactionActivity.getIntent(activity, model.account.value!!.id, false, unsignedTransaction)
-                            startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE)
-                            dialog.dismiss()
-                            finishActionMode()
-                        }
-                    }
-                    alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).isEnabled = true
-                } else {
-                    alertDialog.dismiss()
-                }
-            } else {
-                alertDialog.dismiss()
-            }
         }
     }
 

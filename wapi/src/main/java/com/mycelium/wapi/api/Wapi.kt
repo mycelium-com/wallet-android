@@ -65,7 +65,7 @@ interface Wapi {
      * https://144.76.165.115/wapitestnet/wapi/queryUnspentOutputs
      */
     @Deprecated("this service has reached end of life and will be replaced by electrumx")
-    fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse>
+    suspend fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse>
 
     /**
      * Query the transaction inventory of a set of addresses with a limit on how many transaction IDs to retrieve
@@ -75,7 +75,7 @@ interface Wapi {
      * https://144.76.165.115/wapitestnet/wapi/queryTransactionInventory
      */
     @Deprecated("this service has reached end of life and will be replaced by electrumx")
-    fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse>
+    suspend fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse>
 
     /**
      * Get a set of transactions from a set of transaction IDs
@@ -85,7 +85,7 @@ interface Wapi {
      * https://144.76.165.115/wapitestnet/wapi/getTransactions
      */
     @Deprecated("this service has reached end of life and will be replaced by electrumx")
-    fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse>
+    suspend fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse>
 
     /**
      * Broadcast a transaction
@@ -109,7 +109,7 @@ interface Wapi {
      * https://144.76.165.115/wapitestnet/wapi/checkTransactions
      */
     @Deprecated("this service has reached end of life and will be replaced by electrumx")
-    fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse>
+    suspend fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse>
 
     /**
      * Get exchange rates
@@ -155,7 +155,7 @@ interface Wapi {
      *
      * curl -k -X POST -H "Content-Type: application/json" -d '{}' https://144.76.165.115/wapitestnet/wapi/getMinerFeeEstimations
      */
-    fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse>
+    suspend fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse>
 
     companion object {
         /**
