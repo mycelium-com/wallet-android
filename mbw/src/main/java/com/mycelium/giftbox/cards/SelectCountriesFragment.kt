@@ -38,6 +38,7 @@ class SelectCountriesFragment : Fragment() {
         })
         adapter.selectedChangeListener = {
             activityViewModel.selectedCountries.value = if (it.code != 0) listOf(it) else listOf()
+            activityViewModel.reloadStore = true
         }
         val countryList = listOf(ALL_COUNTRIES) +
                 activityViewModel.countries.value
