@@ -192,8 +192,7 @@ public class BalanceFragment extends Fragment {
         // if we ended up with not existent source name for current cryptocurrency (CC)
         // after we have switched accounts for different CC
         // then use the default exchange
-        if (sources.size() != 0 && 
-            !sources.contains(exchangeRateManager.getCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol()))) {
+        if (sources.size() != 0 && !sources.contains(exchangeRateManager.getCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol()))) {
             exchangeRateManager.setCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol(), Constants.DEFAULT_EXCHANGE);
         }
 
