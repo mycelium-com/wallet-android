@@ -141,6 +141,10 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun lastSyncStatus(): SyncStatusInfo = lastSyncInfo
 
+    override fun setLastSyncStatus(syncStatusInfo: SyncStatusInfo) {
+        lastSyncInfo = syncStatusInfo
+    }
+
     override fun isArchived(): Boolean = false
 
     override fun isActive(): Boolean = true
