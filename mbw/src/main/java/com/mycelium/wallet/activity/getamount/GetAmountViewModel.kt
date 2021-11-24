@@ -47,7 +47,7 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
 
     val howMaxSpendableCalculated: LiveData<Boolean> =
             Transformations.switchMap(maxAmount) {
-                MutableLiveData<Boolean>(account?.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
+                MutableLiveData(account?.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
             }
 
     fun convert(value: Value, assetInfo: AssetInfo): Value? =
