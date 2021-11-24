@@ -54,7 +54,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
             binding?.layoutDescription?.tvDescription?.setupDescription(
                     viewModel.description.value ?: "",
                     viewModel.more.value ?: false) {
-                viewModel.moreVisible.value = it
+                viewModel.moreVisible.value = true
             }
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
@@ -69,7 +69,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,
                     viewModel.more.value ?: false) {
-                viewModel.moreVisible.value = it
+                viewModel.moreVisible.value = true
             }
         }
         loadData()

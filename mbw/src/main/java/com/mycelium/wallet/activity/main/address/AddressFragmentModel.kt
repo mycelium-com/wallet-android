@@ -71,7 +71,7 @@ class AddressFragmentModel(
                 context.getString(R.string.bitcoin_cash) + " - " + label
             else -> label
         })
-        isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR, SyncStatus.INTERRUPT)
+        isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR, SyncStatus.ERROR_INTERNET_CONNECTION)
     }
 
     private fun updateAddress(account: WalletAccount<*>) {
@@ -129,6 +129,7 @@ class AddressFragmentModel(
     @Subscribe
     fun syncStopped(event: SyncStopped) {
         updateRegisteredFIONames()
+        updateLabel()
     }
 
     fun onAddressChange() {
