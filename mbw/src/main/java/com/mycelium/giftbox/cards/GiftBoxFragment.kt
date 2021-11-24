@@ -28,8 +28,8 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
     val args by navArgs<GiftBoxFragmentArgs>()
     val activityViewModel: GiftBoxViewModel by activityViewModels()
     val tabMap = mapOf(0 to STORES,
-            1 to PURCHASES,
-            2 to CARDS).toBiMap()
+            1 to CARDS,
+            2 to PURCHASES).toBiMap()
 
     private var refreshItem: MenuItem? = null
 
@@ -48,9 +48,9 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
         pager.offscreenPageLimit = 2
         mediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
-                0 -> tab.text = "Stores"
-                1 -> tab.text = "Purchases"
-                2 -> tab.text = "Gift cards"
+                0 -> tab.text = getString(R.string.stores)
+                1 -> tab.text = getString(R.string.mygiftcards)
+                2 -> tab.text = getString(R.string.purchases)
             }
         }
         mediator?.attach()

@@ -82,7 +82,7 @@ class GiftboxApiRepository {
         limit: Long = 100,
         success: (ProductsResponse?) -> Unit,
         error: (Int, String) -> Unit,
-        finally: () -> Unit
+        finally: (() -> Unit)? = null
     ) : Job {
         val countryString = country?.joinToString(",") { it.acronym }
         return doRequest(scope, {

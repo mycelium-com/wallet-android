@@ -3,6 +3,8 @@ package com.mycelium.giftbox.cards
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -50,6 +52,8 @@ class CardsFragment : Fragment() {
                         DividerItemDecoration.VERTICAL
                 )
         )
+        binding?.noResultTitle?.text = getString(R.string.no_purchased_gift_card)
+        binding?.noResultText?.text = getString(R.string.no_gift_cards_linked)
         adapter.itemClickListener = {
             findNavController().navigate(GiftBoxFragmentDirections.actionCardDetails(it))
         }
@@ -90,6 +94,8 @@ class CardsFragment : Fragment() {
         GitboxAPI.giftRepository.getCards(lifecycleScope, { data ->
             cards.clear()
             cards.addAll((data ?: emptyList()).sortedByDescending { it.timestamp })
+            binding?.noResultText?.visibility = if (cards.isEmpty()) VISIBLE else GONE
+            binding?.noResultTitle?.visibility = if (cards.isEmpty()) VISIBLE else GONE
             adapter.submitList(generateList(cards))
         }, { _, msg ->
             Toaster(this).toast(msg, true)

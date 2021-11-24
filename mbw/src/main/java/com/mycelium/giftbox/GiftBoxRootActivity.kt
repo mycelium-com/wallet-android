@@ -7,6 +7,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_gift_box_root.*
@@ -24,7 +25,10 @@ class GiftBoxRootActivity : AppCompatActivity(R.layout.activity_gift_box_root) {
         val inflater = (nav_host_fragment as NavHostFragment).navController.navInflater
         val graph = inflater.inflate(R.navigation.giftbox)
         nav_host_fragment.findNavController().setGraph(graph, intent.extras)
-        setupActionBarWithNavController(navController)
+        setupActionBarWithNavController(navController,
+                AppBarConfiguration
+                .Builder(R.id.giftBoxBuyResultFragment)
+                .build())
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =

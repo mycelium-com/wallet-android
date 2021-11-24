@@ -19,7 +19,6 @@ import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
-import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
 import com.mycelium.wallet.activity.modern.model.accounts.*
@@ -189,10 +188,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 groupHolder.tvBalance?.coinType = group.coinType
                 groupHolder.tvBalance?.setValue(group.sum!!, false)
                 groupHolder.tvBalance?.visibility = View.VISIBLE
-                groupHolder.lastSyncStatus?.visibility = if (group.isSyncError) View.VISIBLE else View.GONE
-                groupHolder.lastSyncStatus?.setOnClickListener {
-                    Toaster(it.context).toastSyncFailed()
-                }
             }
             GROUP_ARCHIVED_TITLE_TYPE -> {
                 val groupHolder = holder as ArchivedGroupTitleViewHolder
@@ -285,7 +280,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                     GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE -> {
                         equalsValuesBy(newItem as AccountsGroupModel, oldItem as AccountsGroupModel,
                                 { it.isCollapsed }, { it.coinType }, { it.accountsList.size },
-                                { it.sum }, { it.isSyncError })
+                                { it.sum })
                     }
                     ACCOUNT_TYPE -> {
                         equalsValuesBy(newItem as AccountViewModel, oldItem as AccountViewModel,
