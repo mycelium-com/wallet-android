@@ -85,17 +85,11 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 if (accounts.isNotEmpty()) {
                     val sum = getSpendableBalance(accounts)
                     accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, sum, accountsToViewModel(accounts),
-                            accounts[0].basedOnCoinType, it.second.first() is InvestmentAccount).apply {
-                        if (this.isSyncError) {
-                            this.accountsList.filterIsInstance<SyncStatusItem>().forEach { item ->
-                                item.isSyncError = false
-                            }
-                        }
-                    })
+                            accounts[0].basedOnCoinType, it.second.first() is InvestmentAccount))
                 }
             }
             if (value!!.isEmpty()) {
-                publishProgress(accountsList)
+                publishProgress(accountsList.toList())
             }
 
             val archivedList = walletManager.getArchivedAccounts()

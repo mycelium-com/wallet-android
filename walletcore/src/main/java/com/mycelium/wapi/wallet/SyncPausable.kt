@@ -13,6 +13,8 @@ interface SyncPausable {
      */
     fun lastSyncStatus(): SyncStatusInfo?
 
+    fun setLastSyncStatus(syncStatusInfo: SyncStatusInfo)
+
     /**
      * Interrupt gracefully ongoing sync.
      */
@@ -31,6 +33,10 @@ abstract class SyncPausableAccount : SyncPausable {
     private var cancelableRequests = ConcurrentHashMultiset.create<CancelableRequest>()
 
     override fun lastSyncStatus(): SyncStatusInfo? = lastSyncInfo
+
+    override fun setLastSyncStatus(syncStatusInfo: SyncStatusInfo) {
+        lastSyncInfo = syncStatusInfo
+    }
 
     fun addCancelableRequest(request: CancelableRequest) {
         cancelableRequests.add(request)

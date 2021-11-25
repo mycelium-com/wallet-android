@@ -12,5 +12,4 @@ open class GroupTitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
     val tvAccountsCount: TextView = itemView.findViewById(R.id.tvAccountsCount)
     val tvBalance: ToggleableCurrencyButton? = itemView.findViewById(R.id.tvBalance)
     val expandIcon: ImageView = itemView.findViewById(R.id.expand)
-    val lastSyncStatus: View? = itemView.findViewById(R.id.lastSyncState)
 }

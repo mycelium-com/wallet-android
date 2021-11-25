@@ -17,7 +17,7 @@ class Toaster(val context: Context) {
 
     private var fragment: Fragment? = null
 
-    constructor(fragment: Fragment) : this(fragment.context!!) {
+    constructor(fragment: Fragment) : this(fragment.requireContext()) {
         this.fragment = fragment
     }
 
@@ -52,15 +52,15 @@ class Toaster(val context: Context) {
     }
 
     fun toastSyncFailed(syncStatusInfo: SyncStatusInfo? = null) {
-        toast(when {
-            !Utils.isConnected(context) -> {
-                context.getString(R.string.no_network_connection)
-            }
-            syncStatusInfo?.status == SyncStatus.INTERRUPT -> {
+        toast(when(syncStatusInfo?.status) {
+            SyncStatus.INTERRUPT -> {
                 context.getString(R.string.sync_failed_s, "Reason: Interrupted by application")
             }
-            syncStatusInfo?.status == SyncStatus.ERROR -> {
+            SyncStatus.ERROR -> {
                 context.getString(R.string.sync_failed_s, "Reason: " + context.getString(R.string.no_server_connection, ""))
+            }
+            SyncStatus.ERROR_INTERNET_CONNECTION -> {
+                context.getString(R.string.sync_failed_s, "Reason: " + context.getString(R.string.no_network_connection))
             }
             else -> {
                 context.getString(R.string.sync_failed_s, "")

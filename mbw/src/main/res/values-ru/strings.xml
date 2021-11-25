@@ -41,7 +41,7 @@
     <string name="parent_needs_no_boosting">Родительская транзакция не требует ускорения</string>
     <string name="amount_too_small_short">Сумма слишком мала</string>
     <string name="miner_fee_label">Вознаграждение</string>
-    <string name="miner_fee_title">Вознаграждение майнера</string>
+    <string name="miner_fee_title">Вознаграждение майнеров</string>
     <string name="synchronizing">Синхронизация</string>
     <string name="transaction_not_sent">Не удалось передать транзакцию</string>
     <string name="queue_transaction_message">Не удалось передать транзакцию. \nвы  бы хотели  поставить транзакцию в очередь, чтобы она была  отправлена автоматически, как только вы будете онлайн?</string>
@@ -530,7 +530,7 @@
     <string name="direct_apk_link_label">Прямая\nзагрузка</string>
     <string name="hide_unused_account_menu">Удалить аккаунт</string>
     <string name="dont_allow_hiding_used_notification">Вы не можете спрятать использованный аккаунт, но вы можете поместить его в архив</string>
-    <string name="pref_miner_fee_title">Вознаграждение майнера</string>
+    <string name="pref_miner_fee_title">Вознаграждение майнеров</string>
     <string name="miner_fee_economic_name">Эконом</string>
     <string name="miner_fee_normal_name">Норма</string>
     <string name="miner_fee_priority_name">Приоритет</string>
@@ -911,7 +911,7 @@
     <string name="accounts">Аккаунты</string>
     <string name="quantity">Количество:</string>
     <string name="total_amount">Сумма:</string>
-    <string name="miner_fee">Вознаграждение майнера:</string>
+    <string name="miner_fee">Вознаграждение майнеров:</string>
     <string name="spendable">Можно потратить:</string>
     <string name="redeemed_gift_cards">ИСПОЛЬЗОВАННЫЕ СЕРТИФИКАТЫ</string>
     <string name="share">Поделиться</string>
@@ -926,15 +926,16 @@
     <string name="you_dont_have_btc_or_eth_accounts_with_funds">На ваших BTC или ETH аккаунтах нет средств.\nПожалуйста, пополните ваш BTC или ETH аккаунт и попробуйте ещё раз.</string>
     <string name="no_purchased_gift_card">У вас пока нет сертификатов</string>
     <string name="no_purchased_order">У вас пока нет размещенных заказов</string>
-    <string name="no_gift_cards_linked">Начните с изучения каталога магазинов</string>
+    <string name="no_gift_cards_linked">Начните с изучения каталога магазинов или проверьте статус ваших Заказов.</string>
+    <string name="no_order_linked">Начните с изучения каталога магазинов</string>
     <string name="no_stores_found">Магазины не найдены</string>
     <string name="no_results_found_for_s"><![CDATA[Ничего не найдено по запросу \"<font color="#ffffff">%s</font>\".<br/>Пожалуйста, проверьте написание и попробуйте ещё раз.]]></string>
     <string name="tx_not_sent">Не удалось отправить транзакцию</string>
     <string name="check_internet_and_try_again">Mycelium не может связаться с сервером из-за слабого интернет-соединения.\nПожалуйста, проверьте ваше интернет-соединение и попробуйте ещё раз.</string>
-    <string name="gift_card_ready">Ваш Сертификат готов! Код активации и инструкция по использованию доступны в разделе <u>Мои сертификаты</u>.</string>
+    <string name="gift_card_ready">Ваш Сертификат готов! Ссылка на Сертификат и инструкции по использованию доступны в разделе <u>Мои сертификаты</u>.</string>
     <string name="giftbox_failed_text">Не удалось отправить транзакцию. Пожалуйста, проверьте ваш баланс, интернет-соединение и попробуйте ещё раз.</string>
     <string name="gift_card_after_confirmed"><![CDATA[Ваш Сертификат станет доступен после подтверждения транзакции сетью. Статус подтверждения можно отслеживать в <u>списке транзакций</u> вашего кошелька.]]></string>
-    <string name="payment_confirmed">Транзакция отправлена</string>
+    <string name="payment_confirmed">Транзакция подтверждена</string>
     <string name="mark_as_redeemed">Использован</string>
     <string name="failed">Ошибка</string>
     <string name="payment_in_progress">Платеж в обработке</string>
@@ -959,5 +960,6 @@
     <string name="gift_cards_with_discount">Сертификаты</string>
     <string name="buy_gift_card">Покупка сертификата</string>
     <string name="from_s_to_s">От %s до %s</string>
+    <string name="gift_cards_menu">Сертификаты</string>
     <string name="paid">Транзакция отправлена</string>
 </resources>

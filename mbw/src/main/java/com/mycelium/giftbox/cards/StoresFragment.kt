@@ -14,7 +14,6 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.cards.adapter.StoresAdapter
@@ -96,7 +95,7 @@ class StoresFragment : Fragment() {
             viewModel.search.value = null
             hideKeyboard()
         }
-        if (viewModel.products.isEmpty()) {
+        if (viewModel.products.isEmpty() || activityViewModel.reloadStore) {
             loadData()
         }
         MbwManager.getEventBus().register(this)
@@ -133,6 +132,7 @@ class StoresFragment : Fragment() {
         } else {
             adapter.submitList(adapter.currentList + StoresAdapter.LOADING_ITEM)
         }
+        activityViewModel.reloadStore = false
         viewModel.state.value = ListState.LOADING
         productsJob = GitboxAPI.giftRepository.getProducts(lifecycleScope,
                 search = viewModel.search.value,

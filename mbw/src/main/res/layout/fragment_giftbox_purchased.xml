@@ -6,10 +6,11 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="com.mycelium.giftbox.common.ListState"/>
 
         <variable
             name="viewModel"
-            type="com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel" />
+            type="com.mycelium.giftbox.common.ListStateViewModel" />
 
     </data>
 
@@ -27,7 +28,7 @@
             android:text="@string/no_purchased_gift_card"
             android:textColor="@color/fio_white_alpha_0_9"
             android:textSize="20sp"
-            android:visibility="@{viewModel.ordersSize > 0 || viewModel.loading ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.state == ListState.NOT_FOUND ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -40,7 +41,7 @@
             android:text="@string/no_gift_cards_linked"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
-            android:visibility="@{viewModel.ordersSize > 0 || viewModel.loading ? View.GONE : View.VISIBLE}"
+            android:visibility="@{viewModel.state == ListState.NOT_FOUND ? View.VISIBLE :  View.GONE}"
             app:layout_constraintTop_toBottomOf="@id/noResultTitle" />
 
         <androidx.recyclerview.widget.RecyclerView

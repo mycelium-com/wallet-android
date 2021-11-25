@@ -501,11 +501,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID,
-                      amountToSend: Long, receivingAddress: Address, isColdStorage: Boolean): Intent =
+                      amountToSend: Value, receivingAddress: Address, isColdStorage: Boolean): Intent =
                 getIntent(currentActivity, account, isColdStorage)
-                        .putExtra(AMOUNT, Value.valueOf(
-                                Utils.getBtcCoinType(),
-                                amountToSend))
+                        .putExtra(AMOUNT, amountToSend)
                         .putExtra(RECEIVING_ADDRESS, receivingAddress)
 
         @JvmStatic

@@ -44,7 +44,7 @@
 
             <include
                 android:id="@+id/layoutDescription"
-                layout="@layout/layout_giftbox_card_description"
+                layout="@layout/layout_giftbox_card_description_store"
                 app:viewModel="@{model}" />
 
             <include

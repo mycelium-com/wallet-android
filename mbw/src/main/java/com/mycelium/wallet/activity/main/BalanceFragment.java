@@ -426,7 +426,9 @@ public class BalanceFragment extends Fragment {
                     case ADDRESS:
                         Address address = getAddress(data);
                         startActivity(SendCoinsActivity.getIntent(getActivity(),
-                                _mbwManager.getSelectedAccount().getId(), 0, address, false)
+                                _mbwManager.getSelectedAccount().getId(),
+                                Value.zeroValue(_mbwManager.getSelectedAccount().getCoinType()),
+                                address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {
