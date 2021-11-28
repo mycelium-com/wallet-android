@@ -332,6 +332,17 @@
                     tools:hint="~ 0.00 BTC" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/tvError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/roboto_mono_medium"
+                android:text="@{vm.errorErrorMessage}"
+                android:textColor="@color/red_error"
+                android:textSize="12sp"
+                tools:text="Amount error" />
+
             <Button
                 android:id="@+id/btSend"
                 style="@style/MyceliumButton.FIO"
