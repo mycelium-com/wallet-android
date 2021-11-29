@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <import type="android.view.View" />
+
+        <import type="android.text.Html" />
+
+        <import type="com.mycelium.wapi.wallet.erc20.ERC20Account" />
 
         <variable
             name="activity"
@@ -70,6 +77,20 @@
             <include
                 layout="@layout/send_coins_fee_block"
                 bind:viewModel="@{viewModel}" />
+
+            <TextView
+                android:id="@+id/tvHighestPossibleFeeInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="11dp"
+                android:textColor="#888686"
+                android:textSize="14sp"
+                android:visibility="@{viewModel.account instanceof ERC20Account ? View.VISIBLE : View.GONE }"
+                android:text="@{Html.fromHtml(@string/erc20_highest_possible_fee_info(viewModel.estimatedFee, viewModel.convertedEstimatedFee))}"
+                tools:text="This is the highest possible fee you may have to pay to send the transaction.
+Most possible fee will not exceed 0.0026 ETH ~5 USD. For details please see miner fee calculation." />
 
             <!-- Sender -->
             <include

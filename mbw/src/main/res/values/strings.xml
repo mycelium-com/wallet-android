@@ -1732,6 +1732,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exceed_card_value">Exceed card value</string>
     <string name="from_s_to_s">From %s to %s</string>
     <string name="gift_cards_menu">Gift Cards</string>
+    <string name="erc20_highest_possible_fee_info"><![CDATA[This is the highest possible fee you may have to pay to send the transaction. Most possible fee will not exceed %s%s. For details please see <u>miner fee calculation</u>.]]></string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

@@ -10,6 +10,7 @@ import com.mycelium.wallet.activity.send.SpinnerItem
 import com.mycelium.wallet.activity.send.TransactionItem
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
@@ -71,10 +72,19 @@ class SendEthModel(application: Application,
         }
     }
 
+    val estimatedFee: MutableLiveData<String?> = MutableLiveData()
+    val convertedEstimatedFee: MutableLiveData<String?> = MutableLiveData()
+
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
         showGasLimitError.value = false
+        selectedFee.observeForever {
+            val fee = Value.valueOf(it.type, BigInteger.valueOf(55500) * it.value)
+            estimatedFee.value = fee.toStringFriendlyWithUnit()
+            convertedEstimatedFee.value =
+                " ~${mbwManager.exchangeRateManager.get(fee, mbwManager.getFiatCurrency(account.coinType))?.toStringFriendlyWithUnit() ?: ""}"
+        }
     }
 
     private fun populateTxItems() {

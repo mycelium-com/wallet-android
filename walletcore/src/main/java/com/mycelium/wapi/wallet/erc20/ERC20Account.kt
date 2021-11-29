@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
-import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.abi.FunctionEncoder
@@ -19,7 +18,6 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.TransactionEncoder
 import org.web3j.crypto.TransactionUtils
-import org.web3j.tx.Transfer
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
@@ -43,21 +41,16 @@ class ERC20Account(private val chainId: Byte,
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val inputData = getInputData(address.toString(), amount.value)
-        val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
-        }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
         }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
             throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice, accountContext.nonce, gasLimit, inputData, estimatedGasUsed, amount
-        )
+            gasPrice, accountContext.nonce, gasLimit, inputData, amount)
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -90,7 +83,7 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+                    accountContext.nonce, null, true, tx.gasLimit, tx.gasLimit)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -166,7 +159,7 @@ class ERC20Account(private val chainId: Byte,
 
     override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
 
-    override fun getTypicalEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
+    override fun getTypicalEstimatedTransactionSize() = TOKEN_TRANSFER_GAS_LIMIT.toInt()
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import androidx.databinding.InverseMethod
 import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
@@ -76,6 +75,8 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     fun getSelectedTxItem() = (model as SendEthModel).selectedTxItem
 
     fun showGasLimitError() = (model as SendEthModel).showGasLimitError
+    fun estimatedFee() = (model as SendEthModel).estimatedFee
+    fun convertedEstimatedFee() = (model as SendEthModel).convertedEstimatedFee
 
     override fun sendTransaction(activity: Activity) {
         if (isColdStorage() || model.account is HDAccountExternalSignature) {
