@@ -52,14 +52,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Optional;
@@ -93,7 +88,6 @@ import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
