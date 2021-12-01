@@ -390,22 +390,11 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
    private class ImportSingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
       private InMemoryPrivateKey key;
       private MetadataStorage.BackupState backupState;
-      private ProgressDialog dialog;
       private List<WalletAccount<?>> existingAccounts = new ArrayList<>();
-      private int selectedItem;
-      private List<ColuMain> coluAssets;
 
       ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
          this.backupState = backupState;
-      }
-
-      @Override
-      protected void onPreExecute() {
-         super.onPreExecute();
-         dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
-         dialog.setMessage("Importing");
-         dialog.show();
       }
 
       @Override
@@ -425,8 +414,6 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
       @Override
       protected void onPostExecute(AddressCheckResult result) {
-         dialog.dismiss();
-
          if (existingAccounts.isEmpty()) {
             UUID account1 = returnSAAccount(key, backupState);
             finishOk(account1, false);
@@ -505,18 +492,9 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
       private Address address;
-      private ProgressDialog dialog;
 
       ImportReadOnlySingleAddressAccountAsyncTask(Address address) {
          this.address = address;
-      }
-
-      @Override
-      protected void onPreExecute() {
-         super.onPreExecute();
-         dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
-         dialog.setMessage("Importing");
-         dialog.show();
       }
 
       @Override
@@ -536,8 +514,6 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
       @Override
       protected void onPostExecute(AddressCheckResult result) {
-         dialog.dismiss();
-
          switch (result) {
             case AccountExists:
                finishAlreadyExist(address);
