@@ -14,7 +14,6 @@ import android.view.Window
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -267,8 +266,15 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                     ?.toStringFriendlyWithUnit() ?: ""
             }"
 
-            binding.tvPleaseTopUp.text =
-                Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(), convertedFee))
+            binding.tvPleaseTopUp.apply {
+                text =
+                    Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(), convertedFee))
+                setOnClickListener {
+                    _mbwManager!!.setSelectedAccount(parentEthAccount.id)
+                    setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
+                    finish()
+                }
+            }
         }
     }
 
@@ -462,6 +468,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         const val DESTINATION_ADDRESS = "destinationAddress"
         const val SEND_MODE = "sendmode"
         const val TX_DATA = "txData"
+        const val EXIT_TO_MAIN_SCREEN = "exitToMain"
 
         /**
          * Get Amount for spending

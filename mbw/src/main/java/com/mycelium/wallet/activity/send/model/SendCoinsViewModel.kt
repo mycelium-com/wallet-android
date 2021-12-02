@@ -308,11 +308,16 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
         if (requestCode == SendCoinsActivity.GET_AMOUNT_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-            // Get result from AmountEntry
-            val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
-            model.apply {
-                amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
-                updateAlternativeAmount(enteredAmount)
+            if (data?.getBooleanExtra(GetAmountActivity.EXIT_TO_MAIN_SCREEN, false) == true) {
+                activity.setResult(Activity.RESULT_CANCELED)
+                activity.finish()
+            } else {
+                // Get result from AmountEntry
+                val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
+                model.apply {
+                    amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
+                    updateAlternativeAmount(enteredAmount)
+                }
             }
         } else if (requestCode == SendCoinsActivity.SCAN_RESULT_CODE) {
             handleScanResults(resultCode, data, activity)
