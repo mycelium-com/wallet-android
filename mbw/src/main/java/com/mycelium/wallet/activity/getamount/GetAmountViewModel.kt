@@ -12,13 +12,16 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.eth.EthAccount
 
 
 class GetAmountViewModel(application: Application) : AndroidViewModel(application) {
     val mbwManager = MbwManager.getInstance(application)
-    var account: WalletAccount<Address>? = null
+    var account = MutableLiveData<WalletAccount<Address>?>()
     val maxSpendableAmount = MutableLiveData<Value>()
     val amount = MutableLiveData<Value>()
+    val amountValidation = MutableLiveData<AmountValidation>()
     val currentCurrency = MutableLiveData<AssetInfo>()
 
     val maxAmount: LiveData<String> =
@@ -33,7 +36,7 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
                 if (it.first != null && it.second != null) {
                     MutableLiveData(WalletApplication.getInstance().resources.getString(R.string.max_btc,
                             (convert(it.first!!, it.second!!) ?: Value.zeroValue(it.second!!))
-                            .toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
+                            .toStringWithUnit(mbwManager.getDenomination(account.value!!.coinType))))
                 } else {
                     MutableLiveData("")
                 }
@@ -41,14 +44,24 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
 
     val currencyCurrencyText: LiveData<String> =
             Transformations.switchMap(currentCurrency) {
-                mbwManager.currencySwitcher.setCurrency(account!!.coinType, it)
-                MutableLiveData(mbwManager.currencySwitcher.getCurrentCurrencyIncludingDenomination(account!!.coinType))
+                mbwManager.currencySwitcher.setCurrency(account.value!!.coinType, it)
+                MutableLiveData(mbwManager.currencySwitcher.getCurrentCurrencyIncludingDenomination(account.value!!.coinType))
             }
 
     val howMaxSpendableCalculated: LiveData<Boolean> =
             Transformations.switchMap(maxAmount) {
-                MutableLiveData(account?.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
+                MutableLiveData(account.value!!.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
             }
+
+    val parentAccount: LiveData<EthAccount?> =
+        Transformations.switchMap(account) {
+            MutableLiveData((it as? ERC20Account)?.ethAcc)
+        }
+
+    val notEnoughBalanceToPayForFee: LiveData<Boolean> =
+        Transformations.switchMap(amountValidation) {
+            MutableLiveData(it == AmountValidation.NotEnoughFunds && account.value!!.accountBalance.spendable.moreThan(amount.value!!))
+        }
 
     fun convert(value: Value, assetInfo: AssetInfo): Value? =
             mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), value, assetInfo)
