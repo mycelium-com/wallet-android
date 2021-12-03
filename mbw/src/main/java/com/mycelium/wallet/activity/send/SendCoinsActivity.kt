@@ -59,6 +59,7 @@ import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
+import kotlinx.android.synthetic.main.send_coins_fee_title.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -143,6 +144,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             if(b) {
                 root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
             }
+        }
+        if (viewModel.isMinerFeeInfoAvailable()) {
+            ivInfoIcon.visibility = View.VISIBLE
+            tvFeeLabel.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
         }
     }
 

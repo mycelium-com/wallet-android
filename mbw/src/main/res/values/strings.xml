@@ -59,7 +59,7 @@
     <string name="parent_needs_no_boosting">Parent needs no boosting</string>
     <string name="amount_too_small_short">Amount too small</string>
     <string name="miner_fee_label">Miner fees</string>
-    <string name="miner_fee_title">Miner Fees:</string>
+    <string name="miner_fee_title">Miner Fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
@@ -1388,7 +1388,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="create_new_account">Add new ETH Account</string>
     <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal ETH transfers, the value is 21,000.\nFor contract this value is higher and bound by block gas limit.</string>
     <string name="gas_limit_info_title">Gas Limit</string>
-    <string name="transaction_options">Transaction options</string>
+    <string name="transaction_options">Edit Gas Limit <i>(for advanced users)</i></string>
     <string name="transaction_gas_limit">Transaction Gas Limit</string>
     <string name="transaction_input_data">Transaction Input Data</string>
     <string name="account_added_part">(Added)</string>
@@ -1732,9 +1732,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exceed_card_value">Exceed card value</string>
     <string name="from_s_to_s">From %s to %s</string>
     <string name="gift_cards_menu">Gift Cards</string>
-    <string name="erc20_highest_possible_fee_info"><![CDATA[This is the highest possible fee you may have to pay to send the transaction. Most possible fee will not exceed %s%s. For details please see <u>miner fee calculation</u>.]]></string>
+    <string name="erc20_highest_possible_fee_info"><![CDATA[This is the max fee you may have to pay to send the transaction from <b>ETH %s</b>.  However, most likely miner fee will not exceed %s%s. For details please see <u>miner fee calculation</u>.]]></string>
     <string name="all_ethereum_network_transactions">All Ethereum network transactions require ETH to pay miner fee.</string>
     <string name="please_top_up_your_eth_account"><![CDATA[Please top up your <b><u>ETH %s</u></b> by %s%s to send this transaction.]]></string>
+    <string name="miner_fee_info_title">Miner Fee (ERC-20)</string>
+    <string name="miner_fee_info">All Ethereum network transactions require ETH to pay miner fee. Miner Fee = Gas Limit * Gas Price (Gwei/Gas)\n\nTo provide you the highest possible miner fee estimation Mycelium uses 90 000 units as default maximum Gas Limit due to the complexity of ERC-20 transactions processing.\n\nAverage amount of gas spent by miners on each transaction is ~ 55 000 units.\n\nActual fee may be less or equal depending on the amount of gas used to process the transaction.</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

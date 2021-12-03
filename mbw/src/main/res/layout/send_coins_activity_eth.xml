@@ -87,8 +87,9 @@
                 android:layout_marginTop="11dp"
                 android:textColor="#888686"
                 android:textSize="14sp"
+                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener(activity)}"
                 android:visibility="@{viewModel.account instanceof ERC20Account ? View.VISIBLE : View.GONE }"
-                android:text="@{Html.fromHtml(@string/erc20_highest_possible_fee_info(viewModel.estimatedFee, viewModel.convertedEstimatedFee))}"
+                android:text="@{Html.fromHtml(@string/erc20_highest_possible_fee_info(viewModel.parentAccountLabel, viewModel.estimatedFee, viewModel.convertedEstimatedFee))}"
                 tools:text="This is the highest possible fee you may have to pay to send the transaction.
 Most possible fee will not exceed 0.0026 ETH ~5 USD. For details please see miner fee calculation." />
 

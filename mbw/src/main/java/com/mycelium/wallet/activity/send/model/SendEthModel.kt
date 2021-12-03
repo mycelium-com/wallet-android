@@ -15,6 +15,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
@@ -72,8 +73,9 @@ class SendEthModel(application: Application,
         }
     }
 
-    val estimatedFee: MutableLiveData<String?> = MutableLiveData()
+    var estimatedFee: String? = null
     val convertedEstimatedFee: MutableLiveData<String?> = MutableLiveData()
+    val parentAccountLabel: String? = (account as? ERC20Account)?.ethAcc?.label
 
     init {
         populateTxItems()
@@ -81,7 +83,7 @@ class SendEthModel(application: Application,
         showGasLimitError.value = false
         selectedFee.observeForever {
             val fee = Value.valueOf(it.type, BigInteger.valueOf(55500) * it.value)
-            estimatedFee.value = fee.toStringFriendlyWithUnit()
+            estimatedFee = fee.toStringFriendlyWithUnit()
             convertedEstimatedFee.value =
                 " ~${mbwManager.exchangeRateManager.get(fee, mbwManager.getFiatCurrency(account.coinType))?.toStringFriendlyWithUnit() ?: ""}"
         }

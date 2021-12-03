@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
@@ -62,10 +63,6 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     var isAdvancedBlockExpanded: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun expandCollapseAdvancedBlock() {
-        isAdvancedBlockExpanded.value = isAdvancedBlockExpanded.value != true
-    }
-
     fun getGasLimit() = (model as SendEthModel).gasLimit
 
     fun getInputData() = (model as SendEthModel).inputData
@@ -77,6 +74,18 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     fun showGasLimitError() = (model as SendEthModel).showGasLimitError
     fun estimatedFee() = (model as SendEthModel).estimatedFee
     fun convertedEstimatedFee() = (model as SendEthModel).convertedEstimatedFee
+    fun parentAccountLabel() = (model as SendEthModel).parentAccountLabel
+
+    override fun isMinerFeeInfoAvailable() = model.account is ERC20Account
+
+    override fun minerFeeInfoClickListener(activity: Activity) {
+        AlertDialog.Builder(activity)
+            .setMessage(R.string.miner_fee_info)
+            .setTitle(R.string.miner_fee_info_title)
+            .setPositiveButton(R.string.button_ok, null)
+            .create()
+            .show()
+    }
 
     override fun sendTransaction(activity: Activity) {
         if (isColdStorage() || model.account is HDAccountExternalSignature) {
