@@ -19,6 +19,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
@@ -55,9 +56,12 @@ class SendEthModel(application: Application,
         override fun setValue(value: BigInteger?) {
             if (value != this.value) {
                 super.setValue(value)
-                val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
-                transactionData.value = EthTransactionData(oldData.nonce, value, oldData.inputData, oldData.suggestedGasPrice)
-                showGasLimitError.value = value != null && value < account.typicalEstimatedTransactionSize.toBigInteger()
+                showGasLimitError.value = value != null && value < Transfer.GAS_LIMIT
+                val oldData =
+                    (transactionData.value as? EthTransactionData) ?: EthTransactionData()
+                transactionData.value =
+                    EthTransactionData(oldData.nonce, if (value == null || value < Transfer.GAS_LIMIT) null else value,
+                                       oldData.inputData, oldData.suggestedGasPrice)
             }
         }
     }
@@ -126,4 +130,8 @@ class SendEthModel(application: Application,
                     FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
     }
+
+    override fun estimateTxSize(): Int = transaction?.estimatedTransactionSize
+        ?: (transactionData.value as? EthTransactionData)?.gasLimit?.toInt()
+        ?: account.typicalEstimatedTransactionSize
 }

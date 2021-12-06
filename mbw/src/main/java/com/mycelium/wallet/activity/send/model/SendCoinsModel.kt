@@ -379,7 +379,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    private fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
+    protected open fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
 
     /**
      * Recalculate the transaction based on the current choices.
