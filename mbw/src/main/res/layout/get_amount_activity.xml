@@ -111,8 +111,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="12dp"
-                tools:background="@color/amount_divider_color"
-                android:background="@{viewModel.parentAccount != null &amp;&amp; viewModel.notEnoughBalanceToPayForFee ? @color/fio_red : @color/amount_divider_color}" />
+                tools:background="@color/white_alpha_0_2"
+                android:background="@{viewModel.parentAccount != null &amp;&amp; viewModel.notEnoughBalanceToPayForFee ? @color/fio_red : @color/white_alpha_0_2}" />
 
             <!-- Balance -->
 

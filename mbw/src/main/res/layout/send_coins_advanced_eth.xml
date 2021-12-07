@@ -24,7 +24,7 @@
         android:id="@+id/advancedBlock"
         activity="@{activity}"
         animatedVisibility="@{viewModel.isAdvancedBlockExpanded}"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
@@ -80,7 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/transaction_gas_limit"
+            android:text="Gas Limit (units):"
             android:textSize="16sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/spinner" />
@@ -99,8 +99,6 @@
 
         <EditText
             android:id="@+id/etGasLimit"
-            activity="@{activity}"
-            isRedColor="@{viewModel.showGasLimitError}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -111,6 +109,46 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvGasLimitLabel" />
 
+        <LinearLayout
+            android:id="@+id/llGasLimitStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etGasLimit">
+
+            <TextView
+                android:id="@+id/tvGasLimitHelper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gas_limit_helper"
+                android:textColor="@color/white_alpha_0_2"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvGasLimitWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gas_limit_warning"
+                android:textColor="@color/fio_yellow"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvGasLimitError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gas_limit_error"
+                android:textColor="@color/fio_red"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvDataLabel"
             android:layout_width="wrap_content"
@@ -120,7 +158,7 @@
             android:textSize="16sp"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/etGasLimit" />
+            app:layout_constraintTop_toBottomOf="@id/llGasLimitStatus" />
 
         <ImageView
             android:id="@+id/ic_info_address_type"
@@ -149,19 +187,5 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDataLabel"
             tools:ignore="HardcodedText" />
-
-        <TextView
-            animatedVisibility="@{viewModel.showGasLimitError}"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp"
-            android:gravity="center"
-            android:text="@string/gas_limit_error"
-            android:textColor="@color/red"
-            android:textSize="13sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/etData" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

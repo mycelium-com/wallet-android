@@ -57,6 +57,17 @@ class SendEthModel(application: Application,
             if (value != this.value) {
                 super.setValue(value)
                 showGasLimitError.value = value != null && value < Transfer.GAS_LIMIT
+
+                gasLimitStatus.value = if (value != null) {
+                    when {
+                        value < Transfer.GAS_LIMIT -> SendEthViewModel.GasLimitStatus.ERROR
+                        value < BigInteger.valueOf(90000) -> SendEthViewModel.GasLimitStatus.WARNING
+                        else -> SendEthViewModel.GasLimitStatus.OK
+                    }
+                } else {
+                    SendEthViewModel.GasLimitStatus.EMPTY
+                }
+
                 val oldData =
                     (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =
@@ -80,6 +91,7 @@ class SendEthModel(application: Application,
     var estimatedFee: String? = null
     val convertedEstimatedFee: MutableLiveData<String?> = MutableLiveData()
     val parentAccountLabel: String? = (account as? ERC20Account)?.ethAcc?.label
+    var gasLimitStatus: MutableLiveData<SendEthViewModel.GasLimitStatus> = MutableLiveData(SendEthViewModel.GasLimitStatus.EMPTY)
 
     init {
         populateTxItems()

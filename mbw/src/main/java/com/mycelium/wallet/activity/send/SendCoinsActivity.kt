@@ -12,6 +12,7 @@ import android.os.Looper
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -22,7 +23,6 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.observe
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -133,12 +133,12 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             setDisplayHomeAsUpEnabled(true)
         }
         createSenderFioNamesMenu()
-        viewModel.payerFioName.observe(this) {
+        viewModel.payerFioName.observe(this, Observer {
             updateMemoVisibility()
-        }
-        viewModel.payeeFioName.observe(this) {
+        })
+        viewModel.payeeFioName.observe(this, Observer {
             updateMemoVisibility()
-        }
+        })
         updateMemoVisibility()
         et_fio_memo.setOnFocusChangeListener { view, b ->
             if(b) {
@@ -216,6 +216,33 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                 DataBindingUtil.setContentView<SendCoinsActivityEthBinding>(this, R.layout.send_coins_activity_eth)
                         .also {
                             it.viewModel = (viewModel as SendEthViewModel).apply {
+                                getGasLimitStatus().observe(this@SendCoinsActivity, Observer { status ->
+                                    when (status) {
+                                        SendEthViewModel.GasLimitStatus.ERROR -> {
+                                            tvGasLimitHelper.visibility = View.GONE
+                                            tvGasLimitWarning.visibility = View.GONE
+                                            tvGasLimitError.visibility = View.VISIBLE
+                                        }
+                                        SendEthViewModel.GasLimitStatus.WARNING -> {
+                                            tvGasLimitHelper.visibility = View.GONE
+                                            tvGasLimitWarning.visibility = View.VISIBLE
+                                            tvGasLimitError.visibility = View.GONE
+                                        }
+                                        SendEthViewModel.GasLimitStatus.OK -> {
+                                            tvGasLimitHelper.visibility = View.GONE
+                                            tvGasLimitWarning.visibility = View.GONE
+                                            tvGasLimitError.visibility = View.GONE
+                                        }
+                                        else -> {
+                                            tvGasLimitHelper.visibility = View.VISIBLE
+                                            tvGasLimitWarning.visibility = View.GONE
+                                            tvGasLimitError.visibility = View.GONE
+                                        }
+                                    }
+
+                                    advancedBlock.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                                    advancedBlock.requestLayout()
+                                })
                                 spinner?.adapter = ArrayAdapter(context,
                                         R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)

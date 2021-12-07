@@ -554,6 +554,22 @@
         <item name="hintEnabled">false</item>
     </style>
 
+
+    <style name="YellowText">
+        <item name="android:textColor">@color/fio_yellow</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="RedErrorText">
+        <item name="android:textColor">@color/fio_red</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="HelperText">
+        <item name="android:textColor">@color/white_alpha_0_2</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="Bequant.TabLayout">
         <item name="tabBackground">@drawable/bequant_intro_dot_inactive</item>
         <item name="tabGravity">center</item>
