@@ -156,7 +156,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:text="Show transaction details >"
+        android:text="@string/show_transaction_details"
         android:textColor="@color/fio_prm_btn_line"
         android:textSize="14sp" />
 

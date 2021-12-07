@@ -2,143 +2,149 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
     android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/llAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:paddingBottom="12dp">
         <!-- Key Icon -->
-        <FrameLayout
+
+        <ImageView
+            android:id="@+id/ivIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:gravity="center"
-            android:layout_marginStart="5dp">
-
-            <ImageView
-                android:id="@+id/ivIcon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:contentDescription="@string/label_single_key_icon"
-                tools:src="@drawable/singlekey_grey" />
-
-            <!--<ImageView-->
-            <!--android:id="@+id/ivIconPrivKey"-->
-            <!--android:layout_width="16dp"-->
-            <!--android:layout_height="16dp"-->
-            <!--android:layout_gravity="end"-->
-            <!--android:visibility="gone"-->
-            <!--android:src="@drawable/singlekey_grey"-->
-            <!--android:contentDescription="@string/label_single_key_icon" />-->
-        </FrameLayout>
+            android:layout_marginStart="5dp"
+            android:contentDescription="@string/label_single_key_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/singlekey_grey" />
 
         <!-- Main account info -->
-        <LinearLayout
-            android:layout_width="fill_parent"
+
+        <TextView
+            android:id="@+id/tvAccountType"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="32234"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tvLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toStartOf="@id/lastSyncState"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@id/ivIcon"
+            app:layout_constraintTop_toBottomOf="@id/tvAccountType"
+            tools:text="32234"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/lastSyncState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/tvLabel"
+            app:layout_constraintEnd_toStartOf="@id/tvWhatIsIt"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@id/tvLabel"
+            app:layout_constraintTop_toTopOf="@id/tvLabel"
+            app:srcCompat="@drawable/ic_warning"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tvWhatIsIt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_margin="0dp"
-            android:baselineAligned="false"
-            android:gravity="center_vertical"
-            android:orientation="vertical"
-            android:padding="0dp" >
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:gravity="center"
+            android:text="@string/what_is_it"
+            android:textColor="#4583de"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible" />
 
-            <TextView
-                android:id="@+id/tvAccountType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                tools:text="32234"
-                android:gravity="center"
-                android:textSize="18sp"
-                android:visibility="gone"/>
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:textSize="16sp"
+            android:typeface="monospace"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivIcon"
+            app:layout_constraintTop_toBottomOf="@id/tvLabel"
+            tools:text="crypto address" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tvLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_margin="0dp"
-                    tools:text="32234"
-                    android:gravity="center"
-                    android:padding="0dp"
-                    android:textSize="24sp" />
-
-                <TextView
-                    android:id="@+id/tvWhatIsIt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0dp"
-                    android:gravity="center"
-                    android:text="@string/what_is_it"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginStart="4dp"
-                    android:textColor="#4583de"
-                    android:textSize="16sp"
-                    android:visibility="gone"
-                    />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvAddress"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:padding="0dp"
-                android:textSize="16sp"
-                android:typeface="monospace" >
-            </TextView>
-
-            <TextView
-                android:id="@+id/tvBalance"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:padding="0dp"
-                android:textSize="16sp" >
-            </TextView>
+        <TextView
+            android:id="@+id/tvBalance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivIcon"
+            app:layout_constraintTop_toBottomOf="@id/tvAddress"
+            tools:text="0 BTC" />
 
 
-            <TextView
-                android:id="@+id/tvBackupMissingWarning"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:padding="0dp"
-                android:text="@string/backup_missing"
-                android:textColor="@color/red"
-                android:textSize="16sp" >
-            </TextView>
+        <TextView
+            android:id="@+id/tvBackupMissingWarning"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:text="@string/backup_missing"
+            android:textColor="@color/red"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivIcon"
+            app:layout_constraintTop_toBottomOf="@id/tvBalance" />
 
-            <TextView
-                android:id="@+id/tvTraderKey"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:padding="0dp"
-                android:text="@string/lt_trader_key"
-                android:textColor="@color/green"
-                android:visibility="gone"
-                android:textSize="12sp" >
-            </TextView>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tvTraderKey"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:padding="0dp"
+            android:text="@string/lt_trader_key"
+            android:textColor="@color/green"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivIcon"
+            app:layout_constraintTop_toBottomOf="@id/tvBackupMissingWarning"
+            tools:visibility="visible" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Sync layout -->
     <LinearLayout
@@ -181,8 +187,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="8dp"
-                android:tint="@color/dark_sky_blue"
-                app:srcCompat="@drawable/ic_info" />
+                app:srcCompat="@drawable/ic_info"
+                app:tint="@color/dark_sky_blue" />
         </LinearLayout>
 
 

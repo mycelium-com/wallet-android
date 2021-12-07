@@ -17,6 +17,7 @@ class GiftBoxViewModel(application: Application) : AndroidViewModel(application)
     val currentTab = MutableLiveData<String>()
 
     val orderLoading = MutableLiveData<Boolean>()
+    var reloadStore = false
 
     fun currentCountries(): LiveData<String> =
             Transformations.switchMap(selectedCountries) {

@@ -16,8 +16,8 @@ class CardsFragmentAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycl
     override fun createFragment(position: Int): Fragment =
             when (position) {
                 0 -> StoresFragment()
-                1 -> OrdersFragment()
-                2 -> CardsFragment()
+                1 -> CardsFragment()
+                2 -> OrdersFragment()
                 else -> TODO("not implemented")
             }
 }

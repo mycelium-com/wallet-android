@@ -89,7 +89,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 }
             }
             if (value!!.isEmpty()) {
-                publishProgress(accountsList)
+                publishProgress(accountsList.toList())
             }
 
             val archivedList = walletManager.getArchivedAccounts()
@@ -115,12 +115,12 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         private fun getInvestmentAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getInvestmentAccounts()
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>) =
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>): List<AccountListItem> =
                 accounts.map {
                     if (it is InvestmentAccount) {
                         BQExchangeRateManager.requestOptionalRefresh()
                         AccountInvestmentViewModel(it, it.accountBalance.confirmed.toStringWithUnit())
-                    } else AccountViewModel(it, mbwManager)
+                    } else AccountViewModel(it, mbwManager) as AccountListItem
                 }
 
         private fun sortAccounts(accounts: Collection<WalletAccount<out Address>>) =

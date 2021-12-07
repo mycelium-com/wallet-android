@@ -14,10 +14,9 @@ import androidx.lifecycle.ViewModelProviders
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.databinding.AddressFragmentBinding
-import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
 import com.mycelium.wallet.databinding.AddressFragmentBtcBinding
-import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
@@ -103,5 +102,8 @@ class AddressFragment : Fragment() {
                 }
             }
         })
+        syncStatus.setOnClickListener {
+            Toaster(requireContext()).toastSyncFailed(viewModel.getAccount().lastSyncStatus())
+        }
     }
 }

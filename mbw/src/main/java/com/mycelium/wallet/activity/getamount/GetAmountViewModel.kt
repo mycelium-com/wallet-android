@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.get
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.Address
@@ -16,7 +17,6 @@ import com.mycelium.wapi.wallet.coins.Value
 class GetAmountViewModel(application: Application) : AndroidViewModel(application) {
     val mbwManager = MbwManager.getInstance(application)
     var account: WalletAccount<Address>? = null
-
     val maxSpendableAmount = MutableLiveData<Value>()
     val amount = MutableLiveData<Value>()
     val currentCurrency = MutableLiveData<AssetInfo>()
@@ -31,9 +31,9 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }) {
                 if (it.first != null && it.second != null) {
-                    MutableLiveData<String>(getApplication<Application>().resources.getString(R.string.max_btc,
-                            convert(it.first!!, it.second!!)
-                                    ?: Value.zeroValue(it.second!!).toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
+                    MutableLiveData(WalletApplication.getInstance().resources.getString(R.string.max_btc,
+                            (convert(it.first!!, it.second!!) ?: Value.zeroValue(it.second!!))
+                            .toStringWithUnit(mbwManager.getDenomination(account!!.coinType))))
                 } else {
                     MutableLiveData("")
                 }
@@ -47,7 +47,7 @@ class GetAmountViewModel(application: Application) : AndroidViewModel(applicatio
 
     val howMaxSpendableCalculated: LiveData<Boolean> =
             Transformations.switchMap(maxAmount) {
-                MutableLiveData<Boolean>(account?.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
+                MutableLiveData(account?.coinType == Utils.getBtcCoinType() && it.isNotEmpty())
             }
 
     fun convert(value: Value, assetInfo: AssetInfo): Value? =

@@ -44,7 +44,7 @@
 
             <include
                 android:id="@+id/layoutDescription"
-                layout="@layout/layout_giftbox_card_description"
+                layout="@layout/layout_giftbox_card_description_store"
                 app:viewModel="@{model}" />
 
             <include
@@ -58,6 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/card_value"
+                android:visibility="@{model.amount != null ? View.VISIBLE : View.GONE}"
                 android:textColor="@color/giftbox_label"
                 android:textSize="14sp" />
 

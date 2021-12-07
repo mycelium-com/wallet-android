@@ -18,7 +18,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:drawablePadding="8dp"
-            android:hint="Search country"
+            android:hint="@string/search_country"
             android:lines="1"
             android:maxLines="1"
             android:paddingStart="12dp"

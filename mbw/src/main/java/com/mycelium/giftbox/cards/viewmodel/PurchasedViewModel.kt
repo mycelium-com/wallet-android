@@ -4,12 +4,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mycelium.giftbox.client.models.Order
 import com.mycelium.giftbox.client.models.OrdersHistoryResponse
+import com.mycelium.giftbox.common.ListState
+import com.mycelium.giftbox.common.ListStateViewModel
 
 
-class PurchasedViewModel : ViewModel() {
-    val loading = MutableLiveData<Boolean>(false)
+open class PurchasedViewModel : ViewModel(), ListStateViewModel {
     val orders = MutableLiveData<List<Order>>(emptyList())
-    var ordersSize = 0L
+    var ordersSize = MutableLiveData(0L)
+    override val state = MutableLiveData<ListState>(ListState.OK)
 
     fun setOrdersResponse(it: OrdersHistoryResponse?, append: Boolean = false) {
         orders.value = if (append) {
@@ -18,6 +20,7 @@ class PurchasedViewModel : ViewModel() {
         } else {
             it?.items ?: emptyList()
         }.sortedByDescending { it.timestamp }
-        ordersSize = it?.size ?: 0
+        state.value = if (orders.value?.isNotEmpty() == true) ListState.OK else ListState.NOT_FOUND
+        ordersSize.value = it?.size ?: 0
     }
 }

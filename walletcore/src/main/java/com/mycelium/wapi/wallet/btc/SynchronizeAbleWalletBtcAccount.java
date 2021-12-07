@@ -3,11 +3,15 @@ package com.mycelium.wapi.wallet.btc;
 import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.SyncStatus;
+import com.mycelium.wapi.SyncStatusInfo;
+import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
@@ -86,6 +90,7 @@ public abstract class SynchronizeAbleWalletBtcAccount extends SyncPausableAccoun
             // if sync went well, remember current time for this sync mode
             if (synced) {
                _lastSync.put(mode.mode, new Date());
+               setLastSyncInfo(new SyncStatusInfo(SyncStatus.SUCCESS));
             }
             return synced;
          } finally {

@@ -6,14 +6,14 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'com.squareup.sqldelight'
 
 repositories {
+    mavenCentral()
     google()
-    jcenter()
 }
 
 buildscript {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
     }
 
     dependencies {
@@ -211,8 +211,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3110005
-        versionName '3.11.0.5'
+        versionCode 3120500
+        versionName '3.12.5.0'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion

@@ -40,6 +40,8 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.SyncStatus;
+import com.mycelium.wapi.SyncStatusInfo;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
@@ -321,6 +323,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                  .getResult();
       } catch (WapiException e) {
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
+         setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
          postEvent(Event.SERVER_CONNECTION_ERROR);
          return -1;
       }
@@ -423,6 +426,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             handleNewExternalTransactions(txs);
          } catch (WapiException e) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
+            setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return -1;
          }
@@ -774,6 +778,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                return new BroadcastResult(BroadcastResultType.REJECT_DUPLICATE);
             }
          } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
+            setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
             postEvent(Event.SERVER_CONNECTION_ERROR);
             _logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
             return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
@@ -795,6 +800,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             return new BroadcastResult(BroadcastResultType.REJECTED);
          }
       } catch (WapiException e) {
+         setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
          postEvent(Event.SERVER_CONNECTION_ERROR);
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
          return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
@@ -1467,6 +1473,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       try {
          result = _wapi.checkTransactions(new CheckTransactionsRequest(txids)).getResult();
       } catch (WapiException e) {
+         setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
          postEvent(Event.SERVER_CONNECTION_ERROR);
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
          // We failed to check transactions

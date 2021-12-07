@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical">
 
@@ -55,21 +55,21 @@
                     android:id="@+id/tvCryptoAmount"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
                     android:layout_marginTop="4dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:visibility="invisible"
-                    tools:visibility="visible"
                     android:fontFamily="@font/roboto_mono_medium"
                     android:gravity="end"
-                    tools:hint="@string/amount_hint"
                     android:lines="1"
                     android:singleLine="true"
                     android:textColor="@color/white"
                     android:textSize="14sp"
+                    android:visibility="invisible"
                     app:layout_constraintEnd_toEndOf="@id/btCurrency"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvAmount"/>
+                    app:layout_constraintTop_toBottomOf="@id/tvAmount"
+                    tools:hint="@string/amount_hint"
+                    tools:visibility="visible" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -104,13 +104,13 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:visibility="invisible"
-                tools:visibility="visible"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/spendableLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:visibility="invisible"
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/tvSpendableTitle"
@@ -119,26 +119,41 @@
                     android:layout_gravity="start"
                     android:text="@string/spendable"
                     android:textColor="@color/fio_white_alpha_0_6"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tvSpendableCryptoAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_marginStart="8dp"
                     android:textSize="14sp"
-                    tools:text="0 BTC" />
+                    tools:text="10000.009000 BTC" />
 
                 <TextView
                     android:id="@+id/tvSpendableFiatAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_marginStart="8dp"
                     android:textSize="14sp"
-                    tools:text="~0 USD" />
-            </LinearLayout>
+                    tools:text="~1000.000000 USD" />
+
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    app:constraint_referenced_ids="tvSpendableCryptoAmount,tvSpendableFiatAmount"
+                    app:flow_horizontalBias="0"
+                    app:flow_horizontalGap="8dp"
+                    app:flow_horizontalStyle="packed"
+                    app:flow_verticalBias="0"
+                    app:flow_wrapMode="chain"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tvSpendableTitle"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
             <LinearLayout

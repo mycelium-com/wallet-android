@@ -2,6 +2,8 @@ package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -40,7 +42,6 @@ class ERC20Account(private val chainId: Byte,
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
-        val nonce = getNewNonce()
         val inputData = getInputData(address.toString(), amount.value)
         val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
@@ -55,7 +56,7 @@ class ERC20Account(private val chainId: Byte,
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice, nonce, gasLimit, inputData, estimatedGasUsed, amount
+            gasPrice, accountContext.nonce, gasLimit, inputData, estimatedGasUsed, amount
         )
     }
 
@@ -116,8 +117,9 @@ class ERC20Account(private val chainId: Byte,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        syncTransactions()
-        return updateBalanceCache()
+        val syncTx = syncTransactions()
+        updateBalanceCache()
+        return syncTx
     }
 
     override fun getNonce() = accountContext.nonce
@@ -204,7 +206,7 @@ class ERC20Account(private val chainId: Byte,
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)
 
-    private fun syncTransactions() {
+    private fun syncTransactions():Boolean {
         try {
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.forEach { tx ->
@@ -227,8 +229,11 @@ class ERC20Account(private val chainId: Byte,
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
             }
+            return true
         } catch (e: IOException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
+            return false
         }
     }
 
