@@ -91,6 +91,7 @@ class TransactionHistoryFragment : Fragment() {
         model.cacheAddressBook()
         val accountId = arguments?.getSerializable("accountId") as UUID?
         model.account.value = if (accountId != null) model.mbwManager.getWalletManager(false).getAccount(accountId)!! else model.mbwManager.selectedAccount
+        MbwManager.getEventBus().register(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -130,17 +131,6 @@ class TransactionHistoryFragment : Fragment() {
         }
     }
 
-
-    override fun onResume() {
-        MbwManager.getEventBus().register(this)
-        super.onResume()
-    }
-
-    override fun onPause() {
-        MbwManager.getEventBus().unregister(this)
-        super.onPause()
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
@@ -157,6 +147,11 @@ class TransactionHistoryFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        MbwManager.getEventBus().unregister(this)
+        super.onDestroy()
     }
 
     @Subscribe
