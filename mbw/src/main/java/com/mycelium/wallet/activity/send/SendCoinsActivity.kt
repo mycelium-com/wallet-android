@@ -217,11 +217,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                         .also {
                             it.viewModel = (viewModel as SendEthViewModel).apply {
                                 getGasLimitStatus().observe(this@SendCoinsActivity, Observer { status ->
+                                    etGasLimit.setTextColor(resources.getColor(R.color.white))
                                     when (status) {
                                         SendEthViewModel.GasLimitStatus.ERROR -> {
                                             tvGasLimitHelper.visibility = View.GONE
                                             tvGasLimitWarning.visibility = View.GONE
                                             tvGasLimitError.visibility = View.VISIBLE
+                                            etGasLimit.setTextColor(resources.getColor(R.color.fio_red))
                                         }
                                         SendEthViewModel.GasLimitStatus.WARNING -> {
                                             tvGasLimitHelper.visibility = View.GONE
