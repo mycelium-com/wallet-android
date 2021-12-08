@@ -4,13 +4,9 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
 import android.content.Intent
-import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.databinding.BindingAdapter
 import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.util.EthFeeFormatter
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.eth.EthUri
@@ -77,7 +73,6 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     fun getSelectedTxItem() = (model as SendEthModel).selectedTxItem
 
-    fun showGasLimitError() = (model as SendEthModel).showGasLimitError
     fun estimatedFee() = (model as SendEthModel).estimatedFee
     fun convertedEstimatedFee() = (model as SendEthModel).convertedEstimatedFee
     fun parentAccountLabel() = (model as SendEthModel).parentAccountLabel
@@ -111,23 +106,5 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     enum class GasLimitStatus {
         EMPTY, OK, WARNING, ERROR
-    }
-}
-
-@BindingAdapter(value = ["infoType", "activity"])
-fun updateGasLimitInfoTextView(target: TextView, gasLimitInfoType: SendEthViewModel.GasLimitStatus, activity: SendCoinsActivity) {
-    when (gasLimitInfoType) {
-        SendEthViewModel.GasLimitStatus.WARNING -> {
-            target.setTextColor(ContextCompat.getColor(activity, R.color.fio_yellow))
-            target.text = target.context.getString(R.string.gas_limit_warning)
-        }
-        SendEthViewModel.GasLimitStatus.ERROR -> {
-            target.setTextColor(ContextCompat.getColor(activity, R.color.fio_red))
-//            target.text = target.context.getString(R.string.minimal_gas_limit_for_ethereum_error)
-        }
-        else -> {
-            target.setTextColor(ContextCompat.getColor(activity, R.color.white_alpha_0_2))
-            target.text = target.context.getString(R.string.gas_limit_helper)
-        }
     }
 }

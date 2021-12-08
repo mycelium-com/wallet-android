@@ -29,7 +29,6 @@ class SendEthModel(application: Application,
                    intent: Intent)
     : SendCoinsModel(application, account, intent) {
     var txItems: List<SpinnerItem> = emptyList()
-    val showGasLimitError: MutableLiveData<Boolean> = MutableLiveData()
 
     val selectedTxItem: MutableLiveData<SpinnerItem> = object : MutableLiveData<SpinnerItem>() {
         override fun setValue(value: SpinnerItem) {
@@ -56,8 +55,6 @@ class SendEthModel(application: Application,
         override fun setValue(value: BigInteger?) {
             if (value != this.value) {
                 super.setValue(value)
-                showGasLimitError.value = value != null && value < Transfer.GAS_LIMIT
-
                 gasLimitStatus.value = if (value != null) {
                     when {
                         value < Transfer.GAS_LIMIT -> SendEthViewModel.GasLimitStatus.ERROR
@@ -96,7 +93,6 @@ class SendEthModel(application: Application,
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
-        showGasLimitError.value = false
         selectedFee.observeForever {
             val fee = Value.valueOf(it.type, BigInteger.valueOf(55500) * it.value)
             estimatedFee = fee.toStringFriendlyWithUnit()
