@@ -90,8 +90,54 @@
                 android:onClick="@{_ -> viewModel.minerFeeInfoClickListener(activity)}"
                 android:visibility="@{viewModel.account instanceof ERC20Account ? View.VISIBLE : View.GONE }"
                 android:text="@{Html.fromHtml(@string/erc20_highest_possible_fee_info(viewModel.parentAccountLabel, viewModel.estimatedFee, viewModel.convertedEstimatedFee))}"
-                tools:text="This is the highest possible fee you may have to pay to send the transaction.
-Most possible fee will not exceed 0.0026 ETH ~5 USD. For details please see miner fee calculation." />
+                tools:text="This is the max fee you may have to pay to send the transaction from ETH Account 1.  However, most likely miner fee will not exceed 0.0026 ETH ~5.00 USD. For details please see miner fee calculation." />
+
+            <LinearLayout
+                android:id="@+id/llNotEnoughEth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:layout_marginTop="11dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvPleaseTopUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FF1C3D"
+                    android:textSize="14sp"
+                    tools:text="@string/please_top_up_your_eth_account" />
+
+                <LinearLayout
+                    android:id="@+id/llParentEthAccountBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvParentEthAccountBalanceLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ETH Account 1:"
+                        android:textColor="#99FFFFFF"
+                        android:textSize="14sp"
+                        tools:text="ETH Account 1:" />
+
+                    <TextView
+                        android:id="@+id/tvParentEthAccountBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" 0.002 ETH"
+                        android:textColor="#99FFFFFF"
+                        android:textSize="14sp"
+                        tools:text=" 0 ETH" />
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- Sender -->
             <include

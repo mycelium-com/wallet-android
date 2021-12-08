@@ -40,6 +40,8 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
+import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
@@ -79,9 +81,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         if (isSendMode) {
             initSendModeAccount()
         } else {
-            viewModel.account.value = _mbwManager!!.selectedAccount
+            viewModel.account = _mbwManager!!.selectedAccount
         }
-        mainCurrencyType = viewModel.account.value!!.coinType
+        mainCurrencyType = viewModel.account!!.coinType
         _mbwManager!!.currencySwitcher.defaultCurrency = mainCurrencyType
         viewModel.currentCurrency.value = mainCurrencyType
         initNumberEntry(savedInstanceState)
@@ -104,21 +106,21 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     private fun getMaxDecimal(assetInfo: AssetInfo?): Int =
             (assetInfo as? FiatType)?.unitExponent
-                    ?: assetInfo!!.unitExponent - _mbwManager!!.getDenomination(viewModel.account.value!!.coinType).scale
+                    ?: assetInfo!!.unitExponent - _mbwManager!!.getDenomination(viewModel.account!!.coinType).scale
 
     private fun initSendMode() {
         // Calculate the maximum amount that can be spent where we send everything we got to another address
         _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
         txData = intent.getSerializableExtra(TX_DATA) as TransactionData?
         destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
-                ?: viewModel.account.value!!.dummyAddress
+                ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.maxSpendableAmount.postValue(viewModel.account.value!!.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress))
+            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress))
         }
 
         // if no amount is set, create an null amount with the correct currency
         if (viewModel.amount.value == null) {
-            viewModel.amount.value = Value.zeroValue(viewModel.account.value!!.coinType)
+            viewModel.amount.value = Value.zeroValue(viewModel.account!!.coinType)
         }
     }
 
@@ -127,7 +129,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val accountId = Preconditions.checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
         //TODO check all WalletAccount return type in walletmanager, should be some like WalletAccount<Address>
-        viewModel.account.value = _mbwManager!!.getWalletManager(isColdStorage).getAccount(accountId) as WalletAccount<Address>
+        viewModel.account = _mbwManager!!.getWalletManager(isColdStorage).getAccount(accountId) as WalletAccount<Address>
     }
 
     private fun initNumberEntry(savedInstanceState: Bundle?) {
@@ -140,8 +142,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
         // Init the number pad
         val amountString = if (!isNullOrZero(viewModel.amount.value))
-            viewModel.amount.value!!.toString(_mbwManager!!.getDenomination(viewModel.account.value!!.coinType)) else ""
-        viewModel.currentCurrency.value = viewModel.amount.value?.type ?: viewModel.account.value!!.coinType
+            viewModel.amount.value!!.toString(_mbwManager!!.getDenomination(viewModel.account!!.coinType)) else ""
+        viewModel.currentCurrency.value = viewModel.amount.value?.type ?: viewModel.account!!.coinType
         _numberEntry = NumberEntry(getMaxDecimal(viewModel.currentCurrency.value), this, this, amountString)
     }
 
@@ -178,7 +180,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             currencyList.forEach { asset ->
                 var itemTitle = asset.symbol
                 // we want to display cryptocurrency items as "Symbol (denomination if it differs from UNIT)", e.g. "BTC (bits)"
-                val denomination = _mbwManager!!.getDenomination(viewModel.account.value!!.coinType)
+                val denomination = _mbwManager!!.getDenomination(viewModel.account!!.coinType)
                 if (cryptocurrencies.contains(asset.symbol) && denomination !== Denomination.UNIT) {
                     itemTitle += " (" + denomination.getUnicodeString(asset.symbol) + ")"
                 }
@@ -247,7 +249,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             val newAmount = if (viewModel.currentCurrency.value is FiatType) {
                 viewModel.amount.value!!.valueAsBigDecimal
             } else {
-                val toTargetUnit = _mbwManager!!.getDenomination(viewModel.account.value!!.coinType).scale
+                val toTargetUnit = _mbwManager!!.getDenomination(viewModel.account!!.coinType).scale
                 viewModel.amount.value!!.valueAsBigDecimal.multiply(BigDecimal.TEN.pow(toTargetUnit))
             }
             _numberEntry!!.setEntry(newAmount, getMaxDecimal(viewModel.amount.value!!.type))
@@ -259,21 +261,33 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         // Check whether we can show the paste button
         binding.btPaste.visibility = if (enablePaste()) View.VISIBLE else View.GONE
 
-        (viewModel.account.value as? ERC20Account)?.ethAcc?.let { parentEthAccount ->
-            val fee = Value.valueOf(_kbMinerFee!!.type, BigInteger.valueOf(90000) * _kbMinerFee!!.value)
-            val convertedFee = " ~${
-                _mbwManager!!.exchangeRateManager.get(fee, _mbwManager!!.getFiatCurrency(viewModel.account.value!!.coinType))
-                    ?.toStringFriendlyWithUnit() ?: ""
-            }"
+        (viewModel.account as? ERC20Account)?.ethAcc?.let { parentEthAccount ->
+            val gasLimit = (txData as? EthTransactionData)?.gasLimit
+                ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
+            val fee = Value.valueOf(_kbMinerFee!!.type, gasLimit * _kbMinerFee!!.value)
+            val isNotEnoughEth = parentEthAccount.accountBalance.spendable.lessThan(fee)
 
-            binding.tvPleaseTopUp.apply {
-                text =
-                    Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(), convertedFee))
-                setOnClickListener {
-                    _mbwManager!!.setSelectedAccount(parentEthAccount.id)
-                    setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
-                    finish()
+            if (isNotEnoughEth) {
+                val convertedFee = " ~${
+                    _mbwManager!!.exchangeRateManager.get(fee, _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType))
+                        ?.toStringFriendlyWithUnit() ?: ""
+                }"
+
+                binding.tvPleaseTopUp.apply {
+                    text =
+                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(), convertedFee))
+                    setOnClickListener {
+                        _mbwManager!!.setSelectedAccount(parentEthAccount.id)
+                        setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
+                        finish()
+                    }
+                    visibility = View.VISIBLE
                 }
+                binding.tvParentEthAccountBalanceLabel.text = "ETH (${parentEthAccount.label}): "
+                binding.tvParentEthAccountBalance.text = parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit()
+                binding.llParentEthAccountBalance.visibility = View.VISIBLE
+                binding.tvEthRequiredInfo.visibility = View.VISIBLE
+                binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
             }
         }
     }
@@ -292,7 +306,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
     override fun onPause() {
         MbwManager.getEventBus().unregister(this)
-        viewModel.currentCurrency.value = _mbwManager!!.currencySwitcher.currentCurrencyMap[viewModel.account.value!!.coinType]
+        viewModel.currentCurrency.value = _mbwManager!!.currencySwitcher.currentCurrencyMap[viewModel.account!!.coinType]
         super.onPause()
     }
 
@@ -320,7 +334,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             if (viewModel.currentCurrency.value is FiatType) {
                 value1
             } else {
-                valueOf(value1.type, _mbwManager!!.getDenomination(viewModel.account.value!!.coinType).getAmount(value1.value))
+                valueOf(value1.type, _mbwManager!!.getDenomination(viewModel.account!!.coinType).getAmount(value1.value))
             }
         } catch (e: NumberFormatException) {
             Value.zeroValue(viewModel.currentCurrency.value!!)
@@ -337,12 +351,12 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         binding.tvAmount.text = amountText
         // Set alternate amount if we can
         if (!_mbwManager!!.hasFiatCurrency()
-                || !_mbwManager!!.currencySwitcher.isFiatExchangeRateAvailable(viewModel.account.value!!.coinType)) {
+                || !_mbwManager!!.currencySwitcher.isFiatExchangeRateAvailable(viewModel.account!!.coinType)) {
             binding.tvAlternateAmount.text = ""
         } else {
             binding.tvAlternateAmount.text = if (mainCurrencyType == viewModel.currentCurrency.value) {
                 // Show Fiat as alternate amount
-                val currency = _mbwManager!!.getFiatCurrency(viewModel.account.value!!.coinType)
+                val currency = _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType)
                 viewModel.convert(viewModel.amount.value!!, currency)
             } else {
                 try {
@@ -351,7 +365,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                     // something failed while calculating the amount
                     null
                 }
-            }?.toStringWithUnit(_mbwManager!!.getDenomination(viewModel.account.value!!.coinType))
+            }?.toStringWithUnit(_mbwManager!!.getDenomination(viewModel.account!!.coinType))
         }
     }
 
@@ -377,7 +391,6 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         lifecycleScope.launch(Dispatchers.Default) {
             val result = validateAmount(value)
             withContext(Dispatchers.Main) {
-                viewModel.amountValidation.value = result
                 listener(value, result)
             }
         }
@@ -390,7 +403,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             return AmountValidation.Ok //entering a fiat value + exchange is not availible
         }
         try {
-            viewModel.account.value!!.createTx(destinationAddress!!, value, FeePerKbFee(_kbMinerFee!!), txData)
+            viewModel.account!!.createTx(destinationAddress!!, value, FeePerKbFee(_kbMinerFee!!), txData)
         } catch (e: OutputTooSmallException) {
             return AmountValidation.ValueTooSmall
         } catch (e: InsufficientFundsException) {
@@ -421,7 +434,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 binding.tvAmount.setTextColor(resources.getColor(R.color.red))
                 if (result == AmountValidation.NotEnoughFunds) {
                     // We do not have enough funds
-                    if (amount!!.equalZero() || viewModel.account.value!!.accountBalance.spendable.lessThan(amount)) {
+                    if (amount!!.equalZero() || viewModel.account!!.accountBalance.spendable.lessThan(amount)) {
                         // We do not have enough funds for sending the requested amount
                         Toaster(this@GetAmountActivity).toast(R.string.insufficient_funds, true)
                     } else {
@@ -454,7 +467,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
     }
 
     private fun updateExchangeRateDisplay() {
-        if (viewModel.amount.value != null && _mbwManager!!.currencySwitcher.getExchangeRatePrice(viewModel.account.value!!.coinType) != null) {
+        if (viewModel.amount.value != null && _mbwManager!!.currencySwitcher.getExchangeRatePrice(viewModel.account!!.coinType) != null) {
             updateAmountsDisplay(_numberEntry!!.entry)
         }
     }

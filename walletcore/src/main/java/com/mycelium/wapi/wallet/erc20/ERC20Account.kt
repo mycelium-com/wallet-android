@@ -19,6 +19,7 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.TransactionEncoder
 import org.web3j.crypto.TransactionUtils
+import org.web3j.tx.Transfer.GAS_LIMIT
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
@@ -256,6 +257,7 @@ class ERC20Account(private val chainId: Byte,
     }
 
     companion object {
-        private const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
+        const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
+        val AVG_TOKEN_TRANSFER_GAS = (GAS_LIMIT.toLong() + TOKEN_TRANSFER_GAS_LIMIT) / 2
     }
 }

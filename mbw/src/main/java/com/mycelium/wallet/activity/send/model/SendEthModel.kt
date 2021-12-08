@@ -16,6 +16,8 @@ import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
+import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
@@ -58,7 +60,7 @@ class SendEthModel(application: Application,
                 gasLimitStatus.value = if (value != null) {
                     when {
                         value < Transfer.GAS_LIMIT -> SendEthViewModel.GasLimitStatus.ERROR
-                        value < BigInteger.valueOf(90000) -> SendEthViewModel.GasLimitStatus.WARNING
+                        value < BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT) -> SendEthViewModel.GasLimitStatus.WARNING
                         else -> SendEthViewModel.GasLimitStatus.OK
                     }
                 } else {
@@ -94,7 +96,7 @@ class SendEthModel(application: Application,
         populateTxItems()
         selectedTxItem.value = NoneItem()
         selectedFee.observeForever {
-            val fee = Value.valueOf(it.type, BigInteger.valueOf(55500) * it.value)
+            val fee = Value.valueOf(it.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * it.value)
             estimatedFee = fee.toStringFriendlyWithUnit()
             convertedEstimatedFee.value =
                 " ~${mbwManager.exchangeRateManager.get(fee, mbwManager.getFiatCurrency(account.coinType))?.toStringFriendlyWithUnit() ?: ""}"
