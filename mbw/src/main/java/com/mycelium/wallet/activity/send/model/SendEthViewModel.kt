@@ -86,9 +86,18 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     override fun isMinerFeeInfoAvailable() = model.account is ERC20Account
 
     override fun minerFeeInfoClickListener(activity: Activity) {
-        AlertDialog.Builder(activity)
-            .setMessage(R.string.miner_fee_info)
-            .setTitle(R.string.miner_fee_info_title)
+        AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
+            .setMessage(R.string.miner_fee_erc20_info)
+            .setTitle(R.string.miner_fee_erc20_info_title)
+            .setPositiveButton(R.string.button_ok, null)
+            .create()
+            .show()
+    }
+
+    fun gasLimitErc20InfoClickListener(activity: Activity) {
+        AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
+            .setMessage(R.string.gas_limit_erc20_info)
+            .setTitle(R.string.gas_limit_erc20_info_title)
             .setPositiveButton(R.string.button_ok, null)
             .create()
             .show()

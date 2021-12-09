@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="@layout/send_coins_activity_eth">
@@ -21,14 +22,39 @@
         android:layout_marginTop="24dp"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/tvAdvancedTitle"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:checked="@={viewModel.isAdvancedBlockExpanded}"
-            android:text="@string/transaction_options"
-            android:textColor="@color/white"
-            bind:switchPadding="8dp" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvTxOptionsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transaction_options"
+                android:textColor="#888686"
+                android:textSize="14sp"
+                bind:layout_constraintBottom_toBottomOf="parent"
+                bind:layout_constraintStart_toStartOf="parent"
+                bind:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="8dp"
+                android:onClick="@{_ -> viewModel.gasLimitErc20InfoClickListener(activity)}"
+                app:srcCompat="@drawable/ic_info"
+                app:tint="@color/dark_sky_blue"
+                bind:layout_constraintBottom_toBottomOf="parent"
+                bind:layout_constraintStart_toEndOf="@id/tvTxOptionsLabel"
+                bind:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={viewModel.isAdvancedBlockExpanded}"
+                bind:layout_constraintEnd_toEndOf="parent"
+                bind:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
             layout="@layout/send_coins_advanced_eth"

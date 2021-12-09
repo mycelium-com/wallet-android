@@ -252,11 +252,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     advancedBlock.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                                     advancedBlock.requestLayout()
                                 })
-                                spinner?.adapter = ArrayAdapter(context,
-                                        R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
-                                    this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
-                                }
-
                                 if (account is ERC20Account) {
                                     getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
                                         val gasLimit = gl ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
@@ -297,6 +292,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         setResult(RESULT_CANCELED)
                                         finish()
                                     }
+                                }
+                                spinner?.adapter = ArrayAdapter(context,
+                                                                R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
+                                    this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
                             }
                             it.activity = this
