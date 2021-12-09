@@ -152,8 +152,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             }
         }
         if (viewModel.isMinerFeeInfoAvailable()) {
-            ivInfoIcon.visibility = View.VISIBLE
             tvFeeLabel.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
+            ivInfoIcon.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
+            ivInfoIcon.visibility = View.VISIBLE
         }
     }
 
