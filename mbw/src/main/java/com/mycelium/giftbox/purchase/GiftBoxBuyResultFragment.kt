@@ -2,7 +2,6 @@ package com.mycelium.giftbox.purchase
 
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
