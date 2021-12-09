@@ -93,18 +93,13 @@ class GiftBoxBuyResultFragment : Fragment() {
             activityViewModel.currentTab.value = GiftBoxFragment.CARDS
             findNavController().navigate(GiftBoxBuyResultFragmentDirections.actionMyGiftCards())
         }
-        binding?.root?.postDelayed(object : Runnable {
-            override fun run() {
-                loadOrder(false, true)
-                binding?.root?.postDelayed(this, 15000)
-            }
-        }, 15000)
     }
 
     override fun onResume() {
         super.onResume()
-        updateJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(10)) {
+        updateJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(15)) {
             updateAllUi()
+            loadOrder(false, true)
         }
     }
 
