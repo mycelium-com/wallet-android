@@ -10,15 +10,14 @@ import com.mycelium.wallet.activity.send.SpinnerItem
 import com.mycelium.wallet.activity.send.TransactionItem
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat
-import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
-import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import org.web3j.tx.Transfer
@@ -31,6 +30,8 @@ class SendEthModel(application: Application,
                    intent: Intent)
     : SendCoinsModel(application, account, intent) {
     var txItems: List<SpinnerItem> = emptyList()
+    val parentAccount: EthAccount? = (account as? ERC20Account)?.ethAcc
+    val gasLimitStatus: MutableLiveData<SendEthViewModel.GasLimitStatus> = MutableLiveData(SendEthViewModel.GasLimitStatus.EMPTY)
 
     val selectedTxItem: MutableLiveData<SpinnerItem> = object : MutableLiveData<SpinnerItem>() {
         override fun setValue(value: SpinnerItem) {
@@ -87,20 +88,12 @@ class SendEthModel(application: Application,
         }
     }
 
-    var estimatedFee: String? = null
-    val convertedEstimatedFee: MutableLiveData<String?> = MutableLiveData()
-    val parentAccountLabel: String? = (account as? ERC20Account)?.ethAcc?.label
-    var gasLimitStatus: MutableLiveData<SendEthViewModel.GasLimitStatus> = MutableLiveData(SendEthViewModel.GasLimitStatus.EMPTY)
+    val estimatedFee: MutableLiveData<Value> = MutableLiveData()
+    val totalFee: MutableLiveData<Value> = MutableLiveData()
 
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
-        selectedFee.observeForever {
-            val fee = Value.valueOf(it.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * it.value)
-            estimatedFee = fee.toStringFriendlyWithUnit()
-            convertedEstimatedFee.value =
-                " ~${mbwManager.exchangeRateManager.get(fee, mbwManager.getFiatCurrency(account.coinType))?.toStringFriendlyWithUnit() ?: ""}"
-        }
     }
 
     private fun populateTxItems() {

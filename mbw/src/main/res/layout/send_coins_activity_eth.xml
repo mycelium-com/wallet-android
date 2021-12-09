@@ -88,8 +88,6 @@
                 android:textColor="#888686"
                 android:textSize="14sp"
                 android:onClick="@{_ -> viewModel.minerFeeInfoClickListener(activity)}"
-                android:visibility="@{viewModel.account instanceof ERC20Account ? View.VISIBLE : View.GONE }"
-                android:text="@{Html.fromHtml(@string/erc20_highest_possible_fee_info(viewModel.parentAccountLabel, viewModel.estimatedFee, viewModel.convertedEstimatedFee))}"
                 tools:text="This is the max fee you may have to pay to send the transaction from ETH Account 1.  However, most likely miner fee will not exceed 0.0026 ETH ~5.00 USD. For details please see miner fee calculation." />
 
             <LinearLayout
@@ -123,7 +121,6 @@
                         android:id="@+id/tvParentEthAccountBalanceLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ETH Account 1:"
                         android:textColor="#99FFFFFF"
                         android:textSize="14sp"
                         tools:text="ETH Account 1:" />
@@ -132,7 +129,6 @@
                         android:id="@+id/tvParentEthAccountBalance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=" 0.002 ETH"
                         android:textColor="#99FFFFFF"
                         android:textSize="14sp"
                         tools:text=" 0 ETH" />

@@ -9,6 +9,7 @@ import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Html
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
@@ -36,6 +37,7 @@ import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.AnimationUtils
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
@@ -52,15 +54,19 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
+import kotlinx.android.synthetic.main.send_coins_activity.root
+import kotlinx.android.synthetic.main.send_coins_activity_eth.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
+import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -248,6 +254,48 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 spinner?.adapter = ArrayAdapter(context,
                                         R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
+                                }
+
+                                if (account is ERC20Account) {
+                                    getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
+                                        val gasLimit = gl ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                        val selectedFee = getSelectedFee().value!!
+                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
+                                    })
+
+                                    getSelectedFee().observe(this@SendCoinsActivity, Observer { selectedFee ->
+                                        getEstimatedFee().value = Value.valueOf(selectedFee.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * selectedFee.value)
+
+                                        val gasLimit = getGasLimit().value ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
+                                    })
+
+                                    getEstimatedFee().observe(this@SendCoinsActivity, Observer { estimatedFee ->
+                                        tvHighestPossibleFeeInfo.text =
+                                            Html.fromHtml(getString(R.string.erc20_highest_possible_fee_info, getParentAccount()!!.label,
+                                                                    estimatedFee.toStringFriendlyWithUnit(), convert(estimatedFee)))
+                                    })
+
+                                    getTotalFee().observe(this@SendCoinsActivity, Observer { totalFee ->
+                                        val isNotEnoughEth = getParentAccount()!!.accountBalance.spendable.lessThan(totalFee)
+                                        if (isNotEnoughEth) {
+                                            tvPleaseTopUp.text = Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
+                                                                                         getParentAccount()!!.label, totalFee.toStringFriendlyWithUnit(), convert(totalFee)))
+
+                                            tvHighestPossibleFeeInfo.visibility = View.GONE
+                                            llNotEnoughEth.visibility = View.VISIBLE
+                                        } else {
+                                            tvHighestPossibleFeeInfo.visibility = View.VISIBLE
+                                            llNotEnoughEth.visibility = View.GONE
+                                        }
+                                    })
+                                    tvParentEthAccountBalanceLabel.text = "ETH ${getParentAccount()!!.label}: "
+                                    tvParentEthAccountBalance.text = getParentAccount()!!.accountBalance.spendable.toStringFriendlyWithUnit()
+                                    tvPleaseTopUp.setOnClickListener {
+                                        mbwManager.setSelectedAccount(getParentAccount()!!.id)
+                                        setResult(RESULT_CANCELED)
+                                        finish()
+                                    }
                                 }
                             }
                             it.activity = this

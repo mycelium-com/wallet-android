@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.EthFeeFormatter
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.wallet.WalletAccount
@@ -63,7 +64,7 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     var isAdvancedBlockExpanded: MutableLiveData<Boolean> = MutableLiveData()
 
-
+    fun getParentAccount() = (model as SendEthModel).parentAccount
 
     fun getGasLimit() = (model as SendEthModel).gasLimit
 
@@ -73,10 +74,14 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     fun getSelectedTxItem() = (model as SendEthModel).selectedTxItem
 
-    fun estimatedFee() = (model as SendEthModel).estimatedFee
-    fun convertedEstimatedFee() = (model as SendEthModel).convertedEstimatedFee
-    fun parentAccountLabel() = (model as SendEthModel).parentAccountLabel
+    fun getEstimatedFee() = (model as SendEthModel).estimatedFee
+
+    fun getTotalFee() = (model as SendEthModel).totalFee
+
     fun getGasLimitStatus() = (model as SendEthModel).gasLimitStatus
+
+    fun convert(value: Value): String =
+        " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 
     override fun isMinerFeeInfoAvailable() = model.account is ERC20Account
 
