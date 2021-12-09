@@ -19,12 +19,11 @@
 
     <ImageView
         android:id="@+id/ivInfoIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="2dp"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="8dp"
         android:visibility="gone"
-        app:srcCompat="@drawable/ic_info_icon"
+        app:srcCompat="@drawable/ic_info"
+        app:tint="@color/dark_sky_blue"
         tools:visibility="visible" />
 </LinearLayout>

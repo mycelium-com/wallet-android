@@ -35,7 +35,7 @@
             android:layout_marginEnd="32dp"
             android:singleLine="true"
             android:text="@string/replace_transaction"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -81,7 +81,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Gas Limit (units):"
-            android:textSize="16sp"
+            android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/spinner" />
 
@@ -155,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/transaction_input_data"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/llGasLimitStatus" />

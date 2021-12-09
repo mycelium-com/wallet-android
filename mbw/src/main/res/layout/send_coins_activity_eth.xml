@@ -7,12 +7,6 @@
 
         <import type="androidx.lifecycle.AndroidViewModel" />
 
-        <import type="android.view.View" />
-
-        <import type="android.text.Html" />
-
-        <import type="com.mycelium.wapi.wallet.erc20.ERC20Account" />
-
         <variable
             name="activity"
             type="com.mycelium.wallet.activity.send.SendCoinsActivity" />

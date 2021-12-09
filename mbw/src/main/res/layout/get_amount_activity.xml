@@ -7,8 +7,6 @@
 
         <import type="android.view.View" />
 
-        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
-
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.getamount.GetAmountViewModel" />
