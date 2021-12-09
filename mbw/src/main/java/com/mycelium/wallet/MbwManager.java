@@ -311,6 +311,7 @@ public class MbwManager {
 
     private final Handler mainLoopHandler;
     private boolean appInForeground = false;
+    private int activityCount = 0;
 
     private MbwManager(Context evilContext) {
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
@@ -1029,6 +1030,14 @@ public class MbwManager {
 
     public void setAppInForeground(boolean appInForeground) {
         this.appInForeground = appInForeground;
+    }
+
+    public int getActivityCount() {
+        return activityCount;
+    }
+
+    public void setActivityCount(int activityCount) {
+        this.activityCount = activityCount;
     }
 
     public boolean hasFiatCurrency() {
