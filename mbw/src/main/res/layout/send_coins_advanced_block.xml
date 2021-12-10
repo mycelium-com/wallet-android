@@ -30,20 +30,23 @@
                 android:id="@+id/tvTxOptionsLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/transaction_options"
                 android:textColor="@color/fio_white_alpha_0_6"
+                android:text="@string/transaction_options_advanced_users"
                 android:textSize="14sp"
                 bind:layout_constraintBottom_toBottomOf="parent"
                 bind:layout_constraintStart_toStartOf="parent"
                 bind:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
+                android:id="@+id/icEditGasInfo"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_marginStart="8dp"
                 android:onClick="@{_ -> viewModel.gasLimitErc20InfoClickListener(activity)}"
                 app:srcCompat="@drawable/ic_info"
                 app:tint="@color/dark_sky_blue"
+                android:visibility="gone"
+                tools:visibility="visible"
                 bind:layout_constraintBottom_toBottomOf="parent"
                 bind:layout_constraintStart_toEndOf="@id/tvTxOptionsLabel"
                 bind:layout_constraintTop_toTopOf="parent" />

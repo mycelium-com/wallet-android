@@ -61,7 +61,7 @@ class SendEthModel(application: Application,
                 gasLimitStatus.value = if (value != null) {
                     when {
                         value < Transfer.GAS_LIMIT -> SendEthViewModel.GasLimitStatus.ERROR
-                        value < BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT) -> SendEthViewModel.GasLimitStatus.WARNING
+                        account is ERC20Account && value < BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT) -> SendEthViewModel.GasLimitStatus.WARNING
                         else -> SendEthViewModel.GasLimitStatus.OK
                     }
                 } else {

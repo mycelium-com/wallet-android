@@ -874,7 +874,7 @@
     <string name="create_new_account">Добавить новый ETH аккаунт</string>
     <string name="hd_eth_account">Добавить Ethereum аккаунт</string>
     <string name="add_erc20_account">Добавить ERC-20 аккаунт</string>
-    <string name="transaction_options">Параметры транзакции</string>
+    <string name="transaction_options_advanced_users">Параметры транзакции</string>
     <string name="replace_transaction">Заменяемая транзакция</string>
     <string name="tx_replace_info_title">Заменяемая транзакция</string>
     <string name="transaction_gas_limit">Лимит Газа для транзакции</string>

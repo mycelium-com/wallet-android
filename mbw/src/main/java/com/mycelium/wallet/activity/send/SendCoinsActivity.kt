@@ -62,6 +62,7 @@ import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_activity.root
 import kotlinx.android.synthetic.main.send_coins_activity_eth.*
+import kotlinx.android.synthetic.main.send_coins_advanced_block.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
@@ -292,6 +293,11 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         setResult(RESULT_CANCELED)
                                         finish()
                                     }
+                                    tvTxOptionsLabel.text = Html.fromHtml(getString(R.string.edit_gas_limit_advanced_users))
+                                    icEditGasInfo.visibility = View.VISIBLE
+                                } else {
+                                    tvTxOptionsLabel.text = Html.fromHtml(getString(R.string.transaction_options_advanced_users))
+                                    ic_info_gas_limit.visibility = View.VISIBLE
                                 }
                                 spinner?.adapter = ArrayAdapter(context,
                                                                 R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
@@ -458,7 +464,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun showInputDataInfo() {
-        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog)
                 .setTitle(R.string.input_data_format)
                 .setMessage(R.string.input_data_format_desc)
                 .setPositiveButton(R.string.button_ok, null)
@@ -467,7 +473,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun showGasLimitInfo() {
-        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog)
                 .setTitle(R.string.gas_limit_info_title)
                 .setMessage(R.string.gas_limit_info_desc)
                 .setPositiveButton(R.string.button_ok, null)
@@ -476,7 +482,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun showTxReplaceInfo() {
-        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog)
                 .setTitle(R.string.tx_replace_info_title)
                 .setMessage(R.string.tx_replacae_info_desc)
                 .setPositiveButton(R.string.button_ok, null)

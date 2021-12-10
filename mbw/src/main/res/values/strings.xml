@@ -119,7 +119,7 @@
     <string name="gas_price">Gas Price</string>
     <string name="nonce">Nonce</string>
     <string name="eth_internal_transfer">(%s has been transferred to the caller)</string>
-    <string name="replace_transaction">Transaction to be replaced</string>
+    <string name="replace_transaction">Transaction to be replaced with:</string>
     <string name="input_data">Input Data</string>
     <string name="input_data_format">Input Data format</string>
     <string name="input_data_format_desc">The Input Data should be in hexadecimal form. Start with \'0x\' prefix is not necessary, it is inserted automatically if needed.</string>
@@ -1387,9 +1387,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="create_new_account">Add new ETH Account</string>
     <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal ETH transfers, the value is 21,000.\nFor contract this value is higher and bound by block gas limit.</string>
     <string name="gas_limit_info_title">Gas Limit</string>
-    <string name="transaction_options">Edit Gas Limit <i>(for advanced users)</i></string>
-    <string name="transaction_gas_limit">Transaction Gas Limit</string>
-    <string name="transaction_input_data">Transaction Input Data</string>
+    <string name="edit_gas_limit_advanced_users"><![CDATA[Edit Gas Limit <i>(for advanced users)</i>]]></string>
+    <string name="transaction_options_advanced_users"><![CDATA[Transaction options <i>(for advanced users)</i>]]></string>
+    <string name="transaction_gas_limit">Gas Limit (units):</string>
+    <string name="transaction_input_data">Input Data:</string>
     <string name="account_added_part">(Added)</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of ERC-20 tokens - one of each type per ETH account.</string>
     <string name="list_added_tokens">ERC-20 tokens on \"%s\" account</string>
@@ -1739,6 +1740,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
     <string name="gas_limit_erc20_info">Mycelium uses 90 000 units as default maximum Gas Limit due to the complexity of ERC-20 transactions processing.\n\nAverage amount of gas spent by miners on each transaction is ~ 55 000 units.\n\nYou can set lower Gas Limit but Mycelium can not guarantee that transaction will be processed under such terms.</string>
     <string name="gas_limit_helper">Min 21000 units</string>
+    <string name="input_data_helper">Hexadecimal format (0–9, A-F)</string>
     <string name="gas_limit_warning">You have set gas limit below 90 000 units. It may be not enough for Ethereum network to process your transaction, while Gas still be used.</string>
     <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21000 units.</string>
     <plurals name="d_countries">

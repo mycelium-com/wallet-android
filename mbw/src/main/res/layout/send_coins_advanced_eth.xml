@@ -35,6 +35,7 @@
             android:layout_marginEnd="32dp"
             android:singleLine="true"
             android:text="@string/replace_transaction"
+            android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -80,7 +81,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Gas Limit (units):"
+            android:text="@string/transaction_gas_limit"
+            android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/spinner" />
@@ -93,9 +95,11 @@
             android:layout_marginTop="1dp"
             android:onClick="@{_ -> activity.showGasLimitInfo()}"
             android:tint="@color/dark_sky_blue"
+            android:visibility="gone"
             app:layout_constraintLeft_toRightOf="@id/tvGasLimitLabel"
             app:layout_constraintTop_toTopOf="@id/tvGasLimitLabel"
-            app:srcCompat="@drawable/ic_info" />
+            app:srcCompat="@drawable/ic_info"
+            tools:visibility="visible" />
 
         <EditText
             android:id="@+id/etGasLimit"
@@ -155,6 +159,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/transaction_input_data"
+            android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -187,5 +192,16 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDataLabel"
             tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvInputDataHelper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/input_data_helper"
+            android:textColor="@color/white_alpha_0_2"
+            android:textSize="14sp"
+            android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etData" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
