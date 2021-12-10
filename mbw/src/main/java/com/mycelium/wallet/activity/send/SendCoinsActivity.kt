@@ -270,15 +270,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     getEstimatedFee().observe(this@SendCoinsActivity, Observer { estimatedFee ->
                                         tvHighestPossibleFeeInfo.text =
                                             Html.fromHtml(getString(R.string.erc20_highest_possible_fee_info, getParentAccount()!!.label,
-                                                                    estimatedFee.toStringFriendlyWithUnit(), convert(estimatedFee)))
+                                                                    estimatedFee.toStringFriendlyWithUnit(getDenomination()), convert(estimatedFee)))
                                     })
 
                                     getTotalFee().observe(this@SendCoinsActivity, Observer { totalFee ->
                                         val isNotEnoughEth = getParentAccount()!!.accountBalance.spendable.lessThan(totalFee)
                                         if (isNotEnoughEth) {
-                                            tvPleaseTopUp.text = Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
-                                                                                         getParentAccount()!!.label, totalFee.toStringFriendlyWithUnit(), convert(totalFee)))
-
+                                            tvPleaseTopUp.text =
+                                                Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
+                                                                        getParentAccount()!!.label, totalFee.toStringFriendlyWithUnit(getDenomination()), convert(totalFee)))
                                             tvHighestPossibleFeeInfo.visibility = View.GONE
                                             llNotEnoughEth.visibility = View.VISIBLE
                                         } else {
@@ -286,8 +286,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             llNotEnoughEth.visibility = View.GONE
                                         }
                                     })
-                                    tvParentEthAccountBalanceLabel.text = "ETH ${getParentAccount()!!.label}: "
-                                    tvParentEthAccountBalance.text = getParentAccount()!!.accountBalance.spendable.toStringFriendlyWithUnit()
+                                    tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, getParentAccount()!!.label)
+                                    tvParentEthAccountBalance.text = " ${getParentAccount()!!.accountBalance.spendable.toStringFriendlyWithUnit(getDenomination())}"
                                     tvPleaseTopUp.setOnClickListener {
                                         mbwManager.setSelectedAccount(getParentAccount()!!.id)
                                         setResult(RESULT_CANCELED)

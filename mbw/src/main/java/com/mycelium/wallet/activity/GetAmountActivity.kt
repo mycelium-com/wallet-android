@@ -268,6 +268,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             val isNotEnoughEth = parentEthAccount.accountBalance.spendable.lessThan(fee)
 
             if (isNotEnoughEth) {
+                val denomination = _mbwManager!!.getDenomination(parentEthAccount.coinType)
                 val convertedFee = " ~${
                     _mbwManager!!.exchangeRateManager.get(fee, _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType))
                         ?.toStringFriendlyWithUnit() ?: ""
@@ -275,7 +276,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
 
                 binding.tvPleaseTopUp.apply {
                     text =
-                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(), convertedFee))
+                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(denomination), convertedFee))
                     setOnClickListener {
                         _mbwManager!!.setSelectedAccount(parentEthAccount.id)
                         setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
@@ -283,8 +284,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                     }
                     visibility = View.VISIBLE
                 }
-                binding.tvParentEthAccountBalanceLabel.text = "ETH (${parentEthAccount.label}): "
-                binding.tvParentEthAccountBalance.text = parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit()
+                binding.tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, parentEthAccount.label)
+                binding.tvParentEthAccountBalance.text = " ${parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
                 binding.llParentEthAccountBalance.visibility = View.VISIBLE
                 binding.tvEthRequiredInfo.visibility = View.VISIBLE
                 binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))

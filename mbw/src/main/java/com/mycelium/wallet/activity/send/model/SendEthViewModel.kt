@@ -80,6 +80,8 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     fun getGasLimitStatus() = (model as SendEthModel).gasLimitStatus
 
+    fun getDenomination() = (model as SendEthModel).denomination
+
     fun convert(value: Value): String =
         " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 

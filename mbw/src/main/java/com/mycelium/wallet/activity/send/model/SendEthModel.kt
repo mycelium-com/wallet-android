@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.NoneItem
@@ -32,6 +33,7 @@ class SendEthModel(application: Application,
     var txItems: List<SpinnerItem> = emptyList()
     val parentAccount: EthAccount? = (account as? ERC20Account)?.ethAcc
     val gasLimitStatus: MutableLiveData<SendEthViewModel.GasLimitStatus> = MutableLiveData(SendEthViewModel.GasLimitStatus.EMPTY)
+    val denomination: Denomination = mbwManager.getDenomination(Utils.getEthCoinType())
 
     val selectedTxItem: MutableLiveData<SpinnerItem> = object : MutableLiveData<SpinnerItem>() {
         override fun setValue(value: SpinnerItem) {

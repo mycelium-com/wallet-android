@@ -1743,6 +1743,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="input_data_helper">Hexadecimal format (0–9, A-F)</string>
     <string name="gas_limit_warning">You have set gas limit below 90 000 units. It may be not enough for Ethereum network to process your transaction, while Gas still be used.</string>
     <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21000 units.</string>
+    <string name="parent_eth_account">ETH %s:</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
