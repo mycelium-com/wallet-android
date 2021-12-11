@@ -32,7 +32,7 @@ class SendEthModel(application: Application,
     : SendCoinsModel(application, account, intent) {
     var txItems: List<SpinnerItem> = emptyList()
     val parentAccount: EthAccount? = (account as? ERC20Account)?.ethAcc
-    val gasLimitStatus: MutableLiveData<SendEthViewModel.GasLimitStatus> = MutableLiveData(SendEthViewModel.GasLimitStatus.EMPTY)
+    val gasLimitStatus: MutableLiveData<GasLimitStatus> = MutableLiveData(GasLimitStatus.OK)
     val denomination: Denomination = mbwManager.getDenomination(Utils.getEthCoinType())
 
     val selectedTxItem: MutableLiveData<SpinnerItem> = object : MutableLiveData<SpinnerItem>() {
@@ -62,19 +62,18 @@ class SendEthModel(application: Application,
                 super.setValue(value)
                 gasLimitStatus.value = if (value != null) {
                     when {
-                        value < Transfer.GAS_LIMIT -> SendEthViewModel.GasLimitStatus.ERROR
-                        account is ERC20Account && value < BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT) -> SendEthViewModel.GasLimitStatus.WARNING
-                        else -> SendEthViewModel.GasLimitStatus.OK
+                        value < Transfer.GAS_LIMIT -> GasLimitStatus.ERROR
+                        account is ERC20Account && value < BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT) -> GasLimitStatus.WARNING
+                        else -> GasLimitStatus.OK
                     }
                 } else {
-                    SendEthViewModel.GasLimitStatus.EMPTY
+                    GasLimitStatus.OK
                 }
 
                 val oldData =
                     (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =
-                    EthTransactionData(oldData.nonce, if (value == null || value < Transfer.GAS_LIMIT) null else value,
-                                       oldData.inputData, oldData.suggestedGasPrice)
+                    EthTransactionData(oldData.nonce, value, oldData.inputData, oldData.suggestedGasPrice)
             }
         }
     }
@@ -136,7 +135,18 @@ class SendEthModel(application: Application,
                 }
     }
 
-    override fun estimateTxSize(): Int = transaction?.estimatedTransactionSize
-        ?: (transactionData.value as? EthTransactionData)?.gasLimit?.toInt()
-        ?: account.typicalEstimatedTransactionSize
+    override fun estimateTxSize(): Int {
+        val gl = (transactionData.value as? EthTransactionData)?.gasLimit
+
+        return transaction?.estimatedTransactionSize
+            ?: if (gl != null && gasLimitStatus.value != GasLimitStatus.ERROR) {
+                gl.toInt()
+            } else {
+                account.typicalEstimatedTransactionSize
+            }
+    }
+    
+    enum class GasLimitStatus {
+        OK, WARNING, ERROR
+    }
 }

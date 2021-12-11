@@ -9,14 +9,15 @@ import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
 import android.text.Html
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
@@ -227,20 +228,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 getGasLimitStatus().observe(this@SendCoinsActivity, Observer { status ->
                                     etGasLimit.setTextColor(resources.getColor(R.color.white))
                                     when (status) {
-                                        SendEthViewModel.GasLimitStatus.ERROR -> {
+                                        SendEthModel.GasLimitStatus.ERROR -> {
                                             tvGasLimitHelper.visibility = View.GONE
                                             tvGasLimitWarning.visibility = View.GONE
                                             tvGasLimitError.visibility = View.VISIBLE
                                             etGasLimit.setTextColor(resources.getColor(R.color.fio_red))
                                         }
-                                        SendEthViewModel.GasLimitStatus.WARNING -> {
+                                        SendEthModel.GasLimitStatus.WARNING -> {
                                             tvGasLimitHelper.visibility = View.GONE
                                             tvGasLimitWarning.visibility = View.VISIBLE
-                                            tvGasLimitError.visibility = View.GONE
-                                        }
-                                        SendEthViewModel.GasLimitStatus.OK -> {
-                                            tvGasLimitHelper.visibility = View.GONE
-                                            tvGasLimitWarning.visibility = View.GONE
                                             tvGasLimitError.visibility = View.GONE
                                         }
                                         else -> {
@@ -249,17 +245,33 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             tvGasLimitError.visibility = View.GONE
                                         }
                                     }
-
                                     advancedBlock.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                                     advancedBlock.requestLayout()
                                 })
+                                etGasLimit.addTextChangedListener(object : TextWatcher {
+                                    override fun afterTextChanged(editable: Editable) = Unit
+                                    override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
+                                    override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
+                                        // reset gas limit and therefore UI state
+                                        getGasLimit().value = null
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
+                                    }
+                                })
+                                etGasLimit.setOnFocusChangeListener { _, hasFocus ->
+                                    if (!hasFocus) {
+                                        val gasLimit = etGasLimit.text.toString()
+                                        getGasLimit().value = if (gasLimit.isEmpty()) null else BigInteger(gasLimit)
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
+                                    }
+                                }
                                 if (account is ERC20Account) {
                                     getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
-                                        val gasLimit = gl ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
-                                        val selectedFee = getSelectedFee().value!!
-                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
+                                        if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
+                                            val gasLimit = gl ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                            val selectedFee = getSelectedFee().value!!
+                                            getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
+                                        }
                                     })
-
                                     getSelectedFee().observe(this@SendCoinsActivity, Observer { selectedFee ->
                                         getEstimatedFee().value = Value.valueOf(selectedFee.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * selectedFee.value)
 
@@ -647,20 +659,6 @@ fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsAct
         AnimationUtils.collapse(target) {
             target.visibility = newVisibility
         }
-    }
-}
-
-@BindingAdapter("imageRotation")
-fun setRotationAnimated(target: ImageView, isExpanded: Boolean) {
-    target.rotation = (if (isExpanded) 180 else 0).toFloat()
-}
-
-@BindingAdapter(value = ["isRedColor", "activity"])
-fun setRedTextColor(target: EditText, isRedColor: Boolean, activity: SendCoinsActivity) {
-    if (isRedColor) {
-        target.setTextColor(ContextCompat.getColor(activity, R.color.red))
-    } else {
-        target.setTextColor(ContextCompat.getColor(activity, android.R.color.white))
     }
 }
 

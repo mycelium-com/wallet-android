@@ -119,8 +119,4 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     }
 
     override fun getFeeFormatter() = EthFeeFormatter()
-
-    enum class GasLimitStatus {
-        EMPTY, OK, WARNING, ERROR
-    }
 }

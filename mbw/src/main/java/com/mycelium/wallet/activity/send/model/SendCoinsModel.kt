@@ -66,6 +66,19 @@ abstract class SendCoinsModel(
         }
     }
 
+    val transactionDataStatus: MutableLiveData<TransactionDataStatus> = object : MutableLiveData<TransactionDataStatus>() {
+        override fun setValue(value: TransactionDataStatus) {
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+            }
+        }
+    }
+
+    enum class TransactionDataStatus {
+        READY, TYPING
+    }
+
     val receivingAddress: MutableLiveData<Address?> = object : MutableLiveData<Address?>() {
         override fun setValue(value: Address?) {
             if (value != this.value) {
@@ -456,7 +469,7 @@ abstract class SendCoinsModel(
                 paymentRequestHandler.value?.hasValidPaymentRequest() == true -> {
                     handlePaymentRequest(toSend)
                 }
-                receivingAddress.value != null && !toSend.isZero()-> {
+                receivingAddress.value != null && !toSend.isZero() && transactionDataStatus.value != TransactionDataStatus.TYPING -> {
                     // createTx potentially takes long, if server interaction is involved
                     transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))

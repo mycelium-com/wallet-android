@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast.*
-import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -53,7 +52,6 @@ import com.mycelium.wapi.wallet.fio.RecordObtData
 import com.mycelium.wapi.wallet.fio.getActiveFioAccount
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
-import java.math.BigInteger
 import java.util.*
 import java.util.regex.Pattern
 
@@ -204,6 +202,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     fun getTransactionLabel() = model.transactionLabel
 
     fun getTransactionData() = model.transactionData
+
+    fun getTransactionDataStatus() = model.transactionDataStatus
 
     fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
             this::hasPaymentRequestHandler)
@@ -442,20 +442,3 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     }
 }
 
-object Converter {
-    @InverseMethod("stringToBigInt")
-    @JvmStatic
-    fun bigIntToString(value: BigInteger?): String {
-        return value?.toString() ?: ""
-    }
-
-    @JvmStatic
-    fun stringToBigInt(value: String): BigInteger? {
-        return if (value.isNotEmpty()) BigInteger(value) else null
-    }
-
-    @JvmStatic
-    fun valueToStr(value: Value?): String =
-            value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
-
-}

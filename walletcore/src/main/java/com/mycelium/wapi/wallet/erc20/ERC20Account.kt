@@ -19,7 +19,7 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.TransactionEncoder
 import org.web3j.crypto.TransactionUtils
-import org.web3j.tx.Transfer.GAS_LIMIT
+import org.web3j.tx.Transfer
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
@@ -47,7 +47,7 @@ class ERC20Account(private val chainId: Byte,
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
+        if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
         }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
@@ -258,6 +258,6 @@ class ERC20Account(private val chainId: Byte,
 
     companion object {
         const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
-        val AVG_TOKEN_TRANSFER_GAS = (GAS_LIMIT.toLong() + TOKEN_TRANSFER_GAS_LIMIT) / 2
+        val AVG_TOKEN_TRANSFER_GAS = (Transfer.GAS_LIMIT.toLong() + TOKEN_TRANSFER_GAS_LIMIT) / 2
     }
 }

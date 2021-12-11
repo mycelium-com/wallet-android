@@ -109,7 +109,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="12dp"
-                tools:background="@color/white_alpha_0_2"
                 android:background="@color/white_alpha_0_2" />
 
             <!-- Balance -->

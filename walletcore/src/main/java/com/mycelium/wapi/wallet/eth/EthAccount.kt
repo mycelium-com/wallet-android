@@ -70,7 +70,7 @@ class EthAccount(private val chainId: Byte,
         if (value.value < BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Value should be positive"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
+        if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
