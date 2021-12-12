@@ -84,7 +84,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                         val maxSpendable = getMaxSpendable()
                         val fiatSpendable = maxSpendable.valueAsBigDecimal.multiply(exchangeRate)
                         spendableLayout.isVisible = true
-                        tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
 
                         tvSpendableFiatAmount.text = "~" + valueOf(
                             zeroFiatValue.type,
@@ -122,6 +121,13 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 checkEntry()
             }
             tvCardValue.text = args.product?.getCardValue()
+        }
+        lifecycleScope.launch(IO) {
+            val maxSpendable = getMaxSpendable()
+            withContext(Dispatchers.Main) {
+                spendableLayout.isVisible = true
+                tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
+            }
         }
 
         initNumberEntry(savedInstanceState)
