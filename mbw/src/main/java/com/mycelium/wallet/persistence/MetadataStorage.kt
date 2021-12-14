@@ -240,8 +240,8 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
         return when (coinType) {
             "Bitcoin Cash" -> BchMain
             "Bitcoin Cash Test" -> BchTest
-            "Bitcoin" -> BitcoinMain.get()
-            "Bitcoin Test" -> BitcoinTest.get()
+            "Bitcoin" -> BitcoinMain
+            "Bitcoin Test" -> BitcoinTest
             "Mycelium Token" -> MTCoin
             "Mycelium Token Test" -> MTCoinTest
             "Mass Token" -> MASSCoin

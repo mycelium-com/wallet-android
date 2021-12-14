@@ -2,5 +2,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/miGiftBox"
-        android:title="Gift Cards"/>
+        android:title="@string/gift_cards_menu"/>
 </menu>

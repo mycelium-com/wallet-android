@@ -8,9 +8,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
 import kotlinx.android.synthetic.main.listview_item_with_radiobutton.view.*
 
-val ALL_COUNTRIES = CountryModel("All Countries", "", "", 0)
+val ALL_COUNTRIES = CountryModel(WalletApplication.getInstance().getString(R.string.all_countries), "", "", 0)
 
 class SelectCountriesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>(DiffCallback()) {
     var selected: CountryModel = ALL_COUNTRIES

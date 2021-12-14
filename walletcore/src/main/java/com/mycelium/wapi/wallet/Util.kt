@@ -19,7 +19,6 @@ object Util {
     fun trimTestnetSymbolDecoration(symbol: String): String =
             when (symbol) {
                 "tBTC", "tBTCV" -> symbol.substring(1)
-                "MTt" -> symbol.substring(0, symbol.length - 1)
                 else -> symbol
             }
 
@@ -28,7 +27,6 @@ object Util {
             if (isTestnet) {
                 when (symbol) {
                     "BTC", "BTCV" -> "t$symbol"
-                    "MT" -> symbol + "t"
                     else -> symbol
                 }
             } else {

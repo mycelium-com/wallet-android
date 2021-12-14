@@ -47,10 +47,11 @@ class GiftBoxDetailsFragment : Fragment() {
             viewModel.more.value = !(viewModel.more.value ?: false)
             binding?.layoutDescription?.tvDescription?.setupDescription(
                     viewModel.description.value ?: "",
-                    viewModel.more.value ?: false)
+                    viewModel.more.value ?: false) {
+                viewModel.moreVisible.value = it
+            }
         }
         binding?.layoutDescription?.more?.setOnClickListener(descriptionClick)
-        binding?.layoutDescription?.less?.setOnClickListener(descriptionClick)
         binding?.layoutDescription?.redeem?.setOnClickListener {
             findNavController().navigate(GiftBoxDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))
         }
@@ -68,9 +69,11 @@ class GiftBoxDetailsFragment : Fragment() {
             Utils.setClipboardString(viewModel.pinCode.value, it.context)
             Toaster(this).toast(R.string.copied_to_clipboard, true)
         }
-        viewModel.description.observe(viewLifecycleOwner) {
-            binding?.layoutDescription?.tvDescription?.setupDescription(it,
-                    viewModel.more.value ?: false)
+        viewModel.description.observe(viewLifecycleOwner) { desc ->
+            binding?.layoutDescription?.tvDescription?.setupDescription(desc,
+                    viewModel.more.value ?: false) {
+                viewModel.moreVisible.value = it
+            }
         }
         viewModel.setCard(args.card)
         loadProduct()

@@ -69,6 +69,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.activity.ActionActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity;
@@ -144,6 +145,7 @@ public class ModernMain extends AppCompatActivity {
     private TabLayout.Tab mBalanceTab;
     private TabLayout.Tab mNewsTab;
     private TabLayout.Tab mAccountsTab;
+    private TabLayout.Tab mTransactionsTab;
     private TabLayout.Tab mRecommendationsTab;
     private TabLayout.Tab mFioRequestsTab;
     private MenuItem refreshItem;
@@ -187,7 +189,8 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null, TAB_ACCOUNTS);
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
         mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null, TAB_BALANCE);
-        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null, TAB_HISTORY);
+        mTransactionsTab = tabLayout.newTab().setText(getString(R.string.tab_transactions));
+        mTabsAdapter.addTab(mTransactionsTab, TransactionHistoryFragment.class, null, TAB_HISTORY);
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);
@@ -246,9 +249,14 @@ public class ModernMain extends AppCompatActivity {
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
             startActivity(new Intent(this, ApproveFioRequestActivity.class)
                     .putExtras(getIntent().getExtras()));
-        } else if(Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
+        } else if (Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
             mAccountsTab.select();
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_ACCOUNTS));
+        } else if (Objects.equals(intent.getAction(), MainActions.ACTION_TXS)) {
+            mTransactionsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_HISTORY));
+        } else if(intent.hasExtra("action")) {
+            startActivity(new Intent(this, ActionActivity.class).putExtras(intent));
         }
     }
 
@@ -461,6 +469,7 @@ public class ModernMain extends AppCompatActivity {
         final boolean isAccountTab = TAB_ACCOUNTS.equals(tabTag);
         final boolean locked = _mbwManager.isKeyManagementLocked();
         checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
+        checkNotNull(menu.findItem(R.id.miAddRecordDuplicate)).setVisible(isAccountTab && !locked);
 
         // Lock menu
         final boolean hasPin = _mbwManager.isPinProtected();
@@ -647,12 +656,6 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void synchronizationFailed(SyncFailed event) {
         hideRefresh();
-        String type = "";
-        WalletAccount account = _mbwManager.getWalletManager(false).getAccount(event.accountId);
-        if(account != null) {
-            type = account.getCoinType().getName();
-        }
-        _toaster.toastConnectionError(type);
     }
 
     @Subscribe

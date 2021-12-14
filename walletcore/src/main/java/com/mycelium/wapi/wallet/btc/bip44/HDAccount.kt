@@ -12,6 +12,8 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
@@ -333,6 +335,7 @@ open class HDAccount(
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(Event.SERVER_CONNECTION_ERROR)
             return false
         }

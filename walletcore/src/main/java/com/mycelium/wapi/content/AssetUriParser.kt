@@ -49,7 +49,7 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
 
         // Check if the supplied "address" is actually an encrypted private key
         if (addressString != null && Bip38.isBip38PrivateKey(addressString)) {
-            if (coinType == BitcoinMain.get() || coinType == BitcoinTest.get()) {
+            if (coinType == BitcoinMain || coinType == BitcoinTest) {
                 return PrivateKeyUri(addressString, label, "bitcoin")
             }
             return PrivateKeyUri(addressString, label, coinType.symbol.decapitalize())

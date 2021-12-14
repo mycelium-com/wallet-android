@@ -12,6 +12,6 @@ abstract class BchCoin(id: String?, name: String?, symbol: String?, unitExponent
 
     override fun parseAddress(addressString: String?): Address {
         val address = BitcoinAddress.fromString(addressString)
-        return BtcAddress(if (address.network.isProdnet) BitcoinMain.get() else BitcoinTest.get(), address)
+        return BtcAddress(if (address.network.isProdnet) BitcoinMain else BitcoinTest, address)
     }
 }

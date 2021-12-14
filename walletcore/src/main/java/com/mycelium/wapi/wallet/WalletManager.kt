@@ -11,6 +11,7 @@ import com.mycelium.wapi.wallet.manager.*
 import com.mycelium.wapi.wallet.providers.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -28,8 +29,27 @@ constructor(val network: NetworkParameters,
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _logger  = Logger.getLogger(WalletManager::class.java.getSimpleName())
+    private val activeSyncThreads = AtomicInteger(0)
 
     val feeEstimations = FeeEstimations()
+
+    fun reportStartSync() {
+        val beforeIncrement = activeSyncThreads.getAndIncrement()
+        if (beforeIncrement == 0) {
+            updateState(State.SYNCHRONIZING)
+        }
+    }
+
+    fun reportStopSync() {
+        val afterDecrement = activeSyncThreads.decrementAndGet()
+        if (afterDecrement == 0) {
+            updateState(State.READY)
+        }
+    }
+
+    private fun updateState(newState: State) {
+        state = newState
+    }
 
     fun getCurrencySettings(moduleID: String): CurrencySettings? {
         return currencySettingsMap[moduleID]
@@ -44,6 +64,7 @@ constructor(val network: NetworkParameters,
     var walletListener: WalletListener? = null
 
     var state: State = State.OFF
+        private set
 
     fun add(walletModule: WalletModule) = walletModules.put(walletModule.id, walletModule)
 
@@ -132,8 +153,8 @@ constructor(val network: NetworkParameters,
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) : Boolean {
         if (isNetworkConnected) {
             feeEstimations.triggerRefresh()
-            Thread(Synchronizer(this, mode, accounts)).start()
         }
+        Thread(Synchronizer(this, mode, accounts)).start()
         return isNetworkConnected
     }
 

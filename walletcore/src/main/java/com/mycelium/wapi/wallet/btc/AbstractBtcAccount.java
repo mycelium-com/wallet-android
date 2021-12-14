@@ -40,6 +40,8 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.SyncStatus;
+import com.mycelium.wapi.SyncStatusInfo;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
@@ -321,6 +323,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                  .getResult();
       } catch (WapiException e) {
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
+         setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
          postEvent(Event.SERVER_CONNECTION_ERROR);
          return -1;
       }
@@ -423,6 +426,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             handleNewExternalTransactions(txs);
          } catch (WapiException e) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
+            setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return -1;
          }
@@ -774,6 +778,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                return new BroadcastResult(BroadcastResultType.REJECT_DUPLICATE);
             }
          } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
+            setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
             postEvent(Event.SERVER_CONNECTION_ERROR);
             _logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
             return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
@@ -795,6 +800,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             return new BroadcastResult(BroadcastResultType.REJECTED);
          }
       } catch (WapiException e) {
+         setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
          postEvent(Event.SERVER_CONNECTION_ERROR);
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
          return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
@@ -1125,7 +1131,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public synchronized Value calculateMaxSpendableAmount(Value minerFeePerKbToUse, BtcAddress destinationAddress) {
+   public Value calculateMaxSpendableAmount(Value minerFeePerKbToUse, BtcAddress destinationAddress) {
 
       BitcoinAddress destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
 
@@ -1150,7 +1156,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       satoshis -= feeToUse;
       if (satoshis <= 0) {
-         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
+         return Value.zeroValue(getCoinType());
       }
 
       // Create transaction builder
@@ -1168,7 +1174,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          stb.addOutput(BitcoinAddress.getNullAddress(_network, destinationAddressType), satoshis);
       } catch (BtcOutputTooSmallException e1) {
          // The amount we try to send is lower than what the network allows
-         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
+         return Value.zeroValue(getCoinType());
       }
 
       // Try to create an unsigned transaction
@@ -1176,9 +1182,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(BitcoinAddress.getNullAddress(_network, destinationAddressType)),
                  new PublicKeyRing(), _network, minerFeePerKbToUse.getValueAsLong());
          // We have enough to pay the fees, return the amount as the maximum
-         return Value.valueOf(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), satoshis);
+         return Value.valueOf(getCoinType(), satoshis);
       } catch (InsufficientBtcException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
+         return Value.zeroValue(getCoinType());
       }
    }
 
@@ -1197,7 +1203,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected abstract PublicKey getPublicKeyForAddress(BitcoinAddress address);
 
    @Override
-   public synchronized UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
+   public UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
            throws BtcOutputTooSmallException, InsufficientBtcException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
 
@@ -1467,6 +1473,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       try {
          result = _wapi.checkTransactions(new CheckTransactionsRequest(txids)).getResult();
       } catch (WapiException e) {
+         setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
          postEvent(Event.SERVER_CONNECTION_ERROR);
          _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
          // We failed to check transactions

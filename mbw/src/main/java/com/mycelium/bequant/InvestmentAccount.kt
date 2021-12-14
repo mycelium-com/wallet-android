@@ -5,6 +5,8 @@ import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.settings.SettingsPreference
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Balance
@@ -25,6 +27,8 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
                 Value.zeroValue(Utils.getBtcCoinType()),
                 Value.zeroValue(Utils.getBtcCoinType()),
                 Value.zeroValue(Utils.getBtcCoinType()))
+
+    private var lastSyncInfo = SyncStatusInfo(SyncStatus.UNKNOWN)
 
     @Volatile
     private var syncing = false
@@ -124,6 +128,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
             }
             val balance = Value.valueOf(Utils.getBtcCoinType(), (btcTotal * 10.0.pow(Utils.getBtcCoinType().unitExponent).toBigDecimal()).toBigInteger())
             BequantPreference.setLastKnownBalance(balance)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
         }
         syncing = false
         return true
@@ -134,6 +139,12 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun canSpend(): Boolean = false
 
     override fun isSyncing(): Boolean = syncing
+
+    override fun lastSyncStatus(): SyncStatusInfo = lastSyncInfo
+
+    override fun setLastSyncStatus(syncStatusInfo: SyncStatusInfo) {
+        lastSyncInfo = syncStatusInfo
+    }
 
     override fun isArchived(): Boolean = false
 
