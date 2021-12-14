@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Point
+import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,8 +16,10 @@ import android.text.Html
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
@@ -266,11 +270,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 }
                                 if (account is ERC20Account) {
                                     getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
-                                        if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
-                                            val gasLimit = gl ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
-                                            val selectedFee = getSelectedFee().value!!
-                                            getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
-                                        }
+                                        val gasLimit =
+                                            if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
+                                                BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                            } else {
+                                                gl ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                            }
+
+                                        val selectedFee = getSelectedFee().value!!
+                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
                                     })
                                     getSelectedFee().observe(this@SendCoinsActivity, Observer { selectedFee ->
                                         getEstimatedFee().value = Value.valueOf(selectedFee.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * selectedFee.value)
@@ -329,6 +337,22 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText && v.id == R.id.etGasLimit) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                    v.clearFocus()
+                    val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     private fun getDefaultBinding(): SendCoinsActivityBinding =

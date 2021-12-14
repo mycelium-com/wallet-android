@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.text.Html" />
+
         <import type="androidx.lifecycle.AndroidViewModel" />
 
         <variable
@@ -79,10 +81,25 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="11dp"
-                android:textColor="#888686"
+                android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
                 android:onClick="@{_ -> viewModel.minerFeeInfoClickListener(activity)}"
                 tools:text="This is the max fee you may have to pay to send the transaction from ETH Account 1.  However, most likely miner fee will not exceed 0.0026 ETH ~5.00 USD. For details please see miner fee calculation." />
+
+            <TextView
+                android:id="@+id/tvThisIsUpdatedFee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener(activity)}"
+                android:text="@{Html.fromHtml(@string/erc20_this_is_updated_fee)}"
+                android:textColor="@color/fio_white_alpha_0_6"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:text="This is the updated fee based on set Gas Limit. For details please see miner fee calculation."
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:id="@+id/llNotEnoughEth"
@@ -99,7 +116,7 @@
                     android:id="@+id/tvPleaseTopUp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#FF1C3D"
+                    android:textColor="@color/fio_red"
                     android:textSize="14sp"
                     tools:text="@string/please_top_up_your_eth_account" />
 
@@ -115,7 +132,7 @@
                         android:id="@+id/tvParentEthAccountBalanceLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#99FFFFFF"
+                        android:textColor="@color/fio_white_alpha_0_6"
                         android:textSize="14sp"
                         tools:text="ETH Account 1:" />
 
@@ -123,7 +140,7 @@
                         android:id="@+id/tvParentEthAccountBalance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#99FFFFFF"
+                        android:textColor="@color/fio_white_alpha_0_6"
                         android:textSize="14sp"
                         tools:text=" 0 ETH" />
                 </LinearLayout>
