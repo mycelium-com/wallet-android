@@ -107,9 +107,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
-        val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent.deserializedContent!!.chainCode)
+        val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent.deserializedContent!!.tokenCode)
+                ?: mbwManager.getWalletManager(false).getAssetTypes()
+                        .find { it.symbol.equals(fioRequestContent.deserializedContent!!.tokenCode, true) }
         if (requestedCurrency == null) {
-            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.chainCode} currency", true)
+            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.tokenCode} currency", true)
             finish()
             return
         }
@@ -123,7 +125,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             setUpSendViewModel(account, viewModelProvider)
             initSpinners(spendingAccounts)
         } else {
-            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.chainCode} currency", true)
+            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.tokenCode} currency", true)
             finish()
         }
 
@@ -372,8 +374,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
