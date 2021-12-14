@@ -136,7 +136,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun handleResult(broadcastResult: BroadcastResult) {
-        logger.log(Level.INFO, "Result broadcasting", broadcastResult.getResultType().toString())
+        logger.log(Level.INFO, "Broadcasting result: ", broadcastResult.resultType.toString())
         when (broadcastResult.resultType) {
             BroadcastResultType.REJECT_DUPLICATE -> // Transaction rejected, display message and exit
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_double_spending_message) {
