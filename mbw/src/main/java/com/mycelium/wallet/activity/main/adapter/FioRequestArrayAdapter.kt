@@ -17,6 +17,7 @@ import com.mycelium.wapi.wallet.Util.strToBigInteger
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
@@ -110,8 +111,8 @@ class FioRequestArrayAdapter(var activity: Activity,
 
         val memo = fioRequestView.findViewById<TextView>(R.id.tvTransactionLabel)
         memo?.text = content?.memo
-        val requestedCurrency = COINS.values.firstOrNull {
-            it.symbol.equals(content?.chainCode ?: "", true)
+        val requestedCurrency = (COINS.values + mbwManager.getWalletManager(false).getAssetTypes()).firstOrNull {
+            it.symbol.equals(content?.tokenCode ?: "", true)
         }
                 ?: return fioRequestView
 
