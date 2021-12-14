@@ -129,8 +129,8 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
                 SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.coinType)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
