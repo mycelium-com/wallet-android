@@ -84,7 +84,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                         val maxSpendable = getMaxSpendable()
                         val fiatSpendable = maxSpendable.valueAsBigDecimal.multiply(exchangeRate)
                         spendableLayout.isVisible = true
-                        tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
 
                         tvSpendableFiatAmount.text = "~" + valueOf(
                             zeroFiatValue.type,
@@ -119,9 +118,15 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             btMax.setOnClickListener {
                 setEnteredAmount(args.product.maximumValue.toPlainString()!!)
                 numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
-                checkEntry()
             }
             tvCardValue.text = args.product?.getCardValue()
+        }
+        lifecycleScope.launch(IO) {
+            val maxSpendable = getMaxSpendable()
+            withContext(Dispatchers.Main) {
+                spendableLayout.isVisible = true
+                tvSpendableCryptoAmount.text = maxSpendable.toStringFriendlyWithUnit()
+            }
         }
 
         initNumberEntry(savedInstanceState)
@@ -182,7 +187,6 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             setEnteredAmount(entry)
         }
         updateAmountsDisplay(entry)
-        checkEntry()
     }
 
     private fun updateAmountsDisplay(amountText: String) {
@@ -197,7 +201,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         } else {
             _amount?.type?.value(value)
         }
-
+        binding.btOk.isEnabled = false
         GitboxAPI.giftRepository.getPrice(lifecycleScope,
             code = args.product.code ?: "",
             quantity = 1,

@@ -106,7 +106,7 @@ class GiftboxApiRepository {
         currencyId: String,
         success: (OrderResponse?) -> Unit,
         error: (Int, String) -> Unit,
-        finally: () -> Unit
+        finally: (() -> Unit)? = null
     ) {
         updateOrderId()
         doRequest(scope, {
