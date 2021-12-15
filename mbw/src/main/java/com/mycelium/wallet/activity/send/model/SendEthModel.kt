@@ -59,7 +59,6 @@ class SendEthModel(application: Application,
     val gasLimit: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
         override fun setValue(value: BigInteger?) {
             if (value != this.value) {
-                super.setValue(value)
                 gasLimitStatus.value = if (value != null) {
                     when {
                         value < Transfer.GAS_LIMIT -> GasLimitStatus.ERROR
@@ -70,6 +69,7 @@ class SendEthModel(application: Application,
                     GasLimitStatus.OK
                 }
 
+                super.setValue(value)
                 val oldData =
                     (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =

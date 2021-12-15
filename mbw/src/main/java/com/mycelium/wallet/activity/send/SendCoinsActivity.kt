@@ -7,7 +7,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Point
 import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -270,15 +269,20 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                 }
                                 if (account is ERC20Account) {
                                     getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
-                                        val gasLimit =
-                                            if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
-                                                BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
-                                            } else {
-                                                gl ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
-                                            }
+                                        var gasLimit = gl
+                                        if (gl == null || getGasLimitStatus().value == SendEthModel.GasLimitStatus.ERROR) {
+                                            tvThisIsUpdatedFee.visibility = View.GONE
+                                            tvHighestPossibleFeeInfo.visibility = View.VISIBLE
+                                            llNotEnoughEth.visibility = View.GONE
+                                            gasLimit = BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                        } else {
+                                            tvThisIsUpdatedFee.visibility = View.VISIBLE
+                                            tvHighestPossibleFeeInfo.visibility = View.GONE
+                                            llNotEnoughEth.visibility = View.GONE
+                                        }
 
                                         val selectedFee = getSelectedFee().value!!
-                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
+                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit!! * selectedFee.value)
                                     })
                                     getSelectedFee().observe(this@SendCoinsActivity, Observer { selectedFee ->
                                         getEstimatedFee().value = Value.valueOf(selectedFee.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * selectedFee.value)
@@ -299,11 +303,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             tvPleaseTopUp.text =
                                                 Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
                                                                         getParentAccount()!!.label, totalFee.toStringFriendlyWithUnit(getDenomination()), convert(totalFee)))
+                                            tvThisIsUpdatedFee.visibility = View.GONE
                                             tvHighestPossibleFeeInfo.visibility = View.GONE
                                             llNotEnoughEth.visibility = View.VISIBLE
-                                        } else {
-                                            tvHighestPossibleFeeInfo.visibility = View.VISIBLE
-                                            llNotEnoughEth.visibility = View.GONE
                                         }
                                     })
                                     tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, getParentAccount()!!.label)
