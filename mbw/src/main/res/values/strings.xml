@@ -1740,10 +1740,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="miner_fee_erc20_info">All Ethereum network transactions require ETH to pay miner fee. Miner Fee = Gas Limit * Gas Price (Gwei/Gas)\n\nTo provide you the highest possible miner fee estimation Mycelium uses 90 000 units as default maximum Gas Limit due to the complexity of ERC-20 transactions processing.\n\nAverage amount of gas spent by miners on each transaction is ~ 55 500 units.\n\nActual fee may be less or equal depending on the amount of gas used to process the transaction.</string>
     <string name="gas_limit_erc20_info_title">Gas Limit (ERC-20)</string>
     <string name="gas_limit_erc20_info">Mycelium uses 90 000 units as default maximum Gas Limit due to the complexity of ERC-20 transactions processing.\n\nAverage amount of gas spent by miners on each transaction is ~ 55 500 units.\n\nYou can set lower Gas Limit but Mycelium can not guarantee that transaction will be processed under such terms.</string>
-    <string name="gas_limit_helper">Min 21000 units</string>
+    <string name="gas_limit_helper">Min 21 000 units</string>
     <string name="input_data_helper">Hexadecimal format (0–9, A-F)</string>
     <string name="gas_limit_warning">You have set gas limit below 90 000 units. It may be not enough for Ethereum network to process your transaction, while Gas still be used.</string>
-    <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21000 units.</string>
+    <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21 000 units.</string>
     <string name="parent_eth_account">ETH %s:</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>

@@ -46,7 +46,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="1dp"
             android:onClick="@{_ -> activity.showTxReplaceInfo()}"
-            android:tint="@color/dark_sky_blue"
+            app:tint="@color/dark_sky_blue"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toRightOf="@id/tvNonceLabel"
             app:layout_constraintTop_toTopOf="@id/tvNonceLabel"
@@ -92,14 +92,14 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="1dp"
             android:onClick="@{_ -> activity.showGasLimitInfo()}"
-            android:tint="@color/dark_sky_blue"
+            app:tint="@color/dark_sky_blue"
             android:visibility="gone"
             app:layout_constraintLeft_toRightOf="@id/tvGasLimitLabel"
             app:layout_constraintTop_toTopOf="@id/tvGasLimitLabel"
             app:srcCompat="@drawable/ic_info"
             tools:visibility="visible" />
 
-        <EditText
+        <com.mycelium.wallet.activity.send.view.CustomEditText
             android:id="@+id/etGasLimit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -169,7 +169,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="1dp"
             android:onClick="@{_ -> activity.showInputDataInfo()}"
-            android:tint="@color/dark_sky_blue"
+            app:tint="@color/dark_sky_blue"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toRightOf="@id/tvDataLabel"
             app:layout_constraintTop_toTopOf="@id/tvDataLabel"
