@@ -70,8 +70,8 @@ class EthAccount(private val chainId: Byte,
         if (value.value < BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Value should be positive"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        if (gasLimit < Transfer.GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
@@ -102,7 +102,7 @@ class EthAccount(private val chainId: Byte,
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
-                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, gasLimit = tx.gasLimit)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }

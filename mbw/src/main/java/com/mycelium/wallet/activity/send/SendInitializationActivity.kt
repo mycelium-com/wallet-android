@@ -16,7 +16,6 @@ import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.interruptSync
-import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
