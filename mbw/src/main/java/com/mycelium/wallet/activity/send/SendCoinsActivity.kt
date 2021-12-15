@@ -321,6 +321,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     tvTxOptionsLabel.text = Html.fromHtml(getString(R.string.transaction_options_advanced_users))
                                     ic_info_gas_limit.visibility = View.VISIBLE
                                 }
+                                isAdvancedBlockExpanded.observe(this@SendCoinsActivity, Observer { isExpanded ->
+                                    if (!isExpanded) {
+                                        etGasLimit.setText("")
+                                        getGasLimit().value = null
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
+                                    }
+                                })
                                 spinner?.adapter = ArrayAdapter(context,
                                                                 R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)

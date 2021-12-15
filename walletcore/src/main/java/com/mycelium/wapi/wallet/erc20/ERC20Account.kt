@@ -48,7 +48,7 @@ class ERC20Account(private val chainId: Byte,
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < Transfer.GAS_LIMIT) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
             throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))

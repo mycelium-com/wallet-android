@@ -62,7 +62,7 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         }
     }
 
-    var isAdvancedBlockExpanded: MutableLiveData<Boolean> = MutableLiveData()
+    val isAdvancedBlockExpanded: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getParentAccount() = (model as SendEthModel).parentAccount
 

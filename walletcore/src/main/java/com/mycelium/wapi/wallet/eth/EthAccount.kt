@@ -71,7 +71,7 @@ class EthAccount(private val chainId: Byte,
             throw BuildTransactionException(Throwable("Value should be positive"))
         }
         if (gasLimit < Transfer.GAS_LIMIT) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
