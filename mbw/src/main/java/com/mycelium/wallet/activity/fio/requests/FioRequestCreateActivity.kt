@@ -31,13 +31,16 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
     private lateinit var viewModel: FioRequestCreateViewModel
 
     companion object {
+        const val FIO_ADDRESS_FROM = "FIO_ADDRESS_FROM"
         const val FIO_ADDRESS_TO = "FIO_ADDRESS_TO"
         const val FIO_TOKEN_TO = "FIO_TOKEN_TO"
 
         @JvmStatic
-        fun start(context: Context, amount: Value?, fioAdrressTo: String, fioTokenTo: Address?, accountToSelect: UUID) =
+        fun start(context: Context, amount: Value?, fioAddressFrom: String,
+                  fioAdrressTo: String, fioTokenTo: Address?, accountToSelect: UUID) =
                 context.startActivity(Intent(context, FioRequestCreateActivity::class.java)
                         .putExtra(SendCoinsActivity.AMOUNT, amount)
+                        .putExtra(FIO_ADDRESS_FROM, fioAddressFrom)
                         .putExtra(FIO_ADDRESS_TO, fioAdrressTo)
                         .putExtra(FIO_TOKEN_TO, fioTokenTo)
                         .putExtra(SendCoinsActivity.ACCOUNT, accountToSelect))
