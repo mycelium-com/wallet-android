@@ -914,6 +914,9 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                list.put(new Sha256Hash(cursor.getBlob(0)), cursor.getBlob(1));
             }
             return list;
+         } catch (SQLiteException e) {
+            Log.e(LOG_TAG, "read outgoing txs exception",e);
+            return Collections.emptyMap();
          }
       }
 
