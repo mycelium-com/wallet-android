@@ -92,7 +92,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)
-            title = "Send ${fioRequestContent.deserializedContent!!.chainCode}"
+            title = "Send ${fioRequestContent.deserializedContent!!.tokenCode}"
         }
 
         // request data population
