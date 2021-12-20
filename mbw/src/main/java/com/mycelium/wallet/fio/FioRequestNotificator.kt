@@ -29,7 +29,7 @@ object FioRequestNotificator {
     const val FIO_REQUEST_ACTION = "fio_request_action"
     private const val chanelId = "FIORequest"
     private const val fioRequestNotificationGroup = "com.mycelium.wallet.FIO_REQUESTS"
-    private const val fioRequestNotificationId = 24563487
+    const val fioRequestNotificationId = 24563487
 
     lateinit var context: Context
     lateinit var preferences: SharedPreferences
@@ -117,4 +117,9 @@ object FioRequestNotificator {
                     .setAutoCancel(true)
                     .setSubText("FIO Request")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+    fun cancel(request: FIORequestContent) {
+        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .cancel(fioRequestNotificationId + request.fioRequestId.toInt())
+    }
 }

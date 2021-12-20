@@ -1,6 +1,8 @@
 package com.mycelium.wallet.activity.fio.requests
 
 import android.app.Activity
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.AsyncTask
@@ -30,6 +32,7 @@ import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.*
+import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.Util.getCoinByChain
 import com.mycelium.wapi.wallet.Util.strToBigInteger
@@ -262,12 +265,13 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     fun onClickDecline() {
         val dialog = AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setTitle("Delete received FIO Request")
-                .setMessage("Are you sure you want to delete this FIO Request?")
+                .setTitle(getString(R.string.delete_received_fio_request))
+                .setMessage(getString(R.string.delete_received_fio_request_msg))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete) { _, _ ->
                     RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
                             fioRequestViewModel.request.value!!.fioRequestId, fioModule) {
+                        FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
                         finish()
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 }.create()
@@ -403,6 +407,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                         sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
                         fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
                         signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
+                FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
                 finish()
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
