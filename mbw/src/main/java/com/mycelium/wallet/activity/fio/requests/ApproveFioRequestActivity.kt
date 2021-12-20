@@ -118,7 +118,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
         val spendingAccounts = mbwManager.getWalletManager(false)
                 .getActiveSpendingAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
-
+        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
+                fioRequestContent.deserializedContent!!.amount))
         if (spendingAccounts.isNotEmpty()) {
             val account = spendingAccounts.first()
             fioRequestViewModel.payerAccount.value = account
@@ -152,8 +153,6 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         })
 
-        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
-                fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
         val fioEndpoints = mbwManager.fioEndpoints
         GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payeeName.value!!,
@@ -233,6 +232,9 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestViewModel.alternativeAmountFormatted.value = spinnerFiat.adapter.getItem(p2) as String
             }
         }
+        spinnerFiat?.setSelection(spinnerItems.indexOfFirst {
+            it.contains(mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type).symbol, true)
+        })
         val spendingFrom = spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" }
         if (spendingFrom.size < 2) {
             spinnerSpendingFromAccount?.background = null
