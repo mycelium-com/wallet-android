@@ -1732,6 +1732,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exceed_card_value">Exceed card value</string>
     <string name="from_s_to_s">From %s to %s</string>
     <string name="gift_cards_menu">Gift Cards</string>
+    <string name="delete_received_fio_request">Delete received FIO Request</string>
+    <string name="delete_received_fio_request_msg">Are you sure you want to delete this FIO Request?</string>
     <string name="erc20_highest_possible_fee_info"><![CDATA[This is the max fee you may have to pay to send the transaction from <b>ETH %s</b>.  However, most likely miner fee will not exceed %s%s. For details please see <u>miner fee calculation</u>.]]></string>
     <string name="erc20_this_is_updated_fee"><![CDATA[This is the updated fee based on set Gas Limit. For details please see <u>miner fee calculation</u>.]]></string>
     <string name="all_ethereum_network_transactions">All Ethereum network transactions require ETH to pay miner fee.</string>
