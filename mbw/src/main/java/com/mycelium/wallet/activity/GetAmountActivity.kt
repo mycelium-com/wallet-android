@@ -91,6 +91,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             initSendMode()
         }
         updateUI()
+        if (isSendMode) {
+            updateERC20RelatedUI()
+        }
         checkEntry()
         setupActionBar()
     }
@@ -257,10 +260,11 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             binding.tvAmount.text = ""
         }
 
-
         // Check whether we can show the paste button
         binding.btPaste.visibility = if (enablePaste()) View.VISIBLE else View.GONE
+    }
 
+    private fun updateERC20RelatedUI() {
         (viewModel.account as? ERC20Account)?.ethAcc?.let { parentEthAccount ->
             val gasLimit = (txData as? EthTransactionData)?.gasLimit
                 ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
