@@ -35,6 +35,7 @@ import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -61,6 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+
 
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -298,6 +300,16 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public boolean canSpend() {
       return _keyStore.hasPrivateKey(getAddress().getAllAddressBytes());
+   }
+
+   @Override
+   public String signMessage(@NotNull String message, Address address) {
+      try {
+         InMemoryPrivateKey key = getPrivateKey(AesKeyCipher.defaultKeyCipher());
+         return key.signMessage(message).getBase64Signature();
+      } catch (InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
+      }
    }
 
    @Override

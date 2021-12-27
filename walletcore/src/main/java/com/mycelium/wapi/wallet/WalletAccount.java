@@ -106,6 +106,8 @@ public interface WalletAccount<A extends Address> extends SyncPausable {
      */
     boolean canSign();
 
+    String signMessage(@NotNull String message, Address address);
+
     /**
      * Get is account sync in progress
      */
