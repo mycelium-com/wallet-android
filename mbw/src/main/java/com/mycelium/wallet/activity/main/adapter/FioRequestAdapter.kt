@@ -13,9 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.Value
@@ -117,7 +115,9 @@ class FioRequestAdapter : ListAdapter<FioRequestAdapterItem, RecyclerView.ViewHo
                                 })
                     }
                 } else {
+                    amount?.setTextColor(ContextCompat.getColor(tvStatus.context, R.color.white))
                     tvStatus.text = ""
+                    tvStatus.setTextColor(ContextCompat.getColor(tvStatus.context, R.color.white))
                     ivStatus.setBackgroundResource(R.drawable.ic_request_item_circle_gray)
                     ivStatus.setImageResource(R.drawable.ic_history)
                 }
@@ -132,15 +132,19 @@ class FioRequestAdapter : ListAdapter<FioRequestAdapterItem, RecyclerView.ViewHo
                 val mbwManager = MbwManager.getInstance(fioRequestView.context)
                 val requestedCurrency = (COINS.values + mbwManager.getWalletManager(false).getAssetTypes()).firstOrNull {
                     it.symbol.equals(content?.tokenCode ?: "", true)
-                } ?: return
-
-                val amountValue = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency, content!!.amount))
-                amount?.text = amountValue.toStringWithUnit()
-                val convert = mbwManager.exchangeRateManager.get(amountValue, Utils.getTypeByName(CurrencyCode.USD.shortString)!!)
+                            && if(mbwManager.network.isTestnet) it.name.contains("test", true) else true
+                }
                 val tvFiatAmount = fioRequestView.findViewById<TextView>(R.id.tvFiatAmount)
-                tvFiatAmount?.text = convert?.toStringWithUnit()
-
-                if (content.memo?.isNotEmpty() == true) {
+                if(requestedCurrency != null) {
+                    val amountValue = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency, content!!.amount))
+                    amount?.text = amountValue.toStringWithUnit()
+                    val convert = mbwManager.exchangeRateManager.get(amountValue, mbwManager.getFiatCurrency(requestedCurrency))
+                    tvFiatAmount?.text = convert?.toStringWithUnit()
+                } else {
+                    amount?.text = "${content?.amount} ${content?.tokenCode}"
+                    tvFiatAmount?.text = ""
+                }
+                if (content?.memo?.isNotEmpty() == true) {
                     fioRequestView.tvMemo.text = content.memo
                     fioRequestView.tvMemo.visibility = View.VISIBLE
                 } else {
@@ -157,7 +161,17 @@ class FioRequestAdapter : ListAdapter<FioRequestAdapterItem, RecyclerView.ViewHo
 
     class ItemListDiffCallback : DiffUtil.ItemCallback<FioRequestAdapterItem>() {
         override fun areItemsTheSame(oldItem: FioRequestAdapterItem, newItem: FioRequestAdapterItem): Boolean =
-                oldItem == newItem
+                oldItem.type == newItem.type && when (oldItem.type) {
+                    TYPE_GROUP -> {
+                        equalsValuesBy(oldItem as Group, newItem as Group,
+                                { it.group.status })
+                    }
+                    TYPE_ITEM -> {
+                        equalsValuesBy(oldItem as FioRequest, newItem as FioRequest,
+                                { it.request.fioRequestId })
+                    }
+                    else -> TODO("Not yet implemented")
+                }
 
         override fun areContentsTheSame(oldItem: FioRequestAdapterItem, newItem: FioRequestAdapterItem): Boolean =
                 when (oldItem.type) {

@@ -1,8 +1,6 @@
 package com.mycelium.wallet.activity.fio.requests
 
 import android.app.Activity
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.AsyncTask
@@ -33,6 +31,7 @@ import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.*
 import com.mycelium.wallet.fio.FioRequestNotificator
+import com.mycelium.wallet.fio.event.FioRequestStatusChanged
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.Util.getCoinByChain
 import com.mycelium.wapi.wallet.Util.strToBigInteger
@@ -140,11 +139,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 sendViewModel.init(it, intent)
                 when (binding) {
                     is FioSendRequestActivityBindingImpl ->
-                        (binding as FioSendRequestActivityBindingImpl).sendViewModel = sendViewModel
+                        (binding as FioSendRequestActivityBinding).sendViewModel = sendViewModel
                     is FioSendRequestActivityEthBindingImpl ->
-                        (binding as FioSendRequestActivityEthBindingImpl).sendViewModel = sendViewModel as SendEthViewModel
+                        (binding as FioSendRequestActivityEthBinding).sendViewModel = sendViewModel as SendEthViewModel
                     is FioSendRequestActivityFioBindingImpl ->
-                        (binding as FioSendRequestActivityFioBindingImpl).sendViewModel = sendViewModel as SendFioViewModel
+                        (binding as FioSendRequestActivityFioBinding).sendViewModel = sendViewModel as SendFioViewModel
                 }
                 initFeeView()
                 initFeeLvlView()
@@ -272,6 +271,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                     RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
                             fioRequestViewModel.request.value!!.fioRequestId, fioModule) {
                         FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
+                        MbwManager.getEventBus().post(FioRequestStatusChanged(fioRequestViewModel.request.value!!));
                         finish()
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 }.create()
@@ -408,6 +408,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                         fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
                         signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
                 FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
+                MbwManager.getEventBus().post(FioRequestStatusChanged(fioRequestViewModel.request.value!!));
                 finish()
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
