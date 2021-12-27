@@ -155,7 +155,7 @@ class TransactionHistoryFragment : Fragment() {
     }
 
     @Subscribe
-    fun exchangeRateChanged(event: ExchangeRatesRefreshed?) {
+    fun exchangeRateChanged(event: ExchangeRatesRefreshed) {
         refreshList()
     }
 
@@ -164,18 +164,18 @@ class TransactionHistoryFragment : Fragment() {
     }
 
     @Subscribe
-    fun fiatCurrencyChanged(event: SelectedCurrencyChanged?) {
+    fun fiatCurrencyChanged(event: SelectedCurrencyChanged) {
         refreshList()
     }
 
     @Subscribe
-    fun addressBookEntryChanged(event: AddressBookChanged?) {
+    fun addressBookEntryChanged(event: AddressBookChanged) {
         model.cacheAddressBook()
         refreshList()
     }
 
     @Subscribe
-    fun selectedAccountChanged(event: SelectedAccountChanged?) {
+    fun selectedAccountChanged(event: SelectedAccountChanged) {
         if (arguments?.containsKey("accountId") != true) {
             model.account.value = model.mbwManager.selectedAccount
         }
@@ -185,7 +185,7 @@ class TransactionHistoryFragment : Fragment() {
     }
 
     @Subscribe
-    fun syncStopped(event: SyncStopped?) {
+    fun syncStopped(event: SyncStopped) {
         // It's possible that new transactions came. Adapter should allow to try to scroll
         isLoadingPossible.set(true)
     }

@@ -288,7 +288,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                                 { it.externalAccountType }, { it.isRMCLinkedAccount }, { it.label },
                                 { it.showBackupMissingWarning }, { it.syncTotalRetrievedTransactions },
                                 { it.isSyncing }, { it.privateKeyCount }, { it.balance?.spendable },
-                                { it.isSyncError })
+                                { it.isSyncError }, { it.isSelected })
                     }
                     TOTAL_BALANCE_TYPE -> {
                         equalsValuesBy(newItem as TotalViewModel, oldItem as TotalViewModel,
