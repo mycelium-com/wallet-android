@@ -397,18 +397,16 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 if (!success) {
                     Toaster(this).toast("Failed to write obt", false)
                 }
-                val walletManager = mbwManager.getWalletManager(false)
-                val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-
-                walletManager.startSynchronization(SyncMode.NORMAL, fioModule.getAccounts())
+                mbwManager.getWalletManager(false)
+                        .startSynchronization(fioRequestViewModel.payerNameOwnerAccount.value?.id)
+                FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
+                MbwManager.getEventBus().post(FioRequestStatusChanged(fioRequestViewModel.request.value!!));
 
                 ApproveFioRequestSuccessActivity.start(this, fioRequestViewModel.amount.value!!,
                         fioRequestViewModel.alternativeAmountFormatted.value!!,
                         sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
                         fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
                         signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
-                FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
-                MbwManager.getEventBus().post(FioRequestStatusChanged(fioRequestViewModel.request.value!!));
                 finish()
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
