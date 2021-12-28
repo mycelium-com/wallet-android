@@ -21,6 +21,7 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -94,6 +95,12 @@ class EthAccount(private val chainId: Byte,
         }
     }
 
+    override fun signMessage(message: String, address: Address?): String {
+        val msgBytes = message.toByteArray(StandardCharsets.UTF_8)
+        val sig = Sign.signPrefixedMessage(msgBytes, credentials!!.ecKeyPair)
+        return "${Numeric.toHexString(sig.r)}${Numeric.toHexString(sig.s).substring(2)}${HexUtils.toHex(sig.v)}"
+    }
+
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
             val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
@@ -144,6 +151,8 @@ class EthAccount(private val chainId: Byte,
         }
         return false
     }
+
+    override fun canSign() = credentials != null
 
     private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
             .filter { it.confirmations > 0 }

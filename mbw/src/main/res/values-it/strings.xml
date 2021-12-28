@@ -393,8 +393,8 @@
     <string name="copy_signature">Copia la firma negli appunti</string>
     <string name="share_signature">Condividi il testo + la firma</string>
     <string name="sig_copied">Firma copiata negli appunti</string>
-    <string name="signed_message_subject">Messaggio Bitcoin firmato</string>
-    <string name="signed_message_share">Condividi il messaggio Bitcoin firmato</string>
+    <string name="signed_message_subject_btc">Messaggio Bitcoin firmato</string>
+    <string name="signed_message_share_btc">Condividi il messaggio Bitcoin firmato</string>
     <string name="signing_inprogress">Convalida del messaggio&#8230;</string>
     <string name="geocode_error">Errore da geocoder: %s \n riprova più tardi.</string>
     <string name="fetching_info">Recupero informazioni dal server</string>

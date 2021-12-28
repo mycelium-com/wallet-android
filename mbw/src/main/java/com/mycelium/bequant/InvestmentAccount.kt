@@ -45,6 +45,10 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
+    override fun signMessage(message: String, address: Address?): String {
+        TODO("Not yet implemented")
+    }
+
     override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
         TODO("Not yet implemented")
     }

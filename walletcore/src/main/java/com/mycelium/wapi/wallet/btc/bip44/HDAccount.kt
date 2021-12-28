@@ -797,4 +797,13 @@ open class HDAccount(
     }
 
     override fun canSign(): Boolean = true
+
+    override fun signMessage(message: String, address: Address?): String {
+        return try {
+            val privKey = getPrivateKeyForAddress((address as BtcAddress).address, AesKeyCipher.defaultKeyCipher())
+             privKey!!.signMessage(message).base64Signature
+        } catch (invalidKeyCipher: InvalidKeyCipher) {
+            throw java.lang.RuntimeException(invalidKeyCipher)
+        }
+    }
 }
