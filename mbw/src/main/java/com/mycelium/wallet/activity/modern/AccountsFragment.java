@@ -71,6 +71,7 @@ import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.bequant.intro.BequantIntroActivity;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -151,6 +152,7 @@ public class AccountsFragment extends Fragment {
     public static final int ADD_RECORD_RESULT_CODE = 0;
 
     public static final String TAG = "AccountsFragment";
+    private static final String FIRST_SYNC_PASSED = "firstSyncPassed";
 
     private WalletManager walletManager;
 
@@ -591,6 +593,18 @@ public class AccountsFragment extends Fragment {
             llLocked.setVisibility(View.GONE);
         }
         eventBus.post(new AccountListChanged());
+    }
+
+    private void recalculateSelectedAccount() {
+        getContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE)
+                .edit().putBoolean(FIRST_SYNC_PASSED, true).apply();
+        List<WalletAccount<?>> nonZeroAccounts = walletManager.getSpendingAccountsWithBalance();
+        if (nonZeroAccounts.size() == 1) {
+            WalletAccount<?> account = nonZeroAccounts.get(0);
+            if (!_mbwManager.getSelectedAccount().equals(account) && account.isActive()) {
+                _mbwManager.setSelectedAccount(nonZeroAccounts.get(0).getId());
+            }
+        }
     }
 
     private ActionMode currentActionMode;
@@ -1197,11 +1211,21 @@ public class AccountsFragment extends Fragment {
 
     @Subscribe
     public void syncStarted(SyncStarted event) {
+        Log.i("asdaf", "asdaf syncStarted");
         update();
     }
 
     @Subscribe
     public void syncStopped(SyncStopped event) {
+        boolean firstSyncHasPassed =
+                getContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE)
+                            .getBoolean(FIRST_SYNC_PASSED, false);
+
+        Log.i("asdaf", "asdaf syncStopped");
+        if (!firstSyncHasPassed) {
+            Log.i("asdaf", "asdaf firstSyncHasPassed");
+            recalculateSelectedAccount();
+        }
         update();
     }
 
