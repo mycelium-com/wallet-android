@@ -14,8 +14,11 @@ import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
-import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
+import com.mycelium.wapi.wallet.colu.ColuAccount
+import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.message_signing.*
 import java.util.*
 import kotlin.concurrent.thread
@@ -24,13 +27,14 @@ class MessageSigningActivity : Activity() {
     private var signature: String? = null
     private var messageText: String? = null
     private var address: Address? = null
+    private var account: WalletAccount<*>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTitle(R.string.sign_message)
-        val account = MbwManager.getInstance(this).getWalletManager(false)
+        account = MbwManager.getInstance(this).getWalletManager(false)
             .getAccount(intent.getSerializableExtra(ACCOUNT) as UUID)!!
-        address = intent.getSerializableExtra(ADDRESS) as? Address ?: account.receiveAddress
+        address = intent.getSerializableExtra(ADDRESS) as? Address ?: account!!.receiveAddress
 
         setContentView(R.layout.message_signing)
         btCopyToClipboard.visibility = View.GONE
@@ -45,7 +49,7 @@ class MessageSigningActivity : Activity() {
             pd.show()
             thread {
                 messageText = etMessageToSign.text.toString()
-                signature = account.signMessage(messageText!!, address)
+                signature = account!!.signMessage(messageText!!, address)
                 runOnUiThread {
                     pd.dismiss()
                     tvSignature.text = signature
@@ -62,11 +66,9 @@ class MessageSigningActivity : Activity() {
         btShare.setOnClickListener {
             val sharingIntent = Intent(Intent.ACTION_SEND)
             sharingIntent.type = "text/plain"
-            val coinType = account.coinType
-            val body = getBody(coinType) ?: signature
-            sharingIntent.putExtra(Intent.EXTRA_TEXT, body)
-            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.signed_message_subject, coinType.name))
-            startActivity(Intent.createChooser(sharingIntent, getString(R.string.signed_message_share, coinType.name)))
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, getBody())
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, getSubject())
+            startActivity(Intent.createChooser(sharingIntent, getChooserTitle()))
         }
     }
 
@@ -125,9 +127,9 @@ Address: %s
         }
     }
 
-    private fun getBody(assetInfo: AssetInfo) =
-        when (assetInfo) {
-            Utils.getEthCoinType() -> String.format(
+    private fun getBody() =
+        when (account) {
+            is EthAccount -> String.format(
                 ETH_TEMPLATE,
                 address,
                 messageText,
@@ -139,5 +141,17 @@ Address: %s
                 address,
                 signature
             )
+        }
+
+    private fun getChooserTitle() =
+        when (account) {
+            is AbstractBtcAccount, is AbstractBtcvAccount, is ColuAccount -> getString(R.string.signed_message_share_btc)
+            else -> getString(R.string.signed_message_share, account!!.coinType.symbol)
+        }
+
+    private fun getSubject() =
+        when (account) {
+            is AbstractBtcAccount, is AbstractBtcvAccount, is ColuAccount -> getString(R.string.signed_message_subject_btc)
+            else -> getString(R.string.signed_message_subject, account!!.coinType.symbol)
         }
 }

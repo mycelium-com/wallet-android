@@ -408,8 +408,8 @@
     <string name="copy_signature">将签名复制到剪贴板</string>
     <string name="share_signature">分享文字 + 签名</string>
     <string name="sig_copied">复制签名到剪贴板</string>
-    <string name="signed_message_subject">比特币签名的信息</string>
-    <string name="signed_message_share">共享比特币签名的信息</string>
+    <string name="signed_message_subject_btc">比特币签名的信息</string>
+    <string name="signed_message_share_btc">共享比特币签名的信息</string>
     <string name="signing_inprogress">信息签名中......</string>
     <string name="geocode_error">地理编码器错误: %s \n 请稍后再试。</string>
     <string name="fetching_info">正在从服务器读取信息</string>

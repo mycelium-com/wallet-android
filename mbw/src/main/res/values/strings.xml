@@ -545,6 +545,8 @@
     <string name="copy_signature">Copy Signature to Clipboard</string>
     <string name="share_signature">Share Text + Signature</string>
     <string name="sig_copied">Signature copied to clipboard</string>
+    <string name="signed_message_subject_btc">Bitcoin signed message</string>
+    <string name="signed_message_share_btc">Share Bitcoin signed message</string>
     <string name="signed_message_subject">%s signed message</string>
     <string name="signed_message_share">Share %s signed message</string>
     <string name="signing_inprogress">Signing Message…</string>
