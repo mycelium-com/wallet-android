@@ -1620,7 +1620,7 @@ public class MbwManager {
         UUID accountId = _walletManager.createAccounts(accountConfig).get(0);
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
-        String defaultName = Utils.getNameForNewAccount(account, context);
+        String defaultName = account.getLabel();
         MetadataStorage.INSTANCE.storeAccountLabel(accountId, defaultName);
         return accountId;
     }
