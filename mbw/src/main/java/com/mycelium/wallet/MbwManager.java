@@ -47,7 +47,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
@@ -141,7 +140,6 @@ import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -1516,11 +1514,11 @@ public class MbwManager {
         if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
             return _walletManager.getAccount(uuid);
         } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            List<WalletAccount<?>> btcAccounts = BitcoinHDModuleKt.getActiveHDAccounts(_walletManager);
-            if (btcAccounts.isEmpty()) {
-                uuid = _walletManager.getAllActiveAccounts().get(0).getId();
-            } else {
-                uuid = btcAccounts.get(0).getId();
+            for (WalletAccount activeAccount : _walletManager.getAllActiveAccounts()) {
+                if (!(activeAccount instanceof InvestmentAccount)) {
+                    uuid = activeAccount.getId();
+                    break;
+                }
             }
             setSelectedAccount(uuid);
         }

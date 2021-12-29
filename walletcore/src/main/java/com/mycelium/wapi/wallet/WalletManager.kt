@@ -128,7 +128,6 @@ constructor(val network: NetworkParameters,
             }
         }
         accounts.putAll(result)
-        _logger.log(Level.INFO, "asdaf wm $accounts")
         return result.keys.toList()
     }
 
