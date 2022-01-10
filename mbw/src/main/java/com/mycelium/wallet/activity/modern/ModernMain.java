@@ -51,6 +51,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
@@ -79,6 +80,7 @@ import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.modern.helper.MainActions;
+import com.mycelium.wallet.activity.modern.event.SelectTab;
 import com.mycelium.wallet.activity.news.NewsActivity;
 import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
@@ -128,10 +130,12 @@ public class ModernMain extends AppCompatActivity {
     private static final String TAB_ACCOUNTS = "tab_accounts";
     private static final String TAB_BALANCE = "tab_balance";
     private static final String TAB_HISTORY = "tab_history";
-    private static final String TAB_FIO_REQUESTS = "tab_fio_requests";
+    public static final String TAB_FIO_REQUESTS = "tab_fio_requests";
     private static final String TAB_ADS = "tab_ads";
     private static final String TAB_RECOMMENDATIONS = "tab_recommendations";
     private static final String TAB_ADDRESS_BOOK = "tab_address_book";
+
+    private static final String TAB_KEY = "tab";
 
     private static final int REQUEST_SETTING_CHANGED = 5;
     public static final int MIN_AUTOSYNC_INTERVAL = (int) Constants.MS_PR_MINUTE;
@@ -140,6 +144,7 @@ public class ModernMain extends AppCompatActivity {
     private static final String APP_START = "APP_START";
     private MbwManager _mbwManager;
 
+    private TabLayout tabLayout;
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
     private TabLayout.Tab mBalanceTab;
@@ -162,20 +167,13 @@ public class ModernMain extends AppCompatActivity {
         _mbwManager = MbwManager.getInstance(this);
         WalletApplication.applyLanguageChange(getBaseContext(), _mbwManager.getLanguage());
         setContentView(R.layout.modern_main);
-        TabLayout tabLayout = findViewById(R.id.pager_tabs);
+        tabLayout = findViewById(R.id.pager_tabs);
         mViewPager = findViewById(R.id.pager);
         tabLayout.setupWithViewPager(mViewPager);
-        setSupportActionBar(findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
-        findViewById(R.id.logoMenu).setOnClickListener(new LogoMenuClick());
-        View investmentWallet = findViewById(R.id.investmentWallet);
-        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID) ?
-                VISIBLE : GONE);
-        investmentWallet.setOnClickListener(view -> {
-            findViewById(R.id.logoMenu).performClick(); // to hide menu
-            startActivity(new Intent(view.getContext(), BequantIntroActivity.class));
-        });
+        ActionBar bar = getSupportActionBar();
+        bar.setDisplayShowTitleEnabled(false);
+        bar.setDisplayShowHomeEnabled(true);
+        bar.setIcon(R.drawable.action_bar_logo);
 
         getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
@@ -203,8 +201,7 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig, TAB_ADDRESS_BOOK);
         addAdsTabs(tabLayout);
-        mBalanceTab.select();
-        mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
+        selectTab(getIntent().getStringExtra(TAB_KEY) != null ? getIntent().getStringExtra(TAB_KEY) : TAB_ACCOUNTS);
         _toaster = new Toaster(this);
 
         ChangeLog cl = new DarkThemeChangeLog(this);
@@ -229,6 +226,13 @@ public class ModernMain extends AppCompatActivity {
         handleIntent(getIntent());
     }
 
+    public void selectTab(String tabTag) {
+        int selectTab = mTabsAdapter.indexOf(tabTag);
+        tabLayout.getTabAt(selectTab).select();
+        mViewPager.setCurrentItem(selectTab);
+        getIntent().removeExtra(TAB_KEY);
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -238,15 +242,13 @@ public class ModernMain extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         if (SettingsPreference.getMediaFlowEnabled() &&
                 Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
-            mNewsTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
+            selectTab(TAB_NEWS);
             if (getIntent().hasExtra(NewsConstants.NEWS)) {
                 startActivity(new Intent(this, NewsActivity.class)
                         .putExtras(getIntent().getExtras()));
             }
         } else if (Objects.equals(intent.getAction(), FioRequestNotificator.FIO_REQUEST_ACTION)) {
-            mFioRequestsTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
+            selectTab(TAB_FIO_REQUESTS);
             startActivity(new Intent(this, ApproveFioRequestActivity.class)
                     .putExtras(getIntent().getExtras()));
         } else if (Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
@@ -392,7 +394,6 @@ public class ModernMain extends AppCompatActivity {
                     final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
                     if (lastFullSync.isPresent()
                             && (new Date().getTime() - lastFullSync.get() < MIN_FULLSYNC_INTERVAL)) {
-                        WalletAccount<?> account = _mbwManager.getSelectedAccount();
                         _mbwManager.getWalletManager(false)
                                 .startSynchronization(SyncMode.NORMAL_ALL_ACCOUNTS_FORCED);
                     } else {
@@ -493,11 +494,6 @@ public class ModernMain extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    public void selectRequestTab(){
-        int item = mTabsAdapter.indexOf(TAB_FIO_REQUESTS);
-        mViewPager.setCurrentItem(item);
-    }
-
     @SuppressWarnings("unused")
     private boolean canObtainLocation() {
         final boolean hasFeature = getPackageManager().hasSystemFeature("android.hardware.location.network");
@@ -560,7 +556,7 @@ public class ModernMain extends AppCompatActivity {
                 startActivity(new Intent(this, AccountMappingActivity.class));
                 break;
             case R.id.miFIORequests:
-                selectRequestTab();
+                selectTab(TAB_FIO_REQUESTS);
                 break;
             case R.id.miGiftBox:
                 GiftBoxRootActivity.Companion.start(this);
@@ -585,7 +581,8 @@ public class ModernMain extends AppCompatActivity {
             // restart activity if language changes
             // or anything else in settings. this makes some of the listeners
             // obsolete
-            Intent running = getIntent();
+            Intent running = getIntent()
+                    .putExtra(TAB_KEY, mTabsAdapter.getPageTag(mViewPager.getCurrentItem()));
             finish();
             startActivity(running);
         } else {
@@ -625,19 +622,6 @@ public class ModernMain extends AppCompatActivity {
         }
     }
 
-    private static class LogoMenuClick implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            Activity host = (Activity) view.getContext();
-            View logoMenu = host.findViewById(R.id.logoMenu);
-            boolean isOpened = logoMenu.getVisibility() == VISIBLE;
-            logoMenu.setVisibility(isOpened ? GONE : VISIBLE);
-            ImageView logoArrow = host.findViewById(R.id.logoArrow);
-            logoArrow.setImageDrawable(logoArrow.getResources().getDrawable(isOpened ?
-                    R.drawable.ic_arrow_drop_down : R.drawable.ic_arrow_drop_down_active));
-        }
-    }
-
     @Subscribe
     public void syncStarted(SyncStarted event) {
         setRefreshAnimation();
@@ -671,5 +655,10 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void onNewVersion(final NewWalletVersionAvailable event) {
         _mbwManager.getVersionManager().showIfRelevant(event.versionInfo, this);
+    }
+
+    @Subscribe
+    public void selectTab(SelectTab selectTab) {
+        selectTab(selectTab.getTabTag());
     }
 }

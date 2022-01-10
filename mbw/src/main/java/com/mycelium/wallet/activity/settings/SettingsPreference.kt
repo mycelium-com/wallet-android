@@ -3,6 +3,8 @@ package com.mycelium.wallet.activity.settings
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.GsonBuilder
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.wallet.Constants
 import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
@@ -96,7 +98,10 @@ object SettingsPreference {
     }
 
     @JvmStatic
-    fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean("${PARTNER_ENABLED}-${partnerInfoId}", true)
+    fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean(
+        "${PARTNER_ENABLED}-${partnerInfoId}",
+        if (partnerInfoId == BequantConstants.PARTNER_ID) BequantPreference.isLogged() else true
+    )
 
     fun setEnabled(partnerInfoId: String, enable: Boolean) {
         sharedPreferences.edit().putBoolean("${PARTNER_ENABLED}-${partnerInfoId}", enable).apply()
