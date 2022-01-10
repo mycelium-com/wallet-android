@@ -18,7 +18,6 @@ import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
 import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
@@ -27,8 +26,6 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -41,8 +38,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private var itemClickListener: ItemClickListener? = null
     var investmentAccountClickListener: ItemClickListener? = null
-    private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
-    private val pagePrefs = context.getSharedPreferences(ACCOUNT_LIST, Context.MODE_PRIVATE)
+    private val layoutInflater = LayoutInflater.from(context)
+    private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
     private val walletManager = mbwManager.getWalletManager(false)
 
@@ -78,12 +75,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val itemList = ArrayList<AccountListItem>()
         var totalAdded = false
 
-        val nonZeroGroups: List<CryptoCurrency> = accountsGroupsList
-            .filter {
-                it.sum != null &&
-                mbwManager.currencySwitcher.getValue(it.sum, it.coinType) > Value.zeroValue(it.coinType)
-            }
-            .map { it.coinType }
         for (accountsGroup in accountsGroupsList) {
             if (accountsGroup.getType() == GROUP_ARCHIVED_TITLE_TYPE) {
                 itemList.add(TotalViewModel(getSpendableBalance(itemList)))
@@ -91,12 +82,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             }
             val groupModel = AccountsGroupModel(accountsGroup)
             itemList.add(groupModel)
-            val isGroupVisible = when {
-                nonZeroGroups.isEmpty() -> groupModel.coinType == Utils.getBtcCoinType()
-                nonZeroGroups.size == 1 -> groupModel.coinType == nonZeroGroups.first()
-                else -> false
-            }
-            groupModel.isCollapsed = !pagePrefs.getBoolean(accountsGroup.getTitle(context), isGroupVisible)
+            groupModel.isCollapsed = !pagePrefs.getBoolean(accountsGroup.getTitle(context), false)
             if (!groupModel.isCollapsed) {
                 itemList.addAll(accountsGroup.accountsList)
             }
@@ -240,7 +226,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         groupHolder.tvAccountsCount.visibility = if (count > 0 && !group.isInvestmentAccount) View.VISIBLE else View.GONE
         groupHolder.tvAccountsCount.text = "($count)"
         groupHolder.itemView.setOnClickListener {
-            pagePrefs.edit().putBoolean(title, group.isCollapsed).apply()
+            //Should be here as initial state in model is wrong
+            val isGroupVisible = !pagePrefs.getBoolean(title, false)
+            pagePrefs.edit().putBoolean(title, isGroupVisible).apply()
             refreshList(listModel.accountsData.value!!)
         }
         groupHolder.expandIcon.rotation = (if (!group.isCollapsed) 180 else 0).toFloat()
@@ -270,7 +258,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         fun onItemClick(account: WalletAccount<out Address>)
     }
 
-    open class ItemListDiffCallback : DiffUtil.ItemCallback<AccountListItem>() {
+    open class ItemListDiffCallback() : DiffUtil.ItemCallback<AccountListItem>() {
         override fun areItemsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean {
             return when {
                 oldItem.getType() != newItem.getType() -> false
@@ -312,9 +300,5 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                     }
                     else -> oldItem == newItem
                 }
-    }
-
-    companion object {
-        const val ACCOUNT_LIST = "account_list"
     }
 }
