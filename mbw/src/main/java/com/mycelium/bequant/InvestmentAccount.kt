@@ -6,6 +6,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
@@ -44,6 +45,10 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     }
 
     override fun canSign(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun signMessage(message: String, address: Address?): String {
         TODO("Not yet implemented")
     }
 
@@ -144,11 +149,15 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun lastSyncStatus(): SyncStatusInfo = lastSyncInfo
 
+    override fun setLastSyncStatus(syncStatusInfo: SyncStatusInfo) {
+        lastSyncInfo = syncStatusInfo
+    }
+
     override val isArchived: Boolean
         get() = false
 
     override val isActive: Boolean
-        get() = BequantPreference.hasKeys()
+        get() = SettingsPreference.isEnabled(BequantConstants.PARTNER_ID)
 
     override fun archiveAccount() {
     }

@@ -43,21 +43,19 @@ class ERC20Account(private val chainId: Byte,
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val inputData = getInputData(address.toString(), amount.value)
-        val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
         if (calculateMaxSpendableAmount(fee.feePerKb, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        if (gasLimit < Transfer.GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
             throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice, accountContext.nonce, gasLimit, inputData, estimatedGasUsed, amount
-        )
+            gasPrice, accountContext.nonce, gasLimit, inputData, amount)
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -90,7 +88,7 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+                    accountContext.nonce, null, true, tx.gasLimit, tx.gasLimit)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -172,7 +170,7 @@ class ERC20Account(private val chainId: Byte,
 
     override val syncTotalRetrievedTransactions = 0 // TODO implement after full transaction history implementation
 
-    override val typicalEstimatedTransactionSize = Transfer.GAS_LIMIT.toInt()
+    override val typicalEstimatedTransactionSize = TOKEN_TRANSFER_GAS_LIMIT.toInt()
 
     override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -189,6 +187,10 @@ class ERC20Account(private val chainId: Byte,
             return true
         }
         return false
+    }
+
+    override fun signMessage(message: String, address: Address?): String {
+        TODO("Not yet implemented")
     }
 
     private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
@@ -265,6 +267,7 @@ class ERC20Account(private val chainId: Byte,
     }
 
     companion object {
-        private const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
+        const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
+        val AVG_TOKEN_TRANSFER_GAS = (Transfer.GAS_LIMIT.toLong() + TOKEN_TRANSFER_GAS_LIMIT) / 2
     }
 }

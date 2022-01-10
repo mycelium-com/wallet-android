@@ -179,6 +179,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                                                 tempTransaction.value = transaction
                                             }
                                             offer(cryptoAmount)
+                                        } else if(checkValidTransaction == AmountValidation.NotEnoughFunds) {
+                                            warningQuantityMessage.postValue(WalletApplication.getInstance()
+                                                    .getString(R.string.insufficient_funds))
                                         }
                                     }
                                 } else {

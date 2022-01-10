@@ -6,78 +6,77 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.EditText
-import android.widget.TextView
-import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.HDSigningActivity
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.wallet.Address
-import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
+import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
+import com.mycelium.wapi.wallet.colu.ColuAccount
+import com.mycelium.wapi.wallet.eth.EthAccount
+import kotlinx.android.synthetic.main.message_signing.*
+import java.util.*
 import kotlin.concurrent.thread
 
 class MessageSigningActivity : Activity() {
-    private var base64Signature: String? = null
+    private var signature: String? = null
     private var messageText: String? = null
+    private var address: Address? = null
+    private var account: WalletAccount<*>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTitle(R.string.sign_message)
-        val encoded = intent.getStringExtra(PRIVATE_KEY)
-        val address = intent.getSerializableExtra(ADDRESS) as Address
-        val network = MbwManager.getInstance(this).network
-        val privateKey = InMemoryPrivateKey(encoded, network)
+        account = MbwManager.getInstance(this).getWalletManager(false)
+            .getAccount(intent.getSerializableExtra(ACCOUNT) as UUID)!!
+        address = intent.getSerializableExtra(ADDRESS) as? Address ?: account!!.receiveAddress
+
         setContentView(R.layout.message_signing)
-        val signButton = findViewById<View>(R.id.btSign)
-        val copyButton = findViewById<View>(R.id.btCopyToClipboard)
-        val shareButton = findViewById<View>(R.id.btShare)
-        val signature = findViewById<TextView>(R.id.signature)
-        val messageToSign = findViewById<EditText>(R.id.etMessageToSign)
-        copyButton.visibility = View.GONE
-        shareButton.visibility = View.GONE
-        signButton.setOnClickListener {
-            signButton.isEnabled = false
-            messageToSign.isEnabled = false
-            messageToSign.hint = ""
+        btCopyToClipboard.visibility = View.GONE
+        btShare.visibility = View.GONE
+        btSign.setOnClickListener {
+            btSign.isEnabled = false
+            etMessageToSign.isEnabled = false
+            etMessageToSign.hint = ""
             val pd = ProgressDialog(this)
             pd.setTitle(getString(R.string.signing_inprogress))
             pd.setCancelable(false)
             pd.show()
             thread {
-                messageText = messageToSign.text.toString()
-                val signedMessage = privateKey.signMessage(messageText!!)
-                base64Signature = signedMessage.base64Signature
+                messageText = etMessageToSign.text.toString()
+                signature = account!!.signMessage(messageText!!, address)
                 runOnUiThread {
                     pd.dismiss()
-                    signature.text = base64Signature
-                    signButton.visibility = View.GONE
-                    copyButton.visibility = View.VISIBLE
-                    shareButton.visibility = View.VISIBLE
+                    tvSignature.text = signature
+                    btSign.visibility = View.GONE
+                    btCopyToClipboard.visibility = View.VISIBLE
+                    btShare.visibility = View.VISIBLE
                 }
             }
         }
-        copyButton.setOnClickListener {
-            Utils.setClipboardString(base64Signature, this@MessageSigningActivity)
+        btCopyToClipboard.setOnClickListener {
+            Utils.setClipboardString(signature, this@MessageSigningActivity)
             Toaster(this@MessageSigningActivity).toast(R.string.sig_copied, false)
         }
-        shareButton.setOnClickListener {
+        btShare.setOnClickListener {
             val sharingIntent = Intent(Intent.ACTION_SEND)
             sharingIntent.type = "text/plain"
-            val body = String.format(TEMPLATE, messageText, address, base64Signature)
-            sharingIntent.putExtra(Intent.EXTRA_TEXT, body)
-            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.signed_message_subject))
-            startActivity(Intent.createChooser(sharingIntent, getString(R.string.signed_message_share)))
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, getBody())
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, getSubject())
+            startActivity(Intent.createChooser(sharingIntent, getChooserTitle()))
         }
     }
 
     companion object {
         const val PRIVATE_KEY = "privateKey"
         const val ADDRESS = "address"
-        const val TEMPLATE = """-----BEGIN BITCOIN SIGNED MESSAGE-----
+        const val ACCOUNT = "account"
+        const val BTC_TEMPLATE = """-----BEGIN BITCOIN SIGNED MESSAGE-----
 %s
 -----BEGIN BITCOIN SIGNATURE-----
 Version: Bitcoin-qt (1.0)
@@ -86,16 +85,26 @@ Address: %s
 %s
 -----END BITCOIN SIGNATURE-----"""
 
+        // Template comes from MyCrypto so it could be copied and easily verified there
+        const val ETH_TEMPLATE = """{
+  "address": "%s",
+  "msg": "%s",
+  "sig": "%s",
+  "version": "2"
+}"""
+
         @JvmStatic
         fun callMe(currentActivity: Context, focusedAccount: WalletAccount<*>) {
             try {
-                if (focusedAccount is AddressesListProvider<*>) {
-                    val intent = Intent(currentActivity, HDSigningActivity::class.java)
+                when (focusedAccount) {
+                    is AddressesListProvider<*> -> {
+                        val intent = Intent(currentActivity, HDSigningActivity::class.java)
                             .putExtra("account", focusedAccount.id)
-                    currentActivity.startActivity(intent)
-                } else {
-                    val key = focusedAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher())
-                    callMe(currentActivity, key, focusedAccount.receiveAddress)
+                        currentActivity.startActivity(intent)
+                    }
+                    else -> {
+                        callMe(currentActivity, focusedAccount.id)
+                    }
                 }
             } catch (invalidKeyCipher: InvalidKeyCipher) {
                 invalidKeyCipher.printStackTrace()
@@ -103,12 +112,46 @@ Address: %s
         }
 
         @JvmStatic
-        fun callMe(currentActivity: Context, privateKey: InMemoryPrivateKey, address: Address?) {
-            val privKey = privateKey.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).network)
+        fun callMe(currentActivity: Context, address: Address?, accountId: UUID) {
             val intent = Intent(currentActivity, MessageSigningActivity::class.java)
-                    .putExtra(PRIVATE_KEY, privKey)
-                    .putExtra(ADDRESS, address)
+                .putExtra(ADDRESS, address)
+                .putExtra(ACCOUNT, accountId)
+            currentActivity.startActivity(intent)
+        }
+
+        @JvmStatic
+        fun callMe(currentActivity: Context, accountId: UUID) {
+            val intent = Intent(currentActivity, MessageSigningActivity::class.java)
+                .putExtra(ACCOUNT, accountId)
             currentActivity.startActivity(intent)
         }
     }
+
+    private fun getBody() =
+        when (account) {
+            is EthAccount -> String.format(
+                ETH_TEMPLATE,
+                address,
+                messageText,
+                signature
+            )
+            else -> String.format(
+                BTC_TEMPLATE,
+                messageText,
+                address,
+                signature
+            )
+        }
+
+    private fun getChooserTitle() =
+        when (account) {
+            is AbstractBtcAccount, is AbstractBtcvAccount, is ColuAccount -> getString(R.string.signed_message_share_btc)
+            else -> getString(R.string.signed_message_share, account!!.coinType.symbol)
+        }
+
+    private fun getSubject() =
+        when (account) {
+            is AbstractBtcAccount, is AbstractBtcvAccount, is ColuAccount -> getString(R.string.signed_message_subject_btc)
+            else -> getString(R.string.signed_message_subject, account!!.coinType.symbol)
+        }
 }

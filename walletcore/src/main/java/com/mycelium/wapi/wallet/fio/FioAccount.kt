@@ -507,6 +507,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun canSign(): Boolean = false
 
+    override fun signMessage(message: String, address: Address?): String {
+        TODO("Not yet implemented")
+    }
+
     override fun isSyncing(): Boolean = syncing
 
     override val isArchived: Boolean

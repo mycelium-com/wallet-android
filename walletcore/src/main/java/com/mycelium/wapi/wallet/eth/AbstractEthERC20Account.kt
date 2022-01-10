@@ -45,7 +45,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     override suspend fun synchronize(mode: SyncMode?): Boolean {
         if (isArchived) { return false }
         syncing = true
-        var synced = false
+        val synced: Boolean
         try {
             if (!maySync) {
                 return false
@@ -54,7 +54,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             if (!maySync) {
                 return false
             }
-            val synced = doSynchronization(mode)
+            synced = doSynchronization(mode)
             if (!maySync) {
                 return false
             }

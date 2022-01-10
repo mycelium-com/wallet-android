@@ -21,6 +21,7 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -70,8 +71,8 @@ class EthAccount(private val chainId: Byte,
         if (value.value < BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Value should be positive"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        if (gasLimit < Transfer.GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
@@ -94,6 +95,12 @@ class EthAccount(private val chainId: Byte,
         }
     }
 
+    override fun signMessage(message: String, address: Address?): String {
+        val msgBytes = message.toByteArray(StandardCharsets.UTF_8)
+        val sig = Sign.signPrefixedMessage(msgBytes, credentials!!.ecKeyPair)
+        return "${Numeric.toHexString(sig.r)}${Numeric.toHexString(sig.s).substring(2)}${HexUtils.toHex(sig.v)}"
+    }
+
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
             val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
@@ -102,7 +109,7 @@ class EthAccount(private val chainId: Byte,
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
-                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, gasLimit = tx.gasLimit)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
@@ -143,6 +150,8 @@ class EthAccount(private val chainId: Byte,
         }
         return false
     }
+
+    override fun canSign() = credentials != null
 
     private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
             .filter { it.confirmations > 0 }

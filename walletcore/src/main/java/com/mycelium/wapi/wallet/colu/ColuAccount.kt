@@ -439,5 +439,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return utxos
     }
 
-    override fun canSign(): Boolean = true
+    override fun canSign(): Boolean = privateKey != null
+
+    override fun signMessage(message: String, address: Address?): String {
+        return privateKey!!.signMessage(message).base64Signature
+    }
 }

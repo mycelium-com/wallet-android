@@ -81,6 +81,7 @@ import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
+import com.mycelium.wallet.activity.modern.event.SelectTab;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -728,7 +729,7 @@ public class AccountsFragment extends Fragment {
                         FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;
                     case R.id.miFIORequests:
-                        ((ModernMain) getActivity()).selectRequestTab();
+                        MbwManager.getEventBus().post(new SelectTab(ModernMain.TAB_FIO_REQUESTS));
                         return true;
                     case R.id.miAboutFIOProtocol:
                         new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");

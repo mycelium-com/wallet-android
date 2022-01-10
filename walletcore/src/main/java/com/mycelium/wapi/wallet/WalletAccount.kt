@@ -91,6 +91,8 @@ interface WalletAccount<A : Address> : SyncPausable {
      */
     fun canSign(): Boolean
 
+    fun signMessage(message: String, address: Address?): String
+
     /**
      * Get is account sync in progress
      */

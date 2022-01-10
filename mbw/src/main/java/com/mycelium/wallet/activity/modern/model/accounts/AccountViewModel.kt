@@ -30,17 +30,18 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
     var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
     val isSyncing = account.isSyncing()
-    override var isSyncError = account.lastSyncStatus()?.status == SyncStatus.ERROR
+    override var isSyncError = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR, SyncStatus.ERROR_INTERNET_CONNECTION)
     // if need key count for other classes add count logic
     val privateKeyCount = if (account is HDAccount) account.getPrivateKeyCount() else -1
     val canSpend = account.canSpend()
     val externalAccountType = if (account is HDAccountExternalSignature) account.accountType else -1
     val additional = mutableMapOf<String, Any?>()
+    val isSelected = mbwManager?.selectedAccount?.id == accountId
 
     init {
         val receivingAddress = account.receiveAddress
         if (label.isBlank()) {
-            label = account.label ?: ""
+            label = account.label
         }
         displayAddress = if (receivingAddress != null) {
             if (label.isEmpty()) {

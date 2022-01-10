@@ -92,6 +92,7 @@ class TransactionHistoryFragment : Fragment() {
         model.cacheAddressBook()
         val accountId = arguments?.getSerializable("accountId") as UUID?
         model.account.value = if (accountId != null) model.mbwManager.getWalletManager(false).getAccount(accountId)!! else model.mbwManager.selectedAccount
+        MbwManager.getEventBus().register(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -131,17 +132,6 @@ class TransactionHistoryFragment : Fragment() {
         }
     }
 
-
-    override fun onResume() {
-        MbwManager.getEventBus().register(this)
-        super.onResume()
-    }
-
-    override fun onPause() {
-        MbwManager.getEventBus().unregister(this)
-        super.onPause()
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
@@ -160,8 +150,13 @@ class TransactionHistoryFragment : Fragment() {
         super.onDestroyView()
     }
 
+    override fun onDestroy() {
+        MbwManager.getEventBus().unregister(this)
+        super.onDestroy()
+    }
+
     @Subscribe
-    fun exchangeRateChanged(event: ExchangeRatesRefreshed?) {
+    fun exchangeRateChanged(event: ExchangeRatesRefreshed) {
         refreshList()
     }
 
@@ -170,18 +165,18 @@ class TransactionHistoryFragment : Fragment() {
     }
 
     @Subscribe
-    fun fiatCurrencyChanged(event: SelectedCurrencyChanged?) {
+    fun fiatCurrencyChanged(event: SelectedCurrencyChanged) {
         refreshList()
     }
 
     @Subscribe
-    fun addressBookEntryChanged(event: AddressBookChanged?) {
+    fun addressBookEntryChanged(event: AddressBookChanged) {
         model.cacheAddressBook()
         refreshList()
     }
 
     @Subscribe
-    fun selectedAccountChanged(event: SelectedAccountChanged?) {
+    fun selectedAccountChanged(event: SelectedAccountChanged) {
         if (arguments?.containsKey("accountId") != true) {
             model.account.value = model.mbwManager.selectedAccount
         }
@@ -191,7 +186,7 @@ class TransactionHistoryFragment : Fragment() {
     }
 
     @Subscribe
-    fun syncStopped(event: SyncStopped?) {
+    fun syncStopped(event: SyncStopped) {
         // It's possible that new transactions came. Adapter should allow to try to scroll
         isLoadingPossible.set(true)
     }

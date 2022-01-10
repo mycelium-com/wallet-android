@@ -140,6 +140,7 @@ import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -164,9 +165,11 @@ import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthBlockchainService;
+import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
+import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig;
 import com.mycelium.wapi.wallet.fio.FIOPrivateKeyConfig;
 import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.mycelium.wapi.wallet.fio.FioAccountContext;
@@ -183,6 +186,7 @@ import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.Backing;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
+import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.providers.FeeProvider;
@@ -197,6 +201,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -311,6 +316,7 @@ public class MbwManager {
 
     private final Handler mainLoopHandler;
     private boolean appInForeground = false;
+    private int activityCount = 0;
 
     private MbwManager(Context evilContext) {
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
@@ -1031,6 +1037,14 @@ public class MbwManager {
         this.appInForeground = appInForeground;
     }
 
+    public int getActivityCount() {
+        return activityCount;
+    }
+
+    public void setActivityCount(int activityCount) {
+        this.activityCount = activityCount;
+    }
+
     public boolean hasFiatCurrency() {
         return !getCurrencyList().isEmpty();
     }
@@ -1510,11 +1524,11 @@ public class MbwManager {
         if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
             return _walletManager.getAccount(uuid);
         } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            for (WalletAccount activeAccount : _walletManager.getAllActiveAccounts()) {
-                if (!(activeAccount instanceof InvestmentAccount)) {
-                    uuid = activeAccount.getId();
-                    break;
-                }
+            List<WalletAccount<?>> btcAccounts = BitcoinHDModuleKt.getActiveHDAccounts(_walletManager);
+            if (btcAccounts.isEmpty()) {
+                uuid = _walletManager.getAllActiveAccounts().get(0).getId();
+            } else {
+                uuid = btcAccounts.get(0).getId();
             }
             setSelectedAccount(uuid);
         }
@@ -1610,13 +1624,41 @@ public class MbwManager {
         return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
     }
 
-    public UUID createAdditionalBip44Account(Context context) {
-        UUID accountId = _walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
+    public UUID createAdditionalBip44Account(Context context, Config accountConfig) {
+        UUID accountId = _walletManager.createAccounts(accountConfig).get(0);
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
-        String defaultName = Utils.getNameForNewAccount(account, context);
+        String defaultName = account.getLabel();
         MetadataStorage.INSTANCE.storeAccountLabel(accountId, defaultName);
         return accountId;
+    }
+
+    public List<UUID> createAdditionalBip44Accounts(Context context, List<Config> accounts) {
+        List<UUID> result = new ArrayList<>();
+        for (Config accountConfig : accounts) {
+            result.add(createAdditionalBip44Account(context, accountConfig));
+        }
+        return result;
+    }
+
+    /**
+     * Checks if user has created first Bitcoin HD, Ethereum, FIO accounts out of mnemonic seed
+     * and returns configs for the accounts that hasn't been created yet
+     * @return list of configs for the accounts that still has to be created
+     */
+    public List<Config> checkMainAccountsCreated() {
+        Map<CryptoCurrency, List<WalletAccount<?>>> accounts = getWalletManager(false).getMasterSeedDerivedAccounts();
+        List<Config> needsToBeCreated = new ArrayList<>();
+        if (accounts.get(Utils.getBtcCoinType()) == null) {
+            needsToBeCreated.add(new AdditionalHDAccountConfig());
+        }
+        if (accounts.get(Utils.getEthCoinType()) == null) {
+            needsToBeCreated.add(new EthereumMasterseedConfig());
+        }
+        if (accounts.get(Utils.getFIOCoinType()) == null) {
+            needsToBeCreated.add(new FIOMasterseedConfig());
+        }
+        return needsToBeCreated;
     }
 
     public boolean isWalletPaired(ExternalService service) {

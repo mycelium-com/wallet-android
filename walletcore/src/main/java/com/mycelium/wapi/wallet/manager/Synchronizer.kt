@@ -1,12 +1,12 @@
 package com.mycelium.wapi.wallet.manager
 
-import com.mycelium.wapi.wallet.SyncMode
-import com.mycelium.wapi.wallet.SyncPausableAccount
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
+import com.mycelium.wapi.wallet.*
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -30,20 +30,27 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 }
 
                 // Synchronize selected accounts with the blockchain
-                val list = if (accounts.isEmpty() ||
-                        syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
-                        syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
-                    walletManager.getAllActiveAccounts()
-                } else {
-                    accounts.filterNotNull().filter { it.isActive }
-                }.filter { !it.isSyncing() }
-                runSync(list)
+                runSync(syncAccountList())
+            } else {
+                syncAccountList()
+                        .forEach {
+                            it.setLastSyncStatus(SyncStatusInfo(SyncStatus.ERROR_INTERNET_CONNECTION, Date()))
+                        }
             }
         } finally {
             walletManager.reportStopSync()
             walletManager.walletListener?.syncStopped()
         }
     }
+
+    private fun syncAccountList() =
+            if (accounts.isEmpty() ||
+                    syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
+                    syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
+                walletManager.getAllActiveAccounts()
+            } else {
+                accounts.filterNotNull().filter { it.isActive }
+            }.filter { !it.isSyncing() }
 
     private fun runSync(list: List<WalletAccount<*>>) {
         //split synchronization by coinTypes in own threads

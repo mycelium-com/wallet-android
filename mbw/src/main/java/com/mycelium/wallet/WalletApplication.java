@@ -225,6 +225,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
             numOfCreated++;
+            MbwManager.getInstance(getApplicationContext()).setActivityCount(numOfCreated);
         }
 
         @Override
@@ -271,6 +272,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         @Override
         public void onActivityDestroyed(Activity activity) {
             numOfCreated--;
+            MbwManager.getInstance(getApplicationContext()).setActivityCount(numOfCreated);
         }
     }
 

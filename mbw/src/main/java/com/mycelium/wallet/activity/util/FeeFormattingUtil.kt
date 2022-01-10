@@ -33,7 +33,7 @@ class EthFeeFormatter : FeeFormatter {
             value.type,
             (rounded * 10.0.pow(value.type.unitExponent).toBigDecimal()).toBigInteger()
         )
-        return roundedValue.toStringWithUnit(Denomination.MICRO)
+        return roundedValue.toStringWithUnit(Denomination.UNIT)
     }
 
     override fun getAltValue(value: Value) = if (value.isZero()) {

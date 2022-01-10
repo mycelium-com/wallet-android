@@ -29,7 +29,7 @@ object FioRequestNotificator {
     const val FIO_REQUEST_ACTION = "fio_request_action"
     private const val chanelId = "FIORequest"
     private const val fioRequestNotificationGroup = "com.mycelium.wallet.FIO_REQUESTS"
-    private const val fioRequestNotificationId = 24563487
+    const val fioRequestNotificationId = 24563487
 
     lateinit var context: Context
     lateinit var preferences: SharedPreferences
@@ -63,8 +63,12 @@ object FioRequestNotificator {
     }
 
     private fun notifyRequest(requests: List<FIORequestContent>) {
+        val mbwManager = MbwManager.getInstance(context)
         requests.forEach {
-            getCoinByChain(MbwManager.getInstance(context).network, it.deserializedContent!!.chainCode)?.let { requestedCurrency ->
+            getCoinByChain(mbwManager.network, it.deserializedContent!!.tokenCode)
+                    ?: mbwManager.getWalletManager(false).getAssetTypes()
+                            .find { asset -> asset.symbol.equals(it.deserializedContent!!.tokenCode, true) }
+                    ?.let { requestedCurrency ->
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency, it.deserializedContent!!.amount))
                 val bigView = RemoteViews(context.packageName, R.layout.layout_fio_request_notification_big).apply {
                     setTextViewText(R.id.fromFioName, context.getString(R.string.transaction_from_address_prefix, it.payeeFioAddress))
@@ -113,4 +117,9 @@ object FioRequestNotificator {
                     .setAutoCancel(true)
                     .setSubText("FIO Request")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+    fun cancel(request: FIORequestContent) {
+        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .cancel(fioRequestNotificationId + request.fioRequestId.toInt())
+    }
 }

@@ -4,6 +4,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
@@ -153,8 +154,8 @@ constructor(val network: NetworkParameters,
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) : Boolean {
         if (isNetworkConnected) {
             feeEstimations.triggerRefresh()
-            Thread(Synchronizer(this, mode, accounts)).start()
         }
+        Thread(Synchronizer(this, mode, accounts)).start()
         return isNetworkConnected
     }
 
@@ -224,6 +225,9 @@ constructor(val network: NetworkParameters,
     fun getCryptocurrenciesNames(): List<String> = getAssetTypes()
             .filterNot { it is ColuMain || it is ERC20Token }
             .map { it.name }
+
+    fun getMasterSeedDerivedAccounts(): Map<CryptoCurrency, List<WalletAccount<*>>> =
+        accounts.values.filter { it.isDerivedFromInternalMasterseed }.groupBy { it.coinType }
 
     fun parseAddress(address: String): List<Address> = walletModules.values
                 .flatMap { it.getSupportedAssets() }

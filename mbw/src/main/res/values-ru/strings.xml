@@ -442,8 +442,10 @@
     <string name="copy_signature">Копировать подпись в буфер обмена</string>
     <string name="share_signature">Поделиться текстом + подписью</string>
     <string name="sig_copied">Подпись скопирована в буфер обмена</string>
-    <string name="signed_message_subject">Сообщение с биткойн-подписью</string>
-    <string name="signed_message_share">Поделиться сообщением с биткойн-подписью</string>
+    <string name="signed_message_subject_btc">Сообщение с биткойн-подписью</string>
+    <string name="signed_message_share_btc">Поделиться сообщением с биткойн-подписью</string>
+    <string name="signed_message_subject">Сообщение с %s-подписью</string>
+    <string name="signed_message_share">Поделиться сообщением с %s-подписью</string>
     <string name="signing_inprogress">Сообщение подписывается&#8230;</string>
     <string name="geocode_error">Ошибка геокодера: %s \n повторите попытку позже.</string>
     <string name="fetching_info">Получение информации с сервера</string>
@@ -874,7 +876,7 @@
     <string name="create_new_account">Добавить новый ETH аккаунт</string>
     <string name="hd_eth_account">Добавить Ethereum аккаунт</string>
     <string name="add_erc20_account">Добавить ERC-20 аккаунт</string>
-    <string name="transaction_options">Параметры транзакции</string>
+    <string name="transaction_options_advanced_users">Параметры транзакции</string>
     <string name="replace_transaction">Заменяемая транзакция</string>
     <string name="tx_replace_info_title">Заменяемая транзакция</string>
     <string name="transaction_gas_limit">Лимит Газа для транзакции</string>

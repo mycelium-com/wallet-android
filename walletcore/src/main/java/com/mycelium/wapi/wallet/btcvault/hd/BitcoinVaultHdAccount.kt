@@ -16,6 +16,7 @@ import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -732,6 +733,15 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
+    }
+
+    override fun signMessage(message: String, address: Address?): String {
+        return try {
+            val privKey = getPrivateKeyForAddress((address as BtcAddress).address, AesKeyCipher.defaultKeyCipher())
+            privKey!!.signMessage(message).base64Signature
+        } catch (invalidKeyCipher: KeyCipher.InvalidKeyCipher) {
+            throw java.lang.RuntimeException(invalidKeyCipher)
+        }
     }
 
 }

@@ -165,6 +165,14 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                                 Util.trimTestnetSymbolDecoration(cryptocurrency), currency)).getResult());
                     }
                 }
+                for (String currency : selectedCurrencies) {
+                    ExchangeRate rate = getExchangeRate(Utils.getBtcCoinType().getSymbol(), currency);
+                    if (rate != null) {
+                        ExchangeRate mtRate = new ExchangeRate("Mycelium", System.currentTimeMillis(), rate.price, currency);
+                        responses.add(new GetExchangeRatesResponse("MT", currency,
+                                new ExchangeRate[]{mtRate}));
+                    }
+                }
                 synchronized (_requestLock) {
                     setLatestRates(responses);
                     _fetcher = null;
