@@ -51,6 +51,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
@@ -168,17 +169,10 @@ public class ModernMain extends AppCompatActivity {
         tabLayout = findViewById(R.id.pager_tabs);
         mViewPager = findViewById(R.id.pager);
         tabLayout.setupWithViewPager(mViewPager);
-        setSupportActionBar(findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
-        findViewById(R.id.logoMenu).setOnClickListener(new LogoMenuClick());
-        View investmentWallet = findViewById(R.id.investmentWallet);
-        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID) ?
-                VISIBLE : GONE);
-        investmentWallet.setOnClickListener(view -> {
-            findViewById(R.id.logoMenu).performClick(); // to hide menu
-            startActivity(new Intent(view.getContext(), BequantIntroActivity.class));
-        });
+        ActionBar bar = getSupportActionBar();
+        bar.setDisplayShowTitleEnabled(false);
+        bar.setDisplayShowHomeEnabled(true);
+        bar.setIcon(R.drawable.action_bar_logo);
 
         getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
@@ -622,19 +616,6 @@ public class ModernMain extends AppCompatActivity {
             }
         } else {
             ivTorIcon.setVisibility(GONE);
-        }
-    }
-
-    private static class LogoMenuClick implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            Activity host = (Activity) view.getContext();
-            View logoMenu = host.findViewById(R.id.logoMenu);
-            boolean isOpened = logoMenu.getVisibility() == VISIBLE;
-            logoMenu.setVisibility(isOpened ? GONE : VISIBLE);
-            ImageView logoArrow = host.findViewById(R.id.logoArrow);
-            logoArrow.setImageDrawable(logoArrow.getResources().getDrawable(isOpened ?
-                    R.drawable.ic_arrow_drop_down : R.drawable.ic_arrow_drop_down_active));
         }
     }
 
