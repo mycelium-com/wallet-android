@@ -106,6 +106,7 @@
             android:inputType="number"
             android:minWidth="220dp"
             android:textSize="14sp"
+            android:imeOptions="actionDone"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvGasLimitLabel" />
@@ -184,6 +185,7 @@
             android:inputType="text"
             android:text="@={viewModel.inputData}"
             android:textSize="14sp"
+            android:imeOptions="actionDone"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
