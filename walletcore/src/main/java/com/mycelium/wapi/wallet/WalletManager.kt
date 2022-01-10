@@ -227,7 +227,7 @@ constructor(val network: NetworkParameters,
             .map { it.name }
 
     fun getMasterSeedDerivedAccounts(): Map<CryptoCurrency, List<WalletAccount<*>>> =
-        accounts.values.filter { it.isDerivedFromInternalMasterseed }.groupBy { it.coinType }
+        accounts.values.filter { it.isDerivedFromInternalMasterseed() }.groupBy { it.coinType }
 
     fun parseAddress(address: String): List<Address> = walletModules.values
                 .flatMap { it.getSupportedAssets() }

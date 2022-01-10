@@ -44,6 +44,10 @@ import java.lang.StringBuilder
 import java.util.*
 import java.util.logging.Level
 
+import com.mycelium.wapi.wallet.AesKeyCipher
+import java.lang.RuntimeException
+
+
 open class SingleAddressAccount @JvmOverloads constructor(private var _context: SingleAddressAccountContext, keyStore: PublicPrivateKeyStore,
                                                           network: NetworkParameters, private val _backing: SingleAddressBtcAccountBacking, wapi: Wapi,
                                                           private val changeAddressModeReference: Reference<ChangeAddressMode>, shouldPersistAddress: Boolean = true) :
@@ -91,6 +95,15 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         }
         clearInternalStateInt(false)
         _context.persistIfNecessary(_backing)
+    }
+
+    override fun signMessage(message: String, address: Address?): String {
+        return try {
+            val key = getPrivateKey(AesKeyCipher.defaultKeyCipher())
+            key.signMessage(message).base64Signature
+        } catch (invalidKeyCipher: InvalidKeyCipher) {
+            throw RuntimeException(invalidKeyCipher)
+        }
     }
 
     override fun dropCachedData() {
