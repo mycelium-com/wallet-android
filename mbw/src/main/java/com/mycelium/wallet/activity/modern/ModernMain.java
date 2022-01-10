@@ -70,6 +70,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.activity.ActionActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity;
@@ -256,6 +257,8 @@ public class ModernMain extends AppCompatActivity {
         } else if (Objects.equals(intent.getAction(), MainActions.ACTION_TXS)) {
             mTransactionsTab.select();
             mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_HISTORY));
+        } else if(intent.hasExtra("action")) {
+            startActivity(new Intent(this, ActionActivity.class).putExtras(intent));
         }
     }
 

@@ -46,23 +46,17 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                 holder.itemView.title.text = item.productName
                 holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
                 holder.itemView.additional.text = item.timestamp?.getDateString(holder.itemView.resources)
-                holder.itemView.isEnabled = !purchasedItem.redeemed
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
                         .apply(RequestOptions()
                                 .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
                         .into(holder.itemView.image)
-                if (!purchasedItem.redeemed) {
-                    holder.itemView.setOnClickListener {
-                        itemClickListener?.invoke((getItem(holder.adapterPosition) as CardItem).card)
-                    }
-                } else {
-                    holder.itemView.setOnClickListener(null)
+                holder.itemView.setOnClickListener {
+                    itemClickListener?.invoke((getItem(holder.adapterPosition) as CardItem).card)
                 }
                 holder.itemView.more.setOnClickListener { view ->
                     PopupMenu(view.context, view).apply {
                         menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
-                        menu.findItem(R.id.share).isVisible = !purchasedItem.redeemed
                         menu.findItem(R.id.redeem).isVisible = !purchasedItem.redeemed
                         setOnMenuItemClickListener { menuItem ->
                             when (menuItem.itemId) {

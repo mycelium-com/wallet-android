@@ -406,8 +406,8 @@
     <string name="copy_signature">Копиране на подписа в клипборда</string>
     <string name="share_signature">Споделяне на текста + подпис</string>
     <string name="sig_copied">Подписът е копиран в клипборда</string>
-    <string name="signed_message_subject">Биткоин подписано съобщение</string>
-    <string name="signed_message_share">Споделяне на биткоин подписано съобщение</string>
+    <string name="signed_message_subject_btc">Биткоин подписано съобщение</string>
+    <string name="signed_message_share_btc">Споделяне на биткоин подписано съобщение</string>
     <string name="signing_inprogress">Подписване на съобщение&#8230;</string>
     <string name="geocode_error">Грешка от гелокатора: %s \n моля опитайте по-късно.</string>
     <string name="fetching_info">Извличане на информация от сървъра</string>

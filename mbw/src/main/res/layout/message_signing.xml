@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/signature"
+            android:id="@+id/tvSignature"
             android:typeface="monospace"
             android:singleLine="false"
             android:layout_marginTop="10dp"

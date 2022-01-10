@@ -9,10 +9,7 @@ import com.mycelium.wallet.activity.fio.requests.SentFioRequestStatusActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
-import com.mycelium.wallet.activity.send.model.SendBtcModel
-import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
-import com.mycelium.wallet.activity.send.model.SendEthModel
-import com.mycelium.wallet.activity.send.model.SendFioModel
+import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.FeeFormatter
 import com.mycelium.wapi.wallet.Address
@@ -20,6 +17,7 @@ import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
@@ -57,6 +55,7 @@ class FioRequestCreateViewModel(val app: Application) : SendCoinsViewModel(app) 
             is FioAccount -> SendFioModel(app, account, intent)
             is AbstractBtcAccount -> SendBtcModel(app, account, intent)
             is EthAccount -> SendEthModel(app, account, intent)
+            is ERC20Account -> SendErc20Model(app, account, intent)
             else -> TODO("Not implemented for this type")
         }
 

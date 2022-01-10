@@ -34,20 +34,28 @@
 
 package com.mycelium.wallet.wapi;
 
+import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.ArrayMap;
 import android.util.Log;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.BipDerivationType;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
+import com.mrd.bitlib.model.BitcoinTransaction;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
@@ -58,18 +66,24 @@ import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountIndexesContext;
-import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
+import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import java.lang.reflect.Type;
-import java.util.*;
-
-import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<SingleAddressAccountContext> {
    private static final String LOG_TAG = "SqliteBtcAccountBacking";
@@ -900,6 +914,9 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                list.put(new Sha256Hash(cursor.getBlob(0)), cursor.getBlob(1));
             }
             return list;
+         } catch (SQLiteException e) {
+            Log.e(LOG_TAG, "read outgoing txs exception",e);
+            return Collections.emptyMap();
          }
       }
 
@@ -939,6 +956,9 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                list.add(tex);
             }
             return list;
+         } catch (SQLiteException e) {
+            Log.e(LOG_TAG, "read txs exception",e);
+            return Collections.emptyList();
          }
       }
 

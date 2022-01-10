@@ -427,6 +427,10 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
           if (getIntent().getExtras() != null) {
              intent.putExtras(getIntent().getExtras());
           }
+       } else if(getIntent().hasExtra("action")) {
+          if (getIntent().getExtras() != null) {
+             intent.putExtras(getIntent().getExtras());
+          }
        }
        startActivity(intent);
        finish();

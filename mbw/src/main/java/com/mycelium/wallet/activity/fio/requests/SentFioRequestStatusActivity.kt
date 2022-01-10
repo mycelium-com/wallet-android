@@ -93,7 +93,7 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
 
     private fun setAmount() {
         if (fioRequestContent != null) {
-            val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent!!.deserializedContent!!.chainCode)
+            val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent!!.deserializedContent!!.tokenCode)
             if (requestedCurrency != null) {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
                         fioRequestContent!!.deserializedContent!!.amount))

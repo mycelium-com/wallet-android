@@ -1,6 +1,8 @@
 package com.mycelium.wallet.activity.fio.requests
 
 import android.app.Activity
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.AsyncTask
@@ -30,6 +32,7 @@ import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.*
+import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.Util.getCoinByChain
 import com.mycelium.wapi.wallet.Util.strToBigInteger
@@ -92,7 +95,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         supportActionBar?.run {
             setHomeAsUpIndicator(R.drawable.ic_back_arrow)
             setDisplayHomeAsUpEnabled(true)
-            title = "Send ${fioRequestContent.deserializedContent!!.chainCode}"
+            title = "Send ${fioRequestContent.deserializedContent!!.tokenCode}"
         }
 
         // request data population
@@ -107,23 +110,26 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
         val uuid = fioModule.getFioAccountByFioName(fioRequestContent.payerFioAddress)!!
         fioRequestViewModel.payerNameOwnerAccount.value = walletManager.getAccount(uuid) as FioAccount
-        val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent.deserializedContent!!.chainCode)
+        val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent.deserializedContent!!.tokenCode)
+                ?: mbwManager.getWalletManager(false).getAssetTypes()
+                        .find { it.symbol.equals(fioRequestContent.deserializedContent!!.tokenCode, true) }
         if (requestedCurrency == null) {
-            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.chainCode} currency", true)
+            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.tokenCode} currency", true)
             finish()
             return
         }
 
         val spendingAccounts = mbwManager.getWalletManager(false)
                 .getActiveSpendingAccounts().filter { it.coinType.id == requestedCurrency.id }.sortedBy { it.label }
-
+        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
+                fioRequestContent.deserializedContent!!.amount))
         if (spendingAccounts.isNotEmpty()) {
             val account = spendingAccounts.first()
             fioRequestViewModel.payerAccount.value = account
             setUpSendViewModel(account, viewModelProvider)
             initSpinners(spendingAccounts)
         } else {
-            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.chainCode} currency", true)
+            Toaster(this).toast("Impossible to pay request with the ${fioRequestContent.deserializedContent!!.tokenCode} currency", true)
             finish()
         }
 
@@ -150,8 +156,6 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
             }
         })
 
-        fioRequestViewModel.amount.value = Value.valueOf(requestedCurrency, strToBigInteger(requestedCurrency,
-                fioRequestContent.deserializedContent!!.amount))
         sendViewModel.getAmount().value = fioRequestViewModel.amount.value
         val fioEndpoints = mbwManager.fioEndpoints
         GetPublicAddressTask(fioEndpoints, fioRequestViewModel.payeeName.value!!,
@@ -231,6 +235,9 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 fioRequestViewModel.alternativeAmountFormatted.value = spinnerFiat.adapter.getItem(p2) as String
             }
         }
+        spinnerFiat?.setSelection(spinnerItems.indexOfFirst {
+            it.contains(mbwManager.getFiatCurrency(fioRequestViewModel.amount.value?.type).symbol, true)
+        })
         val spendingFrom = spendingAccounts.map { "${it.label} - ${it.accountBalance.spendable}" }
         if (spendingFrom.size < 2) {
             spinnerSpendingFromAccount?.background = null
@@ -258,12 +265,13 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
 
     fun onClickDecline() {
         val dialog = AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setTitle("Delete received FIO Request")
-                .setMessage("Are you sure you want to delete this FIO Request?")
+                .setTitle(getString(R.string.delete_received_fio_request))
+                .setMessage(getString(R.string.delete_received_fio_request_msg))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete) { _, _ ->
                     RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
                             fioRequestViewModel.request.value!!.fioRequestId, fioModule) {
+                        FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
                         finish()
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 }.create()
@@ -372,8 +380,8 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
@@ -399,6 +407,7 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                         sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
                         fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
                         signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
+                FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
                 finish()
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
