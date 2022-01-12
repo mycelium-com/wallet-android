@@ -159,7 +159,8 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                     ?: Value.zeroValue(account.coinType)
             model.setAlternativeAmount(value)
         } else {
-            model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType))
+            model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType)
+                    ?: Value.zeroValue(account.coinType))
             model.setAlternativeAmount(amount)
         }
     }

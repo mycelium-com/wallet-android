@@ -15,7 +15,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.convertToDate
 import com.mycelium.wapi.wallet.Util.getCoinByChain
@@ -98,8 +97,10 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
                         fioRequestContent!!.deserializedContent!!.amount))
                 tvAmount.text = amount.toStringWithUnit()
-                val convertedAmount = mbwManager.exchangeRateManager.get(amount, mbwManager.getFiatCurrency(requestedCurrency)).toStringWithUnit()
-                tvConvertedAmount.text = " ~ $convertedAmount"
+                mbwManager.exchangeRateManager.get(amount, mbwManager.getFiatCurrency(requestedCurrency))
+                        ?.toStringWithUnit()?.let {
+                            tvConvertedAmount.text = " ~ $it"
+                        }
             } else {
                 tvAmount.text = "${fioRequestContent!!.deserializedContent!!.amount} ${fioRequestContent!!.deserializedContent!!.tokenCode}"
             }
