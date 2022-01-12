@@ -10,18 +10,18 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
 import android.text.Html
 import android.text.TextUtils
-import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
@@ -251,15 +251,17 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     advancedBlock.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                                     advancedBlock.requestLayout()
                                 })
-                                etGasLimit.addTextChangedListener(object : TextWatcher {
-                                    override fun afterTextChanged(editable: Editable) = Unit
-                                    override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
-                                    override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
+                                etGasLimit.doOnTextChanged { _, _, _, _ ->
                                         // reset gas limit and therefore UI state
                                         getGasLimit().value = null
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
+                                }
+                                etGasLimit.setOnEditorActionListener { textView, actionId, keyEvent ->
+                                    if(actionId == EditorInfo.IME_ACTION_DONE) {
+                                        textView.clearFocus()
                                     }
-                                })
+                                    false
+                                }
                                 etGasLimit.setOnFocusChangeListener { _, hasFocus ->
                                     if (!hasFocus) {
                                         val gasLimit = etGasLimit.text.toString()

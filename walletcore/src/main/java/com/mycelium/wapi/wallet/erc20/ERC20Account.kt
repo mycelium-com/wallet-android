@@ -183,6 +183,10 @@ class ERC20Account(private val chainId: Byte,
         return false
     }
 
+    override fun signMessage(message: String, address: Address?): String {
+        TODO("Not yet implemented")
+    }
+
     private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
             .filter { it.confirmations > 0 }
             .map { it.transferred.value }

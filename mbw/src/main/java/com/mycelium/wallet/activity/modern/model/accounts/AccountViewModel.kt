@@ -36,6 +36,7 @@ class AccountViewModel(account: WalletAccount<out Address>, mbwManager: MbwManag
     val canSpend = account.canSpend()
     val externalAccountType = if (account is HDAccountExternalSignature) account.accountType else -1
     val additional = mutableMapOf<String, Any?>()
+    val isSelected = mbwManager?.selectedAccount?.id == accountId
 
     init {
         val receivingAddress = account.receiveAddress
