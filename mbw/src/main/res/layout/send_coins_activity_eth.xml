@@ -61,13 +61,17 @@
                     bind:listener="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
-                <!-- Advanced block -->
+                <!-- Amount Error -->
                 <include
-                    layout="@layout/send_coins_advanced_block"
-                    bind:activity="@{activity}"
+                    layout="@layout/send_coins_insufficient"
                     bind:viewModel="@{viewModel}" />
-
             </LinearLayout>
+
+            <!-- Advanced block -->
+            <include
+                layout="@layout/send_coins_advanced_block"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
 
             <!--Fee selector-->
             <include
@@ -157,11 +161,6 @@
                 layout="@layout/fio_memo_input"
                 bind:fioMemo="@{viewModel.fioMemo}"
                 bind:payeeFioName="@{viewModel.payeeFioName}" />
-
-            <!-- Amount Error -->
-            <include
-                layout="@layout/send_coins_insufficient"
-                bind:viewModel="@{viewModel}" />
 
             <!--Update progress bar-->
             <include
