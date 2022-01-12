@@ -394,9 +394,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
             TokenData("Mycelium Token", "MT", 7, "0x364f56e35e75227516878cc249f11ea9b3e41b09")
         )
-
+        val namePostfix = if (BuildConfig.FLAVOR == "prodnet") "" else " test"
         return tokens
-            .map { ERC20Token(it.name, it.symbol, it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
+            .map { ERC20Token(it.name + namePostfix, it.symbol, it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
             .associateBy { it.name }
     }
 
