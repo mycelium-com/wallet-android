@@ -17,6 +17,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.getCoinByChain
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioGroup
@@ -65,9 +66,9 @@ object FioRequestNotificator {
     private fun notifyRequest(requests: List<FIORequestContent>) {
         val mbwManager = MbwManager.getInstance(context)
         requests.forEach {
-            getCoinByChain(mbwManager.network, it.deserializedContent!!.tokenCode)
+            (getCoinByChain(mbwManager.network, it.deserializedContent!!.tokenCode)
                     ?: mbwManager.getWalletManager(false).getAssetTypes()
-                            .find { asset -> asset.symbol.equals(it.deserializedContent!!.tokenCode, true) }
+                            .find { asset -> asset.symbol.equals(it.deserializedContent!!.tokenCode, true) })
                     ?.let { requestedCurrency ->
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency, it.deserializedContent!!.amount))
                 val bigView = RemoteViews(context.packageName, R.layout.layout_fio_request_notification_big).apply {
