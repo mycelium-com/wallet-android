@@ -98,7 +98,7 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
                         fioRequestContent!!.deserializedContent!!.amount))
                 tvAmount.text = amount.toStringWithUnit()
-                val convertedAmount = mbwManager.exchangeRateManager.get(amount, Utils.getTypeByName(CurrencyCode.USD.shortString)!!).toStringWithUnit()
+                val convertedAmount = mbwManager.exchangeRateManager.get(amount, mbwManager.getFiatCurrency(requestedCurrency)).toStringWithUnit()
                 tvConvertedAmount.text = " ~ $convertedAmount"
             } else {
                 tvAmount.text = "${fioRequestContent!!.deserializedContent!!.amount} ${fioRequestContent!!.deserializedContent!!.tokenCode}"
@@ -106,7 +106,7 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         } else {
             val amount = (intent.getSerializableExtra(ApproveFioRequestActivity.AMOUNT) as Value)
             tvAmount.text = amount.toStringWithUnit()
-            val convertedAmount = mbwManager.exchangeRateManager.get(amount, Utils.getTypeByName(CurrencyCode.USD.shortString)!!).toStringWithUnit()
+            val convertedAmount = mbwManager.exchangeRateManager.get(amount, mbwManager.getFiatCurrency(amount.type)).toStringWithUnit()
             tvConvertedAmount.text = " ~ $convertedAmount"
         }
     }
@@ -143,8 +143,8 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         return "$dateString $timeString"
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
