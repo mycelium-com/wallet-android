@@ -396,8 +396,9 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     override fun broadcastResult(broadcastResult: BroadcastResult) {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             val txid = HexUtils.toHex(signedTransaction.id)
-
+            loader(true)
             RecordObtTask(txid, fioRequestViewModel, fioModule) { success ->
+                loader(false)
                 if (!success) {
                     Toaster(this).toast("Failed to write obt", false)
                 }
