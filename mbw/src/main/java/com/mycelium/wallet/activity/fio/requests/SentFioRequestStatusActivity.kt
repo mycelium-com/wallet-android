@@ -17,7 +17,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.convertToDate
-import com.mycelium.wapi.wallet.Util.getCoinByChain
+import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
@@ -92,7 +92,10 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
 
     private fun setAmount() {
         if (fioRequestContent != null) {
-            val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent!!.deserializedContent!!.tokenCode)
+            val requestedCurrency = (COINS.values + mbwManager.getWalletManager(false).getAssetTypes()).firstOrNull {
+                it.symbol.equals(fioRequestContent!!.deserializedContent!!.tokenCode, true)
+                        && if(mbwManager.network.isTestnet) it.name.contains("test", true) else true
+            }
             if (requestedCurrency != null) {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
                         fioRequestContent!!.deserializedContent!!.amount))
