@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.gson.Gson
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.bequant.common.loader
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel
@@ -268,8 +269,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 .setMessage(getString(R.string.delete_received_fio_request_msg))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete) { _, _ ->
+                    loader(true)
+                    btSend.isEnabled = false
                     RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
                             fioRequestViewModel.request.value!!.fioRequestId, fioModule) {
+                        loader(false)
                         FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
                         MbwManager.getEventBus().post(FioRequestStatusChanged(fioRequestViewModel.request.value!!));
                         finish()
