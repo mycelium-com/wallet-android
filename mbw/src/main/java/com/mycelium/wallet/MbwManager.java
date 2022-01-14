@@ -1689,6 +1689,10 @@ public class MbwManager {
         return _wapi;
     }
 
+    public WapiClientElectrumX getBtcvWapi() {
+        return btcvWapi;
+    }
+
     public TorManager getTorManager() {
         return _torManager;
     }
