@@ -212,7 +212,7 @@ android {
 
     defaultConfig {
         versionCode 3120800
-        versionName '3.12.8.0'
+        versionName '3.13.0.0'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
