@@ -23,6 +23,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import com.squareup.otto.Subscribe
 import io.reactivex.BackpressureStrategy
@@ -405,7 +406,7 @@ abstract class SendCoinsModel(
 
     protected open fun updateErrorMessage(transactionStatus: TransactionStatus) {
         errorText.postValue(when (transactionStatus) {
-            TransactionStatus.OUTPUT_TO_SMALL -> {
+            TransactionStatus.OUTPUT_TOO_SMALL -> {
                 // Amount too small
                 if (!Value.isNullOrZero(amount.value)) {
                     context.getString(R.string.amount_too_small_short)
@@ -414,6 +415,7 @@ abstract class SendCoinsModel(
                 }
             }
             TransactionStatus.INSUFFICIENT_FUNDS -> context.getString(R.string.insufficient_funds)
+            TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE -> context.getString(R.string.insufficient_funds_for_fee)
             TransactionStatus.BUILD_ERROR -> context.getString(R.string.tx_build_error)
             else -> ""
         })
@@ -422,7 +424,7 @@ abstract class SendCoinsModel(
     private fun getRequestedAmountFormatted(): String {
         return if (Value.isNullOrZero(amount.value)) {
             ""
-        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             getValueInAccountCurrency().toStringWithUnit(mbwManager.getDenomination(account.coinType))
@@ -432,7 +434,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getRequestedAmountAlternativeFormatted(): String {
-        return if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+        return if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             ""
@@ -480,7 +482,9 @@ abstract class SendCoinsModel(
         } catch (ex: BuildTransactionException) {
             return TransactionStatus.MISSING_ARGUMENTS
         } catch (ex: OutputTooSmallException) {
-            return TransactionStatus.OUTPUT_TO_SMALL
+            return TransactionStatus.OUTPUT_TOO_SMALL
+        } catch (ex: InsufficientFundsForFeeException) {
+            return TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE
         } catch (ex: InsufficientFundsException) {
             return TransactionStatus.INSUFFICIENT_FUNDS
         } catch (ex: IOException) {
@@ -516,7 +520,7 @@ abstract class SendCoinsModel(
     }
 
     enum class TransactionStatus {
-        BUILDING, MISSING_ARGUMENTS, OUTPUT_TO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
+        BUILDING, MISSING_ARGUMENTS, OUTPUT_TOO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
     }
 
     companion object {
