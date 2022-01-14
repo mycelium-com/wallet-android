@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import androidx.lifecycle.MutableLiveData
-import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
@@ -410,9 +409,7 @@ abstract class SendCoinsModel(
             TransactionStatus.OUTPUT_TOO_SMALL -> {
                 // Amount too small
                 if (!Value.isNullOrZero(amount.value)) {
-                    // TODO refactor: now it's btc specific but "Amount too small" status for now is possible only for btc in the app
-                    context.getString(R.string.amount_too_small_short, Value.valueOf(account.coinType,
-                        TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
+                    context.getString(R.string.amount_too_small_short)
                 } else {
                     ""
                 }
