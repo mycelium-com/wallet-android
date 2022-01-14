@@ -1,8 +1,6 @@
 package com.mycelium.wallet.activity.fio.requests
 
 import android.app.Activity
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.AsyncTask
@@ -20,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.gson.Gson
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.bequant.common.loader
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.fio.requests.viewmodels.FioSendRequestViewModel
@@ -33,6 +32,7 @@ import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.*
 import com.mycelium.wallet.fio.FioRequestNotificator
+import com.mycelium.wallet.fio.event.FioRequestStatusChanged
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.Util.getCoinByChain
 import com.mycelium.wapi.wallet.Util.strToBigInteger
@@ -140,11 +140,11 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 sendViewModel.init(it, intent)
                 when (binding) {
                     is FioSendRequestActivityBindingImpl ->
-                        (binding as FioSendRequestActivityBindingImpl).sendViewModel = sendViewModel
+                        (binding as FioSendRequestActivityBinding).sendViewModel = sendViewModel
                     is FioSendRequestActivityEthBindingImpl ->
-                        (binding as FioSendRequestActivityEthBindingImpl).sendViewModel = sendViewModel as SendEthViewModel
+                        (binding as FioSendRequestActivityEthBinding).sendViewModel = sendViewModel as SendEthViewModel
                     is FioSendRequestActivityFioBindingImpl ->
-                        (binding as FioSendRequestActivityFioBindingImpl).sendViewModel = sendViewModel as SendFioViewModel
+                        (binding as FioSendRequestActivityFioBinding).sendViewModel = sendViewModel as SendFioViewModel
                 }
                 initFeeView()
                 initFeeLvlView()
@@ -269,9 +269,13 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
                 .setMessage(getString(R.string.delete_received_fio_request_msg))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete) { _, _ ->
+                    loader(true)
+                    btSend.isEnabled = false
                     RejectRequestTask(fioRequestViewModel.payerNameOwnerAccount.value!! as FioAccount, fioRequestViewModel.payerName.value!!,
                             fioRequestViewModel.request.value!!.fioRequestId, fioModule) {
+                        loader(false)
                         FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
+                        MbwManager.getEventBus().post(FioRequestStatusChanged(fioRequestViewModel.request.value!!));
                         finish()
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 }.create()
@@ -392,22 +396,22 @@ class ApproveFioRequestActivity : AppCompatActivity(), BroadcastResultListener {
     override fun broadcastResult(broadcastResult: BroadcastResult) {
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             val txid = HexUtils.toHex(signedTransaction.id)
-
+            loader(true)
             RecordObtTask(txid, fioRequestViewModel, fioModule) { success ->
+                loader(false)
                 if (!success) {
                     Toaster(this).toast("Failed to write obt", false)
                 }
-                val walletManager = mbwManager.getWalletManager(false)
-                val fioModule = walletManager.getModuleById(FioModule.ID) as FioModule
-
-                walletManager.startSynchronization(SyncMode.NORMAL, fioModule.getAccounts())
+                mbwManager.getWalletManager(false)
+                        .startSynchronization(fioRequestViewModel.payerNameOwnerAccount.value?.id)
+                FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
+                MbwManager.getEventBus().post(FioRequestStatusChanged(fioRequestViewModel.request.value!!));
 
                 ApproveFioRequestSuccessActivity.start(this, fioRequestViewModel.amount.value!!,
                         fioRequestViewModel.alternativeAmountFormatted.value!!,
                         sendViewModel.getSelectedFee().value!!, Date().time, fioRequestViewModel.payerName.value!!,
                         fioRequestViewModel.payeeName.value!!, fioRequestViewModel.memoTo.value!!,
                         signedTransaction.id, fioRequestViewModel.payerAccount.value!!.id)
-                FioRequestNotificator.cancel(fioRequestViewModel.request.value!!)
                 finish()
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
