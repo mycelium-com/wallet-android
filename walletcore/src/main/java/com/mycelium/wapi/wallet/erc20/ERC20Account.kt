@@ -12,7 +12,6 @@ import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.datatypes.generated.Uint256
@@ -52,7 +51,7 @@ class ERC20Account(private val chainId: Byte,
             throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
-            throw InsufficientFundsForFeeException(Throwable("Insufficient funds on eth account to pay for fee"))
+            throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
