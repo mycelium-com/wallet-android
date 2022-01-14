@@ -241,9 +241,11 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                 // app returned from background
                 MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
                 mbwManager.setAppInForeground(true);
+                // as monitoring the connection state doesn't work in background, establish the
+                // right connection state here.
+                // delay the check so that the state has room to switch between blocked and connected
+                // statuses when returning back from idle (doze) mode
                 Executors.newScheduledThreadPool(1).schedule(() -> {
-                    // as monitoring the connection state doesn't work in background, establish the
-                    // right connection state here.
                     boolean connected = Utils.isConnected(getApplicationContext());
                     // checking state of networkConnected variable only for WalletManager is sufficient
                     // as ColuManager, Wapi and WalletManager networkConnected variables are changed simultaneously
