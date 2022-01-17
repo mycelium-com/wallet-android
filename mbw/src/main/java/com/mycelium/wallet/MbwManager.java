@@ -72,9 +72,9 @@ import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
-import com.mycelium.bequant.InvestmentAccount;
 import com.mycelium.bequant.InvestmentModule;
-import com.mycelium.generated.wallet.database.Logs;
+import com.mycelium.generated.logger.database.LoggerDB;
+import com.mycelium.generated.logger.database.Logs;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
@@ -257,6 +257,7 @@ public class MbwManager {
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
     private final WalletDB db;
+    private LoggerDB loggerDB;
     private Logger logger = Logger.getLogger(MbwManager.class.getSimpleName());
 
     @Nonnull
@@ -322,6 +323,7 @@ public class MbwManager {
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
         //accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
         _environment = MbwEnvironment.verifyEnvironment();
+        startLogger();
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
@@ -334,8 +336,6 @@ public class MbwManager {
                 AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
                 AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
-
-        startLogger();
 
         // Preferences
         SharedPreferences preferences = getPreferences();
@@ -442,7 +442,9 @@ public class MbwManager {
     private void startLogger() {
         LogManager.getLogManager().reset();
         Logger rootLogger = LogManager.getLogManager().getLogger("");
-        DbLogHandler handler = new DbLogHandler(db);
+        SqlDriver driver = new AndroidSqliteDriver(LoggerDB.Companion.getSchema(), _applicationContext, "logger.db");
+        loggerDB = LoggerDB.Companion.invoke(driver);
+        DbLogHandler handler = new DbLogHandler(loggerDB);
         rootLogger.addHandler(handler);
         rootLogger.addHandler(new AndroidLogHandler());
         handler.cleanUp();
@@ -933,11 +935,11 @@ public class MbwManager {
     }
 
     public List<Logs> getLastLogsDesc(long limit) {
-        return db.getLogsQueries().selectWithLimit(limit).executeAsList();
+        return loggerDB.getLogsQueries().selectWithLimit(limit).executeAsList();
     }
 
     public List<Logs> getLogsAsc() {
-        return db.getLogsQueries().select().executeAsList();
+        return loggerDB.getLogsQueries().select().executeAsList();
     }
 
     private class AccountEventManager implements AbstractBtcAccount.EventHandler {
