@@ -43,7 +43,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
     }
 
     init {
-        assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+        assetsList.add(if (networkParameters.isProdnet) BitcoinMain else BitcoinTest)
     }
 
     override fun setCurrencySettings(currencySettings: CurrencySettings) {
@@ -62,8 +62,8 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         val contexts = backing.loadBip44AccountContexts()
         var counter = 1
         for (context in contexts) {
-            if (loadingProgressUpdater.status is LoadingProgressStatus.Loading) {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.Migrating())
+            if (loadingProgressUpdater.status.state == LoadingProgressStatus.State.LOADING) {
+                LoadingProgressTracker.setStatus(LoadingProgressStatus(LoadingProgressStatus.State.MIGRATING))
             }
             val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
 
@@ -92,11 +92,13 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
             account.setEventHandler(eventHandler)
             LoadingProgressTracker.clearLastFullUpdateTime()
 
-            if (loadingProgressUpdater.status is LoadingProgressStatus.Migrating || loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMHD) {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.MigratingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size)))
+            val state = if (loadingProgressUpdater.status.state == LoadingProgressStatus.State.MIGRATING ||
+                loadingProgressUpdater.status.state == LoadingProgressStatus.State.MIGRATING_N_OF_M_HD) {
+                LoadingProgressStatus.State.MIGRATING_N_OF_M_HD
             } else {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.LoadingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size)))
+                LoadingProgressStatus.State.LOADING_N_OF_M_HD
             }
+            LoadingProgressTracker.setStatus(LoadingProgressStatus(state, counter++, contexts.size))
         }
         return result
     }
@@ -297,11 +299,14 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
     /**
      * To create an additional HD account from the master seed, the master seed must be present and
-     * all existing master seed accounts must have had transactions (no gap accounts)
+     * all existing master seed accounts must have had transactions (no gap accounts) or be archived
+     * (we may archive only used accounts therefore if account is archived it has had activity by definition.
+     * But at the same time we clear all the information regardless if the account was used when we archive it
+     * so we cannot rely on the according method for archived accounts)
      */
     fun canCreateAdditionalBip44Account(): Boolean =
             hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed }
-                    .all { it.hasHadActivity() }
+                    .all { it.hasHadActivity() || it.isArchived }
 
     override fun canCreateAccount(config: Config): Boolean {
         return config is UnrelatedHDAccountConfig ||

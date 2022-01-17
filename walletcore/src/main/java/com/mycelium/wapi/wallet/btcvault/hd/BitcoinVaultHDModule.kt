@@ -35,6 +35,10 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     private val coinType = if (networkParameters.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
+    init {
+        assetsList.add(coinType)
+    }
+
     override val id: String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
@@ -51,7 +55,6 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             is AdditionalMasterseedAccountConfig -> {
                 val masterSeed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
                 val accountIndex = getCurrentBip44Index() + 1
-
 
                 // Create the base keys for the account
                 val keyManagerMap = BipDerivationType.values().associate { derivationType ->
@@ -99,11 +102,14 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     /**
      * To create an additional HD account from the master seed, the master seed must be present and
-     * all existing master seed accounts must have had transactions (no gap accounts)
+     * all existing master seed accounts must have had transactions (no gap accounts) or be archived
+     * (we may archive only used accounts therefore if account is archived it has had activity by definition.
+     * But at the same time we clear all the information regardless if the account was used when we archive it
+     * so we cannot rely on the according method for archived accounts)
      */
     fun canCreateAdditionalBip44Account(): Boolean =
-            accounts.values.filter { it.isDerivedFromInternalMasterseed }
-                    .all { it.hasHadActivity() }
+        accounts.values.filter { it.isDerivedFromInternalMasterseed }
+            .all { it.hasHadActivity() || it.isArchived }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         accounts.remove(walletAccount.id)

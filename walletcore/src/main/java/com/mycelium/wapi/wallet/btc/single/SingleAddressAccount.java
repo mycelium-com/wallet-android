@@ -21,11 +21,13 @@ import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.BitcoinTransaction;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.SyncStatus;
+import com.mycelium.wapi.SyncStatusInfo;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
@@ -33,14 +35,15 @@ import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.Transaction;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
@@ -59,6 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+
 
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -172,28 +176,39 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    @Override
    public synchronized boolean doSynchronization(SyncMode mode) {
+      if (!getMaySync()) {
+         return false;
+      }
       checkNotArchived();
       syncTotalRetrievedTransactions = 0;
       try {
          if (synchronizeUnspentOutputs(_addressList) == -1) {
             return false;
          }
-
+         if (!getMaySync()) {
+            return false;
+         }
          // Monitor young transactions
          if (!monitorYoungTransactions()) {
             return false;
          }
-
+         if (!getMaySync()) {
+            return false;
+         }
          //lets see if there are any transactions we need to discover
          if (!mode.ignoreTransactionHistory) {
             if (!discoverTransactions()) {
                return false;
             }
          }
-
+         if (!getMaySync()) {
+            return false;
+         }
          // recalculate cached Balance
          updateLocalBalance();
-
+         if (!getMaySync()) {
+            return false;
+         }
          _context.persistIfNecessary(_backing);
          return true;
       } finally {
@@ -231,6 +246,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             txIds.addAll(result.txIds);
             setBlockChainHeight(result.height);
          } catch (WapiException e) {
+            setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
             if (e.errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
                _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
                postEvent(Event.SERVER_CONNECTION_ERROR);
@@ -258,6 +274,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       // Fetch any missing transactions
       int chunkSize = 50;
       for (int fromIndex = 0; fromIndex < toFetch.size(); fromIndex += chunkSize) {
+         if (!getMaySync()) { return false; }
          try {
             int toIndex = Math.min(fromIndex + chunkSize, toFetch.size());
             GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();
@@ -265,6 +282,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             handleNewExternalTransactions(transactionsEx);
          } catch (WapiException e) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
+            setLastSyncInfo(new SyncStatusInfo(SyncStatus.ERROR));
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return false;
          }
@@ -282,6 +300,16 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public boolean canSpend() {
       return _keyStore.hasPrivateKey(getAddress().getAllAddressBytes());
+   }
+
+   @Override
+   public String signMessage(@NotNull String message, Address address) {
+      try {
+         InMemoryPrivateKey key = getPrivateKey(AesKeyCipher.defaultKeyCipher());
+         return key.signMessage(message).getBase64Signature();
+      } catch (InvalidKeyCipher invalidKeyCipher) {
+         throw new RuntimeException(invalidKeyCipher);
+      }
    }
 
    @Override

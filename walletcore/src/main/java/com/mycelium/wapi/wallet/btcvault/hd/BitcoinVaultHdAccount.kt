@@ -9,11 +9,14 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -39,7 +42,10 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                             val backing: BitcoinVaultHDAccountBacking,
                             accountListener: AccountListener?,
                             protected val changeAddressModeReference: Reference<ChangeAddressMode>)
-    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount, AddressesListProvider<BtcvAddress> {
+    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener),
+        ExportableAccount,
+        AddressesListProvider<BtcvAddress>,
+        SyncPausable {
 
     private val derivePaths = accountContext.indexesMap.keys
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = initAddressesMap()
@@ -120,6 +126,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         // Do look ahead query
         val result = wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
+        if (!maySync) { return emptySet() }
         blockChainHeight = result.height
         val ids = result.txIds
         if (ids.isEmpty()) {
@@ -134,6 +141,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         val newIds = mutableSetOf<Sha256Hash>()
         val knownTransactions = mutableSetOf<TransactionEx>()
         ids.forEach {
+            if (!maySync) { return emptySet() }
             val dbTransaction = backing.getTransaction(it)
             if (dbTransaction?.height ?: 0 > 0) {
                 // we have it and know its block
@@ -161,7 +169,9 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         accountContext.accountName = label
     }
 
+    @Synchronized
     override fun doSynchronization(proposedMode: SyncMode): Boolean {
+        if (!maySync) { return false }
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTxs = 0
@@ -176,7 +186,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                     return false
                 }
             }
-
+            if (!maySync) { return false }
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } catch (e: RuntimeException) {
@@ -204,10 +214,12 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             // thus, method is done once discovered is empty.
             var discovered = derivePaths.toSet()
             do {
+                if (!maySync) { return false }
                 discovered = doDiscovery(discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             accountListener?.serverConnectionError(this, "Bitcoin Vault")
             return false
         }
@@ -714,6 +726,15 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
+    }
+
+    override fun signMessage(message: String, address: Address?): String {
+        return try {
+            val privKey = getPrivateKeyForAddress((address as BtcAddress).address, AesKeyCipher.defaultKeyCipher())
+            privKey!!.signMessage(message).base64Signature
+        } catch (invalidKeyCipher: KeyCipher.InvalidKeyCipher) {
+            throw java.lang.RuntimeException(invalidKeyCipher)
+        }
     }
 
 }

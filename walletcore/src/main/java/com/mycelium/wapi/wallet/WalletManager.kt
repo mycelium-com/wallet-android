@@ -4,6 +4,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
@@ -11,6 +12,7 @@ import com.mycelium.wapi.wallet.manager.*
 import com.mycelium.wapi.wallet.providers.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -28,8 +30,27 @@ constructor(val network: NetworkParameters,
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _logger  = Logger.getLogger(WalletManager::class.java.getSimpleName())
+    private val activeSyncThreads = AtomicInteger(0)
 
     val feeEstimations = FeeEstimations()
+
+    fun reportStartSync() {
+        val beforeIncrement = activeSyncThreads.getAndIncrement()
+        if (beforeIncrement == 0) {
+            updateState(State.SYNCHRONIZING)
+        }
+    }
+
+    fun reportStopSync() {
+        val afterDecrement = activeSyncThreads.decrementAndGet()
+        if (afterDecrement == 0) {
+            updateState(State.READY)
+        }
+    }
+
+    private fun updateState(newState: State) {
+        state = newState
+    }
 
     fun getCurrencySettings(moduleID: String): CurrencySettings? {
         return currencySettingsMap[moduleID]
@@ -44,6 +65,7 @@ constructor(val network: NetworkParameters,
     var walletListener: WalletListener? = null
 
     var state: State = State.OFF
+        private set
 
     fun add(walletModule: WalletModule) = walletModules.put(walletModule.id, walletModule)
 
@@ -89,6 +111,7 @@ constructor(val network: NetworkParameters,
             accounts.values.any { it.canSpend() && it.isMineAddress(address) }
 
     fun createAccounts(config: Config): List<UUID> {
+        getAllActiveAccounts().interruptSync()
         val result = mutableMapOf<UUID, WalletAccount<*>>()
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {
@@ -131,8 +154,8 @@ constructor(val network: NetworkParameters,
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) : Boolean {
         if (isNetworkConnected) {
             feeEstimations.triggerRefresh()
-            Thread(Synchronizer(this, mode, accounts)).start()
         }
+        Thread(Synchronizer(this, mode, accounts)).start()
         return isNetworkConnected
     }
 
@@ -202,6 +225,9 @@ constructor(val network: NetworkParameters,
     fun getCryptocurrenciesNames(): List<String> = getAssetTypes()
             .filterNot { it is ColuMain || it is ERC20Token }
             .map { it.name }
+
+    fun getMasterSeedDerivedAccounts(): Map<CryptoCurrency, List<WalletAccount<*>>> =
+        accounts.values.filter { it.isDerivedFromInternalMasterseed }.groupBy { it.coinType }
 
     fun parseAddress(address: String): List<Address> = walletModules.values
                 .flatMap { it.getSupportedAssets() }

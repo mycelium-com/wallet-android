@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public interface WalletAccount<A extends Address> {
+public interface WalletAccount<A extends Address> extends SyncPausable {
     void setAllowZeroConfSpending(boolean b);
 
     Transaction createTx(Address address, Value amount, Fee fee, @Nullable TransactionData data)
@@ -105,6 +105,8 @@ public interface WalletAccount<A extends Address> {
      * Can this account be used for signing messages?
      */
     boolean canSign();
+
+    String signMessage(@NotNull String message, Address address);
 
     /**
      * Get is account sync in progress

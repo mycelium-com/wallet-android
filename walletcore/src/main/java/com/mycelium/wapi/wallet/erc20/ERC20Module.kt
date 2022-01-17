@@ -12,8 +12,8 @@ import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.genericdb.Backing
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
@@ -27,7 +27,7 @@ class ERC20Module(
         private val backing: Backing<ERC20AccountContext>,
         private val walletDB: WalletDB,
         private val blockchainService: EthBlockchainService,
-        networkParameters: NetworkParameters,
+        private val networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?,
         private val ethereumModule: EthereumModule) : WalletModule(metaDataStorage) {
@@ -116,7 +116,8 @@ class ERC20Module(
         val credentials = Credentials.create(Keys.deserialize(
                 secureStore.getDecryptedValue(accountContext.ethAccountId.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
 
-        val token = ERC20Token(accountContext.accountName, accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
+        val token = ERC20Token(accountContext.accountName + if (networkParameters.isProdnet) "" else " test",
+                accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
         val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
         val account = ERC20Account(chainId, accountContext, token, ethAccount, credentials, accountBacking,

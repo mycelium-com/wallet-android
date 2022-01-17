@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -19,6 +21,7 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -30,8 +33,7 @@ class EthAccount(private val chainId: Byte,
                  private val accountListener: AccountListener?,
                  blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, EthAccount::class.simpleName, address) {
-    private var removed = false
+        backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
 
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
@@ -58,7 +60,7 @@ class EthAccount(private val chainId: Byte,
     override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = data as? EthTransactionData
-        val nonce = ethTxData?.nonce ?: getNewNonce()
+        val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
         val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
@@ -69,8 +71,8 @@ class EthAccount(private val chainId: Byte,
         if (value.value < BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Value should be positive"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        if (gasLimit < Transfer.GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
@@ -81,7 +83,7 @@ class EthAccount(private val chainId: Byte,
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher?) {
         val rawTransaction = (request as EthTransaction).run {
-            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
+            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, ethValue.value,
                     inputData)
         }
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
@@ -93,6 +95,12 @@ class EthAccount(private val chainId: Byte,
         }
     }
 
+    override fun signMessage(message: String, address: Address?): String {
+        val msgBytes = message.toByteArray(StandardCharsets.UTF_8)
+        val sig = Sign.signPrefixedMessage(msgBytes, credentials!!.ecKeyPair)
+        return "${Numeric.toHexString(sig.r)}${Numeric.toHexString(sig.s).substring(2)}${HexUtils.toHex(sig.v)}"
+    }
+
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
             val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
@@ -100,8 +108,8 @@ class EthAccount(private val chainId: Byte,
                 return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
-                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, gasLimit = tx.gasLimit)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
@@ -126,11 +134,9 @@ class EthAccount(private val chainId: Byte,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived) {
-            return false
-        }
-        syncTransactions()
-        return updateBalanceCache()
+        val syncTx = syncTransactions()
+        updateBalanceCache()
+        return syncTx
     }
 
     override fun updateBalanceCache(): Boolean {
@@ -145,6 +151,8 @@ class EthAccount(private val chainId: Byte,
         }
         return false
     }
+
+    override fun canSign() = credentials != null
 
     private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
             .filter { it.confirmations > 0 }
@@ -175,7 +183,7 @@ class EthAccount(private val chainId: Byte,
                         .fold(BigInteger.ZERO, BigInteger::add)
     }
 
-    private fun syncTransactions() {
+    private fun syncTransactions(): Boolean {
         try {
             val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString)
             remoteTransactions.forEach { tx ->
@@ -196,8 +204,11 @@ class EthAccount(private val chainId: Byte,
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
             }
+            return true
         } catch (e: IOException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
+            return false
         }
     }
 

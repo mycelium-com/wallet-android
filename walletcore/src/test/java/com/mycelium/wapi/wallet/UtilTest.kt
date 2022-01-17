@@ -6,7 +6,7 @@ import org.junit.Test
 import java.math.BigInteger
 
 class UtilTest {
-    private val coinType = BitcoinMain.get()
+    private val coinType = BitcoinMain
 
     @Test
     fun strToBigInteger() {
@@ -20,8 +20,8 @@ class UtilTest {
 
     @Test
     fun valueToDouble() {
-        val valueBelowOne = Value.valueOf(BitcoinMain.get(), 60000)
-        val valueAboveOne = Value.valueOf(BitcoinMain.get(), 600000000000)
+        val valueBelowOne = Value.valueOf(BitcoinMain, 60000)
+        val valueAboveOne = Value.valueOf(BitcoinMain, 600000000000)
         assert(Util.valueToDouble(valueBelowOne) == 0.0006)
         assert(Util.valueToDouble(valueAboveOne) == 6000.0)
     }

@@ -68,9 +68,26 @@ public class StandardTransactionBuilder {
 
    public static class UnableToBuildTransactionException extends Exception {
       private static final long serialVersionUID = 1L;
+      private final BuildError code;
 
       public UnableToBuildTransactionException(String msg) {
          super(msg);
+         code = BuildError.OTHER;
+      }
+
+      public UnableToBuildTransactionException(BuildError errorCode) {
+         super("");
+         code = errorCode;
+      }
+
+      public BuildError getCode() {
+         return code;
+      }
+
+      public enum BuildError {
+         NO_UTXO,
+         PARENT_NEEDS_NO_BOOSTING,
+         OTHER
       }
    }
 

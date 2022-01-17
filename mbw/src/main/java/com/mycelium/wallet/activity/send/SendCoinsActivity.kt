@@ -6,23 +6,28 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Point
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Html
 import android.text.TextUtils
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.observe
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -36,6 +41,7 @@ import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.AnimationUtils
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
@@ -52,14 +58,20 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fio_memo_input.*
 import kotlinx.android.synthetic.main.send_coins_activity.*
+import kotlinx.android.synthetic.main.send_coins_activity.root
+import kotlinx.android.synthetic.main.send_coins_activity_eth.*
+import kotlinx.android.synthetic.main.send_coins_advanced_block.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
+import kotlinx.android.synthetic.main.send_coins_fee_title.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
+import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -132,17 +144,22 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             setDisplayHomeAsUpEnabled(true)
         }
         createSenderFioNamesMenu()
-        viewModel.payerFioName.observe(this) {
+        viewModel.payerFioName.observe(this, Observer {
             updateMemoVisibility()
-        }
-        viewModel.payeeFioName.observe(this) {
+        })
+        viewModel.payeeFioName.observe(this, Observer {
             updateMemoVisibility()
-        }
+        })
         updateMemoVisibility()
         et_fio_memo.setOnFocusChangeListener { view, b ->
             if(b) {
                 root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
             }
+        }
+        if (viewModel.isMinerFeeInfoAvailable()) {
+            tvFeeLabel.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
+            ivInfoIcon.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
+            ivInfoIcon.visibility = View.VISIBLE
         }
     }
 
@@ -154,8 +171,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             View.GONE
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
@@ -211,8 +228,110 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                 DataBindingUtil.setContentView<SendCoinsActivityEthBinding>(this, R.layout.send_coins_activity_eth)
                         .also {
                             it.viewModel = (viewModel as SendEthViewModel).apply {
+                                getGasLimitStatus().observe(this@SendCoinsActivity, Observer { status ->
+                                    etGasLimit.setTextColor(resources.getColor(R.color.white))
+                                    when (status) {
+                                        SendEthModel.GasLimitStatus.ERROR -> {
+                                            tvGasLimitHelper.visibility = View.GONE
+                                            tvGasLimitWarning.visibility = View.GONE
+                                            tvGasLimitError.visibility = View.VISIBLE
+                                            etGasLimit.setTextColor(resources.getColor(R.color.fio_red))
+                                        }
+                                        SendEthModel.GasLimitStatus.WARNING -> {
+                                            tvGasLimitHelper.visibility = View.GONE
+                                            tvGasLimitWarning.visibility = View.VISIBLE
+                                            tvGasLimitError.visibility = View.GONE
+                                        }
+                                        else -> {
+                                            tvGasLimitHelper.visibility = View.VISIBLE
+                                            tvGasLimitWarning.visibility = View.GONE
+                                            tvGasLimitError.visibility = View.GONE
+                                        }
+                                    }
+                                    advancedBlock.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                                    advancedBlock.requestLayout()
+                                })
+                                etGasLimit.doOnTextChanged { _, _, _, _ ->
+                                        // reset gas limit and therefore UI state
+                                        getGasLimit().value = null
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
+                                }
+                                etGasLimit.setOnEditorActionListener { textView, actionId, keyEvent ->
+                                    if(actionId == EditorInfo.IME_ACTION_DONE) {
+                                        textView.clearFocus()
+                                    }
+                                    false
+                                }
+                                etGasLimit.setOnFocusChangeListener { _, hasFocus ->
+                                    if (!hasFocus) {
+                                        val gasLimit = etGasLimit.text.toString()
+                                        getGasLimit().value = if (gasLimit.isEmpty()) null else BigInteger(gasLimit)
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
+                                    }
+                                }
+                                if (account is ERC20Account) {
+                                    getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
+                                        var gasLimit = gl
+                                        if (gl == null || getGasLimitStatus().value == SendEthModel.GasLimitStatus.ERROR) {
+                                            tvThisIsUpdatedFee.visibility = View.GONE
+                                            tvHighestPossibleFeeInfo.visibility = View.VISIBLE
+                                            llNotEnoughEth.visibility = View.GONE
+                                            gasLimit = BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                        } else {
+                                            tvThisIsUpdatedFee.visibility = View.VISIBLE
+                                            tvHighestPossibleFeeInfo.visibility = View.GONE
+                                            llNotEnoughEth.visibility = View.GONE
+                                        }
+
+                                        val selectedFee = getSelectedFee().value!!
+                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit!! * selectedFee.value)
+                                    })
+                                    getSelectedFee().observe(this@SendCoinsActivity, Observer { selectedFee ->
+                                        getEstimatedFee().value = Value.valueOf(selectedFee.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * selectedFee.value)
+
+                                        val gasLimit = getGasLimit().value ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                        getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
+                                    })
+
+                                    getEstimatedFee().observe(this@SendCoinsActivity, Observer { estimatedFee ->
+                                        tvHighestPossibleFeeInfo.text =
+                                            Html.fromHtml(getString(R.string.erc20_highest_possible_fee_info, getParentAccount()!!.label,
+                                                                    estimatedFee.toStringFriendlyWithUnit(getDenomination()), convert(estimatedFee)))
+                                    })
+
+                                    getTotalFee().observe(this@SendCoinsActivity, Observer { totalFee ->
+                                        val isNotEnoughEth = getParentAccount()!!.accountBalance.spendable.lessThan(totalFee)
+                                        if (isNotEnoughEth) {
+                                            tvPleaseTopUp.text =
+                                                Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
+                                                                        getParentAccount()!!.label, totalFee.toStringFriendlyWithUnit(getDenomination()), convert(totalFee)))
+                                            tvThisIsUpdatedFee.visibility = View.GONE
+                                            tvHighestPossibleFeeInfo.visibility = View.GONE
+                                            llNotEnoughEth.visibility = View.VISIBLE
+                                        }
+                                    })
+                                    tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, getParentAccount()!!.label)
+                                    tvParentEthAccountBalance.text = " ${getParentAccount()!!.accountBalance.spendable.toStringFriendlyWithUnit(getDenomination())}"
+                                    tvPleaseTopUp.setOnClickListener {
+                                        mbwManager.setSelectedAccount(getParentAccount()!!.id)
+                                        setResult(RESULT_CANCELED)
+                                        finish()
+                                    }
+                                    tvTxOptionsLabel.text = Html.fromHtml(getString(R.string.edit_gas_limit_advanced_users))
+                                    icEditGasInfo.visibility = View.VISIBLE
+                                } else {
+                                    tvTxOptionsLabel.text = Html.fromHtml(getString(R.string.transaction_options_advanced_users))
+                                    ic_info_gas_limit.visibility = View.VISIBLE
+                                }
+                                isAdvancedBlockExpanded.observe(this@SendCoinsActivity, Observer { isExpanded ->
+                                    if (!isExpanded) {
+                                        etGasLimit.setText("")
+                                        getGasLimit().value = null
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
+                                    }
+                                })
                                 spinner?.adapter = ArrayAdapter(context,
-                                        R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
+                                                                R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
                                     this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
                                 }
                             }
@@ -229,6 +348,22 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+            if (v is EditText && v.id == R.id.etGasLimit) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+                    v.clearFocus()
+                    val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     private fun getDefaultBinding(): SendCoinsActivityBinding =
@@ -307,7 +442,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         val account = viewModel.getAccount()
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, account.id,
                 viewModel.getAmount().value, viewModel.getSelectedFee().value,
-                viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
+                viewModel.isColdStorage(), viewModel.getReceivingAddress().value, viewModel.getTransactionData().value)
     }
 
     fun onClickScan() {
@@ -376,7 +511,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun showInputDataInfo() {
-        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog)
                 .setTitle(R.string.input_data_format)
                 .setMessage(R.string.input_data_format_desc)
                 .setPositiveButton(R.string.button_ok, null)
@@ -385,7 +520,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun showGasLimitInfo() {
-        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog)
                 .setTitle(R.string.gas_limit_info_title)
                 .setMessage(R.string.gas_limit_info_desc)
                 .setPositiveButton(R.string.button_ok, null)
@@ -394,7 +529,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun showTxReplaceInfo() {
-        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog)
                 .setTitle(R.string.tx_replace_info_title)
                 .setMessage(R.string.tx_replacae_info_desc)
                 .setPositiveButton(R.string.button_ok, null)
@@ -501,11 +636,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID,
-                      amountToSend: Long, receivingAddress: Address, isColdStorage: Boolean): Intent =
+                      amountToSend: Value, receivingAddress: Address, isColdStorage: Boolean): Intent =
                 getIntent(currentActivity, account, isColdStorage)
-                        .putExtra(AMOUNT, Value.valueOf(
-                                Utils.getBtcCoinType(),
-                                amountToSend))
+                        .putExtra(AMOUNT, amountToSend)
                         .putExtra(RECEIVING_ADDRESS, receivingAddress)
 
         @JvmStatic
@@ -561,20 +694,6 @@ fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsAct
         AnimationUtils.collapse(target) {
             target.visibility = newVisibility
         }
-    }
-}
-
-@BindingAdapter("imageRotation")
-fun setRotationAnimated(target: ImageView, isExpanded: Boolean) {
-    target.rotation = (if (isExpanded) 180 else 0).toFloat()
-}
-
-@BindingAdapter(value = ["isRedColor", "activity"])
-fun setRedTextColor(target: EditText, isRedColor: Boolean, activity: SendCoinsActivity) {
-    if (isRedColor) {
-        target.setTextColor(ContextCompat.getColor(activity, R.color.red))
-    } else {
-        target.setTextColor(ContextCompat.getColor(activity, android.R.color.white))
     }
 }
 

@@ -1,12 +1,15 @@
 package com.mycelium.wapi.wallet.btcvault
 
 import com.google.common.collect.ImmutableMap
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
 
-abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<ADDRESS> {
+abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : SyncPausableAccount(), WalletAccount<ADDRESS> {
     private val lastSync = hashMapOf<SyncMode.Mode, Date>()
 
     @Volatile
@@ -58,6 +61,7 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<
             // if sync went well, remember current time for this sync mode
             if (synced) {
                 lastSync[mode.mode] = Date()
+                lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
             }
             synced
         } else {

@@ -13,6 +13,7 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountListChanged
+import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
@@ -58,6 +59,11 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         updateData()
     }
 
+    @Subscribe
+    fun onAccountsListChanged(event: SelectedAccountChanged) {
+        updateData()
+    }
+
     /**
      * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
      */
@@ -89,7 +95,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 }
             }
             if (value!!.isEmpty()) {
-                publishProgress(accountsList)
+                publishProgress(accountsList.toList())
             }
 
             val archivedList = walletManager.getArchivedAccounts()
@@ -115,12 +121,12 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         private fun getInvestmentAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getInvestmentAccounts()
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>) =
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>): List<AccountListItem> =
                 accounts.map {
                     if (it is InvestmentAccount) {
                         BQExchangeRateManager.requestOptionalRefresh()
                         AccountInvestmentViewModel(it, it.accountBalance.confirmed.toStringWithUnit())
-                    } else AccountViewModel(it, mbwManager)
+                    } else AccountViewModel(it, mbwManager) as AccountListItem
                 }
 
         private fun sortAccounts(accounts: Collection<WalletAccount<out Address>>) =

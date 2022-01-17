@@ -4,6 +4,8 @@ import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -37,7 +39,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                  private val privkeyString: String? = null, // null if it's read-only account
                  val walletManager: WalletManager,
                  address: FioAddress? = null,
-                 private val fioServerLogsListWrapper: FioServerLogsListWrapper) : WalletAccount<FioAddress>, ExportableAccount {
+                 private val fioServerLogsListWrapper: FioServerLogsListWrapper) :
+        WalletAccount<FioAddress>, ExportableAccount, SyncPausableAccount() {
     private val logger: Logger = Logger.getLogger(FioAccount::class.simpleName)
     private val receivingAddress = privkeyString?.let { FioAddress(coinType, FioAddressData(FIOSDK.derivedPublicKey(it))) }
             ?: address!!
@@ -143,6 +146,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                                                         obtId = obtId,
                                                         maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
                                                         memo = memo).getActionTraceResponse()
+        if(actionTraceResponse?.status == "sent_to_blockchain") {
+            backing.deletePendingRequest(fioRequestId)
+        }
         return actionTraceResponse != null && actionTraceResponse.status == "sent_to_blockchain"
     }
 
@@ -184,7 +190,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             throw InsufficientFundsException(Throwable("Invalid amount"))
         }
 
-        return FioTransaction(coinType, address.toString(), amount, fee)
+        return FioTransaction(coinType, address.toString(), amount, fee.feePerKb)
     }
 
     override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
@@ -193,14 +199,14 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     override fun broadcastTx(tx: Transaction?): BroadcastResult {
         val fioTx = tx as FioTransaction
         return try {
-            val response = getFioSdk()!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.feePerKb.value)
+            val response = getFioSdk()!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.value)
             val actionTraceResponse = response.getActionTraceResponse()
             if (actionTraceResponse != null && actionTraceResponse.status == "OK") {
                 tx.txId = HexUtils.toBytes(response.transactionId)
                 backing.putTransaction(-1, System.currentTimeMillis() / 1000, response.transactionId, "",
                         receivingAddress.toString(), fioTx.toAddress, fioTx.value, 0,
-                        fioTx.fee.feePerKb, if (fioTx.toAddress == receivingAddress.toString()) -fioTx.fee.feePerKb else
-                    -(fioTx.value + fioTx.fee.feePerKb))
+                        fioTx.fee, if (fioTx.toAddress == receivingAddress.toString()) -fioTx.fee else
+                    -(fioTx.value + fioTx.fee))
                 BroadcastResult(BroadcastResultType.SUCCESS)
             } else {
                 BroadcastResult("Status: ${actionTraceResponse?.status}", BroadcastResultType.REJECT_INVALID_TX_PARAMS)
@@ -239,7 +245,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     fun rejectFundsRequest(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
         val fiosdk = getFioSdk()
-        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
+        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse().also {
+            backing.deletePendingRequest(fioRequestId)
+        }
     }
 
     fun requestFunds(payerFioAddress: String, payeeFioAddress: String,
@@ -272,20 +280,36 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
-        fioEndpoints.rotateEndpoints()
-        syncFioRequests()
-        syncFioOBT()
-        syncFioAddresses()
-        syncFioDomains()
-        updateBlockHeight()
-        syncTransactions()
-        updateMappings()
-        updateBalance()
-        syncing = false
+        var syncResult = false
+        try {
+            if (!maySync) { return false }
+            fioEndpoints.rotateEndpoints()
+            if (!maySync) { return false }
+            syncFioRequests()
+            if (!maySync) { return false }
+            syncFioOBT()
+            if (!maySync) { return false }
+            syncFioAddresses()
+            if (!maySync) { return false }
+            syncFioDomains()
+            if (!maySync) { return false }
+            syncResult = updateBlockHeight()
+            if (!maySync) { return false }
+            syncResult = syncResult and syncTransactions()
+            if (!maySync) { return false }
+            updateMappings()
+            if (!maySync) { return false }
+            syncResult = syncResult and updateBalance()
+        } finally {
+            if(syncResult) {
+                lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
+            }
+            syncing = false
+        }
         return true
     }
 
-    private fun updateBalance() {
+    private fun updateBalance(): Boolean {
         try {
             val fioBalance = balanceService.getBalance()
             val newBalance = Balance(Value.valueOf(coinType, fioBalance),
@@ -294,12 +318,15 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                 accountContext.balance = newBalance
                 accountListener?.balanceUpdated(this)
             }
+            return true
         } catch (e: Exception) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             if (e is FIOError) {
                 fioServerLogsListWrapper.addLog(e.toJson())
             }
             e.printStackTrace()
             logger.log(Level.SEVERE, "update balance exception: ${e.message}")
+            return false
         }
     }
 
@@ -442,18 +469,19 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         accountContext.registeredFIODomains = registeredFIODomains
     }
 
-    private fun updateBlockHeight() {
-        try {
-            accountContext.blockHeight = fioBlockchainService.getLatestBlock().toInt()
-        } catch (e: Exception) {
-            if (e is FIOError) {
-                fioServerLogsListWrapper.addLog(e.toJson())
-            }
-            logger.log(Level.SEVERE, "block height sync exception: ${e.message}")
+    private fun updateBlockHeight(): Boolean = try {
+        accountContext.blockHeight = fioBlockchainService.getLatestBlock().toInt()
+        true
+    } catch (e: Exception) {
+        lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
+        if (e is FIOError) {
+            fioServerLogsListWrapper.addLog(e.toJson())
         }
+        logger.log(Level.SEVERE, "block height sync exception: ${e.message}")
+        false
     }
 
-    private fun syncTransactions() {
+    private fun syncTransactions(): Boolean {
         try {
             fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger()).forEach {
                 backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
@@ -465,11 +493,14 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             accountContext.actionSequenceNumber =
                     fioBlockchainService.getAccountActionSeqNumber(Utils.generateActor(receivingAddress.toString()))
                             ?: accountContext.actionSequenceNumber
+            return true
         } catch (e: Exception) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             if (e is FIOError) {
                 fioServerLogsListWrapper.addLog(e.toJson())
             }
             logger.log(Level.SEVERE, "transactions or account action sequence number sync exception: ${e.message}")
+            return false
         }
     }
 
@@ -478,6 +509,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     override fun canSpend(): Boolean = privkeyString != null
 
     override fun canSign(): Boolean = false
+
+    override fun signMessage(message: String, address: Address?): String {
+        TODO("Not yet implemented")
+    }
 
     override fun isSyncing(): Boolean = syncing
 

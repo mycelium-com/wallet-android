@@ -8,6 +8,8 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
@@ -36,12 +38,12 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                   , private val accountBacking: ColuAccountBacking
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
-                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
+                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount, SyncPausableAccount() {
     override fun queueTransaction(transaction: Transaction) {
     }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
-        return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
+        return if (networkParameters.isProdnet) BitcoinMain else BitcoinTest
     }
 
     var linkedAccount: SingleAddressAccount? = null
@@ -167,6 +169,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     override fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
         try {
+            if (!maySync) {
+                return false
+            }
             val json = coluClient.getAddressTransactions(receiveAddress)
             val genericTransactionSummaries = getGenericListFromJsonTxList(json.transactions)
             val utxosFromJson = utxosFromJson(json, receiveAddress)
@@ -174,8 +179,10 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             accountBacking.putTransactions(json.transactions)
             cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
             listener?.balanceUpdated(this)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
             return true
-        } catch (e:IOException) {
+        } catch (e: IOException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             return false
         }
     }
@@ -448,5 +455,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return utxos
     }
 
-    override fun canSign(): Boolean = true
+    override fun canSign(): Boolean = privateKey != null
+
+    override fun signMessage(message: String, address: Address?): String {
+        return privateKey!!.signMessage(message).base64Signature
+    }
 }

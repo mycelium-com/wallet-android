@@ -1,0 +1,45 @@
+import java.util.Date;
+
+CREATE TABLE IF NOT EXISTS GiftboxCard(
+    clientOrderId TEXT NOT NULL,
+    productCode TEXT,
+    productName TEXT,
+    productImg TEXT,
+    currencyCode TEXT,
+    amount TEXT,
+    expiryDate  TEXT,
+    code TEXT NOT NULL,
+    deliveryUrl TEXT NOT NULL,
+    pin TEXT NOT NULL,
+    timestamp TEXT AS Date,
+    redeemed INTEGER AS Boolean NOT NULL DEFAULT 0,
+    deleted  INTEGER AS Boolean NOT NULL DEFAULT 0,
+    PRIMARY KEY (clientOrderId, code, deliveryUrl, pin)
+);
+
+selectCards:
+SELECT b.clientOrderId, b.productCode, b.productName, b.productImg, b.currencyCode, b.amount, b.expiryDate, b.code, b.deliveryUrl, b.pin, b.timestamp, b.redeemed
+FROM GiftboxCard AS b
+WHERE b.deleted = 0;
+
+insertCard:
+INSERT OR REPLACE INTO GiftboxCard(clientOrderId, productCode, productName, productImg, currencyCode, amount, expiryDate, code, deliveryUrl, pin, timestamp)
+VALUES (?, ?, ?, ?, ?, ?, ? , ? , ? , ?, ?);
+
+updateCard:
+UPDATE GiftboxCard
+SET productCode = (?), productName = (?), productImg= (?), currencyCode= (?), amount= (?), expiryDate= (?),timestamp= (?)
+WHERE clientOrderId = (?) AND code = (?) AND deliveryUrl = (?) AND pin = (?);
+
+isCardUpdated:
+SELECT changes();
+
+deleteCard:
+UPDATE GiftboxCard
+SET deleted = 1
+WHERE clientOrderId = (?) AND code = (?) AND deliveryUrl = (?) AND pin = (?);
+
+redeemCard:
+UPDATE GiftboxCard
+SET redeemed = 1
+WHERE clientOrderId = (?) AND code = (?) AND deliveryUrl = (?) AND pin = (?);

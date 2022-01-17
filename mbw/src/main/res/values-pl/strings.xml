@@ -314,8 +314,8 @@
     <string name="copy_signature">Kopiuj Podpis  do schowka</string>
     <string name="share_signature">Udostępnij tekst i podpis</string>
     <string name="sig_copied">Podpis skopiowany do schowka</string>
-    <string name="signed_message_subject">wiadomość podpisana przez Bitcoin</string>
-    <string name="signed_message_share">Udostępnij wiadomość podpisaną przez Bitcoin</string>
+    <string name="signed_message_subject_btc">wiadomość podpisana przez Bitcoin</string>
+    <string name="signed_message_share_btc">Udostępnij wiadomość podpisaną przez Bitcoin</string>
     <string name="signing_inprogress">Podpisywanie wiadomości...</string>
     <!-- BitID -->
     <!-- BitID end -->
