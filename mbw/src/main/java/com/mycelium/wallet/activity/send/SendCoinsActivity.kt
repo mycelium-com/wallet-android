@@ -26,8 +26,10 @@ import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -71,6 +73,8 @@ import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -662,21 +666,29 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 }
 
+val mutex = Mutex()
+
 @BindingAdapter("errorAnimatedText")
 fun setVisibilityAnimated(target: TextView, error: CharSequence) {
-    val newVisibility = if (error.isNotEmpty()) View.VISIBLE else View.GONE
-    if (target.visibility == newVisibility) {
-        target.text = error
-        return
-    }
-    if (error.isNotEmpty()) {
-        target.text = error
-        target.visibility = newVisibility
-        AnimationUtils.expand(target, null)
-    } else {
-        AnimationUtils.collapse(target) {
-            target.visibility = newVisibility
+    (target.context as LifecycleOwner).lifecycleScope.launch {
+        mutex.lock()
+        val newVisibility = if (error.isNotEmpty()) View.VISIBLE else View.GONE
+        if (target.visibility == newVisibility) {
             target.text = error
+            mutex.unlock()
+            return@launch
+        }
+        if (error.isNotEmpty()) {
+            target.text = error
+            target.visibility = newVisibility
+            AnimationUtils.expand(target, null)
+            mutex.unlock()
+        } else {
+            AnimationUtils.collapse(target) {
+                target.visibility = newVisibility
+                target.text = error
+                mutex.unlock()
+            }
         }
     }
 }
