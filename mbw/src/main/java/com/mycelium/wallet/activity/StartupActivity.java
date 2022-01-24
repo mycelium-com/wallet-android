@@ -218,6 +218,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          if (needsToBeCreatedMasterSeedAccounts.size() != 0) {
             new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this,
                     StartupActivity.this, needsToBeCreatedMasterSeedAccounts).execute();
+            return;
          }
 
          // Calculate how much time we spent initializing, and do a delayed
