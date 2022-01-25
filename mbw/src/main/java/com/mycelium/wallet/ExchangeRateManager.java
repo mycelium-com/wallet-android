@@ -34,6 +34,8 @@
 
 package com.mycelium.wallet;
 
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -78,8 +80,6 @@ import java.util.regex.Pattern;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 // import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC; gets shadowed by the local definition of the same value.
 
 public class ExchangeRateManager implements ExchangeRateProvider {
@@ -167,7 +167,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 }
                 for (String currency : selectedCurrencies) {
                     ExchangeRate rate = getExchangeRate(Utils.getBtcCoinType().getSymbol(), currency);
-                    if (rate != null) {
+                    if (rate != null && rate.price != null) {
                         ExchangeRate mtRate = new ExchangeRate("Mycelium", System.currentTimeMillis(), rate.price, currency);
                         responses.add(new GetExchangeRatesResponse("MT", currency,
                                 new ExchangeRate[]{mtRate}));
