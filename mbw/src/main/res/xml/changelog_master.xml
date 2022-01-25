@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.13.3.0" versioncode="3130300">
+        <change>Bugfix for the accounts' group control behavior</change>
+    </release>
     <release version="3.13.2.0" versioncode="3130200">
         <change>Added signing with using ETH account</change>
         <change>ETH and FIO accounts are created by default at startup</change>
