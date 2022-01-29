@@ -1616,7 +1616,7 @@ public class MbwManager {
         return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
     }
 
-    public UUID createAdditionalBip44Account(Config accountConfig) {
+    public UUID createAdditionalBip44AccountUninterruptedly(Config accountConfig) {
         UUID accountId = _walletManager.createAccountsUninterruptedly(accountConfig).get(0);
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
@@ -1625,10 +1625,10 @@ public class MbwManager {
         return accountId;
     }
 
-    public List<UUID> createAdditionalBip44Accounts(List<Config> accounts) {
+    public List<UUID> createAdditionalBip44AccountsUninterruptedly(List<Config> accounts) {
         List<UUID> result = new ArrayList<>();
         for (Config accountConfig : accounts) {
-            result.add(createAdditionalBip44Account(accountConfig));
+            result.add(createAdditionalBip44AccountUninterruptedly(accountConfig));
         }
         return result;
     }

@@ -36,7 +36,7 @@ final class AccountCreatorHelper {
             if (context == null) {
                 return null;
             }
-            return MbwManager.getInstance(context).createAdditionalBip44Accounts(accounts).get(0);
+            return MbwManager.getInstance(context).createAdditionalBip44AccountsUninterruptedly(accounts).get(0);
         }
 
         @Override
