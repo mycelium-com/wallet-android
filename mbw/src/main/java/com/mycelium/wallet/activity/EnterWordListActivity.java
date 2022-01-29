@@ -295,7 +295,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
             Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, password);
             _mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
-            return _mbwManager.createAdditionalBip44Accounts(EnterWordListActivity.this, mainAccounts).get(0);
+            return _mbwManager.createAdditionalBip44Accounts(mainAccounts).get(0);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }

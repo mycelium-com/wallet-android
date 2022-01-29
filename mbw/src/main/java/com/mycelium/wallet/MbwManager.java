@@ -46,8 +46,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import android.util.DisplayMetrics;
-import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
@@ -72,7 +70,6 @@ import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
-import com.mycelium.bequant.InvestmentAccount;
 import com.mycelium.bequant.InvestmentModule;
 import com.mycelium.generated.wallet.database.Logs;
 import com.mycelium.generated.wallet.database.WalletDB;
@@ -1619,8 +1616,8 @@ public class MbwManager {
         return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
     }
 
-    public UUID createAdditionalBip44Account(Context context, Config accountConfig) {
-        UUID accountId = _walletManager.createAccounts(accountConfig).get(0);
+    public UUID createAdditionalBip44Account(Config accountConfig) {
+        UUID accountId = _walletManager.createAccountsUninterruptedly(accountConfig).get(0);
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
         String defaultName = account.getLabel();
@@ -1628,10 +1625,10 @@ public class MbwManager {
         return accountId;
     }
 
-    public List<UUID> createAdditionalBip44Accounts(Context context, List<Config> accounts) {
+    public List<UUID> createAdditionalBip44Accounts(List<Config> accounts) {
         List<UUID> result = new ArrayList<>();
         for (Config accountConfig : accounts) {
-            result.add(createAdditionalBip44Account(context, accountConfig));
+            result.add(createAdditionalBip44Account(accountConfig));
         }
         return result;
     }
