@@ -281,7 +281,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
          try {
             activity._mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            return activity._mbwManager.createAdditionalBip44Accounts(activity, mainAccounts).get(0);
+            return activity._mbwManager.createAdditionalBip44AccountsUninterruptedly(mainAccounts).get(0);
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
          }
