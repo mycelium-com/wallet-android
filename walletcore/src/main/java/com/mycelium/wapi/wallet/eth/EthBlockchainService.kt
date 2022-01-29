@@ -102,7 +102,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
     fun getTransactions(address: String, contractAddress: String? = null): List<Tx> {
         return if (contractAddress != null) {
-            fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress) != null }
+            fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress, address) != null }
         } else {
             fetchTransactions(address)
         }
@@ -189,8 +189,10 @@ class Tx {
         get() = ethereumSpecific!!.status
     val tokenTransfers: List<TokenTransfer> = emptyList()
 
-    fun getTokenTransfer(contractAddress: String): TokenTransfer? =
-            tokenTransfers.find { it.token.equals(contractAddress, true) }
+    fun getTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? =
+            tokenTransfers.find { it.token.equals(contractAddress, true) &&
+                    (it.to.equals(ownerAddress, true) || it.from.equals(ownerAddress, true))
+            }
 
     override fun toString(): String {
         return """{'txid':$txid,'from':$from,'to':$to,'blockHeight':$blockHeight,'confirmations':$confirmations,

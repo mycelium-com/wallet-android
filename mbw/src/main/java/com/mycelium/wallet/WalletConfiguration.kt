@@ -392,7 +392,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("LAtoken", "LA", 18, "0xE50365f5D679CB98a1dd62D6F6e58e59321BcdDf"),
             TokenData("Bread", "BRD", 18, "0x558EC3152e2eb2174905cd19AeA4e34A23DE9aD6", "0x88bfa6f940acb21357c45538f725a38ac0372325"),
             TokenData("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
-            TokenData("Mycelium Token", "MT", 7, "0x364f56e35e75227516878cc249f11ea9b3e41b09")
+            TokenData("Mycelium Token", "MT", 7, "0x364f56e35e75227516878cc249f11ea9b3e41b09", "0x71b59f06a47c9c403d0e3ec303008bcf78fa9af6")
         )
         val namePostfix = if (BuildConfig.FLAVOR == "prodnet") "" else " test"
         return tokens
