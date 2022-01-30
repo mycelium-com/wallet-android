@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="3.13.5.0" versioncode="3130500">
+    <release version="3.13.6.0" versioncode="3130600">
         <change>Fixed synchronization issues when restoring existing master seed from a phrase</change>
+        <change>Fixed issues with ERC-20 transactions having multiple receivers</change>
     </release>
     <release version="3.13.4.0" versioncode="3130400">
         <change>Accounts' initialization order improvements</change>
