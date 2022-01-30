@@ -61,7 +61,9 @@ constructor(val network: NetworkParameters,
         walletModules[moduleID]?.setCurrencySettings(settings)
     }
 
+    @Volatile
     var isNetworkConnected: Boolean = false
+
     var walletListener: WalletListener? = null
 
     var state: State = State.OFF
