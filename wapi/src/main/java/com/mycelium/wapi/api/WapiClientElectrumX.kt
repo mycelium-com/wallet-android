@@ -37,7 +37,9 @@ class WapiClientElectrumX(
     private val logger = Logger.getLogger(WapiClientElectrumX::class.java.getSimpleName())
     @Volatile
     private var bestChainHeight = -1
+    @Volatile
     private var isNetworkConnected: Boolean = true
+
     private val receiveHeaderCallback = { response: AbstractResponse ->
         val rpcResponse = response as RpcResponse
         bestChainHeight = if (rpcResponse.hasResult) {
