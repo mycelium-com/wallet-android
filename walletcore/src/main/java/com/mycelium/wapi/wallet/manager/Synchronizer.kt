@@ -60,6 +60,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
             }.forEach {
                 launch {
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
+                    val timeStart = System.currentTimeMillis()
                     val isSyncSuccessful = try {
                         if (it is SyncPausableAccount && !it.maySync) {
                             false
@@ -70,7 +71,9 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                         logger.log(Level.SEVERE, "Sync error", ex)
                         false
                     }
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"}")
+                    val timeEnd = System.currentTimeMillis()
+                    var syncTime = timeEnd - timeStart
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
                 }
             }
         }
