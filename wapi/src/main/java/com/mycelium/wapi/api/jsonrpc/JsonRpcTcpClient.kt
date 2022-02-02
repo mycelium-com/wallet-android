@@ -64,6 +64,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
 
     // Determines whether main connection thread execution should be paused or resumed
     fun setActive(isActive: Boolean) {
+        logger.log(Level.INFO, "Tcp client's connected state is updated: ${isActive}")
         isConnectionThreadActive = isActive
 
         // Force all waiting write methods to stop
