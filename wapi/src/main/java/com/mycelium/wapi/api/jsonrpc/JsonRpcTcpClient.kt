@@ -2,9 +2,6 @@ package com.mycelium.wapi.api.jsonrpc
 
 import com.mrd.bitlib.util.SslUtils
 import com.mycelium.wapi.api.exception.RpcResponseException
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -260,14 +257,26 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         return response!!
     }
 
-    private fun waitForConnected(timeout: Long): Boolean = runBlocking {
-        withTimeoutOrNull(timeout) {
-            while (!isConnected.get()) {
-                delay(WAITING_FOR_CONNECTED_INTERVAL)
-            }
-            true
-        } ?: false
+    private fun waitForConnected(timeout: Long, name:String = "unknown"): Boolean {
+        val startTime = System.currentTimeMillis()
+        while (!isConnected.get()) {
+            if(System.currentTimeMillis() - startTime > timeout) return false
+            sleep(WAITING_FOR_CONNECTED_INTERVAL)
+        }
+        return true
     }
+
+//    = runBlocking {
+//        logger.log(Level.INFO, "!!!!!! waitForConnected1 methodName=${name}")
+//        withTimeoutOrNull(timeout) {
+//            logger.log(Level.INFO, "!!!!!! waitForConnected2 methodName=${name}")
+//            while (!isConnected.get()) {
+//                logger.log(Level.INFO, "!!!!!! waitForConnected3 methodName=${name}")
+//                delay(WAITING_FOR_CONNECTED_INTERVAL)
+//            }
+//            true
+//        } ?: false
+//    }
 
     @Throws(RpcResponseException::class)
     fun write(methodName: String, params: RpcParams, timeout: Long): RpcResponse {
