@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.manager
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -58,7 +59,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
             list.filter {
                 (it is SyncPausableAccount && it.maySync) || it !is SyncPausableAccount
             }.forEach {
-                launch {
+                launch(Dispatchers.Default) {
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
                     val timeStart = System.currentTimeMillis()
                     val isSyncSuccessful = try {
@@ -72,7 +73,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                         false
                     }
                     val timeEnd = System.currentTimeMillis()
-                    var syncTime = timeEnd - timeStart
+                    val syncTime = timeEnd - timeStart
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
                 }
             }
