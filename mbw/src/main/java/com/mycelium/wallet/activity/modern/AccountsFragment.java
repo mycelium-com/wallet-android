@@ -90,6 +90,7 @@ import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.ExchangeSourceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -1217,6 +1218,11 @@ public class AccountsFragment extends Fragment {
 
     @Subscribe
     public void exchangeSourceChange(ExchangeSourceChanged event) {
+        accountListAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe
+    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
         accountListAdapter.notifyDataSetChanged();
     }
 
