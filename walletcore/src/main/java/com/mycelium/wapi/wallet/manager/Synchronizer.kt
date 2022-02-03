@@ -75,6 +75,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     val timeEnd = System.currentTimeMillis()
                     val syncTime = timeEnd - timeStart
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
+                    walletManager.walletListener?.accountSyncStopped(it)
                 }
             }
         }
