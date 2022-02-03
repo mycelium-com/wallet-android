@@ -346,17 +346,17 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             null
         } ?: return
 
-        walletManager.getAllActiveAccounts().forEach { account ->
+        val mappings = walletManager.getAllActiveAccounts().flatMap { account ->
             val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
             val tokenCode = account.coinType.symbol.toUpperCase(Locale.US)
-            accountContext.registeredFIONames?.forEach { fioName ->
+            accountContext.registeredFIONames?.map {  fioName ->
                 val publicAddress = account.coinType.parseAddress(fioNameMappings[fioName.name]!!["$chainCode-$tokenCode"])
-                if (account.isMineAddress(publicAddress)) {
-                    backing.insertOrUpdateMapping(fioName.name, publicAddress.toString(), chainCode,
-                            tokenCode, account.id)
-                }
-            }
+                if(account.isMineAddress(publicAddress))
+                    FioAccountBacking.Mapping(fioName.name, publicAddress.toString(), chainCode, tokenCode, account.id)
+                else null
+            }?.filterNotNull()?: emptyList()
         }
+        backing.insertOrUpdateMappings(mappings)
     }
 
     private fun renewPendingFioRequests(pendingFioRequests: List<FIORequestContent>) {
@@ -484,12 +484,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     private fun syncTransactions(): Boolean {
         try {
-            fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger()).forEach {
-                backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
-                        it.fromAddress, it.toAddress, it.sum,
-                        kotlin.math.max(accountContext.blockHeight - it.blockNumber.toInt(), 0),
-                        it.fee, it.transferred, it.memo)
-            }
+            val txs = fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger())
+            backing.putTransactions(accountContext.blockHeight, txs)
 
             accountContext.actionSequenceNumber =
                     fioBlockchainService.getAccountActionSeqNumber(Utils.generateActor(receivingAddress.toString()))
