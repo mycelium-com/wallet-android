@@ -212,8 +212,10 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
 
     @Throws(RpcResponseException::class)
     fun write(requests: List<RpcRequestOut>, timeout: Long): BatchedRpcResponse {
-        if (!waitForConnected(timeout)) {
-            throw RpcResponseException("Timeout")
+        // Previously there was a code that waited for the connection is active
+        // Should be retuned back after switching this class to full coroutines' support
+        if (!isConnected.get()) {
+            throw RpcResponseException("Not connected")
         }
         var response: BatchedRpcResponse? = null
         val latch = CountDownLatch(1)
@@ -258,31 +260,12 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         return response!!
     }
 
-    private fun waitForConnected(timeout: Long, name:String = "unknown"): Boolean {
-        val startTime = System.currentTimeMillis()
-        while (!isConnected.get()) {
-            if(System.currentTimeMillis() - startTime > timeout) return false
-            sleep(WAITING_FOR_CONNECTED_INTERVAL)
-        }
-        return true
-    }
-
-//    = runBlocking {
-//        logger.log(Level.INFO, "!!!!!! waitForConnected1 methodName=${name}")
-//        withTimeoutOrNull(timeout) {
-//            logger.log(Level.INFO, "!!!!!! waitForConnected2 methodName=${name}")
-//            while (!isConnected.get()) {
-//                logger.log(Level.INFO, "!!!!!! waitForConnected3 methodName=${name}")
-//                delay(WAITING_FOR_CONNECTED_INTERVAL)
-//            }
-//            true
-//        } ?: false
-//    }
-
     @Throws(RpcResponseException::class)
     fun write(methodName: String, params: RpcParams, timeout: Long): RpcResponse {
-        if (!waitForConnected(timeout)) {
-            throw RpcResponseException("Timeout")
+        // Previously there was a code that waited until the connection is active
+        // This code should be returned back after switching this class to full coroutines' support
+        if (!isConnected.get()) {
+            throw RpcResponseException("Not connected")
         }
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
