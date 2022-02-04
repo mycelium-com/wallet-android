@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.manager
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -44,13 +45,13 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
     }
 
     private fun syncAccountList() =
-            if (accounts.isEmpty() ||
+            (if (accounts.isEmpty() ||
                     syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
                     syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
                 walletManager.getAllActiveAccounts()
             } else {
                 accounts.filterNotNull().filter { it.isActive }
-            }.filter { !it.isSyncing() }
+            }).filter { !it.isSyncing() }
 
     private fun runSync(list: List<WalletAccount<*>>) {
         //split synchronization by coinTypes in own threads
@@ -58,8 +59,9 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
             list.filter {
                 (it is SyncPausableAccount && it.maySync) || it !is SyncPausableAccount
             }.forEach {
-                launch {
+                launch(Dispatchers.Default) {
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
+                    val timeStart = System.currentTimeMillis()
                     val isSyncSuccessful = try {
                         if (it is SyncPausableAccount && !it.maySync) {
                             false
@@ -70,7 +72,10 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                         logger.log(Level.SEVERE, "Sync error", ex)
                         false
                     }
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"}")
+                    val timeEnd = System.currentTimeMillis()
+                    val syncTime = timeEnd - timeStart
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
+                    walletManager.walletListener?.accountSyncStopped(it)
                 }
             }
         }

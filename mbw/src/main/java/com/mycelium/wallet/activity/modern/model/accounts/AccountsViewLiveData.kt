@@ -13,6 +13,7 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountListChanged
+import com.mycelium.wallet.event.AccountSyncStopped
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.Address
@@ -61,6 +62,10 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
     @Subscribe
     fun onAccountsListChanged(event: SelectedAccountChanged) {
+        updateData()
+    }
+    @Subscribe
+    fun accountSyncStopped(event: AccountSyncStopped) {
         updateData()
     }
 

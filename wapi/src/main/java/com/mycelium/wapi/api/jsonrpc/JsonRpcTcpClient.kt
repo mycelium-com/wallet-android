@@ -67,6 +67,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
 
     // Determines whether main connection thread execution should be paused or resumed
     fun setActive(isActive: Boolean) {
+        logger.log(Level.INFO, "Tcp client's connected state is updated: ${isActive}")
         isConnectionThreadActive = isActive
 
         // Force all waiting write methods to stop
@@ -245,17 +246,16 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         return response as BatchedRpcResponse
     }
 
-    private fun waitForConnected(timeout: Long): Boolean = runBlocking {
+    private suspend fun waitForConnected(timeout: Long): Boolean =
         withTimeoutOrNull(timeout) {
             while (!isConnected.get()) {
                 delay(WAITING_FOR_CONNECTED_INTERVAL)
             }
             true
         } ?: false
-    }
 
     @Throws(RpcResponseException::class)
-    fun write(methodName: String, params: RpcParams, timeout: Long): RpcResponse {
+    suspend fun write(methodName: String, params: RpcParams, timeout: Long): RpcResponse {
         if (!waitForConnected(timeout)) {
             throw RpcResponseException("Timeout")
         }

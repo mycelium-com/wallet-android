@@ -89,6 +89,7 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountSyncStopped;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -1004,6 +1005,16 @@ public class MbwManager {
                 @Override
                 public void run() {
                     _eventBus.post(new SyncStopped());
+                }
+            });
+        }
+
+        @Override
+        public void accountSyncStopped(@NotNull WalletAccount<?> walletAccount) {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new AccountSyncStopped(walletAccount));
                 }
             });
         }

@@ -14,7 +14,7 @@ import org.web3j.tx.Transfer
 import java.math.BigInteger
 import java.util.*
 
-class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
+class FioAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
     private val fioSentRequestQueries = walletDB.fioRequestsSentBackingQueries
     private val fioReceivedRequestQueries = walletDB.fioRequestsReceivedBackingQueries
     private val fioAccountQueries = walletDB.fioAccountBackingQueries
@@ -72,6 +72,20 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     fun insertOrUpdateMapping(fioName: String, publicAddress: String, chainCode: String, tokenCode: String,
                               accountUUID: UUID) {
         fioMappings.insertMapping(fioName, publicAddress, chainCode, tokenCode, accountUUID)
+    }
+
+    data class Mapping(val fioName: String,
+                       val publicAddress: String,
+                       val chainCode: String,
+                       val tokenCode: String,
+                       val accountUUID: UUID)
+
+    fun insertOrUpdateMappings(mappings: List<Mapping>) {
+        fioMappings.transaction {
+            mappings.forEach {
+                insertOrUpdateMapping(it.fioName, it.publicAddress, it.chainCode, it.tokenCode, it.accountUUID)
+            }
+        }
     }
 
     fun getRequestsGroups(): List<FioGroup> {
@@ -187,6 +201,17 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         it.status,
                         it.timeStamp,
                         it.deserializedContent)
+            }
+        }
+    }
+
+    fun putTransactions(blockHeight: Int, txs: List<Tx>) {
+        walletDB.transaction {
+            txs.forEach {
+                putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
+                        it.fromAddress, it.toAddress, it.sum,
+                        kotlin.math.max(blockHeight - it.blockNumber.toInt(), 0),
+                        it.fee, it.transferred, it.memo)
             }
         }
     }
