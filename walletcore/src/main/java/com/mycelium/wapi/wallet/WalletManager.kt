@@ -31,7 +31,6 @@ constructor(val network: NetworkParameters,
     private val _observers = LinkedList<Observer>()
     private val _logger  = Logger.getLogger(WalletManager::class.java.getSimpleName())
     private val activeSyncThreads = AtomicInteger(0)
-    val syncMutex = Mutex()
 
     val feeEstimations = FeeEstimations()
 
