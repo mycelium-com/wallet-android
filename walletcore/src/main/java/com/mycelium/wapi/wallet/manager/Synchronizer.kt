@@ -6,14 +6,10 @@ import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.SyncPausableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
@@ -89,7 +85,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if (isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
                 walletManager.walletListener?.accountSyncStopped(it)
             }
-        }.forEach { it.join() }
+        }.joinAll()
         list.filterIsInstance(SyncPausableAccount::class.java).forEach {
             it.maySync = true
             it.clearCancelableRequests()
