@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 import java.util.logging.Logger
-
+import kotlinx.coroutines.sync.Mutex
 
 class WalletManager
 @JvmOverloads
@@ -31,6 +31,7 @@ constructor(val network: NetworkParameters,
     private val _observers = LinkedList<Observer>()
     private val _logger  = Logger.getLogger(WalletManager::class.java.getSimpleName())
     private val activeSyncThreads = AtomicInteger(0)
+    val syncMutex = Mutex()
 
     val feeEstimations = FeeEstimations()
 

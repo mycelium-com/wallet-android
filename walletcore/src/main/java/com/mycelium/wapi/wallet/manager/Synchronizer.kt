@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                    val accounts: List<WalletAccount<*>?> = listOf()) {
@@ -20,30 +22,37 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
     private val logger = Logger.getLogger(Synchronizer::class.simpleName)
 
     fun start() = GlobalScope.launch(Dispatchers.Default) {
-        logger.log(Level.INFO, "Synchronizing start")
-        walletManager.reportStartSync()
-        walletManager.walletListener?.syncStarted()
+        walletManager.syncMutex.withLock {
+            logger.log(Level.INFO, "Synchronizing start")
+            walletManager.reportStartSync()
+            walletManager.walletListener?.syncStarted()
 
-        try {
-            if (walletManager.isNetworkConnected) {
-                // If we have any lingering outgoing transactions broadcast them now
-                // this function goes over all accounts - it is reasonable to
-                // exclude this from SyncMode.onlyActiveAccount behaviour
-                if (!broadcastOutgoingTransactions()) {
-                    return@launch
-                }
+            try {
+                if (walletManager.isNetworkConnected) {
+                    // If we have any lingering outgoing transactions broadcast them now
+                    // this function goes over all accounts - it is reasonable to
+                    // exclude this from SyncMode.onlyActiveAccount behaviour
+                    if (!broadcastOutgoingTransactions()) {
+                        return@launch
+                    }
 
-                // Synchronize selected accounts with the blockchain
-                runSync(syncAccountList())
-            } else {
-                syncAccountList()
+                    // Synchronize selected accounts with the blockchain
+                    runSync(syncAccountList())
+                } else {
+                    syncAccountList()
                         .forEach {
-                            it.setLastSyncStatus(SyncStatusInfo(SyncStatus.ERROR_INTERNET_CONNECTION, Date()))
+                            it.setLastSyncStatus(
+                                SyncStatusInfo(
+                                    SyncStatus.ERROR_INTERNET_CONNECTION,
+                                    Date()
+                                )
+                            )
                         }
+                }
+            } finally {
+                walletManager.reportStopSync()
+                walletManager.walletListener?.syncStopped()
             }
-        } finally {
-            walletManager.reportStopSync()
-            walletManager.walletListener?.syncStopped()
         }
     }
 
