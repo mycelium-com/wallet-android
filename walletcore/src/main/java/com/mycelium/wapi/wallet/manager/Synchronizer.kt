@@ -23,7 +23,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
 
     fun start() = GlobalScope.launch(Dispatchers.Default) {
         walletManager.syncMutex.withLock {
-            logger.log(Level.INFO, "Synchronizing start")
+            logger.log(Level.INFO, "Synchronizing start. ${syncMode.toString()}")
             walletManager.reportStartSync()
             walletManager.walletListener?.syncStarted()
 
@@ -81,6 +81,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     }
                 } catch (ex: Exception) {
                     logger.log(Level.SEVERE, "Sync error", ex)
+                    ex.printStackTrace()
                     false
                 }
                 val timeEnd = System.currentTimeMillis()
