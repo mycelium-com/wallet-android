@@ -168,7 +168,7 @@ constructor(val network: NetworkParameters,
         if (isNetworkConnected) {
             feeEstimations.triggerRefresh()
         }
-        Thread(Synchronizer(this, mode, accounts)).start()
+        Synchronizer(this, mode, accounts).start()
         return isNetworkConnected
     }
 

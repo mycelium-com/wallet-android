@@ -2,7 +2,10 @@ package com.mycelium.wapi.api.jsonrpc
 
 import com.mrd.bitlib.util.SslUtils
 import com.mycelium.wapi.api.exception.RpcResponseException
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -11,7 +14,6 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -60,7 +62,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
     private var previousRequestsMap = mutableMapOf<String, String>()
     // Stores requests waiting to be processed
     private val awaitingRequestsMap = ConcurrentHashMap<String, String>()
-    private val awaitingLatches = ConcurrentHashMap<String, CountDownLatch>()
     private val callbacks = ConcurrentHashMap<String, Consumer<AbstractResponse>>()
     private val continuations = ConcurrentHashMap<String, CancellableContinuation<AbstractResponse>>()
     private val subscriptions = ConcurrentHashMap<String, Subscription>()
@@ -72,9 +73,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
 
         // Force all waiting write methods to stop
         if (!isConnectionThreadActive) {
-            for (latch in awaitingLatches.values) {
-                latch.countDown()
-            }
+            continuations.values.forEach { it.cancel() }
         }
     }
 
@@ -205,12 +204,11 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
     /**
      * Computes a "short" compound ID based on an array of IDs.
      */
-    private fun compoundId(ids: Array<String>): String = ids.sortedArray().joinToString("")
+    private fun compoundId(ids: List<String>): String = ids.sorted().joinToString("")
 
     fun cancel(requests: List<RpcRequestOut>) {
-        val compoundId = compoundId(requests.map { it.id.toString() }.toTypedArray())
+        val compoundId = compoundId(requests.map { it.id.toString() })
         removeCurrentRequestData(compoundId)
-        awaitingLatches[compoundId]?.countDown()
     }
 
     @Throws(RpcResponseException::class)
@@ -221,29 +219,33 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         requests.forEach {
             it.id = nextRequestId.getAndIncrement().toString()
         }
-        val compoundId = compoundId(requests.map { it.id.toString() }.toTypedArray())
+        val compoundId = compoundId(requests.map { it.id.toString() })
         val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
-        var response: AbstractResponse? = null
+        val response = writeAndWait(timeout, compoundId, batchedRequest)
+        logger.log(Level.INFO, "!!! write methodeName=${requests.first().methodName} end with result = ${response.toString()}")
+        return response as BatchedRpcResponse
+    }
 
+    private suspend fun writeAndWait(timeout: Long, requestId: String, request: String): AbstractResponse? {
+        var response: AbstractResponse? = null
         withTimeoutOrNull(timeout) {
             response = suspendCancellableCoroutine { continuation: CancellableContinuation<AbstractResponse?> ->
-                continuations[compoundId] = continuation
-                if (!internalWrite(batchedRequest)) {
-                    continuations.remove(compoundId)
+                continuations[requestId] = continuation
+                if (!internalWrite(request)) {
+                    continuations.remove(requestId)
                     throw RpcResponseException("Write error")
                 }
-                awaitingRequestsMap[compoundId] = batchedRequest
+                awaitingRequestsMap[requestId] = request
             } // The case with response as NULL typically happens when wait() method is forced to stop
-              // by calling latch.await() manually inside setActive(), not using callback
-              ?: throw RpcResponseException("Request was cancelled")
+                    // by calling latch.await() manually inside setActive(), not using callback
+                    ?: throw RpcResponseException("Request was cancelled")
         } ?: kotlin.run {
             logger.log(Level.INFO, "Couldn't get reply for $timeout milliseconds.")
             // No need to keep request data anymore as we're done with it
-            removeCurrentRequestData(compoundId)
+            removeCurrentRequestData(requestId)
             throw RpcResponseException("Timeout")
         }
-
-        return response as BatchedRpcResponse
+        return response
     }
 
     private suspend fun waitForConnected(timeout: Long): Boolean =
@@ -259,48 +261,19 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         if (!waitForConnected(timeout)) {
             throw RpcResponseException("Timeout")
         }
-        var response: RpcResponse? = null
-        val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
             id = nextRequestId.getAndIncrement().toString()
-            callbacks[id.toString()] = {
-                response = it as RpcResponse
-                latch.countDown()
-            }
         }
         val requestJson = request.toJson()
         val requestId = request.id.toString()
-        if (!internalWrite(requestJson)) {
-            callbacks.remove(requestId)
-            throw RpcResponseException("Write error")
-        }
-
-        awaitingRequestsMap[requestId] = requestJson
-        awaitingLatches[requestId] = latch
-
-        if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
-            logger.log(Level.INFO, "Couldn't get reply on $methodName for $timeout milliseconds.")
-            // No need to keep request data anymore as we're done with it
-            removeCurrentRequestData(requestId)
-            awaitingLatches.remove(requestId)
-            throw RpcResponseException("Timeout")
-        }
-
-        awaitingLatches.remove(requestId)
-
-        // The case with response as NULL typically happens when wait() method is forced to stop
-        // by calling latch.await() manually inside setActive(), not using callback
-        if (response == null) {
-            throw RpcResponseException("Request was cancelled")
-        }
-
-        return response!!
+        val response = writeAndWait(timeout, requestId, requestJson)
+        logger.log(Level.INFO, "!!! write2 methodeName=${methodName} end with result = ${response.toString()}")
+        return response as RpcResponse
     }
 
     private fun removeCurrentRequestData(requestId: String) {
-        callbacks.remove(requestId)
         awaitingRequestsMap.remove(requestId)
-        continuations.remove(requestId)
+        continuations.remove(requestId)?.cancel()
     }
 
     private fun closeConnection() {
@@ -317,7 +290,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         val isBatched = message[0] == '['
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(message)
-            val compoundId = compoundId(response.responses.map {it.id.toString()}.toTypedArray())
+            val compoundId = compoundId(response.responses.map {it.id.toString()})
             continuations.remove(compoundId)?.resume(response)
             awaitingRequestsMap.remove(compoundId)
         } else {

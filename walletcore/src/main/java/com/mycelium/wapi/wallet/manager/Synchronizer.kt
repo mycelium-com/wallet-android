@@ -2,21 +2,24 @@ package com.mycelium.wapi.wallet.manager
 
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
-                   val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
+                   val accounts: List<WalletAccount<*>?> = listOf()) {
 
     private val logger = Logger.getLogger(Synchronizer::class.simpleName)
 
-    override fun run() {
+    fun start() = GlobalScope.launch(Dispatchers.Default) {
         logger.log(Level.INFO, "Synchronizing start")
         walletManager.reportStartSync()
         walletManager.walletListener?.syncStarted()
@@ -27,7 +30,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 // this function goes over all accounts - it is reasonable to
                 // exclude this from SyncMode.onlyActiveAccount behaviour
                 if (!broadcastOutgoingTransactions()) {
-                    return
+                    return@launch
                 }
 
                 // Synchronize selected accounts with the blockchain
@@ -53,32 +56,30 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 accounts.filterNotNull().filter { it.isActive }
             }).filter { !it.isSyncing() }
 
-    private fun runSync(list: List<WalletAccount<*>>) {
+    private suspend fun runSync(list: List<WalletAccount<*>>) = coroutineScope {
         //split synchronization by coinTypes in own threads
-        runBlocking {
-            list.filter {
-                (it is SyncPausableAccount && it.maySync) || it !is SyncPausableAccount
-            }.forEach {
-                launch(Dispatchers.Default) {
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
-                    val timeStart = System.currentTimeMillis()
-                    val isSyncSuccessful = try {
-                        if (it is SyncPausableAccount && !it.maySync) {
-                            false
-                        } else {
-                            it.synchronize(syncMode)
-                        }
-                    } catch (ex: Exception) {
-                        logger.log(Level.SEVERE, "Sync error", ex)
+        list.filter {
+            (it is SyncPausableAccount && it.maySync) || it !is SyncPausableAccount
+        }.map {
+            launch(Dispatchers.Default) {
+                logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
+                val timeStart = System.currentTimeMillis()
+                val isSyncSuccessful = try {
+                    if (it is SyncPausableAccount && !it.maySync) {
                         false
+                    } else {
+                        it.synchronize(syncMode)
                     }
-                    val timeEnd = System.currentTimeMillis()
-                    val syncTime = timeEnd - timeStart
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if(isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
-                    walletManager.walletListener?.accountSyncStopped(it)
+                } catch (ex: Exception) {
+                    logger.log(Level.SEVERE, "Sync error", ex)
+                    false
                 }
+                val timeEnd = System.currentTimeMillis()
+                val syncTime = timeEnd - timeStart
+                logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if (isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
+                walletManager.walletListener?.accountSyncStopped(it)
             }
-        }
+        }.forEach { it.join() }
         list.filterIsInstance(SyncPausableAccount::class.java).forEach {
             it.maySync = true
             it.clearCancelableRequests()

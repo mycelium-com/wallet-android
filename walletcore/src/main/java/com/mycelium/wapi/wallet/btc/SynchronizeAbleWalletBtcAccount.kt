@@ -1,26 +1,24 @@
 package com.mycelium.wapi.wallet.btc
 
 import com.google.common.collect.ImmutableMap
-import com.mycelium.wapi.wallet.SyncPausableAccount
-import com.mycelium.wapi.SyncStatusInfo
-import com.mycelium.wapi.SyncStatus
-import com.mycelium.wapi.wallet.BroadcastResult
-import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mrd.bitlib.StandardTransactionBuilder.*
 import com.mrd.bitlib.UnsignedTransaction
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mrd.bitlib.StandardTransactionBuilder.BtcOutputTooSmallException
-import com.mrd.bitlib.StandardTransactionBuilder.InsufficientBtcException
-import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException
 import com.mrd.bitlib.model.BitcoinTransaction
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.OutputList
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.model.BalanceSatoshis
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import java.util.*
 
 abstract class SynchronizeAbleWalletBtcAccount : SyncPausableAccount(), WalletBtcAccount {
@@ -43,14 +41,7 @@ abstract class SynchronizeAbleWalletBtcAccount : SyncPausableAccount(), WalletBt
         }
 
         // check how long ago the last sync for this mode
-        var lastSync: Date
-        return if (_lastSync[syncMode.mode].also { lastSync = it!! } != null) {
-            val lastSyncAge = Date().time - lastSync.time
-            lastSyncAge > getSyncInterval(syncMode)!!
-        } else {
-            // never synced for this mode before - just do it. now.
-            true
-        }
+        return Date().time - (_lastSync[syncMode.mode]?.time ?: 0L) > getSyncInterval(syncMode)!!
     }
 
     /**

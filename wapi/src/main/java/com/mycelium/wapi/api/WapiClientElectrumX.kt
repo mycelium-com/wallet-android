@@ -19,6 +19,7 @@ import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.model.TransactionStatus
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -166,7 +167,7 @@ class WapiClientElectrumX(
         }
         try {
             val txHex = HexUtils.toHex(request.rawTransaction)
-            val response = rpcClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex), MAX_RESPONSE_TIMEOUT)
+            val response = runBlocking { rpcClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex), MAX_RESPONSE_TIMEOUT)  }
 
             // TODO return back to a single RpcResponse object instead of list
             //  as we don't use several TCP clients anymore
@@ -337,7 +338,7 @@ class WapiClientElectrumX(
 
     @Suppress("unused")
     fun serverFeatures(): ServerFeatures {
-        val response = rpcClient.write(FEATURES_METHOD, RpcParams.listParams(), MAX_RESPONSE_TIMEOUT)
+        val response = runBlocking { rpcClient.write(FEATURES_METHOD, RpcParams.listParams(), MAX_RESPONSE_TIMEOUT) }
         return response.getResult(ServerFeatures::class.java)!!
     }
 
