@@ -146,6 +146,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                                                         obtId = obtId,
                                                         maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
                                                         memo = memo).getActionTraceResponse()
+        if(actionTraceResponse?.status == "sent_to_blockchain") {
+            backing.deletePendingRequest(fioRequestId)
+        }
         return actionTraceResponse != null && actionTraceResponse.status == "sent_to_blockchain"
     }
 
@@ -246,7 +249,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     fun rejectFundsRequest(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
         val fiosdk = getFioSdk()
-        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
+        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse().also {
+            backing.deletePendingRequest(fioRequestId)
+        }
     }
 
     fun requestFunds(payerFioAddress: String, payeeFioAddress: String,

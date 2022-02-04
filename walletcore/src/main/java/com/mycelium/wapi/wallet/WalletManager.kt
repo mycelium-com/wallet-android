@@ -61,7 +61,9 @@ constructor(val network: NetworkParameters,
         walletModules[moduleID]?.setCurrencySettings(settings)
     }
 
+    @Volatile
     var isNetworkConnected: Boolean = false
+
     var walletListener: WalletListener? = null
 
     var state: State = State.OFF
@@ -113,6 +115,19 @@ constructor(val network: NetworkParameters,
     fun createAccounts(config: Config): List<UUID> {
         getAllActiveAccounts().interruptSync()
         val result = mutableMapOf<UUID, WalletAccount<*>>()
+        addAccounts(config, result)
+        accounts.putAll(result)
+        return result.keys.toList()
+    }
+
+    fun createAccountsUninterruptedly(config: Config): List<UUID> {
+        val result = mutableMapOf<UUID, WalletAccount<*>>()
+        addAccounts(config, result)
+        accounts.putAll(result)
+        return result.keys.toList()
+    }
+
+    private fun addAccounts(config: Config, result: MutableMap<UUID, WalletAccount<*>>) {
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {
                 try {
@@ -127,8 +142,6 @@ constructor(val network: NetworkParameters,
                 }
             }
         }
-        accounts.putAll(result)
-        return result.keys.toList()
     }
 
     @JvmOverloads

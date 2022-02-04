@@ -11,6 +11,7 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.ObtDataRecord
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import org.web3j.tx.Transfer
+import java.math.BigInteger
 import java.util.*
 
 class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
@@ -58,6 +59,10 @@ class FioAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
 
     fun deleteSentRequests() {
         fioSentRequestQueries.deleteRequests(uuid)
+    }
+
+    fun deletePendingRequest(fioRequestId: BigInteger) {
+        fioReceivedRequestQueries.deleteRequest(fioRequestId)
     }
 
     fun deletePendingRequests() {

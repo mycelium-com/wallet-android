@@ -58,12 +58,10 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
-import com.mycelium.wallet.event.SeedFromWordsCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.manager.Config;
-import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -295,7 +293,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
             Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, password);
             _mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
-            return _mbwManager.createAdditionalBip44Accounts(EnterWordListActivity.this, mainAccounts).get(0);
+            return _mbwManager.createAdditionalBip44AccountsUninterruptedly(mainAccounts).get(0);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }

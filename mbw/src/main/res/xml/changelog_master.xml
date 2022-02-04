@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.13.6.0" versioncode="3130600">
+        <change>Fixed synchronization issues when restoring existing master seed from a phrase</change>
+        <change>Fixed issues with ERC-20 transactions having multiple receivers</change>
+    </release>
+    <release version="3.13.4.0" versioncode="3130400">
+        <change>Accounts' initialization order improvements</change>
+    </release>
+    <release version="3.13.3.0" versioncode="3130300">
+        <change>Bugfix for the accounts' group control behavior</change>
+    </release>
+    <release version="3.13.2.0" versioncode="3130200">
+        <change>Added signing with using ETH account</change>
+        <change>ETH and FIO accounts are created by default at startup</change>
+        <change>Fixes for ERC-20 send screen and receive amount screen</change>
+        <change>Fixed issues with popups in case of connection absence</change>
+        <change>FIO bugfixes</change>
+    </release>
     <release version="3.8.8.0" versioncode="3080800">
         <change>Feature to temporarily extend the gap limit</change>
     </release>
