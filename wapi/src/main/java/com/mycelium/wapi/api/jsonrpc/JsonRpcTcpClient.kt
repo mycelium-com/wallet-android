@@ -222,7 +222,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         val compoundId = compoundId(requests.map { it.id.toString() })
         val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
         val response = writeAndWait(timeout, compoundId, batchedRequest)
-        logger.log(Level.INFO, "!!! write methodeName=${requests.first().methodName} end with result = ${response.toString()}")
         return response as BatchedRpcResponse
     }
 
@@ -267,7 +266,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         val requestJson = request.toJson()
         val requestId = request.id.toString()
         val response = writeAndWait(timeout, requestId, requestJson)
-        logger.log(Level.INFO, "!!! write2 methodeName=${methodName} end with result = ${response.toString()}")
         return response as RpcResponse
     }
 
