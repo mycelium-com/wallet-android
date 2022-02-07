@@ -225,7 +225,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         private int numStarted = 0;
         private int numOfCreated = 0;
         // so we would understand if app was just created, or restored from background
-        private boolean isBackground = false;
+        private boolean isBackground = true;
 
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
