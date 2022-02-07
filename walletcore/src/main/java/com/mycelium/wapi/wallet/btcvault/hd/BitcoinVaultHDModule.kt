@@ -4,6 +4,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
+import com.mycelium.wapi.api.WapiClientElectrumX
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BTCSettings
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
@@ -47,7 +48,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                         BitcoinVaultHDAccountBacking(walletDB, it.uuid), accountListener,
                         settings.changeAddressModeReference)
                         .apply { accounts[this.id] = this }
-            })
+            }).also { setupClientIsActive() }
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
@@ -78,7 +79,12 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             else -> throw IllegalStateException("Account can't be created")
         }
         accounts[result.id] = result
+        setupClientIsActive()
         return result
+    }
+
+    private fun setupClientIsActive() {
+        (_wapi as? WapiClientElectrumX)?.setClientIsActive(accounts.isNotEmpty())
     }
 
     private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =

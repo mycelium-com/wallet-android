@@ -39,6 +39,8 @@ class WapiClientElectrumX(
     private var bestChainHeight = -1
     @Volatile
     private var isNetworkConnected: Boolean = true
+    @Volatile
+    private var isActive: Boolean = true
 
     private val receiveHeaderCallback = { response: AbstractResponse ->
         val rpcResponse = response as RpcResponse
@@ -51,11 +53,16 @@ class WapiClientElectrumX(
     private var rpcClient = JsonRpcTcpClient(endpoints, androidApiVersion)
 
     private fun updateClient() {
-        rpcClient.setActive(isNetworkConnected)
+        rpcClient.setActive(isNetworkConnected && isActive)
     }
 
     override fun setNetworkConnected(isNetworkConnected: Boolean) {
         this.isNetworkConnected = isNetworkConnected
+        updateClient()
+    }
+
+    fun setClientIsActive(isActive: Boolean) {
+        this.isActive = isActive
         updateClient()
     }
 
