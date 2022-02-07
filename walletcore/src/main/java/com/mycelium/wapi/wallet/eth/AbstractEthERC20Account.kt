@@ -6,6 +6,8 @@ import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.web3j.crypto.Credentials
 import java.io.IOException
 import java.math.BigInteger
@@ -36,8 +38,8 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     }
 
     @Throws(IOException::class)
-    protected fun getNewNonce(): BigInteger {
-        val nonce = blockchainService.getNonce(receivingAddress.addressString)
+    protected suspend fun getNewNonce(): BigInteger {
+        val nonce = withContext(Dispatchers.IO) { blockchainService.getNonce(receivingAddress.addressString) }
         setNonce(nonce)
         return getNonce()
     }
@@ -68,7 +70,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         return synced
     }
 
-    abstract fun doSynchronization(mode: SyncMode?): Boolean
+    abstract suspend fun doSynchronization(mode: SyncMode?): Boolean
     abstract fun setNonce(nonce: BigInteger)
     abstract fun getNonce(): BigInteger
     abstract fun setBlockChainHeight(height: Int)
@@ -126,9 +128,9 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     override val isActive: Boolean
         get() = !isArchived
 
-    private fun updateBlockHeight() {
+    private suspend fun updateBlockHeight() {
         try {
-            val latestBlockHeight = blockchainService.getBlockHeight()
+            val latestBlockHeight = withContext(Dispatchers.IO) { blockchainService.getBlockHeight() }
 
             setBlockChainHeight(latestBlockHeight.toInt())
         } catch (e: Exception) {

@@ -13,6 +13,8 @@ import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
@@ -117,7 +119,7 @@ class ERC20Account(private val chainId: Byte,
         }
 
     @Synchronized
-    override fun doSynchronization(mode: SyncMode?): Boolean {
+    override suspend fun doSynchronization(mode: SyncMode?): Boolean {
         val syncTx = syncTransactions()
         updateBalanceCache()
         return syncTx
@@ -214,9 +216,10 @@ class ERC20Account(private val chainId: Byte,
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)
 
-    private fun syncTransactions():Boolean {
+    private suspend fun syncTransactions():Boolean {
         try {
-            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
+            val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress) }
+            //TODO convert backing.putTransaction to backing.putTransactions
             remoteTransactions.forEach { tx ->
                 tx.getTokenTransfer(token.contractAddress, receivingAddress.addressString)?.also { tokenTransfer ->
                     backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,

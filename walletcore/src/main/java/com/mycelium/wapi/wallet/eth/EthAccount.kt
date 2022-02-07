@@ -14,6 +14,8 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.web3j.crypto.*
 
 import org.web3j.tx.Transfer
@@ -132,7 +134,7 @@ class EthAccount(private val chainId: Byte,
     }
 
     @Synchronized
-    override fun doSynchronization(mode: SyncMode?): Boolean {
+    override suspend fun doSynchronization(mode: SyncMode?): Boolean {
         val syncTx = syncTransactions()
         updateBalanceCache()
         return syncTx
@@ -182,9 +184,9 @@ class EthAccount(private val chainId: Byte,
                         .fold(BigInteger.ZERO, BigInteger::add)
     }
 
-    private fun syncTransactions(): Boolean {
+    private suspend fun syncTransactions(): Boolean {
         try {
-            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString)
+            val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString) }
             backing.putTransactions(remoteTransactions, coinType, typicalEstimatedTransactionSize.toBigInteger())
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore
