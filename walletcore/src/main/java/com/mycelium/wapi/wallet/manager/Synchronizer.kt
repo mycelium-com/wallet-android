@@ -67,7 +67,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         }.map {
             launch(Dispatchers.Default) {
                 getMutex(it).withLock {
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ...")
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}, OS thread ${Thread.currentThread().name}}: ...")
                     val timeStart = System.currentTimeMillis()
                     val isSyncSuccessful = try {
                         if (it is SyncPausableAccount && !it.maySync) {
