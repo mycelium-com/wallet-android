@@ -28,7 +28,7 @@ import kotlin.collections.ArrayList
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
-class WapiClientElectrumX(
+class WapiClientElectrumX @JvmOverloads constructor(
         serverEndpoints: ServerEndpoints,
         endpoints: Array<TcpEndpoint>,
         versionCode: String,
