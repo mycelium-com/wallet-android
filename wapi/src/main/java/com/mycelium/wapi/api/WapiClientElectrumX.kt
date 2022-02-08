@@ -32,15 +32,14 @@ class WapiClientElectrumX(
         serverEndpoints: ServerEndpoints,
         endpoints: Array<TcpEndpoint>,
         versionCode: String,
-        androidApiVersion: Int)
-    : WapiClient(serverEndpoints, versionCode), ServerElectrumListChangedListener {
+        androidApiVersion: Int,
+        @Volatile private var isActive: Boolean = true
+) : WapiClient(serverEndpoints, versionCode), ServerElectrumListChangedListener {
     private val logger = Logger.getLogger(WapiClientElectrumX::class.java.getSimpleName())
     @Volatile
     private var bestChainHeight = -1
     @Volatile
     private var isNetworkConnected: Boolean = true
-    @Volatile
-    private var isActive: Boolean = true
 
     private val receiveHeaderCallback = { response: AbstractResponse ->
         val rpcResponse = response as RpcResponse
@@ -72,6 +71,7 @@ class WapiClientElectrumX(
 
     init {
         rpcClient.addSubscription(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
+        updateClient()
         rpcClient.start()
     }
 
