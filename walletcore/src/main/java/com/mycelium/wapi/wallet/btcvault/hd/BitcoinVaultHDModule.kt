@@ -84,7 +84,8 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     }
 
     private fun setupClientIsActive() {
-        (_wapi as? WapiClientElectrumX)?.setClientIsActive(accounts.isNotEmpty())
+        val isActive = accounts.filterValues(BitcoinVaultHdAccount::isActive).isNotEmpty()
+        (_wapi as? WapiClientElectrumX)?.setClientIsActive(isActive)
     }
 
     private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =
