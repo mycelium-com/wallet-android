@@ -340,7 +340,6 @@ public class MbwManager {
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
         List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
         btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints(), false);
-        btcvWapi.setClientIsActive(false);
         configuration.setElectrumServerListChangedListener(_wapi);
         configuration.setElectrumVServerListChangedListener(btcvWapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
