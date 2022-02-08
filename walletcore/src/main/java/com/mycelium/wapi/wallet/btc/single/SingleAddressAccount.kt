@@ -284,12 +284,12 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
 
     // public method that needs no synchronization
     override val isArchived: Boolean
-        get() =// public method that needs no synchronization
+        get() =
             _context.isArchived()
 
     // public method that needs no synchronization
     override val isActive: Boolean
-        get() =// public method that needs no synchronization
+        get() =
             !isArchived && !toRemove
 
     override fun onNewTransaction(t: BitcoinTransaction) {

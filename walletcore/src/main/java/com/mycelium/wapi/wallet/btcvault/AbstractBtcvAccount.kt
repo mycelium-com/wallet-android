@@ -239,9 +239,9 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 // Start of the hack to prevent actual local data removal if server still didn't process just sent tx
                 youngTransactions@ for (transactionEx in accountBacking.getTransactionsSince(System.currentTimeMillis() -
                         TimeUnit.SECONDS.toMillis(15))) {
-                    var output: TransactionOutputEx
+                    var output: TransactionOutputEx? = null
                     var i = 0
-                    while (TransactionEx.getTransactionOutput(transactionEx, i++).also { output = it } != null) {
+                    while (TransactionEx.getTransactionOutput(transactionEx, i++)?.also { output = it } != null) {
                         if (output == l && !accountBacking.hasParentTransactionOutput(l.outPoint)) {
                             removeLocally = false
                             break@youngTransactions

@@ -286,9 +286,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                                                                                                      TimeUnit.SECONDS.toMillis(15))) {
                     var output: TransactionOutputEx? = null
                     var i = 0
-                    while (TransactionEx.getTransactionOutput(transactionEx, i++)
-                            ?.also { output = it } != null
-                    ) {
+                    while (TransactionEx.getTransactionOutput(transactionEx, i++)?.also { output = it } != null) {
                         if (output == l && !accountBacking.hasParentTransactionOutput(l.outPoint)) {
                             removeLocally = false
                             break@youngTransactions
