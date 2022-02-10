@@ -1585,8 +1585,8 @@ public class MbwManager {
     }
 
     public void onAccountActiveStateChanged(UUID uuid) {
-        WalletAccount account = _walletManager.getAccount(uuid);
-        if (account != null && account instanceof BitcoinVaultHdAccount) {
+        WalletAccount<?> account = _walletManager.getAccount(uuid);
+        if (account instanceof BitcoinVaultHdAccount) {
             BitcoinVaultHDModule module = (BitcoinVaultHDModule) _walletManager.getModuleById(BitcoinVaultHDModule.ID);
             if (module != null) {
                 module.setupClientIsActive();
