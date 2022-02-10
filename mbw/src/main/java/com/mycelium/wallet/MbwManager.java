@@ -47,6 +47,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.common.base.Optional;
@@ -835,6 +836,18 @@ public class MbwManager {
                 }
             });
         }
+
+        @Override
+        public void onAccountActiveStateChanged(@NonNull final UUID id) {
+            WalletAccount<?> account = _walletManager.getAccount(id);
+            if (account instanceof BitcoinVaultHdAccount) {
+                BitcoinVaultHDModule module =
+                        (BitcoinVaultHDModule) _walletManager.getModuleById(BitcoinVaultHDModule.ID);
+                if (module != null) {
+                    module.setupClientIsActive();
+                }
+            }
+        }
     };
 
     /**
@@ -1582,16 +1595,6 @@ public class MbwManager {
         Address receivingAddress = account.getReceiveAddress();
         getEventBus().post(new ReceivingAddressChanged(receivingAddress));
         _walletManager.startSynchronization(account.getId());
-    }
-
-    public void onAccountActiveStateChanged(UUID uuid) {
-        WalletAccount<?> account = _walletManager.getAccount(uuid);
-        if (account instanceof BitcoinVaultHdAccount) {
-            BitcoinVaultHDModule module = (BitcoinVaultHDModule) _walletManager.getModuleById(BitcoinVaultHDModule.ID);
-            if (module != null) {
-                module.setupClientIsActive();
-            }
-        }
     }
 
     public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {
