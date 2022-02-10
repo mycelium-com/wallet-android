@@ -978,6 +978,7 @@ public class AccountsFragment extends Fragment {
         }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
+        _mbwManager.onAccountActiveStateChanged(account.getId());
         updateIncludingMenus();
         _toaster.toast(R.string.activated, false);
         _mbwManager.getWalletManager(false)
@@ -1090,6 +1091,7 @@ public class AccountsFragment extends Fragment {
                             }
                         }
                         _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
+                        _mbwManager.onAccountActiveStateChanged(account.getId());
                         eventBus.post(new AccountChanged(account.getId()));
                         if (!linkedAccounts.isEmpty()) {
                             for (WalletAccount linkedAccount : linkedAccounts) {

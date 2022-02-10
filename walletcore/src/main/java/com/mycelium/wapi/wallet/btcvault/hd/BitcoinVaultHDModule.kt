@@ -83,7 +83,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
         return result
     }
 
-    private fun setupClientIsActive() {
+    fun setupClientIsActive() {
         val isActive = accounts.filterValues(BitcoinVaultHdAccount::isActive).isNotEmpty()
         (_wapi as? WapiClientElectrumX)?.setClientIsActive(isActive)
     }

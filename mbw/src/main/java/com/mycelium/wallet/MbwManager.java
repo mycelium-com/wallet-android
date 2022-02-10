@@ -149,6 +149,7 @@ import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDBacking;
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
@@ -1581,6 +1582,16 @@ public class MbwManager {
         Address receivingAddress = account.getReceiveAddress();
         getEventBus().post(new ReceivingAddressChanged(receivingAddress));
         _walletManager.startSynchronization(account.getId());
+    }
+
+    public void onAccountActiveStateChanged(UUID uuid) {
+        WalletAccount account = _walletManager.getAccount(uuid);
+        if (account != null && account instanceof BitcoinVaultHdAccount) {
+            BitcoinVaultHDModule module = (BitcoinVaultHDModule) _walletManager.getModuleById(BitcoinVaultHDModule.ID);
+            if (module != null) {
+                module.setupClientIsActive();
+            }
+        }
     }
 
     public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {
