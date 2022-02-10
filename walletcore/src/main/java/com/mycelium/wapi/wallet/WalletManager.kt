@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 import java.util.logging.Logger
-
+import kotlinx.coroutines.sync.Mutex
 
 class WalletManager
 @JvmOverloads
@@ -134,7 +134,7 @@ constructor(val network: NetworkParameters,
                     val account = it.createAccount(config)
                     result[account.id] = account
 
-                    account.dependentAccounts?.forEach { walletAccount ->
+                    account.dependentAccounts.forEach { walletAccount ->
                         result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){
@@ -168,7 +168,7 @@ constructor(val network: NetworkParameters,
         if (isNetworkConnected) {
             feeEstimations.triggerRefresh()
         }
-        Thread(Synchronizer(this, mode, accounts)).start()
+        Synchronizer(this, mode, accounts).start()
         return isNetworkConnected
     }
 
@@ -240,7 +240,7 @@ constructor(val network: NetworkParameters,
             .map { it.name }
 
     fun getMasterSeedDerivedAccounts(): Map<CryptoCurrency, List<WalletAccount<*>>> =
-        accounts.values.filter { it.isDerivedFromInternalMasterseed }.groupBy { it.coinType }
+        accounts.values.filter { it.isDerivedFromInternalMasterseed() }.groupBy { it.coinType }
 
     fun parseAddress(address: String): List<Address> = walletModules.values
                 .flatMap { it.getSupportedAssets() }
