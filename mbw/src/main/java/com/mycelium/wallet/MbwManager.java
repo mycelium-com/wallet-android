@@ -47,6 +47,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.common.base.Optional;
@@ -150,6 +151,7 @@ import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDBacking;
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
@@ -340,7 +342,7 @@ public class MbwManager {
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
         List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
-        btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
+        btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints(), false);
         configuration.setElectrumServerListChangedListener(_wapi);
         configuration.setElectrumVServerListChangedListener(btcvWapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
@@ -594,10 +596,23 @@ public class MbwManager {
     }
 
     private WapiClientElectrumX initWapi(List<TcpEndpoint> tcpEndpoints, List<HttpEndpoint> wapiEndpoints) {
-        String version = "" + BuildConfig.VERSION_CODE;
+        return initWapi(tcpEndpoints, wapiEndpoints, true);
+    }
 
-        WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
-                tcpEndpoints.toArray(new TcpEndpoint[0]), version, Build.VERSION.SDK_INT);
+    private WapiClientElectrumX initWapi(
+            List<TcpEndpoint> tcpEndpoints,
+            List<HttpEndpoint> wapiEndpoints,
+            boolean isActive
+    ) {
+        String version = String.valueOf(BuildConfig.VERSION_CODE);
+
+        WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(
+                new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+                tcpEndpoints.toArray(new TcpEndpoint[0]),
+                version,
+                Build.VERSION.SDK_INT,
+                isActive
+        );
 
         wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
         return wapiClientElectrumX;
@@ -821,6 +836,18 @@ public class MbwManager {
                     _eventBus.post(new BalanceChanged(walletAccount.getId()));
                 }
             });
+        }
+
+        @Override
+        public void onAccountActiveStateChanged(@NonNull final UUID id) {
+            WalletAccount<?> account = _walletManager.getAccount(id);
+            if (account instanceof BitcoinVaultHdAccount) {
+                BitcoinVaultHDModule module =
+                        (BitcoinVaultHDModule) _walletManager.getModuleById(BitcoinVaultHDModule.ID);
+                if (module != null) {
+                    module.setupClientIsActive();
+                }
+            }
         }
     };
 

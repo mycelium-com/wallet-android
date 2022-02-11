@@ -362,11 +362,13 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun archiveAccount() {
         accountContext.setArchived(true)
         clearInternalStateInt()
+        accountListener?.onAccountActiveStateChanged(accountContext.id)
     }
 
     override fun activateAccount() {
         accountContext.setArchived(false)
         clearInternalStateInt()
+        accountListener?.onAccountActiveStateChanged(accountContext.id)
     }
 
     override fun dropCachedData() {
