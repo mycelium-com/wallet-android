@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.NoneItem
@@ -14,9 +15,13 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
@@ -26,7 +31,9 @@ class SendEthModel(application: Application,
                    intent: Intent)
     : SendCoinsModel(application, account, intent) {
     var txItems: List<SpinnerItem> = emptyList()
-    val showGasLimitError: MutableLiveData<Boolean> = MutableLiveData()
+    val parentAccount: EthAccount? = (account as? ERC20Account)?.ethAcc
+    val gasLimitStatus: MutableLiveData<GasLimitStatus> = MutableLiveData(GasLimitStatus.OK)
+    val denomination: Denomination = mbwManager.getDenomination(Utils.getEthCoinType())
 
     val selectedTxItem: MutableLiveData<SpinnerItem> = object : MutableLiveData<SpinnerItem>() {
         override fun setValue(value: SpinnerItem) {
@@ -52,10 +59,21 @@ class SendEthModel(application: Application,
     val gasLimit: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
         override fun setValue(value: BigInteger?) {
             if (value != this.value) {
+                gasLimitStatus.value = if (value != null) {
+                    when {
+                        value < Transfer.GAS_LIMIT -> GasLimitStatus.ERROR
+                        account is ERC20Account && value < BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT) -> GasLimitStatus.WARNING
+                        else -> GasLimitStatus.OK
+                    }
+                } else {
+                    GasLimitStatus.OK
+                }
+
                 super.setValue(value)
-                val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
-                transactionData.value = EthTransactionData(oldData.nonce, value, oldData.inputData, oldData.suggestedGasPrice)
-                showGasLimitError.value = value != null && value < account.typicalEstimatedTransactionSize.toBigInteger()
+                val oldData =
+                    (transactionData.value as? EthTransactionData) ?: EthTransactionData()
+                transactionData.value =
+                    EthTransactionData(oldData.nonce, value, oldData.inputData, oldData.suggestedGasPrice)
             }
         }
     }
@@ -71,10 +89,12 @@ class SendEthModel(application: Application,
         }
     }
 
+    val estimatedFee: MutableLiveData<Value> = MutableLiveData()
+    val totalFee: MutableLiveData<Value> = MutableLiveData()
+
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
-        showGasLimitError.value = false
     }
 
     private fun populateTxItems() {
@@ -113,5 +133,20 @@ class SendEthModel(application: Application,
                     val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks, EthCoin.BLOCK_TIME_IN_SECONDS)
                     FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
+    }
+
+    override fun estimateTxSize(): Int {
+        val gl = (transactionData.value as? EthTransactionData)?.gasLimit
+
+        return transaction?.estimatedTransactionSize
+            ?: if (gl != null && gasLimitStatus.value != GasLimitStatus.ERROR) {
+                gl.toInt()
+            } else {
+                account.typicalEstimatedTransactionSize
+            }
+    }
+    
+    enum class GasLimitStatus {
+        OK, WARNING, ERROR
     }
 }

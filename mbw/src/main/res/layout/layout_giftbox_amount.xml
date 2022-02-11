@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.mycelium.giftbox.common.AmountViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvAmountTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="4dp"
+            android:text="@string/amount_label"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:fontFamily="@font/roboto_mono_medium"
+            android:text="@{model.amount}"
+            android:textSize="24sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvAmountTitle"
+            tools:text="240 BTC" />
+
+        <TextView
+            android:id="@+id/tvAmountFiat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/roboto_mono_medium"
+            android:text="@{model.amountFiat}"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvAmount"
+            app:layout_constraintLeft_toRightOf="@id/tvAmount"
+            tools:text="~ 240 USD" />
+
+        <TextView
+            android:id="@+id/tvMinerFeeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:text="@string/miner_fee_title"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvAmount" />
+
+        <TextView
+            android:id="@+id/tvMinerFee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="@font/roboto_mono_medium"
+            android:text="@{model.minerFee}"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvMinerFeeTitle"
+            app:layout_constraintLeft_toRightOf="@id/tvMinerFeeTitle"
+            tools:text="~ 0.04 BTC ~ 0.5 USD" />
+
+        <TextView
+            android:id="@+id/tvDateTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="8dp"
+            android:text="Date:"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMinerFeeTitle" />
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@{model.date}"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvDateTitle"
+            app:layout_constraintLeft_toRightOf="@id/tvDateTitle"
+            tools:text="September 23, 2020 at 6:23pm" />
+
+        <TextView
+            android:id="@+id/tvShowTransaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="16dp"
+            android:text="@string/show_transaction_details"
+            android:textColor="@color/fio_prm_btn_line"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDateTitle" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

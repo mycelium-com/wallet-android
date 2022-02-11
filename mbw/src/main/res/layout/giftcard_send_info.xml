@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/fragment_giftbox_store_details">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvCurrencyTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="@string/currency"
+            android:textColor="@color/giftbox_label"
+            android:textSize="14sp"
+            android:visibility="@{viewModel.currency != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCurrency"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:text="@{viewModel.currency}"
+            android:textSize="14sp"
+            android:visibility="@{viewModel.currency != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvCurrencyTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvCurrencyTitle"
+            tools:text="USD Dollars, $" />
+
+        <TextView
+            android:id="@+id/tvCountryTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/available_country"
+            android:textColor="@color/giftbox_label"
+            android:textSize="14sp"
+            android:visibility="@{viewModel.country != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvCountry"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCountry"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:text="@{viewModel.country}"
+            android:textSize="14sp"
+            android:visibility="@{viewModel.country != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvCountryTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvCurrency"
+            tools:text="United states" />
+
+        <TextView
+            android:id="@+id/tvExpireTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/expires_at"
+            android:textColor="@color/giftbox_label"
+            android:textSize="14sp"
+            android:visibility="@{viewModel.expire != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvExpire"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvExpire"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:text="@{viewModel.expire}"
+            android:textSize="14sp"
+            android:visibility="@{viewModel.expire != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvExpireTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvCountry"
+            tools:text="Does not expire" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

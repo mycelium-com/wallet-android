@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.send
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -21,34 +22,37 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import com.squareup.otto.Bus
 import java.util.*
+import java.util.logging.Logger
+import java.util.logging.Level
 
 
 class BroadcastDialog : DialogFragment() {
+
+
     companion object {
         const val accountId = "account_id"
         const val coldStorage = "isColdStorage"
         const val tx = "transaction"
-
+        val logger = Logger.getLogger(BroadcastDialog::class.java.simpleName)
         @JvmOverloads
         @JvmStatic
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
-                   , transactionSummary: TransactionSummary): BroadcastDialog? {
+                   , transactionSummary: TransactionSummary): BroadcastDialog {
             val transaction = account.getTx(transactionSummary.id)
-            return create(account, isColdStorage, transaction)
+            return create(account, isColdStorage, transaction!!)
         }
 
         @JvmOverloads
         @JvmStatic
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
-                              , transaction: Transaction): BroadcastDialog? {
-            val dialog = BroadcastDialog()
-            val bundle = Bundle()
-            bundle.putSerializable(accountId, account.id)
-            bundle.putBoolean(coldStorage, isColdStorage)
-            bundle.putSerializable(tx, transaction)
-            dialog.arguments = bundle
-            return dialog
-        }
+                              , transaction: Transaction): BroadcastDialog =
+             BroadcastDialog().apply {
+                 arguments = Bundle().apply {
+                     putSerializable(accountId, account.id)
+                     putBoolean(coldStorage, isColdStorage)
+                     putSerializable(tx, transaction)
+                 }
+             }
     }
 
     lateinit var account: WalletAccount<*>
@@ -78,6 +82,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun startBroadcastingTask() {
+        logger.log(Level.INFO, "Start broadcasting")
         // Broadcast the transaction in the background
         if (activity != null) {
             task = BroadcastTask(account, transaction) {
@@ -87,11 +92,19 @@ class BroadcastDialog : DialogFragment() {
             if (Utils.isConnected(context)) {
                 task?.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             } else {
+                logger.log(Level.INFO, "Not connected")
                 task?.listener?.invoke(BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION))
             }
         } else {
             dismissAllowingStateLoss()
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(false)
+        return dialog
     }
 
     private fun returnResult(it: BroadcastResult) {
@@ -112,6 +125,7 @@ class BroadcastDialog : DialogFragment() {
                 account.broadcastTx(transaction)
             } catch (e: TransactionBroadcastException) {
                 Log.e("BroadcastDialog", "", e)
+                logger.log(Level.SEVERE, "Broadcast error", e)
                 BroadcastResult(BroadcastResultType.REJECTED)
             }
         }
@@ -122,6 +136,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun handleResult(broadcastResult: BroadcastResult) {
+        logger.log(Level.INFO, "Broadcasting result: ", broadcastResult.resultType.toString())
         when (broadcastResult.resultType) {
             BroadcastResultType.REJECT_DUPLICATE -> // Transaction rejected, display message and exit
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_double_spending_message) {

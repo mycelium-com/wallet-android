@@ -74,7 +74,7 @@ public interface Constants {
    String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
    String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
-   String DIRECT_APK_URL = "https://mycelium.com/download";
+   String DIRECT_APK_URL = "https://wallet.mycelium.com";
    String LANGUAGE_SETTING = "user_language";
    String IGNORED_VERSIONS = "ignored_versions";
    String TOR_MODE = "tor_mode";

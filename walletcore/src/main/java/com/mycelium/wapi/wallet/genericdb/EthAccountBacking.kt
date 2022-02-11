@@ -10,11 +10,12 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.eth.Tx
 import org.web3j.tx.Transfer
 import java.math.BigInteger
 import java.util.*
 
-class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency, private val token: ERC20Token? = null) {
+class EthAccountBacking(val walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency, private val token: ERC20Token? = null) {
     private val ethQueries = walletDB.ethAccountBackingQueries
     private val queries = walletDB.accountBackingQueries
     private val contractCreationAddress = EthAddress(currency, "0x0000000000000000000000000000000000000000")
@@ -104,6 +105,20 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         ethQueries.insertTransaction(txid, uuid, from, to ?: contractCreationAddress.addressString, nonce, gasLimit, success, internalValue)
         if (gasUsed != null) {
             updateGasUsed(txid, gasUsed, gasPrice)
+        }
+    }
+
+    fun putTransactions(remoteTransactions: List<Tx>, coinType: CryptoCurrency, typicalEstimatedTransactionSize: BigInteger) {
+        walletDB.transaction {
+            remoteTransactions.forEach { tx ->
+                putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
+                        Value.valueOf(coinType, tx.value),
+                        Value.valueOf(coinType, tx.gasPrice * (tx.gasUsed
+                                ?: typicalEstimatedTransactionSize)),
+                        tx.confirmations.toInt(),
+                        tx.nonce, Value.valueOf(coinType, tx.internalValue ?: BigInteger.ZERO),
+                        tx.success, tx.gasLimit, tx.gasUsed)
+            }
         }
     }
 

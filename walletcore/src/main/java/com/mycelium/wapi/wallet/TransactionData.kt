@@ -1,3 +1,5 @@
 package com.mycelium.wapi.wallet
 
-interface TransactionData
+import java.io.Serializable
+
+interface TransactionData : Serializable

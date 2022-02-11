@@ -4,6 +4,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
+import com.mycelium.wapi.api.WapiClientElectrumX
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BTCSettings
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
@@ -35,6 +36,10 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     private val coinType = if (networkParameters.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
+    init {
+        assetsList.add(coinType)
+    }
+
     override val id: String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
@@ -43,7 +48,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                         BitcoinVaultHDAccountBacking(walletDB, it.uuid), accountListener,
                         settings.changeAddressModeReference)
                         .apply { accounts[this.id] = this }
-            })
+            }).also { setupClientIsActive() }
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
@@ -51,7 +56,6 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             is AdditionalMasterseedAccountConfig -> {
                 val masterSeed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
                 val accountIndex = getCurrentBip44Index() + 1
-
 
                 // Create the base keys for the account
                 val keyManagerMap = BipDerivationType.values().associate { derivationType ->
@@ -75,7 +79,13 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             else -> throw IllegalStateException("Account can't be created")
         }
         accounts[result.id] = result
+        setupClientIsActive()
         return result
+    }
+
+    fun setupClientIsActive() {
+        val isActive = accounts.filterValues(BitcoinVaultHdAccount::isActive).isNotEmpty()
+        (_wapi as? WapiClientElectrumX)?.setClientIsActive(isActive)
     }
 
     private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =
@@ -89,7 +99,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             }
 
     private fun getCurrentBip44Index() = accounts.values
-            .filter { it.isDerivedFromInternalMasterseed }
+            .filter { it.isDerivedFromInternalMasterseed() }
             .maxBy { it.accountIndex }
             ?.accountIndex
             ?: -1
@@ -99,11 +109,14 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
 
     /**
      * To create an additional HD account from the master seed, the master seed must be present and
-     * all existing master seed accounts must have had transactions (no gap accounts)
+     * all existing master seed accounts must have had transactions (no gap accounts) or be archived
+     * (we may archive only used accounts therefore if account is archived it has had activity by definition.
+     * But at the same time we clear all the information regardless if the account was used when we archive it
+     * so we cannot rely on the according method for archived accounts)
      */
     fun canCreateAdditionalBip44Account(): Boolean =
-            accounts.values.filter { it.isDerivedFromInternalMasterseed }
-                    .all { it.hasHadActivity() }
+        accounts.values.filter { it.isDerivedFromInternalMasterseed() }
+            .all { it.hasHadActivity() || it.isArchived }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         accounts.remove(walletAccount.id)
@@ -119,5 +132,5 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     }
 }
 
-fun WalletManager.getBtcvHdAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible }
-fun WalletManager.getActiveBtcvAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible && it.isActive }
+fun WalletManager.getBtcvHdAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible() }
+fun WalletManager.getActiveBtcvAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible() && it.isActive }

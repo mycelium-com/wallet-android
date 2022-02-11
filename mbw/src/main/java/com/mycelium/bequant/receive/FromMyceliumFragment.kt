@@ -131,7 +131,7 @@ class FromMyceliumFragment : Fragment() {
                 else -> TODO("Not supported account: $it")
             }
 
-            SendInitializationActivity.callMe(activity, account.id, uri, false);
+            SendInitializationActivity.callMe(requireActivity(), account.id, uri, false);
         }
 //        loader(true)
 //        viewModel.loadBalance("") {

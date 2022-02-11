@@ -386,8 +386,8 @@
     <string name="copy_signature">Handtekening naar Klembord kopiëren</string>
     <string name="share_signature">Deel tekst + handtekening</string>
     <string name="sig_copied">Handtekening gekopieerd naar Klembord</string>
-    <string name="signed_message_subject">Bitcoin ondertekend bericht</string>
-    <string name="signed_message_share">Deel Bitcoin ondertekend bericht</string>
+    <string name="signed_message_subject_btc">Bitcoin ondertekend bericht</string>
+    <string name="signed_message_share_btc">Deel Bitcoin ondertekend bericht</string>
     <string name="signing_inprogress">Bezig met ondertekenen bericht&#8230;</string>
     <string name="geocode_error">Fout van geocoder: %s\n Probeer later nog eens.</string>
     <string name="fetching_info">Info ophalen van de server</string>

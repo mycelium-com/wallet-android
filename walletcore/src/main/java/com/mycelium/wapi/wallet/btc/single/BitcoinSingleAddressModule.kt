@@ -27,7 +27,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
                                  internal val eventHandler: AbstractBtcAccount.EventHandler?) : WalletModule(metaDataStorage) {
 
     init {
-        assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+        assetsList.add(if (networkParameters.isProdnet) BitcoinMain else BitcoinTest)
     }
 
     override fun getAccountById(id: UUID): WalletAccount<*>? {
@@ -51,11 +51,13 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         for (context in contexts) {
             LoadingProgressTracker.setPercent(counter * 100 / contexts.size)
             // The only way to know if we are migrating now
-            if (loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMHD || loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMSA) {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.MigratingNOfMSA(Integer.toString(counter++), contexts.size.toString()))
+            val state = if (loadingProgressUpdater.status.state == LoadingProgressStatus.State.MIGRATING_N_OF_M_HD ||
+                loadingProgressUpdater.status.state == LoadingProgressStatus.State.MIGRATING_N_OF_M_SA) {
+                LoadingProgressStatus.State.MIGRATING_N_OF_M_SA
             } else {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.LoadingNOfMSA(Integer.toString(counter++), contexts.size.toString()))
+                LoadingProgressStatus.State.LOADING_N_OF_M_HD
             }
+            LoadingProgressTracker.setStatus(LoadingProgressStatus(state, counter++, contexts.size))
             val store = publicPrivateKeyStore
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
             val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)

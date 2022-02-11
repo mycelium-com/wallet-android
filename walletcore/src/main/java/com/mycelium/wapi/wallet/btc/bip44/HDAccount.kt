@@ -12,6 +12,8 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
@@ -89,28 +91,35 @@ open class HDAccount(
         initSafeLastIndexes(false)
     }
 
-    override fun getId() = context.id
+    override val id: UUID
+        get() = context.id
 
     // public method that needs no synchronization
-    override fun isArchived() = context.isArchived()
+    override val isArchived: Boolean
+        get() = context.isArchived()
 
     // public method that needs no synchronization
-    override fun isActive() = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
-    @Synchronized
     override fun archiveAccount() {
         if (context.isArchived()) {
             return
         }
-        clearInternalStateInt(true)
+        // Archiving has priority over syncing:
+        interruptSync()
+        synchronized(context) {
+            clearInternalStateInt(true)
+        }
     }
 
-    @Synchronized
     override fun activateAccount() {
         if (!context.isArchived()) {
             return
         }
-        clearInternalStateInt(false)
+        synchronized(context) {
+            clearInternalStateInt(false)
+        }
     }
 
     override fun dropCachedData() {
@@ -131,7 +140,9 @@ open class HDAccount(
         internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
         _cachedBalance = null
-        initContext(isArchived)
+        context.setArchived(isArchived)
+        context.reset()
+        context.persistIfNecessary(backing)
         initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
@@ -155,11 +166,6 @@ open class HDAccount(
     override fun setDefaultAddressType(addressType: AddressType) {
         context.defaultAddressType = addressType
         context.persistIfNecessary(backing)
-    }
-
-    protected fun initContext(isArchived: Boolean) {
-        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths, context.defaultAddressType)
-        context.persist(backing)
     }
 
     /**
@@ -278,8 +284,8 @@ open class HDAccount(
         return ImmutableList.copyOf(addresses)
     }
 
-    protected fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
-                                  derivationType: BipDerivationType): List<BitcoinAddress> {
+    private fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
+                                derivationType: BipDerivationType): List<BitcoinAddress> {
         val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
         val ret = ArrayList<BitcoinAddress>(toIndex - clippedFromIndex + 1)
         for (i in clippedFromIndex..toIndex) {
@@ -289,7 +295,10 @@ open class HDAccount(
     }
 
     @Synchronized
-    public override fun doSynchronization(proposedMode: SyncMode): Boolean {
+    override suspend fun doSynchronization(proposedMode: SyncMode): Boolean {
+        if (!maySync) {
+            return false
+        }
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTransactions = 0
@@ -304,7 +313,9 @@ open class HDAccount(
                     return false
                 }
             }
-
+            if (!maySync) {
+                return false
+            }
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } finally {
@@ -316,20 +327,22 @@ open class HDAccount(
             context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
     @Synchronized
-    private fun discovery(): Boolean {
+    private suspend fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
             // thus, method is done once discovered is empty.
             var discovered = derivePaths.toSet()
             do {
+                if (!maySync) { return false }
                 discovered = doDiscovery(discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(Event.SERVER_CONNECTION_ERROR)
             return false
         }
-
+        if (!maySync) { return false }
         context.setLastDiscovery(System.currentTimeMillis())
         context.persistIfNecessary(backing)
         return true
@@ -344,7 +357,7 @@ open class HDAccount(
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
+    private suspend fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
@@ -369,11 +382,14 @@ open class HDAccount(
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(addresses: List<BitcoinAddress>): Set<BipDerivationType> {
+    override suspend fun doDiscoveryForAddresses(lookAhead: List<BitcoinAddress>): Set<BipDerivationType> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
-                QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
-        blockChainHeight = result.height
+                QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead).apply {
+                    addCancelableRequest(this)
+                }).result
+        if (!maySync) { return emptySet() }
+        setBlockChainHeight(result.height)
         val ids = result.txIds
         if (ids.isEmpty()) {
             // nothing found
@@ -397,6 +413,7 @@ open class HDAccount(
             }
         }
         newIds.chunked(50).forEach { fewIds ->
+            if (!maySync) { return emptySet() }
             val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
@@ -408,7 +425,7 @@ open class HDAccount(
         }.toSet()
     }
 
-    private fun updateUnspentOutputs(mode: SyncMode): Boolean {
+    private suspend fun updateUnspentOutputs(mode: SyncMode): Boolean {
         var checkAddresses = getAddressesToSync(mode)
 
         val newUtxos = synchronizeUnspentOutputs(checkAddresses)
@@ -474,10 +491,10 @@ open class HDAccount(
     }
 
     // Get the next internal address just above the last address with activity
-    public override fun getChangeAddress(destinationAddress: BitcoinAddress): BitcoinAddress =
+    override fun getChangeAddress(destinationAddress: BitcoinAddress): BitcoinAddress =
             getChangeAddress(listOf(destinationAddress))
 
-    public override fun getChangeAddress(destinationAddresses: List<BitcoinAddress>): BitcoinAddress =
+    override fun getChangeAddress(destinationAddresses: List<BitcoinAddress>): BitcoinAddress =
             when (changeAddressModeReference.get()!!) {
                 ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
                 ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
@@ -490,13 +507,12 @@ open class HDAccount(
                 ChangeAddressMode.NONE -> throw IllegalStateException()
             }
 
-    override fun getChangeAddress(): BitcoinAddress {
-        return when (changeAddressModeReference.get()!!) {
+    override val changeAddress: BitcoinAddress
+        get() = when (changeAddressModeReference.get()!!) {
             ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
             ChangeAddressMode.P2SH_P2WPKH, ChangeAddressMode.PRIVACY -> getChangeAddress(BipDerivationType.BIP49)
             ChangeAddressMode.NONE -> throw IllegalStateException()
         }
-    }
 
     private fun getChangeAddress(preferredDerivationType: BipDerivationType): BitcoinAddress {
         val derivationType = if (derivePaths.contains(preferredDerivationType)) {
@@ -584,7 +600,7 @@ open class HDAccount(
     }
 
     @Throws(InvalidKeyCipher::class)
-    public override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
+    override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
         for (address in publicKey.getAllSupportedAddresses(_network).values) {
             return getPrivateKeyForAddress(address, cipher)
                     ?: continue
@@ -593,7 +609,7 @@ open class HDAccount(
     }
 
     @Throws(InvalidKeyCipher::class)
-    public override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
+    override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
         val derivationType = getDerivationTypeByAddress(address)
         if (!availableAddressTypes.contains(address.type)) {
                 return null
@@ -767,21 +783,29 @@ open class HDAccount(
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val btcSendRequest = request as BtcTransaction
-        val tx = signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher())
-        if (tx != null) btcSendRequest.setTransaction(tx)
+        val tx = signTransaction(btcSendRequest.unsignedTx!!, AesKeyCipher.defaultKeyCipher())
+        btcSendRequest.setTransaction(tx)
     }
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         val btcTx = tx as BtcTransaction
-        return broadcastTransaction(btcTx.tx)
+        return broadcastTransaction(btcTx.tx!!)
     }
 
     @Throws(InvalidKeyCipher::class)
-    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey? {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         // This method should NOT be called for HD account since it has more than one private key
         throw RuntimeException("Calling getPrivateKey() is not supported for HD account")
     }
 
     override fun canSign(): Boolean = true
 
+    override fun signMessage(message: String, address: Address?): String {
+        return try {
+            val privKey = getPrivateKeyForAddress((address as BtcAddress).address, AesKeyCipher.defaultKeyCipher())
+             privKey!!.signMessage(message).base64Signature
+        } catch (invalidKeyCipher: InvalidKeyCipher) {
+            throw java.lang.RuntimeException(invalidKeyCipher)
+        }
+    }
 }

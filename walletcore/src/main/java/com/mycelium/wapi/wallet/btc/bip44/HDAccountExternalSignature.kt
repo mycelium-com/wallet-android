@@ -25,7 +25,7 @@ class HDAccountExternalSignature(
     fun getBIP44AccountType() = sigProvider.biP44AccountType
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
-    override fun signTransaction(unsigned: UnsignedTransaction, cipher: KeyCipher): BitcoinTransaction? {
+    override fun signTransaction(unsigned: UnsignedTransaction, cipher: KeyCipher): BitcoinTransaction {
         checkNotArchived()
         if (!isValidEncryptionKey(cipher)) {
             throw KeyCipher.InvalidKeyCipher()

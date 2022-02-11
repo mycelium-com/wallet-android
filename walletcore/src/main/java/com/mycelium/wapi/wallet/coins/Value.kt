@@ -111,6 +111,10 @@ open class Value(
 
     fun lessThan(other : Value) = this < other
 
+    fun moreOrEqualThan(other : Value) = this >= other
+
+    fun lessOrEqualThan(other : Value) = this <= other
+
     operator fun unaryMinus(): Value = Value(type, -value)
 
     /**

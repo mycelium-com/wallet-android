@@ -22,7 +22,7 @@ object Ads {
     fun openFio(context: Context) {
         val mbwManager = MbwManager.getInstance(context)
         val account = mbwManager.selectedAccount
-        if (account is HDAccount && account.isDerivedFromInternalMasterseed) {
+        if (account is HDAccount && account.isDerivedFromInternalMasterseed()) {
             AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.confirm_fio_link, (account.accountIndex + 1).toString()))
                     .setPositiveButton(R.string.yes) { _, _ ->

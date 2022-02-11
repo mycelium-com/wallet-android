@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -12,6 +14,8 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.web3j.crypto.*
 
 import org.web3j.tx.Transfer
@@ -19,6 +23,7 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -30,8 +35,7 @@ class EthAccount(private val chainId: Byte,
                  private val accountListener: AccountListener?,
                  blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, EthAccount::class.simpleName, address) {
-    private var removed = false
+        backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
 
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
@@ -58,7 +62,7 @@ class EthAccount(private val chainId: Byte,
     override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = data as? EthTransactionData
-        val nonce = ethTxData?.nonce ?: getNewNonce()
+        val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
         val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
@@ -69,8 +73,8 @@ class EthAccount(private val chainId: Byte,
         if (value.value < BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Value should be positive"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        if (gasLimit < Transfer.GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
@@ -79,9 +83,9 @@ class EthAccount(private val chainId: Byte,
         return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
     }
 
-    override fun signTx(request: Transaction, keyCipher: KeyCipher?) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         val rawTransaction = (request as EthTransaction).run {
-            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
+            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, ethValue.value,
                     inputData)
         }
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials)
@@ -93,6 +97,12 @@ class EthAccount(private val chainId: Byte,
         }
     }
 
+    override fun signMessage(message: String, address: Address?): String {
+        val msgBytes = message.toByteArray(StandardCharsets.UTF_8)
+        val sig = Sign.signPrefixedMessage(msgBytes, credentials!!.ecKeyPair)
+        return "${Numeric.toHexString(sig.r)}${Numeric.toHexString(sig.s).substring(2)}${HexUtils.toHex(sig.v)}"
+    }
+
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
             val result = blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
@@ -100,23 +110,22 @@ class EthAccount(private val chainId: Byte,
                 return BroadcastResult(result.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
-                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, gasLimit = tx.gasLimit)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
-    override fun getCoinType() = accountContext.currency
+    override val coinType
+        get() = accountContext.currency
 
-    override fun getBasedOnCoinType() = coinType
+    override val basedOnCoinType
+        get() = coinType
 
-    override fun getAccountBalance() = accountContext.balance
-
-    override fun setLabel(label: String?) {
-        accountContext.accountName = label!!
-    }
+    override val accountBalance
+        get() = accountContext.balance
 
     override fun getNonce() = accountContext.nonce
 
@@ -125,12 +134,10 @@ class EthAccount(private val chainId: Byte,
     }
 
     @Synchronized
-    override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (removed || isArchived) {
-            return false
-        }
-        syncTransactions()
-        return updateBalanceCache()
+    override suspend fun doSynchronization(mode: SyncMode?): Boolean {
+        val syncTx = syncTransactions()
+        updateBalanceCache()
+        return syncTx
     }
 
     override fun updateBalanceCache(): Boolean {
@@ -145,6 +152,8 @@ class EthAccount(private val chainId: Byte,
         }
         return false
     }
+
+    override fun canSign() = credentials != null
 
     private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
             .filter { it.confirmations > 0 }
@@ -175,16 +184,10 @@ class EthAccount(private val chainId: Byte,
                         .fold(BigInteger.ZERO, BigInteger::add)
     }
 
-    private fun syncTransactions() {
+    private suspend fun syncTransactions(): Boolean {
         try {
-            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString)
-            remoteTransactions.forEach { tx ->
-                backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
-                        valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed
-                        ?: typicalEstimatedTransactionSize.toBigInteger())), tx.confirmations.toInt(),
-                        tx.nonce,  valueOf(coinType, tx.internalValue ?: BigInteger.ZERO),
-                        tx.success, tx.gasLimit, tx.gasUsed)
-            }
+            val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString) }
+            backing.putTransactions(remoteTransactions, coinType, typicalEstimatedTransactionSize.toBigInteger())
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore
             // this could happen if transaction was replaced by another e.g.
@@ -196,8 +199,11 @@ class EthAccount(private val chainId: Byte,
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
             }
+            return true
         } catch (e: IOException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
+            return false
         }
     }
 
@@ -220,7 +226,8 @@ class EthAccount(private val chainId: Byte,
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId(): UUID = credentials?.ecKeyPair?.toUUID()
+    override val id: UUID
+        get() = credentials?.ecKeyPair?.toUUID()
             ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
     override fun broadcastOutgoingTransactions() = true
@@ -230,7 +237,11 @@ class EthAccount(private val chainId: Byte,
         return max(spendable, Value.zeroValue(coinType))
     }
 
-    override fun getLabel() = accountContext.accountName
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
+        }
 
     override fun getBlockChainHeight() = accountContext.blockHeight
 
@@ -238,13 +249,14 @@ class EthAccount(private val chainId: Byte,
         accountContext.blockHeight = height
     }
 
-    override fun isArchived() = accountContext.archived
+    override val isArchived
+        get() = accountContext.archived
 
-    override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
+    override val syncTotalRetrievedTransactions: Int = 0 // TODO implement after full transaction history implementation
 
-    override fun getTypicalEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
+    override val typicalEstimatedTransactionSize = Transfer.GAS_LIMIT.toInt()
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

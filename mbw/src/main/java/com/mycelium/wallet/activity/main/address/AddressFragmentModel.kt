@@ -12,6 +12,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wallet.event.SyncStopped
+import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
@@ -22,8 +23,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthereumModule
-import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.FioAccount
+import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.fio.RegisteredFIOName
 import com.squareup.otto.Subscribe
 
@@ -34,6 +35,7 @@ class AddressFragmentModel(
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
     val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
+    val isSyncError = MutableLiveData<Boolean>()
     val accountAddress: MutableLiveData<Address> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
     val type: MutableLiveData<AddressType> = MutableLiveData()
@@ -61,7 +63,7 @@ class AddressFragmentModel(
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         val acc = account
-        isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
+        isCompressedKey = !(acc is SingleAddressAccount && !acc.getPublicKey().isCompressed)
         // Deprecated but not resolvable until we stop supporting API <24
         accountLabel.value = Html.fromHtml(when (account) {
             is Bip44BCHAccount,
@@ -69,6 +71,7 @@ class AddressFragmentModel(
                 context.getString(R.string.bitcoin_cash) + " - " + label
             else -> label
         })
+        isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR, SyncStatus.ERROR_INTERNET_CONNECTION)
     }
 
     private fun updateAddress(account: WalletAccount<*>) {
@@ -126,6 +129,7 @@ class AddressFragmentModel(
     @Subscribe
     fun syncStopped(event: SyncStopped) {
         updateRegisteredFIONames()
+        updateLabel()
     }
 
     fun onAddressChange() {

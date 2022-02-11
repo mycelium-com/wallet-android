@@ -29,6 +29,7 @@ public class ViewAccountModel{
     public boolean showBackupMissingWarning;
     public int syncTotalRetrievedTransactions;
     public boolean isSyncing;
+    public boolean isSyncError;
 
     public ViewAccountModel() {}
 
@@ -55,6 +56,7 @@ public class ViewAccountModel{
         drawableForAccount = Utils.getDrawableForAccount(viewModel, false, resources);
         drawableForAccountSelected = Utils.getDrawableForAccount(viewModel, true, resources);
         isSyncing = viewModel.isSyncing();
+        isSyncError = viewModel.isSyncError();
     }
 
 
@@ -72,12 +74,14 @@ public class ViewAccountModel{
                 Objects.equals(displayAddress, that.displayAddress) &&
                 Objects.equals(balance, that.balance) &&
                 Objects.equals(label, that.label) &&
-                isSyncing == that.isSyncing;
+                isSyncing == that.isSyncing &&
+                isSyncError == that.isSyncError;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(accountId, accountType, displayAddress, balance, isActive, label,
-                isRMCLinkedAccount, showBackupMissingWarning, syncTotalRetrievedTransactions, isSyncing);
+                isRMCLinkedAccount, showBackupMissingWarning, syncTotalRetrievedTransactions, isSyncing,
+                isSyncError);
     }
 }

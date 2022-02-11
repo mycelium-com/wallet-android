@@ -3,21 +3,23 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: 'com.squareup.sqldelight'
 
 repositories {
+    mavenCentral()
     google()
-    jcenter()
 }
 
 buildscript {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$gradleVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.squareup.sqldelight:gradle-plugin:$sqldelight_version"
     }
 }
 
@@ -41,9 +43,6 @@ kapt {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation 'androidx.test:rules:1.3.0'
 
@@ -69,11 +68,16 @@ dependencies {
     implementation "com.squareup.retrofit:retrofit:1.9.0"
 
     // ViewModel and LiveData
+    implementation "androidx.activity:activity-ktx:1.3.1"
+    implementation "androidx.appcompat:appcompat:$appCompatVersion"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
+    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
     implementation "androidx.lifecycle:lifecycle-runtime:2.2.0-rc01"
 
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
 
@@ -83,19 +87,19 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:17.3.4"
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "com.squareup:otto:$ottoVersion"
-    implementation "androidx.appcompat:appcompat:$appCompatVersion"
+
     implementation "androidx.biometric:biometric:1.1.0"
-    implementation "androidx.core:core-ktx:1.2.0"
-    implementation "androidx.fragment:fragment-ktx:1.2.3"
-    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
+    implementation "androidx.core:core-ktx:1.6.0"
+    implementation "androidx.fragment:fragment-ktx:1.3.6"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0"
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "androidx.gridlayout:gridlayout:1.0.0"
-    implementation "androidx.preference:preference:1.1.0"
+    implementation "androidx.preference:preference:1.1.1"
     implementation "androidx.work:work-runtime:$workManagerVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
+    implementation "androidx.viewpager2:viewpager2:1.1.0-beta01"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "de.cketti.library.changelog:ckchangelog:1.2.2"
@@ -156,10 +160,20 @@ dependencies {
     androidTestImplementation project(includePrefix + ':testhelper')
 }
 
+sqldelight {
+    GiftboxDB {
+        packageName = "com.mycelium.generated.giftbox.database"
+    }
+    LoggerDB {
+        packageName = "com.mycelium.generated.logger.database"
+        sourceFolders = ["sqldelight_logger"]
+    }
+}
+
 android {
     buildFeatures {
-        dataBinding true
         viewBinding true
+        dataBinding true
     }
     configurations {
         all*.exclude module: 'jcip-annotations'
@@ -202,8 +216,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3090000
-        versionName '3.9.0.0'
+        versionCode 3130700
+        versionName '3.13.7.0'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
@@ -344,7 +358,7 @@ android {
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
                 EthBlockBook = '{"https://ropsten1.trezor.io", "https://ropsten2.trezor.io"}'
-                ElectrumBTCVServers ='{"tcp-tls://testnet.bitcoinvault.global:50001"}'
+                ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.bitcoinvault.global:443"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 tpid = "megabit@mycelium"

@@ -51,6 +51,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
@@ -59,13 +60,17 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.BitcoinAddress;
+import com.mycelium.bequant.BequantConstants;
 import com.mycelium.bequant.intro.BequantIntroActivity;
+import com.mycelium.giftbox.GiftBoxRootActivity;
+import com.mycelium.giftbox.client.GiftboxConstants;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.activity.ActionActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity;
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity;
@@ -74,6 +79,8 @@ import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wallet.activity.modern.helper.MainActions;
+import com.mycelium.wallet.activity.modern.event.SelectTab;
 import com.mycelium.wallet.activity.news.NewsActivity;
 import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
@@ -123,10 +130,12 @@ public class ModernMain extends AppCompatActivity {
     private static final String TAB_ACCOUNTS = "tab_accounts";
     private static final String TAB_BALANCE = "tab_balance";
     private static final String TAB_HISTORY = "tab_history";
-    private static final String TAB_FIO_REQUESTS = "tab_fio_requests";
+    public static final String TAB_FIO_REQUESTS = "tab_fio_requests";
     private static final String TAB_ADS = "tab_ads";
     private static final String TAB_RECOMMENDATIONS = "tab_recommendations";
     private static final String TAB_ADDRESS_BOOK = "tab_address_book";
+
+    private static final String TAB_KEY = "tab";
 
     private static final int REQUEST_SETTING_CHANGED = 5;
     public static final int MIN_AUTOSYNC_INTERVAL = (int) Constants.MS_PR_MINUTE;
@@ -135,11 +144,13 @@ public class ModernMain extends AppCompatActivity {
     private static final String APP_START = "APP_START";
     private MbwManager _mbwManager;
 
+    private TabLayout tabLayout;
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
     private TabLayout.Tab mBalanceTab;
     private TabLayout.Tab mNewsTab;
     private TabLayout.Tab mAccountsTab;
+    private TabLayout.Tab mTransactionsTab;
     private TabLayout.Tab mRecommendationsTab;
     private TabLayout.Tab mFioRequestsTab;
     private MenuItem refreshItem;
@@ -156,20 +167,13 @@ public class ModernMain extends AppCompatActivity {
         _mbwManager = MbwManager.getInstance(this);
         WalletApplication.applyLanguageChange(getBaseContext(), _mbwManager.getLanguage());
         setContentView(R.layout.modern_main);
-        TabLayout tabLayout = findViewById(R.id.pager_tabs);
+        tabLayout = findViewById(R.id.pager_tabs);
         mViewPager = findViewById(R.id.pager);
         tabLayout.setupWithViewPager(mViewPager);
-        setSupportActionBar(findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        findViewById(R.id.logoButton).setOnClickListener(new LogoMenuClick());
-        findViewById(R.id.logoMenu).setOnClickListener(new LogoMenuClick());
-        View investmentWallet = findViewById(R.id.investmentWallet);
-        investmentWallet.setVisibility(SettingsPreference.isContentEnabled(com.mycelium.bequant.BequantConstants.PARTNER_ID) ?
-                VISIBLE : GONE);
-        investmentWallet.setOnClickListener(view -> {
-            findViewById(R.id.logoMenu).performClick(); // to hide menu
-            startActivity(new Intent(view.getContext(), BequantIntroActivity.class));
-        });
+        ActionBar bar = getSupportActionBar();
+        bar.setDisplayShowTitleEnabled(false);
+        bar.setDisplayShowHomeEnabled(true);
+        bar.setIcon(R.drawable.action_bar_logo);
 
         getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
@@ -183,7 +187,8 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null, TAB_ACCOUNTS);
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
         mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null, TAB_BALANCE);
-        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null, TAB_HISTORY);
+        mTransactionsTab = tabLayout.newTab().setText(getString(R.string.tab_transactions));
+        mTabsAdapter.addTab(mTransactionsTab, TransactionHistoryFragment.class, null, TAB_HISTORY);
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);
@@ -196,8 +201,7 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig, TAB_ADDRESS_BOOK);
         addAdsTabs(tabLayout);
-        mBalanceTab.select();
-        mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
+        selectTab(getIntent().getStringExtra(TAB_KEY) != null ? getIntent().getStringExtra(TAB_KEY) : TAB_ACCOUNTS);
         _toaster = new Toaster(this);
 
         ChangeLog cl = new DarkThemeChangeLog(this);
@@ -222,6 +226,13 @@ public class ModernMain extends AppCompatActivity {
         handleIntent(getIntent());
     }
 
+    public void selectTab(String tabTag) {
+        int selectTab = mTabsAdapter.indexOf(tabTag);
+        tabLayout.getTabAt(selectTab).select();
+        mViewPager.setCurrentItem(selectTab);
+        getIntent().removeExtra(TAB_KEY);
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -231,17 +242,23 @@ public class ModernMain extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         if (SettingsPreference.getMediaFlowEnabled() &&
                 Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
-            mNewsTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
+            selectTab(TAB_NEWS);
             if (getIntent().hasExtra(NewsConstants.NEWS)) {
                 startActivity(new Intent(this, NewsActivity.class)
                         .putExtras(getIntent().getExtras()));
             }
         } else if (Objects.equals(intent.getAction(), FioRequestNotificator.FIO_REQUEST_ACTION)) {
-            mFioRequestsTab.select();
-            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_FIO_REQUESTS));
+            selectTab(TAB_FIO_REQUESTS);
             startActivity(new Intent(this, ApproveFioRequestActivity.class)
                     .putExtras(getIntent().getExtras()));
+        } else if (Objects.equals(intent.getAction(), MainActions.ACTION_ACCOUNTS)) {
+            mAccountsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_ACCOUNTS));
+        } else if (Objects.equals(intent.getAction(), MainActions.ACTION_TXS)) {
+            mTransactionsTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_HISTORY));
+        } else if(intent.hasExtra("action")) {
+            startActivity(new Intent(this, ActionActivity.class).putExtras(intent));
         }
     }
 
@@ -377,7 +394,6 @@ public class ModernMain extends AppCompatActivity {
                     final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
                     if (lastFullSync.isPresent()
                             && (new Date().getTime() - lastFullSync.get() < MIN_FULLSYNC_INTERVAL)) {
-                        WalletAccount<?> account = _mbwManager.getSelectedAccount();
                         _mbwManager.getWalletManager(false)
                                 .startSynchronization(SyncMode.NORMAL_ALL_ACCOUNTS_FORCED);
                     } else {
@@ -428,6 +444,7 @@ public class ModernMain extends AppCompatActivity {
         if (!((FioModule) _mbwManager.getWalletManager(false).getModuleById(FioModule.ID)).getAllRegisteredFioNames().isEmpty()) {
             inflater.inflate(R.menu.record_fio_options, menu);
         }
+        inflater.inflate(R.menu.giftbox, menu);
         return true;
     }
 
@@ -453,6 +470,7 @@ public class ModernMain extends AppCompatActivity {
         final boolean isAccountTab = TAB_ACCOUNTS.equals(tabTag);
         final boolean locked = _mbwManager.isKeyManagementLocked();
         checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
+        checkNotNull(menu.findItem(R.id.miAddRecordDuplicate)).setVisible(isAccountTab && !locked);
 
         // Lock menu
         final boolean hasPin = _mbwManager.isPinProtected();
@@ -471,12 +489,9 @@ public class ModernMain extends AppCompatActivity {
         final boolean isAddressBook = TAB_ADDRESS_BOOK.equals(tabTag);
         checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
 
-        return super.onPrepareOptionsMenu(menu);
-    }
+        checkNotNull(menu.findItem(R.id.miGiftBox)).setVisible(SettingsPreference.isContentEnabled(GiftboxConstants.PARTNER_ID));
 
-    public void selectRequestTab(){
-        int item = mTabsAdapter.indexOf(TAB_FIO_REQUESTS);
-        mViewPager.setCurrentItem(item);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @SuppressWarnings("unused")
@@ -541,7 +556,10 @@ public class ModernMain extends AppCompatActivity {
                 startActivity(new Intent(this, AccountMappingActivity.class));
                 break;
             case R.id.miFIORequests:
-                selectRequestTab();
+                selectTab(TAB_FIO_REQUESTS);
+                break;
+            case R.id.miGiftBox:
+                GiftBoxRootActivity.Companion.start(this);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -563,7 +581,8 @@ public class ModernMain extends AppCompatActivity {
             // restart activity if language changes
             // or anything else in settings. this makes some of the listeners
             // obsolete
-            Intent running = getIntent();
+            Intent running = getIntent()
+                    .putExtra(TAB_KEY, mTabsAdapter.getPageTag(mViewPager.getCurrentItem()));
             finish();
             startActivity(running);
         } else {
@@ -603,19 +622,6 @@ public class ModernMain extends AppCompatActivity {
         }
     }
 
-    private static class LogoMenuClick implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            Activity host = (Activity) view.getContext();
-            View logoMenu = host.findViewById(R.id.logoMenu);
-            boolean isOpened = logoMenu.getVisibility() == VISIBLE;
-            logoMenu.setVisibility(isOpened ? GONE : VISIBLE);
-            ImageView logoArrow = host.findViewById(R.id.logoArrow);
-            logoArrow.setImageDrawable(logoArrow.getResources().getDrawable(isOpened ?
-                    R.drawable.ic_arrow_drop_down : R.drawable.ic_arrow_drop_down_active));
-        }
-    }
-
     @Subscribe
     public void syncStarted(SyncStarted event) {
         setRefreshAnimation();
@@ -634,12 +640,6 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void synchronizationFailed(SyncFailed event) {
         hideRefresh();
-        String type = "";
-        WalletAccount account = _mbwManager.getWalletManager(false).getAccount(event.accountId);
-        if(account != null) {
-            type = account.getCoinType().getName();
-        }
-        _toaster.toastConnectionError(type);
     }
 
     @Subscribe
@@ -655,5 +655,10 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void onNewVersion(final NewWalletVersionAvailable event) {
         _mbwManager.getVersionManager().showIfRelevant(event.versionInfo, this);
+    }
+
+    @Subscribe
+    public void selectTab(SelectTab selectTab) {
+        selectTab(selectTab.getTabTag());
     }
 }

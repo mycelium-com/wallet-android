@@ -3,6 +3,8 @@ package com.mycelium.wallet.activity.settings
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.GsonBuilder
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.wallet.Constants
 import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
@@ -15,6 +17,7 @@ object SettingsPreference {
     private const val FIO_ENABLE = "fio_enable"
     private const val PARTNER_KEY = "partner-info"
     private const val MEDIAFLOW_KEY = "mediaflow"
+    private const val ACCOUNTS_KEY = "accounts"
     private const val MAIN_MENU_KEY = "mainmenu"
     private const val BUY_SELL_KEY = "buysell"
     private const val BALANCE_KEY = "balance"
@@ -69,6 +72,9 @@ object SettingsPreference {
     fun getMediaFlowContent() = load(MEDIAFLOW_KEY, MediaFlowContent::class.java)
 
     @JvmStatic
+    fun getAccountsContent() = load(ACCOUNTS_KEY, AccountsContent::class.java)
+
+    @JvmStatic
     fun getMainMenuContent() = load(MAIN_MENU_KEY, MainMenuContent::class.java)
 
     @JvmStatic
@@ -92,7 +98,10 @@ object SettingsPreference {
     }
 
     @JvmStatic
-    fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean("${PARTNER_ENABLED}-${partnerInfoId}", true)
+    fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean(
+        "${PARTNER_ENABLED}-${partnerInfoId}",
+        if (partnerInfoId == BequantConstants.PARTNER_ID) BequantPreference.isLogged() else true
+    )
 
     fun setEnabled(partnerInfoId: String, enable: Boolean) {
         sharedPreferences.edit().putBoolean("${PARTNER_ENABLED}-${partnerInfoId}", enable).apply()

@@ -34,12 +34,13 @@
 
 package com.mycelium.wallet.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.BitcoinAddress;
@@ -51,7 +52,7 @@ import com.mycelium.wapi.wallet.AddressUtils;
 
 import java.util.Map;
 
-public class CreateKeyActivity extends Activity {
+public class CreateKeyActivity extends AppCompatActivity {
    private MbwManager manager;
    private InMemoryPrivateKey key;
 
@@ -61,7 +62,7 @@ public class CreateKeyActivity extends Activity {
       super.onCreate(savedInstanceState);
       manager = MbwManager.getInstance(getApplication());
       setContentView(R.layout.create_key_activity);
-
+      getSupportActionBar().hide();
       findViewById(R.id.btShuffle).setOnClickListener(new OnClickListener() {
 
          @Override

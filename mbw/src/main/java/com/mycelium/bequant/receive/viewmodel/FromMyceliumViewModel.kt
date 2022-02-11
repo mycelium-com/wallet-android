@@ -10,7 +10,7 @@ import com.mycelium.wallet.WalletApplication
 
 class FromMyceliumViewModel : ViewModel() {
     val oneCoinFiatRate = MutableLiveData<String>()
-    val custodialBalance = MutableLiveData<String>()
+    val custodialBalance = MutableLiveData<String?>()
     val amount = MutableLiveData<String>()
     val amountFiat = MutableLiveData<String>()
     val address = MutableLiveData<String>()
