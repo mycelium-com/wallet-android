@@ -163,6 +163,10 @@ sqldelight {
     GiftboxDB {
         packageName = "com.mycelium.generated.giftbox.database"
     }
+    LoggerDB {
+        packageName = "com.mycelium.generated.logger.database"
+        sourceFolders = ["sqldelight_logger"]
+    }
 }
 
 android {
