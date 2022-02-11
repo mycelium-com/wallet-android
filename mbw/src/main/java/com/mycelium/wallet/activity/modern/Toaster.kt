@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.SyncStatus
@@ -32,6 +33,9 @@ class Toaster(val context: Context) {
 
     fun toast(message: String, shortDuration: Boolean) {
         cancelCurrentToast()
+        if(!MbwManager.getInstance(context).isAppInForeground) {
+            return
+        }
         if (fragment != null && !fragment!!.isAdded) {
             return
         }

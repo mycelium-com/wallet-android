@@ -2,9 +2,8 @@ package com.mycelium.giftbox.purchase
 
 import android.os.Bundle
 import android.text.Html
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
@@ -54,6 +53,12 @@ class GiftBoxBuyResultFragment : Fragment() {
     private var binding: FragmentGiftboxBuyResultBinding? = null
     var updateJob: Job? = null
     val args by navArgs<GiftBoxBuyResultFragmentArgs>()
+    private var refreshItem: MenuItem? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -92,8 +97,9 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        updateJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(10)) {
+        updateJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(15)) {
             updateAllUi()
+            loadOrder(false, true)
         }
     }
 
@@ -157,17 +163,23 @@ class GiftBoxBuyResultFragment : Fragment() {
         })
     }
 
-    private fun loadOrder() {
-        if (args.orderResponse is OrderResponse) {
+    private fun loadOrder(withLoader: Boolean = true, updateFromRemote:Boolean = false) {
+        if (args.orderResponse is OrderResponse && !updateFromRemote) {
             updateOrder(args.orderResponse as OrderResponse)
         } else {
-            loader(true)
+            if (withLoader) {
+                loader(true)
+            }
+            showRefresh()
             GitboxAPI.giftRepository.getOrder(lifecycleScope, args.orderResponse.clientOrderId!!, {
                 updateOrder(it!!)
             }, { _, msg ->
                 Toaster(this).toast(msg, true)
             }, {
-                loader(false)
+                hideRefresh()
+                if (withLoader) {
+                    loader(false)
+                }
             })
         }
     }
@@ -277,6 +289,34 @@ class GiftBoxBuyResultFragment : Fragment() {
         val locale = resources.configuration.locale
         binding?.txDetails?.tvDate?.text = DateFormat.getDateInstance(DateFormat.LONG, locale).format(date)
         binding?.txDetails?.tvTime?.text = DateFormat.getTimeInstance(DateFormat.LONG, locale).format(date)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.refresh, menu);
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        refreshItem = menu.findItem(R.id.miRefresh)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                R.id.miRefresh -> {
+                    loadOrder(false, true)
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
+    private fun hideRefresh() {
+        refreshItem?.actionView = null
+    }
+
+    private fun showRefresh() {
+        refreshItem?.setActionView(R.layout.actionbar_indeterminate_progress)?.apply {
+            actionView?.findViewById<ImageView>(R.id.ivTorIcon)?.visibility = View.GONE
+        }
     }
 
     override fun onDestroyView() {

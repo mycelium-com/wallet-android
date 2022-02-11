@@ -4,6 +4,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
+import com.mycelium.wapi.api.WapiClientElectrumX
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BTCSettings
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
@@ -47,7 +48,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
                         BitcoinVaultHDAccountBacking(walletDB, it.uuid), accountListener,
                         settings.changeAddressModeReference)
                         .apply { accounts[this.id] = this }
-            })
+            }).also { setupClientIsActive() }
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
@@ -78,7 +79,13 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             else -> throw IllegalStateException("Account can't be created")
         }
         accounts[result.id] = result
+        setupClientIsActive()
         return result
+    }
+
+    fun setupClientIsActive() {
+        val isActive = accounts.filterValues(BitcoinVaultHdAccount::isActive).isNotEmpty()
+        (_wapi as? WapiClientElectrumX)?.setClientIsActive(isActive)
     }
 
     private fun loadKeyManagers(context: BitcoinVaultHDAccountContext): Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>> =
@@ -92,7 +99,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
             }
 
     private fun getCurrentBip44Index() = accounts.values
-            .filter { it.isDerivedFromInternalMasterseed }
+            .filter { it.isDerivedFromInternalMasterseed() }
             .maxBy { it.accountIndex }
             ?.accountIndex
             ?: -1
@@ -108,7 +115,7 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
      * so we cannot rely on the according method for archived accounts)
      */
     fun canCreateAdditionalBip44Account(): Boolean =
-        accounts.values.filter { it.isDerivedFromInternalMasterseed }
+        accounts.values.filter { it.isDerivedFromInternalMasterseed() }
             .all { it.hasHadActivity() || it.isArchived }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
@@ -125,5 +132,5 @@ class BitcoinVaultHDModule(internal val backing: Backing<BitcoinVaultHDAccountCo
     }
 }
 
-fun WalletManager.getBtcvHdAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible }
-fun WalletManager.getActiveBtcvAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible && it.isActive }
+fun WalletManager.getBtcvHdAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible() }
+fun WalletManager.getActiveBtcvAccounts() = getAccounts().filter { it is BitcoinVaultHdAccount && it.isVisible() && it.isActive }

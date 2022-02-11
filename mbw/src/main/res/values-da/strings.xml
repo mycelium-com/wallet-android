@@ -231,8 +231,8 @@
     <string name="copy_signature">Kopier signatur til udklipsholder</string>
     <string name="share_signature">Del besked + signatur</string>
     <string name="sig_copied">Signatur kopieret</string>
-    <string name="signed_message_subject">Signeret Bitcoin besked</string>
-    <string name="signed_message_share">Del Signeret Besked</string>
+    <string name="signed_message_subject_btc">Signeret Bitcoin besked</string>
+    <string name="signed_message_share_btc">Del Signeret Besked</string>
     <string name="signing_inprogress">Signerer besked&#8230;</string>
     <!-- BitID -->
     <string name="sign_bitid">Log ind</string>

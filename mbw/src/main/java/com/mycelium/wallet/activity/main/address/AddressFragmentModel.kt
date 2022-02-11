@@ -63,7 +63,7 @@ class AddressFragmentModel(
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         val acc = account
-        isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
+        isCompressedKey = !(acc is SingleAddressAccount && !acc.getPublicKey().isCompressed)
         // Deprecated but not resolvable until we stop supporting API <24
         accountLabel.value = Html.fromHtml(when (account) {
             is Bip44BCHAccount,

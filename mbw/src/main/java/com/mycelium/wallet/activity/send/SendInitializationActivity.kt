@@ -16,7 +16,6 @@ import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.interruptSync
-import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
@@ -113,7 +112,7 @@ class SendInitializationActivity : Activity() {
         if (isFinishing) {
             return
         }
-        if (account.isSyncing && (account.coinType.isUtxosBased || isColdStorage)) {
+        if (account.isSyncing() && (account.coinType.isUtxosBased || isColdStorage)) {
             // wait till its finished syncing
             // no need wait for non utxo's based accounts
             return

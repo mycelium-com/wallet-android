@@ -352,8 +352,8 @@
     <string name="copy_signature">Sao chép chữ ký vào Clipboard</string>
     <string name="share_signature">Chia sẻ văn bản + chữ ký</string>
     <string name="sig_copied">Chữ ký đã được sao chép vào clipboard</string>
-    <string name="signed_message_subject">Thông điệp Bitcoin đã ký</string>
-    <string name="signed_message_share">Chia sẻ thông điệp Bitcoin đã ký</string>
+    <string name="signed_message_subject_btc">Thông điệp Bitcoin đã ký</string>
+    <string name="signed_message_share_btc">Chia sẻ thông điệp Bitcoin đã ký</string>
     <string name="signing_inprogress">Đang ký thông điệp&#8230;</string>
     <string name="geocode_error">Lỗi từ geocoder: %s \n xin vui lòng thử lại sau.</string>
     <!-- BitID -->
