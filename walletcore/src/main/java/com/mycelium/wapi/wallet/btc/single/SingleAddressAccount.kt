@@ -53,17 +53,18 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
     var toRemove = false
     private fun persistAddresses() {
         try {
-            val privateKey = getPrivateKey(AesKeyCipher.defaultKeyCipher())
-            val allPossibleAddresses: Map<AddressType, BitcoinAddress> =
-                    privateKey?.publicKey?.getAllSupportedAddresses(_network, true) ?: mapOf()
-            if (allPossibleAddresses.size != _context.addresses.size) {
-                for (address in allPossibleAddresses.values) {
-                    if (address != _context.addresses[address.type]) {
-                        _keyStore.setPrivateKey(address.allAddressBytes, privateKey, AesKeyCipher.defaultKeyCipher())
+            getPrivateKey(AesKeyCipher.defaultKeyCipher())?.let { privateKey ->
+                val allPossibleAddresses: Map<AddressType, BitcoinAddress> =
+                        privateKey?.publicKey?.getAllSupportedAddresses(_network, true)
+                if (allPossibleAddresses.size != _context.addresses.size) {
+                    for (address in allPossibleAddresses.values) {
+                        if (address != _context.addresses[address.type]) {
+                            _keyStore.setPrivateKey(address.allAddressBytes, privateKey, AesKeyCipher.defaultKeyCipher())
+                        }
                     }
+                    _context.addresses = allPossibleAddresses
+                    _context.persist(_backing)
                 }
-                _context.addresses = allPossibleAddresses
-                _context.persist(_backing)
             }
         } catch (invalidKeyCipher: InvalidKeyCipher) {
             _logger.log(Level.SEVERE, invalidKeyCipher.message)
