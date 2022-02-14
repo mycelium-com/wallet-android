@@ -31,10 +31,8 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wallet.Constants
-import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.*
 import com.mycelium.wallet.R
-import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
