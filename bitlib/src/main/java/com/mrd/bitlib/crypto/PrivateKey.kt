@@ -40,9 +40,6 @@ abstract class PrivateKey : BitcoinSigner, Serializable {
         return generateSignature(message).derEncode()
     }
 
-    // Sign the message with a signature based random k-Value
-    protected abstract fun generateSignature(message: Sha256Hash, randomSource: RandomSource): Signature
-
     // Sign the message deterministic, according to rfc6979
     protected abstract fun generateSignature(message: Sha256Hash): Signature
 

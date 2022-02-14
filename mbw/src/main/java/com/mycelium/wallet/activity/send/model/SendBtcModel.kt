@@ -89,7 +89,7 @@ class SendBtcModel(context: Context,
             ?: true
 
     fun sendResponseToPR(): Boolean {
-        val address = BitcoinAddress(mbwManager.selectedAccount.receiveAddress.getBytes())
+        val address = BitcoinAddress(mbwManager.selectedAccount.receiveAddress!!.getBytes())
         val transaction = (signedTransaction as BtcTransaction).tx
         return paymentRequestHandler.value!!.sendResponse(transaction, address)
     }
@@ -113,7 +113,7 @@ class SendBtcModel(context: Context,
 
         val btcAccount = account as AbstractBtcAccount
         transaction = btcAccount.createTxFromOutputList(outputs, FeePerKbFee(selectedFee.value!!).feePerKb.valueAsLong)
-        spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
+        spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))
         receivingAddress.postValue(null)
         transactionLabel.postValue(paymentRequestInformation.paymentDetails.memo)
 

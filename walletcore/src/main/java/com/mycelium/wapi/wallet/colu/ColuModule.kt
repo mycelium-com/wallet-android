@@ -216,4 +216,4 @@ fun PublicKey.getAllSupportedBtcAddresses(coin: ColuMain, networkParameters: Net
  *
  * @return list of accounts
  */
-fun WalletManager.getColuAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is ColuAccount && it.isVisible && it.isActive }
+fun WalletManager.getColuAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is ColuAccount && it.isVisible() && it.isActive }

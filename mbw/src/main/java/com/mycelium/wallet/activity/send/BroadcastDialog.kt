@@ -39,7 +39,7 @@ class BroadcastDialog : DialogFragment() {
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
                    , transactionSummary: TransactionSummary): BroadcastDialog {
             val transaction = account.getTx(transactionSummary.id)
-            return create(account, isColdStorage, transaction)
+            return create(account, isColdStorage, transaction!!)
         }
 
         @JvmOverloads

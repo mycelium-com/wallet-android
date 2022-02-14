@@ -47,6 +47,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.common.base.Optional;
@@ -71,7 +72,8 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.bequant.InvestmentModule;
-import com.mycelium.generated.wallet.database.Logs;
+import com.mycelium.generated.logger.database.LoggerDB;
+import com.mycelium.generated.logger.database.Logs;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
@@ -89,6 +91,7 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountSyncStopped;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -149,6 +152,7 @@ import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDBacking;
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHDModule;
+import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
@@ -254,6 +258,7 @@ public class MbwManager {
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
     private final WalletDB db;
+    private LoggerDB loggerDB;
     private Logger logger = Logger.getLogger(MbwManager.class.getSimpleName());
 
     @Nonnull
@@ -319,6 +324,19 @@ public class MbwManager {
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
         //accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
         _environment = MbwEnvironment.verifyEnvironment();
+        startLogger();
+
+        SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
+                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
+                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
+                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
+                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
+                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
+                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
+                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
+        driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Preferences
         SharedPreferences preferences = getPreferences();
@@ -339,7 +357,7 @@ public class MbwManager {
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
         List<TcpEndpoint> btcvEndpoints = configuration.getElectrumVEndpoints();
-        btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints());
+        btcvWapi = initWapi(btcvEndpoints, configuration.getWapiEndpoints(), false);
         configuration.setElectrumServerListChangedListener(_wapi);
         configuration.setElectrumVServerListChangedListener(btcvWapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
@@ -376,17 +394,7 @@ public class MbwManager {
             }
         }
 
-        SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
-                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
-                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
-                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
-                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
-                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
-                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
-                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
-        driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
+
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
         ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -425,14 +433,14 @@ public class MbwManager {
         _versionManager.initBackgroundVersionChecker();
 
         _blockExplorerManager = getBlockExplorerManager(preferences);
-
-        startLogger();
     }
 
     private void startLogger() {
         LogManager.getLogManager().reset();
         Logger rootLogger = LogManager.getLogManager().getLogger("");
-        DbLogHandler handler = new DbLogHandler(db);
+        SqlDriver driver = new AndroidSqliteDriver(LoggerDB.Companion.getSchema(), _applicationContext, "logger.db");
+        loggerDB = LoggerDB.Companion.invoke(driver);
+        DbLogHandler handler = new DbLogHandler(loggerDB);
         rootLogger.addHandler(handler);
         rootLogger.addHandler(new AndroidLogHandler());
         handler.cleanUp();
@@ -593,10 +601,23 @@ public class MbwManager {
     }
 
     private WapiClientElectrumX initWapi(List<TcpEndpoint> tcpEndpoints, List<HttpEndpoint> wapiEndpoints) {
-        String version = "" + BuildConfig.VERSION_CODE;
+        return initWapi(tcpEndpoints, wapiEndpoints, true);
+    }
 
-        WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
-                tcpEndpoints.toArray(new TcpEndpoint[0]), version, Build.VERSION.SDK_INT);
+    private WapiClientElectrumX initWapi(
+            List<TcpEndpoint> tcpEndpoints,
+            List<HttpEndpoint> wapiEndpoints,
+            boolean isActive
+    ) {
+        String version = String.valueOf(BuildConfig.VERSION_CODE);
+
+        WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(
+                new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+                tcpEndpoints.toArray(new TcpEndpoint[0]),
+                version,
+                Build.VERSION.SDK_INT,
+                isActive
+        );
 
         wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
         return wapiClientElectrumX;
@@ -821,6 +842,18 @@ public class MbwManager {
                 }
             });
         }
+
+        @Override
+        public void onAccountActiveStateChanged(@NonNull final UUID id) {
+            WalletAccount<?> account = _walletManager.getAccount(id);
+            if (account instanceof BitcoinVaultHdAccount) {
+                BitcoinVaultHDModule module =
+                        (BitcoinVaultHDModule) _walletManager.getModuleById(BitcoinVaultHDModule.ID);
+                if (module != null) {
+                    module.setupClientIsActive();
+                }
+            }
+        }
     };
 
     /**
@@ -923,11 +956,11 @@ public class MbwManager {
     }
 
     public List<Logs> getLastLogsDesc(long limit) {
-        return db.getLogsQueries().selectWithLimit(limit).executeAsList();
+        return loggerDB.getLogsQueries().selectWithLimit(limit).executeAsList();
     }
 
     public List<Logs> getLogsAsc() {
-        return db.getLogsQueries().select().executeAsList();
+        return loggerDB.getLogsQueries().select().executeAsList();
     }
 
     private class AccountEventManager implements AbstractBtcAccount.EventHandler {
@@ -1004,6 +1037,16 @@ public class MbwManager {
                 @Override
                 public void run() {
                     _eventBus.post(new SyncStopped());
+                }
+            });
+        }
+
+        @Override
+        public void accountSyncStopped(@NotNull WalletAccount<?> walletAccount) {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new AccountSyncStopped(walletAccount));
                 }
             });
         }

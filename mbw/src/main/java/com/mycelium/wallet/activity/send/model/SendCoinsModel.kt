@@ -476,8 +476,8 @@ abstract class SendCoinsModel(
                 }
                 receivingAddress.value != null && !toSend.isZero() && transactionDataStatus.value != TransactionDataStatus.TYPING -> {
                     // createTx potentially takes long, if server interaction is involved
-                    transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
-                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
+                    transaction = account.createTx(receivingAddress.value!!, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
+                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))
                     TransactionStatus.OK
                 }
                 else -> TransactionStatus.MISSING_ARGUMENTS

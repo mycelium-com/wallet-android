@@ -264,11 +264,11 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         return result
     }
 
-    private fun createLabel(config: Config, id: UUID): String? {
+    private fun createLabel(config: Config, id: UUID): String {
         // can't fetch hardware wallet's account labels for temp accounts
         // as we don't pass a signatureProviders and no need anyway
         if (config is ExternalSignaturesAccountConfig && signatureProviders == null)
-            return null
+            return "Unknown"
 
         val label = createLabel(getBaseLabel(config))
         storeLabel(id, label)
@@ -290,7 +290,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
     }
 
     fun getCurrentBip44Index() = accounts.values
-        .filter { it.isDerivedFromInternalMasterseed }
+        .filter { it.isDerivedFromInternalMasterseed() }
         .maxBy { it.accountIndex }
         ?.accountIndex
         ?: -1
@@ -305,7 +305,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
      * so we cannot rely on the according method for archived accounts)
      */
     fun canCreateAdditionalBip44Account(): Boolean =
-            hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed }
+            hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed() }
                     .all { it.hasHadActivity() || it.isArchived }
 
     override fun canCreateAccount(config: Config): Boolean {
@@ -333,7 +333,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
     fun getGapsBug(): Set<Int> {
         val accountIndices = accounts.values
-                .filter { it.isDerivedFromInternalMasterseed }
+                .filter { it.isDerivedFromInternalMasterseed() }
                 .map { it.accountIndex }
         val allIndices = 0..(accountIndices.max() ?: 0)
         return allIndices.subtract(accountIndices)
@@ -408,7 +408,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
  *
  * @return the list of accounts
  */
-fun WalletManager.getBTCBip44Accounts() = getAccounts().filter { it is HDAccount && it.isVisible }
+fun WalletManager.getBTCBip44Accounts() = getAccounts().filter { it is HDAccount && it.isVisible() }
 
 /**
  * Get the active BTC HD-accounts managed by the wallet manager
@@ -423,12 +423,12 @@ fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*>> = getAccounts().
  *
  * @return the list of accounts
  */
-fun WalletManager.getActiveMasterseedHDAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
+fun WalletManager.getActiveMasterseedHDAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed() }
 
 /**
  * Get the active accounts managed by the wallet manager
  *
  * @return the list of accounts
  */
-fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*>> = getAccounts().filter { it.isActive && it.isDerivedFromInternalMasterseed }
+fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*>> = getAccounts().filter { it.isActive && it.isDerivedFromInternalMasterseed() }
 

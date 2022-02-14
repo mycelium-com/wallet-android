@@ -163,6 +163,10 @@ sqldelight {
     GiftboxDB {
         packageName = "com.mycelium.generated.giftbox.database"
     }
+    LoggerDB {
+        packageName = "com.mycelium.generated.logger.database"
+        sourceFolders = ["sqldelight_logger"]
+    }
 }
 
 android {
@@ -211,8 +215,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3130600
-        versionName '3.13.6.0'
+        versionCode 3130700
+        versionName '3.13.7.0'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
