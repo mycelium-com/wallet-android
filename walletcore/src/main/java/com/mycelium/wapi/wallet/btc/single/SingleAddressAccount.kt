@@ -17,35 +17,30 @@ package com.mycelium.wapi.wallet.btc.single
 
 import com.google.common.base.Optional
 import com.google.common.collect.Lists
-import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddressType
-import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.model.AddressType
-import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
-import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
-import com.mycelium.wapi.api.WapiException
-import com.mycelium.wapi.SyncStatusInfo
-import com.mycelium.wapi.SyncStatus
-import com.mycelium.wapi.model.TransactionEx
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddressType
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.BitcoinTransaction
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
+import com.mycelium.wapi.api.Wapi
+import com.mycelium.wapi.api.WapiException
+import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.model.BalanceSatoshis
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
-import java.lang.IllegalStateException
-import java.lang.StringBuilder
 import java.util.*
 import java.util.logging.Level
-
-import com.mycelium.wapi.wallet.AesKeyCipher
-import java.lang.RuntimeException
 
 
 open class SingleAddressAccount @JvmOverloads constructor(private var _context: SingleAddressAccountContext, keyStore: PublicPrivateKeyStore,
@@ -60,7 +55,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         try {
             val privateKey = getPrivateKey(AesKeyCipher.defaultKeyCipher())
             val allPossibleAddresses: Map<AddressType, BitcoinAddress> =
-                privateKey.publicKey.getAllSupportedAddresses(_network, true)
+                    privateKey?.publicKey?.getAllSupportedAddresses(_network, true) ?: mapOf()
             if (allPossibleAddresses.size != _context.addresses.size) {
                 for (address in allPossibleAddresses.values) {
                     if (address != _context.addresses[address.type]) {
@@ -97,10 +92,13 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         _context.persistIfNecessary(_backing)
     }
 
+    /**
+     * check canSign before call this method
+     */
     override fun signMessage(message: String, address: Address?): String {
         return try {
             val key = getPrivateKey(AesKeyCipher.defaultKeyCipher())
-            key.signMessage(message).base64Signature
+            key!!.signMessage(message).base64Signature
         } catch (invalidKeyCipher: InvalidKeyCipher) {
             throw RuntimeException(invalidKeyCipher)
         }
@@ -260,9 +258,8 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         return _keyStore.hasPrivateKey(address.allAddressBytes)
     }
 
-    override fun canSign(): Boolean {
-        return true
-    }
+    override fun canSign(): Boolean =
+            _keyStore.hasPrivateKey(address.allAddressBytes)
 
     override fun isMine(address: BitcoinAddress): Boolean {
         return _addressList.contains(address)
@@ -346,8 +343,9 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
 
     @Throws(InvalidKeyCipher::class)
     override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
-        if (getPublicKey() == publicKey || PublicKey(publicKey.pubKeyCompressed) == publicKey) {
-            val privateKey = getPrivateKey(cipher)
+        val privateKey = getPrivateKey(cipher)
+        if ((getPublicKey() == publicKey || PublicKey(publicKey.pubKeyCompressed) == publicKey)
+                && privateKey != null) {
             return if (publicKey.isCompressed) {
                 InMemoryPrivateKey(privateKey.privateKeyBytes, true)
             } else {
@@ -359,8 +357,8 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
 
     @Throws(InvalidKeyCipher::class)
     override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
-        return if (_addressList.contains(address)) {
-            val privateKey = getPrivateKey(cipher)
+        val privateKey = getPrivateKey(cipher)
+        return if (_addressList.contains(address) && privateKey != null) {
             if (address.type === AddressType.P2SH_P2WPKH || address.type === AddressType.P2WPKH) {
                 InMemoryPrivateKey(privateKey.privateKeyBytes, true)
             } else {
@@ -406,7 +404,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
     }
 
     @Throws(InvalidKeyCipher::class)
-    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey? {
         return _keyStore.getPrivateKey(address.allAddressBytes, cipher)
     }
 
