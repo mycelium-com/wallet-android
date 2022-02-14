@@ -26,14 +26,15 @@ import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wallet.*
+import com.mycelium.wallet.Constants
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
@@ -42,7 +43,8 @@ import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
-import com.mycelium.wallet.activity.util.AnimationUtils
+import com.mycelium.wallet.activity.util.collapse
+import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
@@ -65,7 +67,6 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fio_memo_input.*
-import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_activity.root
 import kotlinx.android.synthetic.main.send_coins_activity_eth.*
 import kotlinx.android.synthetic.main.send_coins_advanced_block.*
@@ -73,8 +74,6 @@ import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -666,46 +665,22 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 }
 
-val mutex = Mutex()
-
 @BindingAdapter("errorAnimatedText")
 fun setVisibilityAnimated(target: TextView, error: CharSequence) {
-    (target.context as LifecycleOwner).lifecycleScope.launch {
-        mutex.lock()
-        val newVisibility = if (error.isNotEmpty()) View.VISIBLE else View.GONE
-        if (target.visibility == newVisibility) {
-            target.text = error
-            mutex.unlock()
-            return@launch
-        }
-        if (error.isNotEmpty()) {
-            target.text = error
-            target.visibility = newVisibility
-            AnimationUtils.expand(target, null)
-            mutex.unlock()
-        } else {
-            AnimationUtils.collapse(target) {
-                target.visibility = newVisibility
-                target.text = error
-                mutex.unlock()
-            }
-        }
+    if (error.isNotEmpty()) {
+        target.text = error
+        target.expand()
+    } else {
+        target.collapse()
     }
 }
 
 @BindingAdapter(value = ["animatedVisibility", "activity"], requireAll = false)
 fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsActivity?) {
-    val newVisibility = if (visible) View.VISIBLE else View.GONE
-    if (target.visibility == newVisibility) {
-        return
-    }
     if (visible) {
-        target.visibility = newVisibility
-        AnimationUtils.expand(target) { activity?.root?.smoothScrollTo(0, activity.root.measuredHeight) }
+        target.expand { activity?.root?.smoothScrollTo(0, activity.root.measuredHeight) }
     } else {
-        AnimationUtils.collapse(target) {
-            target.visibility = newVisibility
-        }
+        target.collapse()
     }
 }
 

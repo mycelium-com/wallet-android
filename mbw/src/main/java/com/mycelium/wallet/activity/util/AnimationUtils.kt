@@ -1,70 +1,76 @@
-package com.mycelium.wallet.activity.util;
+package com.mycelium.wallet.activity.util
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
-import android.view.View;
-import android.view.ViewGroup;
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
+import android.view.View
+import com.mycelium.wallet.R
 
-/**
- * Created by elvis on 07.09.17.
- */
 
-public class AnimationUtils {
+private const val DURATION: Long = 400
 
-    private static final long DURATION = 400;
+fun View.cancelAnimation() {
+    (getTag(R.id.animator) as? ValueAnimator)?.cancel()
+}
 
-    public static void collapse(final View view, final Runnable end) {
-        final ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        ValueAnimator anim = ValueAnimator.ofInt(view.getHeight(), 0);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                layoutParams.height = (int) valueAnimator.getAnimatedValue();
-                view.setLayoutParams(layoutParams);
-            }
-        });
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                view.setVisibility(View.GONE);
-                if (end != null) {
-                    end.run();
-                }
-            }
-        });
-        anim.setDuration(DURATION);
-        anim.start();
+fun View.collapse(end: (() -> Unit)? = null) {
+    cancelAnimation()
+    val newLayoutParams = layoutParams
+    val endBlock = {
+        setTag(R.id.animator, null)
+        visibility = View.GONE
+        end?.invoke()
     }
-
-    public static void expand(final View view, final Runnable end) {
-        view.setVisibility(View.VISIBLE);
-        int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(view.getResources().getDisplayMetrics().widthPixels, View.MeasureSpec.AT_MOST);
-        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        view.measure(widthMeasureSpec, heightMeasureSpec);
-        int height = view.getMeasuredHeight();
-
-        final ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        ValueAnimator anim = ValueAnimator.ofInt(0, height);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                layoutParams.height = (int) valueAnimator.getAnimatedValue();
-                view.setLayoutParams(layoutParams);
+    if (height != 0) {
+        val anim = ValueAnimator.ofInt(height, 0).apply {
+            addUpdateListener { valueAnimator ->
+                newLayoutParams.height = valueAnimator.animatedValue as Int
+                layoutParams = newLayoutParams
             }
-        });
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                if (end != null) {
-                    end.run();
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    endBlock()
                 }
-            }
-        });
-        anim.setDuration(DURATION);
-        anim.start();
+            })
+            duration = DURATION
+        }
+        setTag(R.id.animator, anim)
+        anim.start()
+    } else {
+        endBlock()
     }
+}
 
+fun View.expand(end: (() -> Unit)? = null) {
+    cancelAnimation()
+    visibility = View.VISIBLE
+    val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)
+    val heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+    measure(widthMeasureSpec, heightMeasureSpec)
+    val calcHeight = measuredHeight
+    val newLayoutParams = layoutParams
+    val endBlock = {
+        setTag(R.id.animator, null)
+        end?.invoke()
+    }
+    if (height != calcHeight) {
+        val anim = ValueAnimator.ofInt(height, calcHeight).apply {
+            addUpdateListener { valueAnimator ->
+                newLayoutParams.height = valueAnimator.animatedValue as Int
+                layoutParams = newLayoutParams
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    endBlock()
+                }
+            })
+            duration = DURATION
+        }
+        setTag(R.id.animator, anim)
+        anim.start()
+    } else {
+        endBlock()
+    }
 }
