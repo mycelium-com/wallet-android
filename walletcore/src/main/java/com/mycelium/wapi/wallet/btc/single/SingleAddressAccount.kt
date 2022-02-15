@@ -399,7 +399,8 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
 
     @Throws(InvalidKeyCipher::class)
     fun forgetPrivateKey(cipher: KeyCipher?) {
-        for (address in getPublicKey().getAllSupportedAddresses(_network, true).values) {
+        for (address in getPublicKey()?.getAllSupportedAddresses(_network, true)?.values
+                ?: listOf()) {
             _keyStore.forgetPrivateKey(address.allAddressBytes, cipher)
         }
     }
@@ -417,7 +418,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         _keyStore.setPrivateKey(address.allAddressBytes, privateKey, cipher)
     }
 
-    fun getPublicKey(): PublicKey {
+    fun getPublicKey(): PublicKey? {
         return _keyStore.getPublicKey(address.allAddressBytes)
     }
 
