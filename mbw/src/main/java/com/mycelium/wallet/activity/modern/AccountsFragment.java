@@ -647,7 +647,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (_mbwManager.isAccountCanBeDeleted(account)) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
