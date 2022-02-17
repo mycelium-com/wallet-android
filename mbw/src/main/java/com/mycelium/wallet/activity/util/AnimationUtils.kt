@@ -45,7 +45,7 @@ fun View.collapse(end: (() -> Unit)? = null) {
 fun View.expand(end: (() -> Unit)? = null) {
     cancelAnimation()
     visibility = View.VISIBLE
-    val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)
+    val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
     val heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
     measure(widthMeasureSpec, heightMeasureSpec)
     val calcHeight = measuredHeight
