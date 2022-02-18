@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.util
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.util.Log
 import android.view.View
 import com.mycelium.wallet.R
 
@@ -45,7 +46,7 @@ fun View.collapse(end: (() -> Unit)? = null) {
 fun View.expand(end: (() -> Unit)? = null) {
     cancelAnimation()
     visibility = View.VISIBLE
-    val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
+    val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec((parent as View).width, View.MeasureSpec.EXACTLY);
     val heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
     measure(widthMeasureSpec, heightMeasureSpec)
     val calcHeight = measuredHeight
