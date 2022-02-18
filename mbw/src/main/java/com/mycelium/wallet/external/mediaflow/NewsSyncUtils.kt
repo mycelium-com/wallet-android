@@ -5,8 +5,11 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.AsyncTask
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.text.Html
 import android.util.Log
 import android.widget.RemoteViews
@@ -14,6 +17,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.messaging.RemoteMessage
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -152,8 +158,25 @@ object NewsSyncUtils {
     fun notifyAboutMediaFlowTopics(context: Context, newTopicsRaw: List<News>) {
         val newTopics = newTopicsRaw.filter { topic -> topic.tags?.any { tag -> tag?.name == TAG_IMPORTANT } == true }
         val builder = createNotificationMediaFlowBuilder(context)
-
-        if (newTopics.size == 1) {
+        if (newTopics.size == 1 && newTopics[0].image?.isNotEmpty() == true) {
+            val news = newTopics[0]
+            val activityIntent = createSingleNewsIntent(context, news)
+            val pIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+            builder.setContentIntent(pIntent)
+            Handler(Looper.getMainLooper()).post {
+                Glide.with(context.applicationContext)
+                        .asBitmap()
+                        .load(news.image)
+                        .into(object : SimpleTarget<Bitmap>() {
+                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                builder.setStyle(NotificationCompat.BigPictureStyle()
+                                        .setBigContentTitle(Html.fromHtml(news.title.rendered))
+                                        .bigPicture(resource))
+                                NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
+                            }
+                        })
+            }
+        } else if (newTopics.size == 1) {
             val news = newTopics[0]
             builder.setContentText(Html.fromHtml(news.title.rendered))
             builder.setTicker(Html.fromHtml(news.title.rendered))
@@ -166,7 +189,6 @@ object NewsSyncUtils {
 
             builder.setContent(remoteViews)
                     .setContentIntent(pIntent)
-            builder.setGroup(mediaFlowNotificationGroup)
             NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
         } else if (newTopics.size > 1) {
             builder.setGroupSummary(true)
@@ -181,7 +203,6 @@ object NewsSyncUtils {
             activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
             val pIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
             builder.setContentIntent(pIntent)
-                    .setGroup(mediaFlowNotificationGroup)
             NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
         }
     }
@@ -200,4 +221,5 @@ object NewsSyncUtils {
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentTitle(context.getString(R.string.media_flow_notification_title))
+                    .setGroup(mediaFlowNotificationGroup)
 }

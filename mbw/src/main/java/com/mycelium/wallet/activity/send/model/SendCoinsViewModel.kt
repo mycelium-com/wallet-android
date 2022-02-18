@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast.*
-import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -34,6 +33,7 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.AssetUriParser
 import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.content.btcv.BitcoinVaultUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
@@ -52,7 +52,6 @@ import com.mycelium.wapi.wallet.fio.RecordObtData
 import com.mycelium.wapi.wallet.fio.getActiveFioAccount
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
-import java.math.BigInteger
 import java.util.*
 import java.util.regex.Pattern
 
@@ -204,6 +203,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getTransactionData() = model.transactionData
 
+    fun getTransactionDataStatus() = model.transactionDataStatus
+
     fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
             this::hasPaymentRequestHandler)
 
@@ -280,6 +281,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     private fun isUriMatchAccountCoinType(uri: AssetUri, coinType: CryptoCurrency): Boolean {
         return when (uri) {
             is BitcoinUri -> coinType == Utils.getBtcCoinType()
+            is BitcoinVaultUri -> coinType == Utils.getBtcvCoinType()
             is MTUri -> coinType == Utils.getMtCoinType()
             is MSSUri -> coinType == Utils.getMassCoinType()
             is RMCUri -> coinType == Utils.getRmcCoinType()
@@ -306,11 +308,16 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
         if (requestCode == SendCoinsActivity.GET_AMOUNT_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-            // Get result from AmountEntry
-            val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
-            model.apply {
-                amount.value = enteredAmount
-                updateAlternativeAmount(enteredAmount)
+            if (data?.getBooleanExtra(GetAmountActivity.EXIT_TO_MAIN_SCREEN, false) == true) {
+                activity.setResult(Activity.RESULT_CANCELED)
+                activity.finish()
+            } else {
+                // Get result from AmountEntry
+                val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
+                model.apply {
+                    amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
+                    updateAlternativeAmount(enteredAmount)
+                }
             }
         } else if (requestCode == SendCoinsActivity.SCAN_RESULT_CODE) {
             handleScanResults(resultCode, data, activity)
@@ -410,6 +417,10 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         model.saveInstance(outState)
     }
 
+    open fun isMinerFeeInfoAvailable() = false
+
+    open fun minerFeeInfoClickListener(activity: Activity) {}
+
     fun verifyPaymentRequest(rawPr: ByteArray, activity: Activity) {
         val intent = VerifyPaymentRequestActivity.getIntent(activity, rawPr)
         activity.startActivityForResult(intent, SendCoinsActivity.REQUEST_PAYMENT_HANDLER)
@@ -431,20 +442,3 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     }
 }
 
-object Converter {
-    @InverseMethod("stringToBigInt")
-    @JvmStatic
-    fun bigIntToString(value: BigInteger?): String {
-        return value?.toString() ?: ""
-    }
-
-    @JvmStatic
-    fun stringToBigInt(value: String): BigInteger? {
-        return if (value.isNotEmpty()) BigInteger(value) else null
-    }
-
-    @JvmStatic
-    fun valueToStr(value: Value?): String =
-            value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
-
-}

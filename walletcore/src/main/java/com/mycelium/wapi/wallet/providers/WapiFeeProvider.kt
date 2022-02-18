@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.providers
 
+import com.mycelium.wapi.Constants.BTC_ELECTRUMX_FEE_ESTIMATIONS_SCALE
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
@@ -18,7 +19,7 @@ abstract class WapiFeeProvider(private val wapi: Wapi, private val feeBacking: F
         // we try to get fee estimation from server
         estimation = withContext(Dispatchers.IO) {
             try {
-                val response = wapi.minerFeeEstimations
+                val response = wapi.getMinerFeeEstimations()
                 val oldStyleFeeEstimation = response.result.feeEstimation
                 fun convert(blocks: Int): Value {
                     val estimate = oldStyleFeeEstimation.getEstimation(blocks)
@@ -26,7 +27,7 @@ abstract class WapiFeeProvider(private val wapi: Wapi, private val feeBacking: F
                 }
 
                 val newEstimation = FeeEstimationsGeneric(convert(20), convert(10), convert(3), convert(1),
-                        System.currentTimeMillis()
+                        System.currentTimeMillis(), BTC_ELECTRUMX_FEE_ESTIMATIONS_SCALE
                 )
                 //if all ok we return requested new fee estimation
                 feeBacking.updateFeeEstimation(newEstimation)

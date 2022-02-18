@@ -11,7 +11,7 @@ import com.mycelium.wapi.wallet.LoadingProgressUpdater
 class LoadingProgressTracker(val context: Context) : LoadingProgressUpdater {
     val eventBus = MbwManager.getEventBus()!!
 
-    override var status: LoadingProgressStatus = LoadingProgressStatus.Starting()
+    override var status = LoadingProgressStatus(LoadingProgressStatus.State.STARTING)
         set(value) {
             Handler(context.mainLooper).post {
                 eventBus.post(MigrationStatusChanged(value))

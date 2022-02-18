@@ -1,12 +1,15 @@
 package com.mycelium.wapi.wallet.btcvault
 
 import com.google.common.collect.ImmutableMap
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
 
-abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<ADDRESS> {
+abstract class SynchronizeAbleWalletAccount<ADDRESS : Address> : SyncPausableAccount(), WalletAccount<ADDRESS> {
     private val lastSync = hashMapOf<SyncMode.Mode, Date>()
 
     @Volatile
@@ -23,15 +26,12 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<
             return true
         }
 
+        val modeLastSync = lastSync[syncMode.mode]
+        // never synced for this mode before - just do it. now.
+                ?: return true
         // check how long ago the last sync for this mode
-        var lastSync: Date
-        return if (this.lastSync[syncMode.mode].also { lastSync = it!! } != null) {
-            val lastSyncAge = Date().time - lastSync.time
-            lastSyncAge > getSyncInterval(syncMode)!!
-        } else {
-            // never synced for this mode before - just do it. now.
-            true
-        }
+        val lastSyncAge = Date().time - modeLastSync.time
+        return lastSyncAge > getSyncInterval(syncMode)
     }
 
     /**
@@ -41,7 +41,7 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<
      * @param syncMode the Mode to get the interval for
      * @return the interval in milliseconds
      */
-    private fun getSyncInterval(syncMode: SyncMode): Int? = MIN_SYNC_INTERVAL[syncMode.mode]
+    private fun getSyncInterval(syncMode: SyncMode): Int = MIN_SYNC_INTERVAL[syncMode.mode]!!
 
     /**
      * Synchronize this account
@@ -53,14 +53,16 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<
      * @return false if synchronization failed due to failed blockchain
      * connection
      */
-    override fun synchronize(mode: SyncMode): Boolean {
-        return if (needsSynchronization(mode)) {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
+        val fixMode = mode ?: SyncMode.NORMAL
+        return if (needsSynchronization(fixMode)) {
             isSyncing = true
-            val synced = doSynchronization(mode)
+            val synced = doSynchronization(fixMode)
             isSyncing = false
             // if sync went well, remember current time for this sync mode
             if (synced) {
-                lastSync[mode.mode] = Date()
+                lastSync[fixMode.mode] = Date()
+                lastSyncInfo = SyncStatusInfo(SyncStatus.SUCCESS)
             }
             synced
         } else {
@@ -80,9 +82,10 @@ abstract class SynchronizeAbleWalletAccount<ADDRESS : Address?> : WalletAccount<
      * @param mode SyncMode
      * @return true if sync was successful
      */
-    protected abstract fun doSynchronization(mode: SyncMode): Boolean
+    protected abstract suspend fun doSynchronization(mode: SyncMode): Boolean
 
-    override fun getDependentAccounts(): List<WalletAccount<*>> = listOf()
+    override val dependentAccounts: List<WalletAccount<Address>>
+        get() = listOf()
 
 
     companion object {

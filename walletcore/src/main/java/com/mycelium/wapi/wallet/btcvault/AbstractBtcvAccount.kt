@@ -27,6 +27,8 @@ import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.WapiResponse
@@ -64,7 +66,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                                                          val network: NetworkParameters,
                                                          protected val wapi: Wapi,
                                                          val accountListener: AccountListener?)
-    : SynchronizeAbleWalletAccount<BtcvAddress>(), AddressContainer {
+    : SynchronizeAbleWalletAccount<BtcvAddress>(), AddressContainer, PrivateKeyProvider {
     interface EventHandler {
         fun onEvent(accountId: UUID?, event: WalletManager.Event?)
     }
@@ -82,11 +84,11 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val btcFee = fee as FeePerKbFee
-        val btcTransaction = BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb)
-        val receivers = listOf(BtcvReceiver(btcTransaction.destination!!, btcTransaction.amount!!.valueAsLong))
         return try {
-            btcTransaction.unsignedTx = createUnsignedTransaction(receivers, btcTransaction.feePerKb!!.valueAsLong)
-            btcTransaction
+            BtcvTransaction(coinType, address as BtcvAddress, amount, btcFee.feePerKb).apply {
+                val receivers = listOf(BtcvReceiver(destination!!, amount.valueAsLong))
+                unsignedTx = createUnsignedTransaction(receivers, feePerKb!!.valueAsLong)
+            }
         } catch (ex: StandardTransactionBuilder.BtcOutputTooSmallException) {
             throw OutputTooSmallException(ex)
         } catch (ex: StandardTransactionBuilder.InsufficientBtcException) {
@@ -102,19 +104,6 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx!!, AesKeyCipher.defaultKeyCipher()))
     }
 
-    @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
-    fun createTxFromOutputList(outputs: OutputList?, minerFeePerKbToUse: Long): BtcTransaction {
-        return try {
-            BtcTransaction(coinType, createUnsignedTransaction(outputs, minerFeePerKbToUse))
-        } catch (ex: StandardTransactionBuilder.BtcOutputTooSmallException) {
-            throw OutputTooSmallException(ex)
-        } catch (ex: StandardTransactionBuilder.InsufficientBtcException) {
-            throw InsufficientFundsException(ex)
-        } catch (ex: StandardTransactionBuilder.UnableToBuildTransactionException) {
-            throw BuildTransactionException(ex)
-        }
-    }
-
     override fun isExchangeable(): Boolean {
         return true
     }
@@ -122,7 +111,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     override fun getTx(transactionId: ByteArray): Transaction? {
         val tex = accountBacking.getTransaction(Sha256Hash.of(transactionId))
         val tx = TransactionEx.toTransaction(tex) ?: return null
-        return BtcTransaction(coinType, tx)
+        return BtcvTransaction(coinType, tx)
     }
 
     /**
@@ -135,9 +124,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     protected fun postEvent(event: WalletManager.Event?) {
-        if (eventHandler != null) {
-            eventHandler!!.onEvent(this.id, event)
-        }
+        eventHandler?.onEvent(this.id, event)
     }
 
     /**
@@ -203,7 +190,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return isMineAddress(toBtcvAddress(script.getAddress(network)))
     }
     //    public boolean isMineAddress(String address) {
-    //        Address addr = AddressUtils.from(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), address);
+    //        Address addr = AddressUtils.from(_network.isProdnet() ? BitcoinMain : BitcoinTest, address);
     //        return isMineAddress(addr);
     //    }
     //    protected static UUID addressToUUID(BitcoinAddress address) {
@@ -215,18 +202,19 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
      * returns -1 if something went wrong or otherwise the number of new UTXOs added to the local
      * database
      */
-    protected fun synchronizeUnspentOutputs(addresses: Collection<BtcvAddress?>): Int {
+    protected suspend fun synchronizeUnspentOutputs(addresses: Collection<BtcvAddress?>): Int {
         // Get the current unspent outputs as dictated by the block chain
         val unspentOutputResponse = try {
             wapi.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, addresses)).result
         } catch (e: WapiException) {
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
             return -1
         }
         val remoteUnspent = unspentOutputResponse.unspent
         // Store the current block height
-        blockChainHeight = unspentOutputResponse.height
+        setBlockChainHeight(unspentOutputResponse.height)
         // Make a map for fast lookup
         val remoteMap = toMap(remoteUnspent)
 
@@ -251,9 +239,9 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 // Start of the hack to prevent actual local data removal if server still didn't process just sent tx
                 youngTransactions@ for (transactionEx in accountBacking.getTransactionsSince(System.currentTimeMillis() -
                         TimeUnit.SECONDS.toMillis(15))) {
-                    var output: TransactionOutputEx
+                    var output: TransactionOutputEx? = null
                     var i = 0
-                    while (TransactionEx.getTransactionOutput(transactionEx, i++).also { output = it } != null) {
+                    while (TransactionEx.getTransactionOutput(transactionEx, i++)?.also { output = it } != null) {
                         if (output == l && !accountBacking.hasParentTransactionOutput(l.outPoint)) {
                             removeLocally = false
                             break@youngTransactions
@@ -318,6 +306,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 handleNewExternalTransactions(txs)
             } catch (e: WapiException) {
                 logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+                lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
                 postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
                 return -1
             }
@@ -342,7 +331,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
         // if we removed some UTXO because of a sync, it means that there are transactions
         // we don't yet know about. Run a discover for all addresses related to the UTXOs we removed
-        if (!addressesToDiscover.isEmpty()) {
+        if (addressesToDiscover.isNotEmpty()) {
             try {
                 doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover))
             } catch (ignore: WapiException) {
@@ -351,16 +340,16 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return newUtxos
     }
 
-    protected fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> =
+    protected suspend fun getTransactionsBatched(txids: Collection<Sha256Hash>?): WapiResponse<GetTransactionsResponse> =
             wapi.getTransactions(GetTransactionsRequest(Wapi.VERSION, txids))
 
     @Throws(WapiException::class)
-    protected abstract fun doDiscoveryForAddresses(lookAhead: List<BtcvAddress>): Set<BipDerivationType>
+    protected abstract suspend fun doDiscoveryForAddresses(lookAhead: List<BtcvAddress>): Set<BipDerivationType>
 
     // HACK: skipping local handling of known transactions breaks the sync process. This should
     // be fixed somewhere else to make allKnown obsolete.
     @Throws(WapiException::class)
-    protected fun handleNewExternalTransactions(transactions: Collection<TransactionEx>?, allKnown: Boolean = false) {
+    protected suspend fun handleNewExternalTransactions(transactions: Collection<TransactionEx>?, allKnown: Boolean = false) {
         val all = ArrayList(transactions)
         var i = 0
         while (i < all.size) {
@@ -373,7 +362,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(WapiException::class)
-    private fun handleNewExternalTransactionsInt(@Nonnull transactions: Collection<TransactionEx>, allKnown: Boolean) {
+    private suspend fun handleNewExternalTransactionsInt(@Nonnull transactions: Collection<TransactionEx>, allKnown: Boolean) {
         // Transform and put into two arrays with matching indexes
         val txArray: MutableList<BitcoinTransaction> = ArrayList(transactions.size)
         for (tex in transactions) {
@@ -399,7 +388,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(WapiException::class)
-    fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
+    suspend fun fetchStoreAndValidateParentOutputs(transactions: List<BitcoinTransaction>, doRemoteFetching: Boolean) {
         val parentTransactions = hashMapOf<Sha256Hash, TransactionEx>()
         val parentOutputs = hashMapOf<OutPoint, TransactionOutputEx>()
 
@@ -579,7 +568,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
             }
         }
         return BalanceSatoshis(confirmed, pendingReceiving, pendingSending, pendingChange, System.currentTimeMillis(),
-                blockChainHeight, true, allowZeroConfSpending)
+                               getBlockChainHeight(), true, allowZeroConfSpending)
     }
 
     abstract fun toBtcvAddress(bitcoinAddress: BitcoinAddress): BtcvAddress
@@ -629,9 +618,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         return true
     }
 
-    fun getTransaction(txid: Sha256Hash?): TransactionEx {
-        return accountBacking.getTransaction(txid)
-    }
+    fun getTransaction(txid: Sha256Hash): TransactionEx = accountBacking.getTransaction(txid)
 
     @Synchronized
     fun broadcastTransaction(transaction: BitcoinTransaction): BroadcastResult {
@@ -653,6 +640,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                     BroadcastResult(BroadcastResultType.REJECT_DUPLICATE)
                 }
             } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
+                lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
                 postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
                 logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION")
                 BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
@@ -670,6 +658,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 BroadcastResult(BroadcastResultType.REJECTED)
             }
         } catch (e: WapiException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
@@ -694,7 +683,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         checkNotArchived()
         val list = accountBacking.getTransactionHistory(offset, limit)
         for (tex in list) {
-            val item = transform(tex, blockChainHeight)
+            val item = transform(tex, getBlockChainHeight())
             if (item != null) {
                 history.add(item)
             }
@@ -730,7 +719,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Synchronized
-    fun deleteTransaction(transactionId: Sha256Hash?): Boolean {
+    fun deleteTransaction(transactionId: Sha256Hash): Boolean {
         val tex = accountBacking.getTransaction(transactionId) ?: return false
         val tx = TransactionEx.toTransaction(tex)
         accountBacking.beginTransaction()
@@ -883,7 +872,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
             // we remove all outputs that don't cover their costs (dust)
             // coinbase outputs are not spendable and this should not be overridden
             // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
-            if (!skipDustCheck && output.value < satDustOutput || output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS
+            if (!skipDustCheck && output.value < satDustOutput || output.isCoinBase && getBlockChainHeight() - output.height < COINBASE_MIN_CONFIRMATIONS
                     || !allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
                 it.remove()
             }
@@ -895,10 +884,9 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
     protected abstract fun getChangeAddress(vararg destinationAddresses: BtcvAddress): BtcvAddress
 
-    @Synchronized
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value?, destinationAddress: BtcvAddress?): Value? {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcvAddress?): Value {
         checkNotArchived()
-        val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse!!.valueAsLong))
+        val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.valueAsLong))
         var satoshis: Long = 0
 
         // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
@@ -922,11 +910,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
         // Create transaction builder
         val stb = StandardTransactionBuilder(network)
-        val destinationAddressType: AddressType = if (destinationAddress != null) {
-            destinationAddress.type
-        } else {
-            AddressType.P2PKH
-        }
+        val destinationAddressType: AddressType = destinationAddress?.type ?: AddressType.P2PKH
         // Try and add the output
         try {
             // Note, null address used here, we just use it for measuring the transaction size
@@ -958,11 +942,8 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     @Throws(KeyCipher.InvalidKeyCipher::class)
     protected abstract fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey?
 
-    @Throws(KeyCipher.InvalidKeyCipher::class)
-    protected abstract fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey?
     protected abstract fun getPublicKeyForAddress(address: BitcoinAddress): PublicKey?
 
-    @Synchronized
     @Throws(StandardTransactionBuilder.BtcOutputTooSmallException::class, StandardTransactionBuilder.InsufficientBtcException::class, StandardTransactionBuilder.UnableToBuildTransactionException::class)
     fun createUnsignedTransaction(receivers: List<BtcvReceiver>, minerFeeToUse: Long): UnsignedTransaction {
         checkNotArchived()
@@ -983,7 +964,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(StandardTransactionBuilder.BtcOutputTooSmallException::class, StandardTransactionBuilder.InsufficientBtcException::class, StandardTransactionBuilder.UnableToBuildTransactionException::class)
-    fun createUnsignedTransaction(outputs: OutputList?, minerFeeToUse: Long): UnsignedTransaction {
+    fun createUnsignedTransaction(outputs: OutputList, minerFeeToUse: Long): UnsignedTransaction {
         checkNotArchived()
 
         // Determine the list of spendable outputs
@@ -1065,7 +1046,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
             // might change right when we make a copy
             val b = cachedBalance
             return if (b != null) BalanceSatoshis(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
-                    b.blockHeight, isSyncing, b.allowsZeroConfSpending) else BalanceSatoshis(0, 0, 0, 0, 0, 0, isSyncing, false)
+                    b.blockHeight, isSyncing(), b.allowsZeroConfSpending) else BalanceSatoshis(0, 0, 0, 0, 0, 0, isSyncing(), false)
         }
 
     /**
@@ -1161,30 +1142,23 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     // Get all unspent outputs for this account
     val unspentTransactionOutputSummary: List<TransactionOutputSummary>
         // Transform it to a list of summaries
-        get() {
-            // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
-            // accounts. That should be ok as we write to the DB in a sane order.
+        // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+        // accounts. That should be ok as we write to the DB in a sane order.
+        // Get all unspent outputs for this account
+        get() = accountBacking.allUnspentOutputs
+                .map {
+                    val script = ScriptOutput.fromScriptBytes(it.script)
+                    TransactionOutputSummary(it.outPoint, it.value, it.height,
+                            if (it.height == -1) {
+                                0
+                            } else {
+                                max(0, getBlockChainHeight() - it.height + 1)
+                            },
+                            script?.getAddress(network) ?: dummyAddress)
+                }.sorted()
 
-            // Get all unspent outputs for this account
-            return accountBacking.allUnspentOutputs
-                    .map {
-                        val script = ScriptOutput.fromScriptBytes(it.script)
-                        TransactionOutputSummary(it.outPoint, it.value, it.height,
-                                if (it.height == -1) {
-                                    0
-                                } else {
-                                    max(0, blockChainHeight - it.height + 1)
-                                },
-                                if (script == null) {
-                                    dummyAddress
-                                } else {
-                                    script.getAddress(network)
-                                })
-                    }.sorted()
-        }
-
-    protected fun monitorYoungTransactions(): Boolean {
-        val list = accountBacking.getYoungTransactions(5, blockChainHeight)
+    protected suspend fun monitorYoungTransactions(): Boolean {
+        val list = accountBacking.getYoungTransactions(5, getBlockChainHeight())
         if (list.isEmpty()) {
             return true
         }
@@ -1192,10 +1166,10 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         for (tex in list) {
             txids.add(tex.txid)
         }
-        val result: CheckTransactionsResponse
-        result = try {
+        val result: CheckTransactionsResponse = try {
             wapi.checkTransactions(CheckTransactionsRequest(txids)).result
         } catch (e: WapiException) {
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             postEvent(WalletManager.Event.SERVER_CONNECTION_ERROR)
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             // We failed to check transactions
@@ -1203,8 +1177,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         }
         for (t in result.transactions) {
             val localTransactionEx = accountBacking.getTransaction(t.txid)
-            var parsedTransaction: BitcoinTransaction?
-            parsedTransaction = if (localTransactionEx != null) {
+            val parsedTransaction: BitcoinTransaction? = if (localTransactionEx != null) {
                 try {
                     BitcoinTransaction.fromBytes(localTransactionEx.binary)
                 } catch (ignore: BitcoinTransaction.TransactionParsingException) {
@@ -1286,26 +1259,23 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         }
     }
 
-    inner class PrivateKeyRing(var _cipher: KeyCipher) : PublicKeyRing(), IPublicKeyRing, IPrivateKeyRing {
+    inner class PrivateKeyRing(private var cipher: KeyCipher) : PublicKeyRing(), IPublicKeyRing, IPrivateKeyRing {
         override fun findSignerByPublicKey(publicKey: PublicKey): BitcoinSigner {
             val privateKey: InMemoryPrivateKey? = try {
-                getPrivateKey(publicKey, _cipher)
+                getPrivateKey(publicKey, cipher)
             } catch (e: KeyCipher.InvalidKeyCipher) {
                 throw RuntimeException("Unable to decrypt private key for public key $publicKey")
             }
-            if (privateKey != null) {
-                return privateKey
-            }
-            throw RuntimeException("Unable to find private key for public key $publicKey")
+            return privateKey ?: throw RuntimeException("Unable to find private key for public key $publicKey")
         }
     }
 
-    fun getTransactionSummary(txid: Sha256Hash?): TransactionSummary? {
+    fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
         val tx = accountBacking.getTransaction(txid)
         return transform(tx, tx.height)
     }
 
-    fun getTransactionDetails(txid: Sha256Hash?): TransactionDetails {
+    fun getTransactionDetails(txid: Sha256Hash): TransactionDetails {
         // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
         // accounts. That should be ok as we write to the DB in a sane order.
         val tex = accountBacking.getTransaction(txid)
@@ -1418,7 +1388,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         confirmations = if (tex.height == -1) {
             0
         } else {
-            max(0, blockChainHeight - tex.height + 1)
+            max(0, getBlockChainHeight() - tex.height + 1)
         }
         val isQueuedOutgoing = accountBacking.isOutgoingTransaction(tx.id)
         return com.mycelium.wapi.wallet.TransactionSummary(coinType, tx.id.bytes, tx.hash.bytes, valueOf(coinType, satoshisTransferred), tex.time.toLong(), tex.height,
@@ -1426,25 +1396,28 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
                 tx.vsize(), valueOf(coinType, abs(satoshisReceived - satoshisSent)))
     }
 
-    override fun getCoinType(): CryptoCurrency =
-            if (network.isProdnet) BitcoinVaultMain else BitcoinVaultTest
+    override val coinType: CryptoCurrency
+        get() = if (network.isProdnet) BitcoinVaultMain else BitcoinVaultTest
 
-    override fun getBasedOnCoinType(): CryptoCurrency = coinType
+    override val basedOnCoinType: CryptoCurrency
+        get() = coinType
 
-    override fun getAccountBalance(): Balance = Balance(
+    override val accountBalance: Balance
+        get() = Balance(
             valueOf(coinType, cachedBalance!!.confirmed),
             valueOf(coinType, cachedBalance!!.pendingReceiving),
             valueOf(coinType, cachedBalance!!.pendingSending),
             valueOf(coinType, cachedBalance!!.pendingChange))
 
-    override fun getSyncTotalRetrievedTransactions(): Int = syncTotalRetrievedTxs
+    override val syncTotalRetrievedTransactions: Int
+        get() = syncTotalRetrievedTxs
 
     fun updateSyncProgress() {
         postEvent(WalletManager.Event.SYNC_PROGRESS_UPDATED)
     }
 
-    override fun getTypicalEstimatedTransactionSize(): Int =
-            FeeEstimatorBuilder().setLegacyInputs(1)
+    override val typicalEstimatedTransactionSize: Int
+        get() = FeeEstimatorBuilder().setLegacyInputs(1)
                     .setLegacyOutputs(2)
                     .createFeeEstimator().estimateTransactionSize()
 
@@ -1470,7 +1443,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
     }
 
     @Throws(WapiException::class)
-    fun updateParentOutputs(txid: ByteArray?) {
+    suspend fun updateParentOutputs(txid: ByteArray?) {
         val transactionEx = getTransaction(Sha256Hash.of(txid))
         val transaction = TransactionEx.toTransaction(transactionEx)
         fetchStoreAndValidateParentOutputs(listOf(transaction), true)

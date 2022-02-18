@@ -1,6 +1,5 @@
 package com.mycelium.wapi.wallet.btcvault.hd
 
-import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
@@ -10,18 +9,23 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider
 import com.mycelium.wapi.wallet.btcvault.AbstractBtcvAccount
 import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters
 import com.mycelium.wapi.wallet.btcvault.BtcvAddress
 import com.mycelium.wapi.wallet.btcvault.BtcvTransaction
+import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.manager.HDAccountKeyManager
 import java.util.*
@@ -32,13 +36,16 @@ import kotlin.math.min
 
 
 class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountContext,
-                            protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
+                            protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager<BtcvAddress>>,
                             val networkParameters: BTCVNetworkParameters,
                             wapi: Wapi,
                             val backing: BitcoinVaultHDAccountBacking,
                             accountListener: AccountListener?,
                             protected val changeAddressModeReference: Reference<ChangeAddressMode>)
-    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener), ExportableAccount {
+    : AbstractBtcvAccount(backing, networkParameters, wapi, accountListener),
+        ExportableAccount,
+        AddressesListProvider<BtcvAddress>,
+        SyncPausable {
 
     private val derivePaths = accountContext.indexesMap.keys
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = initAddressesMap()
@@ -59,24 +66,50 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         initSafeLastIndexes(false)
     }
 
-    override fun getId(): UUID = accountContext.id
+    val allAddresses: List<BtcvAddress>
+        get() {
+            val addresses = ArrayList<BtcvAddress>()
 
-    override fun isArchived(): Boolean = accountContext.isArchived()
+            derivePaths.forEach { derivationType ->
+                val externalIndex = accountContext.getLastExternalIndexWithActivity(derivationType) + 1
+                val external = externalAddresses[derivationType]!!.inverse()
+                for (i in 0..externalIndex) {
+                    addresses.add(external[i]!!)
+                }
 
-    override fun isActive(): Boolean = !accountContext.isArchived()
+                val internalIndex = accountContext.getLastInternalIndexWithActivity(derivationType)
+                val internal = internalAddresses[derivationType]!!.inverse()
+                for (i in 0..internalIndex) {
+                    addresses.add(internal[i]!!)
+                }
+            }
+            return addresses
+        }
+
+    override val id: UUID
+        get() = accountContext.id
+
+    override val isArchived: Boolean
+        get() = accountContext.isArchived()
+
+    override val isActive: Boolean
+        get() = !accountContext.isArchived()
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         val btcTx: BtcvTransaction = tx as BtcvTransaction
         return broadcastTransaction(btcTx.tx!!)
     }
 
-    override fun getReceiveAddress(): BtcvAddress? = receivingAddressMap[accountContext.defaultAddressType]
+    override val receiveAddress: BtcvAddress?
+        get() = receivingAddressMap[accountContext.defaultAddressType]
 
     fun getReceiveAddress(addressType: AddressType): BtcvAddress? = receivingAddressMap[addressType]
 
-    override fun getCoinType(): CryptoCurrency = accountContext.currency
+    override val coinType: CryptoCurrency
+        get() = accountContext.currency
 
-    override fun getBasedOnCoinType(): CryptoCurrency = accountContext.currency
+    override val basedOnCoinType: CryptoCurrency
+        get() = accountContext.currency
 
     override fun isMineAddress(address: Address?): Boolean {
         return try {
@@ -95,11 +128,12 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isExchangeable(): Boolean = true
 
-    override fun doDiscoveryForAddresses(addresses: List<BtcvAddress>): Set<BipDerivationType> {
+    override suspend fun doDiscoveryForAddresses(addresses: List<BtcvAddress>): Set<BipDerivationType> {
         // Do look ahead query
         val result = wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
-        blockChainHeight = result.height
+        if (!maySync) { return emptySet() }
+        setBlockChainHeight(result.height)
         val ids = result.txIds
         if (ids.isEmpty()) {
             // nothing found
@@ -113,6 +147,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         val newIds = mutableSetOf<Sha256Hash>()
         val knownTransactions = mutableSetOf<TransactionEx>()
         ids.forEach {
+            if (!maySync) { return emptySet() }
             val dbTransaction = backing.getTransaction(it)
             if (dbTransaction?.height ?: 0 > 0) {
                 // we have it and know its block
@@ -134,15 +169,15 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }.toSet()
     }
 
-    override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> = mutableListOf()
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
+        }
 
-    override fun getLabel(): String = accountContext.accountName
-
-    override fun setLabel(label: String) {
-        accountContext.accountName = label
-    }
-
-    override fun doSynchronization(proposedMode: SyncMode): Boolean {
+    @Synchronized
+    override suspend fun doSynchronization(proposedMode: SyncMode): Boolean {
+        if (!maySync) { return false }
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTxs = 0
@@ -157,7 +192,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                     return false
                 }
             }
-
+            if (!maySync) { return false }
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } catch (e: RuntimeException) {
@@ -179,16 +214,18 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                 else -> BtcvAddress(coinType, bitcoinAddress.allAddressBytes)
             }
 
-    private fun discovery(): Boolean {
+    private suspend fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
             // thus, method is done once discovered is empty.
             var discovered = derivePaths.toSet()
             do {
+                if (!maySync) { return false }
                 discovered = doDiscovery(discovered)
             } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
             logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
+            lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
             accountListener?.serverConnectionError(this, "Bitcoin Vault")
             return false
         }
@@ -198,7 +235,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         return true
     }
 
-    private fun updateUnspentOutputs(mode: SyncMode): Boolean {
+    private suspend fun updateUnspentOutputs(mode: SyncMode): Boolean {
         var checkAddresses = getAddressesToSync(mode)
 
         val newUtxos = synchronizeUnspentOutputs(checkAddresses)
@@ -292,7 +329,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
+    private suspend fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
@@ -325,13 +362,13 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun archiveAccount() {
         accountContext.setArchived(true)
         clearInternalStateInt()
-        accountContext.persistIfNecessary(backing)
+        accountListener?.onAccountActiveStateChanged(accountContext.id)
     }
 
     override fun activateAccount() {
         accountContext.setArchived(false)
         clearInternalStateInt()
-        accountContext.persistIfNecessary(backing)
+        accountListener?.onAccountActiveStateChanged(accountContext.id)
     }
 
     override fun dropCachedData() {
@@ -340,6 +377,15 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         }
         clearInternalStateInt()
         accountContext.persistIfNecessary(backing)
+    }
+
+    protected fun initContext() {
+        accountContext = BitcoinVaultHDAccountContext(accountContext.id, accountContext.currency,
+                accountContext.accountIndex, accountContext.isArchived(), accountContext.accountName,
+                Balance.getZeroBalance(accountContext.currency), backing::updateAccountContext,
+                accountType = accountContext.accountType, accountSubId = accountContext.accountSubId,
+                defaultAddressType = accountContext.defaultAddressType)
+        accountContext.persist(backing)
     }
 
     override fun isVisible(): Boolean = true
@@ -354,7 +400,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         return null
     }
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         // This method should NOT be called for HD account since it has more than one private key
         throw RuntimeException("Calling getPrivateKey() is not supported for HD account")
     }
@@ -370,8 +416,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     private fun tightenInternalAddressScanRange() {
         // Find the lowest internal index at which we have an unspent output
         val unspent = backing.allUnspentOutputs
-        val minInternalIndexesMap = mutableMapOf<BipDerivationType, Int>()
-        derivePaths.associateByTo(minInternalIndexesMap, { it }, { Int.MAX_VALUE })
+        val minInternalIndexesMap = derivePaths.associateWith { Int.MAX_VALUE }.toMutableMap()
         for (output in unspent) {
             val outputScript = ScriptOutput.fromScriptBytes(output.script)
                     ?: continue // never happens, we have parsed it before
@@ -490,12 +535,8 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             return null
         }
         val indexLookUp = getIndexLookup(toBtcvAddress(address), derivationType)
-        return if (indexLookUp == null) {
-            // still not found? give up...
-            null
-        } else {
-            keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
-        }
+                ?: return null
+        return keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
     }
 
     private fun getIndexLookup(address: BtcvAddress, derivationType: BipDerivationType): IndexLookUp? {
@@ -557,20 +598,20 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
 
     override fun isOwnExternalAddress(address: BtcvAddress): Boolean {
         val addressId = getAddressId(address)
-        return addressId.isPresent && addressId.get()[0] == 0
+        return addressId?.get(0) == 0
     }
 
-    private fun getAddressId(address: BtcvAddress): Optional<Array<Int>> {
+    private fun getAddressId(address: BtcvAddress): Array<Int>? {
         if (address.type !in availableAddressTypes) {
-            return Optional.absent()
+            return null
         }
         val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
         val (changeIndex, addressMap) = when (address) {
             in externalAddresses[derivationType]!!.keys -> Pair(0, externalAddresses)
             in internalAddresses[derivationType]!!.keys -> Pair(1, internalAddresses)
-            else -> return Optional.absent()
+            else -> return null
         }
-        return Optional.of(arrayOf(changeIndex, addressMap[derivationType]!![address]!!))
+        return arrayOf(changeIndex, addressMap[derivationType]!![address]!!)
     }
 
     override fun isValidEncryptionKey(cipher: KeyCipher?): Boolean = keyManagerMap.values.any { it.isValidEncryptionKey(cipher) }
@@ -578,20 +619,18 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         val privateDataMap = if (canSpend()) {
             try {
-                keyManagerMap.keys.map { derivationType ->
-                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher, derivationType)
-                            .serialize(network, derivationType))
-                }.toMap()
+                keyManagerMap.mapValues {
+                    it.value.getPrivateAccountRoot(cipher, it.key).serialize(network, it.key)
+                }
             } catch (ignore: KeyCipher.InvalidKeyCipher) {
                 null
             }
         } else {
             null
         }
-        val publicDataMap = keyManagerMap.keys.map { derivationType ->
-            derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
-                    .serialize(network, derivationType))
-        }.toMap()
+        val publicDataMap = keyManagerMap.mapValues {
+            it.value.publicAccountRoot.serialize(network, it.key)
+        }
         return ExportableAccount.Data(privateDataMap, publicDataMap)
     }
 
@@ -601,6 +640,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
         cachedBalance = null
+        initContext()
         initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
@@ -657,7 +697,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     }
 
     protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<BtcvAddress, Int>> = derivePaths
-            .map { it to HashBiMap.create<BtcvAddress, Int>() }.toMap().toMutableMap()
+            .associateWith { HashBiMap.create<BtcvAddress, Int>() }.toMutableMap()
 
     private fun initSafeLastIndexes(reset: Boolean) {
         listOf(BipDerivationType.BIP44,
@@ -682,10 +722,12 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         return derivePaths.any { accountContext.getLastExternalIndexWithActivity(it) != -1 }
     }
 
-    override fun getDummyAddress(): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters)
+    override val dummyAddress: BtcvAddress
+        get() = BtcvAddress.getNullAddress(coinType, networkParameters)
 
     override fun getDummyAddress(subType: String): BtcvAddress = BtcvAddress.getNullAddress(coinType, networkParameters, AddressType.valueOf(subType))
 
+    override fun addressesList(): List<BtcvAddress> = allAddresses
 
     companion object {
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
@@ -694,4 +736,14 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
+
+    override fun signMessage(message: String, address: Address?): String {
+        return try {
+            val privKey = getPrivateKeyForAddress((address as BtcAddress).address, AesKeyCipher.defaultKeyCipher())
+            privKey!!.signMessage(message).base64Signature
+        } catch (invalidKeyCipher: KeyCipher.InvalidKeyCipher) {
+            throw java.lang.RuntimeException(invalidKeyCipher)
+        }
+    }
+
 }

@@ -3,13 +3,14 @@ package com.mycelium.wapi.content
 import com.mrd.bitlib.crypto.Bip38
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.content.btcv.BitcoinVaultUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.content.fio.FIOUri
-import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain
@@ -48,7 +49,7 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
 
         // Check if the supplied "address" is actually an encrypted private key
         if (addressString != null && Bip38.isBip38PrivateKey(addressString)) {
-            if (coinType == BitcoinMain.get() || coinType == BitcoinTest.get()) {
+            if (coinType == BitcoinMain || coinType == BitcoinTest) {
                 return PrivateKeyUri(addressString, label, "bitcoin")
             }
             return PrivateKeyUri(addressString, label, coinType.symbol.decapitalize())
@@ -82,6 +83,7 @@ abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
                                 paymentUri: String?): AssetUri? {
             return when (coinType) {
                 is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
+                is BitcoinVaultMain, is BitcoinVaultTest -> BitcoinVaultUri(address, amount, label, paymentUri)
                 is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
                 is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)

@@ -59,12 +59,6 @@
     <style name="MyceliumActionBar" parent="MyceliumModern">
         <!-- Load it later in code with a lower pixel format, to save some memory
         <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
-
-        <item name="android:windowActionBar">false</item>
-        <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
 
@@ -168,7 +162,9 @@
 
     <style name="MyceliumModern" parent="AppBaseTheme">
         <!--<item name="android:windowFullscreen">true</item>-->
-
+        <!--   <item name="android:windowActionBar">false</item>
+           <item name="windowActionBar">false</item>-->
+        <!--<item name="android:windowNoTitle">true</item>-->
         <item name="android:popupBackground">@drawable/semi_black</item>
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
@@ -639,5 +635,32 @@
     <style name="NumberPickerStyle">
         <item name="colorControlNormal">@color/bequant_yellow</item>
         <item name="android:colorControlNormal" tools:targetApi="lollipop">@color/bequant_yellow</item>
+    </style>
+
+    <style name="Giftbox" parent="MyceliumModern">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/giftbox_bg</item>
+    </style>
+
+    <style name="Giftbox.Tabs">
+        <item name="android:background">@null</item>
+        <item name="tabIndicatorColor">@color/white</item>
+        <item name="tabIndicatorHeight">1dp</item>
+        <item name="android:paddingStart">@dimen/activity_horizontal_margin</item>
+        <item name="android:paddingEnd">@dimen/activity_horizontal_margin</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabTextAppearance">@style/GiftboxTabText</item>
+    </style>
+
+    <style name="GiftboxTabText" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">true</item>
+        <item name="textSize">13sp</item>
+    </style>
+
+    <style name="GiftboxCategoryTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
     </style>
 </resources>

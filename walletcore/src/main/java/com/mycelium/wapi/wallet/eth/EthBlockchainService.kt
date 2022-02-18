@@ -90,8 +90,8 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
     fun getNonce(address: String): BigInteger {
         val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
-
-        return mapper.readValue(URL(urlString), NonceResponse::class.java).nonce
+        val result = mapper.readValue(URL(urlString), NonceResponse::class.java)
+        return result.nonce + BigInteger.valueOf(result.unconfirmedTxs)
     }
 
     fun getTransaction(hash: String): Tx {
@@ -99,17 +99,12 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
         return mapper.readValue(URL(urlString), Tx::class.java)
     }
+
     fun getTransactions(address: String, contractAddress: String? = null): List<Tx> {
         return if (contractAddress != null) {
-            fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress) != null }
+            fetchTransactions(address).filter { tx -> tx.getTokenTransfer(contractAddress, address) != null }
         } else {
             fetchTransactions(address)
-                    .filter {
-                        it.tokenTransfers.isEmpty() ||
-                                (it.tokenTransfers.isNotEmpty() && it.tokenTransfers.any { transfer ->
-                                    isOutgoing(address, transfer)
-                                })
-                    }
         }
     }
 
@@ -119,16 +114,13 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
     class SendResult(val success: Boolean, val message: String?)
 }
 
-private fun isOutgoing(address: String, transfer: TokenTransfer) =
-        transfer.from.equals(address, true) && !transfer.to.equals(address, true) ||
-                transfer.from.equals(address, true) && transfer.to.equals(address, true)
-
 private class ApiResponse {
     val blockbook: BlockbookInfo? = null
 }
 
 private class NonceResponse {
     val nonce: BigInteger = BigInteger.ZERO
+    val unconfirmedTxs: Long = 0
 }
 
 private class BlockbookInfo {
@@ -197,8 +189,10 @@ class Tx {
         get() = ethereumSpecific!!.status
     val tokenTransfers: List<TokenTransfer> = emptyList()
 
-    fun getTokenTransfer(contractAddress: String): TokenTransfer? =
-            tokenTransfers.find { it.token.equals(contractAddress, true) }
+    fun getTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? =
+            tokenTransfers.find { it.token.equals(contractAddress, true) &&
+                    (it.to.equals(ownerAddress, true) || it.from.equals(ownerAddress, true))
+            }
 
     override fun toString(): String {
         return """{'txid':$txid,'from':$from,'to':$to,'blockHeight':$blockHeight,'confirmations':$confirmations,

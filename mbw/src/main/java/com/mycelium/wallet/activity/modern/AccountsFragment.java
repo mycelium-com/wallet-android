@@ -34,6 +34,11 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -59,7 +64,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.view.ActionMode.Callback;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -76,8 +80,8 @@ import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
-import com.mycelium.wallet.activity.main.FioProtocolBannerFragment;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
+import com.mycelium.wallet.activity.modern.event.SelectTab;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -136,15 +140,12 @@ import com.squareup.otto.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
-import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
-import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 public class AccountsFragment extends Fragment {
     public static final int ADD_RECORD_RESULT_CODE = 0;
@@ -178,9 +179,6 @@ public class AccountsFragment extends Fragment {
         if (root == null) {
             root = inflater.inflate(R.layout.fragment_accounts, container, false);
         }
-        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.phFragmentFioBanner, FioProtocolBannerFragment.newInstance(true));
-        fragmentTransaction.commitAllowingStateLoss();
         return root;
     }
 
@@ -283,6 +281,12 @@ public class AccountsFragment extends Fragment {
         }
     }
 
+    private void interruptSync(Collection<WalletAccount> accountsToInterrupt) {
+        for (WalletAccount<?> wa : accountsToInterrupt) {
+            wa.interruptSync();
+        }
+    }
+
     private void deleteAccount(final WalletAccount accountToDelete) {
         checkNotNull(accountToDelete);
         final List<WalletAccount> linkedAccounts = new ArrayList<>();
@@ -295,6 +299,12 @@ public class AccountsFragment extends Fragment {
                 linkedAccounts.add(getLinkedAccount(accountToDelete));
             }
         }
+
+        Collection<WalletAccount> accountsToInterrupt = new HashSet<>();
+        accountsToInterrupt.add(accountToDelete);
+        accountsToInterrupt.addAll(linkedAccounts);
+        interruptSync(accountsToInterrupt);
+
         final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
         final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
         keepAddrCheckbox.setText(getString(R.string.keep_account_address));
@@ -637,7 +647,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (_mbwManager.isAccountCanBeDeleted(account)) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
@@ -711,8 +721,7 @@ public class AccountsFragment extends Fragment {
 
             @Override
             public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                int id = menuItem.getItemId();
-                switch (id) {
+                switch (menuItem.getItemId()) {
                     case R.id.miMapFioAddress:
                         RegisterFioNameActivity.start(requireContext(), account.getId());
                         return true;
@@ -720,19 +729,11 @@ public class AccountsFragment extends Fragment {
                         FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;
                     case R.id.miFIORequests:
-                        ((ModernMain)getActivity()).selectRequestTab();
+                        MbwManager.getEventBus().post(new SelectTab(ModernMain.TAB_FIO_REQUESTS));
                         return true;
                     case R.id.miAboutFIOProtocol:
                         new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
                         break;
-
-                }
-                // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-                if (requireFocusedAccount().isSyncing()) {
-                    _toaster.toast(R.string.synchronizing_please_wait, false);
-                    return true;
-                }
-                switch (id) {
                     case R.id.miActivate:
                         activateSelected();
                         return true;
@@ -767,11 +768,17 @@ public class AccountsFragment extends Fragment {
                         verifySingleKeyBackup();
                         return true;
                     case R.id.miRescan:
+                        // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
+                        if (requireFocusedAccount().isSyncing()) {
+                            _toaster.toast(R.string.synchronizing_please_wait, false);
+                            return true;
+                        }
                         rescan();
                         return true;
                     default:
                         return false;
                 }
+                return false;
             }
 
             @Override
@@ -796,6 +803,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
+        account.interruptSync();
         if (account instanceof SingleAddressAccount || account instanceof ColuAccount) {
             //start legacy backup verification
             VerifyBackupActivity.callMe(getActivity());
@@ -807,6 +815,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount account = requireFocusedAccount();
+        account.interruptSync();
         if (account instanceof ColuAccount) {
             //ColuAccount class can be single or HD
             //TODO: test if account is single address or HD and do wordlist backup instead
@@ -825,6 +834,7 @@ public class AccountsFragment extends Fragment {
 
     private void showOutputs() {
         WalletAccount account = requireFocusedAccount();
+        account.interruptSync();
         Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class)
                 .putExtra("account", account.getId());
         startActivity(intent);
@@ -834,12 +844,10 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                WalletAccount account = accountListAdapter.getFocusedAccount();
-                MessageSigningActivity.callMe(getActivity(), account);
-            }
+        runPinProtected(() -> {
+            WalletAccount account = accountListAdapter.getFocusedAccount();
+            account.interruptSync();
+            MessageSigningActivity.callMe(requireContext(), account);
         });
     }
 
@@ -920,23 +928,24 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.lt_detaching_title)
-                        .setMessage(getString(R.string.lt_detaching_question))
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                _mbwManager.getLocalTraderManager().unsetLocalTraderAccount();
-                                _toaster.toast(R.string.lt_detached, false);
-                                update();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null)
-                        .show();
-            }
-        });
+        LocalTraderManager ltm = _mbwManager.getLocalTraderManager();
+        boolean hasLt = ltm.hasLocalTraderAccount();
+        if (!hasLt) {
+            _toaster.toast("No LT configured.", true);
+            return;
+        }
+        runPinProtected(() -> new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.lt_detaching_title)
+                .setMessage(getString(R.string.lt_detaching_question))
+                .setPositiveButton(R.string.yes, (arg0, arg1) -> {
+                    WalletAccount wa = walletManager.getAccount(ltm.getLocalTraderAccountId());
+                    wa.interruptSync();
+                    ltm.unsetLocalTraderAccount();
+                    _toaster.toast(R.string.lt_detached, false);
+                    update();
+                })
+                .setNegativeButton(R.string.no, null)
+                .show());
     }
 
     private void activateSelected() {
@@ -947,33 +956,32 @@ public class AccountsFragment extends Fragment {
     }
 
     private void activate(WalletAccount<?> account) {
-        List<WalletAccount<?>> accountsToSync = new ArrayList<>();
-        account.activateAccount();
-        accountsToSync.add(account);
+        List<WalletAccount<?>> accountsToActivateAndSync = new ArrayList<>();
+        accountsToActivateAndSync.add(account);
         if (account instanceof EthAccount) {
-            for (WalletAccount walletAccount : getLinkedERC20Accounts(account)) {
-                walletAccount.activateAccount();
-                accountsToSync.add(walletAccount);
+            for (WalletAccount<?> walletAccount : getLinkedERC20Accounts(account)) {
+                accountsToActivateAndSync.add(walletAccount);
             }
         } else if (account instanceof ERC20Account) {
             EthAccount ethAccount = getLinkedEthAccount(account);
             if (ethAccount.isArchived()) {
-                ethAccount.activateAccount();
-                accountsToSync.add(ethAccount);
+                accountsToActivateAndSync.add(ethAccount);
             }
         } else {
             WalletAccount<?> linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
             if (linkedAccount != null) {
-                linkedAccount.activateAccount();
-                accountsToSync.add(linkedAccount);
+                accountsToActivateAndSync.add(linkedAccount);
             }
+        }
+        for(WalletAccount<?> wa : accountsToActivateAndSync) {
+            wa.activateAccount();
         }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
         updateIncludingMenus();
         _toaster.toast(R.string.activated, false);
         _mbwManager.getWalletManager(false)
-                .startSynchronization(SyncMode.NORMAL_FORCED, accountsToSync);
+                .startSynchronization(SyncMode.NORMAL_FORCED, accountsToActivateAndSync);
     }
 
     private void archiveSelected() {
@@ -1034,18 +1042,16 @@ public class AccountsFragment extends Fragment {
                 return;
             }
 
-            runPinProtected(new Runnable() {
-                @Override
-                public void run() {
-                    _mbwManager.getWalletManager(false).deleteAccount(hdAccount.getId());
-                    // in case user had labeled the account, delete the stored name
-                    _storage.deleteAccountMetadata(hdAccount.getId());
-                    eventBus.post(new AccountChanged(hdAccount.getId()));
-                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
-                    //we dont want to show the context menu for the automatically selected account
-                    accountListAdapter.setFocusedAccountId(null);
-                    finishCurrentActionMode();
-                }
+            runPinProtected(() -> {
+                hdAccount.interruptSync();
+                _mbwManager.getWalletManager(false).deleteAccount(hdAccount.getId());
+                // in case user had labeled the account, delete the stored name
+                _storage.deleteAccountMetadata(hdAccount.getId());
+                eventBus.post(new AccountChanged(hdAccount.getId()));
+                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
+                //we dont want to show the context menu for the automatically selected account
+                accountListAdapter.setFocusedAccountId(null);
+                finishCurrentActionMode();
             });
         }
     }
@@ -1061,6 +1067,12 @@ public class AccountsFragment extends Fragment {
                 linkedAccounts.add(getLinkedAccount(account));
             }
         }
+
+        Collection<WalletAccount> accountsToInterrupt = new HashSet<>();
+        accountsToInterrupt.add(account);
+        accountsToInterrupt.addAll(linkedAccounts);
+        interruptSync(accountsToInterrupt);
+
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)
                 .setMessage(Html.fromHtml(createArchiveDialogText(account, linkedAccounts)))

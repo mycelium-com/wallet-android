@@ -2,7 +2,7 @@ package com.mycelium.wallet.activity;
 
 import android.annotation.SuppressLint;
 
-import com.mycelium.generated.wallet.database.Logs;
+import com.mycelium.generated.logger.database.Logs;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

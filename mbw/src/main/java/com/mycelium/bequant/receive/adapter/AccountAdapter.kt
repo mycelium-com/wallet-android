@@ -17,24 +17,31 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.coins.Value
+import java.util.*
 
 open class AccountListItem(val viewType: Int)
 class AccountGroupItem(val isOpened: Boolean, val label: String, val value: ValueSum) : AccountListItem(ACCOUNT_GROUP_TYPE)
-class AccountItem(val label: String, val value: Value) : AccountListItem(ACCOUNT_TYPE)
+class AccountItem(val label: String, val value: Value?, val accountId: UUID? = null) : AccountListItem(ACCOUNT_TYPE)
 class TotalItem(val value: ValueSum) : AccountListItem(TOTAL_TYPE)
 
-class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
+class AccountAdapterConfig(val accountLayout: Int, val accountGroupLayout: Int, val totalLayout: Int)
+
+class AccountAdapter(val config: AccountAdapterConfig = AccountAdapterConfig(
+        R.layout.item_bequant_select_account,
+        R.layout.item_bequant_select_account_group,
+        R.layout.item_bequant_select_account_total
+)) : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
 
     var accountClickListener: ((AccountItem) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
                 ACCOUNT_TYPE ->
-                    AccountItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_select_account, parent, false))
+                    AccountItemViewHolder(LayoutInflater.from(parent.context).inflate(config.accountLayout, parent, false))
                 ACCOUNT_GROUP_TYPE ->
-                    AccountGroupViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_select_account_group, parent, false))
+                    AccountGroupViewHolder(LayoutInflater.from(parent.context).inflate(config.accountGroupLayout, parent, false))
                 TOTAL_TYPE ->
-                    TotalViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_select_account_total, parent, false))
+                    TotalViewHolder(LayoutInflater.from(parent.context).inflate(config.totalLayout, parent, false))
                 else -> {
                     TODO("no type implementation")
                 }
@@ -47,7 +54,7 @@ class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(Ite
                 val accountHolder = viewHolder as AccountItemViewHolder
                 val accountItem = item as AccountItem
                 accountHolder.label.text = accountItem.label
-                accountHolder.value.text = accountItem.value.toStringWithUnit(Denomination.UNIT)
+                accountHolder.value.text = accountItem.value?.toStringWithUnit(Denomination.UNIT) ?: ""
                 accountHolder.itemView.setOnClickListener {
                     accountClickListener?.invoke(item)
                 }

@@ -34,11 +34,11 @@
 
 package com.mycelium.wallet;
 
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import androidx.annotation.NonNull;
 
 import androidx.annotation.NonNull;
 
@@ -61,6 +61,7 @@ import com.mycelium.wapi.wallet.Util;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -79,8 +80,6 @@ import java.util.regex.Pattern;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 // import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC; gets shadowed by the local definition of the same value.
 
 public class ExchangeRateManager implements ExchangeRateProvider {
@@ -164,6 +163,15 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                     for (String currency : selectedCurrencies) {
                         responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION,
                                 Util.trimTestnetSymbolDecoration(cryptocurrency), currency)).getResult());
+                    }
+                }
+                for (String currency : selectedCurrencies) {
+                    ExchangeRate rate = getExchangeRate(Utils.getBtcCoinType().getSymbol(), currency);
+                    if (rate != null && rate.price != null) {
+                        ExchangeRate mtRate = new ExchangeRate("Mycelium",
+                                System.currentTimeMillis(), rate.price, currency);
+                        responses.add(new GetExchangeRatesResponse("MT", currency,
+                                new ExchangeRate[]{mtRate}));
                     }
                 }
                 synchronized (_requestLock) {
@@ -342,6 +350,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * the currently chosen exchange source is not available.
      */
     public ExchangeRate getExchangeRate(String source, String destination, String exchangeSource) {
+        if(source.equals(destination)) {
+            return new ExchangeRate(exchangeSource, System.currentTimeMillis(), 1.0, destination);
+        }
         Map<String, GetExchangeRatesResponse> latestRatesForSourceCurrency = _latestRates.get(source);
 
         // TODO need some refactoring for this
@@ -429,6 +440,16 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
 
         requestRefresh();
+    }
+
+    public List<AssetInfo> getCurrencyList() {
+        synchronized (_requestLock) {
+            ArrayList<AssetInfo> result = new ArrayList<>();
+            for (String fiatCurrency : _fiatCurrencies) {
+                result.add(new FiatType(fiatCurrency));
+            }
+            return result;
+        }
     }
 
     class GetOfferCallback implements Callback<ChangellyAnswerDouble> {

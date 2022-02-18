@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import androidx.lifecycle.MutableLiveData
+import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
@@ -23,6 +24,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import com.squareup.otto.Subscribe
 import io.reactivex.BackpressureStrategy
@@ -64,6 +66,19 @@ abstract class SendCoinsModel(
                 txRebuildPublisher.onNext(Unit)
             }
         }
+    }
+
+    val transactionDataStatus: MutableLiveData<TransactionDataStatus> = object : MutableLiveData<TransactionDataStatus>() {
+        override fun setValue(value: TransactionDataStatus) {
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+            }
+        }
+    }
+
+    enum class TransactionDataStatus {
+        READY, TYPING
     }
 
     val receivingAddress: MutableLiveData<Address?> = object : MutableLiveData<Address?>() {
@@ -379,7 +394,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    private fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
+    protected open fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
 
     /**
      * Recalculate the transaction based on the current choices.
@@ -392,15 +407,18 @@ abstract class SendCoinsModel(
 
     protected open fun updateErrorMessage(transactionStatus: TransactionStatus) {
         errorText.postValue(when (transactionStatus) {
-            TransactionStatus.OUTPUT_TO_SMALL -> {
+            TransactionStatus.OUTPUT_TOO_SMALL -> {
                 // Amount too small
                 if (!Value.isNullOrZero(amount.value)) {
-                    context.getString(R.string.amount_too_small_short)
+                    // TODO refactor: now it's btc specific but "Amount too small" status for now is possible only for btc in the app
+                    context.getString(R.string.amount_too_small_short, Value.valueOf(account.coinType,
+                        TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
                 } else {
                     ""
                 }
             }
             TransactionStatus.INSUFFICIENT_FUNDS -> context.getString(R.string.insufficient_funds)
+            TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE -> context.getString(R.string.insufficient_funds_for_fee)
             TransactionStatus.BUILD_ERROR -> context.getString(R.string.tx_build_error)
             else -> ""
         })
@@ -409,7 +427,7 @@ abstract class SendCoinsModel(
     private fun getRequestedAmountFormatted(): String {
         return if (Value.isNullOrZero(amount.value)) {
             ""
-        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             getValueInAccountCurrency().toStringWithUnit(mbwManager.getDenomination(account.coinType))
@@ -419,7 +437,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getRequestedAmountAlternativeFormatted(): String {
-        return if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+        return if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             ""
@@ -456,10 +474,10 @@ abstract class SendCoinsModel(
                 paymentRequestHandler.value?.hasValidPaymentRequest() == true -> {
                     handlePaymentRequest(toSend)
                 }
-                receivingAddress.value != null && !toSend.isZero()-> {
+                receivingAddress.value != null && !toSend.isZero() && transactionDataStatus.value != TransactionDataStatus.TYPING -> {
                     // createTx potentially takes long, if server interaction is involved
-                    transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
-                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
+                    transaction = account.createTx(receivingAddress.value!!, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
+                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))
                     TransactionStatus.OK
                 }
                 else -> TransactionStatus.MISSING_ARGUMENTS
@@ -467,7 +485,9 @@ abstract class SendCoinsModel(
         } catch (ex: BuildTransactionException) {
             return TransactionStatus.MISSING_ARGUMENTS
         } catch (ex: OutputTooSmallException) {
-            return TransactionStatus.OUTPUT_TO_SMALL
+            return TransactionStatus.OUTPUT_TOO_SMALL
+        } catch (ex: InsufficientFundsForFeeException) {
+            return TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE
         } catch (ex: InsufficientFundsException) {
             return TransactionStatus.INSUFFICIENT_FUNDS
         } catch (ex: IOException) {
@@ -503,7 +523,7 @@ abstract class SendCoinsModel(
     }
 
     enum class TransactionStatus {
-        BUILDING, MISSING_ARGUMENTS, OUTPUT_TO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
+        BUILDING, MISSING_ARGUMENTS, OUTPUT_TOO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
     }
 
     companion object {

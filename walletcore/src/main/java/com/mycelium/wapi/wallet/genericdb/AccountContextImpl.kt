@@ -18,6 +18,7 @@ abstract class AccountContextImpl(uuid: UUID,
                 balance,
                 archived,
                 blockHeight) {
+
     abstract fun onChange()
 
     override var archived = archived

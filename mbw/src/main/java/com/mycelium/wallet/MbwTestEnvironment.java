@@ -44,7 +44,7 @@ import com.mycelium.wapi.wallet.btcvault.BTCVNetworkParameters;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
-import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wallet.external.BankCardServiceDescription;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultMain;
 import com.mycelium.wapi.wallet.btcvault.coins.BitcoinVaultTest;
@@ -102,7 +102,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
    private static final Map<String, List<BlockExplorer>> testnetExplorerClearEndpoints = new HashMap<String, List<BlockExplorer>>() {
       {
          put(BitcoinTest.get().getName(), new ArrayList<BlockExplorer>() {{
-            add(new BlockExplorer("SBT", "smartbit", "https://testnet.smartbit.com.au/address/", "https://testnet.smartbit.com.au/tx/", null, null));
+            add(new BlockExplorer("SBT", "blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
             add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
             add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
             add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
@@ -116,7 +116,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
             add(new BlockExplorer("EFI", "explorer.fioprotocol.io", "https://explorer.testnet.fioprotocol.io/account/", "https://explorer.testnet.fioprotocol.io/transaction/", null, null));
          }});
          put(BitcoinVaultTest.INSTANCE.getName(), Arrays.asList(
-                 new BlockExplorer("BVE", "explorer.bitcoinvault.global", "http://18.196.199.105/address/", "http://18.196.199.105/tx/", null, null)
+                 new BlockExplorer("BVE", "explorer.bitcoinvault.global", "http://explorer.testnet.btcv.stage.rnd.land/address/", "http://explorer.testnet.btcv.stage.rnd.land/tx/", null, null)
          ));
       }
    };
@@ -127,7 +127,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
 
    public List<BuySellServiceDescriptor> getBuySellServices() {
       return new ArrayList<BuySellServiceDescriptor>() {{
-         add(new SimplexServiceDescription());
+         add(new BankCardServiceDescription());
          add(new SepaServiceDescription());
          add(new LocalTraderServiceDescription());
       }};

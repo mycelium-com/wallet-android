@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.SYMBOL_COIN_MAP
 import com.mycelium.wapi.wallet.coins.Value
@@ -19,7 +20,6 @@ object Util {
     fun trimTestnetSymbolDecoration(symbol: String): String =
             when (symbol) {
                 "tBTC", "tBTCV" -> symbol.substring(1)
-                "MTt" -> symbol.substring(0, symbol.length - 1)
                 else -> symbol
             }
 
@@ -28,7 +28,6 @@ object Util {
             if (isTestnet) {
                 when (symbol) {
                     "BTC", "BTCV" -> "t$symbol"
-                    "MT" -> symbol + "t"
                     else -> symbol
                 }
             } else {
@@ -43,7 +42,7 @@ object Util {
             }[symbol.toUpperCase(Locale.US)]
 
     @JvmStatic
-    fun strToBigInteger(coinType: CryptoCurrency, amountStr: String): BigInteger =
+    fun strToBigInteger(coinType: AssetInfo, amountStr: String): BigInteger =
                 BigDecimal(amountStr).movePointRight(coinType.unitExponent).toBigIntegerExact()
 
     @JvmStatic

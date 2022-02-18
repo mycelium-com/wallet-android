@@ -17,10 +17,10 @@
 package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.AccountIndexesContext
-import java.util.UUID
+import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
+import java.util.*
 
 /**
  * The abstract context of an account
@@ -28,7 +28,7 @@ import java.util.UUID
 class HDAccountContext @JvmOverloads constructor(
         val id: UUID,
         val accountIndex: Int,
-        private var isArchived: Boolean,
+        @Volatile private var isArchived: Boolean,
         private var blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
         val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
@@ -75,6 +75,15 @@ class HDAccountContext @JvmOverloads constructor(
         }
     }
 
+    fun reset() {
+        blockHeight = 0
+        lastDiscovery = 0
+        val newIndexes = createNewIndexesContexts(indexesMap.keys)
+        indexesMap.clear()
+        indexesMap.putAll(newIndexes)
+        isDirty = true
+    }
+
     /**
      * Get the block chain height recorded for this context
      */
@@ -93,7 +102,7 @@ class HDAccountContext @JvmOverloads constructor(
     }
 
     fun getLastExternalIndexWithActivity(type: BipDerivationType): Int =
-            indexesMap[type]?.lastExternalIndexWithActivity ?: 0
+            indexesMap[type]?.lastExternalIndexWithActivity ?: -1
 
     internal fun setLastExternalIndexWithActivity(type: BipDerivationType, lastExternalIndexWithActivity: Int) {
         if (indexesMap[type]!!.lastExternalIndexWithActivity != lastExternalIndexWithActivity) {
@@ -103,7 +112,7 @@ class HDAccountContext @JvmOverloads constructor(
     }
 
     fun getLastInternalIndexWithActivity(type: BipDerivationType): Int =
-            indexesMap[type]?.lastInternalIndexWithActivity ?: 0
+            indexesMap[type]?.lastInternalIndexWithActivity ?: -1
 
     internal fun setLastInternalIndexWithActivity(type: BipDerivationType, lastInternalIndexWithActivity: Int) {
         if (indexesMap[type]!!.lastInternalIndexWithActivity != lastInternalIndexWithActivity) {

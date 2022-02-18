@@ -20,6 +20,7 @@
 
     <color name="greenblue">#0FF</color>
     <color name="darkgrey">#444</color>
+    <color name="white_alpha_0_6">#99ffffff</color>
     <color name="darkdarkgrey">#222</color>
     <color name="lightgrey">#bbb</color>
     <color name="lightgrey_transparent">#77555555</color>
@@ -34,7 +35,7 @@
     <color name="fnbuttoncolor">#ff112639</color>
     <color name="fnbuttoncolor_border">#ff255179</color>
     <color name="buttonredcolor">#ffff1c1c</color>
-    
+    <color name="red_error">#EB582C</color>
     <drawable name="semi_black">#80000000</drawable>
 
     <!-- camera uses them -->
@@ -60,6 +61,7 @@
     <color name="preference_item_color">#2c2c2c</color>
     <color name="btn_text_color">#5aa7e6</color>
     <color name="media_flow_status_color">#881a1a1a</color>
+    <color name="white_alpha_0_2">#33ffffff</color>
 
     <color name="fio_green">#51F129</color>
     <color name="fio_red">#D21614</color>
@@ -71,6 +73,10 @@
     <color name="fio_white_alpha_0_8">#CCFFFFFF</color>
     <color name="fio_white_alpha_0_9">#E5FFFFFF</color>
     <color name="fio_record">#0C1011</color>
+
+    <color name="black_alpha_0_6">#99000000</color>
+    <color name="black_alpha_0_8">#CC000000</color>
+    <color name="black_alpha_0_9">#E5000000</color>
 
     <fraction name="background_alpha">50%</fraction>
 
@@ -89,4 +95,12 @@
 
     <color name="bequant_red">#CE3C4E</color>
     <color name="bequant_red_a1">#1ACE3C4E</color>
+
+    <color name="giftbox_bg">#131418</color>
+    <color name="giftbox_page_bg">#050505</color>
+    <color name="giftbox_label">#9B9B9B</color>
+    <color name="giftbox_processing">#BABABA</color>
+    <color name="giftbox_yellow">#EF9D44</color>
+    <color name="giftbox_green">#2F9A41</color>
+    <color name="giftbox_gray">#595959</color>
 </resources>

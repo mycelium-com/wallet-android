@@ -17,4 +17,9 @@ public abstract class AbstractAsset implements AssetInfo {
         AbstractAsset other = (AbstractAsset) o;
         return getId().equals(other.getId());
     }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
 }

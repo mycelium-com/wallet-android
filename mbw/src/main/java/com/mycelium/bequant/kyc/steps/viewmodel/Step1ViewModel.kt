@@ -7,11 +7,11 @@ import java.util.*
 
 
 class Step1ViewModel : ViewModel() {
-    val firstName = MutableLiveData<String>()
-    val lastName = MutableLiveData<String>()
-    val birthday = MutableLiveData<Date>()
+    val firstName = MutableLiveData<String?>()
+    val lastName = MutableLiveData<String?>()
+    val birthday = MutableLiveData<Date?>()
     val nationality = MutableLiveData<String>()
-    val nationalityAcronum = MutableLiveData<String>()
+    val nationalityAcronum = MutableLiveData<String?>()
     val nextButton = MutableLiveData<Boolean>()
 
     fun fromModel(kyc: KYCRequest) {

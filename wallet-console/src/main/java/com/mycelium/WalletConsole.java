@@ -87,6 +87,7 @@ class WalletConsole {
         }
     }
 
+/*
     public static void main(String[] args) {
         BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
 
@@ -94,8 +95,8 @@ class WalletConsole {
                 new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
         });
 
-        final TcpEndpoint[] tcpEndpoints = new TcpEndpoint[]{new TcpEndpoint("electrumx.mycelium.com", 4432)};
-        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, "0", 1);
+        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, new TcpEndpoint[]{new TcpEndpoint("electrumx.mycelium.com", 4432, true)}, "0", 1);
+        Wapi btcvWapi = new WapiClientElectrumX(testnetWapiEndpoints, new TcpEndpoint[]{new TcpEndpoint("electrumx-mainnet1.bitcoinvault.global", 443, true)}, "0", 1);
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy();
 
@@ -114,6 +115,10 @@ class WalletConsole {
         SqlDriver driver = new JdbcSqliteDriver( "jdbc:sqlite::memory:", new Properties());
         WalletDB.Companion.getSchema().create(driver);
         WalletDB db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
+                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
+                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(),
+                AdaptersKt.getBTCVUtxoAdapter(),
                 AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
                 AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
                 AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
@@ -123,6 +128,7 @@ class WalletConsole {
         WalletManager walletManager = new WalletManager(
                 network,
                 wapiClient,
+                btcvWapi,
                 currenciesSettingsMap,
                 db);
         walletManager.setIsNetworkConnected(true);
@@ -160,6 +166,7 @@ class WalletConsole {
             ex.printStackTrace();
         }
     }
+*/
 
     /*
 

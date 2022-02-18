@@ -48,7 +48,7 @@ import java.util.*
  */
 class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
                                    val network: CommonNetworkParameters,
-                                   val secureKeyValueStore: SecureKeyValueStore,
+                                   private val secureKeyValueStore: SecureKeyValueStore,
                                    val derivationType: BipDerivationType,
                                    val addressFactory: AddressFactory<ADDRESS>)
         where ADDRESS : Address {
@@ -137,13 +137,8 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
         }
     }
 
-    fun deleteSubKeyStore() {
-        if (secureKeyValueStore is SecureSubKeyValueStore) {
-            secureKeyValueStore.deleteAllData()
-        } else {
-            throw RuntimeException("this is not a SubKeyValueStore")
-        }
-    }
+    fun deleteSubKeyStore() = (secureKeyValueStore as? SecureSubKeyValueStore)?.deleteAllData()
+            ?: throw RuntimeException("this is not a SubKeyValueStore")
 
     fun getAddress(isChangeChain: Boolean, index: Int): ADDRESS? {
         // See if we have it in the store
@@ -179,7 +174,7 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
                                 derivationType: BipDerivationType, addressFactory: AddressFactory<ADDRESS>): HDAccountKeyManager<ADDRESS>
                 where ADDRESS : Address {
             val bip44Root = bip32Root.createChildNode(derivationType.getHardenedPurpose())
-            val coinTypeRoot = bip44Root.createChildNode(network.getBip44CoinType() or -0x80000000)
+            val coinTypeRoot = bip44Root.createHardenedChildNode(network.getBip44CoinType())
 
             // Create the account root.
             val accountRoot = coinTypeRoot.createChildNode(accountIndex or -0x80000000)
@@ -192,25 +187,24 @@ class HDAccountKeyManager<ADDRESS>(val accountIndex: Int,
                                             cipher: KeyCipher?, derivationType: BipDerivationType, addressFactory: AddressFactory<ADDRESS>): HDAccountKeyManager<ADDRESS>
                 where ADDRESS : Address {
 
+            fun storePlainAndEncrypted(id: ByteArray, plainBytes: ByteArray, secretBytes: ByteArray) {
+                secureKeyValueStore.encryptAndStoreValue(id, secretBytes, cipher)
+                secureKeyValueStore.storePlaintextValue(id, plainBytes)
+            }
+
             // Store the account root (xPub and xPriv) key
-            secureKeyValueStore.encryptAndStoreValue(getAccountNodeId(network, accountIndex, derivationType),
-                    accountRoot.toCustomByteFormat(), cipher)
-            secureKeyValueStore.storePlaintextValue(getAccountNodeId(network, accountIndex, derivationType),
-                    accountRoot.publicNode.toCustomByteFormat())
+            storePlainAndEncrypted(getAccountNodeId(network, accountIndex, derivationType),
+                    accountRoot.publicNode.toCustomByteFormat(), accountRoot.toCustomByteFormat())
 
             // Create the external chain root. Store the private node encrypted and the public node in plain text
             val externalChainRoot = accountRoot.createChildNode(0)
-            secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, false, derivationType),
-                    externalChainRoot.toCustomByteFormat(), cipher)
-            secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, false, derivationType),
-                    externalChainRoot.publicNode.toCustomByteFormat())
+            storePlainAndEncrypted(getChainNodeId(network, accountIndex, false, derivationType),
+                    externalChainRoot.publicNode.toCustomByteFormat(), externalChainRoot.toCustomByteFormat())
 
             // Create the change chain root. Store the private node encrypted and the public node in plain text
             val changeChainRoot = accountRoot.createChildNode(1)
-            secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, true, derivationType),
-                    changeChainRoot.toCustomByteFormat(), cipher)
-            secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, true, derivationType),
-                    changeChainRoot.publicNode.toCustomByteFormat())
+            storePlainAndEncrypted(getChainNodeId(network, accountIndex, true, derivationType),
+                    changeChainRoot.publicNode.toCustomByteFormat(), changeChainRoot.toCustomByteFormat())
             return HDAccountKeyManager(accountIndex, network, secureKeyValueStore, derivationType, addressFactory)
         }
 

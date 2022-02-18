@@ -250,13 +250,13 @@ public class BalanceFragment extends Fragment {
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                                SendInitializationActivity.callMe(BalanceFragment.this.requireActivity(), _mbwManager.getSelectedAccount().getId(), false);
                             }
                         })
                         .create()
                         .show();
             } else {
-                SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                SendInitializationActivity.callMe(BalanceFragment.this.requireActivity(), _mbwManager.getSelectedAccount().getId(), false);
             }
         } else {
             new AlertDialog.Builder(getActivity())
@@ -372,10 +372,14 @@ public class BalanceFragment extends Fragment {
             tv.setVisibility(View.GONE);
         } else {
             try {
-                tv.setVisibility(View.VISIBLE);
                 Value converted = _mbwManager.getExchangeRateManager().get(value,
                         _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
-                tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
+                if(converted != null) {
+                    tv.setVisibility(View.VISIBLE);
+                    tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
+                } else {
+                    tv.setVisibility(View.GONE);
+                }
             } catch (IllegalArgumentException ex) {
                 // something failed while calculating the bitcoin amount
                 tv.setVisibility(View.GONE);
@@ -413,7 +417,7 @@ public class BalanceFragment extends Fragment {
                                     }
 
                                     //we dont know yet where at what to send
-                                    SendInitializationActivity.callMeWithResult(getActivity(), account, true,
+                                    SendInitializationActivity.callMeWithResult(requireActivity(), account, true,
                                             StringHandlerActivity.SEND_INITIALIZATION_CODE);
                                 })
                                 .setNegativeButton(this.getString(R.string.cancel), null)
@@ -422,7 +426,9 @@ public class BalanceFragment extends Fragment {
                     case ADDRESS:
                         Address address = getAddress(data);
                         startActivity(SendCoinsActivity.getIntent(getActivity(),
-                                _mbwManager.getSelectedAccount().getId(), 0, address, false)
+                                _mbwManager.getSelectedAccount().getId(),
+                                Value.zeroValue(_mbwManager.getSelectedAccount().getCoinType()),
+                                address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {

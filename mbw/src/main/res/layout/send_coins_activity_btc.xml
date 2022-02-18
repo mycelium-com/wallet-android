@@ -59,6 +59,12 @@
                     layout="@layout/send_coins_amount"
                     bind:listener="@{activity}"
                     bind:viewModel="@{viewModel}" />
+
+                <!-- Amount Error -->
+                <include
+                    layout="@layout/send_coins_insufficient"
+                    bind:viewModel="@{viewModel}" />
+
                 <!-- Recipient Fio Config -->
 
             </LinearLayout>
@@ -79,11 +85,6 @@
                 layout="@layout/fio_memo_input"
                 bind:fioMemo="@{viewModel.fioMemo}"
                 bind:payeeFioName="@{viewModel.payeeFioName}" />
-
-            <!-- Amount Error -->
-            <include
-                layout="@layout/send_coins_insufficient"
-                bind:viewModel="@{viewModel}" />
 
             <!--Update progress bar-->
             <include

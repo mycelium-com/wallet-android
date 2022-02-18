@@ -17,25 +17,21 @@ open class BtcvAddress(override val coinType: CryptoCurrency,
         return allAddressBytes
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as BtcvAddress
-        return Arrays.equals(allAddressBytes, that.allAddressBytes)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        other as BtcvAddress
+        return Arrays.equals(allAddressBytes, other.allAddressBytes)
     }
 
     override fun hashCode(): Int = Arrays.hashCode(allAddressBytes)
 
     override fun getSubType(): String = type.name
 
-    override fun getNetwork(): NetworkParameters? {
-        if (matchesNetwork(BTCVNetworkParameters.productionNetwork, version)) {
-            return BTCVNetworkParameters.productionNetwork
-        }
-        if (matchesNetwork(BTCVNetworkParameters.testNetwork, version)) {
-            return BTCVNetworkParameters.testNetwork
-        }
-        throw IllegalStateException("unknown network")
+    override fun getNetwork(): NetworkParameters? = when {
+        matchesNetwork(BTCVNetworkParameters.productionNetwork, version) -> BTCVNetworkParameters.productionNetwork
+        matchesNetwork(BTCVNetworkParameters.testNetwork, version) -> BTCVNetworkParameters.testNetwork
+        else -> throw IllegalStateException("unknown network")
     }
 
     private fun matchesNetwork(network: NetworkParameters, version: Byte): Boolean =

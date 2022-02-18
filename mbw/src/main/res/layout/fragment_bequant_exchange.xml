@@ -245,6 +245,7 @@
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_bequant_order_rejected"
             android:visibility="gone"
+            tools:visibility="visible"
             app:layout_constraintTop_toBottomOf="@id/exchange">
 
             <ImageView

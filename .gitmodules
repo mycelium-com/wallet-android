@@ -1,6 +1,6 @@
 [submodule "wallet-android-modularization-tools"]
 	path = wallet-android-modularization-tools
-	url = git@github.com:mycelium-com/wallet-android-modularization-tools
+	url = https://github.com/mycelium-com/wallet-android-modularization-tools
 [submodule "fiosdk_kotlin"]
 	path = fiosdk_kotlin
-	url = https://github.com/fioprotocol/fiosdk_kotlin
+	url = https://github.com/mycelium-com/fiosdk_kotlin

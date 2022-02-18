@@ -76,6 +76,7 @@ open class SendBtcViewModel(application: Application) : SendCoinsViewModel(appli
                     }
                     ResultType.ASSET_URI -> {
                         val uri = data.getAssetUri()
+                        model.receivingAddress.value = uri.address // triggers recipientRepresentation reevaluation and UI update
                         if (uri is BitcoinUri && uri.callbackURL != null) {
                             //we contact the merchant server instead of using the params
                             model.genericUri.value = uri

@@ -28,3 +28,7 @@ VALUES (?, ?, ?, ?, ?, ?);
 deleteUtxo:
 DELETE FROM BTCVUtxo
 WHERE outpoint = (?) AND accountId = (?);
+
+deleteUtxos:
+DELETE FROM BTCVUtxo
+WHERE accountId = (?);
