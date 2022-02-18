@@ -51,7 +51,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -68,6 +67,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
@@ -76,6 +76,7 @@ import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.actions.HdNodeAction;
 import com.mycelium.wallet.content.actions.PrivateKeyAction;
+import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.event.MigrationPercentChanged;
 import com.mycelium.wallet.event.MigrationStatusChanged;
@@ -87,8 +88,10 @@ import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
+import com.mycelium.wapi.wallet.fio.FIOMasterseedConfig;
+import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -96,6 +99,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -108,6 +113,9 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
+
+   public static final List<Config> mainAccounts = new ArrayList<>(
+           Arrays.asList(new AdditionalHDAccountConfig(), new EthereumMasterseedConfig(), new FIOMasterseedConfig()));
 
    private static final String LAST_STARTUP_TIME = "startupTme";
 
@@ -202,7 +210,14 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          // in case the masterSeed was created but account does not exist yet (rotation problem)
          if (_mbwManager.getWalletManager(false).getActiveSpendingAccounts().isEmpty()) {
-            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this, StartupActivity.this).execute();
+            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this, StartupActivity.this, mainAccounts).execute();
+            return;
+         }
+
+         List<Config> needsToBeCreatedMasterSeedAccounts = _mbwManager.checkMainAccountsCreated();
+         if (needsToBeCreatedMasterSeedAccounts.size() != 0) {
+            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this,
+                    StartupActivity.this, needsToBeCreatedMasterSeedAccounts).execute();
             return;
          }
 
@@ -265,26 +280,22 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          }
          Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
          try {
-            WalletManager walletManager = activity._mbwManager.getWalletManager(false);
             activity._mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            return walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
+            return activity._mbwManager.createAdditionalBip44AccountsUninterruptedly(mainAccounts).get(0);
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
          }
       }
 
       @Override
-      protected void onPostExecute(UUID accountid) {
+      protected void onPostExecute(UUID accountId) {
          StartupActivity activity = this.startupActivity.get();
-         if (accountid == null || activity == null) {
+         if (accountId == null || activity == null) {
             return;
          }
          activity._progress.dismiss();
-         //set default label for the created HD account
-         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = Utils.getNameForNewAccount(account, activity);
-         activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
-         MbwManager.getEventBus().post(new AccountCreated(accountid));
+         MbwManager.getEventBus().post(new AccountCreated(accountId));
+         MbwManager.getEventBus().post(new AccountChanged(accountId));
          //finish initialization
          activity.delayedFinish.run();
       }
@@ -292,6 +303,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
    @Override
    public void onAccountCreated(UUID accountId) {
+      MbwManager.getEventBus().post(new AccountCreated(accountId));
+      MbwManager.getEventBus().post(new AccountChanged(accountId));
       delayedFinish.run();
    }
 
@@ -415,6 +428,10 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
           if (getIntent().getExtras() != null) {
              intent.putExtras(getIntent().getExtras());
           }
+       } else if(getIntent().hasExtra("action")) {
+          if (getIntent().getExtras() != null) {
+             intent.putExtras(getIntent().getExtras());
+          }
        }
        startActivity(intent);
        finish();
@@ -472,10 +489,10 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             GetSpendingRecordActivity.callMeWithResult(this, bytes, REQUEST_FROM_URI);
          }
       } catch (FileNotFoundException e) {
-         Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.file_not_found, false);
          finish();
       } catch (IOException e) {
-         Toast.makeText(this, getString(R.string.payment_request_unable_to_read_payment_request), Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.payment_request_unable_to_read_payment_request, false);
          finish();
       }
    }
@@ -494,7 +511,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       Optional<BitIDSignRequest> bitid = BitIDSignRequest.parse(intentUri);
       if (!bitid.isPresent()) {
          //Invalid bitid URI
-         Toast.makeText(this, R.string.invalid_bitid_uri, Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.invalid_bitid_uri, false);
          finish();
          return;
       }
@@ -520,7 +537,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       AssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
       if (uri == null) {
          // Invalid Bitcoin URI
-         Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
+         new Toaster(this).toast(R.string.invalid_bitcoin_uri, false);
          finish();
          return;
       }
@@ -532,7 +549,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       } else {
          if (uri.getAddress() == null && uri instanceof WithCallback && Strings.isNullOrEmpty(((WithCallback) uri).getCallbackURL())) {
             // Invalid Bitcoin URI
-            Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
+            new Toaster(this).toast(R.string.invalid_bitcoin_uri, false);
             finish();
             return;
          }
@@ -561,12 +578,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
                initMasterSeed();
                return;
             }
-            //we have restored a backup
-            UUID accountid = (UUID) data.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-            //set default label for the created HD account
-            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-            String defaultName = Utils.getNameForNewAccount(account, this);
-            _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
             //finish initialization
             delayedFinish.run();
             return;

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item type="id" name="animator" />
     <declare-styleable name="ToggleableCurrencyButton">
         <attr name="fiatOnly" format="boolean"/>
         <attr name="hideOnNoExchangeRate" format="boolean"/>

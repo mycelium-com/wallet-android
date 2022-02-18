@@ -7,4 +7,4 @@ import com.mycelium.wapi.wallet.*
  *
  * @return list of accounts
  */
-fun WalletManager.getBCHSingleAddressAccounts() = getAccounts().filter { it is SingleAddressBCHAccount && it.isVisible }
+fun WalletManager.getBCHSingleAddressAccounts() = getAccounts().filter { it is SingleAddressBCHAccount && it.isVisible() }

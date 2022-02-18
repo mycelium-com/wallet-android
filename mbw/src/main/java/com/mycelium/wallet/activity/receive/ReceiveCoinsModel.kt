@@ -7,11 +7,11 @@ import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
@@ -100,7 +100,7 @@ class ReceiveCoinsModel(
                     uri.append(if (account is AbstractEthERC20Account) "?value=" else "?amount=")
                     uri.append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
-                    Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
+                    Toaster(context).toast(R.string.value_conversion_error, false);
                 }
                 if (account is ERC20Account) {
                     uri.append("&req-asset=${account.coinType.contractAddress}")

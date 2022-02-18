@@ -1,47 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:paddingStart="2dp"
-    android:layoutDirection="ltr"
-    android:paddingEnd="2dp"
-    android:paddingTop="5dp">
+    android:paddingTop="5dp"
+    android:paddingEnd="2dp">
 
     <ImageView
         android:id="@+id/expand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4dp"
-        android:src="@drawable/ic_expand_more_white_24dp" />
+        android:src="@drawable/ic_expand_more_white_24dp"
+        custom:layout_constraintBottom_toBottomOf="@id/tvTitle"
+        custom:layout_constraintStart_toStartOf="parent"
+        custom:layout_constraintTop_toTopOf="@id/tvTitle" />
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/tvTitle"
+        style="@style/GenericText"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="start"
-        android:layout_weight="1">
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textSize="23sp"
+        custom:layout_constrainedWidth="true"
+        custom:layout_constraintEnd_toStartOf="@id/tvAccountsCount"
+        custom:layout_constraintHorizontal_bias="0.0"
+        custom:layout_constraintHorizontal_chainStyle="packed"
+        custom:layout_constraintStart_toEndOf="@id/expand"
+        custom:layout_constraintTop_toTopOf="parent"
+        tools:text="My HD Accounts asdas asd asd " />
 
-        <TextView
-            android:id="@+id/tvTitle"
-            style="@style/GenericText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="middle"
-            android:singleLine="true"
-            android:textSize="23sp"
-            tools:text="My HD Accounts" />
-
-        <TextView
-            android:id="@+id/tvAccountsCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:lines="1"
-            android:textSize="16sp"
-            tools:text="(1)" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/tvAccountsCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:lines="1"
+        android:textSize="16sp"
+        custom:layout_constraintBaseline_toBaselineOf="@id/tvTitle"
+        custom:layout_constraintEnd_toStartOf="@id/tvBalance"
+        custom:layout_constraintStart_toEndOf="@id/tvTitle"
+        tools:text="(1)" />
 
     <com.mycelium.wallet.activity.util.ToggleableCurrencyButton
         android:id="@+id/tvBalance"
@@ -49,5 +52,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        custom:textSize="15sp" />
-</LinearLayout>
+        custom:layout_constraintBottom_toBottomOf="parent"
+        custom:layout_constraintEnd_toEndOf="parent"
+        custom:layout_constraintTop_toTopOf="parent"
+        custom:textSize="15sp"
+        tools:minWidth="100dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>

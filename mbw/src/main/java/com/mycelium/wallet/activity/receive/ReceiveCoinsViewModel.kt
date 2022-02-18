@@ -17,6 +17,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wallet.activity.fio.requests.FioRequestCreateActivity
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity.Companion.MANUAL_ENTRY_RESULT_CODE
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.util.toStringWithUnit
@@ -137,7 +138,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
             getPaymentUri()
         }
         Utils.setClipboardString(text, context)
-        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+        Toaster(context).toast(R.string.copied_to_clipboard, true)
     }
 
     fun copyFioNameToClipboard() {
@@ -158,7 +159,8 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                     ?: Value.zeroValue(account.coinType)
             model.setAlternativeAmount(value)
         } else {
-            model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType))
+            model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType)
+                    ?: Value.zeroValue(account.coinType))
             model.setAlternativeAmount(amount)
         }
     }
@@ -196,14 +198,16 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
                 addressResult = data.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME)!! as Address
                 val value = getRequestedAmount().value
                 if (fioModule.getFIONames(account).isNotEmpty()) {
-                    FioRequestCreateActivity.start(activity, value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
+                    FioRequestCreateActivity.start(activity, value, model.receivingFioName.value!!,
+                            fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
                     activity.finish()
                 } else {
                     AccountMappingActivity.startForMapping(activity, account, ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING)
                 }
             } else if (requestCode == ReceiveCoinsActivity.REQUEST_CODE_FIO_NAME_MAPPING) {
                 if (fioModule.getFIONames(account).isNotEmpty()) {
-                    FioRequestCreateActivity.start(activity, getRequestedAmount().value, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
+                    FioRequestCreateActivity.start(activity, getRequestedAmount().value,
+                            model.receivingFioName.value!!, fioAddressForRequest, addressResult, mbwManager.selectedAccount.id)
                 }
             }
         }

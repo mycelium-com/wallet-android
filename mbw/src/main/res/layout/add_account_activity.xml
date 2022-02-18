@@ -58,6 +58,7 @@
             android:textColor="@color/red" />
 
         <Button
+            style="@style/MyceliumButton"
             android:id="@+id/btHdCreate"
             android:layout_width="match_parent"
             android:layout_height="44dp"
@@ -71,6 +72,23 @@
             android:paddingStart="14dp"
             android:paddingEnd="16dp"
             android:text="@string/hd_account"
+            android:textColor="@color/button_text_color"
+            android:textSize="14sp"/>
+
+        <Button
+            style="@style/MyceliumButton"
+            android:id="@+id/btBTCVHDCreate"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            app:drawableStartCompat="@drawable/ic_bitcoin_vault"
+            android:drawablePadding="6dp"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:paddingEnd="16dp"
+            android:text="@string/btcvault_hd_account"
             android:textColor="@color/button_text_color"
             android:textSize="14sp"/>
 
@@ -121,21 +139,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button
-            android:id="@+id/btInvestmentCreate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/page_margin_width"
-            android:layout_marginTop="14dp"
-            android:layout_marginEnd="@dimen/page_margin_width"
-            android:fontFamily="sans-serif"
-            android:gravity="start|center_vertical"
-            app:drawableStartCompat="@drawable/ic_bequant"
-            android:drawablePadding="5dp"
-            android:textSize="14sp"
-            android:textColor="@color/button_text_color"
-            android:text="Activate Trading Account" />
-
-        <Button
             android:id="@+id/btEthCreate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -153,6 +156,7 @@
             android:text="@string/hd_eth_account" />
 
         <Button
+            style="@style/MyceliumButton"
             android:id="@+id/btErc20Create"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -169,6 +173,21 @@
             android:textColor="@color/button_text_color"
             android:text="@string/add_erc20_account" />
 
+        <Button
+            android:id="@+id/btInvestmentCreate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/page_margin_width"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/page_margin_width"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            app:drawableStartCompat="@drawable/ic_bequant"
+            android:drawablePadding="5dp"
+            android:textSize="14sp"
+            android:textColor="@color/button_text_color"
+            android:text="@string/activate_trading_custodial_account" />
+
         <TextView
             android:id="@+id/textView2"
             android:layout_width="match_parent"
@@ -181,6 +200,7 @@
             android:text="@string/colu_account_notes" />
 
         <Button
+            style="@style/MyceliumButton"
             android:id="@+id/btColuCreate"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -218,6 +238,7 @@
             android:text="@string/add_single_acc_info" />
 
         <Button
+            style="@style/MyceliumButton"
             android:id="@+id/btAdvanced"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

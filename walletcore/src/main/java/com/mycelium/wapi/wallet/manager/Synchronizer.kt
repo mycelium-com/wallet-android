@@ -1,19 +1,26 @@
 package com.mycelium.wapi.wallet.manager
 
+import com.mycelium.wapi.SyncStatus
+import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.SyncPausableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
-                   val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
+                   val accounts: List<WalletAccount<*>?> = listOf()) {
 
     private val logger = Logger.getLogger(Synchronizer::class.simpleName)
 
-    override fun run() {
-        walletManager.state = State.SYNCHRONIZING
+    fun start() = GlobalScope.launch(Dispatchers.Default) {
+        logger.log(Level.INFO, "Synchronizing start. ${syncMode.toString()}")
+        walletManager.reportStartSync()
         walletManager.walletListener?.syncStarted()
 
         try {
@@ -22,40 +29,67 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 // this function goes over all accounts - it is reasonable to
                 // exclude this from SyncMode.onlyActiveAccount behaviour
                 if (!broadcastOutgoingTransactions()) {
-                    return
+                    return@launch
                 }
 
                 // Synchronize selected accounts with the blockchain
-                val list = if (accounts.isEmpty() ||
-                        syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
-                        syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
-                    walletManager.getAllActiveAccounts()
-                } else {
-                    accounts.filterNotNull().filter { it.isActive }
-                }.filter { !it.isSyncing }
-                runSync(list)
+                runSync(syncAccountList())
+            } else {
+                syncAccountList()
+                        .forEach {
+                            it.setLastSyncStatus(
+                                    SyncStatusInfo(
+                                            SyncStatus.ERROR_INTERNET_CONNECTION,
+                                            Date()
+                                    )
+                            )
+                        }
             }
         } finally {
-            walletManager.state = State.READY
+            walletManager.reportStopSync()
             walletManager.walletListener?.syncStopped()
         }
     }
 
-    private fun runSync(list: List<WalletAccount<*>>) {
+    private fun syncAccountList() =
+            (if (accounts.isEmpty() ||
+                    syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
+                    syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
+                walletManager.getAllActiveAccounts()
+            } else {
+                accounts.filterNotNull().filter { it.isActive }
+            }).filter { !it.isSyncing() }
+
+    private suspend fun runSync(list: List<WalletAccount<*>>) = coroutineScope {
         //split synchronization by coinTypes in own threads
-        runBlocking {
-            list.map {
-                async {
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}")
+        list.filter {
+            (it is SyncPausableAccount && it.maySync) || it !is SyncPausableAccount
+        }.map {
+            launch(Dispatchers.Default) {
+                getMutex(it).withLock {
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}, OS thread ${Thread.currentThread().name}}: ...")
+                    val timeStart = System.currentTimeMillis()
                     val isSyncSuccessful = try {
-                        it.synchronize(syncMode)
+                        if (it is SyncPausableAccount && !it.maySync) {
+                            false
+                        } else {
+                            it.synchronize(syncMode)
+                        }
                     } catch (ex: Exception) {
-                        logger.log(Level.WARNING,"Sync error", ex)
+                        logger.log(Level.SEVERE, "Sync error", ex)
+                        ex.printStackTrace()
                         false
                     }
-                    logger.log(Level.INFO, "Account ${it.id} sync result: $isSyncSuccessful")
+                    val timeEnd = System.currentTimeMillis()
+                    val syncTime = timeEnd - timeStart
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}: ${if (isSyncSuccessful) "success" else "failed!"} ($syncTime ms)")
+                    walletManager.walletListener?.accountSyncStopped(it)
                 }
             }
+        }.joinAll()
+        list.filterIsInstance(SyncPausableAccount::class.java).forEach {
+            it.maySync = true
+            it.clearCancelableRequests()
         }
     }
 
@@ -68,4 +102,10 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     .filterNotNull()
                     .filterNot { it.isArchived }
                     .all { it.broadcastOutgoingTransactions() }
+
+    companion object {
+        private val mutexMap = mutableMapOf<UUID, Mutex>()
+        fun getMutex(account: WalletAccount<*>): Mutex =
+                mutexMap.getOrPut(account.id) { Mutex() }
+    }
 }

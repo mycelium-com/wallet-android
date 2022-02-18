@@ -6,13 +6,12 @@ import android.app.Application
 import android.content.Intent
 import android.graphics.Point
 import android.widget.TextView
-import android.widget.Toast
-import android.widget.Toast.makeText
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StringHandlerActivity
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.adapter.AddressViewAdapter
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
@@ -77,6 +76,7 @@ open class SendBtcViewModel(application: Application) : SendCoinsViewModel(appli
                     }
                     ResultType.ASSET_URI -> {
                         val uri = data.getAssetUri()
+                        model.receivingAddress.value = uri.address // triggers recipientRepresentation reevaluation and UI update
                         if (uri is BitcoinUri && uri.callbackURL != null) {
                             //we contact the merchant server instead of using the params
                             model.genericUri.value = uri
@@ -101,8 +101,7 @@ open class SendBtcViewModel(application: Application) : SendCoinsViewModel(appli
                         // it only if we get a ACK from him (in paymentRequestAck)
                         sendResponseToPR()
                     } else {
-                        makeText(activity, context.getString(R.string.payment_request_not_sent_expired),
-                                Toast.LENGTH_LONG).show()
+                        Toaster(activity).toast(R.string.payment_request_not_sent_expired, false)
                     }
                     return
                 }

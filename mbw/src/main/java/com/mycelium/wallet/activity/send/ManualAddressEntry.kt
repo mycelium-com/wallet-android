@@ -2,14 +2,13 @@ package com.mycelium.wallet.activity.send
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -67,13 +66,7 @@ class ManualAddressEntry : AppCompatActivity() {
         coinType = if (!isForFio) mbwManager.selectedAccount.coinType else Utils.getFIOCoinType()
         fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule
         fioNames = fioModule.getKnownNames().map { "${it.name}@${it.domain}" }
-        etRecipient.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
-            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) = Unit
-            override fun afterTextChanged(editable: Editable) {
-                updateUI()
-            }
-        })
+        etRecipient.doOnTextChanged { _, _, _, _ -> updateUI()}
         btOk.setOnClickListener { finishOk(coinAddress!!) }
         etRecipient.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
         etRecipient.hint = if (!isForFio) getString(R.string.enter_recipient_hint, coinType.name) else getString(R.string.fio_name)
@@ -90,8 +83,8 @@ class ManualAddressEntry : AppCompatActivity() {
         entered = savedInstanceState?.getString("entered") ?: ""
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true

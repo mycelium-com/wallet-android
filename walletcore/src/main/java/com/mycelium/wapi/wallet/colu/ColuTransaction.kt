@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
+import java.math.BigInteger
 
 
 class ColuTransaction(type: CryptoCurrency?, val destination: BtcAddress?, val amount: Value?, val feePerKb: Value?)
@@ -42,4 +43,8 @@ class ColuTransaction(type: CryptoCurrency?, val destination: BtcAddress?, val a
     override fun txBytes(): ByteArray? {
         return transaction?.toBytes()
     }
+
+    override fun totalFee(): Value = feePerKb!!
+        .times(estimatedTransactionSize.toBigInteger())
+        .div(BigInteger.valueOf(1000))
 }

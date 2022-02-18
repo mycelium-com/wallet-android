@@ -17,6 +17,7 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 
 @SuppressLint("RestrictedApi")
 public class CustomCaptureActivity extends AppCompatActivity implements DecoratedBarcodeView.TorchListener {
@@ -80,7 +81,7 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
         if (BuildConfig.DEBUG && keyCode == KeyEvent.KEYCODE_C) {
             // press c while in the scanner to copy the clipboard as scan result
             String clipboardContent = Utils.getClipboardString(this);
-            Toast.makeText(this, "Taking clipboard content as return value of scan: " + clipboardContent, Toast.LENGTH_LONG).show();
+            new Toaster(this).toast("Taking clipboard content as return value of scan: " + clipboardContent, false);
             setResult(RESULT_OK, new Intent()
                     .putExtra("SCAN_RESULT_FORMAT", "QR_CODE")
                     .putExtra("SCAN_RESULT", clipboardContent));

@@ -407,8 +407,8 @@
     <string name="copy_signature">Kopírovat podpis do schránky</string>
     <string name="share_signature">Sdílet text + podpis</string>
     <string name="sig_copied">Podpis zkopírován do schránky</string>
-    <string name="signed_message_subject">Podepsaná BTC zpráva</string>
-    <string name="signed_message_share">Sdílet podepsanou BTC zprávu</string>
+    <string name="signed_message_subject_btc">Podepsaná BTC zpráva</string>
+    <string name="signed_message_share_btc">Sdílet podepsanou BTC zprávu</string>
     <string name="signing_inprogress">Podepisuji zprávu&#8230;</string>
     <string name="geocode_error">Chyba geokodéru: %s \n zkuste to prosím později.</string>
     <string name="fetching_info">Načítání informací ze serveru</string>

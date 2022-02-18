@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.TransactionDetailsActivity
+import com.mycelium.wallet.activity.txdetails.TransactionDetailsActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.ACCOUNT
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.AMOUNT
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity.Companion.CONVERTED_AMOUNT
@@ -73,14 +73,14 @@ class ApproveFioRequestSuccessActivity : AppCompatActivity() {
         val txid = intent.getByteArrayExtra(TXID)
         btNextButton.setOnClickListener { finish() }
         try {
-            if (txid.isEmpty()) {
+            if (txid?.isNotEmpty() != true) {
                 if (date != -1L) {
                     tvDate.text = getDateString(date)
                 }
                 tvTxDetailsLink.isVisible = false
             } else {
-                val txTimestamp = account!!.getTxSummary(txid).timestamp
-                tvDate.text = getDateString(txTimestamp)
+                val txTimestamp = account!!.getTxSummary(txid)?.timestamp
+                tvDate.text = getDateString(txTimestamp!!)
                 tvTxDetailsLink.setOnClickListener {
                     val intent: Intent = Intent(this, TransactionDetailsActivity::class.java)
                             .putExtra(TransactionDetailsActivity.EXTRA_TXID, txid)

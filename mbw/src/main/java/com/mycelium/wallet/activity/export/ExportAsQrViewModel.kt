@@ -1,13 +1,13 @@
 package com.mycelium.wallet.activity.export
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wapi.wallet.ExportableAccount
 
 
@@ -65,14 +65,14 @@ open class ExportAsQrViewModel(val context: Application) : AndroidViewModel(cont
             builder.setMessage(R.string.export_to_clipboard_warning).setCancelable(false)
                     .setPositiveButton(R.string.yes) { dialog, id ->
                         Utils.setClipboardString(accountDataString, context)
-                        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                        Toaster(context).toast(R.string.copied_to_clipboard, true)
                         dialog.dismiss()
                     }.setNegativeButton(R.string.no) { dialog, id -> }
             val alertDialog = builder.create()
             alertDialog.show()
         } else {
             Utils.setClipboardString(accountDataString, context)
-            Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+            Toaster(context).toast(R.string.copied_to_clipboard, true)
         }
     }
 

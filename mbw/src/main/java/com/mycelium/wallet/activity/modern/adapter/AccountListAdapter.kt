@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -29,7 +30,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
-    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback(fragment.requireContext())) {
+    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
     private val context = fragment.requireContext()
 
     private var focusedAccountId: UUID? = null
@@ -37,7 +38,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private var itemClickListener: ItemClickListener? = null
     var investmentAccountClickListener: ItemClickListener? = null
-    private val layoutInflater: LayoutInflater
+    private val layoutInflater = LayoutInflater.from(context)
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
     private val walletManager = mbwManager.getWalletManager(false)
@@ -46,7 +47,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         get() = focusedAccountId?.let { walletManager.getAccount(it) }
 
     init {
-        layoutInflater = LayoutInflater.from(context)
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
             accountsGroupModels!!
             val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it is AccountViewModel && it.accountId == selectedAccountId } }
@@ -185,9 +185,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val groupHolder = holder as GroupTitleViewHolder
                 val group = item as AccountsGroupModel
                 buildGroupBase(group, groupHolder)
-                groupHolder.tvBalance.coinType = group.coinType
-                groupHolder.tvBalance.setValue(group.sum!!, false)
-                groupHolder.tvBalance.visibility = View.VISIBLE
+                groupHolder.tvBalance?.coinType = group.coinType
+                groupHolder.tvBalance?.setValue(group.sum!!, false)
+                groupHolder.tvBalance?.visibility = View.VISIBLE
             }
             GROUP_ARCHIVED_TITLE_TYPE -> {
                 val groupHolder = holder as ArchivedGroupTitleViewHolder
@@ -202,12 +202,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             INVESTMENT_TYPE -> {
                 val investHolder = holder as InvestmentViewHolder
                 val investItem = item as AccountInvestmentViewModel
-                investHolder.label.text = investItem.label
                 investHolder.balance.text = investItem.balance
                 investHolder.itemView.setOnClickListener {
-//                    walletManager.getAccount(investItem.accountId)?.run {
                     investmentAccountClickListener?.onItemClick(item.account)
-//                    }
                 }
                 if (BequantPreference.isLogged()) {
                     investHolder.balance.visibility = View.VISIBLE
@@ -261,7 +258,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         fun onItemClick(account: WalletAccount<out Address>)
     }
 
-    class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {
+    open class ItemListDiffCallback() : DiffUtil.ItemCallback<AccountListItem>() {
         override fun areItemsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean {
             return when {
                 oldItem.getType() != newItem.getType() -> false
@@ -281,38 +278,25 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
                 when (oldItem.getType()) {
                     GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE -> {
-                        newItem as AccountsGroupModel
-                        oldItem as AccountsGroupModel
-                        newItem.isCollapsed == oldItem.isCollapsed
-                                && newItem.coinType == oldItem.coinType
-                                && newItem.accountsList.size == oldItem.accountsList.size
-                                && newItem.sum == oldItem.sum
+                        equalsValuesBy(newItem as AccountsGroupModel, oldItem as AccountsGroupModel,
+                                { it.isCollapsed }, { it.coinType }, { it.accountsList.size },
+                                { it.sum })
                     }
                     ACCOUNT_TYPE -> {
-                        newItem as AccountViewModel
-                        oldItem as AccountViewModel
-                        newItem.displayAddress == oldItem.displayAddress
-                                && newItem.isActive == oldItem.isActive
-                                && newItem.canSpend == oldItem.canSpend
-                                && newItem.externalAccountType == oldItem.externalAccountType
-                                && newItem.isRMCLinkedAccount == oldItem.isRMCLinkedAccount
-                                && newItem.label == oldItem.label
-                                && newItem.showBackupMissingWarning == oldItem.showBackupMissingWarning
-                                && newItem.syncTotalRetrievedTransactions == oldItem.syncTotalRetrievedTransactions
-                                && newItem.isSyncing == oldItem.isSyncing
-                                && newItem.privateKeyCount == oldItem.privateKeyCount
-                                && newItem.balance?.spendable == oldItem.balance?.spendable
+                        equalsValuesBy(newItem as AccountViewModel, oldItem as AccountViewModel,
+                                { it.displayAddress }, { it.isActive }, { it.canSpend },
+                                { it.externalAccountType }, { it.isRMCLinkedAccount }, { it.label },
+                                { it.showBackupMissingWarning }, { it.syncTotalRetrievedTransactions },
+                                { it.isSyncing }, { it.privateKeyCount }, { it.balance?.spendable },
+                                { it.isSyncError }, { it.isSelected })
                     }
                     TOTAL_BALANCE_TYPE -> {
-                        newItem as TotalViewModel
-                        oldItem as TotalViewModel
-                        newItem.balance.values == oldItem.balance.values
+                        equalsValuesBy(newItem as TotalViewModel, oldItem as TotalViewModel,
+                                {it.balance.values})
                     }
                     INVESTMENT_TYPE -> {
-                        newItem as AccountInvestmentViewModel
-                        oldItem as AccountInvestmentViewModel
-                        newItem.accountId == oldItem.accountId
-                                && newItem.balance == oldItem.balance
+                        equalsValuesBy(newItem as AccountInvestmentViewModel, oldItem as AccountInvestmentViewModel,
+                                { it.accountId }, { it.balance })
                     }
                     else -> oldItem == newItem
                 }

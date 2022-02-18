@@ -13,6 +13,8 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountListChanged
+import com.mycelium.wallet.event.AccountSyncStopped
+import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
@@ -20,6 +22,7 @@ import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
+import com.mycelium.wapi.wallet.btcvault.hd.getBtcvHdAccounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
@@ -57,6 +60,15 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         updateData()
     }
 
+    @Subscribe
+    fun onAccountsListChanged(event: SelectedAccountChanged) {
+        updateData()
+    }
+    @Subscribe
+    fun accountSyncStopped(event: AccountSyncStopped) {
+        updateData()
+    }
+
     /**
      * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
      */
@@ -72,7 +84,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
                     R.string.eth_accounts_name to getEthERC20Accounts(walletManager),
-                    R.string.fio_accounts_name to getFIOAccounts(walletManager)
+                    R.string.fio_accounts_name to getFIOAccounts(walletManager),
+                    R.string.btcv_hd_accounts_name to walletManager.getBtcvHdAccounts()
             ).apply {
                 if ((BequantPreference.isLogged() && SettingsPreference.isEnabled(BequantConstants.PARTNER_ID)) ||
                         (!BequantPreference.isLogged() && SettingsPreference.isContentEnabled(BequantConstants.PARTNER_ID))) {
@@ -87,7 +100,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 }
             }
             if (value!!.isEmpty()) {
-                publishProgress(accountsList)
+                publishProgress(accountsList.toList())
             }
 
             val archivedList = walletManager.getArchivedAccounts()
@@ -113,12 +126,12 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         private fun getInvestmentAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getInvestmentAccounts()
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>) =
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>): List<AccountListItem> =
                 accounts.map {
                     if (it is InvestmentAccount) {
                         BQExchangeRateManager.requestOptionalRefresh()
                         AccountInvestmentViewModel(it, it.accountBalance.confirmed.toStringWithUnit())
-                    } else AccountViewModel(it, mbwManager)
+                    } else AccountViewModel(it, mbwManager) as AccountListItem
                 }
 
         private fun sortAccounts(accounts: Collection<WalletAccount<out Address>>) =

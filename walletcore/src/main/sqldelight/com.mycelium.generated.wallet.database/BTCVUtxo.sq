@@ -1,0 +1,34 @@
+import com.mrd.bitlib.model.OutPoint;
+import java.util.UUID;
+
+CREATE TABLE IF NOT EXISTS BTCVUtxo(
+        outpoint BLOB AS OutPoint,
+        accountId TEXT AS UUID,
+        height INTEGER AS Int NOT NULL,
+        value INTEGER NOT NULL,
+        isCoinbase INTEGER AS Boolean NOT NULL DEFAULT 0,
+        script BLOB,
+        PRIMARY KEY (outpoint, accountId)
+);
+
+selectUtxos:
+SELECT b.outpoint, b.accountId, b.height, b.value, b.isCoinbase, b.script
+FROM BTCVUtxo AS b
+WHERE b.accountId = (?);
+
+selectUtxoById:
+SELECT b.outpoint, b.accountId, b.height, b.value, b.isCoinbase, b.script
+FROM BTCVUtxo AS b
+WHERE b.outpoint = (?) AND b.accountId = (?);
+
+insertUtxo:
+INSERT OR REPLACE INTO BTCVUtxo(outpoint, accountId, height, value, isCoinbase, script)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteUtxo:
+DELETE FROM BTCVUtxo
+WHERE outpoint = (?) AND accountId = (?);
+
+deleteUtxos:
+DELETE FROM BTCVUtxo
+WHERE accountId = (?);

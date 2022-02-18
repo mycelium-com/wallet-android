@@ -397,8 +397,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
     <string name="copy_signature">Signatur in die Zwischenablage kopieren</string>
     <string name="share_signature">Text + Signatur teilen</string>
     <string name="sig_copied">Signatur in die Zwischenablage kopiert</string>
-    <string name="signed_message_subject">Bitcoin signierte Nachricht</string>
-    <string name="signed_message_share">Teile Bitcoin signierte Nachricht</string>
+    <string name="signed_message_subject_btc">Bitcoin signierte Nachricht</string>
+    <string name="signed_message_share_btc">Teile Bitcoin signierte Nachricht</string>
     <string name="signing_inprogress">Signiere Nachricht&#8230;</string>
     <string name="geocode_error">Geocoderfehlermeldung:%s \nBitte versuchen Sie es später noch einmal.</string>
     <string name="fetching_info">Informationen werden vom Server abgerufen</string>
