@@ -18,14 +18,14 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
         private var isArchived: Boolean,
         accountName: String,
         balance: Balance,
-        listener: (BitcoinVaultHDAccountContext) -> Unit,
+        val listener: (BitcoinVaultHDAccountContext) -> Unit,
         blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
         val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
         var defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
-) : AccountContextImpl<BitcoinVaultHDAccountContext>(id, currency, accountName, balance, listener, isArchived, blockHeight) {
+) : AccountContextImpl(id, currency, accountName, balance, isArchived, blockHeight) {
     private var isDirty: Boolean = false
 
     /**
@@ -113,5 +113,9 @@ class BitcoinVaultHDAccountContext @JvmOverloads constructor(
                 derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }
                         .toMap()
                         .toMutableMap()
+    }
+
+    override fun onChange() {
+        listener(this)
     }
 }

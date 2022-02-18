@@ -11,22 +11,26 @@ class EthAccountContext(override val uuid: UUID,
                         currency: CryptoCurrency,
                         accountName: String,
                         balance: Balance,
-                        listener: (EthAccountContext) -> Unit,
+                        val listener: (EthAccountContext) -> Unit,
                         override val accountIndex: Int,
                         enabledTokens: List<String>? = null,
                         archived: Boolean = false,
                         blockHeight: Int = 0,
                         nonce: BigInteger = BigInteger.ZERO) :
         EthContext by EthContext.Impl(uuid, nonce, enabledTokens, accountIndex),
-        AccountContextImpl<EthAccountContext>(uuid, currency, accountName, balance, listener, archived, blockHeight) {
+        AccountContextImpl(uuid, currency, accountName, balance, archived, blockHeight) {
+    override fun onChange() {
+        listener(this)
+    }
+
     override var nonce = nonce
         set(value) {
             field = value
-            listener.invoke(this)
+            onChange()
         }
     override var enabledTokens = enabledTokens
         set(value) {
             field = value
-            listener.invoke(this)
+            onChange()
         }
 }
