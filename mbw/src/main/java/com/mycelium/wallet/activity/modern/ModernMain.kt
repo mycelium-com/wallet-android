@@ -290,6 +290,7 @@ class ModernMain : AppCompatActivity() {
             }
         }, 100, MIN_AUTOSYNC_INTERVAL.toLong())
         supportInvalidateOptionsMenu()
+        updateNetworkConnectionState()
         super.onStart()
     }
 
@@ -531,6 +532,11 @@ class ModernMain : AppCompatActivity() {
     @Subscribe
     fun selectTab(selectTab: SelectTab) {
         selectTab(selectTab.tabTag)
+    }
+
+    @Subscribe
+    fun networkConnectionChanged(event:NetworkConnectionStateChanged){
+        updateNetworkConnectionState()
     }
 
     companion object {
