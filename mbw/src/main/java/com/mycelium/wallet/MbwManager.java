@@ -131,6 +131,8 @@ import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -161,6 +163,7 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.erc20.ERC20Backing;
 import com.mycelium.wapi.wallet.erc20.ERC20Module;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
@@ -1854,5 +1857,18 @@ public class MbwManager {
 
     public FeeProvider getFeeProvider(AssetInfo asset) {
         return _walletManager.getFeeEstimations().getProvider(asset);
+    }
+
+    public boolean isAccountCanBeDeleted(WalletAccount<?> walletAccount) {
+        boolean isDerivedFromInternalMasterseed = walletAccount.isDerivedFromInternalMasterseed();
+        boolean isBch = walletAccount instanceof SingleAddressBCHAccount || walletAccount instanceof Bip44BCHAccount;
+
+        if (walletAccount instanceof EthAccount) {
+            return !((EthAccount) walletAccount).hasHadActivity();
+        } else if (walletAccount instanceof FioAccount) {
+            return !((FioAccount) walletAccount).hasHadActivity() || !isDerivedFromInternalMasterseed;
+        } else {
+            return !isDerivedFromInternalMasterseed && !isBch;
+        }
     }
 }
