@@ -22,6 +22,7 @@ import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
+import java.lang.Exception
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -141,9 +142,23 @@ class EthAccount(private val chainId: Byte,
     }
 
     override fun updateBalanceCache(): Boolean {
-        val pendingReceiving = getPendingReceiving()
-        val pendingSending = getPendingSending()
-        val newBalance = Balance(valueOf(coinType, getConfirmed() - pendingSending),
+        val balResponse: BalanceResponse?
+        try {
+            balResponse = blockchainService.getBalance(receivingAddress.addressString)
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Couldn't update eth balance:  ${e.javaClass} ${e.localizedMessage}. Using cached value.")
+            return false
+        }
+
+        var pendingReceiving = BigInteger.ZERO
+        var pendingSending = BigInteger.ZERO
+        if (balResponse.unconfirmed <= BigInteger.ZERO) {
+            pendingSending = balResponse.unconfirmed.negate()
+        } else {
+            pendingReceiving = balResponse.unconfirmed
+        }
+
+        val newBalance = Balance(valueOf(coinType, balResponse.confirmed - pendingSending),
                 valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
         if (newBalance != accountContext.balance) {
             accountContext.balance = newBalance
@@ -154,35 +169,6 @@ class EthAccount(private val chainId: Byte,
     }
 
     override fun canSign() = credentials != null
-
-    private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
-            .filter { it.confirmations > 0 }
-            .map { it.transferred.value }
-            .fold(BigInteger.ZERO, BigInteger::add)
-
-    private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
-            !it.sender.addressString.equals(receiveAddress.addressString, true)
-                    && it.receiver.addressString.equals(receiveAddress.addressString, true)
-        }
-                .map { it.value.value }
-                .fold(BigInteger.ZERO, BigInteger::add)
-    }
-
-    private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
-            it.sender.addressString.equals(receiveAddress.addressString, true)
-                    && !it.receiver.addressString.equals(receiveAddress.addressString, true)
-        }
-                .map { tx -> tx.value.value + tx.fee!!.value }
-                .fold(BigInteger.ZERO, BigInteger::add) +
-                backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
-                    it.sender.addressString.equals(receiveAddress.addressString, true)
-                            && it.receiver.addressString.equals(receiveAddress.addressString, true)
-                }
-                        .map { tx -> tx.fee!!.value }
-                        .fold(BigInteger.ZERO, BigInteger::add)
-    }
 
     private suspend fun syncTransactions(): Boolean {
         try {
