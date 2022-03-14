@@ -19,7 +19,7 @@ class NetworkChangedReceiver : BroadcastReceiver() {
         }
         if (intent.action == "android.net.conn.CONNECTIVITY_CHANGE") {
             val mbwManager = MbwManager.getInstance(context)
-            val connected = Utils.isConnected(context)
+            val connected = Utils.isConnected(context, "CONNECTIVITY_CHANGE")
             logger.log(Level.INFO, "Connectivity status has been changed. Connected: $connected")
             mbwManager.getWalletManager(false).isNetworkConnected = connected
             mbwManager.wapi.setNetworkConnected(connected)
