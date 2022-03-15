@@ -301,11 +301,12 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     })
 
                                     getTotalFee().observe(this@SendCoinsActivity, Observer { totalFee ->
-                                        val isNotEnoughEth = getParentAccount()!!.accountBalance.spendable.lessThan(totalFee)
-                                        if (isNotEnoughEth) {
+                                        val parentAccountBalance = getParentAccount()!!.accountBalance.spendable
+                                        if (parentAccountBalance.lessThan(totalFee)) {
+                                            val diff = totalFee - parentAccountBalance
                                             tvPleaseTopUp.text =
                                                 Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
-                                                                        getParentAccount()!!.label, totalFee.toStringFriendlyWithUnit(getDenomination()), convert(totalFee)))
+                                                                        getParentAccount()!!.label, diff.toStringFriendlyWithUnit(getDenomination()), convert(diff)))
                                             tvThisIsUpdatedFee.visibility = View.GONE
                                             tvHighestPossibleFeeInfo.visibility = View.GONE
                                             llNotEnoughEth.visibility = View.VISIBLE
