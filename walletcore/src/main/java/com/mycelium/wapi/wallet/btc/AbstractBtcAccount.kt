@@ -67,7 +67,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
-import javax.annotation.Nonnull
 
 abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacking, protected val _network: NetworkParameters, wapi: Wapi) :
     SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider {
@@ -225,7 +224,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
             val isBtcAddress = address is BtcAddress
             if (!isBtcAddress) {
                 false
-            } else isMine((address as BtcAddress?)!!.address)
+            } else isMine((address as BtcAddress).address)
         } catch (e: IllegalStateException) {
             e.printStackTrace()
             false
@@ -410,7 +409,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     }
 
     @Throws(WapiException::class)
-    private suspend fun handleNewExternalTransactionsInt(@Nonnull transactions: Collection<TransactionEx>, allKnown: Boolean) {
+    private suspend fun handleNewExternalTransactionsInt(transactions: Collection<TransactionEx>, allKnown: Boolean) {
         // Transform and put into two arrays with matching indexes
         val txArray: MutableList<BitcoinTransaction> = ArrayList(transactions.size)
         for (tex in transactions) {
