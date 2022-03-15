@@ -156,6 +156,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
@@ -248,12 +250,19 @@ public class Utils {
    }
 
    public static boolean isConnected(Context context) {
+      return isConnected(context, "");
+   }
+
+   public static boolean isConnected(Context context, String where) {
       ConnectivityManager cm =
               (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
       NetworkInfo activeNetwork = null;
       if (cm != null) {
          activeNetwork = cm.getActiveNetworkInfo();
+      }
+      if (!where.isEmpty()) {
+         Logger.getLogger(Utils.class.getSimpleName()).log(Level.INFO, "Network state on '" + where + "' event: " + activeNetwork);
       }
       return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
    }
