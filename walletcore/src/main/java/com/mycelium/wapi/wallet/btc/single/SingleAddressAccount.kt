@@ -179,8 +179,8 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
             listOf(AddressType.P2PKH)
         } else ArrayList(_context.addresses.keys)
 
-    override fun getReceivingAddress(addressType: AddressType): BitcoinAddress {
-        return getAddress(addressType)!!
+    override fun getReceivingAddress(addressType: AddressType): BitcoinAddress? {
+        return getAddress(addressType)
     }
 
     override fun setDefaultAddressType(addressType: AddressType) {
@@ -310,11 +310,11 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
 
     override fun getChangeAddress(destinationAddress: BitcoinAddress): BitcoinAddress {
         return when (changeAddressModeReference.get()) {
-            ChangeAddressMode.P2WPKH -> getAddress(AddressType.P2WPKH)!!
-            ChangeAddressMode.P2SH_P2WPKH -> getAddress(AddressType.P2SH_P2WPKH)!!
-            ChangeAddressMode.PRIVACY -> getAddress(destinationAddress.type)!!
+            ChangeAddressMode.P2WPKH -> getAddress(AddressType.P2WPKH)
+            ChangeAddressMode.P2SH_P2WPKH -> getAddress(AddressType.P2SH_P2WPKH)
+            ChangeAddressMode.PRIVACY -> getAddress(destinationAddress.type)
             else -> throw IllegalStateException()
-        }
+        } ?: address
     }
 
     override fun getChangeAddress(destinationAddresses: List<BitcoinAddress>): BitcoinAddress {
@@ -335,11 +335,11 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
             }
         }
         return when (changeAddressModeReference.get()) {
-            ChangeAddressMode.P2WPKH -> getAddress(AddressType.P2WPKH)!!
-            ChangeAddressMode.P2SH_P2WPKH -> getAddress(AddressType.P2SH_P2WPKH)!!
-            ChangeAddressMode.PRIVACY -> getAddress(maxedOn)!!
+            ChangeAddressMode.P2WPKH -> getAddress(AddressType.P2WPKH)
+            ChangeAddressMode.P2SH_P2WPKH -> getAddress(AddressType.P2SH_P2WPKH)
+            ChangeAddressMode.PRIVACY -> getAddress(maxedOn)
             else -> throw IllegalStateException()
-        }
+        } ?: address
     }
 
     @Throws(InvalidKeyCipher::class)
