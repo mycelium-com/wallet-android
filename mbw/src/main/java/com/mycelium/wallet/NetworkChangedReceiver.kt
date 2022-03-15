@@ -3,6 +3,7 @@ package com.mycelium.wallet
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.mycelium.wallet.event.NetworkConnectionStateChanged
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -24,6 +25,7 @@ class NetworkChangedReceiver : BroadcastReceiver() {
             mbwManager.getWalletManager(false).isNetworkConnected = connected
             mbwManager.wapi.setNetworkConnected(connected)
             mbwManager.btcvWapi.setNetworkConnected(connected)
+            MbwManager.getEventBus().post(NetworkConnectionStateChanged(connected))
         }
     }
 }

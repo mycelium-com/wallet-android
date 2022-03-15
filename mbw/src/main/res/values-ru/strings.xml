@@ -964,4 +964,5 @@
     <string name="from_s_to_s">От %s до %s</string>
     <string name="gift_cards_menu">Сертификаты</string>
     <string name="paid">Транзакция отправлена</string>
+    <string name="connection_issues"><b>Проблемы с соединением.</b> Убедитесь, что вы онлайн.</string>
 </resources>

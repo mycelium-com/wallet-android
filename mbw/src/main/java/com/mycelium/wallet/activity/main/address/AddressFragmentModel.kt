@@ -70,7 +70,7 @@ class AddressFragmentModel(
                 context.getString(R.string.bitcoin_cash) + " - " + label
             else -> label
         })
-        isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR, SyncStatus.ERROR_INTERNET_CONNECTION)
+        isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR)
     }
 
     private fun updateAddress(account: WalletAccount<*>) {

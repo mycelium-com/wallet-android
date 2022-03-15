@@ -55,7 +55,7 @@ fun View.expand(end: (() -> Unit)? = null) {
         setTag(R.id.animator, null)
         end?.invoke()
     }
-    if (height != calcHeight) {
+    if (height != calcHeight && measuredWidth != 0) {
         val anim = ValueAnimator.ofInt(height, calcHeight).apply {
             addUpdateListener { valueAnimator ->
                 newLayoutParams.height = valueAnimator.animatedValue as Int
