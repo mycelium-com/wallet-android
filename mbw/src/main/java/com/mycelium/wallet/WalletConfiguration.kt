@@ -395,10 +395,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Mycelium Token", "MT", 7, "0x364f56e35e75227516878cc249f11ea9b3e41b09", "0x71b59f06a47c9c403d0e3ec303008bcf78fa9af6"),
             TokenData("Fantom Token", "FTM", 18, "0x4E15361FD6b4BB609Fa63C81A2be19d873717870"),
             TokenData("SHIBA INU", "SHIB", 18, "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"),
-            TokenData("Cronos Coin", "CROOLD", 8, "0xA0b73E1Ff0B80914AB6fe0444E65848C4C34450b"),
             TokenData("Paxos Gold", "PAXG", 18, "0x45804880De22913dAFE09f4980848ECE6EcbAf78"),
             TokenData("Wrapped BTC", "WBTC", 8, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
-            TokenData("LoopringCoin V2", "LRC", 18, "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD"),
+            TokenData("Loopring", "LRC", 18, "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD"),
             TokenData("Curve DAO Token", "CRV", 18, "0xD533a949740bb3306d119CC777fa900bA034cd52"),
             TokenData("HEX", "HEX", 8, "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39"),
             TokenData("SAND", "SAND", 18, "0x3845badAde8e6dFF049820680d1F14bD3903a5d0"),
@@ -420,7 +419,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Render Token", "RNDR", 18, "0x6De037ef9aD2725EB40118Bb1702EBb27e4Aeb24"),
             TokenData("dYdX", "DYDX", 18, "0x92D6C1e31e14520e676a687F0a93788B716BEff5"),
             TokenData("Ankr Network", "ANKR", 18, "0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4"),
-            TokenData("XY Oracle", "XYO", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E758")
+            TokenData("XYO", "XYO", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E758")
         )
         val namePostfix = if (BuildConfig.FLAVOR == "prodnet") "" else " test"
         return tokens
