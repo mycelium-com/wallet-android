@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.14.0.0" versioncode="3140000">
+        <change>Added network state banner on main screen</change>
+        <change>Fixed crash when scanning bitcoin addresses from cold storage menu</change>
+        <change>Fixed crash when trying to send Btcv</change>
+    </release>
     <release version="3.13.9.0" versioncode="3130900">
         <change>Fixed issues when creating a Single Address account from an address</change>
     </release>
