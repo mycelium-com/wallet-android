@@ -72,7 +72,8 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.bequant.InvestmentModule;
-import com.mycelium.generated.wallet.database.Logs;
+import com.mycelium.generated.logger.database.LoggerDB;
+import com.mycelium.generated.logger.database.Logs;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
@@ -130,6 +131,8 @@ import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -160,6 +163,7 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.erc20.ERC20Backing;
 import com.mycelium.wapi.wallet.erc20.ERC20Module;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
@@ -257,6 +261,7 @@ public class MbwManager {
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
     private final WalletDB db;
+    private LoggerDB loggerDB;
     private Logger logger = Logger.getLogger(MbwManager.class.getSimpleName());
 
     @Nonnull
@@ -322,6 +327,19 @@ public class MbwManager {
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
         //accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
         _environment = MbwEnvironment.verifyEnvironment();
+        startLogger();
+
+        SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
+                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
+                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
+                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
+                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
+                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
+                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
+                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
+        driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         // Preferences
         SharedPreferences preferences = getPreferences();
@@ -379,17 +397,7 @@ public class MbwManager {
             }
         }
 
-        SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
-                AdaptersKt.getBTCVAccountBackingAdapter(), AdaptersKt.getBTCVContextAdapter(),
-                AdaptersKt.getBTCVOutgoingTxAdapter(), AdaptersKt.getBTCVPtxoAdapter(),
-                AdaptersKt.getBTCVRefersPtxoAdapter(), AdaptersKt.getBTCVTransactionAdapter(), AdaptersKt.getBTCVUtxoAdapter(),
-                AdaptersKt.getErc20ContextAdapter(), AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(),
-                AdaptersKt.getFeeEstimatorAdapter(), AdaptersKt.getFioAccountBackingAdapter(), AdaptersKt.getFioContextAdapter(),
-                AdaptersKt.getFioKnownNamesAdapter(), AdaptersKt.getFioNameAccountMappingsAdapter(),
-                AdaptersKt.getFioOtherBlockchainTransactionsAdapter(),
-                AdaptersKt.getFioReceivedRequestsAdapter(), AdaptersKt.getFioSentRequestsAdapter());
-        driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
+
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
         ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -428,14 +436,14 @@ public class MbwManager {
         _versionManager.initBackgroundVersionChecker();
 
         _blockExplorerManager = getBlockExplorerManager(preferences);
-
-        startLogger();
     }
 
     private void startLogger() {
         LogManager.getLogManager().reset();
         Logger rootLogger = LogManager.getLogManager().getLogger("");
-        DbLogHandler handler = new DbLogHandler(db);
+        SqlDriver driver = new AndroidSqliteDriver(LoggerDB.Companion.getSchema(), _applicationContext, "logger.db");
+        loggerDB = LoggerDB.Companion.invoke(driver);
+        DbLogHandler handler = new DbLogHandler(loggerDB);
         rootLogger.addHandler(handler);
         rootLogger.addHandler(new AndroidLogHandler());
         handler.cleanUp();
@@ -917,7 +925,7 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), networkParameters);
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
         configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule ethereumModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
@@ -951,11 +959,11 @@ public class MbwManager {
     }
 
     public List<Logs> getLastLogsDesc(long limit) {
-        return db.getLogsQueries().selectWithLimit(limit).executeAsList();
+        return loggerDB.getLogsQueries().selectWithLimit(limit).executeAsList();
     }
 
     public List<Logs> getLogsAsc() {
-        return db.getLogsQueries().select().executeAsList();
+        return loggerDB.getLogsQueries().select().executeAsList();
     }
 
     private class AccountEventManager implements AbstractBtcAccount.EventHandler {
@@ -1000,7 +1008,7 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         Backing<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints(), networkParameters);
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
         configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule ethModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
@@ -1849,5 +1857,18 @@ public class MbwManager {
 
     public FeeProvider getFeeProvider(AssetInfo asset) {
         return _walletManager.getFeeEstimations().getProvider(asset);
+    }
+
+    public boolean isAccountCanBeDeleted(WalletAccount<?> walletAccount) {
+        boolean isDerivedFromInternalMasterseed = walletAccount.isDerivedFromInternalMasterseed();
+        boolean isBch = walletAccount instanceof SingleAddressBCHAccount || walletAccount instanceof Bip44BCHAccount;
+
+        if (walletAccount instanceof EthAccount) {
+            return !((EthAccount) walletAccount).hasHadActivity();
+        } else if (walletAccount instanceof FioAccount) {
+            return !((FioAccount) walletAccount).hasHadActivity() || !isDerivedFromInternalMasterseed;
+        } else {
+            return !isDerivedFromInternalMasterseed && !isBch;
+        }
     }
 }

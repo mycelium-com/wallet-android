@@ -240,29 +240,6 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       public abstract BigInteger getNonce();
    }
 
-   private static class DsaSignatureNonceGenRandom extends DsaSignatureNonceGen {
-      private final RandomSource randomSource;
-
-      private DsaSignatureNonceGenRandom(RandomSource randomSource) {
-         this.randomSource = randomSource;
-      }
-
-      @Override
-      public BigInteger getNonce() {
-         BigInteger k;
-         int nBitLength = Parameters.n.bitLength();
-         do {
-            // make a BigInteger from bytes to ensure that Andriod and
-            // 'classic' java make the same BigIntegers
-            byte[] bytes = new byte[nBitLength / 8];
-            randomSource.nextBytes(bytes);
-            bytes[0] = (byte) (bytes[0] & 0x7F); // ensure positive number
-            k = new BigInteger(bytes);
-         } while (k.equals(BigInteger.ZERO));
-         return k;
-      }
-   }
-
    private static class DsaSignatureNonceGenDeterministic extends DsaSignatureNonceGen {
 
       private final Sha256Hash messageHash;
@@ -335,12 +312,6 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    @NotNull
    protected Signature generateSignature(@NotNull Sha256Hash messageHash) {
       return generateSignatureInternal(messageHash, new DsaSignatureNonceGenDeterministic(messageHash, this));
-   }
-
-   @Override
-   @NotNull
-   protected Signature generateSignature(@NotNull Sha256Hash messageHash, @NotNull RandomSource randomSource) {
-      return generateSignatureInternal(messageHash, new DsaSignatureNonceGenRandom(randomSource));
    }
 
    private Signature generateSignatureInternal(Sha256Hash messageHash, DsaSignatureNonceGen kGen) {

@@ -69,8 +69,8 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,6 +78,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     private ModuleMessageReceiver moduleMessageReceiver;
     private static WalletApplication INSTANCE;
     private NetworkChangedReceiver networkChangedReceiver;
+    private Timer checkNetworkTimer;
     private final Logger logger = Logger.getLogger(WalletApplication.class.getSimpleName());
 
     static {
@@ -245,16 +246,21 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                 // right connection state here.
                 // delay the check so that the state has room to switch between blocked and connected
                 // statuses when returning back from idle (doze) mode
-                Executors.newScheduledThreadPool(1).schedule(() -> {
-                    boolean connected = Utils.isConnected(getApplicationContext());
-                    // checking state of networkConnected variable only for WalletManager is sufficient
-                    // as ColuManager, Wapi and WalletManager networkConnected variables are changed simultaneously
-                    if (mbwManager.getWalletManager(false).isNetworkConnected() != connected) {
-                        mbwManager.getWalletManager(false).setNetworkConnected(connected);
-                        mbwManager.getWapi().setNetworkConnected(connected);
-                        mbwManager.getBtcvWapi().setNetworkConnected(connected);
+                checkNetworkTimer = new Timer();
+                checkNetworkTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        boolean connected = Utils.isConnected(getApplicationContext(), "went foreground");
+                        if (mbwManager.getWalletManager(false).isNetworkConnected() != connected) {
+                            mbwManager.getWalletManager(false).setNetworkConnected(connected);
+                            mbwManager.getWapi().setNetworkConnected(connected);
+                            mbwManager.getBtcvWapi().setNetworkConnected(connected);
+                        }
+                        if (connected) {
+                            checkNetworkTimer.cancel();
+                        }
                     }
-                }, 500, TimeUnit.MILLISECONDS);
+                }, 0, 1000);
                 isBackground = false;
             }
             numStarted++;
@@ -272,6 +278,9 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             if (numStarted == 0) {
                 // app is going background
                 MbwManager.getInstance(getApplicationContext()).setAppInForeground(false);
+                if (checkNetworkTimer != null) {
+                    checkNetworkTimer.cancel();
+                }
                 isBackground = true;
                 logger.log(Level.INFO, "Went to background");
             }

@@ -17,7 +17,6 @@
             android:id="@+id/tvError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:textColor="@color/fio_red"
             android:textSize="14sp"
             tools:text="Amount too small"
