@@ -13,6 +13,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
+import com.mycelium.wallet.activity.util.get
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
@@ -58,6 +59,7 @@ abstract class SendCoinsModel(
     val showStaleWarning: MutableLiveData<Boolean> = MutableLiveData()
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
     val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
+    val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
 
     val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
         override fun setValue(value: TransactionData?) {
@@ -349,6 +351,10 @@ abstract class SendCoinsModel(
         }
     }
 
+    fun setAlternativeAmountWarning(show: Boolean) {
+        alternativeAmountWarning.value = show
+    }
+
     /**
      * This function called on viewModel destroy to unsubscribe
      */
@@ -363,8 +369,9 @@ abstract class SendCoinsModel(
         } else {
             account.coinType
         }
-        alternativeAmount.postValue(mbwManager.exchangeRateManager.get(enteredAmount, exchangeTo)
-                ?: Value.zeroValue(account.coinType))
+        val rate = mbwManager.exchangeRateManager.getRate(enteredAmount, exchangeTo)
+        alternativeAmount.postValue(rate.getValue(enteredAmount, exchangeTo))
+        alternativeAmountWarning.postValue(rate.isRateOld)
     }
 
     private fun updateReceiverAddressText(hasPaymentRequest: Boolean) {

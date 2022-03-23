@@ -25,6 +25,8 @@ import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioModule
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewModel(application) {
     protected val mbwManager = MbwManager.getInstance(application)
@@ -88,6 +90,8 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     }
 
     fun getRequestedAmountAlternative() = model.alternativeAmountData
+
+    fun getCourseOutdated() = model.alternativeAmountWarning
 
     fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
         if (!Value.isNullOrZero(it)) {
@@ -154,14 +158,14 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     fun setAmount(amount: Value) {
         if (amount.type == account.coinType) {
             model.setAmount(amount)
-            val value = mbwManager.exchangeRateManager.get(amount,
-                    mbwManager.getFiatCurrency(account.coinType))
-                    ?: Value.zeroValue(account.coinType)
-            model.setAlternativeAmount(value)
+            val rate = mbwManager.exchangeRateManager.getRate(amount, mbwManager.getFiatCurrency(account.coinType))
+            model.setAlternativeAmount(rate.getValue(amount, mbwManager.getFiatCurrency(account.coinType)))
+            model.setAlternativeAmountWarning(rate.isRateOld)
         } else {
-            model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType)
-                    ?: Value.zeroValue(account.coinType))
+            val rate = mbwManager.exchangeRateManager.getRate(amount, account.coinType)
+            model.setAmount(rate.getValue(amount, account.coinType))
             model.setAlternativeAmount(amount)
+            model.setAlternativeAmountWarning(rate.isRateOld)
         }
     }
 
