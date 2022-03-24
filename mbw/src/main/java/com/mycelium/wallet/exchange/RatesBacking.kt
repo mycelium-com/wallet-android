@@ -9,7 +9,7 @@ class RatesBacking(val database: RatesDB) {
 
     fun allExchangeRates(): List<ExchangeRate> =
             queries.selectAll(mapper = { from, to, market, rate, time ->
-                ExchangeRate(market, time, rate, from)
+                ExchangeRate(market, time, rate, from, to)
             }).executeAsList()
 
     fun storeExchangeRates(fromCurrency: String, rates: List<ExchangeRate>) {
