@@ -2,7 +2,6 @@ package com.mycelium.giftbox
 
 import android.content.Intent
 import android.content.res.Resources
-import android.util.Log
 import android.webkit.URLUtil
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,6 +14,7 @@ import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
 import com.squareup.sqldelight.ColumnAdapter
 import java.text.DateFormat
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -91,9 +91,8 @@ val dateAdapter = object : ColumnAdapter<Date, String> {
 
     override fun decode(databaseValue: String): Date = try {
         date.parse(databaseValue)
-    } catch (e: Exception) {
-        Log.e("DateAdapter", "decode", e)
-        Date(0)
+    } catch (e: ParseException) {
+        DateFormat.getDateTimeInstance().parse(databaseValue)
     }
 
     override fun encode(value: Date): String = date.format(value)
