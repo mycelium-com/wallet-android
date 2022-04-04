@@ -16,6 +16,7 @@ import com.mycelium.giftbox.cards.adapter.OrderAdapter
 import com.mycelium.giftbox.cards.adapter.PurchasedGroupItem
 import com.mycelium.giftbox.cards.adapter.PurchasedLoadingItem
 import com.mycelium.giftbox.cards.adapter.PurchasedOrderItem
+import com.mycelium.giftbox.cards.event.OrdersUpdate
 import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
@@ -103,6 +104,7 @@ class OrdersFragment : Fragment() {
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
+            MbwManager.getEventBus().post(OrdersUpdate())
         }, error = { _, msg ->
             adapter.submitList(listOf())
             viewModel.state.value = ListState.ERROR
