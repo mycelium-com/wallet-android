@@ -63,14 +63,13 @@
                     android:id="@+id/fromValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="@dimen/margin_small"
+                    android:layout_centerInParent="true"
                     android:layout_marginStart="@dimen/margin_small"
-                    android:textColorHint="@color/white"
+                    android:layout_marginEnd="@dimen/margin_small"
                     android:hint="@string/zero"
                     android:maxLines="1"
                     android:textColor="@color/white"
+                    android:textColorHint="@color/white"
                     android:textSize="@dimen/big_input"
                     tools:text="0" />
 

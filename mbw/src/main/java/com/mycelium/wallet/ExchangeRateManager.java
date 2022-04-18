@@ -135,7 +135,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
-        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+        ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class)
                 .getExchangeAmount(BCH, BTC, 1)
                 .enqueue(new GetOfferCallback());
     }
@@ -458,7 +458,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                                @NonNull Response<ChangellyAnswerDouble> response) {
             ChangellyAnswerDouble result = response.body();
             if (result != null) {
-                rateBchBtc = (float) result.result;
+                rateBchBtc = (float) result.getResult();
                 storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
             }
         }

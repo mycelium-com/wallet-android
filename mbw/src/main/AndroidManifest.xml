@@ -251,6 +251,8 @@
             android:name=".external.changelly.bch.ExchangeActivity"
             android:theme="@style/MyceliumExchange" />
         <activity
+            android:name=".external.changelly2.Changelly2ExchangeActivity"/>
+        <activity
             android:name=".activity.settings.SetSegwitChangeActivity"
             android:theme="@style/MyceliumSettings" />
         <activity

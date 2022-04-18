@@ -79,7 +79,7 @@ public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
     public static final int UPDATE_TIME = 60;
     public static final String BLOCKTRAIL_TRANSACTION = "https://www.blocktrail.com/_network_/tx/_id_";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -403,7 +403,7 @@ public class ConfirmExchangeFragment extends Fragment {
                                @NonNull Response<ChangellyAPIService.ChangellyAnswerDouble> response) {
             ChangellyAPIService.ChangellyAnswerDouble result = response.body();
             if(result != null) {
-                double amount = result.result;
+                double amount = result.getResult();
                 progressBar.setVisibility(View.INVISIBLE);
                 toValue = decimalFormat.format(amount);
                 offerUpdateText.removeCallbacks(updateOffer);

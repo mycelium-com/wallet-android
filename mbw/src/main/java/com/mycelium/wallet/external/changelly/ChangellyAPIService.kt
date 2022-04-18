@@ -1,89 +1,104 @@
-package com.mycelium.wallet.external.changelly;
+package com.mycelium.wallet.external.changelly
 
-import java.io.Serializable;
-import java.util.List;
-
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.POST;
-import retrofit2.http.Query;
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.POST
+import retrofit2.http.Query
+import java.io.Serializable
 
 /**
- *  Interface to describing Changelly API for retrofit2 library and providing retrofit object intialization.
- **/
-public interface ChangellyAPIService {
-    String BCH = "BCH";
-    String BTC = "BTC";
-    String FROM = "FROM";
-    String TO = "TO";
-    String AMOUNT = "AMOUNT";
-    String DESTADDRESS = "DESTADDRESS";
+ * Interface to describing Changelly API for retrofit2 library and providing retrofit object intialization.
+ */
+interface ChangellyAPIService {
     class ChangellyCurrency {
-        public String currency;
-        public boolean enabled;
+        var currency: String? = null
+        var enabled = false
     }
 
-    class ChangellyTransactionOffer implements Serializable {
-        public String id;
-        public double apiExtraFee;
-        public double changellyFee;
-        public String payinExtraId;
-        public String status;
-        public String currencyFrom;
-        public String currencyTo;
-        public double amountTo;
-        public String payinAddress;
-        public String payoutAddress;
-        public String payoutExtraId;
-        public String createdAt;
+    class ChangellyTransactionOffer : Serializable {
+        @JvmField
+        var id: String? = null
+        var apiExtraFee = 0.0
+        var changellyFee = 0.0
+        @JvmField
+        var payinExtraId: String? = null
+        var status: String? = null
+        @JvmField
+        var currencyFrom: String? = null
+        var currencyTo: String? = null
+        @JvmField
+        var amountTo = 0.0
+        @JvmField
+        var payinAddress: String? = null
+        var payoutAddress: String? = null
+        var payoutExtraId: String? = null
+        var createdAt: String? = null
     }
 
     //{"jsonrpc":"2.0","id":"test","result":{"id":"39526c0eb6ba","apiExtraFee":"0","changellyFee":"0.5","payinExtraId":null,"status":"new","currencyFrom":"eth","currencyTo":"BTC","amountTo":0,"payinAddress":"0xdd0a917944efc6a371829053ad318a6a20ee1090","payoutAddress":"1J3cP281yiy39x3gcPaErDR6CSbLZZKzGz","createdAt":"2017-11-22T18:47:19.000Z"}}
     class ChangellyTransaction {
-        public ChangellyTransactionOffer result; // payin_address, ID
+        @JvmField
+        var result // payin_address, ID
+                : ChangellyTransactionOffer? = null
     }
 
     // {"jsonrpc":"2.0","id":"test","result":"0.03595702"}
     class ChangellyAnswerDouble {
-        public double result;
+        var result = 0.0
     }
 
     class ChangellyAnswerListString {
-        public List<String> result;
+        var result: List<String>? = null
     }
-    // end data classes
 
+    // end data classes
     @POST("getCurrencies")
-    Call<ChangellyAnswerListString> getCurrencies();
+    fun getCurrencies(): Call<ChangellyAnswerListString?>
 
     @POST("getCurrenciesFull")
-    List<ChangellyCurrency> getCurrenciesFull();
+    fun getCurrenciesFull(): List<ChangellyCurrency?>
 
     @POST("getMinAmount")
-    Call<ChangellyAnswerDouble> getMinAmount(@Query("from") String from, @Query("to") String to);
+    fun getMinAmount(@Query("from") from: String?, @Query("to") to: String?): Call<ChangellyAnswerDouble?>
 
     @POST("getExchangeAmount")
-    Call<ChangellyAnswerDouble> getExchangeAmount(@Query("from") String from, @Query("to") String to, @Query("amount") double amount);
+    fun getExchangeAmount(@Query("from") from: String?, @Query("to") to: String?, @Query("amount") amount: Double): Call<ChangellyAnswerDouble?>
+
+    @POST("getExchangeAmount")
+    suspend fun exchangeAmount(@Query("from") from: String,
+                               @Query("to") to: String,
+                               @Query("amount") amount: Double): Response<ChangellyAnswerDouble>
 
     @POST("createTransaction")
-    Call<ChangellyTransaction> createTransaction(@Query("from") String from, @Query("to") String to, @Query("amount") double amount, @Query("address") String address);
+    fun createTransaction(@Query("from") from: String?, @Query("to") to: String?, @Query("amount") amount: Double, @Query("address") address: String?): Call<ChangellyTransaction?>
 
-//    @POST("getStatus")
-//    Call<ChangellyStatus> getStatus(@Query("transaction") String transaction);
-
+    //    @POST("getStatus")
+    //    Call<ChangellyStatus> getStatus(@Query("transaction") String transaction);
     @POST("getTransactions")
-    Call<List<ChangellyTransaction>> getTransactions();
+    fun getTransactions(): Call<List<ChangellyTransaction?>?>?
 
-    //public static final HttpLoggingInterceptor logging = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);
-    ChangellyHeaderInterceptor changellyHeader = new ChangellyHeaderInterceptor();
-    //public static final OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(changellyHeader).addInterceptor(logging).build();
-    OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(changellyHeader).build();
+    companion object {
+        const val BCH = "BCH"
+        const val BTC = "BTC"
+        const val FROM = "FROM"
+        const val TO = "TO"
+        const val AMOUNT = "AMOUNT"
+        const val DESTADDRESS = "DESTADDRESS"
 
-    Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://api.changelly.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(httpClient)
-            .build();
+        //public static final HttpLoggingInterceptor logging = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);
+        val changellyHeader = ChangellyHeaderInterceptor()
+
+        //public static final OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(changellyHeader).addInterceptor(logging).build();
+        val httpClient = OkHttpClient.Builder().addInterceptor(changellyHeader).build()
+
+        @JvmStatic
+        val retrofit = Retrofit.Builder()
+                .baseUrl("https://api.changelly.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build()
+    }
 }

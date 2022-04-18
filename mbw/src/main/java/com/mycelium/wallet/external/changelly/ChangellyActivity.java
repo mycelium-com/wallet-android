@@ -45,7 +45,7 @@ import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 public class ChangellyActivity extends AppCompatActivity {
     public static final int REQUEST_OFFER = 100;
     private static String TAG = "ChangellyActivity";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
 
     public enum ChangellyUITypes {
         Loading,
@@ -169,15 +169,15 @@ public class ChangellyActivity extends AppCompatActivity {
         changellyAPIService.getCurrencies().enqueue(new Callback<ChangellyAPIService.ChangellyAnswerListString>() {
             @Override
             public void onResponse(Call<ChangellyAPIService.ChangellyAnswerListString> call, Response<ChangellyAPIService.ChangellyAnswerListString> response) {
-                if (response.body() == null || response.body().result == null) {
+                if (response.body() == null || response.body().getResult() == null) {
                     toast("Can't load currencies.");
                     return;
                 }
-                Log.d(TAG, "currencies=" + response.body().result);
-                Collections.sort(response.body().result);
+                Log.d(TAG, "currencies=" + response.body().getResult());
+                Collections.sort(response.body().getResult());
                 List<CurrencyAdapter.Item> itemList = new ArrayList<>();
                 String[] skipCurrencies = getResources().getStringArray(R.array.changelly_skip_currencies);
-                for (String curr : response.body().result) {
+                for (String curr : response.body().getResult()) {
                     if (!curr.equalsIgnoreCase("btc") &&
                             !containsCaseInsensitive(curr, skipCurrencies)) {
                         itemList.add(new CurrencyAdapter.Item(curr.toUpperCase(), CurrencyAdapter.VIEW_TYPE_ITEM));
@@ -385,12 +385,12 @@ public class ChangellyActivity extends AppCompatActivity {
         public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
                                @NonNull Response<ChangellyAnswerDouble> response) {
             ChangellyAnswerDouble result = response.body();
-            if(result == null || result.result == -1) {
+            if(result == null || result.getResult() == -1) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
                 toast("Service unavailable");
                 return;
             }
-            double min = result.result;
+            double min = result.getResult();
             // service available
             CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
             if (item != null && from != null
@@ -425,8 +425,8 @@ public class ChangellyActivity extends AppCompatActivity {
                                @NonNull Response<ChangellyAnswerDouble> response) {
             ChangellyAnswerDouble result = response.body();
             if(result != null) {
-                double amount = result.result;
-                Log.d("MyceliumChangelly", "You will receive the following " + to + " amount: " + result.result);
+                double amount = result.getResult();
+                Log.d("MyceliumChangelly", "You will receive the following " + to + " amount: " + result.getResult());
                 CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                 // check if the user still needs this reply or navigated to different amounts/currencies
                 if (item != null) {

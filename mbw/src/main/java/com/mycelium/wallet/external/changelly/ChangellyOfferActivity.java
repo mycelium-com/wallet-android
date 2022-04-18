@@ -156,7 +156,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         amount = getIntent().getDoubleExtra(ChangellyAPIService.AMOUNT, 0);
         currency = getIntent().getStringExtra(ChangellyAPIService.FROM);
         receivingAddress = getIntent().getStringExtra(ChangellyAPIService.DESTADDRESS);
-        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+        ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class)
                 .createTransaction(currency, BTC, amount, receivingAddress)
                 .enqueue(new GetOfferCallback(amount));
         progressDialog = new ProgressDialog(this);

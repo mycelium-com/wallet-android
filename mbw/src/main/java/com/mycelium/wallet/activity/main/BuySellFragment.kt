@@ -55,6 +55,7 @@ import com.mycelium.wallet.external.Ads.openFio
 import com.mycelium.wallet.external.BuySellSelectActivity
 import com.mycelium.wallet.external.changelly.ChangellyActivity
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity
+import com.mycelium.wallet.external.changelly2.Changelly2ExchangeActivity
 import com.mycelium.wallet.external.partner.model.BuySellButton
 import com.mycelium.wallet.external.partner.startContentLink
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
@@ -66,7 +67,7 @@ import kotlinx.android.synthetic.main.main_buy_sell_fragment.*
 
 class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickListener {
     enum class ACTION {
-        BCH, ALT_COIN, BTC, FIO, ETH, ADS, BUY_SELL_ERC20
+        BCH, ALT_COIN, BTC, FIO, ETH, ADS, BUY_SELL_ERC20, EXCHANGE_COIN_TOKEN
     }
 
     private lateinit var mbwManager: MbwManager
@@ -116,6 +117,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
                 addFio(actions)
             }
         }
+        actions.add(ActionButton(ACTION.EXCHANGE_COIN_TOKEN, "EXCHANGE COINS AND TOKENS"))
         buttonAdapter.setButtons(actions)
         button_list.postDelayed(ScrollToRunner(1), 500)
     }
@@ -176,6 +178,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
                     startContentLink(data.link)
                 }
             }
+            ACTION.EXCHANGE_COIN_TOKEN -> startActivity(Intent(activity, Changelly2ExchangeActivity::class.java))
         }
     }
 
