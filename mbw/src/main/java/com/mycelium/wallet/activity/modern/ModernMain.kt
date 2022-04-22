@@ -43,6 +43,7 @@ import com.mycelium.wallet.activity.util.collapse
 import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.databinding.ModernMainBinding
 import com.mycelium.wallet.event.*
+import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
@@ -60,6 +61,7 @@ import java.util.concurrent.TimeUnit
 class ModernMain : AppCompatActivity() {
     private lateinit var mbwManager: MbwManager
     private var mTabsAdapter: TabsAdapter? = null
+    private var mExchangeTab: TabLayout.Tab? = null
     private var mBalanceTab: TabLayout.Tab? = null
     private var mNewsTab: TabLayout.Tab? = null
     private var mAccountsTab: TabLayout.Tab? = null
@@ -97,6 +99,8 @@ class ModernMain : AppCompatActivity() {
             mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow))
             mTabsAdapter!!.addTab(mNewsTab, NewsFragment::class.java, null, TAB_NEWS)
         }
+        mExchangeTab = binding.pagerTabs.newTab().setText("EXCHANGE")
+        mTabsAdapter!!.addTab(mExchangeTab, ExchangeFragment::class.java, null, TAB_EXCHANGE)
         mAccountsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_accounts))
         mTabsAdapter!!.addTab(mAccountsTab, AccountsFragment::class.java, null, TAB_ACCOUNTS)
         mBalanceTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_balance))
@@ -543,6 +547,7 @@ class ModernMain : AppCompatActivity() {
         private const val TAB_NEWS = "tab_news"
         private const val TAB_ACCOUNTS = "tab_accounts"
         private const val TAB_BALANCE = "tab_balance"
+        private const val TAB_EXCHANGE = "tab_exchange"
         private const val TAB_HISTORY = "tab_history"
         const val TAB_FIO_REQUESTS = "tab_fio_requests"
         private const val TAB_ADS = "tab_ads"

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.external.changelly
 
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -88,11 +89,14 @@ interface ChangellyAPIService {
         const val AMOUNT = "AMOUNT"
         const val DESTADDRESS = "DESTADDRESS"
 
-        //public static final HttpLoggingInterceptor logging = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);
+        val logging = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);
         val changellyHeader = ChangellyHeaderInterceptor()
 
         //public static final OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(changellyHeader).addInterceptor(logging).build();
-        val httpClient = OkHttpClient.Builder().addInterceptor(changellyHeader).build()
+        val httpClient = OkHttpClient.Builder()
+                .addInterceptor(changellyHeader)
+                .addInterceptor(logging)
+                .build()
 
         @JvmStatic
         val retrofit = Retrofit.Builder()
