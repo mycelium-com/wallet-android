@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +19,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
@@ -166,9 +165,9 @@ public class ChangellyActivity extends AppCompatActivity {
 
         //display the loading spinner
         setLayout(ChangellyActivity.ChangellyUITypes.Loading);
-        changellyAPIService.getCurrencies().enqueue(new Callback<ChangellyAPIService.ChangellyAnswerListString>() {
+        changellyAPIService.getCurrencies().enqueue(new Callback<ChangellyResponse<List<String>>>() {
             @Override
-            public void onResponse(Call<ChangellyAPIService.ChangellyAnswerListString> call, Response<ChangellyAPIService.ChangellyAnswerListString> response) {
+            public void onResponse(Call<ChangellyResponse<List<String>>> call, Response<ChangellyResponse<List<String>>> response) {
                 if (response.body() == null || response.body().getResult() == null) {
                     toast("Can't load currencies.");
                     return;
@@ -191,7 +190,7 @@ public class ChangellyActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ChangellyAPIService.ChangellyAnswerListString> call, Throwable t) {
+            public void onFailure(Call<ChangellyResponse<List<String>>> call, Throwable t) {
                 toast("Can't load currencies: " + t);
             }
         });
@@ -374,7 +373,7 @@ public class ChangellyActivity extends AppCompatActivity {
         return false;
     }
 
-    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+    class GetMinCallback implements Callback<ChangellyResponse<Double>> {
         String from;
 
         GetMinCallback(String from) {
@@ -382,9 +381,9 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAnswerDouble> response) {
-            ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
+                               @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
             if(result == null || result.getResult() == -1) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
                 toast("Service unavailable");
@@ -403,13 +402,13 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+    class GetOfferCallback implements Callback<ChangellyResponse<Double>> {
         final String from;
         final String to;
         final double fromAmount;
@@ -421,9 +420,9 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAnswerDouble> response) {
-            ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
+                               @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
             if(result != null) {
                 double amount = result.getResult();
                 Log.d("MyceliumChangelly", "You will receive the following " + to + " amount: " + result.getResult());
@@ -451,7 +450,7 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable " + t);
         }

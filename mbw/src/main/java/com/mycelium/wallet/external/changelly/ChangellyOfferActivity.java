@@ -13,8 +13,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
+import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
@@ -197,7 +197,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyTransaction> {
+    class GetOfferCallback implements Callback<ChangellyResponse<ChangellyTransactionOffer>> {
         private double amountFrom;
 
         public GetOfferCallback(double amountFrom) {
@@ -205,10 +205,10 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyTransaction> call,
-                               @NonNull Response<ChangellyTransaction> response) {
-            ChangellyTransaction result = response.body();
-            if(result != null && result.result != null) {
+        public void onResponse(@NonNull Call<ChangellyResponse<ChangellyTransactionOffer>> call,
+                               @NonNull Response<ChangellyResponse<ChangellyTransactionOffer>> response) {
+            ChangellyResponse<ChangellyTransactionOffer> result = response.body();
+            if(result != null && result.getResult() != null) {
                 progressDialog.dismiss();
                 // if the amount changed after the offer was requested but before the offer was
                 // received, we reset the amount to the requested amount instead of ignoring the
@@ -216,7 +216,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
                 // If the user requested a new offer meanwhile, the new amount will return with
                 // the new offer, too.
                 amount = amountFrom;
-                offer = result.result;
+                offer = result.getResult();
                 sendOrderToService(getOrder());
                 updateUI();
             } else {
@@ -225,7 +225,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyTransaction> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<ChangellyTransactionOffer>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }

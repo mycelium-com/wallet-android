@@ -5,6 +5,14 @@
 
     <data>
 
+        <import type="com.mycelium.wapi.wallet.coins.CryptoCurrency" />
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+        <import type="com.mycelium.view.Denomination" />
+
         <variable
             name="label"
             type="String" />
@@ -41,9 +49,14 @@
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toTopOf="parent"
+            bind:accountAddress="@{vm.fromAddress}"
+            bind:accountLabel="@{vm.fromAccount.label}"
+            bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.fromAccount.accountBalance.spendable, Denomination.UNIT)}"
+            bind:coinType="@{vm.fromCurrency}"
+            bind:fiatValue="@{vm.fiatSellValue}"
+            bind:label="@{@string/bequant_you_send}"
+            bind:value="@={vm.sellValue}" />
 
-            bind:label="@{@string/bequant_you_send}" />
-<!--bind:account="@{vm.fromAccount}"-->
         <View
             android:layout_width="0dp"
             android:layout_height="2dp"
@@ -66,7 +79,8 @@
             android:paddingBottom="4dp"
             android:text="@{vm.exchangeRate}"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
-            app:layout_constraintTop_toBottomOf="@id/sellLayout" />
+            app:layout_constraintTop_toBottomOf="@id/sellLayout"
+            bind:text="1 BTC = 69 420 USDT" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -86,9 +100,29 @@
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toBottomOf="@id/exchangeRate"
+            bind:accountAddress="@{vm.toAddress}"
+            bind:accountLabel="@{vm.toAccount.label}"
+            bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.toAccount.accountBalance.spendable, Denomination.UNIT)}"
+            bind:coinType="@{vm.toCurrency}"
+            bind:fiatValue="@{vm.fiatBuyValue}"
+            bind:label="@{@string/bequant_you_get}"
+            bind:value="@{vm.buyValue}" />
 
-            bind:label="@{@string/bequant_you_get}" />
-<!--bind:account="@{vm.toAccount}"-->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_changelly_error"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@{vm.error}"
+            android:textSize="14sp"
+            android:visibility="@{vm.error.isEmpty() ? View.GONE : View.VISIBLE }"
+            app:layout_constraintBottom_toTopOf="@id/exchangeButton"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/buyLayout"
+            app:layout_constraintVertical_bias="0.25" />
+
         <Button
             android:id="@+id/exchangeButton"
             android:layout_width="0dp"

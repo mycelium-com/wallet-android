@@ -5,15 +5,37 @@
 
     <data>
 
+        <import type="com.mycelium.wapi.wallet.coins.CryptoCurrency" />
+
         <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
 
         <variable
             name="label"
             type="String" />
 
-<!--        <variable-->
-<!--            name="account"-->
-<!--            type="com.mycelium.wapi.wallet.WalletAccount" />-->
+        <variable
+            name="value"
+            type="String" />
+
+        <variable
+            name="fiatValue"
+            type="String" />
+
+        <variable
+            name="coinType"
+            type="com.mycelium.wapi.wallet.coins.CryptoCurrency" />
+
+        <variable
+            name="accountLabel"
+            type="String" />
+
+        <variable
+            name="accountAddress"
+            type="String" />
+
+        <variable
+            name="balance"
+            type="String" />
 
     </data>
 
@@ -53,7 +75,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="10.00 USD"
+            android:text="@{fiatValue}"
             android:textColor="#61666B"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/label"
@@ -65,13 +87,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="0.00012428"
+            android:text="@={value}"
             android:textColor="@color/white"
             android:textSize="24sp"
             app:layout_constraintEnd_toStartOf="@id/coinIcon"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
-            app:layout_constraintTop_toBottomOf="@id/label" />
+            app:layout_constraintTop_toBottomOf="@id/label"
+            tools:text="0.2342345" />
 
         <ImageView
             android:id="@+id/coinIcon"
@@ -87,13 +110,15 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-
+            android:drawablePadding="4dp"
+            android:text="@{coinType.symbol}"
             android:textColor="@color/white"
             android:textSize="24sp"
+            app:drawableEndCompat="@drawable/arrow_bottom"
             app:layout_constraintBaseline_toBaselineOf="@id/coinValue"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             tools:text="BTC" />
-<!--android:text="@{account.coinType.symbol}"-->
+        <!--android:text="@{account.coinType.symbol}"-->
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
@@ -117,38 +142,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-
+            android:text="@{accountLabel}"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toTopOf="@id/layoutAccount"
             tools:text="Bitcoin 1" />
-<!--android:text="@{account.label}"-->
+
         <TextView
             android:id="@+id/accountBalance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:text="@{balance}"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/account"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             tools:text="0.00234800 BTC" />
-<!--android:text="@{ValueExtensionsKt.toStringFriendlyWithUnit(account.accountBalance.spendable)}"-->
+
         <TextView
             android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="8dp"
-
+            android:ellipsize="middle"
+            android:maxEms="9"
+            android:singleLine="true"
+            android:text="@{accountAddress}"
             android:textColor="#A4A4A5"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/account"
             app:layout_constraintTop_toBottomOf="@id/account"
             tools:text="0ckrfrm...jJfrnJ" />
-<!--            android:text="@{account.receiveAddress.toString()}"-->
+
         <TextView
             android:id="@+id/accountBalanceFiat"
             android:layout_width="wrap_content"
