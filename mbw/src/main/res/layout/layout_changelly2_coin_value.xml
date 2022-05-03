@@ -98,10 +98,12 @@
         <ImageView
             android:id="@+id/coinIcon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="16dp"
+            android:layout_marginEnd="4dp"
             app:layout_constraintBottom_toBottomOf="@id/coinSymbol"
-            app:layout_constraintEnd_toStartOf="@id/coinSymbol" />
+            app:layout_constraintEnd_toStartOf="@id/coinSymbol"
+            app:layout_constraintTop_toTopOf="@id/coinSymbol" />
 
         <TextView
             android:id="@+id/coinSymbol"
@@ -117,7 +119,7 @@
             app:layout_constraintBaseline_toBaselineOf="@id/coinValue"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             tools:text="BTC" />
-        <!--android:text="@{account.coinType.symbol}"-->
+
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"

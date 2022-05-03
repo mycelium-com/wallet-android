@@ -11,6 +11,9 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -26,6 +29,7 @@ import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
@@ -172,10 +176,24 @@ class ExchangeFragment : Fragment() {
                         loader(false)
                     })
         }
-        viewModel.fromCurrency.observe(viewLifecycleOwner) {
+        viewModel.fromCurrency.observe(viewLifecycleOwner) { coin ->
+            binding?.sellLayout?.coinIcon?.let {
+                Glide.with(it).clear(it)
+                Glide.with(it)
+                        .load(iconPath(coin))
+                        .apply(RequestOptions().transforms(CircleCrop()))
+                        .into(it)
+            }
             updateExchangeRate()
         }
-        viewModel.toCurrency.observe(viewLifecycleOwner) {
+        viewModel.toCurrency.observe(viewLifecycleOwner) { coin ->
+            binding?.buyLayout?.coinIcon?.let {
+                Glide.with(it).clear(it)
+                Glide.with(it)
+                        .load(iconPath(coin))
+                        .apply(RequestOptions().transforms(CircleCrop()))
+                        .into(it)
+            }
             updateExchangeRate()
         }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(2)) {
@@ -226,5 +244,10 @@ class ExchangeFragment : Fragment() {
 
     private fun TextView.resizeTextView() {
         setTextSize(TypedValue.COMPLEX_UNIT_SP, if (text.toString().length < 11) 36f else 22f)
+    }
+
+    companion object {
+        fun iconPath(coin: CryptoCurrency) =
+                "https://web-api.changelly.com/api/coins/${Util.trimTestnetSymbolDecoration(coin.symbol).toLowerCase()}.png"
     }
 }

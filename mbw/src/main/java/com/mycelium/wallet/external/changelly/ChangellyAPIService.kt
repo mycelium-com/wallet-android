@@ -62,12 +62,6 @@ interface ChangellyAPIService {
     suspend fun fixRate(@Query("from") from: String,
                         @Query("to") to: String): Response<ChangellyResponse<FixRate>>
 
-    //    "from": "btc",
-    //    "to": "eth",
-    //    "address": "0xee*******5E3DFc214",
-    //    "amountFrom": "1",
-    //    "rateId": "f3dd48106a63b*********b7ab5413d32c7b96301a7e82",
-    //    "refundAddress": "1Bvjij5653y9****BGPuQBPzTZpb"
     @POST("createFixTransaction")
     suspend fun createFixTransaction(@Query("from") from: String?,
                                      @Query("to") to: String?,
