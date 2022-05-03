@@ -21,4 +21,6 @@ class ChangellyTransactionOffer : Serializable {
     var payoutAddress: String? = null
     var payoutExtraId: String? = null
     var createdAt: String? = null
+
+    val amountExpectedFrom:String? = null
 }

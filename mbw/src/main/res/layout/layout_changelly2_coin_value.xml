@@ -14,10 +14,6 @@
             type="String" />
 
         <variable
-            name="value"
-            type="String" />
-
-        <variable
             name="fiatValue"
             type="String" />
 
@@ -35,6 +31,10 @@
 
         <variable
             name="balance"
+            type="String" />
+
+        <variable
+            name="balanceFiat"
             type="String" />
 
     </data>
@@ -87,7 +87,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@={value}"
             android:textColor="@color/white"
             android:textSize="24sp"
             app:layout_constraintEnd_toStartOf="@id/coinIcon"
@@ -181,7 +180,7 @@
             android:id="@+id/accountBalanceFiat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="10.00 USD"
+            android:text="@{balanceFiat}"
             android:textColor="#A4A4A5"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/address"

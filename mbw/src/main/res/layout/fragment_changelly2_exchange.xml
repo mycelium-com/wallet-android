@@ -52,10 +52,10 @@
             bind:accountAddress="@{vm.fromAddress}"
             bind:accountLabel="@{vm.fromAccount.label}"
             bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.fromAccount.accountBalance.spendable, Denomination.UNIT)}"
+            bind:balanceFiat="@{vm.fromFiatBalance}"
             bind:coinType="@{vm.fromCurrency}"
             bind:fiatValue="@{vm.fiatSellValue}"
-            bind:label="@{@string/bequant_you_send}"
-            bind:value="@={vm.sellValue}" />
+            bind:label="@{@string/bequant_you_send}" />
 
         <View
             android:layout_width="0dp"
@@ -83,6 +83,7 @@
             bind:text="1 BTC = 69 420 USDT" />
 
         <ImageView
+            android:id="@+id/swapAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_exchange"
@@ -103,10 +104,10 @@
             bind:accountAddress="@{vm.toAddress}"
             bind:accountLabel="@{vm.toAccount.label}"
             bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.toAccount.accountBalance.spendable, Denomination.UNIT)}"
+            bind:balanceFiat="@{vm.toFiatBalance}"
             bind:coinType="@{vm.toCurrency}"
             bind:fiatValue="@{vm.fiatBuyValue}"
-            bind:label="@{@string/bequant_you_get}"
-            bind:value="@{vm.buyValue}" />
+            bind:label="@{@string/bequant_you_get}" />
 
         <TextView
             android:layout_width="0dp"
