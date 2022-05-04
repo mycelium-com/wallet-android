@@ -27,7 +27,8 @@ class ExchangeResultFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             FragmentChangelly2ExchangeResultBinding.inflate(inflater).apply {
                 binding = this
-                viewModel
+                vm = viewModel
+                lifecycleOwner = this@ExchangeResultFragment
             }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,7 +36,7 @@ class ExchangeResultFragment : DialogFragment() {
         val txId = arguments?.getString(KEY_TX_ID)
         Changelly2Repository.getTransaction(lifecycleScope, txId!!,
                 {
-                    if(it?.result != null) {
+                    if (it?.result != null) {
                         viewModel.setTransaction(it.result!!)
                     }
                 },

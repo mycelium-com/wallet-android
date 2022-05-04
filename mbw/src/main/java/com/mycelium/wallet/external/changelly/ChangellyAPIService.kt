@@ -49,6 +49,8 @@ interface ChangellyAPIService {
     @POST("getTransactions")
     fun getTransactions(): Call<ChangellyResponse<List<ChangellyTransactionOffer>>>
 
+    @POST("getCurrencies")
+    suspend fun currencies(): Response<ChangellyResponse<List<String>>>
 
     @POST("getFixRateForAmount")
     suspend fun exchangeAmountFix(@Query("from") from: String,

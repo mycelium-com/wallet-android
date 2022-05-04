@@ -8,6 +8,15 @@ import kotlinx.coroutines.CoroutineScope
 object Changelly2Repository {
     private val api = ChangellyAPIService.retrofit.create(ChangellyAPIService::class.java)
 
+    fun supportCurrencies(scope: CoroutineScope,
+                          success: (ChangellyResponse<List<String>>?) -> Unit,
+                          error: (Int, String) -> Unit,
+                          finally: (() -> Unit)? = null) {
+        doRequest(scope, {
+            api.currencies()
+        }, success, error, finally)
+    }
+
     fun exchangeAmount(scope: CoroutineScope,
                        from: String,
                        to: String,
