@@ -1,5 +1,6 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
@@ -31,7 +32,7 @@ class ExchangeViewModel : ViewModel() {
     }
     val fromFiatBalance = Transformations.map(fromAccount) {
         mbwManager.exchangeRateManager.get(it.accountBalance.spendable,
-                mbwManager.getFiatCurrency(fromCurrency.value)).toStringFriendlyWithUnit()
+                mbwManager.getFiatCurrency(it.coinType))?.toStringFriendlyWithUnit()
     }
     val toCurrency = Transformations.map(toAccount) {
         it.coinType
@@ -41,7 +42,7 @@ class ExchangeViewModel : ViewModel() {
     }
     val toFiatBalance = Transformations.map(toAccount) {
         mbwManager.exchangeRateManager.get(it.accountBalance.spendable,
-                mbwManager.getFiatCurrency(fromCurrency.value)).toStringFriendlyWithUnit()
+                mbwManager.getFiatCurrency(it.coinType))?.toStringFriendlyWithUnit()
     }
     val exchangeRate = Transformations.map(exchangeInfo) {
         "1 ${it.from.toUpperCase()} = ${it.result} ${it.to.toUpperCase()}"
@@ -69,5 +70,26 @@ class ExchangeViewModel : ViewModel() {
         }
     }
 
+    val validateData = MediatorLiveData<Boolean>().apply {
+        value = isValid()
+        addSource(sellValue) {
+            value = isValid()
+        }
+        addSource(exchangeInfo) {
+            value = isValid()
+        }
+    }
 
+    fun isValid(): Boolean =
+            try {
+                val amount = sellValue.value?.toBigDecimal()
+                when {
+                    amount == null -> false
+                    amount < exchangeInfo.value?.minFrom?.toBigDecimal() -> false
+                    amount > exchangeInfo.value?.maxFrom?.toBigDecimal() -> false
+                    else -> true
+                }
+            } catch (e: java.lang.NumberFormatException) {
+                false
+            }
 }

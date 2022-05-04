@@ -1,12 +1,10 @@
 package com.mycelium.wallet.external.changelly2
 
-import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,6 +16,10 @@ import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.util.resizeTextView
+import com.mycelium.wallet.activity.util.startCursor
+import com.mycelium.wallet.activity.util.stopCursor
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
@@ -46,7 +48,8 @@ class ExchangeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val manager = MbwManager.getInstance(requireContext())
         viewModel.fromAccount.value = manager.selectedAccount
-        viewModel.toAccount.value = manager.getWalletManager(false).getAllActiveAccounts().first { it.coinType != manager.selectedAccount.coinType }
+        viewModel.toAccount.value = manager.getWalletManager(false)
+                .getAllActiveAccounts().first { it.coinType != manager.selectedAccount.coinType }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -61,26 +64,32 @@ class ExchangeFragment : Fragment() {
         binding?.sellLayout?.root?.setOnClickListener {
             binding?.sellLayout?.coinValue?.startCursor()
             binding?.buyLayout?.coinValue?.stopCursor()
-            binding?.layoutValueKeyboard?.numericKeyboard?.setMaxDecimals(viewModel.fromCurrency.value?.unitExponent
-                    ?: 0)
+            binding?.layoutValueKeyboard?.numericKeyboard?.maxDecimals =
+                    viewModel.fromCurrency.value?.unitExponent ?: 0
             binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView = binding?.sellLayout?.coinValue
             binding?.layoutValueKeyboard?.numericKeyboard?.visibility = View.VISIBLE;
-            binding?.layoutValueKeyboard?.numericKeyboard?.setMaxValue(minOf(
+            binding?.layoutValueKeyboard?.numericKeyboard?.maxValue = minOf(
                     viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
                             ?: BigDecimal.ZERO,
-                    viewModel.exchangeInfo.value?.maxFrom?.toBigDecimal() ?: BigDecimal.ZERO))
-            binding?.layoutValueKeyboard?.numericKeyboard?.setSpendableValue(viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal)
+                    viewModel.exchangeInfo.value?.maxFrom?.toBigDecimal() ?: BigDecimal.ZERO)
+            binding?.layoutValueKeyboard?.numericKeyboard?.minValue =
+                    viewModel.exchangeInfo.value?.minFrom?.toBigDecimal()
+            binding?.layoutValueKeyboard?.numericKeyboard?.spendableValue =
+                    viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
         }
         binding?.buyLayout?.root?.setOnClickListener {
             binding?.buyLayout?.coinValue?.startCursor()
             binding?.sellLayout?.coinValue?.stopCursor()
-            binding?.layoutValueKeyboard?.numericKeyboard?.setMaxDecimals(viewModel.toCurrency.value?.unitExponent
-                    ?: 0)
+            binding?.layoutValueKeyboard?.numericKeyboard?.maxDecimals =
+                    viewModel.toCurrency.value?.unitExponent ?: 0
             binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView = binding?.buyLayout?.coinValue
             binding?.layoutValueKeyboard?.numericKeyboard?.visibility = View.VISIBLE;
-            binding?.layoutValueKeyboard?.numericKeyboard?.setMaxValue(viewModel.exchangeInfo.value?.maxTo?.toBigDecimal()
-                    ?: BigDecimal.ZERO)
-            binding?.layoutValueKeyboard?.numericKeyboard?.setSpendableValue(viewModel.toAccount.value?.accountBalance?.spendable?.valueAsBigDecimal)
+            binding?.layoutValueKeyboard?.numericKeyboard?.maxValue =
+                    viewModel.exchangeInfo.value?.maxTo?.toBigDecimal()
+            binding?.layoutValueKeyboard?.numericKeyboard?.minValue =
+                    viewModel.exchangeInfo.value?.minTo?.toBigDecimal()
+            binding?.layoutValueKeyboard?.numericKeyboard?.spendableValue =
+                    viewModel.toAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
         }
         binding?.sellLayout?.coinValue?.doAfterTextChanged {
             viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
@@ -111,6 +120,7 @@ class ExchangeFragment : Fragment() {
             binding?.buyLayout?.coinValue?.resizeTextView()
         }
         binding?.swapAccount?.setOnClickListener {
+            binding?.layoutValueKeyboard?.numericKeyboard?.done()
             val newFrom = viewModel.fromAccount.value
             val newTo = viewModel.toAccount.value
             viewModel.fromAccount.value = newTo
@@ -118,15 +128,18 @@ class ExchangeFragment : Fragment() {
             binding?.sellLayout?.coinValue?.text = viewModel.buyValue.value
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
-            setInputListener(object : ValueKeyboard.SimpleInputListener() {
+            inputListener = object : ValueKeyboard.SimpleInputListener() {
                 override fun done() {
                     binding?.sellLayout?.coinValue?.stopCursor()
                     binding?.buyLayout?.coinValue?.stopCursor()
-//                    fromValue.setHint(R.string.zero);
-//                    toValue.setHint(R.string.zero);
-//                    isValueForOfferOk(true);
                 }
-            })
+            }
+            errorMaxListener = {
+                viewModel.error.value = "Value exit max"
+            }
+            errorMinListener = {
+                viewModel.error.value = "Value exit min"
+            }
             setMaxText(getString(R.string.max), 14f)
             setPasteVisibility(View.GONE)
             visibility = View.GONE
@@ -142,29 +155,16 @@ class ExchangeFragment : Fragment() {
                     viewModel.fromAddress.value!!,
                     { result ->
                         if (result?.result != null) {
-                            viewModel.mbwManager.runPinProtectedFunction(requireActivity()) {
-                                val address = when (viewModel.fromAccount.value) {
-                                    is EthAccount, is ERC20Account -> {
-                                        EthAddress(Utils.getEthCoinType(), result.result!!.payinAddress!!)
+                            AlertDialog.Builder(requireContext())
+                                    .setTitle("Exchange")
+                                    .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom}\n" +
+                                            "You get: ${result.result?.amountTo} ${result.result?.currencyTo}\n" +
+                                            "Miners fee: ${viewModel.feeEstimation.value!!.normal.toStringFriendlyWithUnit()}")
+                                    .setPositiveButton(R.string.button_ok) { _, _ ->
+                                        sendTx(result.result!!.payinAddress!!, result.result!!.amountExpectedFrom!!)
                                     }
-                                    is AbstractBtcAccount -> {
-                                        BtcAddress(
-                                                Utils.getBtcCoinType(), BitcoinAddress.fromString(result.result!!.payinAddress!!)
-                                        )
-                                    }
-                                    else -> TODO("Account not supported yet")
-                                }
-
-                                viewModel.fromAccount.value?.let { account ->
-                                    val createTx = account.createTx(address,
-                                            viewModel.fromAccount.value!!.coinType.value(result.result!!.amountExpectedFrom!!),
-                                            FeePerKbFee(viewModel.feeEstimation.value!!.normal),
-                                            null
-                                    )
-                                    account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                                    account.broadcastTx(createTx)
-                                }
-                            }
+                                    .setNegativeButton(R.string.cancel, null)
+                                    .show()
                         } else {
                             viewModel.error.value = result?.error?.message
                         }
@@ -201,6 +201,30 @@ class ExchangeFragment : Fragment() {
         }
     }
 
+    private fun sendTx(addressTo: String, amount: String) {
+        viewModel.mbwManager.runPinProtectedFunction(requireActivity()) {
+            val address = when (viewModel.fromAccount.value) {
+                is EthAccount, is ERC20Account -> {
+                    EthAddress(Utils.getEthCoinType(), addressTo)
+                }
+                is AbstractBtcAccount -> {
+                    BtcAddress(Utils.getBtcCoinType(), BitcoinAddress.fromString(addressTo))
+                }
+                else -> TODO("Account not supported yet")
+            }
+
+            viewModel.fromAccount.value?.let { account ->
+                val createTx = account.createTx(address,
+                        viewModel.fromAccount.value!!.coinType.value(amount),
+                        FeePerKbFee(viewModel.feeEstimation.value!!.normal),
+                        null
+                )
+                account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
+                account.broadcastTx(createTx)
+            }
+        }
+    }
+
     private fun updateExchangeRate() {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             Changelly2Repository.fixRate(lifecycleScope,
@@ -226,24 +250,6 @@ class ExchangeFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
-    }
-
-    private fun TextView.startCursor() {
-        setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.input_cursor, 0)
-        post {
-            val animationDrawable = compoundDrawables[2] as AnimationDrawable
-            if (!animationDrawable.isRunning) {
-                animationDrawable.start()
-            }
-        }
-    }
-
-    private fun TextView.stopCursor() {
-        setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
-    }
-
-    private fun TextView.resizeTextView() {
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, if (text.toString().length < 11) 36f else 22f)
     }
 
     companion object {

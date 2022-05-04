@@ -1,210 +1,167 @@
-package com.mycelium.wallet.activity.view;
+package com.mycelium.wallet.activity.view
 
+import android.content.Context
+import android.util.AttributeSet
+import android.util.TypedValue
+import android.view.View
+import android.widget.TextView
+import androidx.gridlayout.widget.GridLayout
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import java.math.BigDecimal
 
-import android.content.Context;
-import androidx.gridlayout.widget.GridLayout;
-import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.View;
-import android.widget.TextView;
+class ValueKeyboard : GridLayout {
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+    var inputListener: InputListener? = null
+    var errorMinListener: (() -> Unit)? = null
+    var errorMaxListener: (() -> Unit)? = null
 
-import java.math.BigDecimal;
+    var inputTextView: TextView? = null
+    var maxDecimals = 0
+        set(v) {
+            field = v
+            value.setEntry(value.entryAsBigDecimal, maxDecimals)
+            updateDotBtn()
+        }
 
-public class ValueKeyboard extends GridLayout {
-    public final static int DEL = -1;
-    public final static int DOT = -2;
-    public final static int MAX_DIGITS_BEFORE_DOT = 9;
+    var spendableValue = BigDecimal.ZERO
+        set(v) {
+            field = v
+            updateMaxBtn()
+        }
 
-    InputListener inputListener = null;
-    TextView inputTextView = null;
+    var maxValue: BigDecimal? = null
+    var minValue: BigDecimal? = null
 
-    int maxDecimals = 0;
+    var value = NumberEntry(maxDecimals, "", object : EntryChange {
+        override fun entryChange(entry: String, wasSet: Boolean) {
+            setToTextView(entry)
+        }
+    })
 
-    public ValueKeyboard(Context context) {
-        super(context);
+    fun setEntry(entry: String) {
+        value = NumberEntry(maxDecimals, entry, object : EntryChange {
+            override fun entryChange(entry: String, wasSet: Boolean) {
+                setToTextView(entry)
+            }
+        })
     }
 
-    public ValueKeyboard(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public ValueKeyboard(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-    public TextView getInputTextView() {
-        return inputTextView;
-    }
-
-    public void setMaxDecimals(int maxDecimals) {
-        this.maxDecimals = maxDecimals;
-        value.setEntry(value.getEntryAsBigDecimal(), maxDecimals);
-        updateDotBtn();
-    }
-
-    BigDecimal spendableValue = BigDecimal.ZERO;
-
-    public void setSpendableValue(BigDecimal spendableValue) {
-        this.spendableValue = spendableValue;
-        updateMaxBtn();
-    }
-
-    BigDecimal maxValue;
-
-    public void setMaxValue(BigDecimal maxValue) {
-        this.maxValue = maxValue;
-    }
-
-    public void setInputTextView(TextView inputTextView) {
-        this.inputTextView = inputTextView;
-    }
-
-    NumberEntry value = new NumberEntry(maxDecimals, "", new EntryChange() {
-        @Override
-        public void entryChange(String entry, boolean wasSet) {
-            if (inputTextView != null) {
-                inputTextView.setText(entry);
+    private fun setToTextView(entry: String) {
+        inputTextView?.let { textView ->
+            textView.text = entry
+            try {
+                if (maxValue != null && maxValue!! < entry.toBigDecimal()) {
+                    textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+                    errorMaxListener?.invoke()
+                } else if (minValue != null && minValue!! > entry.toBigDecimal()) {
+                    textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+                    errorMinListener?.invoke()
+                } else {
+                    textView.setTextColor(resources.getColor(R.color.white))
+                }
+            } catch (e: NumberFormatException) {
             }
         }
-    });
-
-    public void setEntry(String val) {
-        value = new NumberEntry(maxDecimals, val, new EntryChange() {
-            @Override
-            public void entryChange(String entry, boolean wasSet) {
-                if (inputTextView != null) {
-                    inputTextView.setText(entry);
-                }
-            }
-        });
     }
 
-    public void setInputListener(InputListener inputListener) {
-        this.inputListener = inputListener;
-    }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        for (int i = 0; i < getChildCount(); i++) {
-            View view = getChildAt(i);
-            view.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (view.getId() == R.id.btn_max) {
-                        value.setEntry(spendableValue, maxDecimals);
-                    } else if (view.getId() == R.id.btn_backspace) {
-                        value.clicked(DEL);
-                    } else if (view.getId() == R.id.btn_dot) {
-                        value.clicked(DOT);
-                    } else if (view.getId() == R.id.btn_done) {
-                        done();
-                    } else if (view.getId() == R.id.btn_copy) {
-                        String clipboardString = Utils.getClipboardString(getContext());
-                        if (!clipboardString.isEmpty()) {
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        for (i in 0 until childCount) {
+            val view = getChildAt(i)
+            view.setOnClickListener { view ->
+                when (view.id) {
+                    R.id.btn_max -> {
+                        value.setEntry(spendableValue, maxDecimals)
+                    }
+                    R.id.btn_backspace -> {
+                        value.clicked(DEL)
+                    }
+                    R.id.btn_dot -> {
+                        value.clicked(DOT)
+                    }
+                    R.id.btn_done -> {
+                        done()
+                    }
+                    R.id.btn_copy -> {
+                        val clipboardString = Utils.getClipboardString(context)
+                        if (clipboardString.isNotEmpty()) {
                             try {
-                                value.setEntry(new BigDecimal(clipboardString), maxDecimals);
-                            } catch (NumberFormatException ignore) {
+                                value.setEntry(BigDecimal(clipboardString), maxDecimals)
+                            } catch (ignore: NumberFormatException) {
                             }
                         }
-                    } else if (view instanceof TextView) {
-                        value.clicked(Integer.parseInt(((TextView) view).getText().toString()));
+                    }
+                    else -> {
+                        if (view is TextView) {
+                            value.clicked(view.text.toString().toInt())
+                        }
                     }
                 }
-            });
-        }
-
-        updateDotBtn();
-        updateMaxBtn();
-
-        findViewById(R.id.btn_backspace).setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                value.clear();
-                return true;
             }
-        });
-    }
-
-    public void setMaxText(String text, float size) {
-        TextView textView = findViewById(R.id.btn_max);
-        textView.setText(text);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
-    }
-
-    public void setPasteVisibility(int visibility) {
-        findViewById(R.id.btn_copy).setVisibility(visibility);
-    }
-
-    public void done() {
-        setVisibility(View.GONE);
-        if (inputListener != null) {
-            inputListener.done();
+        }
+        updateDotBtn()
+        updateMaxBtn()
+        findViewById<View>(R.id.btn_backspace).setOnLongClickListener {
+            value.clear()
+            true
         }
     }
 
-    private void updateDotBtn() {
-        findViewById(R.id.btn_dot).setEnabled(maxDecimals > 0);
+    fun setMaxText(text: String?, size: Float) {
+        val textView = findViewById<TextView>(R.id.btn_max)
+        textView.text = text
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
-    private void updateMaxBtn() {
-        findViewById(R.id.btn_max).setVisibility(spendableValue.equals(BigDecimal.ZERO) ? View.INVISIBLE : View.VISIBLE);
+    fun setPasteVisibility(visibility: Int) {
+        findViewById<View>(R.id.btn_copy).visibility = visibility
     }
 
-    public interface InputListener {
-        void input(CharSequence sequence);
-
-        void max();
-
-        void backspace();
-
-        void done();
+    fun done() {
+        visibility = GONE
+        inputListener?.done()
     }
 
-    public static class SimpleInputListener implements InputListener {
+    private fun updateDotBtn() {
+        findViewById<View>(R.id.btn_dot).isEnabled = maxDecimals > 0
+    }
 
-        @Override
-        public void input(CharSequence sequence) {
+    private fun updateMaxBtn() {
+        findViewById<View>(R.id.btn_max).visibility = if (spendableValue == BigDecimal.ZERO) INVISIBLE else VISIBLE
+    }
 
-        }
+    interface InputListener {
+        fun input(sequence: CharSequence?)
+        fun max()
+        fun backspace()
+        fun done()
+    }
 
-        @Override
-        public void max() {
 
-        }
-
-        @Override
-        public void backspace() {
-
-        }
-
-        @Override
-        public void done() {
-
-        }
+    open class SimpleInputListener : InputListener {
+        override fun input(sequence: CharSequence?) {}
+        override fun max() {}
+        override fun backspace() {}
+        override fun done() {}
     }
 
     interface EntryChange {
-        void entryChange(String entry, boolean wasSet);
+        fun entryChange(entry: String, wasSet: Boolean)
     }
 
-    class NumberEntry {
-        int _maxDecimals;
-        String entry;
-        EntryChange entryChange;
+    class NumberEntry(var _maxDecimals: Int, var entry: String, val entryChange: EntryChange) {
 
-        public NumberEntry(int _maxDecimals, String entry, EntryChange entryChange) {
-            this._maxDecimals = _maxDecimals;
-            this.entry = entry;
-            this.entryChange = entryChange;
-            if (!entry.isEmpty()) {
-                try {
-                    entry = new BigDecimal(entry).toPlainString();
-                } catch (Exception e) {
-                    entry = "";
+        init {
+            if (entry.isNotEmpty()) {
+                entry = try {
+                    BigDecimal(entry).toPlainString()
+                } catch (e: Exception) {
+                    ""
                 }
             }
 
@@ -223,99 +180,104 @@ public class ValueKeyboard extends GridLayout {
 //            }
         }
 
-        void clear() {
-            entry = "";
-            entryChange.entryChange(entry, false);
+        fun clear() {
+            entry = ""
+            entryChange.entryChange(entry, false)
         }
 
-        void clicked(int digit) {
-            if (entry.equals("0")) {
-                entry = "";
+        fun clicked(digit: Int) {
+            if (entry == "0") {
+                entry = ""
             }
             if (digit == DEL) {
                 // Delete Digit
-                if (!entry.isEmpty()) {
-                    entry = entry.substring(0, entry.length() - 1);
+                if (entry.isNotEmpty()) {
+                    entry = entry.substring(0, entry.length - 1)
                 }
             } else if (digit == DOT) {
                 // Do we already have a dot?
                 if (hasDot()) {
-                    return;
+                    return
                 }
                 if (_maxDecimals == 0) {
-                    return;
+                    return
                 }
                 if (entry.isEmpty()) {
-                    entry = "0.";
+                    entry = "0."
                 } else {
-                    entry += '.';
+                    entry += '.'
                 }
             } else {
                 // Append Digit
-                if (digit == 0 && "0".equals(entry)) {
+                if (digit == 0 && "0" == entry) {
                     // Only one leading zero
-                    return;
+                    return
                 }
                 if (hasDot()) {
                     if (decimalsAfterDot() >= _maxDecimals) {
                         // too many decimals
-                        return;
+                        return
                     }
                 } else {
                     if (decimalsBeforeDot() >= MAX_DIGITS_BEFORE_DOT) {
-                        return;
+                        return
                     }
                 }
-                if (maxValue == null || new BigDecimal(entry + digit).compareTo(maxValue) <= 0) {
-                    entry = entry + digit;
-                }
+                //                if (maxValue == null || new BigDecimal(entry + digit).compareTo(maxValue) <= 0) {
+                entry = entry + digit
+                //                }
             }
-            entryChange.entryChange(entry, false);
+            entryChange.entryChange(entry, false)
         }
 
-        private boolean hasDot() {
-            return entry.indexOf('.') != -1;
+        private fun hasDot(): Boolean {
+            return entry.indexOf('.') != -1
         }
 
-        private int decimalsAfterDot() {
-            int dotIndex = entry.indexOf('.');
-            if (dotIndex == -1) {
-                return 0;
-            }
-            return entry.length() - dotIndex - 1;
-        }
-
-        private int decimalsBeforeDot() {
-            int dotIndex = entry.indexOf('.');
-            if (dotIndex == -1) {
-                return entry.length();
-            }
-            return dotIndex;
-        }
-
-        void setEntry(BigDecimal number, int maxDecimals) {
-            _maxDecimals = maxDecimals;
-            if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
-                entry = "";
+        private fun decimalsAfterDot(): Int {
+            val dotIndex = entry.indexOf('.')
+            return if (dotIndex == -1) {
+                0
             } else {
-                entry = number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).stripTrailingZeros().toPlainString();
-            }
-            entryChange.entryChange(entry, true);
-        }
-
-
-        public BigDecimal getEntryAsBigDecimal() {
-            if (entry.isEmpty()) {
-                return BigDecimal.ZERO;
-            }
-            if ("0.".equals(entry)) {
-                return BigDecimal.ZERO;
-            }
-            try {
-                return new BigDecimal(entry);
-            } catch (NumberFormatException e) {
-                return BigDecimal.ZERO;
+                entry.length - dotIndex - 1
             }
         }
+
+        private fun decimalsBeforeDot(): Int {
+            val dotIndex = entry.indexOf('.')
+            return if (dotIndex == -1) {
+                entry.length
+            } else {
+                dotIndex
+            }
+        }
+
+        fun setEntry(number: BigDecimal?, maxDecimals: Int) {
+            _maxDecimals = maxDecimals
+            entry = if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
+                ""
+            } else {
+                number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).stripTrailingZeros().toPlainString()
+            }
+            entryChange.entryChange(entry, true)
+        }
+
+        val entryAsBigDecimal: BigDecimal
+            get() =
+                when {
+                    entry.isEmpty() -> BigDecimal.ZERO
+                    "0." == entry -> BigDecimal.ZERO
+                    else -> try {
+                        entry.toBigDecimal()
+                    } catch (e: NumberFormatException) {
+                        BigDecimal.ZERO
+                    }
+                }
+    }
+
+    companion object {
+        const val DEL = -1
+        const val DOT = -2
+        const val MAX_DIGITS_BEFORE_DOT = 9
     }
 }
