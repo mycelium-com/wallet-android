@@ -73,11 +73,13 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
             android:background="@drawable/bg_coin_value"
+            android:drawablePadding="4dp"
             android:paddingStart="8dp"
             android:paddingTop="4dp"
             android:paddingEnd="8dp"
             android:paddingBottom="4dp"
             android:text="@{vm.exchangeRate}"
+            app:drawableStartCompat="@drawable/ic_lock"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toBottomOf="@id/sellLayout"
             bind:text="1 BTC = 69 420 USDT" />
@@ -130,8 +132,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"
-            android:text="Exchange"
             android:enabled="@{vm.validateData}"
+            android:text="Exchange"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toStartOf="@id/startGuidline" />
