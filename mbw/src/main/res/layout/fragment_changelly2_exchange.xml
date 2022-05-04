@@ -53,6 +53,7 @@
             bind:accountLabel="@{vm.fromAccount.label}"
             bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.fromAccount.accountBalance.spendable, Denomination.UNIT)}"
             bind:balanceFiat="@{vm.fromFiatBalance}"
+            bind:chain="@{vm.fromAccount.basedOnCoinType.name}"
             bind:coinType="@{vm.fromCurrency}"
             bind:fiatValue="@{vm.fiatSellValue}"
             bind:label="@{@string/bequant_you_send}" />
@@ -107,6 +108,7 @@
             bind:accountLabel="@{vm.toAccount.label}"
             bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.toAccount.accountBalance.spendable, Denomination.UNIT)}"
             bind:balanceFiat="@{vm.toFiatBalance}"
+            bind:chain="@{vm.toAccount.basedOnCoinType.name}"
             bind:coinType="@{vm.toCurrency}"
             bind:fiatValue="@{vm.fiatBuyValue}"
             bind:label="@{@string/bequant_you_get}" />

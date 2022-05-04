@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <import type="com.mycelium.wapi.wallet.coins.CryptoCurrency" />
 
         <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
@@ -37,6 +39,10 @@
             name="balanceFiat"
             type="String" />
 
+        <variable
+            name="chain"
+            type="String" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -49,14 +55,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="16dp" />
+            app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/endGuidline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_end="16dp" />
+            app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
 
         <TextView
             android:id="@+id/label"
@@ -81,6 +87,22 @@
             app:layout_constraintBaseline_toBaselineOf="@id/label"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toEndOf="@id/label" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_changelly_chain"
+            android:paddingStart="@dimen/horizontal_page_margin"
+            android:paddingTop="4dp"
+            android:paddingEnd="@dimen/horizontal_page_margin"
+            android:paddingBottom="4dp"
+            android:text="@{@string/network_s(chain)}"
+            android:textSize="10sp"
+            android:visibility="@{chain.isEmpty() ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp"
+            tools:text="Ethereum Network" />
 
         <TextView
             android:id="@+id/coinValue"
