@@ -2,10 +2,7 @@ package com.mycelium.wallet.external.changelly2.remote
 
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.wallet.external.changelly.ChangellyAPIService
-import com.mycelium.wallet.external.changelly.model.ChangellyResponse
-import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
-import com.mycelium.wallet.external.changelly.model.FixRate
-import com.mycelium.wallet.external.changelly.model.FixRateForAmount
+import com.mycelium.wallet.external.changelly.model.*
 import kotlinx.coroutines.CoroutineScope
 
 object Changelly2Repository {
@@ -46,6 +43,16 @@ object Changelly2Repository {
                              finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.createFixTransaction(from, to, amount, addressTo, rateId, refundAddress)
+        }, success, error, finally)
+    }
+
+    fun getTransaction(scope: CoroutineScope,
+                       id: String,
+                       success: (ChangellyResponse<ChangellyTransaction>?) -> Unit,
+                       error: (Int, String) -> Unit,
+                       finally: (() -> Unit)? = null) {
+        doRequest(scope, {
+            api.getTransaction(id)
         }, success, error, finally)
     }
 }

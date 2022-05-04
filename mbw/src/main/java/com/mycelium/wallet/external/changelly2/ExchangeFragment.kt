@@ -35,6 +35,8 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
@@ -77,6 +79,9 @@ class ExchangeFragment : Fragment() {
             binding?.layoutValueKeyboard?.numericKeyboard?.spendableValue =
                     viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
         }
+        binding?.sellLayout?.coinSymbol?.setOnClickListener {
+            SelectAccountFragment().show(parentFragmentManager, "select_account_for_sell")
+        }
         binding?.buyLayout?.root?.setOnClickListener {
             binding?.buyLayout?.coinValue?.startCursor()
             binding?.sellLayout?.coinValue?.stopCursor()
@@ -90,6 +95,9 @@ class ExchangeFragment : Fragment() {
                     viewModel.exchangeInfo.value?.minTo?.toBigDecimal()
             binding?.layoutValueKeyboard?.numericKeyboard?.spendableValue =
                     viewModel.toAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
+        }
+        binding?.buyLayout?.coinSymbol?.setOnClickListener {
+            SelectAccountFragment().show(parentFragmentManager, "select_account_for_buy")
         }
         binding?.sellLayout?.coinValue?.doAfterTextChanged {
             viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
@@ -161,7 +169,7 @@ class ExchangeFragment : Fragment() {
                                             "You get: ${result.result?.amountTo} ${result.result?.currencyTo}\n" +
                                             "Miners fee: ${viewModel.feeEstimation.value!!.normal.toStringFriendlyWithUnit()}")
                                     .setPositiveButton(R.string.button_ok) { _, _ ->
-                                        sendTx(result.result!!.payinAddress!!, result.result!!.amountExpectedFrom!!)
+                                        sendTx(result.result!!.id!!, result.result!!.payinAddress!!, result.result!!.amountExpectedFrom!!)
                                     }
                                     .setNegativeButton(R.string.cancel, null)
                                     .show()
@@ -201,7 +209,7 @@ class ExchangeFragment : Fragment() {
         }
     }
 
-    private fun sendTx(addressTo: String, amount: String) {
+    private fun sendTx(txId: String, addressTo: String, amount: String) {
         viewModel.mbwManager.runPinProtectedFunction(requireActivity()) {
             val address = when (viewModel.fromAccount.value) {
                 is EthAccount, is ERC20Account -> {
@@ -212,15 +220,25 @@ class ExchangeFragment : Fragment() {
                 }
                 else -> TODO("Account not supported yet")
             }
-
-            viewModel.fromAccount.value?.let { account ->
-                val createTx = account.createTx(address,
-                        viewModel.fromAccount.value!!.coinType.value(amount),
-                        FeePerKbFee(viewModel.feeEstimation.value!!.normal),
-                        null
-                )
-                account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                account.broadcastTx(createTx)
+            loader(true)
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.fromAccount.value?.let { account ->
+                    val createTx = account.createTx(address,
+                            viewModel.fromAccount.value!!.coinType.value(amount),
+                            FeePerKbFee(viewModel.feeEstimation.value!!.normal),
+                            null
+                    )
+                    account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
+                    account.broadcastTx(createTx)
+                    launch(Dispatchers.Main) {
+                        loader(false)
+                        ExchangeResultFragment().apply {
+                            arguments = Bundle().apply {
+                                putString(ExchangeResultFragment.KEY_TX_ID, txId)
+                            }
+                        }.show(parentFragmentManager, "exchange_result")
+                    }
+                }
             }
         }
     }

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.mycelium.wallet.external.changelly2.viewmodel.ExchangeResultViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/startGuidline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/endGuidline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
+        <TextView
+            android:id="@+id/sendLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="I spend:"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/sendAmount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@{vm.spendValue}"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/sendLabel"
+            tools:text="0.00001232 BTC" />
+
+        <TextView
+            android:id="@+id/sendAmountFiat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="~ 55 USD"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/sendAmount"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/sendAmount" />
+
+        <TextView
+            android:id="@+id/getLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="I get:"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/sendAmount" />
+
+        <TextView
+            android:id="@+id/getAmount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@{vm.getValue}"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/getLabel"
+            tools:text="0.00001232 BTC" />
+
+        <TextView
+            android:id="@+id/getAmountFiat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="~ 55 USD"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/getAmount"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/getAmount" />
+
+        <TextView
+            android:id="@+id/exchangeIdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Exchange ID:"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/getAmount" />
+
+        <TextView
+            android:id="@+id/exchangeId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@{vm.txId}"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/exchangeIdLabel"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/exchangeIdLabel"
+            tools:text="0828tankjvz0esmc" />
+
+        <TextView
+            android:id="@+id/dateLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Date:"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/exchangeIdLabel" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@{vm.date}"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/dateLabel"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/dateLabel"
+            tools:text="September 23, 2020 at 6:23pm" />
+
+        <TextView
+            android:id="@+id/fromLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="From:"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/dateLabel" />
+
+        <TextView
+            android:id="@+id/fromAddress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="bc1q7...huhsa (Account 1)"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/fromLabel"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/fromLabel" />
+
+        <TextView
+            android:id="@+id/toLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="To:"
+            android:textColor="@color/fio_white_alpha_0_8"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/fromLabel" />
+
+        <TextView
+            android:id="@+id/toAddress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="bc1q7...huhsa (Account 1)"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/toLabel"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/toLabel" />
+
+
+        <TextView
+            android:id="@+id/more"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:textColor="@color/fio_prm_btn_line"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/toLabel"
+            tools:text="Show transaction details" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/more">
+
+            <include
+                android:id="@+id/txDetails"
+                layout="@layout/details_common" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonOk"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
+            android:text="OK"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
