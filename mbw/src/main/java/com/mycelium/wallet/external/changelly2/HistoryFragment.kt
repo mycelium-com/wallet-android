@@ -40,6 +40,7 @@ class HistoryFragment : DialogFragment() {
             }.show(parentFragmentManager, "")
         }
         binding?.list?.adapter = adapter
+        adapter.submitList((pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList())
     }
 
     override fun onStart() {
