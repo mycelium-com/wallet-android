@@ -2,10 +2,7 @@ package com.mycelium.wallet.external.changelly2
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
@@ -50,11 +47,12 @@ class ExchangeFragment : Fragment() {
 
     var binding: FragmentChangelly2ExchangeBinding? = null
     val viewModel: ExchangeViewModel by activityViewModels()
+    val pref by lazy { requireContext().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         val manager = MbwManager.getInstance(requireContext())
-        val pref = requireContext().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
         viewModel.currencies = pref.getStringSet(KEY_SUPPORT_COINS, null) ?: setOf("btc", "eth")
         viewModel.fromAccount.value = if (viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(manager.selectedAccount.coinType.symbol).toLowerCase())) {
             manager.selectedAccount
@@ -103,7 +101,7 @@ class ExchangeFragment : Fragment() {
         binding?.sellLayout?.coinSymbol?.setOnClickListener {
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
-                    putString("type", "sell")
+                    putString(SelectAccountFragment.KEY_TYPE, SelectAccountFragment.VALUE_SELL)
                 }
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_SELL)
         }
@@ -124,7 +122,7 @@ class ExchangeFragment : Fragment() {
         binding?.buyLayout?.coinSymbol?.setOnClickListener {
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
-                    putString("type", "buy")
+                    putString(SelectAccountFragment.KEY_TYPE, SelectAccountFragment.VALUE_BUY)
                 }
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_BUY)
         }
@@ -259,6 +257,10 @@ class ExchangeFragment : Fragment() {
                     )
                     account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                     val broadcastResult = account.broadcastTx(createTx)
+                    if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+                        val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
+                        pref.edit().putStringSet(KEY_HISTORY, history + txId).apply()
+                    }
                     launch(Dispatchers.Main) {
                         loader(false)
                         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
@@ -298,6 +300,20 @@ class ExchangeFragment : Fragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.exchange_changelly2, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                R.id.history -> {
+                    HistoryFragment().show(parentFragmentManager, TAG_HISTORY)
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
     override fun onStart() {
         super.onStart()
         MbwManager.getEventBus().register(this)
@@ -333,8 +349,10 @@ class ExchangeFragment : Fragment() {
     companion object {
         const val PREF_FILE = "changelly2"
         const val KEY_SUPPORT_COINS = "coin_support_list"
+        const val KEY_HISTORY = "tx_history"
         const val TAG_SELECT_ACCOUNT_BUY = "select_account_for_buy"
         const val TAG_SELECT_ACCOUNT_SELL = "select_account_for_sell"
+        const val TAG_HISTORY = "history"
 
         fun iconPath(coin: CryptoCurrency) =
                 "https://web-api.changelly.com/api/coins/${Util.trimTestnetSymbolDecoration(coin.symbol).toLowerCase()}.png"
