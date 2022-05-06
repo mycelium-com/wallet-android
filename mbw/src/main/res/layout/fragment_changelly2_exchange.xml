@@ -89,8 +89,8 @@
             android:id="@+id/swapAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_exchange"
             android:enabled="@{vm.toAccount.canSpend()}"
+            android:src="@drawable/ic_exchange"
             app:layout_constraintBottom_toBottomOf="@id/exchangeRate"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toEndOf="@id/exchangeRate"
@@ -134,12 +134,65 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="8dp"
             android:enabled="@{vm.validateData}"
             android:text="Exchange"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@id/policyText"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toStartOf="@id/startGuidline" />
+
+        <TextView
+            android:id="@+id/policyText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="By starting the exchange you accept Changelly"
+            android:textColor="#5E5E5E"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@id/policyTerms"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline" />
+
+        <TextView
+            android:id="@+id/policyTerms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="Terms of Use"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/policyAnd"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="@id/startGuidline" />
+
+        <TextView
+            android:id="@+id/policyAnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="and"
+            android:textColor="#5E5E5E"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/policyTerms"
+            app:layout_constraintEnd_toStartOf="@id/policyAML"
+            app:layout_constraintStart_toEndOf="@id/policyTerms" />
+
+        <TextView
+            android:id="@+id/policyAML"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="AML/KYC policy"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/policyTerms"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/policyAnd" />
 
         <include
             android:id="@+id/layoutValueKeyboard"

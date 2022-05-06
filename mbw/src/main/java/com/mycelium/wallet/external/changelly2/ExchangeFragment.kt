@@ -1,6 +1,9 @@
 package com.mycelium.wallet.external.changelly2
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
@@ -15,6 +18,7 @@ import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.resizeTextView
 import com.mycelium.wallet.activity.util.startCursor
 import com.mycelium.wallet.activity.util.stopCursor
@@ -231,6 +235,20 @@ class ExchangeFragment : Fragment() {
             }
             updateExchangeRate()
         }
+        binding?.policyTerms?.setOnClickListener {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_TERMS)))
+            } catch (e: ActivityNotFoundException) {
+                Toaster(this).toast("cant open $LINK_TERMS", true)
+            }
+        }
+        binding?.policyAML?.setOnClickListener {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_AML)))
+            } catch (e: ActivityNotFoundException) {
+                Toaster(this).toast("cant open $LINK_AML", true)
+            }
+        }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(2)) {
             updateExchangeRate()
         }
@@ -353,6 +371,9 @@ class ExchangeFragment : Fragment() {
         const val TAG_SELECT_ACCOUNT_BUY = "select_account_for_buy"
         const val TAG_SELECT_ACCOUNT_SELL = "select_account_for_sell"
         const val TAG_HISTORY = "history"
+
+        const val LINK_TERMS = "https://changelly.com/terms-of-use"
+        const val LINK_AML = "https://changelly.com/aml-kyc"
 
         fun iconPath(coin: CryptoCurrency) =
                 "https://web-api.changelly.com/api/coins/${Util.trimTestnetSymbolDecoration(coin.symbol).toLowerCase()}.png"
