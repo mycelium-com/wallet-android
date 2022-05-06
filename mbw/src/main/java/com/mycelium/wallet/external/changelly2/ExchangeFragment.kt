@@ -1,13 +1,15 @@
 package com.mycelium.wallet.external.changelly2
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -23,10 +25,12 @@ import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
+import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -35,6 +39,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -44,14 +49,30 @@ import java.util.concurrent.TimeUnit
 class ExchangeFragment : Fragment() {
 
     var binding: FragmentChangelly2ExchangeBinding? = null
-    val viewModel: ExchangeViewModel by viewModels()
+    val viewModel: ExchangeViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val manager = MbwManager.getInstance(requireContext())
-        viewModel.fromAccount.value = manager.selectedAccount
-        viewModel.toAccount.value = manager.getWalletManager(false)
-                .getAllActiveAccounts().first { it.coinType != manager.selectedAccount.coinType }
+        val pref = requireContext().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+        viewModel.currencies = pref.getStringSet(KEY_SUPPORT_COINS, null) ?: setOf("btc", "eth")
+        viewModel.fromAccount.value = if (viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(manager.selectedAccount.coinType.symbol).toLowerCase())) {
+            manager.selectedAccount
+        } else {
+            manager.getWalletManager(false)
+                    .getAllActiveAccounts()
+                    .firstOrNull {
+                        it.canSpend()
+                                && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
+                    }
+        }
+        viewModel.toAccount.value = getToAccount()
+        Changelly2Repository.supportCurrencies(lifecycleScope, {
+            it?.result?.toSet()?.let {
+                viewModel.currencies = it
+                pref.getStringSet(KEY_SUPPORT_COINS, it)
+            }
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -80,7 +101,11 @@ class ExchangeFragment : Fragment() {
                     viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
         }
         binding?.sellLayout?.coinSymbol?.setOnClickListener {
-            SelectAccountFragment().show(parentFragmentManager, "select_account_for_sell")
+            SelectAccountFragment().apply {
+                arguments = Bundle().apply {
+                    putString("type", "sell")
+                }
+            }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_SELL)
         }
         binding?.buyLayout?.root?.setOnClickListener {
             binding?.buyLayout?.coinValue?.startCursor()
@@ -97,7 +122,11 @@ class ExchangeFragment : Fragment() {
                     viewModel.toAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
         }
         binding?.buyLayout?.coinSymbol?.setOnClickListener {
-            SelectAccountFragment().show(parentFragmentManager, "select_account_for_buy")
+            SelectAccountFragment().apply {
+                arguments = Bundle().apply {
+                    putString("type", "buy")
+                }
+            }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_BUY)
         }
         binding?.sellLayout?.coinValue?.doAfterTextChanged {
             viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
@@ -229,14 +258,18 @@ class ExchangeFragment : Fragment() {
                             null
                     )
                     account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                    account.broadcastTx(createTx)
+                    val broadcastResult = account.broadcastTx(createTx)
                     launch(Dispatchers.Main) {
                         loader(false)
-                        ExchangeResultFragment().apply {
-                            arguments = Bundle().apply {
-                                putString(ExchangeResultFragment.KEY_TX_ID, txId)
-                            }
-                        }.show(parentFragmentManager, "exchange_result")
+                        if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+                            ExchangeResultFragment().apply {
+                                arguments = Bundle().apply {
+                                    putString(ExchangeResultFragment.KEY_TX_ID, txId)
+                                }
+                            }.show(parentFragmentManager, "exchange_result")
+                        } else {
+                            //TODO handle broadcast error
+                        }
                     }
                 }
             }
@@ -265,12 +298,44 @@ class ExchangeFragment : Fragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        MbwManager.getEventBus().register(this)
+    }
+
+    override fun onStop() {
+        MbwManager.getEventBus().unregister(this)
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
     }
 
+    @Subscribe
+    fun accountChanged(event: AccountChanged) {
+        if (viewModel.mbwManager.selectedAccount.canSpend()) {
+            viewModel.fromAccount.value = viewModel.mbwManager.selectedAccount
+        }
+        if (viewModel.toAccount == viewModel.fromAccount) {
+            viewModel.toAccount.value = getToAccount()
+        }
+    }
+
+    fun getToAccount() = viewModel.mbwManager.getWalletManager(false)
+            .getAllActiveAccounts()
+            .firstOrNull() {
+                it.coinType != viewModel.fromAccount.value?.coinType
+                        && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
+            }
+
     companion object {
+        const val PREF_FILE = "changelly2"
+        const val KEY_SUPPORT_COINS = "coin_support_list"
+        const val TAG_SELECT_ACCOUNT_BUY = "select_account_for_buy"
+        const val TAG_SELECT_ACCOUNT_SELL = "select_account_for_sell"
+
         fun iconPath(coin: CryptoCurrency) =
                 "https://web-api.changelly.com/api/coins/${Util.trimTestnetSymbolDecoration(coin.symbol).toLowerCase()}.png"
     }

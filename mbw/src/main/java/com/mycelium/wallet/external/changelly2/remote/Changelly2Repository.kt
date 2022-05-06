@@ -10,7 +10,7 @@ object Changelly2Repository {
 
     fun supportCurrencies(scope: CoroutineScope,
                           success: (ChangellyResponse<List<String>>?) -> Unit,
-                          error: (Int, String) -> Unit,
+                          error: ((Int, String) -> Unit)? = null,
                           finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.currencies()

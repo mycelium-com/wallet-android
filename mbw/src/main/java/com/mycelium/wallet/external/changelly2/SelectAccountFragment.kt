@@ -14,12 +14,14 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
 import com.mycelium.wallet.databinding.FragmentChangelly2SelectAccountBinding
+import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 
 
 class SelectAccountFragment : DialogFragment() {
 
     val adapter = AccountAdapter()
     var binding: FragmentChangelly2SelectAccountBinding? = null
+    val viewModel: ExchangeViewModel by activityViewModels()
     val listModel: AccountsListModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +38,12 @@ class SelectAccountFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding?.list?.adapter = adapter
         adapter.accountClickListener = { accountItem ->
-            
+            if (arguments?.getString(KEY_TYPE) == "sell") {
+                viewModel.fromAccount.value = viewModel.mbwManager.getWalletManager(false).getAccount(accountItem.accountId)
+            } else {
+                viewModel.toAccount.value = viewModel.mbwManager.getWalletManager(false).getAccount(accountItem.accountId)
+            }
+            dismissAllowingStateLoss()
         }
         listModel.accountsData.observe(viewLifecycleOwner) {
             generateAccountList(it)
@@ -63,7 +70,13 @@ class SelectAccountFragment : DialogFragment() {
             }
             val accounts = accountsGroup.accountsList
                     .filterIsInstance(AccountViewModel::class.java)
-                    .filter { it.canSpend && it.balance?.spendable?.moreThanZero() == true }
+                    .filter {
+                        if (arguments?.getString(KEY_TYPE) == "sell") {
+                            it.canSpend && it.balance?.spendable?.moreThanZero() == true
+                        } else {
+                            it.accountId != viewModel.fromAccount.value?.id
+                        }
+                    }
             if (accounts.isNotEmpty()) {
                 val group = AccountsGroupModel(
                         accountsGroup.titleId, accountsGroup.getType(), accountsGroup.sum, accounts,
@@ -79,5 +92,9 @@ class SelectAccountFragment : DialogFragment() {
         binding?.emptyList?.visibility = if (accountsList.isEmpty()) View.VISIBLE else View.GONE
         binding?.selectAccountLabel?.visibility = if (accountsList.isEmpty()) View.GONE else View.VISIBLE
         adapter.submitList(accountsList)
+    }
+
+    companion object {
+        const val KEY_TYPE = "type"
     }
 }

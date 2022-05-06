@@ -13,7 +13,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 
 class ExchangeViewModel : ViewModel() {
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
-
+    var currencies = setOf("BTC", "ETH")
     val fromAccount = MutableLiveData<WalletAccount<*>>()
     val toAccount = MutableLiveData<WalletAccount<*>>()
     val exchangeInfo = MutableLiveData<FixRate>()
@@ -30,6 +30,9 @@ class ExchangeViewModel : ViewModel() {
     val fromAddress = Transformations.map(fromAccount) {
         it.receiveAddress.toString()
     }
+    val fromChain =  Transformations.map(fromAccount) {
+        if(it.basedOnCoinType != it.coinType) it.basedOnCoinType.name else ""
+    }
     val fromFiatBalance = Transformations.map(fromAccount) {
         mbwManager.exchangeRateManager.get(it.accountBalance.spendable,
                 mbwManager.getFiatCurrency(it.coinType))?.toStringFriendlyWithUnit()
@@ -39,6 +42,9 @@ class ExchangeViewModel : ViewModel() {
     }
     val toAddress = Transformations.map(toAccount) {
         it.receiveAddress.toString()
+    }
+    val toChain =  Transformations.map(toAccount) {
+        if(it.basedOnCoinType != it.coinType) it.basedOnCoinType.name else ""
     }
     val toFiatBalance = Transformations.map(toAccount) {
         mbwManager.exchangeRateManager.get(it.accountBalance.spendable,

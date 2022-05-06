@@ -53,7 +53,7 @@
             bind:accountLabel="@{vm.fromAccount.label}"
             bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.fromAccount.accountBalance.spendable, Denomination.UNIT)}"
             bind:balanceFiat="@{vm.fromFiatBalance}"
-            bind:chain="@{vm.fromAccount.basedOnCoinType.name}"
+            bind:chain="@{vm.fromChain}"
             bind:coinType="@{vm.fromCurrency}"
             bind:fiatValue="@{vm.fiatSellValue}"
             bind:label="@{@string/bequant_you_send}" />
@@ -90,6 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_exchange"
+            android:enabled="@{vm.toAccount.canSpend()}"
             app:layout_constraintBottom_toBottomOf="@id/exchangeRate"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toEndOf="@id/exchangeRate"
@@ -108,7 +109,7 @@
             bind:accountLabel="@{vm.toAccount.label}"
             bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.toAccount.accountBalance.spendable, Denomination.UNIT)}"
             bind:balanceFiat="@{vm.toFiatBalance}"
-            bind:chain="@{vm.toAccount.basedOnCoinType.name}"
+            bind:chain="@{vm.toChain}"
             bind:coinType="@{vm.toCurrency}"
             bind:fiatValue="@{vm.fiatBuyValue}"
             bind:label="@{@string/bequant_you_get}" />
