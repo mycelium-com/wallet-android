@@ -38,7 +38,7 @@ class SelectAccountFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding?.list?.adapter = adapter
         adapter.accountClickListener = { accountItem ->
-            if (arguments?.getString(KEY_TYPE) == "sell") {
+            if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
                 viewModel.fromAccount.value = viewModel.mbwManager.getWalletManager(false).getAccount(accountItem.accountId)
             } else {
                 viewModel.toAccount.value = viewModel.mbwManager.getWalletManager(false).getAccount(accountItem.accountId)
@@ -71,7 +71,7 @@ class SelectAccountFragment : DialogFragment() {
             val accounts = accountsGroup.accountsList
                     .filterIsInstance(AccountViewModel::class.java)
                     .filter {
-                        if (arguments?.getString(KEY_TYPE) == "sell") {
+                        if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
                             it.canSpend && it.balance?.spendable?.moreThanZero() == true
                         } else {
                             it.accountId != viewModel.fromAccount.value?.id
@@ -96,5 +96,8 @@ class SelectAccountFragment : DialogFragment() {
 
     companion object {
         const val KEY_TYPE = "type"
+        const val VALUE_SELL = "sell"
+        const val VALUE_BUY = "buy"
+
     }
 }
