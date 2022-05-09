@@ -7,20 +7,22 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.mycelium.giftbox.GiftboxPreference
-import com.mycelium.giftbox.purchase.adapter.AccountAdapter
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
 import com.mycelium.wallet.databinding.FragmentChangelly2SelectAccountBinding
+import com.mycelium.wallet.external.changelly2.adapter.AddAccountModel
+import com.mycelium.wallet.external.changelly2.adapter.GroupModel
+import com.mycelium.wallet.external.changelly2.adapter.SelectAccountAdapter
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wapi.wallet.Util
 
 
 class SelectAccountFragment : DialogFragment() {
 
-    val adapter = AccountAdapter()
+    val adapter = SelectAccountAdapter()
     var binding: FragmentChangelly2SelectAccountBinding? = null
     val viewModel: ExchangeViewModel by activityViewModels()
     val listModel: AccountsListModel by activityViewModels()
@@ -45,6 +47,9 @@ class SelectAccountFragment : DialogFragment() {
                 viewModel.toAccount.value = viewModel.mbwManager.getWalletManager(false).getAccount(accountItem.accountId)
             }
             dismissAllowingStateLoss()
+        }
+        adapter.addAccountListener = { addAccount ->
+
         }
         listModel.accountsData.observe(viewLifecycleOwner) {
             generateAccountList(it)
@@ -93,6 +98,22 @@ class SelectAccountFragment : DialogFragment() {
                 }
             }
         }
+        if (arguments?.getString(KEY_TYPE) == VALUE_BUY) {
+            val addAccountList = viewModel.mbwManager.supportedERC20Tokens.filter {
+                viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.value.symbol).toLowerCase())
+            }.map {
+                AddAccountModel(it.value)
+            }
+            if (addAccountList.isNotEmpty()) {
+                val groupTitle = "All supported coins"
+                val group = GroupModel(groupTitle)
+                group.isCollapsed = !GiftboxPreference.isGroupOpen(groupTitle)
+                accountsList.add(group)
+                if (!group.isCollapsed) {
+                    accountsList.addAll(addAccountList)
+                }
+            }
+        }
         binding?.emptyList?.visibility = if (accountsList.isEmpty()) View.VISIBLE else View.GONE
         binding?.selectAccountLabel?.visibility = if (accountsList.isEmpty()) View.GONE else View.VISIBLE
         adapter.submitList(accountsList)
@@ -102,6 +123,5 @@ class SelectAccountFragment : DialogFragment() {
         const val KEY_TYPE = "type"
         const val VALUE_SELL = "sell"
         const val VALUE_BUY = "buy"
-
     }
 }
