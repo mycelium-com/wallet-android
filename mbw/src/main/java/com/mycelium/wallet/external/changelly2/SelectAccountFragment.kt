@@ -1,23 +1,31 @@
 package com.mycelium.wallet.external.changelly2
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.FragmentChangelly2SelectAccountBinding
+import com.mycelium.wallet.databinding.LayoutSelectEthAccountToErc20Binding
 import com.mycelium.wallet.external.changelly2.adapter.AddAccountModel
 import com.mycelium.wallet.external.changelly2.adapter.GroupModel
 import com.mycelium.wallet.external.changelly2.adapter.SelectAccountAdapter
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wapi.wallet.Util
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
 
 
 class SelectAccountFragment : DialogFragment() {
@@ -49,7 +57,7 @@ class SelectAccountFragment : DialogFragment() {
             dismissAllowingStateLoss()
         }
         adapter.addAccountListener = { addAccount ->
-
+            showEthAccountsOptions()
         }
         listModel.accountsData.observe(viewLifecycleOwner) {
             generateAccountList(it)
@@ -99,8 +107,15 @@ class SelectAccountFragment : DialogFragment() {
             }
         }
         if (arguments?.getString(KEY_TYPE) == VALUE_BUY) {
+            val alreadyHave = accountView
+                    .flatMap { it.accountsList }
+                    .filterIsInstance(AccountViewModel::class.java)
+                    .map {
+                        it.coinType.symbol
+                    }.toSet()
             val addAccountList = viewModel.mbwManager.supportedERC20Tokens.filter {
                 viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.value.symbol).toLowerCase())
+                        && !alreadyHave.contains(it.value.symbol)
             }.map {
                 AddAccountModel(it.value)
             }
@@ -118,6 +133,30 @@ class SelectAccountFragment : DialogFragment() {
         binding?.selectAccountLabel?.visibility = if (accountsList.isEmpty()) View.GONE else View.VISIBLE
         adapter.submitList(accountsList)
     }
+
+    private fun showEthAccountsOptions() {
+        val arrayAdapter = ERC20EthAccountAdapter(requireContext(), R.layout.checked_item)
+        val accounts = viewModel.mbwManager.getWalletManager(false).getActiveEthAccounts()
+        arrayAdapter.addAll(getEthAccountsForView(accounts))
+        arrayAdapter.add(getString(R.string.create_new_account))
+        AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog_BlueButtons)
+                .setCustomTitle(LayoutInflater.from(requireContext()).inflate(R.layout.layout_select_eth_account_to_erc20_title, null))
+                .setView(LayoutSelectEthAccountToErc20Binding.inflate(LayoutInflater.from(requireContext())).apply {
+                    list.adapter = arrayAdapter
+                }.root)
+                .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+                .setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
+                    val selected = arrayAdapter.selected
+                }
+                .show()
+    }
+
+    private fun getEthAccountsForView(accounts: List<WalletAccount<*>>): List<String> =
+            accounts.sortedBy { (it as EthAccount).accountIndex }
+                    .map { account ->
+                        val denominatedValue = account.accountBalance.spendable.toStringWithUnit(viewModel.mbwManager.getDenomination(account.coinType))
+                        account.label + " (" + denominatedValue + ")"
+                    }
 
     companion object {
         const val KEY_TYPE = "type"

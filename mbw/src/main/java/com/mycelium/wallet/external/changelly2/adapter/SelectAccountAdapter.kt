@@ -23,6 +23,7 @@ class GroupModel(val title: String) : AccountListItem {
 class SelectAccountAdapter : AccountAdapter() {
 
     var addAccountListener: ((CryptoCurrency) -> Unit)? = null
+    var groupModelClickListener: ((GroupModel) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -42,6 +43,9 @@ class SelectAccountAdapter : AccountAdapter() {
                     val addAccount = item as AddAccountModel
                     it.binding.label.text = addAccount.coinType.name
                     it.binding.coinType.text = addAccount.coinType.symbol
+                    it.binding.root.setOnClickListener {
+                        addAccountListener?.invoke(addAccount.coinType)
+                    }
                 }
             }
             AccountListItem.Type.GROUP_TYPE.typeId -> {
