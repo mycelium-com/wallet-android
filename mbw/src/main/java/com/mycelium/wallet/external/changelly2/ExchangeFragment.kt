@@ -27,6 +27,7 @@ import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.AccountChanged
+import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.startCoroutineTimer
@@ -242,13 +243,6 @@ class ExchangeFragment : Fragment() {
                 Toaster(this).toast("cant open $LINK_TERMS", true)
             }
         }
-        binding?.policyAML?.setOnClickListener {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_AML)))
-            } catch (e: ActivityNotFoundException) {
-                Toaster(this).toast("cant open $LINK_AML", true)
-            }
-        }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(2)) {
             updateExchangeRate()
         }
@@ -348,7 +342,7 @@ class ExchangeFragment : Fragment() {
     }
 
     @Subscribe
-    fun accountChanged(event: AccountChanged) {
+    fun selectedAccountChanged(event: SelectedAccountChanged) {
         if (viewModel.mbwManager.selectedAccount.canSpend()) {
             viewModel.fromAccount.value = viewModel.mbwManager.selectedAccount
         }

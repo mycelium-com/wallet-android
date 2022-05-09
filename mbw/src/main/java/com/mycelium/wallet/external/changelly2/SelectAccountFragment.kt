@@ -15,6 +15,7 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
 import com.mycelium.wallet.databinding.FragmentChangelly2SelectAccountBinding
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
+import com.mycelium.wapi.wallet.Util
 
 
 class SelectAccountFragment : DialogFragment() {
@@ -73,8 +74,11 @@ class SelectAccountFragment : DialogFragment() {
                     .filter {
                         if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
                             it.canSpend && it.balance?.spendable?.moreThanZero() == true
+                                    && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
+
                         } else {
                             it.accountId != viewModel.fromAccount.value?.id
+                                    && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
                         }
                     }
             if (accounts.isNotEmpty()) {
