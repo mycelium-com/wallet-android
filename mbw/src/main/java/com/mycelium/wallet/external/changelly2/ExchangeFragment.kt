@@ -43,6 +43,7 @@ import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
 
@@ -70,7 +71,7 @@ class ExchangeFragment : Fragment() {
         viewModel.toAccount.value = getToAccount()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
             it?.result
-                    ?.filter { it.fixRateEnabled && it.enabled}
+                    ?.filter { it.fixRateEnabled && it.enabled }
                     ?.map { it.ticker }
                     ?.toSet()?.let {
                         viewModel.currencies = it
@@ -96,11 +97,12 @@ class ExchangeFragment : Fragment() {
             binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView = binding?.sellLayout?.coinValue
             binding?.layoutValueKeyboard?.numericKeyboard?.visibility = View.VISIBLE;
             binding?.layoutValueKeyboard?.numericKeyboard?.maxValue =
-                    viewModel.exchangeInfo.value?.maxFrom?.toBigDecimal()
+                    viewModel.exchangeInfo.value?.maxFrom
             binding?.layoutValueKeyboard?.numericKeyboard?.minValue =
-                    viewModel.exchangeInfo.value?.minFrom?.toBigDecimal()
+                    viewModel.exchangeInfo.value?.minFrom
             binding?.layoutValueKeyboard?.numericKeyboard?.spendableValue =
                     viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
+            binding?.layoutValueKeyboard?.numericKeyboard?.setEntry(viewModel.sellValue.value ?: "")
         }
         binding?.sellLayout?.coinSymbol?.setOnClickListener {
             SelectAccountFragment().apply {
@@ -117,11 +119,12 @@ class ExchangeFragment : Fragment() {
             binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView = binding?.buyLayout?.coinValue
             binding?.layoutValueKeyboard?.numericKeyboard?.visibility = View.VISIBLE;
             binding?.layoutValueKeyboard?.numericKeyboard?.maxValue =
-                    viewModel.exchangeInfo.value?.maxTo?.toBigDecimal()
+                    viewModel.exchangeInfo.value?.maxTo
             binding?.layoutValueKeyboard?.numericKeyboard?.minValue =
-                    viewModel.exchangeInfo.value?.minTo?.toBigDecimal()
+                    viewModel.exchangeInfo.value?.minTo
             binding?.layoutValueKeyboard?.numericKeyboard?.spendableValue =
                     viewModel.toAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
+            binding?.layoutValueKeyboard?.numericKeyboard?.setEntry(viewModel.buyValue.value ?: "")
         }
         binding?.buyLayout?.coinSymbol?.setOnClickListener {
             SelectAccountFragment().apply {
@@ -135,9 +138,12 @@ class ExchangeFragment : Fragment() {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.sellLayout?.coinValue) {
                 viewModel.error.value = ""
                 try {
-                    val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toDouble()
-                    binding?.buyLayout?.coinValue?.text = ((amount ?: 0.0) *
-                            (viewModel.exchangeInfo.value?.result ?: 0.0)).toString()
+                    val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toBigDecimal()!!
+                    binding?.buyLayout?.coinValue?.text =
+                            (amount * viewModel.exchangeInfo.value?.result!!)
+                                    .setScale(viewModel.toCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                                    .stripTrailingZeros()
+                                    .toPlainString()
                 } catch (e: NumberFormatException) {
                     binding?.buyLayout?.coinValue?.text = "N/A"
                 }
@@ -149,9 +155,12 @@ class ExchangeFragment : Fragment() {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
                 viewModel.error.value = ""
                 try {
-                    val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toDouble()
-                    binding?.sellLayout?.coinValue?.text = ((amount ?: 0.0) /
-                            (viewModel.exchangeInfo.value?.result ?: 1.0)).toString()
+                    val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toBigDecimal()
+                    binding?.sellLayout?.coinValue?.text =
+                            amount?.div(viewModel.exchangeInfo.value?.result!!)
+                                    ?.setScale(viewModel.fromCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                                    ?.stripTrailingZeros()
+                                    ?.toPlainString() ?: "N/A"
                 } catch (e: NumberFormatException) {
                     binding?.sellLayout?.coinValue?.text = "N/A"
                 }
@@ -298,7 +307,9 @@ class ExchangeFragment : Fragment() {
                         if (result?.result != null) {
                             viewModel.exchangeInfo.value = result.result
                             if (binding?.sellLayout?.coinValue?.text?.isEmpty() != false) {
-                                binding?.sellLayout?.coinValue?.text = result.result?.minFrom.toString()
+                                binding?.sellLayout?.coinValue?.text = result.result?.minFrom
+                                        ?.stripTrailingZeros()
+                                        ?.toPlainString()
                             }
                             viewModel.error.value = ""
                         } else {
