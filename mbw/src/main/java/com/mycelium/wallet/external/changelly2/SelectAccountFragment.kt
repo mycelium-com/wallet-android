@@ -1,6 +1,7 @@
 package com.mycelium.wallet.external.changelly2
 
 import android.content.DialogInterface
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +11,15 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.addaccount.ERC20CreationAsyncTask
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter
+import com.mycelium.wallet.activity.addaccount.ETHCreationAsyncTask
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2SelectAccountBinding
 import com.mycelium.wallet.databinding.LayoutSelectEthAccountToErc20Binding
 import com.mycelium.wallet.external.changelly2.adapter.AddAccountModel
@@ -24,8 +28,10 @@ import com.mycelium.wallet.external.changelly2.adapter.SelectAccountAdapter
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
+import java.util.*
 
 
 class SelectAccountFragment : DialogFragment() {
@@ -49,21 +55,28 @@ class SelectAccountFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding?.list?.adapter = adapter
         adapter.accountClickListener = { accountItem ->
-            if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
-                viewModel.fromAccount.value = viewModel.mbwManager.getWalletManager(false).getAccount(accountItem.accountId)
-            } else {
-                viewModel.toAccount.value = viewModel.mbwManager.getWalletManager(false).getAccount(accountItem.accountId)
-            }
-            dismissAllowingStateLoss()
+            setAccount(accountItem.accountId)
         }
         adapter.addAccountListener = { addAccount ->
-            showEthAccountsOptions()
+            if (addAccount is ERC20Token) {
+                showEthAccountsOptions(addAccount)
+            }
         }
         listModel.accountsData.observe(viewLifecycleOwner) {
             generateAccountList(it)
         }
         val accountsGroupsList = listModel.accountsData.value!!
         generateAccountList(accountsGroupsList)
+    }
+
+    private fun setAccount(accountId: UUID) {
+        val account = viewModel.mbwManager.getWalletManager(false).getAccount(accountId)
+        if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
+            viewModel.fromAccount.value = account
+        } else {
+            viewModel.toAccount.value = account
+        }
+        dismissAllowingStateLoss()
     }
 
     override fun onStart() {
@@ -134,7 +147,7 @@ class SelectAccountFragment : DialogFragment() {
         adapter.submitList(accountsList)
     }
 
-    private fun showEthAccountsOptions() {
+    private fun showEthAccountsOptions(token: ERC20Token) {
         val arrayAdapter = ERC20EthAccountAdapter(requireContext(), R.layout.checked_item)
         val accounts = viewModel.mbwManager.getWalletManager(false).getActiveEthAccounts()
         arrayAdapter.addAll(getEthAccountsForView(accounts))
@@ -147,8 +160,30 @@ class SelectAccountFragment : DialogFragment() {
                 .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
                 .setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
                     val selected = arrayAdapter.selected
+                    if (selected == arrayAdapter.count - 1) {
+                        // "Create new account" item
+                        ETHCreationAsyncTask(viewModel.mbwManager, {
+                            loader(true)
+                        }, {
+                            loader(false)
+                            addToken(viewModel.mbwManager.getWalletManager(false).getAccount(it!!) as EthAccount, token)
+                        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                    } else {
+                        val ethAccountId = accounts[selected].id
+                        val ethAccount = viewModel.mbwManager.getWalletManager(false).getAccount(ethAccountId) as EthAccount
+                        addToken(ethAccount, token)
+                    }
                 }
                 .show()
+    }
+
+    private fun addToken(ethAccount: EthAccount, token: ERC20Token) {
+        ERC20CreationAsyncTask(viewModel.mbwManager, listOf(token), ethAccount, {
+            loader(true)
+        }, {
+            loader(false)
+            setAccount(it.first())
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
     private fun getEthAccountsForView(accounts: List<WalletAccount<*>>): List<String> =

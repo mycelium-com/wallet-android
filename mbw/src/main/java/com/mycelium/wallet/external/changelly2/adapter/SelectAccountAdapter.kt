@@ -50,7 +50,11 @@ class SelectAccountAdapter : AccountAdapter() {
             }
             AccountListItem.Type.GROUP_TYPE.typeId -> {
                 (holder as GroupHolder).let {
-                    it.binding.label.text = (item as GroupModel).title
+                    item as GroupModel
+                    it.binding.label.text = item.title
+                    it.binding.root.setOnClickListener {
+                        groupModelClickListener?.invoke(item)
+                    }
                 }
             }
             else -> {
