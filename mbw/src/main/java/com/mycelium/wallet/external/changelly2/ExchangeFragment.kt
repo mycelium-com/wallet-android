@@ -26,7 +26,6 @@ import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
-import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
@@ -44,7 +43,6 @@ import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 
 
@@ -70,11 +68,14 @@ class ExchangeFragment : Fragment() {
                     }
         }
         viewModel.toAccount.value = getToAccount()
-        Changelly2Repository.supportCurrencies(lifecycleScope, {
-            it?.result?.toSet()?.let {
-                viewModel.currencies = it
-                pref.getStringSet(KEY_SUPPORT_COINS, it)
-            }
+        Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
+            it?.result
+                    ?.filter { it.fixRateEnabled && it.enabled}
+                    ?.map { it.ticker }
+                    ?.toSet()?.let {
+                        viewModel.currencies = it
+                        pref.getStringSet(KEY_SUPPORT_COINS, it)
+                    }
         })
     }
 
@@ -94,10 +95,8 @@ class ExchangeFragment : Fragment() {
                     viewModel.fromCurrency.value?.unitExponent ?: 0
             binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView = binding?.sellLayout?.coinValue
             binding?.layoutValueKeyboard?.numericKeyboard?.visibility = View.VISIBLE;
-            binding?.layoutValueKeyboard?.numericKeyboard?.maxValue = minOf(
-                    viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
-                            ?: BigDecimal.ZERO,
-                    viewModel.exchangeInfo.value?.maxFrom?.toBigDecimal() ?: BigDecimal.ZERO)
+            binding?.layoutValueKeyboard?.numericKeyboard?.maxValue =
+                    viewModel.exchangeInfo.value?.maxFrom?.toBigDecimal()
             binding?.layoutValueKeyboard?.numericKeyboard?.minValue =
                     viewModel.exchangeInfo.value?.minFrom?.toBigDecimal()
             binding?.layoutValueKeyboard?.numericKeyboard?.spendableValue =
@@ -175,10 +174,10 @@ class ExchangeFragment : Fragment() {
                 }
             }
             errorMaxListener = {
-                viewModel.error.value = "Value exit max"
+                viewModel.error.value = "The amount is more than the exchange maximum of ${viewModel.exchangeInfo.value?.maxFrom} ${viewModel.exchangeInfo.value?.from}"
             }
             errorMinListener = {
-                viewModel.error.value = "Value exit min"
+                viewModel.error.value = "The amount is lower than the exchange minimum of ${viewModel.exchangeInfo.value?.minFrom} ${viewModel.exchangeInfo.value?.from}"
             }
             setMaxText(getString(R.string.max), 14f)
             setPasteVisibility(View.GONE)

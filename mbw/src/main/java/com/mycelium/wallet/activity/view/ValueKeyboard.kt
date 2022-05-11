@@ -16,8 +16,8 @@ class ValueKeyboard : GridLayout {
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     var inputListener: InputListener? = null
-    var errorMinListener: (() -> Unit)? = null
-    var errorMaxListener: (() -> Unit)? = null
+    var errorMinListener: ((BigDecimal) -> Unit)? = null
+    var errorMaxListener: ((BigDecimal) -> Unit)? = null
 
     var inputTextView: TextView? = null
     var maxDecimals = 0
@@ -56,10 +56,10 @@ class ValueKeyboard : GridLayout {
             try {
                 if (maxValue != null && maxValue!! < entry.toBigDecimal()) {
                     textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                    errorMaxListener?.invoke()
+                    errorMaxListener?.invoke(maxValue!!)
                 } else if (minValue != null && minValue!! > entry.toBigDecimal()) {
                     textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                    errorMinListener?.invoke()
+                    errorMinListener?.invoke(minValue!!)
                 } else {
                     textView.setTextColor(resources.getColor(R.color.white))
                 }

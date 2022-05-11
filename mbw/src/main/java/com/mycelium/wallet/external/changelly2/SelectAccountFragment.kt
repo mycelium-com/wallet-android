@@ -53,6 +53,15 @@ class SelectAccountFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding?.selectAccountLabel?.text =
+                if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
+                    getString(R.string.changelly2_select_from)
+                } else {
+                    getString(R.string.changelly2_select_to)
+                }
+        binding?.toolbar?.setNavigationOnClickListener {
+            dismissAllowingStateLoss()
+        }
         binding?.list?.adapter = adapter
         adapter.accountClickListener = { accountItem ->
             setAccount(accountItem.accountId)

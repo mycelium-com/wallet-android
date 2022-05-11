@@ -17,6 +17,15 @@ object Changelly2Repository {
         }, success, error, finally)
     }
 
+    fun supportCurrenciesFull(scope: CoroutineScope,
+                                 success: (ChangellyResponse<List<ChangellyCurrency>>?) -> Unit,
+                                 error: ((Int, String) -> Unit)? = null,
+                                 finally: (() -> Unit)? = null) {
+        doRequest(scope, {
+            api.currenciesFull()
+        }, success, error, finally)
+    }
+
     fun exchangeAmount(scope: CoroutineScope,
                        from: String,
                        to: String,

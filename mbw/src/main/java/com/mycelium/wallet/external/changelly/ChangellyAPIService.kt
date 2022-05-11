@@ -14,10 +14,6 @@ import retrofit2.http.Query
  * Interface to describing Changelly API for retrofit2 library and providing retrofit object intialization.
  */
 interface ChangellyAPIService {
-    class ChangellyCurrency {
-        var currency: String? = null
-        var enabled = false
-    }
 
     // end data classes
     @POST("getCurrencies")
@@ -51,6 +47,9 @@ interface ChangellyAPIService {
 
     @POST("getCurrencies")
     suspend fun currencies(): Response<ChangellyResponse<List<String>>>
+
+    @POST("getCurrenciesFull")
+    suspend fun currenciesFull(): Response<ChangellyResponse<List<ChangellyCurrency>>>
 
     @POST("getFixRateForAmount")
     suspend fun exchangeAmountFix(@Query("from") from: String,

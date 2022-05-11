@@ -1752,6 +1752,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="connection_issues"><b>Connection issues.</b> Please make sure you\'re online.</string>
     <string name="network_s">%s Network</string>
     <string name="changelly2_policy_text"><![CDATA[Service is provided by Changelly. By clicking Exchange you accept the <font color="#ffffff">Terms of Use]]>.</string>
+    <string name="changelly2_select_from">Select account to exchange:</string>
+    <string name="changelly2_select_to">Select account to get:</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
