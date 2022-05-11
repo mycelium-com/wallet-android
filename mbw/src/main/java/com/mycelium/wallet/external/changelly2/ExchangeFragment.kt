@@ -26,6 +26,8 @@ import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
+import com.mycelium.wallet.event.ExchangeRatesRefreshed
+import com.mycelium.wallet.event.ExchangeSourceChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
@@ -359,6 +361,18 @@ class ExchangeFragment : Fragment() {
         if (viewModel.toAccount == viewModel.fromAccount) {
             viewModel.toAccount.value = getToAccount()
         }
+    }
+
+    @Subscribe
+    fun exchangeRatesRefreshed(event: ExchangeRatesRefreshed) {
+        viewModel.fromAccount.value = viewModel.fromAccount.value
+        viewModel.toAccount.value = viewModel.toAccount.value
+    }
+
+    @Subscribe
+    fun exchangeSourceChanged(event: ExchangeSourceChanged) {
+        viewModel.fromAccount.value = viewModel.fromAccount.value
+        viewModel.toAccount.value = viewModel.toAccount.value
     }
 
     fun getToAccount() = viewModel.mbwManager.getWalletManager(false)
