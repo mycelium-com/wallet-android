@@ -8,11 +8,13 @@ import androidx.lifecycle.ViewModel
 import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wapi.wallet.Transaction
+import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
@@ -25,12 +27,19 @@ class ExchangeViewModel : ViewModel() {
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     var currencies = setOf("BTC", "ETH")
     val fromAccount = MutableLiveData<WalletAccount<*>>()
-    val toAccount = MutableLiveData<WalletAccount<*>>()
     val exchangeInfo = MutableLiveData<FixRate>()
     val sellValue = MutableLiveData<String>()
     val buyValue = MutableLiveData<String>()
     val errorKeyboard = MutableLiveData("")
     val errorTransaction = MutableLiveData("")
+
+    val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
+        addSource(fromAccount) {
+            if (value?.coinType == it.coinType) {
+                value = getToAccount()
+            }
+        }
+    }
 
     val error = MediatorLiveData<String>().apply {
         value = ""
@@ -48,6 +57,7 @@ class ExchangeViewModel : ViewModel() {
         }
     }
 
+
     val fromCurrency = Transformations.map(fromAccount) {
         it.coinType
     }
@@ -62,17 +72,22 @@ class ExchangeViewModel : ViewModel() {
                 mbwManager.getFiatCurrency(it.coinType))?.toStringFriendlyWithUnit()
     }
     val toCurrency = Transformations.map(toAccount) {
-        it.coinType
+        it?.coinType?: Utils.getBtcCoinType()
     }
     val toAddress = Transformations.map(toAccount) {
-        it.receiveAddress.toString()
+        it?.receiveAddress?.toString()
     }
     val toChain = Transformations.map(toAccount) {
-        if (it.basedOnCoinType != it.coinType) it.basedOnCoinType.name else ""
+        if (it?.basedOnCoinType != it?.coinType) it?.basedOnCoinType?.name else ""
+    }
+    val toBalance = Transformations.map(toAccount) {
+        it?.accountBalance?.spendable?.toStringFriendlyWithUnit()
     }
     val toFiatBalance = Transformations.map(toAccount) {
-        mbwManager.exchangeRateManager.get(it.accountBalance.spendable,
-                mbwManager.getFiatCurrency(it.coinType))?.toStringFriendlyWithUnit()
+        it?.accountBalance?.spendable?.let { value ->
+            mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(it.coinType))
+                    ?.toStringFriendlyWithUnit()
+        }
     }
     val exchangeRate = Transformations.map(exchangeInfo) {
         "1 ${it.from.toUpperCase()} = ${it.result} ${it.to.toUpperCase()}"
@@ -155,4 +170,11 @@ class ExchangeViewModel : ViewModel() {
         }
         return null
     }
+
+    fun getToAccount() = mbwManager.getWalletManager(false)
+            .getAllActiveAccounts()
+            .firstOrNull {
+                it.coinType != fromAccount.value?.coinType
+                        && currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
+            }
 }

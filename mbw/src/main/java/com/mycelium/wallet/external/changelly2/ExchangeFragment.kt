@@ -71,7 +71,6 @@ class ExchangeFragment : Fragment() {
                                 && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
                     }
         }
-        viewModel.toAccount.value = getToAccount()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
             it?.result
                     ?.filter { it.fixRateEnabled && it.enabled }
@@ -370,9 +369,6 @@ class ExchangeFragment : Fragment() {
         if (viewModel.mbwManager.selectedAccount.canSpend()) {
             viewModel.fromAccount.value = viewModel.mbwManager.selectedAccount
         }
-        if (viewModel.toAccount == viewModel.fromAccount) {
-            viewModel.toAccount.value = getToAccount()
-        }
     }
 
     @Subscribe
@@ -386,13 +382,6 @@ class ExchangeFragment : Fragment() {
         viewModel.fromAccount.value = viewModel.fromAccount.value
         viewModel.toAccount.value = viewModel.toAccount.value
     }
-
-    fun getToAccount() = viewModel.mbwManager.getWalletManager(false)
-            .getAllActiveAccounts()
-            .firstOrNull() {
-                it.coinType != viewModel.fromAccount.value?.coinType
-                        && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
-            }
 
     companion object {
         const val PREF_FILE = "changelly2"

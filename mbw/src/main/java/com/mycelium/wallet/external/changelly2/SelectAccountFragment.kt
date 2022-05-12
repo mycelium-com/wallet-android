@@ -109,12 +109,12 @@ class SelectAccountFragment : DialogFragment() {
                     .filter {
                         if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
                             it.canSpend && it.balance?.spendable?.moreThanZero() == true
-                                    && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
-
                         } else {
-                            it.accountId != viewModel.fromAccount.value?.id
-                                    && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
+                            it.coinType != viewModel.fromAccount.value?.coinType
                         }
+                    }
+                    .filter {
+                        viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
                     }
             if (accounts.isNotEmpty()) {
                 val group = AccountsGroupModel(
