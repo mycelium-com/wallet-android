@@ -68,6 +68,8 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     fun getGasLimit() = (model as SendEthModel).gasLimit
 
+    fun getGasPrice() = (model as SendEthModel).gasPrice
+
     fun getInputData() = (model as SendEthModel).inputData
 
     fun getTxItems() = (model as SendEthModel).txItems
