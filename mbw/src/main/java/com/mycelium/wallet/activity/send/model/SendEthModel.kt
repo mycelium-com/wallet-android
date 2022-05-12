@@ -85,7 +85,7 @@ class SendEthModel(application: Application,
                 val oldData =
                         (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =
-                        EthTransactionData(oldData.nonce, value, oldData.inputData, value)
+                        EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value)
             }
         }
     }
