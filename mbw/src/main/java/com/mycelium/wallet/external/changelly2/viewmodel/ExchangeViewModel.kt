@@ -1,5 +1,6 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -47,9 +48,6 @@ class ExchangeViewModel : ViewModel() {
         }
     }
 
-    val feeEstimation = Transformations.map(fromAccount) {
-        mbwManager.getFeeProvider(it.basedOnCoinType).estimation
-    }
     val fromCurrency = Transformations.map(fromAccount) {
         it.coinType
     }
@@ -130,13 +128,15 @@ class ExchangeViewModel : ViewModel() {
         val account = fromAccount.value!!
         val value = account.coinType.value(sellValue.value!!)
         if (value.equalZero()) {
+            errorTransaction.value = ""
             return null
         }
         try {
+            val feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
             return account.createTx(
                     account.dummyAddress,
                     value,
-                    FeePerKbFee(feeEstimation.value!!.normal),
+                    FeePerKbFee(feeEstimation.normal),
                     null
             ).apply {
                 errorTransaction.value = ""
@@ -148,9 +148,10 @@ class ExchangeViewModel : ViewModel() {
             errorTransaction.value = res.getString(R.string.insufficient_funds)
         } catch (e: BuildTransactionException) {
             mbwManager.reportIgnoredException("MinerFeeException", e)
-            errorTransaction.value = res.getString(R.string.tx_build_error)
+            errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
         } catch (e: Exception) {
-            errorTransaction.value = res.getString(R.string.tx_build_error)
+            Log.e("!!!", "", e)
+            errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
         }
         return null
     }

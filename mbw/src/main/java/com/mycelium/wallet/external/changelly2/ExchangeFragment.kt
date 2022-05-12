@@ -137,9 +137,6 @@ class ExchangeFragment : Fragment() {
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_BUY)
         }
         binding?.sellLayout?.coinValue?.doAfterTextChanged {
-            if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.sellLayout?.coinValue) {
-                viewModel.errorTransaction.value = ""
-            }
             viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.sellLayout?.coinValue) {
                 try {
@@ -156,9 +153,6 @@ class ExchangeFragment : Fragment() {
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
         binding?.buyLayout?.coinValue?.doAfterTextChanged {
-            if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
-                viewModel.errorTransaction.value = ""
-            }
             viewModel.buyValue.value = binding?.buyLayout?.coinValue?.text?.toString()
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
                 try {
@@ -221,11 +215,12 @@ class ExchangeFragment : Fragment() {
                     viewModel.fromAddress.value!!,
                     { result ->
                         if (result?.result != null) {
+                            val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
                             AlertDialog.Builder(requireContext())
                                     .setTitle("Exchange")
                                     .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom}\n" +
                                             "You get: ${result.result?.amountTo} ${result.result?.currencyTo}\n" +
-                                            "Miners fee: ${viewModel.feeEstimation.value!!.normal.toStringFriendlyWithUnit()}")
+                                            "Miners fee: ${feeEstimation.normal.toStringFriendlyWithUnit()}")
                                     .setPositiveButton(R.string.button_ok) { _, _ ->
                                         sendTx(result.result!!.id!!, result.result!!.payinAddress!!, result.result!!.amountExpectedFrom!!)
                                     }
@@ -288,9 +283,10 @@ class ExchangeFragment : Fragment() {
             loader(true)
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 viewModel.fromAccount.value?.let { account ->
+                    val feeEstimation = viewModel.mbwManager.getFeeProvider(account.basedOnCoinType).estimation
                     val createTx = account.createTx(address,
                             viewModel.fromAccount.value!!.coinType.value(amount),
-                            FeePerKbFee(viewModel.feeEstimation.value!!.normal),
+                            FeePerKbFee(feeEstimation.normal),
                             null
                     )
                     account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
