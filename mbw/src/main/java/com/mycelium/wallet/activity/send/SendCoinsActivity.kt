@@ -31,8 +31,10 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wallet.*
+import com.mycelium.wallet.Constants
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
@@ -62,6 +64,7 @@ import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.AVG_TOKEN_TRANSFER_GAS
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fio_memo_input.*
@@ -69,9 +72,11 @@ import kotlinx.android.synthetic.main.send_coins_activity.root
 import kotlinx.android.synthetic.main.send_coins_activity_eth.*
 import kotlinx.android.synthetic.main.send_coins_advanced_block.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
+import kotlinx.android.synthetic.main.send_coins_fee_description.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
+import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -270,6 +275,49 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
+                                gasPrice.doOnTextChanged { _, _, _, _ ->
+                                    getGasPrice().value = null
+                                    getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
+                                }
+                                gasPrice.setOnEditorActionListener { textView, actionId, keyEvent ->
+                                    if(actionId == EditorInfo.IME_ACTION_DONE) {
+                                        textView.clearFocus()
+                                    }
+                                    false
+                                }
+                                gasPrice.setOnFocusChangeListener { _, hasFocus ->
+                                    if (!hasFocus) {
+                                        val gasPrice = gasPrice.text.toString()
+                                        getGasPrice().value = if (gasPrice.isEmpty()) null else Convert.toWei(gasPrice, Convert.Unit.GWEI).toBigInteger()
+                                        if (getGasLimit().value == null) {
+                                            val limit = if (account is ERC20Account) {
+                                                BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+                                            } else {
+                                                BigInteger.valueOf(account.typicalEstimatedTransactionSize.toLong())
+                                            }
+                                            etGasLimit.setText(limit.toString())
+                                            getGasLimit().value = limit
+                                        }
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
+                                    }
+                                }
+                                getGasPrice().observe(this@SendCoinsActivity) { gl ->
+                                    if (gl == null) {
+                                        tvSatFeeValue.visibility = View.GONE
+                                        feeLvlList.visibility = View.VISIBLE
+                                        feeValueList.visibility = View.VISIBLE
+                                    } else {
+                                        tvSatFeeValue.text = getTransactionData().value?.let {
+                                            it as EthTransactionData
+                                            val fee = Value.valueOf(account.basedOnCoinType,
+                                                    (account.typicalEstimatedTransactionSize.toBigInteger()) * gl)
+                                            "${fee.toStringFriendlyWithUnit()} ${mbwManager.exchangeRateManager.get(fee, mbwManager.getFiatCurrency(fee.type))}"
+                                        }
+                                        tvSatFeeValue.visibility = View.VISIBLE
+                                        feeLvlList.visibility = View.GONE
+                                        feeValueList.visibility = View.GONE
+                                    }
+                                }
                                 if (account is ERC20Account) {
                                     getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
                                         var gasLimit = gl
@@ -329,6 +377,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     if (!isExpanded) {
                                         etGasLimit.setText("")
                                         getGasLimit().value = null
+                                        gasPrice.setText("")
+                                        getGasPrice().value = null
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 })
