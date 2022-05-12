@@ -19,6 +19,11 @@ class ValueKeyboard : ConstraintLayout {
     var errorListener: ErrorListener? = null
 
     var inputTextView: TextView? = null
+        set(v) {
+            field?.setTextColor(resources.getColor(R.color.white))
+            field = v
+        }
+
     var maxDecimals = 0
         set(v) {
             field = v

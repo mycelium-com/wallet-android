@@ -71,6 +71,7 @@ class ExchangeFragment : Fragment() {
                                 && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
                     }
         }
+        viewModel.toAccount.value = viewModel.getToAccount()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
             it?.result
                     ?.filter { it.fixRateEnabled && it.enabled }

@@ -68,8 +68,9 @@ class ExchangeViewModel : ViewModel() {
         if (it.basedOnCoinType != it.coinType) it.basedOnCoinType.name else ""
     }
     val fromFiatBalance = Transformations.map(fromAccount) {
-        mbwManager.exchangeRateManager.get(it.accountBalance.spendable,
-                mbwManager.getFiatCurrency(it.coinType))?.toStringFriendlyWithUnit()
+        mbwManager.exchangeRateManager
+                .get(it.accountBalance.spendable, mbwManager.getFiatCurrency(it.coinType))
+                ?.toStringFriendlyWithUnit()
     }
     val toCurrency = Transformations.map(toAccount) {
         it?.coinType?: Utils.getBtcCoinType()
@@ -85,7 +86,8 @@ class ExchangeViewModel : ViewModel() {
     }
     val toFiatBalance = Transformations.map(toAccount) {
         it?.accountBalance?.spendable?.let { value ->
-            mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(it.coinType))
+            mbwManager.exchangeRateManager
+                    .get(value, mbwManager.getFiatCurrency(it.coinType))
                     ?.toStringFriendlyWithUnit()
         }
     }
@@ -95,7 +97,9 @@ class ExchangeViewModel : ViewModel() {
     val fiatSellValue = Transformations.map(sellValue) {
         if (it?.isNotEmpty() == true) {
             try {
-                mbwManager.exchangeRateManager.get(fromCurrency.value?.value(it), mbwManager.getFiatCurrency(fromCurrency.value)).toStringFriendlyWithUnit()
+                mbwManager.exchangeRateManager
+                        .get(fromCurrency.value?.value(it), mbwManager.getFiatCurrency(fromCurrency.value))
+                        ?.toStringFriendlyWithUnit()
             } catch (e: NumberFormatException) {
                 "N/A"
             }
@@ -106,7 +110,9 @@ class ExchangeViewModel : ViewModel() {
     val fiatBuyValue = Transformations.map(buyValue) {
         if (it?.isNotEmpty() == true) {
             try {
-                mbwManager.exchangeRateManager.get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value)).toStringFriendlyWithUnit()
+                mbwManager.exchangeRateManager
+                        .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
+                        ?.toStringFriendlyWithUnit()
             } catch (e: NumberFormatException) {
                 "N/A"
             }
