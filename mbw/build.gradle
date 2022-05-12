@@ -215,8 +215,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3130700
-        versionName '3.13.7.0'
+        versionCode 3140100
+        versionName '3.14.1.0'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
@@ -357,7 +357,7 @@ android {
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
                 EthBlockBook = '{"https://ropsten1.trezor.io", "https://ropsten2.trezor.io"}'
-                ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.bitcoinvault.global:443"}'
+                ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.btcv.stage.rnd.land:443"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 tpid = "megabit@mycelium"

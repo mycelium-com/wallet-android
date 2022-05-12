@@ -530,11 +530,12 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
     }
 
     override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
-        val derivationType = BipDerivationType.getDerivationTypeByAddress(address)
-        if (!availableAddressTypes.contains(address.type)) {
+        val btcvAddress = toBtcvAddress(address)
+        val derivationType = BipDerivationType.getDerivationTypeByAddress(btcvAddress)
+        if (!availableAddressTypes.contains(btcvAddress.type)) {
             return null
         }
-        val indexLookUp = getIndexLookup(toBtcvAddress(address), derivationType)
+        val indexLookUp = getIndexLookup(btcvAddress, derivationType)
                 ?: return null
         return keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
     }

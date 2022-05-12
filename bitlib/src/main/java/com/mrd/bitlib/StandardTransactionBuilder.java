@@ -395,7 +395,7 @@ public class StandardTransactionBuilder {
                     .setArrayOfOutputs(_outputs)
                     .setMinerFeePerKb(feeSatPerKb);
             if (needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)) {
-               estimatorBuilder.addOutput(BitcoinAddress.getNullAddress(_network, changeType).getType());
+               estimatorBuilder.addOutput(changeType);
             }
             feeSat = estimatorBuilder.createFeeEstimator().estimateFee();
          }

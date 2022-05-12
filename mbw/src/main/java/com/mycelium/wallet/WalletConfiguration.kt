@@ -433,6 +433,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val ONION_DOMAIN = ".onion"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
-        const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
+        const val AMAZON_S3_STORAGE_ADDRESS = "https://wallet-config.mycelium.com"
     }
 }

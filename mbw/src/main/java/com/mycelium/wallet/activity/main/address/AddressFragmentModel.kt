@@ -62,8 +62,7 @@ class AddressFragmentModel(
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
-        val acc = account
-        isCompressedKey = !(acc is SingleAddressAccount && !acc.getPublicKey().isCompressed)
+        isCompressedKey = (account as? SingleAddressAccount)?.getPublicKey()?.isCompressed != false
         // Deprecated but not resolvable until we stop supporting API <24
         accountLabel.value = Html.fromHtml(when (account) {
             is Bip44BCHAccount,
@@ -71,7 +70,7 @@ class AddressFragmentModel(
                 context.getString(R.string.bitcoin_cash) + " - " + label
             else -> label
         })
-        isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR, SyncStatus.ERROR_INTERNET_CONNECTION)
+        isSyncError.value = account.lastSyncStatus()?.status in arrayOf(SyncStatus.ERROR)
     }
 
     private fun updateAddress(account: WalletAccount<*>) {
