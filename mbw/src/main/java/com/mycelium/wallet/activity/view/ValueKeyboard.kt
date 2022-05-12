@@ -5,19 +5,18 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
-import androidx.gridlayout.widget.GridLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import java.math.BigDecimal
 
-class ValueKeyboard : GridLayout {
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+class ValueKeyboard : ConstraintLayout {
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     var inputListener: InputListener? = null
-    var errorMinListener: ((BigDecimal) -> Unit)? = null
-    var errorMaxListener: ((BigDecimal) -> Unit)? = null
+    var errorListener: ErrorListener? = null
 
     var inputTextView: TextView? = null
     var maxDecimals = 0
@@ -56,14 +55,16 @@ class ValueKeyboard : GridLayout {
             try {
                 if (maxValue != null && maxValue!! < entry.toBigDecimal()) {
                     textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                    errorMaxListener?.invoke(maxValue!!)
+                    errorListener?.maxError(maxValue!!)
                 } else if (minValue != null && minValue!! > entry.toBigDecimal()) {
                     textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                    errorMinListener?.invoke(minValue!!)
+                    errorListener?.minError(minValue!!)
                 } else {
                     textView.setTextColor(resources.getColor(R.color.white))
+                    errorListener?.noError()
                 }
             } catch (e: NumberFormatException) {
+                errorListener?.formatError()
             }
         }
     }
@@ -140,6 +141,13 @@ class ValueKeyboard : GridLayout {
         fun max()
         fun backspace()
         fun done()
+    }
+
+    interface ErrorListener {
+        fun maxError(maxValue:BigDecimal)
+        fun minError(minValue:BigDecimal)
+        fun formatError()
+        fun noError()
     }
 
 

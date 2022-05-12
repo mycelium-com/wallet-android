@@ -45,6 +45,7 @@ import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
@@ -136,9 +137,11 @@ class ExchangeFragment : Fragment() {
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_BUY)
         }
         binding?.sellLayout?.coinValue?.doAfterTextChanged {
+            if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.sellLayout?.coinValue) {
+                viewModel.errorTransaction.value = ""
+            }
             viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.sellLayout?.coinValue) {
-                viewModel.error.value = ""
                 try {
                     val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toBigDecimal()!!
                     binding?.buyLayout?.coinValue?.text =
@@ -153,9 +156,11 @@ class ExchangeFragment : Fragment() {
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
         binding?.buyLayout?.coinValue?.doAfterTextChanged {
+            if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
+                viewModel.errorTransaction.value = ""
+            }
             viewModel.buyValue.value = binding?.buyLayout?.coinValue?.text?.toString()
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
-                viewModel.error.value = ""
                 try {
                     val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toBigDecimal()
                     binding?.sellLayout?.coinValue?.text =
@@ -184,11 +189,22 @@ class ExchangeFragment : Fragment() {
                     binding?.buyLayout?.coinValue?.stopCursor()
                 }
             }
-            errorMaxListener = {
-                viewModel.error.value = "The amount is more than the exchange maximum of ${viewModel.exchangeInfo.value?.maxFrom} ${viewModel.exchangeInfo.value?.from}"
-            }
-            errorMinListener = {
-                viewModel.error.value = "The amount is lower than the exchange minimum of ${viewModel.exchangeInfo.value?.minFrom} ${viewModel.exchangeInfo.value?.from}"
+            errorListener = object : ValueKeyboard.ErrorListener {
+                override fun maxError(maxValue: BigDecimal) {
+                    viewModel.errorKeyboard.value = "The amount is more than the exchange maximum of ${viewModel.exchangeInfo.value?.maxFrom} ${viewModel.exchangeInfo.value?.from}"
+                }
+
+                override fun minError(minValue: BigDecimal) {
+                    viewModel.errorKeyboard.value = "The amount is lower than the exchange minimum of ${viewModel.exchangeInfo.value?.minFrom} ${viewModel.exchangeInfo.value?.from}"
+                }
+
+                override fun formatError() {
+                    viewModel.errorKeyboard.value = ""
+                }
+
+                override fun noError() {
+                    viewModel.errorKeyboard.value = ""
+                }
             }
             setMaxText(getString(R.string.max), 14f)
             setPasteVisibility(View.GONE)

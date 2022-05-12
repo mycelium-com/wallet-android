@@ -28,7 +28,24 @@ class ExchangeViewModel : ViewModel() {
     val exchangeInfo = MutableLiveData<FixRate>()
     val sellValue = MutableLiveData<String>()
     val buyValue = MutableLiveData<String>()
-    val error = MutableLiveData("")
+    val errorKeyboard = MutableLiveData("")
+    val errorTransaction = MutableLiveData("")
+
+    val error = MediatorLiveData<String>().apply {
+        value = ""
+        fun error() =
+                when {
+                    errorKeyboard.value?.isNotEmpty() == true -> errorKeyboard.value
+                    errorTransaction.value?.isNotEmpty() == true -> errorTransaction.value
+                    else -> ""
+                }
+        addSource(errorKeyboard) {
+            value = error()
+        }
+        addSource(errorTransaction) {
+            value = error()
+        }
+    }
 
     val feeEstimation = Transformations.map(fromAccount) {
         mbwManager.getFeeProvider(it.basedOnCoinType).estimation
@@ -121,17 +138,19 @@ class ExchangeViewModel : ViewModel() {
                     value,
                     FeePerKbFee(feeEstimation.value!!.normal),
                     null
-            )
+            ).apply {
+                errorTransaction.value = ""
+            }
         } catch (e: OutputTooSmallException) {
-            error.value = res.getString(R.string.amount_too_small_short,
+            errorTransaction.value = res.getString(R.string.amount_too_small_short,
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
         } catch (e: InsufficientFundsException) {
-            error.value = res.getString(R.string.insufficient_funds)
+            errorTransaction.value = res.getString(R.string.insufficient_funds)
         } catch (e: BuildTransactionException) {
             mbwManager.reportIgnoredException("MinerFeeException", e)
-            error.value = res.getString(R.string.tx_build_error)
+            errorTransaction.value = res.getString(R.string.tx_build_error)
         } catch (e: Exception) {
-            error.value = res.getString(R.string.tx_build_error)
+            errorTransaction.value = res.getString(R.string.tx_build_error)
         }
         return null
     }
