@@ -190,39 +190,6 @@
         app:layout_constraintStart_toStartOf="@id/btn_6"
         app:layout_constraintTop_toTopOf="@id/btn_7" />
 
-    <TextView
-        android:id="@+id/btn_dot"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:padding="4dp"
-        android:text="@string/dot"
-        android:textColor="@color/white"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/btn_7"
-        app:layout_constraintStart_toStartOf="@id/btn_7"
-        app:layout_constraintTop_toBottomOf="@id/btn_7" />
-
-
-    <TextView
-        android:id="@+id/btn_0"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:padding="4dp"
-        android:text="@string/zero"
-        android:textColor="@color/white"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="@id/btn_dot"
-        app:layout_constraintEnd_toEndOf="@id/btn_8"
-        app:layout_constraintStart_toStartOf="@id/btn_8"
-        app:layout_constraintTop_toTopOf="@id/btn_dot" />
-
     <ImageView
         android:id="@+id/btn_backspace"
         android:layout_width="0dp"
@@ -230,12 +197,45 @@
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
         android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="@id/btn_9"
+        app:layout_constraintEnd_toEndOf="@id/btn_max"
+        app:layout_constraintStart_toStartOf="@id/btn_max"
+        app:layout_constraintTop_toTopOf="@id/btn_9"
+        app:srcCompat="@drawable/ic_backspace"
+        app:tint="@color/white" />
+
+    <TextView
+        android:id="@+id/btn_0"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/zero"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/btn_8"
+        app:layout_constraintStart_toStartOf="@id/btn_8"
+        app:layout_constraintTop_toBottomOf="@id/btn_8" />
+
+    <TextView
+        android:id="@+id/btn_dot"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/dot"
+        android:textColor="@color/white"
+        android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="@id/btn_0"
         app:layout_constraintEnd_toEndOf="@id/btn_9"
         app:layout_constraintStart_toStartOf="@id/btn_9"
-        app:layout_constraintTop_toTopOf="@id/btn_0"
-        app:srcCompat="@drawable/ic_backspace"
-        app:tint="@color/white" />
+        app:layout_constraintTop_toTopOf="@id/btn_0" />
+
 
     <ImageView
         android:id="@+id/btn_done"
@@ -244,10 +244,10 @@
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
         android:scaleType="center"
-        app:layout_constraintBottom_toBottomOf="@id/btn_backspace"
+        app:layout_constraintBottom_toBottomOf="@id/btn_dot"
         app:layout_constraintEnd_toEndOf="@id/btn_max"
         app:layout_constraintStart_toStartOf="@id/btn_max"
-        app:layout_constraintTop_toTopOf="@id/btn_backspace"
+        app:layout_constraintTop_toTopOf="@id/btn_dot"
         app:srcCompat="@drawable/ic_bequant_yellow_check_mark"
         app:tint="@color/white" />
 

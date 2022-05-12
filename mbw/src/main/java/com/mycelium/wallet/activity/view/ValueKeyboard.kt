@@ -119,8 +119,8 @@ class ValueKeyboard : ConstraintLayout {
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
-    fun setPasteVisibility(visibility: Int) {
-        findViewById<View>(R.id.btn_copy).visibility = visibility
+    fun setPasteVisibility(visible: Boolean) {
+        findViewById<View>(R.id.btn_copy).visibility = if (visible) View.VISIBLE else View.INVISIBLE
     }
 
     fun done() {
@@ -144,8 +144,8 @@ class ValueKeyboard : ConstraintLayout {
     }
 
     interface ErrorListener {
-        fun maxError(maxValue:BigDecimal)
-        fun minError(minValue:BigDecimal)
+        fun maxError(maxValue: BigDecimal)
+        fun minError(minValue: BigDecimal)
         fun formatError()
         fun noError()
     }

@@ -203,7 +203,7 @@ public class ExchangeFragment extends Fragment {
             }
         });
         valueKeyboard.setMaxText(getString(R.string.use_all_funds), 14);
-        valueKeyboard.setPasteVisibility(View.GONE);
+        valueKeyboard.setPasteVisibility(false);
 
         valueKeyboard.setVisibility(View.GONE);
         buttonContinue.setEnabled(false);

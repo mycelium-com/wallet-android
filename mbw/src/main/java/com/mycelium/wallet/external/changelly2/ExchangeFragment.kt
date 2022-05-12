@@ -207,7 +207,7 @@ class ExchangeFragment : Fragment() {
                 }
             }
             setMaxText(getString(R.string.max), 14f)
-            setPasteVisibility(View.GONE)
+            setPasteVisibility(false)
             visibility = View.GONE
         }
         binding?.exchangeButton?.setOnClickListener {
