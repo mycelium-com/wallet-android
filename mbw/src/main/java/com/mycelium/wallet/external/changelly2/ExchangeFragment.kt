@@ -156,8 +156,8 @@ class ExchangeFragment : Fragment() {
                 try {
                     val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toBigDecimal()
                     viewModel.sellValue.value =
-                            amount?.div(viewModel.exchangeInfo.value?.result!!)
-                                    ?.setScale(viewModel.fromCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                            amount?.setScale(viewModel.fromCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                                    ?.div(viewModel.exchangeInfo.value?.result!!)
                                     ?.stripTrailingZeros()
                                     ?.toPlainString() ?: "N/A"
                 } catch (e: NumberFormatException) {
