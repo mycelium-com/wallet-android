@@ -27,7 +27,7 @@ class ValueKeyboard : ConstraintLayout {
     var maxDecimals = 0
         set(v) {
             field = v
-            value.setEntry(value.entryAsBigDecimal, maxDecimals)
+            value.setEntry(value.entryAsBigDecimal, v)
             updateDotBtn()
         }
 
