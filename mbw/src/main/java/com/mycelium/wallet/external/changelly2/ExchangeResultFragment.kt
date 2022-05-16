@@ -52,7 +52,7 @@ class ExchangeResultFragment : DialogFragment() {
         }?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_TX)))?.let { tx ->
             updateTx(tx)
         } ?: let {
-            binding?.txDetails?.root?.visibility = View.GONE
+            binding?.txDetailsLayout?.visibility = View.GONE
             binding?.more?.visibility = View.GONE
         }
     }
@@ -61,7 +61,18 @@ class ExchangeResultFragment : DialogFragment() {
         Changelly2Repository.getTransaction(lifecycleScope, txId!!,
                 { response ->
                     response?.result?.first()?.let { result ->
-                        binding?.toolbar?.title = result.status
+                        binding?.toolbar?.title = when (result.status) {
+                            "waiting" -> "Exchange in progress"
+                            "confirming" -> "Exchange in progress"
+                            "exchanging" -> "Exchange in progress"
+                            "sending" -> "Exchange in progress"
+                            "finished" -> "Exchange completed"
+                            "failed" -> "Exchange failed"
+                            "refunded" -> "Exchange failed"
+                            "hold" -> "Hold"
+                            "expired" -> "Exchange expired"
+                            else -> "Unknown tx status"
+                        }
                         viewModel.setTransaction(result)
                     } ?: let {
                         AlertDialog.Builder(requireContext())
@@ -95,8 +106,7 @@ class ExchangeResultFragment : DialogFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.refresh -> {
-                    val txId = arguments?.getString(KEY_TX_ID)
-                    update(txId)
+                    update(arguments?.getString(KEY_TX_ID))
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
