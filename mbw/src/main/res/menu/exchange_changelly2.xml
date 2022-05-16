@@ -2,5 +2,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/history"
-        android:title="history" />
+        android:title="History" />
 </menu>
