@@ -15,6 +15,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/MyceliumFIOMapping.ActionBar"
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:title="Exchange history" />
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/startGuidline"
             android:layout_width="wrap_content"
@@ -39,7 +47,7 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
         <TextView
             android:id="@+id/sendAmount"
@@ -47,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="@{vm.spendValue}"
+            android:textColor="@color/white"
             android:textSize="24sp"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toBottomOf="@id/sendLabel"
@@ -57,11 +66,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="~ 55 USD"
+            android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/sendAmount"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
-            app:layout_constraintStart_toEndOf="@id/sendAmount" />
+            app:layout_constraintStart_toEndOf="@id/sendAmount"
+            tools:text="~ 55 USD" />
 
         <TextView
             android:id="@+id/getLabel"
@@ -92,12 +102,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="~ 55 USD"
             android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/getAmount"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
-            app:layout_constraintStart_toEndOf="@id/getAmount" />
+            app:layout_constraintStart_toEndOf="@id/getAmount"
+            tools:text="~ 55 USD" />
 
         <TextView
             android:id="@+id/exchangeIdLabel"
@@ -161,11 +171,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="bc1q7...huhsa (Account 1)"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/fromLabel"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
-            app:layout_constraintStart_toEndOf="@id/fromLabel" />
+            app:layout_constraintStart_toEndOf="@id/fromLabel"
+            tools:text="bc1q7...huhsa (Account 1)" />
 
         <TextView
             android:id="@+id/toLabel"
@@ -183,11 +193,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="bc1q7...huhsa (Account 1)"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/toLabel"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
-            app:layout_constraintStart_toEndOf="@id/toLabel" />
+            app:layout_constraintStart_toEndOf="@id/toLabel"
+            tools:text="bc1q7...huhsa (Account 1)" />
 
 
         <TextView
@@ -221,7 +231,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"
-            android:text="OK"
+            android:text="@string/ok"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toStartOf="@id/startGuidline" />

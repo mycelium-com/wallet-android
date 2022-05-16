@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -136,45 +136,45 @@ class ExchangeFragment : Fragment() {
                 }
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_BUY)
         }
-        binding?.sellLayout?.coinValue?.doAfterTextChanged {
-            viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
-            if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.sellLayout?.coinValue) {
+        viewModel.sellValue.observe(viewLifecycleOwner) {
+            if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
                 try {
                     val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toBigDecimal()!!
-                    binding?.buyLayout?.coinValue?.text =
+                    viewModel.buyValue.value =
                             (amount * viewModel.exchangeInfo.value?.result!!)
                                     .setScale(viewModel.toCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
                                     .stripTrailingZeros()
                                     .toPlainString()
                 } catch (e: NumberFormatException) {
-                    binding?.buyLayout?.coinValue?.text = "N/A"
+                    viewModel.buyValue.value = "N/A"
                 }
             }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
-        binding?.buyLayout?.coinValue?.doAfterTextChanged {
-            viewModel.buyValue.value = binding?.buyLayout?.coinValue?.text?.toString()
+        viewModel.buyValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
                 try {
                     val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toBigDecimal()
-                    binding?.sellLayout?.coinValue?.text =
+                    viewModel.sellValue.value =
                             amount?.div(viewModel.exchangeInfo.value?.result!!)
                                     ?.setScale(viewModel.fromCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
                                     ?.stripTrailingZeros()
                                     ?.toPlainString() ?: "N/A"
                 } catch (e: NumberFormatException) {
-                    binding?.sellLayout?.coinValue?.text = "N/A"
+                    viewModel.sellValue.value = "N/A"
                 }
             }
             binding?.buyLayout?.coinValue?.resizeTextView()
         }
         binding?.swapAccount?.setOnClickListener {
             binding?.layoutValueKeyboard?.numericKeyboard?.done()
-            val newFrom = viewModel.fromAccount.value
-            val newTo = viewModel.toAccount.value
-            viewModel.fromAccount.value = newTo
-            viewModel.toAccount.value = newFrom
-            binding?.sellLayout?.coinValue?.text = viewModel.buyValue.value
+            val oldFrom = viewModel.fromAccount.value
+            val oldTo = viewModel.toAccount.value
+            val oldBuy = viewModel.buyValue.value
+            viewModel.toAccount.value = null
+            viewModel.fromAccount.value = oldTo
+            viewModel.toAccount.value = oldFrom
+            viewModel.sellValue.value = oldBuy
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {
@@ -227,11 +227,17 @@ class ExchangeFragment : Fragment() {
                                     .setNegativeButton(R.string.cancel, null)
                                     .show()
                         } else {
-                            viewModel.error.value = result?.error?.message
+                            AlertDialog.Builder(requireContext())
+                                    .setMessage(result?.error?.message)
+                                    .setPositiveButton(R.string.button_ok, null)
+                                    .show()
                         }
                     },
                     { _, msg ->
-                        viewModel.error.value = msg
+                        AlertDialog.Builder(requireContext())
+                                .setMessage(msg)
+                                .setPositiveButton(R.string.button_ok, null)
+                                .show()
                     },
                     {
                         loader(false)
@@ -293,7 +299,11 @@ class ExchangeFragment : Fragment() {
                     val broadcastResult = account.broadcastTx(createTx)
                     if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
                         val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
-                        pref.edit().putStringSet(KEY_HISTORY, history + txId).apply()
+                        pref.edit()
+                                .putStringSet(KEY_HISTORY, history + txId)
+                                .putString("tx_id_${txId}", HexUtils.toHex(createTx.id))
+                                .putString("account_id_${account.id}", HexUtils.toHex(createTx.id))
+                                .apply()
                     }
                     launch(Dispatchers.Main) {
                         loader(false)
@@ -301,6 +311,8 @@ class ExchangeFragment : Fragment() {
                             ExchangeResultFragment().apply {
                                 arguments = Bundle().apply {
                                     putString(ExchangeResultFragment.KEY_TX_ID, txId)
+                                    putString(ExchangeResultFragment.KEY_TX, HexUtils.toHex(createTx.id))
+                                    putSerializable(ExchangeResultFragment.KEY_ACCOUNT_ID, account.id)
                                 }
                             }.show(parentFragmentManager, "exchange_result")
                         } else {
@@ -325,9 +337,9 @@ class ExchangeFragment : Fragment() {
                                         ?.stripTrailingZeros()
                                         ?.toPlainString()
                             }
-                            viewModel.error.value = ""
+                            viewModel.errorRemote.value = ""
                         } else {
-                            viewModel.error.value = result?.error?.message ?: ""
+                            viewModel.errorRemote.value = result?.error?.message ?: ""
                         }
                     },
                     { _, _ ->

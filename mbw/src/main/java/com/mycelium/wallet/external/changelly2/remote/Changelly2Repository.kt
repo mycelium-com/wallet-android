@@ -66,7 +66,7 @@ object Changelly2Repository {
 
     fun getTransaction(scope: CoroutineScope,
                        id: String,
-                       success: (ChangellyResponse<ChangellyTransaction>?) -> Unit,
+                       success: (ChangellyResponse<List<ChangellyTransaction>>?) -> Unit,
                        error: (Int, String) -> Unit,
                        finally: (() -> Unit)? = null) {
         doRequest(scope, {

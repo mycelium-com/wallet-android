@@ -57,6 +57,7 @@
             bind:balanceFiat="@{vm.fromFiatBalance}"
             bind:chain="@{vm.fromChain}"
             bind:coinType="@{vm.fromCurrency}"
+            bind:value="@={vm.sellValue}"
             bind:fiatValue="@{vm.fiatSellValue}"
             bind:label="@{@string/bequant_you_send}" />
 
@@ -112,6 +113,7 @@
             bind:balance="@{vm.toBalance}"
             bind:balanceFiat="@{vm.toFiatBalance}"
             bind:chain="@{vm.toChain}"
+            bind:value="@={vm.buyValue}"
             bind:coinType="@{vm.toCurrency}"
             bind:fiatValue="@{vm.fiatBuyValue}"
             bind:label="@{@string/bequant_you_get}" />

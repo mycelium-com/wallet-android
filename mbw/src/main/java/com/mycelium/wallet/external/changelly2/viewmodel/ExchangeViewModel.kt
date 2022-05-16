@@ -32,6 +32,7 @@ class ExchangeViewModel : ViewModel() {
     val buyValue = MutableLiveData<String>()
     val errorKeyboard = MutableLiveData("")
     val errorTransaction = MutableLiveData("")
+    val errorRemote = MutableLiveData("")
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
@@ -47,6 +48,7 @@ class ExchangeViewModel : ViewModel() {
                 when {
                     errorKeyboard.value?.isNotEmpty() == true -> errorKeyboard.value
                     errorTransaction.value?.isNotEmpty() == true -> errorTransaction.value
+                    errorRemote.value?.isNotEmpty() == true -> errorRemote.value
                     else -> ""
                 }
         addSource(errorKeyboard) {

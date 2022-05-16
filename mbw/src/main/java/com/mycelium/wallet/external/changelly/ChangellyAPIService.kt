@@ -70,7 +70,7 @@ interface ChangellyAPIService {
 
     @POST("getTransactions")
     suspend fun getTransaction(@Query("id") id: String,
-                               @Query("limit") limit: Int = 1): Response<ChangellyResponse<ChangellyTransaction>>
+                               @Query("limit") limit: Int = 1): Response<ChangellyResponse<List<ChangellyTransaction>>>
 
 
     companion object {

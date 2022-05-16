@@ -9,7 +9,9 @@ import com.mycelium.wallet.databinding.ItemChangelly2HistoryBinding
 
 
 class TxHistoryAdapter : ListAdapter<String, RecyclerView.ViewHolder>(DiffCallback()) {
+
     var clickListener: ((String) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             ViewHolder(ItemChangelly2HistoryBinding.inflate(LayoutInflater.from(parent.context)))
 
