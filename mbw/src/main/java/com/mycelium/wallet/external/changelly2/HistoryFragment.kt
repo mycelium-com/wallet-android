@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.fragment.app.DialogFragment
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentChangelly2HistoryBinding
 import com.mycelium.wallet.external.adapter.TxHistoryAdapter
 
@@ -39,6 +41,7 @@ class HistoryFragment : DialogFragment() {
                 }
             }.show(parentFragmentManager, "")
         }
+        binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), LinearLayout.VERTICAL))
         binding?.list?.adapter = adapter
         adapter.submitList((pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList())
     }

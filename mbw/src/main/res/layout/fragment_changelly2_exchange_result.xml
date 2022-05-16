@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="vm"
             type="com.mycelium.wallet.external.changelly2.viewmodel.ExchangeResultViewModel" />
@@ -20,6 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/MyceliumFIOMapping.ActionBar"
+            app:layout_constraintTop_toTopOf="parent"
             app:navigationIcon="@drawable/ic_back_arrow"
             app:title="Exchange history" />
 
@@ -66,6 +69,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:text="@{vm.spendValueFiat}"
             android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/sendAmount"
@@ -102,6 +106,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:text="@{vm.getValueFiat}"
             android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/getAmount"
@@ -193,7 +198,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:text="@{vm.toAddress}"
             android:textSize="14sp"
+            android:visibility="@{vm.toAddress.isEmpty() ? View.GONE : View.VISIBLE }"
             app:layout_constraintBaseline_toBaselineOf="@id/toLabel"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toEndOf="@id/toLabel"
