@@ -96,13 +96,13 @@ class ExchangeFragment : Fragment() {
             binding?.buyLayout?.coinValue?.stopCursor()
             binding?.sellLayout?.coinValue?.startCursor()
             binding?.layoutValueKeyboard?.numericKeyboard?.run {
-                maxDecimals = viewModel.fromCurrency.value?.unitExponent ?: 0
                 inputTextView = binding?.sellLayout?.coinValue
-                visibility = View.VISIBLE
                 maxValue = viewModel.exchangeInfo.value?.maxFrom
                 minValue = viewModel.exchangeInfo.value?.minFrom
                 spendableValue = viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
                 setEntry(viewModel.sellValue.value ?: "")
+                maxDecimals = viewModel.fromCurrency.value?.unitExponent ?: 0
+                visibility = View.VISIBLE
             }
         }
         binding?.sellLayout?.coinSymbol?.setOnClickListener {
@@ -116,13 +116,13 @@ class ExchangeFragment : Fragment() {
             binding?.sellLayout?.coinValue?.stopCursor()
             binding?.buyLayout?.coinValue?.startCursor()
             binding?.layoutValueKeyboard?.numericKeyboard?.run {
-                maxDecimals = viewModel.toCurrency.value?.unitExponent ?: 0
                 inputTextView = binding?.buyLayout?.coinValue
-                visibility = View.VISIBLE
                 maxValue = viewModel.exchangeInfo.value?.maxTo
                 minValue = viewModel.exchangeInfo.value?.minTo
                 spendableValue = viewModel.toAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
                 setEntry(viewModel.buyValue.value ?: "")
+                maxDecimals = viewModel.toCurrency.value?.unitExponent ?: 0
+                visibility = View.VISIBLE
             }
         }
         binding?.buyLayout?.coinSymbol?.setOnClickListener {
