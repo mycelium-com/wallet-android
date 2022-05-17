@@ -51,15 +51,6 @@ class ExchangeResultFragment : DialogFragment() {
         }
         update(arguments?.getString(KEY_CHANGELLY_TX_ID))
         val walletManager = viewModel.mbwManager.getWalletManager(false)
-        (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let {
-            walletManager.getAccount(it)
-                    ?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_CHAIN_TX)))?.let { tx ->
-                        updateTx(tx)
-                    }
-        } ?: let {
-            binding?.txDetailsLayout?.visibility = View.GONE
-            binding?.more?.visibility = View.GONE
-        }
         binding?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
         }
@@ -129,6 +120,19 @@ class ExchangeResultFragment : DialogFragment() {
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let {
+            viewModel.mbwManager.getWalletManager(false).getAccount(it)
+                    ?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_CHAIN_TX)))?.let { tx ->
+                        updateTx(tx)
+                    }
+        } ?: let {
+            binding?.txDetailsLayout?.visibility = View.GONE
+            binding?.more?.visibility = View.GONE
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
