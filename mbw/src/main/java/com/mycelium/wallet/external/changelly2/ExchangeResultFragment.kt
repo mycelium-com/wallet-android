@@ -49,10 +49,9 @@ class ExchangeResultFragment : DialogFragment() {
         binding?.trackLink?.setOnClickListener {
             openLink(viewModel.trackLink.value)
         }
-        val txId = arguments?.getString(KEY_TX_ID)
-        update(txId)
+        update(arguments?.getString(KEY_CHANGELLY_TX_ID))
         val walletManager = viewModel.mbwManager.getWalletManager(false)
-        (arguments?.getSerializable(KEY_ACCOUNT_TO_ID) as UUID?)?.let {
+        (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let {
             walletManager.getAccount(it)
                     ?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_CHAIN_TX)))?.let { tx ->
                         updateTx(tx)
@@ -135,7 +134,7 @@ class ExchangeResultFragment : DialogFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.refresh -> {
-                    update(arguments?.getString(KEY_TX_ID))
+                    update(arguments?.getString(KEY_CHANGELLY_TX_ID))
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
@@ -180,7 +179,7 @@ class ExchangeResultFragment : DialogFragment() {
     }
 
     companion object {
-        const val KEY_TX_ID = "tx_id"
+        const val KEY_CHANGELLY_TX_ID = "tx_id"
         const val KEY_CHAIN_TX = "chain_tx"
         const val KEY_ACCOUNT_TO_ID = "account_to_id"
         const val KEY_ACCOUNT_FROM_ID = "account_from_id"

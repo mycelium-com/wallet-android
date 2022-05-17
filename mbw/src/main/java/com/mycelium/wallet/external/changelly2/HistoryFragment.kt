@@ -38,7 +38,7 @@ class HistoryFragment : DialogFragment() {
         adapter.clickListener = {
             ExchangeResultFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ExchangeResultFragment.KEY_TX_ID, it)
+                    putString(ExchangeResultFragment.KEY_CHANGELLY_TX_ID, it)
                     putString(ExchangeResultFragment.KEY_CHAIN_TX, pref.getString("tx_id_${it}", null))
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_FROM_ID,
                             pref.getString("account_from_id_${it}", null)?.let { UUID.fromString(it) })

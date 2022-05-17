@@ -369,7 +369,7 @@ class ExchangeFragment : Fragment() {
 
             ExchangeResultFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ExchangeResultFragment.KEY_TX_ID, txId)
+                    putString(ExchangeResultFragment.KEY_CHANGELLY_TX_ID, txId)
                     putString(ExchangeResultFragment.KEY_CHAIN_TX, createTx)
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_FROM_ID, fromAccountId)
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID, toAccountId)
