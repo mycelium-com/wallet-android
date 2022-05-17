@@ -11,12 +11,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
-import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.send.BroadcastDialog
-import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.util.resizeTextView
 import com.mycelium.wallet.activity.util.startCursor
 import com.mycelium.wallet.activity.util.stopCursor
@@ -24,16 +20,11 @@ import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
-import com.mycelium.wallet.event.ExchangeRatesRefreshed
-import com.mycelium.wallet.event.ExchangeSourceChanged
-import com.mycelium.wallet.event.SelectedAccountChanged
-import com.mycelium.wallet.event.SelectedCurrencyChanged
+import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
-import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AesKeyCipher
-import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -52,7 +43,7 @@ import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
 
-class ExchangeFragment : Fragment(), BroadcastResultListener {
+class ExchangeFragment : Fragment() {
 
     var binding: FragmentChangelly2ExchangeBinding? = null
     val viewModel: ExchangeViewModel by activityViewModels()
@@ -220,7 +211,12 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
                                             "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
                                             "Miners fee: ${feeEstimation.normal.toStringFriendlyWithUnit()}")
                                     .setPositiveButton(R.string.button_ok) { _, _ ->
-                                        sendTx(result.result!!.id!!, result.result!!.payinAddress!!, result.result!!.amountExpectedFrom!!)
+                                        sendTx(result.result!!.id!!,
+                                                if (BuildConfig.FLAVOR == "btctestnet")
+                                                    viewModel.fromAddress.value!!
+                                                else
+                                                    result.result!!.payinAddress!!,
+                                                result.result!!.amountExpectedFrom!!)
                                     }
                                     .setNegativeButton(R.string.cancel, null)
                                     .show()
@@ -290,11 +286,12 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
                             null
                     )
                     account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                    loader(false)
-                    viewModel.changellyTx = txId
-                    viewModel.chainTx = createTx
-                    BroadcastDialog.create(account, false, createTx)
-                            .show(parentFragmentManager, "broadcast_tx")
+                    launch(Dispatchers.Main) {
+                        loader(false)
+                        viewModel.changellyTx = txId
+                        BroadcastDialog.create(account, false, createTx)
+                                .show(parentFragmentManager, "broadcast_tx")
+                    }
                 }
             }
         }
@@ -356,15 +353,16 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
         super.onDestroyView()
     }
 
-    override fun broadcastResult(broadcastResult: BroadcastResult) {
-        if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+    @Subscribe
+    fun broadcastResult(result: TransactionBroadcasted) {
+        if (result.result.resultType == BroadcastResultType.SUCCESS) {
             val fromAccountId = viewModel.fromAccount.value?.id
             val toAccountId = viewModel.toAccount.value?.id
             val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
             val txId = viewModel.changellyTx
-            val createTx = viewModel.chainTx
+            val createTx = result.txid
             pref.edit().putStringSet(KEY_HISTORY, history + txId)
-                    .putString("tx_id_${txId}", HexUtils.toHex(createTx?.id))
+                    .putString("tx_id_${txId}", createTx)
                     .putString("account_from_id_${txId}", fromAccountId?.toString())
                     .putString("account_to_id_${txId}", toAccountId?.toString())
                     .apply()
@@ -372,7 +370,7 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
             ExchangeResultFragment().apply {
                 arguments = Bundle().apply {
                     putString(ExchangeResultFragment.KEY_TX_ID, txId)
-                    putString(ExchangeResultFragment.KEY_CHAIN_TX, HexUtils.toHex(createTx?.id))
+                    putString(ExchangeResultFragment.KEY_CHAIN_TX, createTx)
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_FROM_ID, fromAccountId)
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID, toAccountId)
                 }
@@ -398,8 +396,9 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
         viewModel.fromAccount.value = viewModel.fromAccount.value
         viewModel.toAccount.value = viewModel.toAccount.value
     }
+
     @Subscribe
-    fun onSelectedCurrencyChange(event: SelectedCurrencyChanged){
+    fun onSelectedCurrencyChange(event: SelectedCurrencyChanged) {
         viewModel.fromAccount.value = viewModel.fromAccount.value
         viewModel.toAccount.value = viewModel.toAccount.value
     }

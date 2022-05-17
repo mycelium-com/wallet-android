@@ -177,6 +177,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:text="@{vm.fromAddress}"
             android:textSize="14sp"
             android:visibility="@{vm.fromAddress.isEmpty() ? View.GONE : View.VISIBLE }"
             app:layout_constraintBaseline_toBaselineOf="@id/fromLabel"
@@ -250,6 +251,7 @@
 
         <Button
             android:id="@+id/buttonOk"
+            style="@style/MyceliumButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"

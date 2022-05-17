@@ -1,9 +1,6 @@
 package com.mycelium.wallet.external.changelly2
 
 import android.app.AlertDialog
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.forEach
@@ -12,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeResultBinding
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
@@ -58,13 +54,19 @@ class ExchangeResultFragment : DialogFragment() {
         val walletManager = viewModel.mbwManager.getWalletManager(false)
         (arguments?.getSerializable(KEY_ACCOUNT_TO_ID) as UUID?)?.let {
             walletManager.getAccount(it)
-        }?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_CHAIN_TX)))?.let { tx ->
-            updateTx(tx)
+                    ?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_CHAIN_TX)))?.let { tx ->
+                        updateTx(tx)
+                    }
         } ?: let {
             binding?.txDetailsLayout?.visibility = View.GONE
             binding?.more?.visibility = View.GONE
         }
         viewModel.fromAddress.value = (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let {
+            walletManager.getAccount(it)
+        }?.let {
+            "${AddressUtils.toShortString(it.receiveAddress.toString())} ${it.label}"
+        } ?: ""
+        viewModel.toAddress.value = (arguments?.getSerializable(KEY_ACCOUNT_TO_ID) as UUID?)?.let {
             walletManager.getAccount(it)
         }?.let {
             "${AddressUtils.toShortString(it.receiveAddress.toString())} ${it.label}"
