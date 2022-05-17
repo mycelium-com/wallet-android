@@ -93,5 +93,9 @@ fun TextView.stopCursor() {
 }
 
 fun TextView.resizeTextView() {
-    setTextSize(TypedValue.COMPLEX_UNIT_SP, if (text.toString().length < 11) 36f else 22f)
+    setTextSize(TypedValue.COMPLEX_UNIT_SP, when (text.toString().length) {
+        in 0..11 -> 36f
+        in 12..16 -> 22f
+        else -> 18f
+    })
 }

@@ -109,17 +109,26 @@
             tools:text="Ethereum Network" />
 
         <TextView
+            android:id="@+id/baseline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="36sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/label" />
+
+        <TextView
             android:id="@+id/coinValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/white"
             android:textSize="24sp"
+            android:minHeight="24sp"
             android:text="@={value}"
             app:layout_constraintEnd_toStartOf="@id/coinIcon"
             app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBaseline_toBaselineOf="@id/baseline"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
-            app:layout_constraintTop_toBottomOf="@id/label"
             tools:text="0.2342345" />
 
         <ImageView
@@ -143,7 +152,7 @@
             android:textColor="@color/white"
             android:textSize="24sp"
             app:drawableEndCompat="@drawable/arrow_bottom"
-            app:layout_constraintBaseline_toBaselineOf="@id/coinValue"
+            app:layout_constraintBaseline_toBaselineOf="@id/baseline"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             tools:text="BTC" />
 
@@ -153,7 +162,7 @@
             android:layout_height="1dp"
             android:layout_marginTop="8dp"
             android:background="#28282A"
-            app:layout_constraintTop_toBottomOf="@id/coinValue" />
+            app:layout_constraintTop_toBottomOf="@id/baseline" />
 
         <View
             android:id="@+id/layoutAccount"
