@@ -93,6 +93,7 @@ class SelectAccountFragment : DialogFragment() {
         val account = viewModel.mbwManager.getWalletManager(false).getAccount(accountId)
         if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
             viewModel.fromAccount.value = account
+            viewModel.sellValue.value = ""
         } else {
             viewModel.toAccount.value = account
         }

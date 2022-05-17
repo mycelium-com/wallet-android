@@ -308,8 +308,8 @@ class ExchangeFragment : Fragment() {
                     { result ->
                         if (result?.result != null) {
                             viewModel.exchangeInfo.value = result.result
-                            if (binding?.sellLayout?.coinValue?.text?.isEmpty() != false) {
-                                binding?.sellLayout?.coinValue?.text = result.result?.minFrom
+                            if (viewModel.sellValue.value?.isEmpty() != false) {
+                                viewModel.sellValue.value = result.result?.minFrom
                                         ?.stripTrailingZeros()
                                         ?.toPlainString()
                             }
@@ -382,6 +382,7 @@ class ExchangeFragment : Fragment() {
     fun selectedAccountChanged(event: SelectedAccountChanged) {
         if (viewModel.mbwManager.selectedAccount.canSpend()) {
             viewModel.fromAccount.value = viewModel.mbwManager.selectedAccount
+            viewModel.sellValue.value = ""
         }
     }
 
