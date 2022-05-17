@@ -33,6 +33,7 @@ import com.mycelium.wallet.event.ExchangeSourceChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
+import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResult
@@ -263,11 +264,7 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
             updateExchangeRate()
         }
         binding?.policyTerms?.setOnClickListener {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_TERMS)))
-            } catch (e: ActivityNotFoundException) {
-                Toaster(this).toast("cant open $LINK_TERMS", true)
-            }
+            openLink(LINK_TERMS)
         }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(2)) {
             updateExchangeRate()

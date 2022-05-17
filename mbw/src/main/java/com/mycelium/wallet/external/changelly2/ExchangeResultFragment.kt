@@ -1,6 +1,9 @@
 package com.mycelium.wallet.external.changelly2
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.forEach
@@ -9,11 +12,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeResultBinding
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeResultViewModel
+import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.TransactionSummary
 import java.text.DateFormat
@@ -47,7 +51,7 @@ class ExchangeResultFragment : DialogFragment() {
             dismissAllowingStateLoss()
         }
         binding?.trackLink?.setOnClickListener {
-            Utils.openWebsite(requireContext(), viewModel.trackLink.value)
+            openLink(viewModel.trackLink.value)
         }
         val txId = arguments?.getString(KEY_TX_ID)
         update(txId)
@@ -109,6 +113,7 @@ class ExchangeResultFragment : DialogFragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        binding?.toolbar?.menu?.clear()
         inflater.inflate(R.menu.exchange_changelly2_result, binding?.toolbar?.menu)
         binding?.toolbar?.menu?.forEach {
             it.setOnMenuItemClickListener {
