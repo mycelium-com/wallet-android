@@ -1,9 +1,6 @@
 package com.mycelium.wallet.external.changelly2
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
@@ -18,7 +15,6 @@ import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.util.resizeTextView
@@ -48,6 +44,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -218,8 +215,8 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
                             val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
                             AlertDialog.Builder(requireContext())
                                     .setTitle("Exchange")
-                                    .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom}\n" +
-                                            "You get: ${result.result?.amountTo} ${result.result?.currencyTo}\n" +
+                                    .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
+                                            "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
                                             "Miners fee: ${feeEstimation.normal.toStringFriendlyWithUnit()}")
                                     .setPositiveButton(R.string.button_ok) { _, _ ->
                                         sendTx(result.result!!.id!!, result.result!!.payinAddress!!, result.result!!.amountExpectedFrom!!)
@@ -302,9 +299,12 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
         }
     }
 
+    private var rateJob: Job? = null
+
     private fun updateExchangeRate() {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
-            Changelly2Repository.fixRate(lifecycleScope,
+            rateJob?.cancel()
+            rateJob = Changelly2Repository.fixRate(lifecycleScope,
                     Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
                     { result ->

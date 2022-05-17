@@ -18,9 +18,9 @@ object Changelly2Repository {
     }
 
     fun supportCurrenciesFull(scope: CoroutineScope,
-                                 success: (ChangellyResponse<List<ChangellyCurrency>>?) -> Unit,
-                                 error: ((Int, String) -> Unit)? = null,
-                                 finally: (() -> Unit)? = null) {
+                              success: (ChangellyResponse<List<ChangellyCurrency>>?) -> Unit,
+                              error: ((Int, String) -> Unit)? = null,
+                              finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.currenciesFull()
         }, success, error, finally)
@@ -43,11 +43,10 @@ object Changelly2Repository {
                 to: String,
                 success: (ChangellyResponse<FixRate>?) -> Unit,
                 error: (Int, String) -> Unit,
-                finally: (() -> Unit)? = null) {
-        doRequest(scope, {
-            api.fixRate(from, to)
-        }, success, error, finally)
-    }
+                finally: (() -> Unit)? = null) =
+            doRequest(scope, {
+                api.fixRate(from, to)
+            }, success, error, finally)
 
     fun createFixTransaction(scope: CoroutineScope,
                              rateId: String,

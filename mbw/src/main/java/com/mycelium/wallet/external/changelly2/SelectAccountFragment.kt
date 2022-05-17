@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.mycelium.giftbox.GiftboxPreference
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.addaccount.ERC20CreationAsyncTask
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter
@@ -22,6 +23,7 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2SelectAccountBinding
 import com.mycelium.wallet.databinding.LayoutSelectEthAccountToErc20Binding
+import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.external.changelly2.adapter.AddAccountModel
 import com.mycelium.wallet.external.changelly2.adapter.GroupModel
 import com.mycelium.wallet.external.changelly2.adapter.SelectAccountAdapter
@@ -70,6 +72,15 @@ class SelectAccountFragment : DialogFragment() {
             if (addAccount is ERC20Token) {
                 showEthAccountsOptions(addAccount)
             }
+        }
+        adapter.groupClickListener = {
+            val title = it.getTitle(requireContext())
+            GiftboxPreference.setGroupOpen(title, !GiftboxPreference.isGroupOpen(title))
+            MbwManager.getEventBus().post(AccountListChanged())
+        }
+        adapter.groupModelClickListener = {
+            GiftboxPreference.setGroupOpen(it.title, !GiftboxPreference.isGroupOpen(it.title))
+            MbwManager.getEventBus().post(AccountListChanged())
         }
         listModel.accountsData.observe(viewLifecycleOwner) {
             generateAccountList(it)
@@ -124,6 +135,12 @@ class SelectAccountFragment : DialogFragment() {
                 group.isCollapsed = !GiftboxPreference.isGroupOpen(accountsGroup.getTitle(requireContext()))
                 accountsList.add(group)
                 if (!group.isCollapsed) {
+                    accounts.forEach { model ->
+                        viewModel.mbwManager.exchangeRateManager
+                                .get(model.balance?.spendable, viewModel.mbwManager.getFiatCurrency(model.coinType))?.let {
+                                    model.additional["fiat"] = it.toStringWithUnit()
+                                }
+                    }
                     accountsList.addAll(accounts)
                 }
             }
