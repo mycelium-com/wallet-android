@@ -52,6 +52,7 @@ class SelectAccountAdapter : AccountAdapter() {
                 (holder as GroupHolder).let {
                     item as GroupModel
                     it.binding.label.text = item.title
+                    it.binding.chevron.rotation = (if (!item.isCollapsed) 180 else 0).toFloat()
                     it.binding.root.setOnClickListener {
                         groupModelClickListener?.invoke(item)
                     }
