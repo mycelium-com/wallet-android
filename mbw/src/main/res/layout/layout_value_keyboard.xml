@@ -67,24 +67,24 @@
         android:textColor="@color/white"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="@id/btn_2"
-        app:layout_constraintEnd_toStartOf="@id/btn_copy"
+        app:layout_constraintEnd_toStartOf="@id/btn_max"
         app:layout_constraintStart_toEndOf="@id/btn_2"
         app:layout_constraintTop_toTopOf="@id/btn_2" />
 
-    <ImageView
-        android:id="@+id/btn_copy"
+    <TextView
+        android:id="@+id/btn_max"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="4dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:scaleType="center"
+        android:text="@string/max"
+        android:textColor="@color/white"
+        android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="@id/btn_3"
         app:layout_constraintEnd_toEndOf="@id/endGuidline"
         app:layout_constraintStart_toEndOf="@id/btn_3"
-        app:layout_constraintTop_toTopOf="@id/btn_3"
-        app:srcCompat="@drawable/ic_content_paste_black"
-        app:tint="@color/white" />
+        app:layout_constraintTop_toTopOf="@id/btn_3" />
 
     <TextView
         android:id="@+id/btn_4"
@@ -131,19 +131,20 @@
         app:layout_constraintStart_toStartOf="@id/btn_3"
         app:layout_constraintTop_toTopOf="@id/btn_5" />
 
-    <TextView
-        android:id="@+id/btn_max"
+
+    <ImageView
+        android:id="@+id/btn_copy"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:text="@string/max"
-        android:textColor="@color/white"
-        android:textSize="30sp"
+        android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="@id/btn_6"
-        app:layout_constraintEnd_toEndOf="@id/btn_copy"
-        app:layout_constraintStart_toStartOf="@id/btn_copy"
-        app:layout_constraintTop_toTopOf="@id/btn_6" />
+        app:layout_constraintEnd_toEndOf="@id/btn_max"
+        app:layout_constraintStart_toStartOf="@id/btn_max"
+        app:layout_constraintTop_toTopOf="@id/btn_6"
+        app:srcCompat="@drawable/ic_content_paste_black"
+        app:tint="@color/white" />
 
     <TextView
         android:id="@+id/btn_7"
@@ -241,7 +242,7 @@
         android:id="@+id/btn_done"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/bg_keyboard_item"
+        android:background="@drawable/bg_keyboard_item_blue"
         android:gravity="center"
         android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="@id/btn_dot"

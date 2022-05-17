@@ -34,8 +34,8 @@ class ExchangeViewModel : ViewModel() {
     val errorTransaction = MutableLiveData("")
     val errorRemote = MutableLiveData("")
 
-    var changellyTx:String? = null
-    var chainTx:Transaction? = null
+    var changellyTx: String? = null
+    var chainTx: Transaction? = null
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
@@ -78,7 +78,7 @@ class ExchangeViewModel : ViewModel() {
                 ?.toStringFriendlyWithUnit()
     }
     val toCurrency = Transformations.map(toAccount) {
-        it?.coinType?: Utils.getBtcCoinType()
+        it?.coinType ?: Utils.getBtcCoinType()
     }
     val toAddress = Transformations.map(toAccount) {
         it?.receiveAddress?.toString()
@@ -182,8 +182,8 @@ class ExchangeViewModel : ViewModel() {
         return null
     }
 
-    fun getToAccount() = mbwManager.getWalletManager(false)
-            .getAllActiveAccounts()
+    fun getToAccount() = Utils.sortAccounts(mbwManager.getWalletManager(false)
+            .getAllActiveAccounts(), mbwManager.metadataStorage)
             .firstOrNull {
                 it.coinType != fromAccount.value?.coinType
                         && currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
