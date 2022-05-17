@@ -27,6 +27,7 @@ import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.ExchangeSourceChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
+import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
@@ -394,6 +395,11 @@ class ExchangeFragment : Fragment(), BroadcastResultListener {
 
     @Subscribe
     fun exchangeSourceChanged(event: ExchangeSourceChanged) {
+        viewModel.fromAccount.value = viewModel.fromAccount.value
+        viewModel.toAccount.value = viewModel.toAccount.value
+    }
+    @Subscribe
+    fun onSelectedCurrencyChange(event: SelectedCurrencyChanged){
         viewModel.fromAccount.value = viewModel.fromAccount.value
         viewModel.toAccount.value = viewModel.toAccount.value
     }
