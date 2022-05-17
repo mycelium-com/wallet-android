@@ -168,6 +168,7 @@
             android:text="From:"
             android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="14sp"
+            android:visibility="@{vm.fromAddress.isEmpty() ? View.GONE : View.VISIBLE }"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toBottomOf="@id/dateLabel" />
 
@@ -177,6 +178,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="14sp"
+            android:visibility="@{vm.fromAddress.isEmpty() ? View.GONE : View.VISIBLE }"
             app:layout_constraintBaseline_toBaselineOf="@id/fromLabel"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toEndOf="@id/fromLabel"
@@ -190,6 +192,7 @@
             android:text="To:"
             android:textColor="@color/fio_white_alpha_0_8"
             android:textSize="14sp"
+            android:visibility="@{vm.toAddress.isEmpty() ? View.GONE : View.VISIBLE }"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toBottomOf="@id/fromLabel" />
 

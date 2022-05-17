@@ -11,6 +11,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentChangelly2HistoryBinding
 import com.mycelium.wallet.external.adapter.TxHistoryAdapter
+import java.util.*
 
 
 class HistoryFragment : DialogFragment() {
@@ -38,12 +39,18 @@ class HistoryFragment : DialogFragment() {
             ExchangeResultFragment().apply {
                 arguments = Bundle().apply {
                     putString(ExchangeResultFragment.KEY_TX_ID, it)
+                    putString(ExchangeResultFragment.KEY_CHAIN_TX, pref.getString("tx_id_${it}", null))
+                    putSerializable(ExchangeResultFragment.KEY_ACCOUNT_FROM_ID,
+                            pref.getString("account_from_id_${it}", null)?.let { UUID.fromString(it) })
+                    putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID,
+                            pref.getString("account_to_id_${it}", null)?.let { UUID.fromString(it) })
                 }
             }.show(parentFragmentManager, "")
         }
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), LinearLayout.VERTICAL))
         binding?.list?.adapter = adapter
-        adapter.submitList((pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList())
+        adapter.submitList((pref.getStringSet(ExchangeFragment.KEY_HISTORY, null)
+                ?: setOf()).toList())
     }
 
     override fun onStart() {

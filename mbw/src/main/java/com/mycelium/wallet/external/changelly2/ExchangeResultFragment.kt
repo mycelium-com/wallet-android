@@ -7,7 +7,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeResultBinding
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
@@ -45,16 +44,20 @@ class ExchangeResultFragment : DialogFragment() {
         }
         val txId = arguments?.getString(KEY_TX_ID)
         update(txId)
-        val accountId = arguments?.getSerializable(KEY_ACCOUNT_ID) as UUID?
-        val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
-        accountId?.let {
+        val walletManager = viewModel.mbwManager.getWalletManager(false)
+        (arguments?.getSerializable(KEY_ACCOUNT_TO_ID) as UUID?)?.let {
             walletManager.getAccount(it)
-        }?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_TX)))?.let { tx ->
+        }?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_CHAIN_TX)))?.let { tx ->
             updateTx(tx)
         } ?: let {
             binding?.txDetailsLayout?.visibility = View.GONE
             binding?.more?.visibility = View.GONE
         }
+        viewModel.fromAddress.value = (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let {
+            walletManager.getAccount(it)
+        }?.let {
+            "${it.receiveAddress.toString()} ${it.label}"
+        } ?: ""
     }
 
     private fun update(txId: String?) {
@@ -152,7 +155,8 @@ class ExchangeResultFragment : DialogFragment() {
 
     companion object {
         const val KEY_TX_ID = "tx_id"
-        const val KEY_TX = "tx"
-        const val KEY_ACCOUNT_ID = "account_id"
+        const val KEY_CHAIN_TX = "chain_tx"
+        const val KEY_ACCOUNT_TO_ID = "account_to_id"
+        const val KEY_ACCOUNT_FROM_ID = "account_from_id"
     }
 }

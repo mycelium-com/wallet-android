@@ -34,6 +34,9 @@ class ExchangeViewModel : ViewModel() {
     val errorTransaction = MutableLiveData("")
     val errorRemote = MutableLiveData("")
 
+    var changellyTx:String? = null
+    var chainTx:Transaction? = null
+
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
             if (value?.coinType == it.coinType) {

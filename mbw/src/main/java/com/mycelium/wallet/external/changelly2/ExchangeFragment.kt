@@ -19,6 +19,8 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.activity.send.BroadcastDialog
+import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.util.resizeTextView
 import com.mycelium.wallet.activity.util.startCursor
 import com.mycelium.wallet.activity.util.stopCursor
@@ -33,6 +35,7 @@ import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -50,7 +53,7 @@ import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
 
-class ExchangeFragment : Fragment() {
+class ExchangeFragment : Fragment(), BroadcastResultListener {
 
     var binding: FragmentChangelly2ExchangeBinding? = null
     val viewModel: ExchangeViewModel by activityViewModels()
@@ -292,29 +295,11 @@ class ExchangeFragment : Fragment() {
                             null
                     )
                     account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                    val broadcastResult = account.broadcastTx(createTx)
-                    if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
-                        val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
-                        pref.edit()
-                                .putStringSet(KEY_HISTORY, history + txId)
-                                .putString("tx_id_${txId}", HexUtils.toHex(createTx.id))
-                                .putString("account_id_${account.id}", HexUtils.toHex(createTx.id))
-                                .apply()
-                    }
-                    launch(Dispatchers.Main) {
-                        loader(false)
-                        if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
-                            ExchangeResultFragment().apply {
-                                arguments = Bundle().apply {
-                                    putString(ExchangeResultFragment.KEY_TX_ID, txId)
-                                    putString(ExchangeResultFragment.KEY_TX, HexUtils.toHex(createTx.id))
-                                    putSerializable(ExchangeResultFragment.KEY_ACCOUNT_ID, account.id)
-                                }
-                            }.show(parentFragmentManager, "exchange_result")
-                        } else {
-                            //TODO handle broadcast error
-                        }
-                    }
+                    loader(false)
+                    viewModel.changellyTx = txId
+                    viewModel.chainTx = createTx
+                    BroadcastDialog.create(account, false, createTx)
+                            .show(parentFragmentManager, "broadcast_tx")
                 }
             }
         }
@@ -371,6 +356,30 @@ class ExchangeFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+
+    override fun broadcastResult(broadcastResult: BroadcastResult) {
+        if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+            val fromAccountId = viewModel.fromAccount.value?.id
+            val toAccountId = viewModel.toAccount.value?.id
+            val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
+            val txId = viewModel.changellyTx
+            val createTx = viewModel.chainTx
+            pref.edit().putStringSet(KEY_HISTORY, history + txId)
+                    .putString("tx_id_${txId}", HexUtils.toHex(createTx?.id))
+                    .putString("account_from_id_${txId}", fromAccountId?.toString())
+                    .putString("account_to_id_${txId}", toAccountId?.toString())
+                    .apply()
+
+            ExchangeResultFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ExchangeResultFragment.KEY_TX_ID, txId)
+                    putString(ExchangeResultFragment.KEY_CHAIN_TX, HexUtils.toHex(createTx?.id))
+                    putSerializable(ExchangeResultFragment.KEY_ACCOUNT_FROM_ID, fromAccountId)
+                    putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID, toAccountId)
+                }
+            }.show(parentFragmentManager, "exchange_result")
+        }
     }
 
     @Subscribe
