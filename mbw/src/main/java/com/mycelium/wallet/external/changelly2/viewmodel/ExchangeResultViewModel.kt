@@ -22,6 +22,7 @@ class ExchangeResultViewModel : ViewModel() {
     val date = MutableLiveData<String>()
     val fromAddress = MutableLiveData<String>()
     val toAddress = MutableLiveData<String>()
+    val trackLink = MutableLiveData<String>()
 
     fun setTransaction(result: ChangellyTransaction) {
         txId.value = result.id
@@ -29,6 +30,7 @@ class ExchangeResultViewModel : ViewModel() {
         getValue.value = "${result.amountExpectedTo} ${result.currencyTo.toUpperCase()}"
         date.value = DateFormat.getDateInstance(DateFormat.LONG).format(Date(result.createdAt * 1000L))
         toAddress.value = AddressUtils.toShortString(result.payoutAddress)
+        trackLink.value = result.trackUrl
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.amountExpectedTo, result.currencyTo)
     }

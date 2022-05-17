@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeResultBinding
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
@@ -44,6 +45,9 @@ class ExchangeResultFragment : DialogFragment() {
         }
         binding?.buttonOk?.setOnClickListener {
             dismissAllowingStateLoss()
+        }
+        binding?.trackLink?.setOnClickListener {
+            Utils.openWebsite(requireContext(), viewModel.trackLink.value)
         }
         val txId = arguments?.getString(KEY_TX_ID)
         update(txId)

@@ -209,6 +209,18 @@
             app:layout_constraintStart_toEndOf="@id/toLabel"
             tools:text="bc1q7...huhsa (Account 1)" />
 
+        <TextView
+            android:id="@+id/trackLink"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Link to track transaction"
+            android:textColor="@color/fio_prm_btn_line"
+            android:visibility="@{vm.trackLink.isEmpty() ? View.GONE : View.VISIBLE }"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/toLabel" />
+
 
         <TextView
             android:id="@+id/more"
@@ -219,7 +231,7 @@
             android:textColor="@color/fio_prm_btn_line"
             app:layout_constraintEnd_toEndOf="@id/endGuidline"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
-            app:layout_constraintTop_toBottomOf="@id/toLabel"
+            app:layout_constraintTop_toBottomOf="@id/trackLink"
             tools:text="Show transaction details" />
 
         <LinearLayout
