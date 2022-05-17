@@ -1,12 +1,13 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
-import com.mycelium.wapi.wallet.AddressUtils
 import java.math.BigDecimal
 import java.text.DateFormat
 import java.util.*
@@ -23,6 +24,16 @@ class ExchangeResultViewModel : ViewModel() {
     val fromAddress = MutableLiveData("")
     val toAddress = MutableLiveData("")
     val trackLink = MutableLiveData<String>()
+
+    val more = MutableLiveData(true)
+    val moreText = Transformations.map(more) {
+        WalletApplication.getInstance().getString(
+                if (it) {
+                    R.string.show_transaction_details
+                } else {
+                    R.string.show_transaction_details_hide
+                })
+    }
 
     fun setTransaction(result: ChangellyTransaction) {
         txId.value = result.id

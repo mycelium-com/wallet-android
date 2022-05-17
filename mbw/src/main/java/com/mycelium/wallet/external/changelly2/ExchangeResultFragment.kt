@@ -61,6 +61,9 @@ class ExchangeResultFragment : DialogFragment() {
             binding?.txDetailsLayout?.visibility = View.GONE
             binding?.more?.visibility = View.GONE
         }
+        binding?.more?.setOnClickListener {
+            viewModel.more.value = !viewModel.more.value!!
+        }
         viewModel.fromAddress.value = (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let {
             walletManager.getAccount(it)
         }?.let {
