@@ -7,10 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.view.DividerItemDecoration
+import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2HistoryBinding
 import com.mycelium.wallet.external.adapter.TxHistoryAdapter
+import com.mycelium.wallet.external.adapter.TxItem
+import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
+import java.text.DateFormat
 import java.util.*
 
 
@@ -38,19 +43,37 @@ class HistoryFragment : DialogFragment() {
         adapter.clickListener = {
             ExchangeResultFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ExchangeResultFragment.KEY_CHANGELLY_TX_ID, it)
-                    putString(ExchangeResultFragment.KEY_CHAIN_TX, pref.getString("tx_id_${it}", null))
+                    putString(ExchangeResultFragment.KEY_CHANGELLY_TX_ID, it.id)
+                    putString(ExchangeResultFragment.KEY_CHAIN_TX, pref.getString("tx_id_${it.id}", null))
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_FROM_ID,
-                            pref.getString("account_from_id_${it}", null)?.let { UUID.fromString(it) })
+                            pref.getString("account_from_id_${it.id}", null)?.let { UUID.fromString(it) })
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID,
-                            pref.getString("account_to_id_${it}", null)?.let { UUID.fromString(it) })
+                            pref.getString("account_to_id_${it.id}", null)?.let { UUID.fromString(it) })
                 }
             }.show(parentFragmentManager, "")
         }
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), LinearLayout.VERTICAL))
         binding?.list?.adapter = adapter
-        adapter.submitList((pref.getStringSet(ExchangeFragment.KEY_HISTORY, null)
-                ?: setOf()).toList())
+        val txIds = (pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList()
+        loader(true)
+        Changelly2Repository.getTransactions(lifecycleScope, txIds.toList(),
+                {
+                    it?.result?.let {
+                        adapter.submitList(it.map {
+                            TxItem(it.id,
+                                    it.amountExpectedFrom.toString(), it.amountExpectedTo.toString(),
+                                    it.currencyFrom, it.currencyTo,
+                                    DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
+                                    it.status)
+                        })
+                    }
+                },
+                { _, _ ->
+
+                },
+                {
+                    loader(false)
+                })
     }
 
     override fun onStart() {

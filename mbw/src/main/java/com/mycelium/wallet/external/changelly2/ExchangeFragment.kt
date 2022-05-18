@@ -414,6 +414,9 @@ class ExchangeFragment : Fragment() {
         const val LINK_AML = "https://changelly.com/aml-kyc"
 
         fun iconPath(coin: CryptoCurrency) =
-                "https://web-api.changelly.com/api/coins/${Util.trimTestnetSymbolDecoration(coin.symbol).toLowerCase()}.png"
+                iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
+
+        fun iconPath(coin: String) =
+                "https://web-api.changelly.com/api/coins/${coin.toLowerCase()}.png"
     }
 }

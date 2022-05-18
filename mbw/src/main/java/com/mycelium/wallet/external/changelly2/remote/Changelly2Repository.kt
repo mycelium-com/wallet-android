@@ -1,5 +1,6 @@
 package com.mycelium.wallet.external.changelly2.remote
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.mycelium.bequant.remote.doRequest
 import com.mycelium.wallet.external.changelly.ChangellyAPIService
 import com.mycelium.wallet.external.changelly.model.*
@@ -70,6 +71,15 @@ object Changelly2Repository {
                        finally: (() -> Unit)? = null) {
         doRequest(scope, {
             api.getTransaction(id)
+        }, success, error, finally)
+    }
+
+    fun getTransactions(scope: LifecycleCoroutineScope, ids: List<String>,
+                        success: (ChangellyResponse<List<ChangellyTransaction>>?) -> Unit,
+                        error: (Int, String) -> Unit,
+                        finally: (() -> Unit)? = null) {
+        doRequest(scope, {
+            api.getTransactions(ids)
         }, success, error, finally)
     }
 }

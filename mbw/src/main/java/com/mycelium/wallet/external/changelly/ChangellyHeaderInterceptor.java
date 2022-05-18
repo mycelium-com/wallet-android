@@ -2,9 +2,10 @@ package com.mycelium.wallet.external.changelly;
 
 import androidx.annotation.NonNull;
 
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.crypto.Hmac;
+import com.mrd.bitlib.util.HexUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,8 +78,13 @@ public class ChangellyHeaderInterceptor implements Interceptor {
     private JSONObject getParamsFromRequest(Request request) throws JSONException {
         JSONObject params = new JSONObject();
         for(String name : request.url().queryParameterNames()) {
-            String value = request.url().queryParameter(name);
-            params.put(name, value);
+            List<String> values = request.url().queryParameterValues(name);
+            if (values.size() > 1) {
+                params.put(name, new JSONArray(values));
+            } else {
+                String value = request.url().queryParameter(name);
+                params.put(name, value);
+            }
         }
         return params;
     }
