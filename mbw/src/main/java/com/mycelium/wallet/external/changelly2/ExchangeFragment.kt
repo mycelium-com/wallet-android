@@ -266,32 +266,30 @@ class ExchangeFragment : Fragment() {
     }
 
     private fun sendTx(txId: String, addressTo: String, amount: String) {
-        viewModel.mbwManager.runPinProtectedFunction(requireActivity()) {
-            val address = when (viewModel.fromAccount.value) {
-                is EthAccount, is ERC20Account -> {
-                    EthAddress(Utils.getEthCoinType(), addressTo)
-                }
-                is AbstractBtcAccount -> {
-                    BtcAddress(Utils.getBtcCoinType(), BitcoinAddress.fromString(addressTo))
-                }
-                else -> TODO("Account not supported yet")
+        val address = when (viewModel.fromAccount.value) {
+            is EthAccount, is ERC20Account -> {
+                EthAddress(Utils.getEthCoinType(), addressTo)
             }
-            loader(true)
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.fromAccount.value?.let { account ->
-                    val feeEstimation = viewModel.mbwManager.getFeeProvider(account.basedOnCoinType).estimation
-                    val createTx = account.createTx(address,
-                            viewModel.fromAccount.value!!.coinType.value(amount),
-                            FeePerKbFee(feeEstimation.normal),
-                            null
-                    )
-                    account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
-                    launch(Dispatchers.Main) {
-                        loader(false)
-                        viewModel.changellyTx = txId
-                        BroadcastDialog.create(account, false, createTx)
-                                .show(parentFragmentManager, "broadcast_tx")
-                    }
+            is AbstractBtcAccount -> {
+                BtcAddress(Utils.getBtcCoinType(), BitcoinAddress.fromString(addressTo))
+            }
+            else -> TODO("Account not supported yet")
+        }
+        loader(true)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.fromAccount.value?.let { account ->
+                val feeEstimation = viewModel.mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+                val createTx = account.createTx(address,
+                        viewModel.fromAccount.value!!.coinType.value(amount),
+                        FeePerKbFee(feeEstimation.normal),
+                        null
+                )
+                account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
+                launch(Dispatchers.Main) {
+                    loader(false)
+                    viewModel.changellyTx = txId
+                    BroadcastDialog.create(account, false, createTx)
+                            .show(parentFragmentManager, "broadcast_tx")
                 }
             }
         }
