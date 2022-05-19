@@ -12,6 +12,8 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wallet.*
+import com.mycelium.wallet.activity.modern.event.BackHandler
+import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.util.resizeTextView
 import com.mycelium.wallet.activity.util.startCursor
@@ -38,12 +40,13 @@ import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 
 
-class ExchangeFragment : Fragment() {
+class ExchangeFragment : Fragment(), BackListener {
 
     var binding: FragmentChangelly2ExchangeBinding? = null
     val viewModel: ExchangeViewModel by activityViewModels()
@@ -92,10 +95,18 @@ class ExchangeFragment : Fragment() {
                 inputTextView = binding?.sellLayout?.coinValue
                 maxValue = viewModel.exchangeInfo.value?.maxFrom
                 minValue = viewModel.exchangeInfo.value?.minFrom
-                spendableValue = viewModel.fromAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
+
                 setEntry(viewModel.sellValue.value ?: "")
                 maxDecimals = viewModel.fromCurrency.value?.unitExponent ?: 0
                 visibility = View.VISIBLE
+
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
+                    val maxSpendable = viewModel.fromAccount.value?.calculateMaxSpendableAmount(feeEstimation.normal, null)
+                    withContext(Dispatchers.Main) {
+                        spendableValue = maxSpendable?.valueAsBigDecimal
+                    }
+                }
             }
         }
         binding?.sellLayout?.coinSymbol?.setOnClickListener {
@@ -112,7 +123,7 @@ class ExchangeFragment : Fragment() {
                 inputTextView = binding?.buyLayout?.coinValue
                 maxValue = viewModel.exchangeInfo.value?.maxTo
                 minValue = viewModel.exchangeInfo.value?.minTo
-                spendableValue = viewModel.toAccount.value?.accountBalance?.spendable?.valueAsBigDecimal
+                spendableValue = null
                 setEntry(viewModel.buyValue.value ?: "")
                 maxDecimals = viewModel.toCurrency.value?.unitExponent ?: 0
                 visibility = View.VISIBLE
@@ -339,10 +350,17 @@ class ExchangeFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         MbwManager.getEventBus().register(this)
+        val pActivity = activity
+        if (pActivity is BackHandler) {
+            pActivity.addBackListener(this)
+        }
     }
 
     override fun onStop() {
-        binding?.layoutValueKeyboard?.numericKeyboard?.done()
+        val pActivity = activity
+        if (pActivity is BackHandler) {
+            pActivity.addBackListener(this)
+        }
         MbwManager.getEventBus().unregister(this)
         super.onStop()
     }
@@ -402,6 +420,20 @@ class ExchangeFragment : Fragment() {
         viewModel.fromAccount.value = viewModel.fromAccount.value
         viewModel.toAccount.value = viewModel.toAccount.value
     }
+
+    @Subscribe
+    fun pageSelectedEvent(event: PageSelectedEvent) {
+        binding?.layoutValueKeyboard?.numericKeyboard?.done()
+    }
+
+
+    override fun onBackPressed(): Boolean =
+            if (binding?.layoutValueKeyboard?.numericKeyboard?.visibility == View.VISIBLE) {
+                binding?.layoutValueKeyboard?.numericKeyboard?.done()
+                true
+            } else {
+                false
+            }
 
     companion object {
         const val PREF_FILE = "changelly2"

@@ -30,6 +30,8 @@ import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment
 import com.mycelium.wallet.activity.main.RecommendationsFragment
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter
+import com.mycelium.wallet.activity.modern.event.BackHandler
+import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.news.NewsActivity
@@ -58,7 +60,7 @@ import info.guardianproject.onionkit.ui.OrbotHelper
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class ModernMain : AppCompatActivity() {
+class ModernMain : AppCompatActivity(), BackHandler {
     private lateinit var mbwManager: MbwManager
     private var mTabsAdapter: TabsAdapter? = null
     private var mExchangeTab: TabLayout.Tab? = null
@@ -76,6 +78,8 @@ class ModernMain : AppCompatActivity() {
     private var _isAppStart = true
     private var counter = 0
     private var balanceRefreshTimer: Timer? = null
+
+    val backListeners = mutableListOf<BackListener>()
 
     lateinit var binding: ModernMainBinding
 
@@ -306,6 +310,11 @@ class ModernMain : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        backListeners.forEach {
+            if(it.onBackPressed()) {
+               return
+            }
+        }
         if (mBalanceTab!!.isSelected) {
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
@@ -541,6 +550,14 @@ class ModernMain : AppCompatActivity() {
     @Subscribe
     fun networkConnectionChanged(event:NetworkConnectionStateChanged){
         updateNetworkConnectionState()
+    }
+
+    override fun addBackListener(listener: BackListener) {
+        backListeners.add(listener)
+    }
+
+    override fun removeBackListener(listener: BackListener) {
+        backListeners.remove(listener)
     }
 
     companion object {

@@ -31,7 +31,7 @@ class ValueKeyboard : ConstraintLayout {
             updateDotBtn()
         }
 
-    var spendableValue = BigDecimal.ZERO
+    var spendableValue: BigDecimal? = null
         set(v) {
             field = v
             updateMaxBtn()
@@ -138,7 +138,7 @@ class ValueKeyboard : ConstraintLayout {
     }
 
     private fun updateMaxBtn() {
-        findViewById<View>(R.id.btn_max).visibility = if (spendableValue == BigDecimal.ZERO) INVISIBLE else VISIBLE
+        findViewById<View>(R.id.btn_max).visibility = if (spendableValue == null) INVISIBLE else VISIBLE
     }
 
     interface InputListener {
