@@ -311,6 +311,7 @@ class ExchangeFragment : Fragment(), BackListener {
     private fun updateExchangeRate() {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             rateJob?.cancel()
+            viewModel.rateLoading.value = true
             rateJob = Changelly2Repository.fixRate(lifecycleScope,
                     Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
@@ -327,9 +328,11 @@ class ExchangeFragment : Fragment(), BackListener {
                             viewModel.errorRemote.value = result?.error?.message ?: ""
                         }
                     },
-                    { _, _ ->
-
-                    })
+                    { _, msg ->
+                        viewModel.errorRemote.value = msg
+                    }, {
+                viewModel.rateLoading.value = false
+            })
         }
     }
 

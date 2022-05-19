@@ -1,6 +1,5 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -20,6 +19,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 
 
@@ -33,7 +33,7 @@ class ExchangeViewModel : ViewModel() {
     val errorKeyboard = MutableLiveData("")
     val errorTransaction = MutableLiveData("")
     val errorRemote = MutableLiveData("")
-
+    val rateLoading = MutableLiveData(false)
     var changellyTx: String? = null
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
@@ -143,12 +143,16 @@ class ExchangeViewModel : ViewModel() {
         addSource(exchangeInfo) {
             value = isValid()
         }
+        addSource(rateLoading) {
+            value = isValid()
+        }
     }
 
     fun isValid(): Boolean =
             try {
                 val amount = sellValue.value?.toBigDecimal()
                 when {
+                    rateLoading.value == true -> false
                     amount == null -> false
                     amount < exchangeInfo.value?.minFrom -> false
                     amount > exchangeInfo.value?.maxFrom -> false
@@ -179,13 +183,14 @@ class ExchangeViewModel : ViewModel() {
         } catch (e: OutputTooSmallException) {
             errorTransaction.value = res.getString(R.string.amount_too_small_short,
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
+        } catch (e: InsufficientFundsForFeeException) {
+            errorTransaction.value = res.getString(R.string.insufficient_funds_for_fee)
         } catch (e: InsufficientFundsException) {
             errorTransaction.value = res.getString(R.string.insufficient_funds)
         } catch (e: BuildTransactionException) {
             mbwManager.reportIgnoredException("MinerFeeException", e)
             errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
         } catch (e: Exception) {
-            Log.e("!!!", "", e)
             errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
         }
         return null

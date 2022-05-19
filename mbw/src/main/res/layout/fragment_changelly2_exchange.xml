@@ -74,28 +74,41 @@
                     android:layout_width="0dp"
                     android:layout_height="2dp"
                     android:background="#141415"
-                    app:layout_constraintBottom_toBottomOf="@id/exchangeRate"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateLayout"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toTopOf="@id/exchangeRate" />
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateLayout" />
 
-                <TextView
-                    android:id="@+id/exchangeRate"
+                <LinearLayout
+                    android:id="@+id/exchangeRateLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="32dp"
                     android:background="@drawable/bg_coin_value"
-                    android:drawablePadding="4dp"
+                    android:orientation="horizontal"
                     android:paddingStart="8dp"
                     android:paddingTop="4dp"
                     android:paddingEnd="8dp"
                     android:paddingBottom="4dp"
-                    android:text="@{vm.exchangeRate}"
-                    app:drawableStartCompat="@drawable/ic_lock"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toBottomOf="@id/sellLayout"
-                    bind:text="1 BTC = 69 420 USDT" />
+                    app:layout_constraintTop_toBottomOf="@id/sellLayout">
+
+                    <TextView
+                        android:id="@+id/exchangeRate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="4dp"
+                        android:text="@{vm.exchangeRate}"
+                        app:drawableStartCompat="@drawable/ic_lock"
+                        bind:text="1 BTC = 69 420 USDT" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_progress" />
+                </LinearLayout>
 
                 <ImageView
                     android:id="@+id/swapAccount"
@@ -103,10 +116,10 @@
                     android:layout_height="wrap_content"
                     android:enabled="@{vm.toAccount.canSpend()}"
                     android:src="@drawable/ic_exchange"
-                    app:layout_constraintBottom_toBottomOf="@id/exchangeRate"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateLayout"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
-                    app:layout_constraintStart_toEndOf="@id/exchangeRate"
-                    app:layout_constraintTop_toTopOf="@id/exchangeRate" />
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateLayout"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateLayout" />
 
                 <include
                     android:id="@+id/buyLayout"
@@ -116,7 +129,7 @@
                     android:layout_marginTop="32dp"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toBottomOf="@id/exchangeRate"
+                    app:layout_constraintTop_toBottomOf="@id/exchangeRateLayout"
                     bind:accountAddress="@{vm.toAddress}"
                     bind:accountLabel="@{vm.toAccount.label}"
                     bind:balance="@{vm.toBalance}"
