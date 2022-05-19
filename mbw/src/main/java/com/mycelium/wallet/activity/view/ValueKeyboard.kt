@@ -38,7 +38,16 @@ class ValueKeyboard : ConstraintLayout {
         }
 
     var maxValue: BigDecimal? = null
+        set(v) {
+            field = v
+            setToTextView(value.entry)
+        }
+
     var minValue: BigDecimal? = null
+        set(v) {
+            field = v
+            setToTextView(value.entry)
+        }
 
     var value = NumberEntry(maxDecimals, "", object : EntryChange {
         override fun entryChange(entry: String, wasSet: Boolean) {
