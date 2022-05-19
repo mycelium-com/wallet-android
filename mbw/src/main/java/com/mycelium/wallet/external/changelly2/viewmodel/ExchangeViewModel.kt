@@ -59,6 +59,16 @@ class ExchangeViewModel : ViewModel() {
         addSource(errorTransaction) {
             value = error()
         }
+        addSource(fromAccount) {
+            errorKeyboard.value = ""
+            errorTransaction.value = ""
+            errorRemote.value = ""
+        }
+        addSource(toAccount) {
+            errorKeyboard.value = ""
+            errorTransaction.value = ""
+            errorRemote.value = ""
+        }
     }
 
 

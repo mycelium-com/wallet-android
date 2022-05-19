@@ -174,11 +174,11 @@ class ExchangeFragment : Fragment() {
             }
             errorListener = object : ValueKeyboard.ErrorListener {
                 override fun maxError(maxValue: BigDecimal) {
-                    viewModel.errorKeyboard.value = "The amount is more than the exchange maximum of ${viewModel.exchangeInfo.value?.maxFrom} ${viewModel.exchangeInfo.value?.from}"
+                    viewModel.errorKeyboard.value = "The amount is more than the exchange maximum of ${viewModel.exchangeInfo.value?.maxFrom} ${viewModel.exchangeInfo.value?.from?.toUpperCase()}"
                 }
 
                 override fun minError(minValue: BigDecimal) {
-                    viewModel.errorKeyboard.value = "The amount is lower than the exchange minimum of ${viewModel.exchangeInfo.value?.minFrom} ${viewModel.exchangeInfo.value?.from}"
+                    viewModel.errorKeyboard.value = "The amount is lower than the exchange minimum of ${viewModel.exchangeInfo.value?.minFrom} ${viewModel.exchangeInfo.value?.from?.toUpperCase()}"
                 }
 
                 override fun formatError() {
@@ -260,7 +260,7 @@ class ExchangeFragment : Fragment() {
         binding?.policyTerms?.setOnClickListener {
             openLink(LINK_TERMS)
         }
-        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(2)) {
+        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(30)) {
             updateExchangeRate()
         }
     }
@@ -342,6 +342,7 @@ class ExchangeFragment : Fragment() {
     }
 
     override fun onStop() {
+        binding?.layoutValueKeyboard?.numericKeyboard?.done()
         MbwManager.getEventBus().unregister(this)
         super.onStop()
     }
