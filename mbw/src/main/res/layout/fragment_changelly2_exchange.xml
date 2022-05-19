@@ -104,10 +104,12 @@
                         bind:text="1 BTC = 69 420 USDT" />
 
                     <ImageView
+                        android:id="@+id/progress"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginStart="4dp"
-                        android:src="@drawable/ic_progress" />
+                        android:src="@drawable/ic_progress"
+                        android:visibility="@{vm.rateLoading ? View.VISIBLE : View.INVISIBLE}" />
                 </LinearLayout>
 
                 <ImageView

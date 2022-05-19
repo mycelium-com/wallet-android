@@ -3,6 +3,9 @@ package com.mycelium.wallet.external.changelly2
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -274,6 +277,18 @@ class ExchangeFragment : Fragment(), BackListener {
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(30)) {
             updateExchangeRate()
         }
+        viewModel.rateLoading.observe(viewLifecycleOwner) {
+            if(it) {
+                binding?.progress?.startAnimation(RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                        .apply {
+                            interpolator = LinearInterpolator()
+                            repeatCount = Animation.INFINITE
+                            duration = 700
+                        })
+            } else {
+                binding?.progress?.clearAnimation()
+            }
+        }
     }
 
     private fun sendTx(txId: String, addressTo: String, amount: String) {
@@ -330,9 +345,10 @@ class ExchangeFragment : Fragment(), BackListener {
                     },
                     { _, msg ->
                         viewModel.errorRemote.value = msg
-                    }, {
-                viewModel.rateLoading.value = false
-            })
+                    },
+                    {
+                        viewModel.rateLoading.value = false
+                    })
         }
     }
 
