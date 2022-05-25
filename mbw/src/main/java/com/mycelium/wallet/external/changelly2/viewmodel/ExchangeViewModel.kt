@@ -16,6 +16,7 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
@@ -200,6 +201,9 @@ class ExchangeViewModel : ViewModel() {
             .getAllActiveAccounts(), mbwManager.metadataStorage)
             .firstOrNull {
                 it.coinType != fromAccount.value?.coinType
-                        && currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
+                        && isSupported(it.coinType)
             }
+
+    fun isSupported(coinType: CryptoCurrency) =
+            currencies.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).toLowerCase())
 }

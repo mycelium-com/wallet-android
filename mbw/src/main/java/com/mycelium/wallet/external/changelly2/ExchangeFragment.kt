@@ -60,15 +60,12 @@ class ExchangeFragment : Fragment(), BackListener {
         setHasOptionsMenu(true)
         val manager = MbwManager.getInstance(requireContext())
         viewModel.currencies = pref.getStringSet(KEY_SUPPORT_COINS, null) ?: setOf("btc", "eth")
-        viewModel.fromAccount.value = if (viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(manager.selectedAccount.coinType.symbol).toLowerCase())) {
+        viewModel.fromAccount.value = if (viewModel.isSupported(manager.selectedAccount.coinType)) {
             manager.selectedAccount
         } else {
             manager.getWalletManager(false)
                     .getAllActiveAccounts()
-                    .firstOrNull {
-                        it.canSpend()
-                                && viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
-                    }
+                    .firstOrNull { it.canSpend() && viewModel.isSupported(it.coinType) }
         }
         viewModel.toAccount.value = viewModel.getToAccount()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
@@ -416,7 +413,8 @@ class ExchangeFragment : Fragment(), BackListener {
 
     @Subscribe
     fun selectedAccountChanged(event: SelectedAccountChanged) {
-        if (viewModel.mbwManager.selectedAccount.canSpend()) {
+        if (viewModel.mbwManager.selectedAccount.canSpend()
+                && viewModel.isSupported(viewModel.mbwManager.selectedAccount.coinType)) {
             viewModel.fromAccount.value = viewModel.mbwManager.selectedAccount
             viewModel.sellValue.value = ""
         }

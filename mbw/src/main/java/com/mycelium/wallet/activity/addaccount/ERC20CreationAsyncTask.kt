@@ -8,6 +8,7 @@ import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.erc20.ERC20Config
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAccount
+import kotlinx.coroutines.*
 import java.util.*
 
 
@@ -42,5 +43,35 @@ class ERC20CreationAsyncTask(val mbwManager: MbwManager,
             MbwManager.getEventBus().post(AccountChanged(accountId))
         }
         endListener(accountIds)
+    }
+}
+
+fun MbwManager.createERC20(tokens: List<ERC20Token>,
+                           ethAccount: EthAccount,
+                           startListener: () -> Unit,
+                           endListener: (List<UUID>) -> Unit) {
+    GlobalScope.launch(Dispatchers.Default) {
+        if (tokens.isEmpty()) {
+            cancel()
+        } else {
+            withContext(Dispatchers.Main) {
+                startListener()
+            }
+        }
+        val accountIds = tokens.flatMap { token ->
+            getWalletManager(false)
+                    .createAccounts(ERC20Config(token, ethAccount))
+                    .apply {
+                        ethAccount.addEnabledToken(token.name)
+                    }
+        }
+        withContext(Dispatchers.Main) {
+            accountIds.forEach { accountId ->
+                metadataStorage.setOtherAccountBackupState(accountId, MetadataStorage.BackupState.IGNORED)
+                MbwManager.getEventBus().post(AccountCreated(accountId))
+                MbwManager.getEventBus().post(AccountChanged(accountId))
+            }
+            endListener(accountIds)
+        }
     }
 }

@@ -4,8 +4,11 @@ import android.os.AsyncTask
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.AccountCreated
-import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 
@@ -27,5 +30,19 @@ class ETHCreationAsyncTask(val mbwManager: MbwManager,
         MbwManager.getEventBus().post(AccountCreated(accountId))
         MbwManager.getEventBus().post(AccountChanged(accountId))
         endListener(accountId)
+    }
+}
+
+fun MbwManager.createETH(startListener: () -> Unit, endListener: (UUID?) -> Unit) {
+    GlobalScope.launch(Dispatchers.Default) {
+        withContext(Dispatchers.Main) {
+            startListener()
+        }
+        val accountId = getWalletManager(false).createAccounts(EthereumMasterseedConfig()).first()
+        withContext(Dispatchers.Main) {
+            MbwManager.getEventBus().post(AccountCreated(accountId))
+            MbwManager.getEventBus().post(AccountChanged(accountId))
+            endListener(accountId)
+        }
     }
 }

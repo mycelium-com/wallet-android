@@ -1,7 +1,6 @@
 package com.mycelium.wallet.external.changelly2
 
 import android.content.DialogInterface
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +11,9 @@ import androidx.fragment.app.activityViewModels
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.addaccount.ERC20CreationAsyncTask
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter
-import com.mycelium.wallet.activity.addaccount.ETHCreationAsyncTask
+import com.mycelium.wallet.activity.addaccount.createERC20
+import com.mycelium.wallet.activity.addaccount.createETH
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
@@ -28,7 +27,6 @@ import com.mycelium.wallet.external.changelly2.adapter.AddAccountModel
 import com.mycelium.wallet.external.changelly2.adapter.GroupModel
 import com.mycelium.wallet.external.changelly2.adapter.SelectAccountAdapter
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
-import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAccount
@@ -126,7 +124,7 @@ class SelectAccountFragment : DialogFragment() {
                         }
                     }
                     .filter {
-                        viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.coinType.symbol).toLowerCase())
+                        viewModel.isSupported(it.coinType)
                     }
             if (accounts.isNotEmpty()) {
                 val group = AccountsGroupModel(
@@ -154,8 +152,7 @@ class SelectAccountFragment : DialogFragment() {
                         it.coinType.symbol
                     }.toSet()
             val addAccountList = viewModel.mbwManager.supportedERC20Tokens.filter {
-                viewModel.currencies.contains(Util.trimTestnetSymbolDecoration(it.value.symbol).toLowerCase())
-                        && !alreadyHave.contains(it.value.symbol)
+                viewModel.isSupported(it.value) && !alreadyHave.contains(it.value.symbol)
             }.map {
                 AddAccountModel(it.value)
             }
@@ -189,12 +186,12 @@ class SelectAccountFragment : DialogFragment() {
                     val selected = arrayAdapter.selected
                     if (selected == arrayAdapter.count - 1) {
                         // "Create new account" item
-                        ETHCreationAsyncTask(viewModel.mbwManager, {
+                        viewModel.mbwManager.createETH({
                             loader(true)
                         }, {
                             loader(false)
                             addToken(viewModel.mbwManager.getWalletManager(false).getAccount(it!!) as EthAccount, token)
-                        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                        })
                     } else {
                         val ethAccountId = accounts[selected].id
                         val ethAccount = viewModel.mbwManager.getWalletManager(false).getAccount(ethAccountId) as EthAccount
@@ -205,12 +202,12 @@ class SelectAccountFragment : DialogFragment() {
     }
 
     private fun addToken(ethAccount: EthAccount, token: ERC20Token) {
-        ERC20CreationAsyncTask(viewModel.mbwManager, listOf(token), ethAccount, {
+        viewModel.mbwManager.createERC20(listOf(token), ethAccount, {
             loader(true)
         }, {
             loader(false)
             setAccount(it.first())
-        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        })
     }
 
     private fun getEthAccountsForView(accounts: List<WalletAccount<*>>): List<String> =

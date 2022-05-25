@@ -64,7 +64,7 @@ class HistoryFragment : DialogFragment() {
                                     it.amountExpectedFrom.toString(), it.amountExpectedTo.toString(),
                                     it.currencyFrom, it.currencyTo,
                                     DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
-                                    it.status)
+                                    it.getReadableStatus())
                         })
                     }
                 },

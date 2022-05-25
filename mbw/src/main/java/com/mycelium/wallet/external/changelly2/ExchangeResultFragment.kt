@@ -71,18 +71,7 @@ class ExchangeResultFragment : DialogFragment() {
         Changelly2Repository.getTransaction(lifecycleScope, txId!!,
                 { response ->
                     response?.result?.first()?.let { result ->
-                        binding?.toolbar?.title = when (result.status) {
-                            "waiting" -> "Exchange in progress"
-                            "confirming" -> "Exchange in progress"
-                            "exchanging" -> "Exchange in progress"
-                            "sending" -> "Exchange in progress"
-                            "finished" -> "Exchange completed"
-                            "failed" -> "Exchange failed"
-                            "refunded" -> "Exchange failed"
-                            "hold" -> "Hold"
-                            "expired" -> "Exchange expired"
-                            else -> "Unknown tx status"
-                        }
+                        binding?.toolbar?.title = result.getReadableStatus("exchange")
                         viewModel.setTransaction(result)
                     } ?: let {
                         AlertDialog.Builder(requireContext())
