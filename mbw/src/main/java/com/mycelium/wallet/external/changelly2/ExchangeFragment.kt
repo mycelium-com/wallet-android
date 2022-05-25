@@ -110,6 +110,7 @@ class ExchangeFragment : Fragment(), BackListener {
             }
         }
         binding?.sellLayout?.coinSymbol?.setOnClickListener {
+            binding?.layoutValueKeyboard?.numericKeyboard?.done()
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
                     putString(SelectAccountFragment.KEY_TYPE, SelectAccountFragment.VALUE_SELL)
@@ -138,30 +139,28 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         viewModel.sellValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
-                try {
+                viewModel.buyValue.value = try {
                     val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toBigDecimal()!!
-                    viewModel.buyValue.value =
-                            (amount * viewModel.exchangeInfo.value?.result!!)
-                                    .setScale(viewModel.toCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
-                                    .stripTrailingZeros()
-                                    .toPlainString()
+                    (amount * viewModel.exchangeInfo.value?.result!!)
+                            .setScale(viewModel.toCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                            .stripTrailingZeros()
+                            .toPlainString()
                 } catch (e: NumberFormatException) {
-                    viewModel.buyValue.value = "N/A"
+                    "N/A"
                 }
             }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
         viewModel.buyValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
-                try {
+                viewModel.sellValue.value = try {
                     val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toBigDecimal()
-                    viewModel.sellValue.value =
-                            amount?.setScale(viewModel.fromCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
-                                    ?.div(viewModel.exchangeInfo.value?.result!!)
-                                    ?.stripTrailingZeros()
-                                    ?.toPlainString() ?: "N/A"
+                    amount?.setScale(viewModel.fromCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                            ?.div(viewModel.exchangeInfo.value?.result!!)
+                            ?.stripTrailingZeros()
+                            ?.toPlainString() ?: "N/A"
                 } catch (e: NumberFormatException) {
-                    viewModel.sellValue.value = "N/A"
+                    "N/A"
                 }
             }
             binding?.buyLayout?.coinValue?.resizeTextView()
@@ -275,7 +274,7 @@ class ExchangeFragment : Fragment(), BackListener {
             updateExchangeRate()
         }
         viewModel.rateLoading.observe(viewLifecycleOwner) {
-            if(it) {
+            if (it) {
                 binding?.progress?.startAnimation(RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
                         .apply {
                             interpolator = LinearInterpolator()
@@ -375,7 +374,7 @@ class ExchangeFragment : Fragment(), BackListener {
     override fun onStop() {
         val pActivity = activity
         if (pActivity is BackHandler) {
-            pActivity.addBackListener(this)
+            pActivity.removeBackListener(this)
         }
         MbwManager.getEventBus().unregister(this)
         super.onStop()

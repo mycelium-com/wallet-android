@@ -40,13 +40,13 @@ class ValueKeyboard : ConstraintLayout {
     var maxValue: BigDecimal? = null
         set(v) {
             field = v
-            setToTextView(value.entry)
+            checkErrors()
         }
 
     var minValue: BigDecimal? = null
         set(v) {
             field = v
-            setToTextView(value.entry)
+            checkErrors()
         }
 
     var value = NumberEntry(maxDecimals, "", object : EntryChange {
@@ -66,21 +66,24 @@ class ValueKeyboard : ConstraintLayout {
     private fun setToTextView(entry: String) {
         inputTextView?.let { textView ->
             textView.text = entry
-            try {
-                if (maxValue != null && maxValue!! < entry.toBigDecimal()) {
-                    textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                    errorListener?.maxError(maxValue!!)
-                } else if (minValue != null && minValue!! > entry.toBigDecimal()) {
-                    textView.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                    errorListener?.minError(minValue!!)
-                } else {
-                    textView.setTextColor(resources.getColor(R.color.white))
-                    errorListener?.noError()
-                }
-            } catch (e: NumberFormatException) {
-                errorListener?.formatError()
-            }
+            checkErrors()
         }
+    }
+
+    private fun checkErrors() = try {
+        val entryValue = value.entryAsBigDecimal
+        if (maxValue != null && maxValue!! < entryValue) {
+            inputTextView?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+            errorListener?.maxError(maxValue!!)
+        } else if (minValue != null && minValue!! > entryValue) {
+            inputTextView?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+            errorListener?.minError(minValue!!)
+        } else {
+            inputTextView?.setTextColor(resources.getColor(R.color.white))
+            errorListener?.noError()
+        }
+    } catch (e: NumberFormatException) {
+        errorListener?.formatError()
     }
 
 
@@ -138,6 +141,7 @@ class ValueKeyboard : ConstraintLayout {
     }
 
     fun done() {
+        inputTextView?.setTextColor(resources.getColor(R.color.white))
         visibility = GONE
         inputListener?.done()
     }

@@ -155,8 +155,14 @@ class ExchangeViewModel : ViewModel() {
                 when {
                     rateLoading.value == true -> false
                     amount == null -> false
-                    amount < exchangeInfo.value?.minFrom -> false
-                    amount > exchangeInfo.value?.maxFrom -> false
+                    amount < exchangeInfo.value?.minFrom -> {
+                        errorTransaction.value = "The amount is lower than the exchange minimum of ${exchangeInfo.value?.minFrom} ${exchangeInfo.value?.from?.toUpperCase()}"
+                        false
+                    }
+                    amount > exchangeInfo.value?.maxFrom -> {
+                        errorTransaction.value = "The amount is more than the exchange maximum of ${exchangeInfo.value?.maxFrom} ${exchangeInfo.value?.from?.toUpperCase()}"
+                        false
+                    }
                     else -> checkValidTransaction() != null
                 }
             } catch (e: java.lang.NumberFormatException) {
