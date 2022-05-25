@@ -18,7 +18,10 @@ import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.send.BroadcastDialog
-import com.mycelium.wallet.activity.util.*
+import com.mycelium.wallet.activity.util.resizeTextView
+import com.mycelium.wallet.activity.util.startCursor
+import com.mycelium.wallet.activity.util.stopCursor
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
@@ -28,6 +31,7 @@ import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -94,7 +98,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 minValue = viewModel.exchangeInfo.value?.minFrom
 
                 setEntry(viewModel.sellValue.value ?: "")
-                maxDecimals = viewModel.fromCurrency.value?.unitExponent ?: 0
+                maxDecimals = viewModel.fromCurrency.value?.friendlyDigits ?: 0
                 visibility = View.VISIBLE
 
                 lifecycleScope.launch(Dispatchers.IO) {
@@ -123,7 +127,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 minValue = viewModel.exchangeInfo.value?.minTo
                 spendableValue = null
                 setEntry(viewModel.buyValue.value ?: "")
-                maxDecimals = viewModel.toCurrency.value?.unitExponent ?: 0
+                maxDecimals = viewModel.toCurrency.value?.friendlyDigits ?: 0
                 visibility = View.VISIBLE
             }
         }
@@ -139,7 +143,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 viewModel.buyValue.value = try {
                     val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toBigDecimal()!!
                     (amount * viewModel.exchangeInfo.value?.result!!)
-                            .setScale(viewModel.toCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                            .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
                             .stripTrailingZeros()
                             .toPlainString()
                 } catch (e: NumberFormatException) {
@@ -152,7 +156,7 @@ class ExchangeFragment : Fragment(), BackListener {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
                 viewModel.sellValue.value = try {
                     val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toBigDecimal()
-                    amount?.setScale(viewModel.fromCurrency.value?.unitExponent!!, RoundingMode.HALF_UP)
+                    amount?.setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
                             ?.div(viewModel.exchangeInfo.value?.result!!)
                             ?.stripTrailingZeros()
                             ?.toPlainString() ?: "N/A"
@@ -211,22 +215,26 @@ class ExchangeFragment : Fragment(), BackListener {
                     viewModel.fromAddress.value!!,
                     { result ->
                         if (result?.result != null) {
-                            val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
-                            AlertDialog.Builder(requireContext())
-                                    .setTitle("Exchange")
-                                    .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
-                                            "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
-                                            "Miners fee: ${feeEstimation.normal.toStringWithUnit()}")
-                                    .setPositiveButton(R.string.button_ok) { _, _ ->
-                                        sendTx(result.result!!.id!!,
-                                                if (BuildConfig.FLAVOR == "btctestnet")
-                                                    viewModel.fromAddress.value!!
-                                                else
-                                                    result.result!!.payinAddress!!,
-                                                result.result!!.amountExpectedFrom!!)
-                                    }
-                                    .setNegativeButton(R.string.cancel, null)
-                                    .show()
+                            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+                                val unsignedTx = prepareTx(
+                                        if (BuildConfig.FLAVOR == "btctestnet")
+                                            viewModel.fromAddress.value!!
+                                        else
+                                            result.result!!.payinAddress!!,
+                                        result.result!!.amountExpectedFrom!!)
+                                launch(Dispatchers.Main) {
+                                    AlertDialog.Builder(requireContext())
+                                            .setTitle("Exchange")
+                                            .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
+                                                    "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
+                                                    "Miners fee: ${unsignedTx?.totalFee()?.toStringWithUnit()}")
+                                            .setPositiveButton(R.string.button_ok) { _, _ ->
+                                                sendTx(result.result!!.id!!, unsignedTx!!)
+                                            }
+                                            .setNegativeButton(R.string.cancel, null)
+                                            .show()
+                                }
+                            }
                         } else {
                             AlertDialog.Builder(requireContext())
                                     .setMessage(result?.error?.message)
@@ -284,25 +292,29 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
-    private fun sendTx(txId: String, addressTo: String, amount: String) {
-        val address = when (viewModel.fromAccount.value) {
-            is EthAccount, is ERC20Account -> {
-                EthAddress(Utils.getEthCoinType(), addressTo)
-            }
-            is AbstractBtcAccount -> {
-                BtcAddress(Utils.getBtcCoinType(), BitcoinAddress.fromString(addressTo))
-            }
-            else -> TODO("Account not supported yet")
-        }
-        loader(true)
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+    private fun prepareTx(addressTo: String, amount: String): Transaction? =
             viewModel.fromAccount.value?.let { account ->
+                val address = when (account) {
+                    is EthAccount, is ERC20Account -> {
+                        EthAddress(Utils.getEthCoinType(), addressTo)
+                    }
+                    is AbstractBtcAccount -> {
+                        BtcAddress(Utils.getBtcCoinType(), BitcoinAddress.fromString(addressTo))
+                    }
+                    else -> TODO("Account not supported yet")
+                }
                 val feeEstimation = viewModel.mbwManager.getFeeProvider(account.basedOnCoinType).estimation
-                val createTx = account.createTx(address,
+                account.createTx(address,
                         viewModel.fromAccount.value!!.coinType.value(amount),
                         FeePerKbFee(feeEstimation.normal),
                         null
                 )
+            }
+
+    private fun sendTx(txId: String, createTx: Transaction) {
+        loader(true)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+            viewModel.fromAccount.value?.let { account ->
                 account.signTx(createTx, AesKeyCipher.defaultKeyCipher())
                 launch(Dispatchers.Main) {
                     loader(false)
