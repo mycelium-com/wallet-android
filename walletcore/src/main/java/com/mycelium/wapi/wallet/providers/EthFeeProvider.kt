@@ -51,22 +51,17 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
             GasPriceEstimates::class.java
         )
             .run {
-                val low =
-                    baseFeePerGas + priceLevels.first { it.speed == "safe_low" }.maxPriorityFeePerGas
-                val economy =
-                    baseFeePerGas + priceLevels.first { it.speed == "average" }.maxPriorityFeePerGas
-                val normal =
-                    baseFeePerGas + priceLevels.first { it.speed == "fast" }.maxPriorityFeePerGas
-                val high =
-                    baseFeePerGas + priceLevels.first { it.speed == "fastest" }.maxPriorityFeePerGas
-
-                fun convert(value: BigInteger) = Value.valueOf(coinType, value)
                 FeeEstimationsGeneric(
-                    convert(low), convert(economy), convert(normal), convert(high),
+                    convert(getPrice(PriceLevelSpeed.SAFE_LOW)),
+                    convert(getPrice(PriceLevelSpeed.AVERAGE)),
+                    convert(getPrice(PriceLevelSpeed.FAST)),
+                    convert(getPrice(PriceLevelSpeed.FASTEST)),
                     System.currentTimeMillis()
                 )
             }
     }
+
+    private fun convert(value: BigInteger) = Value.valueOf(coinType, value)
 
     /**
      * Estimates are provided by https://github.com/AlhimicMan/eip1559_gas_estimator
@@ -78,8 +73,8 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
         @JsonProperty("price_levels")
         var priceLevels: List<PriceLevels> = emptyList()
 
-        class PriceLevels {
-            var speed: String = ""
+        private class PriceLevels {
+            var speed: PriceLevelSpeed = PriceLevelSpeed.UNKNOWN
 
             @JsonProperty("max_fee_per_gas")
             var maxFeePerGas: BigInteger = BigInteger.ZERO
@@ -87,6 +82,21 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
             @JsonProperty("max_priority_fee_per_gas")
             var maxPriorityFeePerGas: BigInteger = BigInteger.ZERO
         }
+
+        fun getPrice(priceLevelSpeed: PriceLevelSpeed) =
+            baseFeePerGas + priceLevels.first { it.speed == priceLevelSpeed }.maxPriorityFeePerGas
+    }
+
+    private enum class PriceLevelSpeed {
+        @JsonProperty("safe_low")
+        SAFE_LOW,
+        @JsonProperty("average")
+        AVERAGE,
+        @JsonProperty("fast")
+        FAST,
+        @JsonProperty("fastest")
+        FASTEST,
+        UNKNOWN
     }
 
     companion object {
