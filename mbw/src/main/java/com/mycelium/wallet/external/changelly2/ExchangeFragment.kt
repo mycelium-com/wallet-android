@@ -18,10 +18,7 @@ import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.send.BroadcastDialog
-import com.mycelium.wallet.activity.util.resizeTextView
-import com.mycelium.wallet.activity.util.startCursor
-import com.mycelium.wallet.activity.util.stopCursor
-import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
+import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
@@ -219,7 +216,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                     .setTitle("Exchange")
                                     .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
                                             "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
-                                            "Miners fee: ${feeEstimation.normal.toStringFriendlyWithUnit()}")
+                                            "Miners fee: ${feeEstimation.normal.toStringWithUnit()}")
                                     .setPositiveButton(R.string.button_ok) { _, _ ->
                                         sendTx(result.result!!.id!!,
                                                 if (BuildConfig.FLAVOR == "btctestnet")
