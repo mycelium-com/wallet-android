@@ -386,6 +386,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getGasLimit().value = null
                                         gasPrice.setText("")
                                         getGasPrice().value = null
+                                        getSelectedTxItem().value = NoneItem()
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 })
