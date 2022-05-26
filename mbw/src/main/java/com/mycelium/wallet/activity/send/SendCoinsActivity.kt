@@ -158,11 +158,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                 root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
             }
         }
-        if (viewModel.isMinerFeeInfoAvailable()) {
-            tvFeeLabel.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
-            ivInfoIcon.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
-            ivInfoIcon.visibility = View.VISIBLE
-        }
     }
 
     private fun updateMemoVisibility() {
