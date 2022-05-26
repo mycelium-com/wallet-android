@@ -169,7 +169,6 @@
             android:inputType="number"
             android:minWidth="220dp"
             android:textSize="14sp"
-            android:hint="Enter Gas Price"
             android:imeOptions="actionDone"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
