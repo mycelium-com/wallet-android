@@ -52,16 +52,16 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
         )
             .run {
                 FeeEstimationsGeneric(
-                    convert(getPrice(PriceLevelSpeed.SAFE_LOW)),
-                    convert(getPrice(PriceLevelSpeed.AVERAGE)),
-                    convert(getPrice(PriceLevelSpeed.FAST)),
-                    convert(getPrice(PriceLevelSpeed.FASTEST)),
+                    convertBigIntegerToValue(getPrice(PriceLevelSpeed.SAFE_LOW)),
+                    convertBigIntegerToValue(getPrice(PriceLevelSpeed.AVERAGE)),
+                    convertBigIntegerToValue(getPrice(PriceLevelSpeed.FAST)),
+                    convertBigIntegerToValue(getPrice(PriceLevelSpeed.FASTEST)),
                     System.currentTimeMillis()
                 )
             }
     }
 
-    private fun convert(value: BigInteger) = Value.valueOf(coinType, value)
+    private fun convertBigIntegerToValue(value: BigInteger) = Value.valueOf(coinType, value)
 
     /**
      * Estimates are provided by https://github.com/AlhimicMan/eip1559_gas_estimator
