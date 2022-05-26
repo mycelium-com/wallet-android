@@ -55,25 +55,27 @@ class HistoryFragment : DialogFragment() {
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), LinearLayout.VERTICAL))
         binding?.list?.adapter = adapter
         val txIds = (pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList()
-        loader(true)
-        Changelly2Repository.getTransactions(lifecycleScope, txIds.toList(),
-                {
-                    it?.result?.let {
-                        adapter.submitList(it.map {
-                            TxItem(it.id,
-                                    it.amountExpectedFrom.toString(), it.amountExpectedTo.toString(),
-                                    it.currencyFrom, it.currencyTo,
-                                    DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
-                                    it.getReadableStatus())
-                        })
-                    }
-                },
-                { _, _ ->
+        if(txIds.isNotEmpty()) {
+            loader(true)
+            Changelly2Repository.getTransactions(lifecycleScope, txIds.toList(),
+                    {
+                        it?.result?.let {
+                            adapter.submitList(it.map {
+                                TxItem(it.id,
+                                        it.amountExpectedFrom.toString(), it.amountExpectedTo.toString(),
+                                        it.currencyFrom, it.currencyTo,
+                                        DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
+                                        it.getReadableStatus())
+                            })
+                        }
+                    },
+                    { _, _ ->
 
-                },
-                {
-                    loader(false)
-                })
+                    },
+                    {
+                        loader(false)
+                    })
+        }
     }
 
     override fun onStart() {
