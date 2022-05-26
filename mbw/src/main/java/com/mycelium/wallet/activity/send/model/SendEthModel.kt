@@ -78,6 +78,18 @@ class SendEthModel(application: Application,
         }
     }
 
+    val gasPrice: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
+        override fun setValue(value: BigInteger?) {
+            if (value != this.value) {
+                super.setValue(value)
+                val oldData =
+                        (transactionData.value as? EthTransactionData) ?: EthTransactionData()
+                transactionData.value =
+                        EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value)
+            }
+        }
+    }
+
     val inputData: MutableLiveData<String?> = object : MutableLiveData<String?>() {
         override fun setValue(value: String?) {
             if (value != this.value) {
