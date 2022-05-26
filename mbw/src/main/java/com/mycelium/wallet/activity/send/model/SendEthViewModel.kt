@@ -16,6 +16,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
+import java.math.BigInteger
 import java.util.regex.Pattern
 
 open class SendEthViewModel(application: Application) : SendCoinsViewModel(application) {
@@ -83,6 +84,14 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     fun getGasLimitStatus() = (model as SendEthModel).gasLimitStatus
 
     fun getDenomination() = (model as SendEthModel).denomination
+
+    fun getDefaultGasLimit(): BigInteger = (model as SendEthModel).account.let {
+        if (it is ERC20Account) {
+            BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+        } else {
+            BigInteger.valueOf(it.typicalEstimatedTransactionSize.toLong())
+        }
+    }
 
     fun convert(value: Value): String =
         " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
