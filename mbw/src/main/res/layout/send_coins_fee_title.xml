@@ -1,29 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tvFeeLabel"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="24dp"
-    android:orientation="horizontal"
-    tools:showIn="@layout/send_coins_activity">
-
-    <TextView
-        android:id="@+id/tvFeeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/miner_fee_title"
-        android:textColor="@color/fio_white_alpha_0_6"
-        android:textSize="14sp" />
-
-    <ImageView
-        android:id="@+id/ivInfoIcon"
-        android:layout_width="18dp"
-        android:layout_height="18dp"
-        android:layout_marginStart="8dp"
-        android:visibility="gone"
-        app:srcCompat="@drawable/ic_info"
-        app:tint="@color/dark_sky_blue"
-        tools:visibility="visible" />
-</LinearLayout>
+    android:text="@string/miner_fee_title"
+    android:textColor="@color/fio_white_alpha_0_6"
+    android:textSize="14sp"
+    tools:showIn="@layout/send_coins_activity" />

@@ -12,6 +12,7 @@ import com.mycelium.wallet.activity.send.TransactionItem
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -21,10 +22,13 @@ import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import kotlinx.coroutines.*
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.timerTask
 
 class SendEthModel(application: Application,
                    account: WalletAccount<*>,
@@ -103,10 +107,42 @@ class SendEthModel(application: Application,
 
     val estimatedFee: MutableLiveData<Value> = MutableLiveData()
     val totalFee: MutableLiveData<Value> = MutableLiveData()
+    val nextUpdateSeconds: MutableLiveData<Long> = MutableLiveData(FEE_RENEW_TIME / 1000L)
+    private lateinit var updateSecondsTimer: Job
+
+    private fun startUpdateSecondsTimer() {
+        updateSecondsTimer = getUpdateSecondsTimer()
+        updateSecondsTimer.start()
+    }
+
+    private fun stopUpdateSecondsTimer() {
+        updateSecondsTimer.cancel()
+        nextUpdateSeconds.postValue(FEE_RENEW_TIME / 1000L)
+    }
+
+    private fun getUpdateSecondsTimer() = startCoroutineTimer(
+        CoroutineScope(Dispatchers.Default + SupervisorJob()), 0, 1000) {
+            nextUpdateSeconds.postValue((nextUpdateSeconds.value?.minus(1)))
+        }
 
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
+        startUpdateSecondsTimer()
+        Timer().scheduleAtFixedRate(timerTask {
+            runBlocking {
+                stopUpdateSecondsTimer()
+                withContext(Dispatchers.Main) {
+                    transactionStatus.value = TransactionStatus.BUILDING
+                }
+                delay(1000) // for more visible update effect
+                mbwManager.getFeeProvider(account.basedOnCoinType).updateFeeEstimationsAsync()
+                feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+                feeUpdatePublisher.onNext(Unit)
+                txRebuildPublisher.onNext(Unit)
+                startUpdateSecondsTimer()
+            }
+        }, FEE_RENEW_TIME, FEE_RENEW_TIME)
     }
 
     private fun populateTxItems() {
@@ -160,5 +196,9 @@ class SendEthModel(application: Application,
     
     enum class GasLimitStatus {
         OK, WARNING, ERROR
+    }
+
+    companion object {
+        val FEE_RENEW_TIME = TimeUnit.SECONDS.toMillis(30)
     }
 }
