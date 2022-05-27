@@ -46,7 +46,7 @@ object Changelly2Repository {
                 error: (Int, String) -> Unit,
                 finally: (() -> Unit)? = null) =
             doRequest(scope, {
-                api.fixRate(from, to)
+                api.fixRate(fixSymbol(from), fixSymbol(to))
             }, success, error, finally)
 
     fun createFixTransaction(scope: CoroutineScope,
@@ -60,7 +60,7 @@ object Changelly2Repository {
                              error: (Int, String) -> Unit,
                              finally: (() -> Unit)? = null) {
         doRequest(scope, {
-            api.createFixTransaction(from, to, amount, addressTo, rateId, refundAddress)
+            api.createFixTransaction(fixSymbol(from), fixSymbol(to), amount, addressTo, rateId, refundAddress)
         }, success, error, finally)
     }
 
@@ -82,4 +82,10 @@ object Changelly2Repository {
             api.getTransactions(ids)
         }, success, error, finally)
     }
+
+    fun fixSymbol(currency: String) =
+            if (currency == "USDT")
+                "USDT20"
+            else currency
+
 }
