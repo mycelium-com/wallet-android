@@ -93,7 +93,7 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         }
     }
 
-    fun getNextUpdateSeconds() = (model as SendEthModel).nextUpdateSeconds
+    fun getSecondsUntilNextUpdate() = (model as SendEthModel).feeUpdater.secondsUntilNextUpdate
 
     fun convert(value: Value): String =
         " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"

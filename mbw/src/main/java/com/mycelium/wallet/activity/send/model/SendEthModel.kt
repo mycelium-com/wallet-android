@@ -90,6 +90,11 @@ class SendEthModel(application: Application,
                         (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value =
                         EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value)
+                if (value != null) {
+                    feeUpdater.stop()
+                } else {
+                    feeUpdater.start()
+                }
             }
         }
     }
@@ -107,42 +112,23 @@ class SendEthModel(application: Application,
 
     val estimatedFee: MutableLiveData<Value> = MutableLiveData()
     val totalFee: MutableLiveData<Value> = MutableLiveData()
-    val nextUpdateSeconds: MutableLiveData<Long> = MutableLiveData(FEE_RENEW_TIME / 1000L)
-    private lateinit var updateSecondsTimer: Job
-
-    private fun startUpdateSecondsTimer() {
-        updateSecondsTimer = getUpdateSecondsTimer()
-        updateSecondsTimer.start()
-    }
-
-    private fun stopUpdateSecondsTimer() {
-        updateSecondsTimer.cancel()
-        nextUpdateSeconds.postValue(FEE_RENEW_TIME / 1000L)
-    }
-
-    private fun getUpdateSecondsTimer() = startCoroutineTimer(
-        CoroutineScope(Dispatchers.Default + SupervisorJob()), 0, 1000) {
-            nextUpdateSeconds.postValue((nextUpdateSeconds.value?.minus(1)))
-        }
+    val feeUpdater = FeeUpdater(FEE_UPDATE_INTERVAL, { feeUpdateRoutine() })
 
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
-        startUpdateSecondsTimer()
-        Timer().scheduleAtFixedRate(timerTask {
-            runBlocking {
-                stopUpdateSecondsTimer()
-                withContext(Dispatchers.Main) {
-                    transactionStatus.value = TransactionStatus.BUILDING
-                }
-                delay(1000) // for more visible update effect
-                mbwManager.getFeeProvider(account.basedOnCoinType).updateFeeEstimationsAsync()
-                feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
-                feeUpdatePublisher.onNext(Unit)
-                txRebuildPublisher.onNext(Unit)
-                startUpdateSecondsTimer()
-            }
-        }, FEE_RENEW_TIME, FEE_RENEW_TIME)
+        feeUpdater.start()
+    }
+
+    private suspend fun feeUpdateRoutine() {
+        withContext(Dispatchers.Main) {
+            transactionStatus.value = TransactionStatus.BUILDING
+        }
+        delay(1000) // for more visible update effect
+        mbwManager.getFeeProvider(account.basedOnCoinType).updateFeeEstimationsAsync()
+        feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+        feeUpdatePublisher.onNext(Unit)
+        txRebuildPublisher.onNext(Unit)
     }
 
     private fun populateTxItems() {
@@ -199,6 +185,59 @@ class SendEthModel(application: Application,
     }
 
     companion object {
-        val FEE_RENEW_TIME = TimeUnit.SECONDS.toMillis(30)
+        val FEE_UPDATE_INTERVAL = TimeUnit.SECONDS.toMillis(30)
     }
+}
+
+class FeeUpdater(
+    private val feeUpdateIntervalMs: Long,
+    private val feeUpdateRoutine: suspend () -> Unit,
+    private val onStop: (() -> Unit)? = null
+) {
+    val secondsUntilNextUpdate: MutableLiveData<Long> = MutableLiveData(feeUpdateIntervalMs / 1000L)
+    private lateinit var updateSecondsTimer: Job
+    private lateinit var feeUpdateScheduledTask: Timer
+    @Volatile
+    var hasStarted = false
+        private set
+
+    fun start() {
+        if (hasStarted) return
+
+        hasStarted = true
+        startUpdateSecondsTimer()
+        feeUpdateScheduledTask = Timer().apply {
+            scheduleAtFixedRate(timerTask {
+                runBlocking {
+                    stopUpdateSecondsTimer()
+                    feeUpdateRoutine()
+                    startUpdateSecondsTimer()
+                }
+            }, feeUpdateIntervalMs, feeUpdateIntervalMs)
+        }
+    }
+
+    fun stop() {
+        if (!hasStarted) return
+
+        feeUpdateScheduledTask.cancel()
+        stopUpdateSecondsTimer()
+        hasStarted = false
+        onStop?.invoke()
+    }
+
+    private fun startUpdateSecondsTimer() {
+        updateSecondsTimer = getUpdateSecondsTimer()
+        updateSecondsTimer.start()
+    }
+
+    private fun stopUpdateSecondsTimer() {
+        updateSecondsTimer.cancel()
+        secondsUntilNextUpdate.postValue(feeUpdateIntervalMs / 1000L)
+    }
+
+    private fun getUpdateSecondsTimer() = startCoroutineTimer(
+        CoroutineScope(Dispatchers.Default + SupervisorJob()), 0, 1000) {
+            secondsUntilNextUpdate.postValue((secondsUntilNextUpdate.value?.minus(1)))
+        }
 }

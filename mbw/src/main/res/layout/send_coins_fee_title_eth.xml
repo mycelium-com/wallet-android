@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:text="@{@string/next_fee_update_in_s(viewModel.getNextUpdateSeconds())}"
+            android:text="@{@string/next_fee_update_in_s(viewModel.getSecondsUntilNextUpdate())}"
             android:textColor="@color/fio_white_alpha_0_6"
             android:textSize="14sp"
             tools:text="Next update in 24s" />
