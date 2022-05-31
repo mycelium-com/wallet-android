@@ -80,7 +80,7 @@ class HistoryFragment : DialogFragment() {
         updateEmpty()
     }
 
-    fun updateEmpty() {
+    private fun updateEmpty() {
         (if (adapter.itemCount == 0) View.GONE else View.VISIBLE).let {
             binding?.emptyTitle?.visibility = it
             binding?.emptyText?.visibility = it
