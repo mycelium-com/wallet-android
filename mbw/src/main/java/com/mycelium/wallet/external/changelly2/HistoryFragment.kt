@@ -55,7 +55,7 @@ class HistoryFragment : DialogFragment() {
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), LinearLayout.VERTICAL))
         binding?.list?.adapter = adapter
         val txIds = (pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList()
-        if(txIds.isNotEmpty()) {
+        if (txIds.isNotEmpty()) {
             loader(true)
             Changelly2Repository.getTransactions(lifecycleScope, txIds.toList(),
                     {
@@ -73,8 +73,17 @@ class HistoryFragment : DialogFragment() {
 
                     },
                     {
+                        updateEmpty()
                         loader(false)
                     })
+        }
+        updateEmpty()
+    }
+
+    fun updateEmpty() {
+        (if (adapter.itemCount == 0) View.GONE else View.VISIBLE).let {
+            binding?.emptyTitle?.visibility = it
+            binding?.emptyText?.visibility = it
         }
     }
 

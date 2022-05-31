@@ -110,7 +110,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 }
             }
         }
-        binding?.sellLayout?.coinSymbol?.setOnClickListener {
+        val selectSellAccount = { view: View ->
             binding?.layoutValueKeyboard?.numericKeyboard?.done()
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
@@ -118,6 +118,8 @@ class ExchangeFragment : Fragment(), BackListener {
                 }
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_SELL)
         }
+        binding?.sellLayout?.coinSymbol?.setOnClickListener(selectSellAccount)
+        binding?.sellLayout?.layoutAccount?.setOnClickListener(selectSellAccount)
         binding?.buyLayout?.root?.setOnClickListener {
             binding?.sellLayout?.coinValue?.stopCursor()
             binding?.buyLayout?.coinValue?.startCursor()
@@ -131,13 +133,15 @@ class ExchangeFragment : Fragment(), BackListener {
                 visibility = View.VISIBLE
             }
         }
-        binding?.buyLayout?.coinSymbol?.setOnClickListener {
+        val selectBuyAccount = { view:View ->
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
                     putString(SelectAccountFragment.KEY_TYPE, SelectAccountFragment.VALUE_BUY)
                 }
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_BUY)
         }
+        binding?.buyLayout?.coinSymbol?.setOnClickListener(selectBuyAccount)
+        binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
         viewModel.sellValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
                 viewModel.buyValue.value = try {
