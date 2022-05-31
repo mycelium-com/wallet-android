@@ -157,25 +157,35 @@ class ModernMain : AppCompatActivity(), BackHandler {
     }
 
     private fun handleIntent(intent: Intent) {
-        if (mediaFlowEnabled &&
-                getIntent().action == NewsUtils.MEDIA_FLOW_ACTION) {
-            selectTab(TAB_NEWS)
-            if (getIntent().hasExtra(NewsConstants.NEWS)) {
-                startActivity(Intent(this, NewsActivity::class.java)
+        when(intent.action) {
+            NewsUtils.MEDIA_FLOW_ACTION -> {
+                if(mediaFlowEnabled) {
+                    selectTab(TAB_NEWS)
+                    if (getIntent().hasExtra(NewsConstants.NEWS)) {
+                        startActivity(Intent(this, NewsActivity::class.java)
+                                .putExtras(getIntent().extras!!))
+                    }
+                }
+            }
+            FioRequestNotificator.FIO_REQUEST_ACTION -> {
+                selectTab(TAB_FIO_REQUESTS)
+                startActivity(Intent(this, ApproveFioRequestActivity::class.java)
                         .putExtras(getIntent().extras!!))
             }
-        } else if (intent.action == FioRequestNotificator.FIO_REQUEST_ACTION) {
-            selectTab(TAB_FIO_REQUESTS)
-            startActivity(Intent(this, ApproveFioRequestActivity::class.java)
-                    .putExtras(getIntent().extras!!))
-        } else if (intent.action == MainActions.ACTION_ACCOUNTS) {
-            mAccountsTab!!.select()
-            binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_ACCOUNTS)
-        } else if (intent.action == MainActions.ACTION_TXS) {
-            mTransactionsTab!!.select()
-            binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_HISTORY)
-        } else if (intent.hasExtra("action")) {
-            startActivity(Intent(this, ActionActivity::class.java).putExtras(intent))
+            MainActions.ACTION_ACCOUNTS -> {
+                mAccountsTab!!.select()
+                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_ACCOUNTS)
+            }
+            MainActions.ACTION_TXS -> {
+                mTransactionsTab!!.select()
+                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_HISTORY)
+            }
+            MainActions.ACTION_EXCHANGE -> {
+                selectTab(TAB_EXCHANGE)
+            }
+            else -> if(intent.hasExtra("action")) {
+                startActivity(Intent(this, ActionActivity::class.java).putExtras(intent))
+            }
         }
     }
 
