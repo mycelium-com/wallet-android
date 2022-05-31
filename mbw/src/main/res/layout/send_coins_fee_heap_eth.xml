@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_fee_block_eth">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+        android:orientation="vertical">
+        <!-- Fee Title -->
+        <include
+            layout="@layout/send_coins_fee_title_eth"
+            bind:viewModel="@{viewModel}" />
+
+        <TextView
+            android:id="@+id/tvFeeWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/fio_red"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:errorAnimatedText="@{viewModel.feeWarning}"
+            tools:text="@string/fee_is_zero"
+            tools:visibility="visible" />
+    </LinearLayout>
+</layout>
