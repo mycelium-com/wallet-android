@@ -1,12 +1,14 @@
 package com.mycelium.wallet.external.changelly2
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +16,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
+import com.mycelium.view.RingDrawable
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
@@ -110,7 +113,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 }
             }
         }
-        binding?.sellLayout?.coinSymbol?.setOnClickListener {
+        val selectSellAccount = { view: View ->
             binding?.layoutValueKeyboard?.numericKeyboard?.done()
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
@@ -118,6 +121,8 @@ class ExchangeFragment : Fragment(), BackListener {
                 }
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_SELL)
         }
+        binding?.sellLayout?.coinSymbol?.setOnClickListener(selectSellAccount)
+        binding?.sellLayout?.layoutAccount?.setOnClickListener(selectSellAccount)
         binding?.buyLayout?.root?.setOnClickListener {
             binding?.sellLayout?.coinValue?.stopCursor()
             binding?.buyLayout?.coinValue?.startCursor()
@@ -131,13 +136,15 @@ class ExchangeFragment : Fragment(), BackListener {
                 visibility = View.VISIBLE
             }
         }
-        binding?.buyLayout?.coinSymbol?.setOnClickListener {
+        val selectBuyAccount = { view:View ->
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
                     putString(SelectAccountFragment.KEY_TYPE, SelectAccountFragment.VALUE_BUY)
                 }
             }.show(parentFragmentManager, TAG_SELECT_ACCOUNT_BUY)
         }
+        binding?.buyLayout?.coinSymbol?.setOnClickListener(selectBuyAccount)
+        binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
         viewModel.sellValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
                 viewModel.buyValue.value = try {
@@ -280,6 +287,8 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         viewModel.rateLoading.observe(viewLifecycleOwner) {
             if (it) {
+                counterJob?.cancel()
+                binding?.progress?.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_progress, null))
                 binding?.progress?.startAnimation(RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
                         .apply {
                             interpolator = LinearInterpolator()
@@ -287,6 +296,7 @@ class ExchangeFragment : Fragment(), BackListener {
                             duration = 700
                         })
             } else {
+                binding?.progress?.setImageDrawable(null)
                 binding?.progress?.clearAnimation()
             }
         }
@@ -337,6 +347,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
                     { result ->
                         if (result?.result != null) {
+                            refreshRateCounter()
                             viewModel.exchangeInfo.value = result.result
                             if (viewModel.sellValue.value?.isEmpty() != false) {
                                 viewModel.sellValue.value = result.result?.minFrom
@@ -354,6 +365,20 @@ class ExchangeFragment : Fragment(), BackListener {
                     {
                         viewModel.rateLoading.value = false
                     })
+        }
+    }
+
+    var counterJob:Job? = null
+
+    private fun refreshRateCounter() {
+        counterJob?.cancel()
+        var counter = 0
+        counterJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) {
+            if(viewModel.rateLoading.value == false ) {
+                binding?.progress?.setImageDrawable(RingDrawable(counter++ * 360f / 30f, Color.parseColor("#777C80")))
+            } else {
+                counterJob?.cancel()
+            }
         }
     }
 

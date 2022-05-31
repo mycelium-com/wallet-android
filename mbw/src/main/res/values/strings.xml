@@ -1755,6 +1755,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly2_select_from">Select account to exchange:</string>
     <string name="changelly2_select_to">Select account to get:</string>
     <string name="exchange_history">Exchange history</string>
+    <string name="tab_exchange_title">EXCHANGE</string>
+    <string name="no_operations_history">No operations history</string>
+    <string name="history_appear_after_operation">History will appear automatically after the fiest exchange operation</string>
     <string name="next_fee_update_in_s">Next update in %ds</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
