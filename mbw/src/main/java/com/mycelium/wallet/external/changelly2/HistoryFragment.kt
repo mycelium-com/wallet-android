@@ -81,7 +81,7 @@ class HistoryFragment : DialogFragment() {
     }
 
     private fun updateEmpty() {
-        (if (adapter.itemCount == 0) View.GONE else View.VISIBLE).let {
+        (if (adapter.itemCount == 0) View.VISIBLE else View.GONE).let {
             binding?.emptyTitle?.visibility = it
             binding?.emptyText?.visibility = it
         }
