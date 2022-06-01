@@ -230,6 +230,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                             result.result!!.payinAddress!!,
                                         result.result!!.amountExpectedFrom!!)
                                 launch(Dispatchers.Main) {
+                                    loader(false)
                                     AlertDialog.Builder(requireContext())
                                             .setTitle("Exchange")
                                             .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
@@ -243,6 +244,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                 }
                             }
                         } else {
+                            loader(false)
                             AlertDialog.Builder(requireContext())
                                     .setMessage(result?.error?.message)
                                     .setPositiveButton(R.string.button_ok, null)
@@ -250,13 +252,11 @@ class ExchangeFragment : Fragment(), BackListener {
                         }
                     },
                     { _, msg ->
+                        loader(false)
                         AlertDialog.Builder(requireContext())
                                 .setMessage(msg)
                                 .setPositiveButton(R.string.button_ok, null)
                                 .show()
-                    },
-                    {
-                        loader(false)
                     })
         }
         viewModel.fromCurrency.observe(viewLifecycleOwner) { coin ->
