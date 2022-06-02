@@ -70,7 +70,9 @@ import kotlinx.android.synthetic.main.send_coins_advanced_block.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_description.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
+import kotlinx.android.synthetic.main.send_coins_fee_selector.feeValueList
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
+import kotlinx.android.synthetic.main.send_coins_fee_title_eth.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
 import org.web3j.utils.Convert
 import java.math.BigInteger
@@ -157,11 +159,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             if(b) {
                 root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
             }
-        }
-        if (viewModel.isMinerFeeInfoAvailable()) {
-            tvFeeLabel.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
-            ivInfoIcon.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
-            ivInfoIcon.visibility = View.VISIBLE
         }
     }
 
@@ -298,6 +295,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         tvSatFeeValue.visibility = View.GONE
                                         feeLvlList.visibility = View.VISIBLE
                                         feeValueList.visibility = View.VISIBLE
+                                        tvFeeUpdatesTimer.visibility = View.VISIBLE
                                     } else {
                                         val gasLimit =
                                             if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
@@ -313,6 +311,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         tvSatFeeValue.visibility = View.VISIBLE
                                         feeLvlList.visibility = View.GONE
                                         feeValueList.visibility = View.GONE
+                                        tvFeeUpdatesTimer.visibility = View.GONE
                                     }
                                 })
                                 getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
@@ -386,6 +385,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getGasLimit().value = null
                                         gasPrice.setText("")
                                         getGasPrice().value = null
+                                        spinner.setSelection(0)
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 })

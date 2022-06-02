@@ -93,12 +93,12 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         }
     }
 
+    fun getSecondsUntilNextUpdate() = (model as SendEthModel).feeUpdater.secondsUntilNextUpdate
+
     fun convert(value: Value): String =
         " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 
-    override fun isMinerFeeInfoAvailable() = model.account is ERC20Account
-
-    override fun minerFeeInfoClickListener(activity: Activity) {
+    fun minerFeeInfoClickListener() {
         AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
             .setMessage(R.string.miner_fee_erc20_info)
             .setTitle(R.string.miner_fee_erc20_info_title)

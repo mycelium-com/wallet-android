@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    tools:showIn="@layout/send_coins_activity_eth">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/llFee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include
+            layout="@layout/send_coins_fee_heap_eth"
+            bind:viewModel="@{viewModel}" />
+
+        <include layout="@layout/send_coins_fee_selector" />
+
+        <include layout="@layout/send_coins_fee_description" />
+    </LinearLayout>
+</layout>
