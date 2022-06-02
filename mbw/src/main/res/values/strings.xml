@@ -1757,7 +1757,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_history">Exchange history</string>
     <string name="tab_exchange_title">EXCHANGE</string>
     <string name="no_operations_history">No operations history</string>
-    <string name="history_appear_after_operation">History will appear automatically after the fiest exchange operation</string>
+    <string name="history_appear_after_operation">History will appear automatically after the first exchange operation.</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
