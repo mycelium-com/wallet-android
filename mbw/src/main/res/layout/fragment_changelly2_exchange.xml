@@ -74,54 +74,104 @@
                     android:layout_width="0dp"
                     android:layout_height="2dp"
                     android:background="#141415"
-                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateLayout"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toTopOf="@id/exchangeRateLayout" />
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
 
-                <LinearLayout
-                    android:id="@+id/exchangeRateLayout"
+                <!--                <LinearLayout-->
+                <!--                    android:id="@+id/exchangeRateLayout"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginStart="16dp"-->
+                <!--                    android:layout_marginTop="32dp"-->
+                <!--                    android:background="@drawable/bg_coin_value"-->
+                <!--                    android:orientation="horizontal"-->
+                <!--                    android:paddingStart="8dp"-->
+                <!--                    android:paddingTop="4dp"-->
+                <!--                    android:paddingEnd="8dp"-->
+                <!--                    android:paddingBottom="4dp"-->
+                <!--                    app:layout_constraintStart_toStartOf="@id/startGuidline"-->
+                <!--                    app:layout_constraintTop_toBottomOf="@id/sellLayout">-->
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="-8dp"
+                    android:background="@drawable/bg_coin_value"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toEndOf="@id/progress"
+                    app:layout_constraintStart_toStartOf="@id/exchangeRateFrom"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
+
+                <TextView
+                    android:id="@+id/exchangeRateFrom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="32dp"
-                    android:background="@drawable/bg_coin_value"
-                    android:orientation="horizontal"
+                    android:drawablePadding="4dp"
                     android:paddingStart="8dp"
                     android:paddingTop="4dp"
-                    android:paddingEnd="8dp"
                     android:paddingBottom="4dp"
+                    android:text="@{vm.exchangeRateFrom}"
+                    app:drawableStartCompat="@drawable/ic_lock"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toBottomOf="@id/sellLayout">
+                    app:layout_constraintTop_toBottomOf="@id/sellLayout"
+                    bind:text="1 BTC =" />
 
-                    <TextView
-                        android:id="@+id/exchangeRate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawablePadding="4dp"
-                        android:text="@{vm.exchangeRate}"
-                        app:drawableStartCompat="@drawable/ic_lock"
-                        bind:text="1 BTC = 69 420 USDT" />
+                <TextView
+                    android:id="@+id/exchangeRateToValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    app:layout_constrainedWidth="true"
+                    android:text="@{vm.exchangeRateToValue}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toStartOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateFrom"
+                    bind:text="69 420" />
 
-                    <ImageView
-                        android:id="@+id/progress"
-                        android:layout_width="10dp"
-                        android:layout_gravity="center"
-                        android:layout_height="10dp"
-                        android:layout_marginStart="4dp"
-                        android:src="@drawable/ic_progress" />
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/exchangeRateToCurrency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:lines="1"
+                    android:text="@{vm.exchangeRateToCurrency}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toStartOf="@id/progress"
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateToValue"
+                    bind:text="USDT" />
+
+                <ImageView
+                    android:id="@+id/progress"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="32dp"
+                    android:src="@drawable/ic_progress"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintEnd_toStartOf="@id/swapAccount"
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
+                <!--                </LinearLayout>-->
 
                 <ImageView
                     android:id="@+id/swapAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="32dp"
                     android:enabled="@{vm.toAccount.canSpend()}"
                     android:src="@drawable/ic_exchange"
-                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateLayout"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
-                    app:layout_constraintStart_toEndOf="@id/exchangeRateLayout"
-                    app:layout_constraintTop_toTopOf="@id/exchangeRateLayout" />
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
 
                 <include
                     android:id="@+id/buyLayout"
@@ -131,7 +181,7 @@
                     android:layout_marginTop="32dp"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toBottomOf="@id/exchangeRateLayout"
+                    app:layout_constraintTop_toBottomOf="@id/exchangeRateFrom"
                     bind:accountAddress="@{vm.toAddress}"
                     bind:accountLabel="@{vm.toAccount.label}"
                     bind:balance="@{vm.toBalance}"

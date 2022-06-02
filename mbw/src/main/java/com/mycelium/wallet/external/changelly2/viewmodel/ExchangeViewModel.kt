@@ -106,9 +106,22 @@ class ExchangeViewModel : ViewModel() {
                     ?.toStringFriendlyWithUnit()
         }
     }
-    val exchangeRate = Transformations.map(exchangeInfo) {
-        "1 ${it.from.toUpperCase()} = ${it.result} ${it.to.toUpperCase()}"
+//    val exchangeRate = Transformations.map(exchangeInfo) {
+//        "1 ${it.from.toUpperCase()} = ${it.result} ${it.to.toUpperCase()}"
+//    }
+
+    val exchangeRateFrom = Transformations.map(exchangeInfo) {
+        "1 ${it.from.toUpperCase()} = "
     }
+
+    val exchangeRateToValue = Transformations.map(exchangeInfo) {
+        it.result.toPlainString()
+    }
+
+    val exchangeRateToCurrency = Transformations.map(exchangeInfo) {
+        it.to.toUpperCase()
+    }
+
     val fiatSellValue = Transformations.map(sellValue) {
         if (it?.isNotEmpty() == true) {
             try {
