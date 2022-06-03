@@ -134,7 +134,6 @@ public class AddAccountActivity extends AppCompatActivity {
         } else {
             binding.tvInfoBackup.setVisibility(View.GONE);
         }
-        binding.btColuCreate.setOnClickListener(createColuAccount);
         _progress = new ProgressDialog(this);
         binding.btInvestmentCreate.setOnClickListener(v ->
                 startActivity(new Intent(AddAccountActivity.this, BequantIntroActivity.class)));
@@ -325,15 +324,6 @@ public class AddAccountActivity extends AppCompatActivity {
                     createFIOAccount();
                 }
             });
-        }
-    };
-    View.OnClickListener createColuAccount = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = AddColuAccountActivity.getIntent(AddAccountActivity.this);
-            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-            AddAccountActivity.this.startActivity(intent);
-            AddAccountActivity.this.finish();
         }
     };
 
