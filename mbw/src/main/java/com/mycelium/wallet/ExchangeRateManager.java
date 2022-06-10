@@ -50,7 +50,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.exchange.GetExchangeRate;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -135,7 +135,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
-        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+        ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class)
                 .getExchangeAmount(BCH, BTC, 1)
                 .enqueue(new GetOfferCallback());
     }
@@ -452,19 +452,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+    class GetOfferCallback implements Callback<ChangellyResponse<Double>> {
         @Override
-        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAnswerDouble> response) {
-            ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
+                               @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
             if (result != null) {
-                rateBchBtc = (float) result.result;
+                rateBchBtc = result.getResult().floatValue();
                 storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
             }
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call, @NonNull Throwable t) {
             new Toaster(_applicationContext).toast(R.string.service_unavailable, true);
         }
     }

@@ -417,10 +417,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         model.saveInstance(outState)
     }
 
-    open fun isMinerFeeInfoAvailable() = false
-
-    open fun minerFeeInfoClickListener(activity: Activity) {}
-
     fun verifyPaymentRequest(rawPr: ByteArray, activity: Activity) {
         val intent = VerifyPaymentRequestActivity.getIntent(activity, rawPr)
         activity.startActivityForResult(intent, SendCoinsActivity.REQUEST_PAYMENT_HANDLER)

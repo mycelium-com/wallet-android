@@ -3,8 +3,10 @@ package com.mycelium.wallet.activity.util
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
-import android.util.Log
+import android.graphics.drawable.AnimationDrawable
+import android.util.TypedValue
 import android.view.View
+import android.widget.TextView
 import com.mycelium.wallet.R
 
 
@@ -74,4 +76,26 @@ fun View.expand(end: (() -> Unit)? = null) {
     } else {
         endBlock()
     }
+}
+
+fun TextView.startCursor() {
+    setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.input_cursor, 0)
+    post {
+        val animationDrawable = compoundDrawables[2] as AnimationDrawable
+        if (!animationDrawable.isRunning) {
+            animationDrawable.start()
+        }
+    }
+}
+
+fun TextView.stopCursor() {
+    setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+}
+
+fun TextView.resizeTextView() {
+    setTextSize(TypedValue.COMPLEX_UNIT_SP, when (text.toString().length) {
+        in 0..11 -> 36f
+        in 12..16 -> 22f
+        else -> 18f
+    })
 }

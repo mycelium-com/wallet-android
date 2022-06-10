@@ -109,7 +109,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     }
 
     override fun getTxSummary(transactionId: ByteArray): TransactionSummary? =
-            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)!!
+            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
