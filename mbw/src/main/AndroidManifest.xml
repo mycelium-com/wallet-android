@@ -162,7 +162,6 @@
             android:name=".activity.AddAccountActivity"
             android:theme="@style/MyceliumFIO" />
         <activity android:name=".activity.AddAdvancedAccountActivity" />
-        <activity android:name=".activity.AddColuAccountActivity" />
         <activity android:name=".activity.ScanActivity" />
         <activity
             android:name=".activity.CustomCaptureActivity"
