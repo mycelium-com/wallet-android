@@ -164,16 +164,21 @@ class ExchangeViewModel : ViewModel() {
 
     fun isValid(): Boolean =
             try {
+                val res = WalletApplication.getInstance().resources
                 val amount = sellValue.value?.toBigDecimal()
                 when {
                     rateLoading.value == true -> false
                     amount == null -> false
                     amount < exchangeInfo.value?.minFrom -> {
-                        errorTransaction.value = "The amount is lower than the exchange minimum of ${exchangeInfo.value?.minFrom} ${exchangeInfo.value?.from?.toUpperCase()}"
+                        errorTransaction.value = res.getString(R.string.exchange_min_msg,
+                                exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
+                                exchangeInfo.value?.from?.toUpperCase())
                         false
                     }
                     amount > exchangeInfo.value?.maxFrom -> {
-                        errorTransaction.value = "The amount is more than the exchange maximum of ${exchangeInfo.value?.maxFrom} ${exchangeInfo.value?.from?.toUpperCase()}"
+                        errorTransaction.value = res.getString(R.string.exchange_max_msg,
+                                exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
+                                exchangeInfo.value?.from?.toUpperCase())
                         false
                     }
                     else -> checkValidTransaction() != null

@@ -578,7 +578,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         private const val TAB_NEWS = "tab_news"
         private const val TAB_ACCOUNTS = "tab_accounts"
         private const val TAB_BALANCE = "tab_balance"
-        private const val TAB_EXCHANGE = "tab_exchange"
+        const val TAB_EXCHANGE = "tab_exchange"
         private const val TAB_HISTORY = "tab_history"
         const val TAB_FIO_REQUESTS = "tab_fio_requests"
         private const val TAB_ADS = "tab_ads"
