@@ -9,6 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.POST
 import retrofit2.http.Query
+import java.math.BigDecimal
 
 /**
  * Interface to describing Changelly API for retrofit2 library and providing retrofit object intialization.
@@ -54,7 +55,7 @@ interface ChangellyAPIService {
     @POST("getFixRateForAmount")
     suspend fun exchangeAmountFix(@Query("from") from: String,
                                   @Query("to") to: String,
-                                  @Query("amountFrom") amount: Double): Response<ChangellyResponse<FixRateForAmount>>
+                                  @Query("amountFrom") amount: BigDecimal): Response<ChangellyResponse<FixRateForAmount>>
 
     @POST("getFixRate")
     suspend fun fixRate(@Query("from") from: String,

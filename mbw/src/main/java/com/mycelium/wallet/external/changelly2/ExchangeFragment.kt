@@ -148,6 +148,7 @@ class ExchangeFragment : Fragment(), BackListener {
         binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
         viewModel.sellValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
+                updateAmount()
                 viewModel.buyValue.value = try {
                     val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toBigDecimal()!!
                     (amount * viewModel.exchangeInfo.value?.result!!)
@@ -370,6 +371,32 @@ class ExchangeFragment : Fragment(), BackListener {
                     {
                         viewModel.rateLoading.value = false
                     })
+        }
+    }
+
+    private fun updateAmount() {
+        if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
+            viewModel.sellValue.value?.toBigDecimal()?.let { fromAmount ->
+                rateJob?.cancel()
+                rateJob = Changelly2Repository.exchangeAmount(lifecycleScope,
+                        Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
+                        Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
+                        fromAmount,
+                        { result ->
+                            if (result?.result != null) {
+                                refreshRateCounter()
+                                val info = viewModel.exchangeInfo.value
+                                info?.result = result.result!!.rate
+                                viewModel.exchangeInfo.postValue(info)
+                                viewModel.errorRemote.value = ""
+                            } else {
+                                viewModel.errorRemote.value = result?.error?.message ?: ""
+                            }
+                        },
+                        { _, msg ->
+                            viewModel.errorRemote.value = msg
+                        })
+            }
         }
     }
 

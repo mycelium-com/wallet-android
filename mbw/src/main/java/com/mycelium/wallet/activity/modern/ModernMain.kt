@@ -39,6 +39,7 @@ import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.send.InstantWalletActivity
 import com.mycelium.wallet.activity.settings.SettingsActivity
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.getMainMenuContent
 import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
@@ -104,8 +105,10 @@ class ModernMain : AppCompatActivity(), BackHandler {
             mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow)).setCustomView(R.layout.layout_exchange_tab)
             mTabsAdapter!!.addTab(mNewsTab, NewsFragment::class.java, null, TAB_NEWS)
         }
-        mExchangeTab = binding.pagerTabs.newTab().setText(R.string.tab_exchange_title)
-        mTabsAdapter!!.addTab(mExchangeTab, ExchangeFragment::class.java, null, TAB_EXCHANGE)
+        if(SettingsPreference.isContentEnabled("changelly")) {
+            mExchangeTab = binding.pagerTabs.newTab().setText(R.string.tab_exchange_title)
+            mTabsAdapter!!.addTab(mExchangeTab, ExchangeFragment::class.java, null, TAB_EXCHANGE)
+        }
         mAccountsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_accounts))
         mTabsAdapter!!.addTab(mAccountsTab, AccountsFragment::class.java, null, TAB_ACCOUNTS)
         mBalanceTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_balance))
