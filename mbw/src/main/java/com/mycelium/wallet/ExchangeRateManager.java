@@ -44,7 +44,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mycelium.wallet.exchange.GetExchangeRate;
-
 import com.mycelium.wallet.exchange.RatesBacking;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -128,19 +127,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 selectedCurrencies = new ArrayList<>(_fiatCurrencies);
             }
 
-            Map<String, String> savedExchangeRates = storage.getAllExchangeRates();
-            // Before first requests to the server for the rates use cached values if exists
-            // because requests could potentially take quite an amount of time
-            // esp. when there are many fiat currencies
-            // leaving views displaying alternative amounts (such as the total of accounts balances)
-            // with 0.00 until first rates responses processed
-            // TODO could be improved by keeping the date of last saved rates and not using them if they are too old
-            if (_latestRatesTime == 0 && savedExchangeRates.entrySet().size() > 0) {
-                synchronized (_requestLock) {
-                    setLatestRates(localValues(cryptocurrencies, selectedCurrencies, savedExchangeRates));
-                }
-            }
-
             try {
                 List<GetExchangeRatesResponse> responses = new ArrayList<>(cryptocurrencies.size() * selectedCurrencies.size());
                 for (String cryptocurrency : cryptocurrencies) {
@@ -165,7 +151,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 }
             } catch (WapiException e) {
                 // we failed to get the exchange rate, try to restore saved values from the local database
-
                 List<ExchangeRate> savedExchangeRates = backing.allExchangeRates();
                 if (!savedExchangeRates.isEmpty()) {
                     synchronized (_requestLock) {
