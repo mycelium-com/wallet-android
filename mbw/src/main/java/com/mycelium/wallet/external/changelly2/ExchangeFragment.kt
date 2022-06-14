@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.changelly2
 
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.Animation
@@ -192,11 +193,15 @@ class ExchangeFragment : Fragment(), BackListener {
             }
             errorListener = object : ValueKeyboard.ErrorListener {
                 override fun maxError(maxValue: BigDecimal) {
-                    viewModel.errorKeyboard.value = "The amount is more than the exchange maximum of ${viewModel.exchangeInfo.value?.maxFrom} ${viewModel.exchangeInfo.value?.from?.toUpperCase()}"
+                    viewModel.errorKeyboard.value = resources.getString(R.string.exchange_max_msg,
+                            viewModel.exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
+                            viewModel.exchangeInfo.value?.from?.toUpperCase())
                 }
 
                 override fun minError(minValue: BigDecimal) {
-                    viewModel.errorKeyboard.value = "The amount is lower than the exchange minimum of ${viewModel.exchangeInfo.value?.minFrom} ${viewModel.exchangeInfo.value?.from?.toUpperCase()}"
+                    viewModel.errorKeyboard.value = resources.getString(R.string.exchange_min_msg,
+                            viewModel.exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
+                            viewModel.exchangeInfo.value?.from?.toUpperCase())
                 }
 
                 override fun formatError() {
@@ -500,6 +505,6 @@ class ExchangeFragment : Fragment(), BackListener {
                 iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
 
         fun iconPath(coin: String) =
-                "https://web-api.changelly.com/api/coins/${coin.toLowerCase()}.png"
+                Uri.parse("file:///android_asset/token-logos/" + coin.toLowerCase() + "_logo.png")
     }
 }

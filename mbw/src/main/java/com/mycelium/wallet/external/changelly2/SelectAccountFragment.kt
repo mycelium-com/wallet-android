@@ -1,6 +1,7 @@
 package com.mycelium.wallet.external.changelly2
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,8 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter
 import com.mycelium.wallet.activity.addaccount.createERC20
 import com.mycelium.wallet.activity.addaccount.createETH
+import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
@@ -61,6 +64,11 @@ class SelectAccountFragment : DialogFragment() {
                 }
         binding?.toolbar?.setNavigationOnClickListener {
             dismissAllowingStateLoss()
+        }
+        binding?.accounts?.setOnClickListener {
+            requireActivity().finishAffinity()
+            startActivity(Intent(requireContext(), ModernMain::class.java)
+                    .apply { action = MainActions.ACTION_ACCOUNTS })
         }
         binding?.list?.adapter = adapter
         adapter.accountClickListener = { accountItem ->
@@ -155,7 +163,7 @@ class SelectAccountFragment : DialogFragment() {
                 viewModel.isSupported(it.value) && !alreadyHave.contains(it.value.symbol)
             }.map {
                 AddAccountModel(it.value)
-            }
+            }.sortedBy { it.coinType.name }
             if (addAccountList.isNotEmpty()) {
                 val groupTitle = "All supported coins"
                 val group = GroupModel(groupTitle)
