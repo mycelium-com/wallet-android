@@ -554,7 +554,6 @@ class ExchangeFragment : Fragment(), BackListener {
         const val TAG_HISTORY = "history"
 
         const val LINK_TERMS = "https://changelly.com/terms-of-use"
-        const val LINK_AML = "https://changelly.com/aml-kyc"
 
         fun iconPath(coin: CryptoCurrency) =
                 iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
