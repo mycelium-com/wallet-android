@@ -36,7 +36,7 @@ object Changelly2Repository {
                        error: (Int, String) -> Unit,
                        finally: (() -> Unit)? = null) =
             doRequest(scope, {
-                api.exchangeAmountFix(from, to, amount)
+                api.exchangeAmountFix(fixSymbol(from), fixSymbol(to), amount)
             }, success, error, finally)
 
     fun fixRate(scope: CoroutineScope,

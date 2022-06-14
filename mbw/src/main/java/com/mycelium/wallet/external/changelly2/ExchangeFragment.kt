@@ -393,13 +393,15 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private var prevAmount: BigDecimal? = null
 
+    private var amountJob: Job? = null
+
     private fun updateAmount() {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             try {
                 viewModel.sellValue.value?.toBigDecimal()?.let { fromAmount ->
                     if (prevAmount != fromAmount && fromAmount > BigDecimal.ZERO) {
-                        rateJob?.cancel()
-                        rateJob = Changelly2Repository.exchangeAmount(lifecycleScope,
+                        amountJob?.cancel()
+                        amountJob = Changelly2Repository.exchangeAmount(lifecycleScope,
                                 Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                                 Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
                                 fromAmount,
