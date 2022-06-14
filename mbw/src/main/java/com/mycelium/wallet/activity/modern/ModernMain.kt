@@ -153,8 +153,10 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     fun selectTab(tabTag: String?) {
         val selectTab = mTabsAdapter!!.indexOf(tabTag)
-        binding.pagerTabs.getTabAt(selectTab)!!.select()
-        binding.pager.currentItem = selectTab
+        if(selectTab != -1) {
+            binding.pagerTabs.getTabAt(selectTab)?.select()
+            binding.pager.currentItem = selectTab
+        }
         intent.removeExtra(TAB_KEY)
     }
 
