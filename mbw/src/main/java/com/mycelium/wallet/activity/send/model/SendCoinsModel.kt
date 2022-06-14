@@ -176,8 +176,8 @@ abstract class SendCoinsModel(
     protected var feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
 
     var paymentRequestHandlerUUID: String? = null
+    val txRebuildPublisher: PublishSubject<Unit> = PublishSubject.create()
     private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.getFiatCurrency(account.coinType))
-    private val txRebuildPublisher: PublishSubject<Unit> = PublishSubject.create()
     private val amountUpdatePublisher: PublishSubject<Unit> = PublishSubject.create()
     private val receiverChanged: PublishSubject<Unit> = PublishSubject.create()
 

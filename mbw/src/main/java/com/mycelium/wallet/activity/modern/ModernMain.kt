@@ -8,6 +8,7 @@ import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -30,6 +31,8 @@ import com.mycelium.wallet.activity.main.FioRequestsHistoryFragment
 import com.mycelium.wallet.activity.main.RecommendationsFragment
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter
+import com.mycelium.wallet.activity.modern.event.BackHandler
+import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.news.NewsActivity
@@ -43,6 +46,7 @@ import com.mycelium.wallet.activity.util.collapse
 import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.databinding.ModernMainBinding
 import com.mycelium.wallet.event.*
+import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
@@ -57,9 +61,10 @@ import info.guardianproject.onionkit.ui.OrbotHelper
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class ModernMain : AppCompatActivity() {
+class ModernMain : AppCompatActivity(), BackHandler {
     private lateinit var mbwManager: MbwManager
     private var mTabsAdapter: TabsAdapter? = null
+    private var mExchangeTab: TabLayout.Tab? = null
     private var mBalanceTab: TabLayout.Tab? = null
     private var mNewsTab: TabLayout.Tab? = null
     private var mAccountsTab: TabLayout.Tab? = null
@@ -74,6 +79,8 @@ class ModernMain : AppCompatActivity() {
     private var _isAppStart = true
     private var counter = 0
     private var balanceRefreshTimer: Timer? = null
+
+    val backListeners = mutableListOf<BackListener>()
 
     lateinit var binding: ModernMainBinding
 
@@ -94,9 +101,11 @@ class ModernMain : AppCompatActivity() {
         binding.pager.offscreenPageLimit = 5
         mTabsAdapter = TabsAdapter(this, binding.pager, mbwManager)
         if (mediaFlowEnabled) {
-            mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow))
+            mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow)).setCustomView(R.layout.layout_exchange_tab)
             mTabsAdapter!!.addTab(mNewsTab, NewsFragment::class.java, null, TAB_NEWS)
         }
+        mExchangeTab = binding.pagerTabs.newTab().setText(R.string.tab_exchange_title)
+        mTabsAdapter!!.addTab(mExchangeTab, ExchangeFragment::class.java, null, TAB_EXCHANGE)
         mAccountsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_accounts))
         mTabsAdapter!!.addTab(mAccountsTab, AccountsFragment::class.java, null, TAB_ACCOUNTS)
         mBalanceTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_balance))
@@ -134,6 +143,9 @@ class ModernMain : AppCompatActivity() {
         }
         ModularisationVersionHelper.notifyWrongModuleVersion(this)
         handleIntent(intent)
+
+        val tab = mTabsAdapter!!.indexOf(TAB_EXCHANGE)
+        binding.pagerTabs.getTabAt(tab)?.setCustomView(R.layout.layout_exchange_tab)
     }
 
     fun selectTab(tabTag: String?) {
@@ -149,25 +161,35 @@ class ModernMain : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
-        if (mediaFlowEnabled &&
-                getIntent().action == NewsUtils.MEDIA_FLOW_ACTION) {
-            selectTab(TAB_NEWS)
-            if (getIntent().hasExtra(NewsConstants.NEWS)) {
-                startActivity(Intent(this, NewsActivity::class.java)
+        when(intent.action) {
+            NewsUtils.MEDIA_FLOW_ACTION -> {
+                if(mediaFlowEnabled) {
+                    selectTab(TAB_NEWS)
+                    if (getIntent().hasExtra(NewsConstants.NEWS)) {
+                        startActivity(Intent(this, NewsActivity::class.java)
+                                .putExtras(getIntent().extras!!))
+                    }
+                }
+            }
+            FioRequestNotificator.FIO_REQUEST_ACTION -> {
+                selectTab(TAB_FIO_REQUESTS)
+                startActivity(Intent(this, ApproveFioRequestActivity::class.java)
                         .putExtras(getIntent().extras!!))
             }
-        } else if (intent.action == FioRequestNotificator.FIO_REQUEST_ACTION) {
-            selectTab(TAB_FIO_REQUESTS)
-            startActivity(Intent(this, ApproveFioRequestActivity::class.java)
-                    .putExtras(getIntent().extras!!))
-        } else if (intent.action == MainActions.ACTION_ACCOUNTS) {
-            mAccountsTab!!.select()
-            binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_ACCOUNTS)
-        } else if (intent.action == MainActions.ACTION_TXS) {
-            mTransactionsTab!!.select()
-            binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_HISTORY)
-        } else if (intent.hasExtra("action")) {
-            startActivity(Intent(this, ActionActivity::class.java).putExtras(intent))
+            MainActions.ACTION_ACCOUNTS -> {
+                mAccountsTab!!.select()
+                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_ACCOUNTS)
+            }
+            MainActions.ACTION_TXS -> {
+                mTransactionsTab!!.select()
+                binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_HISTORY)
+            }
+            MainActions.ACTION_EXCHANGE -> {
+                selectTab(TAB_EXCHANGE)
+            }
+            else -> if(intent.hasExtra("action")) {
+                startActivity(Intent(this, ActionActivity::class.java).putExtras(intent))
+            }
         }
     }
 
@@ -302,6 +324,11 @@ class ModernMain : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        backListeners.forEach {
+            if(it.onBackPressed()) {
+               return
+            }
+        }
         if (mBalanceTab!!.isSelected) {
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
@@ -539,10 +566,19 @@ class ModernMain : AppCompatActivity() {
         updateNetworkConnectionState()
     }
 
+    override fun addBackListener(listener: BackListener) {
+        backListeners.add(listener)
+    }
+
+    override fun removeBackListener(listener: BackListener) {
+        backListeners.remove(listener)
+    }
+
     companion object {
         private const val TAB_NEWS = "tab_news"
         private const val TAB_ACCOUNTS = "tab_accounts"
         private const val TAB_BALANCE = "tab_balance"
+        const val TAB_EXCHANGE = "tab_exchange"
         private const val TAB_HISTORY = "tab_history"
         const val TAB_FIO_REQUESTS = "tab_fio_requests"
         private const val TAB_ADS = "tab_ads"

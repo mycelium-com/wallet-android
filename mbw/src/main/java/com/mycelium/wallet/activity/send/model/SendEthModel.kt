@@ -12,6 +12,7 @@ import com.mycelium.wallet.activity.send.TransactionItem
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -21,10 +22,13 @@ import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import kotlinx.coroutines.*
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.timerTask
 
 class SendEthModel(application: Application,
                    account: WalletAccount<*>,
@@ -78,6 +82,23 @@ class SendEthModel(application: Application,
         }
     }
 
+    val gasPrice: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
+        override fun setValue(value: BigInteger?) {
+            if (value != this.value) {
+                super.setValue(value)
+                val oldData =
+                        (transactionData.value as? EthTransactionData) ?: EthTransactionData()
+                transactionData.value =
+                        EthTransactionData(oldData.nonce, oldData.gasLimit, oldData.inputData, value)
+                if (value != null) {
+                    feeUpdater.stop()
+                } else {
+                    feeUpdater.start()
+                }
+            }
+        }
+    }
+
     val inputData: MutableLiveData<String?> = object : MutableLiveData<String?>() {
         override fun setValue(value: String?) {
             if (value != this.value) {
@@ -91,10 +112,23 @@ class SendEthModel(application: Application,
 
     val estimatedFee: MutableLiveData<Value> = MutableLiveData()
     val totalFee: MutableLiveData<Value> = MutableLiveData()
+    val feeUpdater = FeeUpdater(FEE_UPDATE_INTERVAL, { feeUpdateRoutine() })
 
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
+        feeUpdater.start()
+    }
+
+    private suspend fun feeUpdateRoutine() {
+        withContext(Dispatchers.Main) {
+            transactionStatus.value = TransactionStatus.BUILDING
+        }
+        delay(1000) // for more visible update effect
+        mbwManager.getFeeProvider(account.basedOnCoinType).updateFeeEstimationsAsync()
+        feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+        feeUpdatePublisher.onNext(Unit)
+        txRebuildPublisher.onNext(Unit)
     }
 
     private fun populateTxItems() {
@@ -149,4 +183,61 @@ class SendEthModel(application: Application,
     enum class GasLimitStatus {
         OK, WARNING, ERROR
     }
+
+    companion object {
+        val FEE_UPDATE_INTERVAL = TimeUnit.SECONDS.toMillis(30)
+    }
+}
+
+class FeeUpdater(
+    private val feeUpdateIntervalMs: Long,
+    private val feeUpdateRoutine: suspend () -> Unit,
+    private val onStop: (() -> Unit)? = null
+) {
+    val secondsUntilNextUpdate: MutableLiveData<Long> = MutableLiveData(feeUpdateIntervalMs / 1000L)
+    private lateinit var updateSecondsTimer: Job
+    private lateinit var feeUpdateScheduledTask: Timer
+    @Volatile
+    var hasStarted = false
+        private set
+
+    fun start() {
+        if (hasStarted) return
+
+        hasStarted = true
+        startUpdateSecondsTimer()
+        feeUpdateScheduledTask = Timer().apply {
+            scheduleAtFixedRate(timerTask {
+                runBlocking {
+                    stopUpdateSecondsTimer()
+                    feeUpdateRoutine()
+                    startUpdateSecondsTimer()
+                }
+            }, feeUpdateIntervalMs, feeUpdateIntervalMs)
+        }
+    }
+
+    fun stop() {
+        if (!hasStarted) return
+
+        feeUpdateScheduledTask.cancel()
+        stopUpdateSecondsTimer()
+        hasStarted = false
+        onStop?.invoke()
+    }
+
+    private fun startUpdateSecondsTimer() {
+        updateSecondsTimer = getUpdateSecondsTimer()
+        updateSecondsTimer.start()
+    }
+
+    private fun stopUpdateSecondsTimer() {
+        updateSecondsTimer.cancel()
+        secondsUntilNextUpdate.postValue(feeUpdateIntervalMs / 1000L)
+    }
+
+    private fun getUpdateSecondsTimer() = startCoroutineTimer(
+        CoroutineScope(Dispatchers.Default + SupervisorJob()), 0, 1000) {
+            secondsUntilNextUpdate.postValue((secondsUntilNextUpdate.value?.minus(1)))
+        }
 }

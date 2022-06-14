@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
@@ -40,7 +41,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     var investmentAccountClickListener: ItemClickListener? = null
     private val layoutInflater = LayoutInflater.from(context)
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
-    private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
+    private val listModel by fragment.activityViewModels<AccountsListModel>()
     private val walletManager = mbwManager.getWalletManager(false)
 
     val focusedAccount: WalletAccount<out Address>?

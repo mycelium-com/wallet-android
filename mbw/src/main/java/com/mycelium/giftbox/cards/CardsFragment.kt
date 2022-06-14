@@ -16,6 +16,7 @@ import com.mycelium.giftbox.cards.adapter.CardAdapter
 import com.mycelium.giftbox.cards.adapter.CardItem
 import com.mycelium.giftbox.cards.adapter.CardListItem
 import com.mycelium.giftbox.cards.adapter.GroupItem
+import com.mycelium.giftbox.cards.event.OrdersUpdate
 import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.model.Card
@@ -123,6 +124,11 @@ class CardsFragment : Fragment() {
 
     @Subscribe
     internal fun updateOrder(request: RefreshOrdersRequest) {
+        loadData()
+    }
+
+    @Subscribe
+    internal fun updateOrder(event: OrdersUpdate) {
         loadData()
     }
 }

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.modern.Toaster
+import com.mycelium.wallet.external.changelly2.ExchangeFragment
 
 fun Fragment.startContentLink(link: String?) {
     startContentLink(link) {
@@ -34,5 +36,10 @@ private fun startContentLink(link: String?, startAction: (Intent) -> Unit) {
     }
 }
 
-
-
+fun Fragment.openLink(link: String?) {
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+    } catch (e: ActivityNotFoundException) {
+        Toaster(this).toast("Can't open ${ExchangeFragment.LINK_TERMS}", true)
+    }
+}

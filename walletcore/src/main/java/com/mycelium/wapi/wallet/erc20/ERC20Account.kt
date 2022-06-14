@@ -44,21 +44,23 @@ class ERC20Account(private val chainId: Byte,
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
-        val gasPrice = (fee as FeePerKbFee).feePerKb.value
+        val gasPrice = ethTxData?.suggestedGasPrice?.let {
+            Value.valueOf(basedOnCoinType, it)
+        } ?: (fee as FeePerKbFee).feePerKb
         val inputData = getInputData(address.toString(), amount.value)
 
-        if (calculateMaxSpendableAmount(fee.feePerKb, null) < amount) {
+        if (calculateMaxSpendableAmount(gasPrice, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
-        if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
+        if (ethAcc.accountBalance.spendable.value < gasPrice.value * gasLimit) {
             throw InsufficientFundsForFeeException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice, accountContext.nonce, gasLimit, inputData, amount)
+            gasPrice.value, accountContext.nonce, gasLimit, inputData, amount)
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
