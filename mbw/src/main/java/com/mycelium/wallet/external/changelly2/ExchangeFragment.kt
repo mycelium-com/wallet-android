@@ -22,6 +22,7 @@ import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.send.BroadcastDialog
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.util.resizeTextView
 import com.mycelium.wallet.activity.util.startCursor
 import com.mycelium.wallet.activity.util.stopCursor
@@ -30,6 +31,9 @@ import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.*
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
+import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
@@ -149,28 +153,36 @@ class ExchangeFragment : Fragment(), BackListener {
         viewModel.sellValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
                 updateAmount()
-                viewModel.buyValue.value = try {
-                    val amount = binding?.sellLayout?.coinValue?.text?.toString()?.toBigDecimal()!!
-                    (amount * viewModel.exchangeInfo.value?.result!!)
-                            .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                            .stripTrailingZeros()
-                            .toPlainString()
-                } catch (e: NumberFormatException) {
-                    "N/A"
+                val amount = binding?.sellLayout?.coinValue?.text?.toString()
+                viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
+                    try {
+                        (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
+                                .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
+                                .stripTrailingZeros()
+                                .toPlainString()
+                    } catch (e: NumberFormatException) {
+                        "N/A"
+                    }
+                } else {
+                    null
                 }
             }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
         viewModel.buyValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
-                viewModel.sellValue.value = try {
-                    val amount = binding?.buyLayout?.coinValue?.text?.toString()?.toBigDecimal()
-                    amount?.setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                            ?.div(viewModel.exchangeInfo.value?.result!!)
-                            ?.stripTrailingZeros()
-                            ?.toPlainString() ?: "N/A"
-                } catch (e: NumberFormatException) {
-                    "N/A"
+                val amount = binding?.buyLayout?.coinValue?.text?.toString()
+                viewModel.sellValue.value = if (amount?.isNotEmpty() == true) {
+                    try {
+                        amount.toBigDecimal().setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
+                                ?.div(viewModel.exchangeInfo.value?.result!!)
+                                ?.stripTrailingZeros()
+                                ?.toPlainString() ?: "N/A"
+                    } catch (e: NumberFormatException) {
+                        "N/A"
+                    }
+                } else {
+                    null
                 }
             }
             binding?.buyLayout?.coinValue?.resizeTextView()
@@ -237,16 +249,9 @@ class ExchangeFragment : Fragment(), BackListener {
                                         result.result!!.amountExpectedFrom!!)
                                 launch(Dispatchers.Main) {
                                     loader(false)
-                                    AlertDialog.Builder(requireContext())
-                                            .setTitle("Exchange")
-                                            .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
-                                                    "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
-                                                    "Miners fee: ${unsignedTx?.totalFee()?.toStringWithUnit()}")
-                                            .setPositiveButton(R.string.button_ok) { _, _ ->
-                                                sendTx(result.result!!.id!!, unsignedTx!!)
-                                            }
-                                            .setNegativeButton(R.string.cancel, null)
-                                            .show()
+                                    acceptDialog(unsignedTx, result) {
+                                        sendTx(result.result!!.id!!, unsignedTx!!)
+                                    }
                                 }
                             }
                         } else {
@@ -289,7 +294,7 @@ class ExchangeFragment : Fragment(), BackListener {
             openLink(LINK_TERMS)
         }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(30)) {
-            updateExchangeRate()
+            updateAmount()
         }
         viewModel.rateLoading.observe(viewLifecycleOwner) {
             if (it) {
@@ -305,6 +310,23 @@ class ExchangeFragment : Fragment(), BackListener {
                 binding?.progress?.setImageDrawable(null)
                 binding?.progress?.clearAnimation()
             }
+        }
+    }
+
+    private fun acceptDialog(unsignedTx: Transaction?, result: ChangellyResponse<ChangellyTransactionOffer>, action: () -> Unit) {
+        if (SettingsPreference.quickExchangeEnabled) {
+            action()
+        } else {
+            AlertDialog.Builder(requireContext())
+                    .setTitle("Exchange")
+                    .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
+                            "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
+                            "Miners fee: ${unsignedTx?.totalFee()?.toStringWithUnit()}")
+                    .setPositiveButton(R.string.button_ok) { _, _ ->
+                        action()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
         }
     }
 
@@ -355,11 +377,6 @@ class ExchangeFragment : Fragment(), BackListener {
                         if (result?.result != null) {
                             refreshRateCounter()
                             viewModel.exchangeInfo.value = result.result
-                            if (viewModel.sellValue.value?.isEmpty() != false) {
-                                viewModel.sellValue.value = result.result?.minFrom
-                                        ?.stripTrailingZeros()
-                                        ?.toPlainString()
-                            }
                             viewModel.errorRemote.value = ""
                         } else {
                             viewModel.errorRemote.value = result?.error?.message ?: ""
@@ -374,28 +391,37 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
+    private var prevAmount: BigDecimal? = null
+
     private fun updateAmount() {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
-            viewModel.sellValue.value?.toBigDecimal()?.let { fromAmount ->
-                rateJob?.cancel()
-                rateJob = Changelly2Repository.exchangeAmount(lifecycleScope,
-                        Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
-                        Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
-                        fromAmount,
-                        { result ->
-                            if (result?.result != null) {
-                                refreshRateCounter()
-                                val info = viewModel.exchangeInfo.value
-                                info?.result = result.result!!.rate
-                                viewModel.exchangeInfo.postValue(info)
-                                viewModel.errorRemote.value = ""
-                            } else {
-                                viewModel.errorRemote.value = result?.error?.message ?: ""
-                            }
-                        },
-                        { _, msg ->
-                            viewModel.errorRemote.value = msg
-                        })
+            try {
+                viewModel.sellValue.value?.toBigDecimal()?.let { fromAmount ->
+                    if (prevAmount != fromAmount && fromAmount > BigDecimal.ZERO) {
+                        rateJob?.cancel()
+                        rateJob = Changelly2Repository.exchangeAmount(lifecycleScope,
+                                Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
+                                Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
+                                fromAmount,
+                                { result ->
+                                    result?.result?.let {
+                                        refreshRateCounter()
+                                        val info = viewModel.exchangeInfo.value
+                                        viewModel.exchangeInfo.postValue(
+                                                FixRate(it.id, it.result, it.from, it.to,
+                                                        info!!.maxFrom, info.maxTo, info.minFrom, info.minTo))
+                                        viewModel.errorRemote.value = ""
+                                    } ?: run {
+                                        viewModel.errorRemote.value = result?.error?.message ?: ""
+                                    }
+                                },
+                                { _, msg ->
+                                    viewModel.errorRemote.value = msg
+                                })
+                        prevAmount = fromAmount
+                    }
+                }
+            } catch (e: NumberFormatException) {
             }
         }
     }

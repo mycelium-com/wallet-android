@@ -62,6 +62,20 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                     summary = getString(R.string.cant_disable_active_account)
                 }
             })
+            if(partnerInfo.id == "changelly") {
+                preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
+                    title = "Quick exchange"
+                    summary ="Don't show accept dialog before exchange"
+                    layoutResource = R.layout.preference_layout
+                    isChecked = SettingsPreference.quickExchangeEnabled
+                    widgetLayoutResource = R.layout.preference_switch
+                    onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference ->
+                        val p = preference as CheckBoxPreference
+                        SettingsPreference.quickExchangeEnabled = p.isChecked
+                        true
+                    }
+                })
+            }
         }
         if (fioActive) {
             preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {

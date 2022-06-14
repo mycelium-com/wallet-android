@@ -135,19 +135,20 @@ class ExchangeViewModel : ViewModel() {
             ""
         }
     }
-    val fiatBuyValue = Transformations.map(buyValue) {
-        if (it?.isNotEmpty() == true) {
-            try {
-                mbwManager.exchangeRateManager
-                        .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
-                        ?.toStringFriendlyWithUnit()
-            } catch (e: NumberFormatException) {
-                "N/A"
-            }
-        } else {
-            ""
-        }
-    }
+    val fiatBuyValue = ""
+//    Transformations.map(buyValue) {
+//        if (it?.isNotEmpty() == true) {
+//            try {
+//                mbwManager.exchangeRateManager
+//                        .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
+//                        ?.toStringFriendlyWithUnit()
+//            } catch (e: NumberFormatException) {
+//                "N/A"
+//            }
+//        } else {
+//            ""
+//        }
+//    }
 
     val validateData = MediatorLiveData<Boolean>().apply {
         value = isValid()

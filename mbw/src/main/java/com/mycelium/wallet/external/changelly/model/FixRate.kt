@@ -13,7 +13,7 @@ import java.math.BigDecimal
 //"minTo": "0.00379488"
 
 class FixRate(val id: String,
-              var result: BigDecimal,
+              val result: BigDecimal,
               val from: String,
               val to: String,
               val maxFrom: BigDecimal,

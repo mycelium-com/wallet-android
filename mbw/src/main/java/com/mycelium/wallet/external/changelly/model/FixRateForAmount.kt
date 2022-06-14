@@ -4,7 +4,7 @@ import java.math.BigDecimal
 
 
 data class FixRateForAmount(val id: String,
-                            val rate: BigDecimal,
+                            val result: BigDecimal,
                             val from: String,
                             val to: String,
                             val amountFrom: BigDecimal,
