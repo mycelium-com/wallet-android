@@ -2,10 +2,9 @@ package com.mycelium.wallet.external.changelly2
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.LinearLayout
+import androidx.core.view.forEach
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.mycelium.wallet.R
@@ -28,6 +27,7 @@ class HistoryFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.Dialog_Changelly)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -54,6 +54,11 @@ class HistoryFragment : DialogFragment() {
         }
         binding?.list?.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), LinearLayout.VERTICAL))
         binding?.list?.adapter = adapter
+        update()
+        updateEmpty()
+    }
+
+    private fun update() {
         val txIds = (pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList()
         if (txIds.isNotEmpty()) {
             loader(true)
@@ -77,7 +82,17 @@ class HistoryFragment : DialogFragment() {
                         loader(false)
                     })
         }
-        updateEmpty()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        binding?.toolbar?.menu?.clear()
+        inflater.inflate(R.menu.exchange_changelly2_result, binding?.toolbar?.menu)
+        binding?.toolbar?.menu?.forEach {
+            it.setOnMenuItemClickListener {
+                onOptionsItemSelected(it)
+            }
+        }
     }
 
     private fun updateEmpty() {
@@ -91,6 +106,15 @@ class HistoryFragment : DialogFragment() {
         super.onStart()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                R.id.refresh -> {
+                    update()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 
     override fun onDestroyView() {
         binding = null
