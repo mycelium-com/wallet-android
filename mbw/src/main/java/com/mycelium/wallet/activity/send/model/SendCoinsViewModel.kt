@@ -229,6 +229,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getRequestedAmountAlternativeFormatted() = model.alternativeAmountFormatted
 
+    fun getCourseOutdated() = model.alternativeAmountWarning
+
     fun showStaleWarning() = model.showStaleWarning
 
     fun getTransaction() = model.transaction
