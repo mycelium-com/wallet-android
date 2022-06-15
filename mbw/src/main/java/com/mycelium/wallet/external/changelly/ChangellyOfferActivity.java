@@ -173,7 +173,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = currency;
         order.receivingAddress = receivingAddress;
-        order.receivingAmount = decimalFormat.format(offer.amountTo);
+        order.receivingAmount = offer.amountTo.stripTrailingZeros().toPlainString();
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());
