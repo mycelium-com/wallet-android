@@ -1,6 +1,7 @@
 package com.mycelium.wallet.external.changelly.model
 
 import java.io.Serializable
+import java.math.BigDecimal
 
 
 class ChangellyTransactionOffer : Serializable {
@@ -15,7 +16,7 @@ class ChangellyTransactionOffer : Serializable {
     var currencyFrom: String? = null
     var currencyTo: String? = null
     @JvmField
-    var amountTo = 0.0
+    var amountTo:BigDecimal = BigDecimal.ZERO
     @JvmField
     var payinAddress: String? = null
     var payoutAddress: String? = null

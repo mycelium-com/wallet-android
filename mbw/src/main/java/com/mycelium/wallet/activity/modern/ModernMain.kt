@@ -105,7 +105,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow)).setCustomView(R.layout.layout_exchange_tab)
             mTabsAdapter!!.addTab(mNewsTab, NewsFragment::class.java, null, TAB_NEWS)
         }
-        if(SettingsPreference.isContentEnabled("changelly")) {
+        if(SettingsPreference.isContentEnabled(PARTNER_ID_CHANGELLY)) {
             mExchangeTab = binding.pagerTabs.newTab().setText(R.string.tab_exchange_title)
             mTabsAdapter!!.addTab(mExchangeTab, ExchangeFragment::class.java, null, TAB_EXCHANGE)
         }

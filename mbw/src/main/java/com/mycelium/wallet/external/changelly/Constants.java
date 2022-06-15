@@ -21,4 +21,5 @@ public class Constants {
 
     public static final String XRP = "xrp";
     public static final String XEM = "xem";
+    public static final String PARTNER_ID_CHANGELLY = "changelly";
 }

@@ -318,10 +318,13 @@ class ExchangeFragment : Fragment(), BackListener {
             action()
         } else {
             AlertDialog.Builder(requireContext())
-                    .setTitle("Exchange")
-                    .setMessage("You send: ${result.result?.amountExpectedFrom} ${result.result?.currencyFrom?.toUpperCase()}\n" +
-                            "You get: ${result.result?.amountTo} ${result.result?.currencyTo?.toUpperCase()}\n" +
-                            "Miners fee: ${unsignedTx?.totalFee()?.toStringWithUnit()}")
+                    .setTitle(getString(R.string.exchange_accept_dialog_title))
+                    .setMessage(getString(R.string.exchange_accept_dialog_msg,
+                            result.result?.amountExpectedFrom,
+                            result.result?.currencyFrom?.toUpperCase(),
+                            result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
+                            result.result?.currencyTo?.toUpperCase(),
+                            unsignedTx?.totalFee()?.toStringWithUnit()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         action()
                     }
