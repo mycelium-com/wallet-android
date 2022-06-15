@@ -8,7 +8,6 @@ import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -47,6 +46,7 @@ import com.mycelium.wallet.activity.util.collapse
 import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.databinding.ModernMainBinding
 import com.mycelium.wallet.event.*
+import com.mycelium.wallet.external.changelly.ChangellyConstants
 import com.mycelium.wallet.external.changelly2.ExchangeFragment
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.fio.FioRequestNotificator
@@ -105,7 +105,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow)).setCustomView(R.layout.layout_exchange_tab)
             mTabsAdapter!!.addTab(mNewsTab, NewsFragment::class.java, null, TAB_NEWS)
         }
-        if(SettingsPreference.isContentEnabled(PARTNER_ID_CHANGELLY)) {
+        if(SettingsPreference.isContentEnabled(ChangellyConstants.PARTNER_ID_CHANGELLY)) {
             mExchangeTab = binding.pagerTabs.newTab().setText(R.string.tab_exchange_title)
             mTabsAdapter!!.addTab(mExchangeTab, ExchangeFragment::class.java, null, TAB_EXCHANGE)
         }

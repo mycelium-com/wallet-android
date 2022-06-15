@@ -32,7 +32,7 @@ import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
-import com.mycelium.wallet.external.changelly.Constants;
+import com.mycelium.wallet.external.changelly.ChangellyConstants;
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -56,8 +56,8 @@ import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getActiveBTCSingleAddressAccounts;
-import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
-import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.ABOUT;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
 import static com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModuleKt.getBCHBip44Accounts;
 import static com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModuleKt.getBCHSingleAddressAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
@@ -252,12 +252,12 @@ public class ExchangeFragment extends Fragment {
         }
         Fragment fragment = new ConfirmExchangeFragment();
         Bundle bundle = new Bundle();
-        bundle.putDouble(Constants.FROM_AMOUNT, dblAmount);
+        bundle.putDouble(ChangellyConstants.FROM_AMOUNT, dblAmount);
         WalletAccount toAccount = toAccountAdapter.getItem(toRecyclerView.getSelectedItem()).account;
-        bundle.putSerializable(Constants.DESTADDRESS, toAccount.getId());
+        bundle.putSerializable(ChangellyConstants.DESTADDRESS, toAccount.getId());
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
-        bundle.putSerializable(Constants.FROM_ADDRESS, fromAccount.getId());
-        bundle.putString(Constants.TO_AMOUNT, toValue.getText().toString());
+        bundle.putSerializable(ChangellyConstants.FROM_ADDRESS, fromAccount.getId());
+        bundle.putString(ChangellyConstants.TO_AMOUNT, toValue.getText().toString());
 
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()

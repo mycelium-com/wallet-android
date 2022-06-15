@@ -37,7 +37,7 @@ import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getActiveBTCSingleAddressAccounts;
-import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
@@ -132,12 +132,12 @@ public class ChangellyActivity extends AppCompatActivity {
             public void done() {
                 titleView.setVisibility(View.VISIBLE);
                 subtitleView.setVisibility(View.VISIBLE);
-                fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
-                toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+                fromLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
+                toLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
             }
         });
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
-        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        fromLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
+        toLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
 
         int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
@@ -276,8 +276,8 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setEntry(fromValue.getText().toString());
-        fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
-        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        fromLayout.setAlpha(ChangellyConstants.ACTIVE_ALPHA);
+        toLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
 
         llChangellyMain.post(new Runnable() {
             @Override
@@ -292,8 +292,8 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setEntry(toValue.getText().toString());
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
-        toLayout.setAlpha(Constants.ACTIVE_ALPHA);
+        fromLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
+        toLayout.setAlpha(ChangellyConstants.ACTIVE_ALPHA);
 
         llChangellyMain.post(new Runnable() {
             @Override

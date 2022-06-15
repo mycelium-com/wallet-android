@@ -13,7 +13,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioActive
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
-import com.mycelium.wallet.external.changelly.Constants
+import com.mycelium.wallet.external.changelly.ChangellyConstants
 
 class ExternalServiceFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -63,7 +63,7 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                     summary = getString(R.string.cant_disable_active_account)
                 }
             })
-            if(partnerInfo.id == Constants.PARTNER_ID_CHANGELLY) {
+            if(partnerInfo.id == ChangellyConstants.PARTNER_ID_CHANGELLY) {
                 preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
                     title = getString(R.string.settings_exchange_quick_exchange_title)
                     summary = getString(R.string.settings_exchange_quick_exchange_summary)
