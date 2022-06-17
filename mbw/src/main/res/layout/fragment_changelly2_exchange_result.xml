@@ -69,18 +69,18 @@
                 app:layout_constraintTop_toBottomOf="@id/sendLabel"
                 tools:text="0.00001232 BTC" />
 
-            <TextView
-                android:id="@+id/sendAmountFiat"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@{vm.spendValueFiat}"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:layout_constraintBaseline_toBaselineOf="@id/sendAmount"
-                app:layout_constraintEnd_toEndOf="@id/endGuidline"
-                app:layout_constraintStart_toEndOf="@id/sendAmount"
-                tools:text="~ 55 USD" />
+<!--            <TextView-->
+<!--                android:id="@+id/sendAmountFiat"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:text="@{vm.spendValueFiat}"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="14sp"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@id/sendAmount"-->
+<!--                app:layout_constraintEnd_toEndOf="@id/endGuidline"-->
+<!--                app:layout_constraintStart_toEndOf="@id/sendAmount"-->
+<!--                tools:text="~ 55 USD" />-->
 
             <TextView
                 android:id="@+id/getLabel"
@@ -106,18 +106,18 @@
                 app:layout_constraintTop_toBottomOf="@id/getLabel"
                 tools:text="0.00001232 BTC" />
 
-            <TextView
-                android:id="@+id/getAmountFiat"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@{vm.getValueFiat}"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:layout_constraintBaseline_toBaselineOf="@id/getAmount"
-                app:layout_constraintEnd_toEndOf="@id/endGuidline"
-                app:layout_constraintStart_toEndOf="@id/getAmount"
-                tools:text="~ 55 USD" />
+<!--            <TextView-->
+<!--                android:id="@+id/getAmountFiat"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:text="@{vm.getValueFiat}"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="14sp"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@id/getAmount"-->
+<!--                app:layout_constraintEnd_toEndOf="@id/endGuidline"-->
+<!--                app:layout_constraintStart_toEndOf="@id/getAmount"-->
+<!--                tools:text="~ 55 USD" />-->
 
             <TextView
                 android:id="@+id/exchangeIdLabel"

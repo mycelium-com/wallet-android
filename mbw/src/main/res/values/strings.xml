@@ -1763,6 +1763,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="next_fee_update_in_s">Next update in %ds</string>
     <string name="exchange_min_msg">The amount is lower than the exchange minimum of %s %s</string>
     <string name="exchange_max_msg">The amount is more than the exchange maximum of %s %s</string>
+    <string name="settings_exchange_quick_exchange_title">Quick exchange</string>
+    <string name="settings_exchange_quick_exchange_summary">Don\'t show accept dialog before exchange</string>
+    <string name="exchange_accept_dialog_title">Exchange</string>
+    <string name="exchange_accept_dialog_msg">You send: %s %s\nYou get: %s %s\nMiners fee: %s</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>

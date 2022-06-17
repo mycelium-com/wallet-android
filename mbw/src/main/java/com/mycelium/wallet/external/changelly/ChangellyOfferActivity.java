@@ -33,7 +33,7 @@ import retrofit2.Response;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
-import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
 
 public class ChangellyOfferActivity extends AppCompatActivity {
     public static final int RESULT_FINISH = 11;
@@ -78,7 +78,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private void updateUI() {
         tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                , Constants.decimalFormat.format(amount)));
+                , ChangellyConstants.decimalFormat.format(amount)));
         tvSendToAddress.setText(offer.payinAddress);
         transactionId.setText(getString(R.string.exchange_operation_id_s, offer.id));
 
@@ -93,9 +93,9 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private String getExtraIdName(String coin) {
         switch (coin) {
-            case Constants.XRP:
+            case ChangellyConstants.XRP:
                 return getString(R.string.changelly_destination_tag);
-            case Constants.XEM:
+            case ChangellyConstants.XEM:
                 return getString(R.string.changelly_message_name);
             default:
                 return getString(R.string.changelly_memo_id_name);
@@ -173,7 +173,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = currency;
         order.receivingAddress = receivingAddress;
-        order.receivingAmount = decimalFormat.format(offer.amountTo);
+        order.receivingAmount = offer.amountTo.stripTrailingZeros().toPlainString();
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());

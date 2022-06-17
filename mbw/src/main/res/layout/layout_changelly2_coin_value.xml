@@ -125,6 +125,7 @@
             android:textSize="24sp"
             android:minHeight="24sp"
             android:text="@={value}"
+            android:hint="0"
             app:layout_constraintEnd_toStartOf="@id/coinIcon"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintBaseline_toBaselineOf="@id/baseline"

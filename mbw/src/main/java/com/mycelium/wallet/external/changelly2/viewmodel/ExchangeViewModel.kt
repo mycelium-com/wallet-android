@@ -1,9 +1,7 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.*
 import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -24,7 +22,7 @@ import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 
 
-class ExchangeViewModel : ViewModel() {
+class ExchangeViewModel(application: Application) : AndroidViewModel(application) {
     val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     var currencies = setOf("BTC", "ETH")
     val fromAccount = MutableLiveData<WalletAccount<*>>()
@@ -135,19 +133,20 @@ class ExchangeViewModel : ViewModel() {
             ""
         }
     }
-    val fiatBuyValue = Transformations.map(buyValue) {
-        if (it?.isNotEmpty() == true) {
-            try {
-                mbwManager.exchangeRateManager
-                        .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
-                        ?.toStringFriendlyWithUnit()
-            } catch (e: NumberFormatException) {
-                "N/A"
-            }
-        } else {
-            ""
-        }
-    }
+    val fiatBuyValue = ""
+//    Transformations.map(buyValue) {
+//        if (it?.isNotEmpty() == true) {
+//            try {
+//                mbwManager.exchangeRateManager
+//                        .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
+//                        ?.toStringFriendlyWithUnit()
+//            } catch (e: NumberFormatException) {
+//                "N/A"
+//            }
+//        } else {
+//            ""
+//        }
+//    }
 
     val validateData = MediatorLiveData<Boolean>().apply {
         value = isValid()
@@ -164,7 +163,7 @@ class ExchangeViewModel : ViewModel() {
 
     fun isValid(): Boolean =
             try {
-                val res = WalletApplication.getInstance().resources
+                val res = getApplication<WalletApplication>().resources
                 val amount = sellValue.value?.toBigDecimal()
                 when {
                     rateLoading.value == true -> false
@@ -188,7 +187,7 @@ class ExchangeViewModel : ViewModel() {
             }
 
     fun checkValidTransaction(): Transaction? {
-        val res = WalletApplication.getInstance().resources
+        val res = getApplication<WalletApplication>().resources
         val account = fromAccount.value!!
         val value = account.coinType.value(sellValue.value!!)
         if (value.equalZero()) {

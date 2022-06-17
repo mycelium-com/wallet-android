@@ -5,6 +5,7 @@ import com.mycelium.bequant.remote.doRequest
 import com.mycelium.wallet.external.changelly.ChangellyAPIService
 import com.mycelium.wallet.external.changelly.model.*
 import kotlinx.coroutines.CoroutineScope
+import java.math.BigDecimal
 
 object Changelly2Repository {
     private val api = ChangellyAPIService.retrofit.create(ChangellyAPIService::class.java)
@@ -30,14 +31,13 @@ object Changelly2Repository {
     fun exchangeAmount(scope: CoroutineScope,
                        from: String,
                        to: String,
-                       amount: Double,
+                       amount: BigDecimal,
                        success: (ChangellyResponse<FixRateForAmount>?) -> Unit,
                        error: (Int, String) -> Unit,
-                       finally: () -> Unit) {
-        doRequest(scope, {
-            api.exchangeAmountFix(from, to, amount)
-        }, success, error, finally)
-    }
+                       finally: (() -> Unit)? = null) =
+            doRequest(scope, {
+                api.exchangeAmountFix(fixSymbol(from), fixSymbol(to), amount)
+            }, success, error, finally)
 
     fun fixRate(scope: CoroutineScope,
                 from: String,
