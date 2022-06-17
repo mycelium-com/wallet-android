@@ -118,7 +118,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 }
             }
         }
-        val selectSellAccount = { view: View ->
+        val selectSellAccount = { _: View ->
             binding?.layoutValueKeyboard?.numericKeyboard?.done()
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
@@ -141,7 +141,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 visibility = View.VISIBLE
             }
         }
-        val selectBuyAccount = { view:View ->
+        val selectBuyAccount = { _: View ->
             SelectAccountFragment().apply {
                 arguments = Bundle().apply {
                     putString(SelectAccountFragment.KEY_TYPE, SelectAccountFragment.VALUE_BUY)
@@ -151,8 +151,8 @@ class ExchangeFragment : Fragment(), BackListener {
         binding?.buyLayout?.coinSymbol?.setOnClickListener(selectBuyAccount)
         binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
         viewModel.sellValue.observe(viewLifecycleOwner) {
+            updateAmountIfChanged()
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
-                updateAmountIfChanged()
                 val amount = binding?.sellLayout?.coinValue?.text?.toString()
                 viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
                     try {
@@ -415,6 +415,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 viewModel.sellValue.value?.toBigDecimal()?.let { fromAmount ->
                     if (fromAmount > BigDecimal.ZERO) {
                         amountJob?.cancel()
+                        viewModel.rateLoading.value = true
                         amountJob = Changelly2Repository.exchangeAmount(lifecycleScope,
                                 Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
                                 Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
@@ -433,22 +434,30 @@ class ExchangeFragment : Fragment(), BackListener {
                                 },
                                 { _, msg ->
                                     viewModel.errorRemote.value = msg
+                                },
+                                {
+                                    viewModel.rateLoading.value = false
                                 })
                         prevAmount = fromAmount
+                    } else {
+                        updateExchangeRate()
                     }
+                } ?: run {
+                    updateExchangeRate()
                 }
             } catch (e: NumberFormatException) {
+                updateExchangeRate()
             }
         }
     }
 
-    var counterJob:Job? = null
+    private var counterJob: Job? = null
 
     private fun refreshRateCounter() {
         counterJob?.cancel()
         var counter = 0
         counterJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) {
-            if(viewModel.rateLoading.value == false ) {
+            if (viewModel.rateLoading.value == false) {
                 binding?.progress?.setImageDrawable(RingDrawable(counter++ * 360f / 30f, Color.parseColor("#777C80")))
             } else {
                 counterJob?.cancel()
