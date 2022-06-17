@@ -86,10 +86,12 @@ fun TextView.startCursor() {
             animationDrawable.start()
         }
     }
+    hint = null
 }
 
 fun TextView.stopCursor() {
     setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+    hint = "0"
 }
 
 fun TextView.resizeTextView() {

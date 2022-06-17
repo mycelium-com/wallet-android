@@ -152,7 +152,7 @@ class ExchangeFragment : Fragment(), BackListener {
         binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
         viewModel.sellValue.observe(viewLifecycleOwner) {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
-                updateAmount()
+                updateAmountIfChanged()
                 val amount = binding?.sellLayout?.coinValue?.text?.toString()
                 viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
                     try {
@@ -314,7 +314,7 @@ class ExchangeFragment : Fragment(), BackListener {
     }
 
     private fun acceptDialog(unsignedTx: Transaction?, result: ChangellyResponse<ChangellyTransactionOffer>, action: () -> Unit) {
-        if (SettingsPreference.quickExchangeEnabled) {
+        if (!SettingsPreference.exchangeConfirmationEnabled) {
             action()
         } else {
             AlertDialog.Builder(requireContext())
@@ -398,11 +398,22 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private var amountJob: Job? = null
 
+    private fun updateAmountIfChanged() {
+        try {
+            viewModel.sellValue.value?.toBigDecimal()?.let { fromAmount ->
+                if (prevAmount != fromAmount && fromAmount > BigDecimal.ZERO) {
+                    updateAmount()
+                }
+            }
+        } catch (e: NumberFormatException) {
+        }
+    }
+
     private fun updateAmount() {
         if (viewModel.fromCurrency.value?.symbol != null && viewModel.toCurrency.value?.symbol != null) {
             try {
                 viewModel.sellValue.value?.toBigDecimal()?.let { fromAmount ->
-                    if (prevAmount != fromAmount && fromAmount > BigDecimal.ZERO) {
+                    if (fromAmount > BigDecimal.ZERO) {
                         amountJob?.cancel()
                         amountJob = Changelly2Repository.exchangeAmount(lifecycleScope,
                                 Util.trimTestnetSymbolDecoration(viewModel.fromCurrency.value?.symbol!!),
