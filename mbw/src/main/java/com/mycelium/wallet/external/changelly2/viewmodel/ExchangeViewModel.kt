@@ -1,7 +1,10 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -125,7 +128,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             try {
                 mbwManager.exchangeRateManager
                         .get(fromCurrency.value?.value(it), mbwManager.getFiatCurrency(fromCurrency.value))
-                        ?.toStringFriendlyWithUnit()
+                        ?.toStringFriendlyWithUnit()?.let { "≈$it" }
             } catch (e: NumberFormatException) {
                 "N/A"
             }
@@ -133,20 +136,21 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             ""
         }
     }
-    val fiatBuyValue = ""
-//    Transformations.map(buyValue) {
-//        if (it?.isNotEmpty() == true) {
-//            try {
-//                mbwManager.exchangeRateManager
-//                        .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
-//                        ?.toStringFriendlyWithUnit()
-//            } catch (e: NumberFormatException) {
-//                "N/A"
-//            }
-//        } else {
-//            ""
-//        }
-//    }
+    val fiatBuyValue = Transformations.map(buyValue) {
+        if (it?.isNotEmpty() == true) {
+            try {
+                mbwManager.exchangeRateManager
+                        .get(toCurrency.value?.value(it), mbwManager.getFiatCurrency(toCurrency.value))
+                        ?.toStringFriendlyWithUnit()?.let { "≈$it" }
+            } catch (e: NumberFormatException) {
+                "N/A"
+            }
+        } else {
+            ""
+        }
+    }
+
+    val minerFee = MutableLiveData("")
 
     val validateData = MediatorLiveData<Boolean>().apply {
         value = isValid()
@@ -203,6 +207,12 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     null
             ).apply {
                 errorTransaction.value = ""
+                minerFee.value =
+                        res.getString(R.string.miner_fee) + " " +
+                        this.totalFee().toStringFriendlyWithUnit() + " " +
+                        mbwManager.exchangeRateManager
+                                .get(this.totalFee(), mbwManager.getFiatCurrency(this.type))
+                                ?.toStringFriendlyWithUnit()?.let { "≈$it" }
             }
         } catch (e: OutputTooSmallException) {
             errorTransaction.value = res.getString(R.string.amount_too_small_short,
