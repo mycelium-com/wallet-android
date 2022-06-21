@@ -189,6 +189,7 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         binding?.swapAccount?.setOnClickListener {
             binding?.layoutValueKeyboard?.numericKeyboard?.done()
+            binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView = null
             val oldFrom = viewModel.fromAccount.value
             val oldTo = viewModel.toAccount.value
             val oldBuy = viewModel.buyValue.value
