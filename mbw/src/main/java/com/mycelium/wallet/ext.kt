@@ -8,16 +8,17 @@ inline fun startCoroutineTimer(
     scope: CoroutineScope,
     delayMillis: Long = 0,
     repeatMillis: Long = 0,
-    crossinline action: () -> Unit
+    crossinline action: (Int) -> Unit
 ) = scope.launch {
     delay(delayMillis)
+    var counter = 0
     if (repeatMillis > 0) {
         while (true) {
-            action()
+            action(counter++)
             delay(repeatMillis)
         }
     } else {
-        action()
+        action(counter)
     }
 }
 

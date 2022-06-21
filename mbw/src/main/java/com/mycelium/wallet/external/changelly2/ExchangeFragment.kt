@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
@@ -293,9 +294,7 @@ class ExchangeFragment : Fragment(), BackListener {
         binding?.policyTerms?.setOnClickListener {
             openLink(LINK_TERMS)
         }
-        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(30)) {
-            updateAmount()
-        }
+        updateAmount()
         viewModel.rateLoading.observe(viewLifecycleOwner) {
             if (it) {
                 counterJob?.cancel()
@@ -378,7 +377,6 @@ class ExchangeFragment : Fragment(), BackListener {
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
                     { result ->
                         if (result?.result != null) {
-                            refreshRateCounter()
                             viewModel.exchangeInfo.value = result.result
                             viewModel.errorRemote.value = ""
                         } else {
@@ -390,6 +388,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     },
                     {
                         viewModel.rateLoading.value = false
+                        refreshRateCounter()
                     })
         }
     }
@@ -422,7 +421,6 @@ class ExchangeFragment : Fragment(), BackListener {
                                 fromAmount,
                                 { result ->
                                     result?.result?.let {
-                                        refreshRateCounter()
                                         val info = viewModel.exchangeInfo.value
                                         viewModel.exchangeInfo.postValue(
                                                 FixRate(it.id, it.result, it.from, it.to,
@@ -437,6 +435,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                 },
                                 {
                                     viewModel.rateLoading.value = false
+                                    refreshRateCounter()
                                 })
                         prevAmount = fromAmount
                     } else {
@@ -455,10 +454,14 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private fun refreshRateCounter() {
         counterJob?.cancel()
-        var counter = 0
-        counterJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) {
+        counterJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) { counter ->
             if (viewModel.rateLoading.value == false) {
-                binding?.progress?.setImageDrawable(RingDrawable(counter++ * 360f / 30f, Color.parseColor("#777C80")))
+                if(counter < 30) {
+                    binding?.progress?.setImageDrawable(RingDrawable(counter * 360f / 30f, Color.parseColor("#777C80")))
+                } else {
+                    counterJob?.cancel()
+                    updateAmount()
+                }
             } else {
                 counterJob?.cancel()
             }
