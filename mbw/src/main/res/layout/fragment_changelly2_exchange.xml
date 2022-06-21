@@ -242,7 +242,7 @@
                     android:background="@drawable/bg_changelly_error"
                     android:gravity="center"
                     android:padding="12dp"
-                    android:text="@{vm.error}"
+                    android:text="@{Html.fromHtml(vm.error)}"
                     android:textSize="14sp"
                     android:visibility="@{vm.error.isEmpty() ? View.GONE : View.VISIBLE }"
                     app:layout_constraintBottom_toTopOf="@id/exchangeButton"
