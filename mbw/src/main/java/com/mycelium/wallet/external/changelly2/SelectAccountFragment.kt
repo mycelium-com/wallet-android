@@ -163,7 +163,7 @@ class SelectAccountFragment : DialogFragment() {
                 viewModel.isSupported(it.value) && !alreadyHave.contains(it.value.symbol)
             }.map {
                 AddAccountModel(it.value)
-            }.sortedBy { it.coinType.name }
+            }.sortedBy { it.coinType.symbol }
             if (addAccountList.isNotEmpty()) {
                 val groupTitle = "All supported coins"
                 val group = GroupModel(groupTitle)
