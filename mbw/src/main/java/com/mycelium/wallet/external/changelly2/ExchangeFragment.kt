@@ -319,11 +319,11 @@ class ExchangeFragment : Fragment(), BackListener {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
                     .setMessage(getString(R.string.exchange_accept_dialog_msg,
-                            result.result?.amountExpectedFrom,
+                            result.result?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyFrom?.toUpperCase(),
+                            unsignedTx?.totalFee()?.toStringWithUnit(),
                             result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
-                            result.result?.currencyTo?.toUpperCase(),
-                            unsignedTx?.totalFee()?.toStringWithUnit()))
+                            result.result?.currencyTo?.toUpperCase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         action()
                     }
@@ -332,7 +332,7 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
-    private fun prepareTx(addressTo: String, amount: String): Transaction? =
+    private fun prepareTx(addressTo: String, amount: BigDecimal): Transaction? =
             viewModel.fromAccount.value?.let { account ->
                 val address = when (account) {
                     is EthAccount, is ERC20Account -> {
@@ -345,7 +345,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 }
                 val feeEstimation = viewModel.mbwManager.getFeeProvider(account.basedOnCoinType).estimation
                 account.createTx(address,
-                        viewModel.fromAccount.value!!.coinType.value(amount),
+                        viewModel.fromAccount.value!!.coinType.value(amount.toPlainString()),
                         FeePerKbFee(feeEstimation.normal),
                         null
                 )

@@ -271,7 +271,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:gravity="center"
-                    android:text="@{Html.fromHtml(@string/changelly2_policy_text)}"
+                    android:text="@string/changelly2_policy_text"
                     android:textColor="#5E5E5E"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"

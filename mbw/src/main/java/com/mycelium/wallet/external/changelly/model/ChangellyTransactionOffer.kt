@@ -23,5 +23,5 @@ class ChangellyTransactionOffer : Serializable {
     var payoutExtraId: String? = null
     var createdAt: String? = null
 
-    val amountExpectedFrom:String? = null
+    val amountExpectedFrom:BigDecimal = BigDecimal.ZERO
 }
