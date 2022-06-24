@@ -167,6 +167,10 @@ sqldelight {
         packageName = "com.mycelium.generated.logger.database"
         sourceFolders = ["sqldelight_logger"]
     }
+    RatesDB {
+        packageName = "com.mycelium.generated.rates.database"
+        sourceFolders = ["sqldelight_rate"]
+    }
 }
 
 android {
