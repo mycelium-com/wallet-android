@@ -19,8 +19,10 @@ import com.bumptech.glide.request.RequestOptions
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.view.RingDrawable
 import com.mycelium.wallet.*
+import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
+import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.util.resizeTextView
@@ -229,6 +231,13 @@ class ExchangeFragment : Fragment(), BackListener {
             setMaxText(getString(R.string.max), 14f)
             setPasteVisibility(false)
             visibility = View.GONE
+        }
+        binding?.error?.setOnClickListener {
+            val account = viewModel.fromAccount.value
+            if (account is ERC20Account && viewModel.error.value?.contains(ExchangeViewModel.TAG_ETH_TOP_UP) == true) {
+                viewModel.mbwManager.setSelectedAccount(account.ethAcc.id)
+                MbwManager.getEventBus().post(SelectTab(ModernMain.TAB_BALANCE))
+            }
         }
         binding?.exchangeButton?.setOnClickListener {
             loader(true)

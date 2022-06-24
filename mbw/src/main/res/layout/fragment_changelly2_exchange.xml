@@ -235,6 +235,7 @@
                     bind:text="Miner fee: 0.00005611 ETH ≈54.20 USD" />
 
                 <TextView
+                    android:id="@+id/error"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"

@@ -225,7 +225,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             if(account is ERC20Account) {
                 val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
                 errorTransaction.value = res.getString(R.string.please_top_up_your_eth_account,
-                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee))
+                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP
             } else {
                 errorTransaction.value = res.getString(R.string.insufficient_funds_for_fee)
             }
@@ -253,4 +253,8 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     fun isSupported(coinType: CryptoCurrency) =
             currencies.contains(Util.trimTestnetSymbolDecoration(coinType.symbol).toLowerCase())
+
+    companion object {
+        const val TAG_ETH_TOP_UP = "<hiden type=\"TAG_ETH_TOP_UP\"/>"
+    }
 }

@@ -582,7 +582,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
     companion object {
         private const val TAB_NEWS = "tab_news"
         private const val TAB_ACCOUNTS = "tab_accounts"
-        private const val TAB_BALANCE = "tab_balance"
+        const val TAB_BALANCE = "tab_balance"
         const val TAB_EXCHANGE = "tab_exchange"
         private const val TAB_HISTORY = "tab_history"
         const val TAB_FIO_REQUESTS = "tab_fio_requests"
