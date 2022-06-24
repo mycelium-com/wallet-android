@@ -171,6 +171,8 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     fun isValid(): Boolean =
             try {
+                errorTransaction.value = ""
+                minerFee.value = ""
                 val res = getApplication<WalletApplication>().resources
                 val amount = sellValue.value?.toBigDecimal()
                 when {
@@ -199,7 +201,6 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         val account = fromAccount.value!!
         val value = account.coinType.value(sellValue.value!!)
         if (value.equalZero()) {
-            errorTransaction.value = ""
             return null
         }
         val feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
@@ -210,7 +211,6 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     FeePerKbFee(feeEstimation.normal),
                     null
             ).apply {
-                errorTransaction.value = ""
                 minerFee.value =
                         res.getString(R.string.miner_fee) + " " +
                         this.totalFee().toStringFriendlyWithUnit() + " " +
