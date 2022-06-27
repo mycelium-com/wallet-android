@@ -52,7 +52,7 @@ class ExchangeResultViewModel : ViewModel() {
                         amount?.let { amount ->
                             mbwManager.exchangeRateManager
                                     .get(it.value(amount.toPlainString()), mbwManager.getFiatCurrency(it))
-                                    ?.toStringFriendlyWithUnit()
+                                    ?.toStringFriendlyWithUnit()?.let { "≈$it" }
                         }
                     } ?: ""
 

@@ -206,7 +206,36 @@
                     bind:label="@{@string/bequant_you_get}"
                     bind:value="@={vm.buyValue}" />
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="@id/minerFee"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    android:background="@drawable/bg_coin_value"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toTopOf="@id/minerFee"
+                    android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"/>
+
                 <TextView
+                    android:id="@+id/minerFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:drawableTint="#888888"
+                    android:drawableStart="@drawable/ic_info_icon"
+                    android:drawablePadding="4dp"
+                    android:padding="4dp"
+                    android:textColor="#888888"
+                    android:textSize="12sp"
+                    android:text="@{vm.minerFee}"
+                    android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toBottomOf="@id/buyLayout"
+                    bind:text="Miner fee: 0.00005611 ETH ≈54.20 USD" />
+
+                <TextView
+                    android:id="@+id/error"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -214,13 +243,13 @@
                     android:background="@drawable/bg_changelly_error"
                     android:gravity="center"
                     android:padding="12dp"
-                    android:text="@{vm.error}"
+                    android:text="@{Html.fromHtml(vm.error)}"
                     android:textSize="14sp"
                     android:visibility="@{vm.error.isEmpty() ? View.GONE : View.VISIBLE }"
                     app:layout_constraintBottom_toTopOf="@id/exchangeButton"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toBottomOf="@id/buyLayout"
+                    app:layout_constraintTop_toBottomOf="@id/minerFee"
                     app:layout_constraintVertical_bias="0.25" />
 
                 <Button
@@ -243,7 +272,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:gravity="center"
-                    android:text="@{Html.fromHtml(@string/changelly2_policy_text)}"
+                    android:text="@string/changelly2_policy_text"
                     android:textColor="#5E5E5E"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="parent"

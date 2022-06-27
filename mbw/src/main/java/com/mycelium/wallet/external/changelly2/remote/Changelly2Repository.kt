@@ -36,7 +36,7 @@ object Changelly2Repository {
                        error: (Int, String) -> Unit,
                        finally: (() -> Unit)? = null) =
             doRequest(scope, {
-                api.exchangeAmountFix(fixSymbol(from), fixSymbol(to), amount)
+                api.exchangeAmountFix(exportSymbol(from), exportSymbol(to), amount)
             }, success, error, finally)
 
     fun fixRate(scope: CoroutineScope,
@@ -46,7 +46,7 @@ object Changelly2Repository {
                 error: (Int, String) -> Unit,
                 finally: (() -> Unit)? = null) =
             doRequest(scope, {
-                api.fixRate(fixSymbol(from), fixSymbol(to))
+                api.fixRate(exportSymbol(from), exportSymbol(to))
             }, success, error, finally)
 
     fun createFixTransaction(scope: CoroutineScope,
@@ -60,7 +60,7 @@ object Changelly2Repository {
                              error: (Int, String) -> Unit,
                              finally: (() -> Unit)? = null) {
         doRequest(scope, {
-            api.createFixTransaction(fixSymbol(from), fixSymbol(to), amount, addressTo, rateId, refundAddress)
+            api.createFixTransaction(exportSymbol(from), exportSymbol(to), amount, addressTo, rateId, refundAddress)
         }, success, error, finally)
     }
 
@@ -82,10 +82,18 @@ object Changelly2Repository {
             api.getTransactions(ids)
         }, success, error, finally)
     }
-
-    fun fixSymbol(currency: String) =
-            if (currency == "USDT")
-                "USDT20"
-            else currency
-
 }
+
+fun ChangellyTransaction.fixedCurrencyFrom() =
+        importSymbol(currencyFrom)
+
+fun ChangellyTransaction.fixedCurrencyTo() =
+        importSymbol(currencyTo)
+
+private fun importSymbol(currency: String) =
+        if (currency.equals("USDT20", true)) "USDT"
+        else currency
+
+private fun exportSymbol(currency: String) =
+        if (currency.equals("USDT", true)) "USDT20"
+        else currency

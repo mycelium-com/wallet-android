@@ -68,11 +68,11 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                     title = getString(R.string.settings_exchange_quick_exchange_title)
                     summary = getString(R.string.settings_exchange_quick_exchange_summary)
                     layoutResource = R.layout.preference_layout
-                    isChecked = SettingsPreference.quickExchangeEnabled
+                    isChecked = SettingsPreference.exchangeConfirmationEnabled
                     widgetLayoutResource = R.layout.preference_switch
                     onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference ->
                         val p = preference as CheckBoxPreference
-                        SettingsPreference.quickExchangeEnabled = p.isChecked
+                        SettingsPreference.exchangeConfirmationEnabled = p.isChecked
                         true
                     }
                 })

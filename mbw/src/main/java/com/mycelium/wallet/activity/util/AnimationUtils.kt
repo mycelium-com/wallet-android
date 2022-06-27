@@ -86,16 +86,18 @@ fun TextView.startCursor() {
             animationDrawable.start()
         }
     }
+    hint = null
 }
 
 fun TextView.stopCursor() {
     setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+    hint = "0"
 }
 
 fun TextView.resizeTextView() {
     setTextSize(TypedValue.COMPLEX_UNIT_SP, when (text.toString().length) {
-        in 0..11 -> 36f
-        in 12..16 -> 22f
+        in 0..10 -> 36f
+        in 11..16 -> 22f
         else -> 18f
     })
 }

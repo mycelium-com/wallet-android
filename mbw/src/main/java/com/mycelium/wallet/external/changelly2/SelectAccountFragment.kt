@@ -163,7 +163,7 @@ class SelectAccountFragment : DialogFragment() {
                 viewModel.isSupported(it.value) && !alreadyHave.contains(it.value.symbol)
             }.map {
                 AddAccountModel(it.value)
-            }.sortedBy { it.coinType.name }
+            }.sortedBy { it.coinType.symbol }
             if (addAccountList.isNotEmpty()) {
                 val groupTitle = "All supported coins"
                 val group = GroupModel(groupTitle)
@@ -182,6 +182,7 @@ class SelectAccountFragment : DialogFragment() {
     private fun showEthAccountsOptions(token: ERC20Token) {
         val arrayAdapter = ERC20EthAccountAdapter(requireContext(), R.layout.checked_item)
         val accounts = viewModel.mbwManager.getWalletManager(false).getActiveEthAccounts()
+                .sortedBy { (it as EthAccount).accountIndex }
         arrayAdapter.addAll(getEthAccountsForView(accounts))
         arrayAdapter.add(getString(R.string.create_new_account))
         AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog_BlueButtons)
@@ -219,8 +220,7 @@ class SelectAccountFragment : DialogFragment() {
     }
 
     private fun getEthAccountsForView(accounts: List<WalletAccount<*>>): List<String> =
-            accounts.sortedBy { (it as EthAccount).accountIndex }
-                    .map { account ->
+            accounts.map { account ->
                         val denominatedValue = account.accountBalance.spendable.toStringWithUnit(viewModel.mbwManager.getDenomination(account.coinType))
                         account.label + " (" + denominatedValue + ")"
                     }

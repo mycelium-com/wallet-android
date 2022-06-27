@@ -14,6 +14,8 @@ import com.mycelium.wallet.databinding.FragmentChangelly2HistoryBinding
 import com.mycelium.wallet.external.adapter.TxHistoryAdapter
 import com.mycelium.wallet.external.adapter.TxItem
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
+import com.mycelium.wallet.external.changelly2.remote.fixedCurrencyFrom
+import com.mycelium.wallet.external.changelly2.remote.fixedCurrencyTo
 import java.text.DateFormat
 import java.util.*
 
@@ -68,7 +70,7 @@ class HistoryFragment : DialogFragment() {
                             adapter.submitList(it.map {
                                 TxItem(it.id,
                                         it.amountExpectedFrom.toString(), it.amountExpectedTo.toString(),
-                                        it.currencyFrom, it.currencyTo,
+                                        it.fixedCurrencyFrom(), it.fixedCurrencyTo(),
                                         DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
                                         it.getReadableStatus())
                             })
