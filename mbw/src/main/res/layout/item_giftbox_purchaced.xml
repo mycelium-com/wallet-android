@@ -92,6 +92,16 @@
         app:layout_goneMarginStart="0dp"
         tools:text="September 18" />
 
+    <View
+        android:id="@+id/redeemLayer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#88000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/more"/>
+
     <ImageView
         android:id="@+id/more"
         android:layout_width="32dp"

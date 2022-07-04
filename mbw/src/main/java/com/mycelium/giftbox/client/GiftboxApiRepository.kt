@@ -231,6 +231,14 @@ class GiftboxApiRepository {
         }, successBlock = success)
     }
 
+    fun unredeem(card: Card, scope: CoroutineScope,
+               success: (Boolean?) -> Unit) {
+        doRequest(scope, {
+            giftbxDB.giftboxCardQueries.unredeemCard(card.clientOrderId, card.code, card.deliveryUrl, card.pin)
+            Response.success(true)
+        }, successBlock = success)
+    }
+
     fun remove(card: Card, scope: CoroutineScope,
                success: (Boolean?) -> Unit) {
         doRequest(scope, {

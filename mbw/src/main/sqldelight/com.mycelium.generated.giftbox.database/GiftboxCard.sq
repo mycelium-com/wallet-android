@@ -43,3 +43,8 @@ redeemCard:
 UPDATE GiftboxCard
 SET redeemed = 1
 WHERE clientOrderId = (?) AND code = (?) AND deliveryUrl = (?) AND pin = (?);
+
+unredeemCard:
+UPDATE GiftboxCard
+SET redeemed = 0
+WHERE clientOrderId = (?) AND code = (?) AND deliveryUrl = (?) AND pin = (?);

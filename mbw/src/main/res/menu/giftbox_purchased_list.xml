@@ -7,6 +7,9 @@
         android:id="@+id/redeem"
         android:title="@string/mark_as_redeemed" />
     <item
+        android:id="@+id/unredeem"
+        android:title="@string/unredeemed" />
+    <item
         android:id="@+id/delete"
         android:title="@string/delete" />
 </menu>
