@@ -96,11 +96,13 @@
         android:id="@+id/redeemLayer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#88000000"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/more"/>
+        android:background="@drawable/giftbox_disable_image"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/image"
+        app:layout_constraintBottom_toBottomOf="@id/image"
+        app:layout_constraintStart_toStartOf="@id/image"
+        app:layout_constraintEnd_toEndOf="@id/image"
+        tools:visibility="visible"/>
 
     <ImageView
         android:id="@+id/more"
