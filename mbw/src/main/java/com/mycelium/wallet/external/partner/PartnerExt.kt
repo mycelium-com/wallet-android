@@ -43,3 +43,11 @@ fun Fragment.openLink(link: String?) {
         Toaster(this).toast("Can't open ${ExchangeFragment.LINK_TERMS}", true)
     }
 }
+
+fun Activity.openLink(link: String?) {
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+    } catch (e: ActivityNotFoundException) {
+        Toaster(this).toast("Can't open ${ExchangeFragment.LINK_TERMS}", true)
+    }
+}
