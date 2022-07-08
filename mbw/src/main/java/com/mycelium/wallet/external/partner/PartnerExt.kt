@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.partner
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.fragment.app.Fragment
@@ -44,7 +45,7 @@ fun Fragment.openLink(link: String?) {
     }
 }
 
-fun Activity.openLink(link: String?) {
+fun Context.openLink(link: String?) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
     } catch (e: ActivityNotFoundException) {
