@@ -78,7 +78,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     .getAllActiveAccounts()
                     .firstOrNull { it.canSpend() && viewModel.isSupported(it.coinType) }
         }
-        viewModel.toAccount.value = viewModel.getToAccount()
+        viewModel.toAccount.value = viewModel.getToAccountForInit()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
             it?.result
                     ?.filter { it.fixRateEnabled && it.enabled }
