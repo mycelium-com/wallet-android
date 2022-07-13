@@ -29,7 +29,7 @@
                 android:theme="@style/MyceliumFIOMapping.ActionBar"
                 app:layout_constraintTop_toTopOf="parent"
                 app:navigationIcon="@drawable/ic_back_arrow"
-                app:title="Exchange history" />
+                app:title="@string/exchange_history" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/startGuidline"
