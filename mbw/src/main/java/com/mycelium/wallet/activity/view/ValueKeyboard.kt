@@ -72,10 +72,10 @@ class ValueKeyboard : ConstraintLayout {
 
     private fun checkErrors() = try {
         val entryValue = value.entryAsBigDecimal
-        if (maxValue != null && maxValue!! < entryValue) {
+        if (maxValue != null && maxValue!! < entryValue && entryValue != BigDecimal.ZERO) {
 //            inputTextView?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
             errorListener?.maxError(maxValue!!)
-        } else if (minValue != null && minValue!! > entryValue) {
+        } else if (minValue != null && minValue!! > entryValue && entryValue != BigDecimal.ZERO) {
 //            inputTextView?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
             errorListener?.minError(minValue!!)
         } else {

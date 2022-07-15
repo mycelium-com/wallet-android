@@ -119,6 +119,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     }
                 }
             }
+            viewModel.keyboardActive.value = true
         }
         val selectSellAccount = { _: View ->
             binding?.layoutValueKeyboard?.numericKeyboard?.done()
@@ -142,6 +143,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 maxDecimals = viewModel.toCurrency.value?.friendlyDigits ?: 0
                 visibility = View.VISIBLE
             }
+            viewModel.keyboardActive.value = true
         }
         val selectBuyAccount = { _: View ->
             SelectAccountFragment().apply {
@@ -205,6 +207,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 override fun done() {
                     binding?.sellLayout?.coinValue?.stopCursor()
                     binding?.buyLayout?.coinValue?.stopCursor()
+                    viewModel.keyboardActive.value = false
                 }
             }
             errorListener = object : ValueKeyboard.ErrorListener {

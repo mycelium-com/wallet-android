@@ -27,6 +27,7 @@ import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
+import java.math.BigDecimal
 
 
 class ExchangeViewModel(application: Application) : AndroidViewModel(application) {
@@ -39,6 +40,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val errorKeyboard = MutableLiveData("")
     val errorTransaction = MutableLiveData("")
     val errorRemote = MutableLiveData("")
+    val keyboardActive = MutableLiveData(false)
     val rateLoading = MutableLiveData(false)
     var changellyTx: String? = null
 
@@ -54,6 +56,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         value = ""
         fun error() =
                 when {
+                    keyboardActive.value == true -> ""
                     errorKeyboard.value?.isNotEmpty() == true -> errorKeyboard.value
                     errorTransaction.value?.isNotEmpty() == true -> errorTransaction.value
                     errorRemote.value?.isNotEmpty() == true -> errorRemote.value
@@ -63,6 +66,9 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             value = error()
         }
         addSource(errorTransaction) {
+            value = error()
+        }
+        addSource(keyboardActive) {
             value = error()
         }
         addSource(fromAccount) {
@@ -178,6 +184,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                 when {
                     rateLoading.value == true -> false
                     amount == null -> false
+                    amount == BigDecimal.ZERO -> false
                     amount < exchangeInfo.value?.minFrom -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
