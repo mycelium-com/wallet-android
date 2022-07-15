@@ -112,7 +112,8 @@
             android:id="@+id/baseline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="36sp"
+            android:layout_marginTop="4dp"
+            android:textSize="24sp"
             app:layout_constraintStart_toStartOf="@id/startGuidline"
             app:layout_constraintTop_toBottomOf="@id/label" />
 
@@ -120,7 +121,6 @@
             android:id="@+id/coinValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:minHeight="24sp"
@@ -208,7 +208,7 @@
             android:maxEms="9"
             android:singleLine="true"
             android:text="@{accountAddress}"
-            android:textColor="#A4A4A5"
+            android:textColor="#61666B"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/account"
@@ -220,7 +220,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{balanceFiat}"
-            android:textColor="#A4A4A5"
+            android:textColor="#61666B"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/address"
             app:layout_constraintEnd_toEndOf="@id/endGuidline" />

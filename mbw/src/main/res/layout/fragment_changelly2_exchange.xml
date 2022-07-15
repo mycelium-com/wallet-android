@@ -26,7 +26,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/black">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -110,7 +111,7 @@
                     android:layout_width="10dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_lock"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="32dp"
                     app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
                     app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
@@ -125,7 +126,7 @@
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp"
                     android:text="@{vm.exchangeRateFrom}"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="#888888"
                     app:layout_constraintStart_toEndOf="@id/iconFix"
                     app:layout_constraintTop_toBottomOf="@id/sellLayout"
@@ -137,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="#888888"
                     app:layout_constrainedWidth="true"
                     android:text="@{vm.exchangeRateToValue}"
@@ -154,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:lines="1"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="#888888"
                     android:text="@{vm.exchangeRateToCurrency}"
                     app:layout_constraintBaseline_toBaselineOf="@id/exchangeRateFrom"
