@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="3.16.0.0" versioncode="3160000">
+    <release version="3.16.0.2" versioncode="3160002">
         <change>Added Exchange functionality</change>
         <change>Improved gas price estimations for ETH and ERC-20 transactions</change>
         <change>Improved Gift cards purchase experience</change>

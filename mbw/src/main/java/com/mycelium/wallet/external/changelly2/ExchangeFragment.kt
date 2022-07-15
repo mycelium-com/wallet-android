@@ -480,20 +480,6 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.exchange_changelly2, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-            when (item.itemId) {
-                R.id.history -> {
-                    HistoryFragment().show(parentFragmentManager, TAG_HISTORY)
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
-
     override fun onStart() {
         super.onStart()
         MbwManager.getEventBus().register(this)
