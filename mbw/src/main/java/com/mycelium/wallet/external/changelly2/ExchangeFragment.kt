@@ -505,7 +505,7 @@ class ExchangeFragment : Fragment(), BackListener {
 
     @Subscribe
     fun broadcastResult(result: TransactionBroadcasted) {
-        if (result.result.resultType == BroadcastResultType.SUCCESS) {
+        if (result.result.resultType == BroadcastResultType.SUCCESS && result.txid != null) {
             val fromAccountId = viewModel.fromAccount.value?.id
             val toAccountId = viewModel.toAccount.value?.id
             val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
