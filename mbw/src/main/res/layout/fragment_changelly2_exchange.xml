@@ -251,7 +251,7 @@
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
                     app:layout_constraintTop_toBottomOf="@id/minerFee"
-                    app:layout_constraintVertical_bias="0.25" />
+                    app:layout_constraintVertical_bias="0.0" />
 
                 <Button
                     android:id="@+id/exchangeButton"
