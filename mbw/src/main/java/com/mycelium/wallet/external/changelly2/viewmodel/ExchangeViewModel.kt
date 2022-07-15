@@ -45,7 +45,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
             if (value?.coinType == it.coinType) {
-                value = getToAccount()
+                value = getToAccountForInit()
             }
         }
     }
@@ -244,7 +244,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 
 
-    fun getToAccount() = Utils.sortAccounts(mbwManager.getWalletManager(false)
+    fun getToAccountForInit() = Utils.sortAccounts(mbwManager.getWalletManager(false)
             .getAllActiveAccounts(), mbwManager.metadataStorage)
             .firstOrNull {
                 it.coinType != fromAccount.value?.coinType
