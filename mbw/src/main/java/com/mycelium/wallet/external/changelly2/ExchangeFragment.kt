@@ -155,8 +155,8 @@ class ExchangeFragment : Fragment(), BackListener {
         binding?.buyLayout?.coinSymbol?.setOnClickListener(selectBuyAccount)
         binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
         viewModel.sellValue.observe(viewLifecycleOwner) {
-            updateAmountIfChanged()
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
+                updateAmountIfChanged()
                 val amount = binding?.sellLayout?.coinValue?.text?.toString()
                 viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
                     try {
