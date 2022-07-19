@@ -525,6 +525,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID, toAccountId)
                 }
             }.show(parentFragmentManager, "exchange_result")
+            viewModel.reset()
         }
     }
 
