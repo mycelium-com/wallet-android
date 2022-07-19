@@ -147,7 +147,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddress: BtcAddress?): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddress: BtcAddress?, txData: TransactionData?): Value {
         return accountBalance.spendable
     }
 

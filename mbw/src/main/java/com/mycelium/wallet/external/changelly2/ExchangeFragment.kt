@@ -113,7 +113,7 @@ class ExchangeFragment : Fragment(), BackListener {
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
-                    val maxSpendable = viewModel.fromAccount.value?.calculateMaxSpendableAmount(feeEstimation.normal, null)
+                    val maxSpendable = viewModel.fromAccount.value?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)
                     withContext(Dispatchers.Main) {
                         spendableValue = maxSpendable?.valueAsBigDecimal
                     }

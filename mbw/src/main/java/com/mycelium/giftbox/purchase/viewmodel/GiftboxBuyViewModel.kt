@@ -250,7 +250,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getMaxSpendable() =
             mbwManager.getWalletManager(false)
                     .getAccount(accountId.value!!)
-                    ?.calculateMaxSpendableAmount(feeEstimation.normal, null)!!
+                    ?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
 
 
     val isGrantedPlus =
