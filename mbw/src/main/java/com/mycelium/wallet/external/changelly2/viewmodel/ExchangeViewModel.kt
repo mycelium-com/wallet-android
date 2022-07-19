@@ -32,7 +32,13 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     var currencies = setOf("BTC", "ETH")
     val fromAccount = MutableLiveData<WalletAccount<*>>()
     val exchangeInfo = MutableLiveData<FixRate>()
-    val sellValue = MutableLiveData<String>()
+    val sellValue = object :MutableLiveData<String>() {
+        override fun setValue(value: String?) {
+            if(this.value != value) {
+                super.setValue(value)
+            }
+        }
+    }
     val buyValue = MutableLiveData<String>()
     val errorKeyboard = MutableLiveData("")
     val errorTransaction = MutableLiveData("")

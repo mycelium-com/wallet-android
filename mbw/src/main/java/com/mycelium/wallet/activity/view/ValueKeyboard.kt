@@ -283,7 +283,7 @@ class ValueKeyboard : ConstraintLayout {
             entry = if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
                 ""
             } else {
-                number.setScale(_maxDecimals, BigDecimal.ROUND_HALF_DOWN).stripTrailingZeros().toPlainString()
+                number.setScale(_maxDecimals, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString()
             }
             entryChange.entryChange(entry, true)
         }

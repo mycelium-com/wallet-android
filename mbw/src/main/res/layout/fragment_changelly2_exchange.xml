@@ -68,7 +68,7 @@
                     bind:chain="@{vm.fromChain}"
                     bind:coinType="@{vm.fromCurrency}"
                     bind:fiatValue="@{vm.fiatSellValue}"
-                    bind:label="@{@string/bequant_you_send}"
+                    bind:partLabel="@{@string/bequant_you_send}"
                     bind:value="@={vm.sellValue}" />
 
                 <View
@@ -204,7 +204,7 @@
                     bind:chain="@{vm.toChain}"
                     bind:coinType="@{vm.toCurrency}"
                     bind:fiatValue="@{vm.fiatBuyValue}"
-                    bind:label="@{@string/bequant_you_get}"
+                    bind:partLabel="@{@string/bequant_you_get}"
                     bind:value="@={vm.buyValue}" />
 
                 <View
