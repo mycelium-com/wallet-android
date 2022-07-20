@@ -218,7 +218,10 @@ class EthAccount(private val chainId: Byte,
     override fun broadcastOutgoingTransactions() = true
 
     override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?, txData: TransactionData?): Value {
-        val spendable = accountBalance.spendable - gasPrice * typicalEstimatedTransactionSize.toLong()
+        val gp =
+            (txData as? EthTransactionData)?.suggestedGasPrice?.let { Value.valueOf(coinType, it) } ?: gasPrice
+        val gl = (txData as? EthTransactionData)?.gasLimit ?: typicalEstimatedTransactionSize.toBigInteger()
+        val spendable = accountBalance.spendable - gp * gl
         return max(spendable, Value.zeroValue(coinType))
     }
 
