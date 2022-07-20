@@ -280,7 +280,7 @@ class ValueKeyboard : ConstraintLayout {
 
         fun setEntry(number: BigDecimal?, maxDecimals: Int) {
             _maxDecimals = maxDecimals
-            entry = if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
+            entry = if (number == null) {
                 ""
             } else {
                 number.setScale(_maxDecimals, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString()
