@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_activity_eth">
+
+    <data>
+
+        <import type="com.mycelium.wapi.wallet.erc20.ERC20Account" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvFeeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
+            android:text="@string/miner_fee_title"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/ivInfoIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="8dp"
+            android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
+            android:visibility="@{(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:srcCompat="@drawable/ic_info"
+            app:tint="@color/dark_sky_blue" />
+
+        <TextView
+            android:id="@+id/tvFeeUpdatesTimer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="@{@string/next_fee_update_in_s(viewModel.getSecondsUntilNextUpdate())}"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            tools:text="Next update in 24s" />
+    </LinearLayout>
+</layout>

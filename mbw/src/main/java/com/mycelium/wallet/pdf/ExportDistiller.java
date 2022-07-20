@@ -568,7 +568,7 @@ public class ExportDistiller {
     }
 
     private static final String TOP_DESC = "The Mycelium Bitcoin Wallet performs the steps described below when decrypting and verifying an encrypted private key. The description is quite technical and allows a developer to create software that allows you to decrypt your private keys. This allows you to access your funds if the Mycelium software is no longer available. If you wish to read or review the implementation used by the Mycelium Bitcoin Wallet you can find it here:";
-    private static final String TOP_DESC_LINK = "https://github.com/mycelium-com/wallet/tree/master/public/bitlib/src/main/java/com/mrd/bitlib/crypto/MrdExport.java";
+    private static final String TOP_DESC_LINK = "https://github.com/mycelium-com/wallet-android/blob/master/bitlib/src/main/java/com/mrd/bitlib/crypto/MrdExport.java";
 
     private static final String PARSE_HEADING = "Parsing The QR Code";
     private static final String PARSE_1 = "Scan the QR code to get a Base64 encoded string.";

@@ -34,6 +34,10 @@
 
 package com.mycelium.wallet;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -74,6 +78,7 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.bequant.InvestmentModule;
 import com.mycelium.generated.logger.database.LoggerDB;
 import com.mycelium.generated.logger.database.Logs;
+import com.mycelium.generated.rates.database.RatesDB;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
@@ -102,6 +107,7 @@ import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
+import com.mycelium.wallet.exchange.RatesBacking;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
@@ -113,9 +119,9 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
-import com.mycelium.wapi.content.btcv.BitcoinVaultUriParser;
 import com.mycelium.wapi.content.ContentResolver;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
+import com.mycelium.wapi.content.btcv.BitcoinVaultUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
 import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
@@ -231,10 +237,6 @@ import javax.net.ssl.SSLSocketFactory;
 
 import fiofoundation.io.fiosdk.errors.FIOError;
 import kotlin.jvm.Synchronized;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.mycelium.wapi.wallet.fio.FioModuleKt.getActiveFioAccount;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
     private static final String PROXY_HOST = "socksProxyHost";
@@ -416,7 +418,9 @@ public class MbwManager {
         contentResolver = createContentResolver(getNetwork());
 
         migrate();
-        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
+        SqlDriver rateDriver = new AndroidSqliteDriver(RatesDB.Companion.getSchema(), _applicationContext, "exchange.db");
+        RatesDB ratesDB = RatesDB.Companion.invoke(rateDriver);
+        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, new RatesBacking(ratesDB));
         _exchangeRateManager.subscribe(_eventTranslator);
         _walletManager.addObserver(_eventTranslator);
 

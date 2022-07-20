@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +19,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
@@ -38,14 +37,14 @@ import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getActiveBTCSingleAddressAccounts;
-import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
 public class ChangellyActivity extends AppCompatActivity {
     public static final int REQUEST_OFFER = 100;
     private static String TAG = "ChangellyActivity";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
 
     public enum ChangellyUITypes {
         Loading,
@@ -133,12 +132,12 @@ public class ChangellyActivity extends AppCompatActivity {
             public void done() {
                 titleView.setVisibility(View.VISIBLE);
                 subtitleView.setVisibility(View.VISIBLE);
-                fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
-                toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+                fromLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
+                toLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
             }
         });
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
-        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        fromLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
+        toLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
 
         int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
@@ -166,18 +165,18 @@ public class ChangellyActivity extends AppCompatActivity {
 
         //display the loading spinner
         setLayout(ChangellyActivity.ChangellyUITypes.Loading);
-        changellyAPIService.getCurrencies().enqueue(new Callback<ChangellyAPIService.ChangellyAnswerListString>() {
+        changellyAPIService.getCurrencies().enqueue(new Callback<ChangellyResponse<List<String>>>() {
             @Override
-            public void onResponse(Call<ChangellyAPIService.ChangellyAnswerListString> call, Response<ChangellyAPIService.ChangellyAnswerListString> response) {
-                if (response.body() == null || response.body().result == null) {
+            public void onResponse(Call<ChangellyResponse<List<String>>> call, Response<ChangellyResponse<List<String>>> response) {
+                if (response.body() == null || response.body().getResult() == null) {
                     toast("Can't load currencies.");
                     return;
                 }
-                Log.d(TAG, "currencies=" + response.body().result);
-                Collections.sort(response.body().result);
+                Log.d(TAG, "currencies=" + response.body().getResult());
+                Collections.sort(response.body().getResult());
                 List<CurrencyAdapter.Item> itemList = new ArrayList<>();
                 String[] skipCurrencies = getResources().getStringArray(R.array.changelly_skip_currencies);
-                for (String curr : response.body().result) {
+                for (String curr : response.body().getResult()) {
                     if (!curr.equalsIgnoreCase("btc") &&
                             !containsCaseInsensitive(curr, skipCurrencies)) {
                         itemList.add(new CurrencyAdapter.Item(curr.toUpperCase(), CurrencyAdapter.VIEW_TYPE_ITEM));
@@ -191,7 +190,7 @@ public class ChangellyActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ChangellyAPIService.ChangellyAnswerListString> call, Throwable t) {
+            public void onFailure(Call<ChangellyResponse<List<String>>> call, Throwable t) {
                 toast("Can't load currencies: " + t);
             }
         });
@@ -277,8 +276,8 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setEntry(fromValue.getText().toString());
-        fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
-        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        fromLayout.setAlpha(ChangellyConstants.ACTIVE_ALPHA);
+        toLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
 
         llChangellyMain.post(new Runnable() {
             @Override
@@ -293,8 +292,8 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setEntry(toValue.getText().toString());
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
-        toLayout.setAlpha(Constants.ACTIVE_ALPHA);
+        fromLayout.setAlpha(ChangellyConstants.INACTIVE_ALPHA);
+        toLayout.setAlpha(ChangellyConstants.ACTIVE_ALPHA);
 
         llChangellyMain.post(new Runnable() {
             @Override
@@ -374,7 +373,7 @@ public class ChangellyActivity extends AppCompatActivity {
         return false;
     }
 
-    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+    class GetMinCallback implements Callback<ChangellyResponse<Double>> {
         String from;
 
         GetMinCallback(String from) {
@@ -382,15 +381,15 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAnswerDouble> response) {
-            ChangellyAnswerDouble result = response.body();
-            if(result == null || result.result == -1) {
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
+                               @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
+            if(result == null || result.getResult() == -1) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
                 toast("Service unavailable");
                 return;
             }
-            double min = result.result;
+            double min = result.getResult();
             // service available
             CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
             if (item != null && from != null
@@ -403,13 +402,13 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+    class GetOfferCallback implements Callback<ChangellyResponse<Double>> {
         final String from;
         final String to;
         final double fromAmount;
@@ -421,12 +420,12 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAnswerDouble> response) {
-            ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
+                               @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
             if(result != null) {
-                double amount = result.result;
-                Log.d("MyceliumChangelly", "You will receive the following " + to + " amount: " + result.result);
+                double amount = result.getResult();
+                Log.d("MyceliumChangelly", "You will receive the following " + to + " amount: " + result.getResult());
                 CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                 // check if the user still needs this reply or navigated to different amounts/currencies
                 if (item != null) {
@@ -451,7 +450,7 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable " + t);
         }

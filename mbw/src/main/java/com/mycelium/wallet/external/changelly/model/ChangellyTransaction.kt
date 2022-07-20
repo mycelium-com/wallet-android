@@ -1,0 +1,17 @@
+package com.mycelium.wallet.external.changelly.model
+
+import java.io.Serializable
+import java.math.BigDecimal
+
+
+class ChangellyTransaction(val id: String,
+                           val status: String,
+                           val moneySent: String,
+                           val amountExpectedFrom: BigDecimal? = null,
+                           val amountExpectedTo: BigDecimal? = null,
+                           val currencyFrom: String,
+                           val moneyReceived: String,
+                           val currencyTo: String,
+                           val trackUrl: String,
+                           val payoutAddress:String,
+                           val createdAt: Long) : Serializable

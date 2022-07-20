@@ -138,14 +138,29 @@
         </activity>
         <activity
             android:name=".activity.modern.ModernMain"
-            android:theme="@style/MyceliumActionBar" />
+            android:exported="true"
+            android:theme="@style/MyceliumActionBar">
+            <intent-filter android:label="Exchange">
+                <action android:name="action.CHANGELLY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:label="Exchange">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="action.changelly"
+                    android:scheme="mycelium" />
+            </intent-filter>
+        </activity>
         <activity android:name=".activity.AboutActivity" />
         <activity android:name=".activity.modern.GetFromAddressBookActivity" />
         <activity
             android:name=".activity.AddAccountActivity"
             android:theme="@style/MyceliumFIO" />
         <activity android:name=".activity.AddAdvancedAccountActivity" />
-        <activity android:name=".activity.AddColuAccountActivity" />
         <activity android:name=".activity.ScanActivity" />
         <activity
             android:name=".activity.CustomCaptureActivity"

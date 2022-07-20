@@ -167,6 +167,10 @@ sqldelight {
         packageName = "com.mycelium.generated.logger.database"
         sourceFolders = ["sqldelight_logger"]
     }
+    RatesDB {
+        packageName = "com.mycelium.generated.rates.database"
+        sourceFolders = ["sqldelight_rate"]
+    }
 }
 
 android {
@@ -215,8 +219,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3140100
-        versionName '3.14.1.0'
+        versionCode 3160003
+        versionName '3.16.0.3'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion

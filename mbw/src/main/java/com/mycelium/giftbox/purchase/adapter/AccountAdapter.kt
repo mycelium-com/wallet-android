@@ -14,7 +14,7 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 
 
-class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(DiffCallback()) {
+open class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(DiffCallback()) {
     var accountClickListener: ((AccountViewModel) -> Unit)? = null
     var groupClickListener: ((AccountsGroupModel) -> Unit)? = null
 

@@ -89,8 +89,6 @@ import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
-import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
 import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
@@ -448,12 +446,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                  UUID accountId = accToUpgrade.getId();
                  WalletManager walletManager = _mbwManager.getWalletManager(false);
                  walletManager.deleteAccount(accToUpgrade.getId());
-                 if (accToUpgrade instanceof SingleAddressAccount) {
-                    accountId = walletManager.createAccounts(new PrivateSingleConfig(key,
-                            AesKeyCipher.defaultKeyCipher(), existingAccountName)).get(0);
-                 } else {
-                    walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) accToUpgrade.getCoinType(), AesKeyCipher.defaultKeyCipher()));
-                 }
+                 accountId = walletManager.createAccounts(new PrivateSingleConfig(key,
+                         AesKeyCipher.defaultKeyCipher(), existingAccountName)).get(0);
                  finishOk(accountId, true);
               })
               .create()

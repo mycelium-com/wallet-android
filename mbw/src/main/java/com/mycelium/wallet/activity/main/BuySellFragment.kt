@@ -45,6 +45,8 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter
 import com.mycelium.wallet.activity.main.adapter.ButtonClickListener
 import com.mycelium.wallet.activity.main.model.ActionButton
+import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBalanceContent
@@ -163,7 +165,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
     override fun onClick(actionButton: ActionButton) {
         when (actionButton.id) {
             ACTION.BCH -> startActivity(Intent(activity, ExchangeActivity::class.java))
-            ACTION.ALT_COIN -> startActivity(Intent(activity, ChangellyActivity::class.java))
+            ACTION.ALT_COIN -> MbwManager.getEventBus().post(SelectTab(ModernMain.TAB_EXCHANGE))
             ACTION.ETH -> startActivity(Intent(activity, BuySellSelectActivity::class.java)
                     .putExtra("currency", Utils.getEthCoinType()))
             ACTION.BTC -> startActivity(Intent(activity, BuySellSelectActivity::class.java)

@@ -229,6 +229,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getRequestedAmountAlternativeFormatted() = model.alternativeAmountFormatted
 
+    fun getCourseOutdated() = model.alternativeAmountWarning
+
     fun showStaleWarning() = model.showStaleWarning
 
     fun getTransaction() = model.transaction
@@ -416,10 +418,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     open fun saveInstance(outState: Bundle) {
         model.saveInstance(outState)
     }
-
-    open fun isMinerFeeInfoAvailable() = false
-
-    open fun minerFeeInfoClickListener(activity: Activity) {}
 
     fun verifyPaymentRequest(rawPr: ByteArray, activity: Activity) {
         val intent = VerifyPaymentRequestActivity.getIntent(activity, rawPr)

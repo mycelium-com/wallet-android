@@ -6,13 +6,14 @@ import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioActive
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
+import com.mycelium.wallet.external.changelly.ChangellyConstants
 
 class ExternalServiceFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -62,6 +63,20 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                     summary = getString(R.string.cant_disable_active_account)
                 }
             })
+            if(partnerInfo.id == ChangellyConstants.PARTNER_ID_CHANGELLY) {
+                preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
+                    title = getString(R.string.settings_exchange_quick_exchange_title)
+                    summary = getString(R.string.settings_exchange_quick_exchange_summary)
+                    layoutResource = R.layout.preference_layout
+                    isChecked = SettingsPreference.exchangeConfirmationEnabled
+                    widgetLayoutResource = R.layout.preference_switch
+                    onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference ->
+                        val p = preference as CheckBoxPreference
+                        SettingsPreference.exchangeConfirmationEnabled = p.isChecked
+                        true
+                    }
+                })
+            }
         }
         if (fioActive) {
             preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {

@@ -38,6 +38,7 @@ class ReceiveCoinsModel(
     val receivingAddress: MutableLiveData<Address> = MutableLiveData()
     val receivingFioName = MutableLiveData<String>()
     val fioNameList = MutableLiveData<List<String>>()
+    val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
@@ -83,6 +84,10 @@ class ReceiveCoinsModel(
         } else {
             null
         }
+    }
+
+    fun setAlternativeAmountWarning(show: Boolean) {
+        alternativeAmountWarning.value = show
     }
 
     fun getPaymentUri(): String {
