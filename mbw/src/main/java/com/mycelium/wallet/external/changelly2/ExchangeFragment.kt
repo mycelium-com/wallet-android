@@ -154,28 +154,15 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         binding?.buyLayout?.coinSymbol?.setOnClickListener(selectBuyAccount)
         binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
-        viewModel.sellValue.observe(viewLifecycleOwner) {
+        viewModel.sellValue.observe(viewLifecycleOwner) { amount ->
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
                 updateAmountIfChanged()
-                val amount = binding?.sellLayout?.coinValue?.text?.toString()
-                viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
-                    try {
-                        (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
-                                .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                                .stripTrailingZeros()
-                                .toPlainString()
-                    } catch (e: NumberFormatException) {
-                        "N/A"
-                    }
-                } else {
-                    null
-                }
+                computeBuyValue()
             }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
-        viewModel.buyValue.observe(viewLifecycleOwner) {
+        viewModel.buyValue.observe(viewLifecycleOwner) { amount ->
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
-                val amount = binding?.buyLayout?.coinValue?.text?.toString()
                 viewModel.sellValue.value = if (amount?.isNotEmpty() == true) {
                     try {
                         amount.toBigDecimal().setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
@@ -321,6 +308,25 @@ class ExchangeFragment : Fragment(), BackListener {
                 binding?.progress?.setImageDrawable(null)
                 binding?.progress?.clearAnimation()
             }
+        }
+        viewModel.exchangeInfo.observe(viewLifecycleOwner) {
+            computeBuyValue()
+        }
+    }
+
+    private fun computeBuyValue() {
+        val amount = viewModel.sellValue.value
+        viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
+            try {
+                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
+                        .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
+                        .stripTrailingZeros()
+                        .toPlainString()
+            } catch (e: NumberFormatException) {
+                "N/A"
+            }
+        } else {
+            null
         }
     }
 
