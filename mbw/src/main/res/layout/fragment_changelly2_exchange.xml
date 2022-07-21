@@ -208,6 +208,7 @@
                     bind:value="@={vm.buyValue}" />
 
                 <FrameLayout
+                    android:id="@+id/minerFee"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -215,12 +216,10 @@
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/bg_coin_value"
                     android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"
-                    app:layout_constraintBottom_toBottomOf="@id/minerFee"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
                     app:layout_constraintTop_toBottomOf="@id/buyLayout">
                     <TextView
-                        android:id="@+id/minerFee"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
