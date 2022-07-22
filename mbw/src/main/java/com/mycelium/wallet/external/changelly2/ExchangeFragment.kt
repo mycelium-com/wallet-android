@@ -51,10 +51,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
@@ -188,6 +185,8 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.fromAccount.value = oldTo
             viewModel.toAccount.value = oldFrom
             viewModel.sellValue.value = oldBuy
+            viewModel.swapEnableDelay.value = true
+            it.postDelayed({ viewModel.swapEnableDelay.value = false }, 1000) //avoid recalculation values gap
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {

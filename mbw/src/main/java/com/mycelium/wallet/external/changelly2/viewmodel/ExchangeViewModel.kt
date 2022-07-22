@@ -54,6 +54,24 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+    val swapEnableDelay = MutableLiveData<Boolean>(false)
+    val swapEnabled = MediatorLiveData<Boolean>().apply {
+        value = false
+        fun update() {
+            value = toAccount.value?.canSpend() ?: false
+                    && rateLoading.value == false
+                    && swapEnableDelay.value == false
+        }
+        addSource(toAccount) {
+            update()
+        }
+        addSource(rateLoading) {
+            update()
+        }
+        addSource(swapEnableDelay) {
+            update()
+        }
+    }
 
     val error = MediatorLiveData<String>().apply {
         value = ""
