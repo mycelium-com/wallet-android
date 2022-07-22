@@ -316,7 +316,9 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private fun computeBuyValue() {
         val amount = viewModel.sellValue.value
-        viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
+        viewModel.buyValue.value = if (amount?.isNotEmpty() == true
+                && viewModel.exchangeInfo.value?.result != null
+                && viewModel.rateLoading.value == false) {
             try {
                 (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
                         .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
@@ -343,7 +345,9 @@ class ExchangeFragment : Fragment(), BackListener {
                             result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyTo?.toUpperCase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
-                        action()
+                        viewModel.mbwManager.runPinProtectedFunction(activity) {
+                            action()
+                        }
                     }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
