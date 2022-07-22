@@ -333,7 +333,9 @@ class ExchangeFragment : Fragment(), BackListener {
 
     private fun acceptDialog(unsignedTx: Transaction?, result: ChangellyResponse<ChangellyTransactionOffer>, action: () -> Unit) {
         if (!SettingsPreference.exchangeConfirmationEnabled) {
-            action()
+            viewModel.mbwManager.runPinProtectedFunction(activity) {
+                action()
+            }
         } else {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
