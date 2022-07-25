@@ -1002,7 +1002,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
     protected abstract fun getChangeAddress(destinationAddress: BitcoinAddress): BitcoinAddress
     abstract val changeAddress: BitcoinAddress
     protected abstract fun getChangeAddress(destinationAddresses: List<BitcoinAddress>): BitcoinAddress
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcAddress?): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcAddress?, txData: TransactionData?): Value {
         val destAddress = destinationAddress?.address
         checkNotArchived()
         val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.valueAsLong))
