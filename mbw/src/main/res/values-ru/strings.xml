@@ -61,6 +61,7 @@
     <string name="bitcoin_address_title">Биткойн адрес</string>
     <string name="no_server_connection">Нет соединения с %s сервером</string>
     <string name="no_network_connection">Отсутствует сетевое подключение</string>
+    <string name="interrupted_by_application">Прервано приложением</string>
     <string name="invalid_bitcoin_uri">Недопустимый  биткойн URI</string>
     <string name="unrecognized_format">Неизвестный формат</string>
     <string name="unrecognized_private_key_format">Нераспознаваемый формат приватного ключа</string>
@@ -943,6 +944,8 @@
     <string name="payment_in_progress">Платеж в обработке</string>
     <string name="show_transaction_details"><![CDATA[Показать детали транзакции >]]></string>
     <string name="show_transaction_details_hide">Показать детали транзакции (скрыть)</string>
+    <string name="sync_failed_reason_s">Сбой синхронизации. Причина: %s</string>
+    <string name="sync_failed_s">Сбой синхронизации. %s</string>
     <string name="giftcard_order_title">Ваш заказ</string>
     <string name="max_available_cards_d">Максимум %d карт</string>
     <string name="card_value1">Номинал сертификата</string>
