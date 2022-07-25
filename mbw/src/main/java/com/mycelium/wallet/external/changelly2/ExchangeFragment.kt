@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
@@ -260,6 +261,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                         getString(R.string.changelly_error_rate_expired)
                                     else result?.error?.message)
                                     .setPositiveButton(R.string.button_ok, null)
+                                    .setOnDismissListener { updateAmount() }
                                     .show()
                         }
                     },
@@ -268,6 +270,7 @@ class ExchangeFragment : Fragment(), BackListener {
                         AlertDialog.Builder(requireContext())
                                 .setMessage(msg)
                                 .setPositiveButton(R.string.button_ok, null)
+                                .setOnDismissListener { updateAmount() }
                                 .show()
                     })
         }
@@ -336,7 +339,7 @@ class ExchangeFragment : Fragment(), BackListener {
         if (!SettingsPreference.exchangeConfirmationEnabled) {
             viewModel.mbwManager.runPinProtectedFunction(activity) {
                 action()
-            }
+            }.setOnDismissListener { updateAmount() }
         } else {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
@@ -349,9 +352,10 @@ class ExchangeFragment : Fragment(), BackListener {
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         viewModel.mbwManager.runPinProtectedFunction(activity) {
                             action()
-                        }
+                        }.setOnDismissListener { updateAmount() }
                     }
                     .setNegativeButton(R.string.cancel, null)
+                    .setOnDismissListener { updateAmount() }
                     .show()
         }
     }
@@ -490,6 +494,11 @@ class ExchangeFragment : Fragment(), BackListener {
                 counterJob?.cancel()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e("!!!", "onStart")
     }
 
     override fun onStart() {
