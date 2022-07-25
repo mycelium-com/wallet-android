@@ -256,7 +256,10 @@ class ExchangeFragment : Fragment(), BackListener {
                         } else {
                             loader(false)
                             AlertDialog.Builder(requireContext())
-                                    .setMessage(result?.error?.message)
+                                    .setMessage(when (result?.error?.code) {
+                                        -32602 -> getString(R.string.changelly_error_rate_expired)
+                                        else -> result?.error?.message
+                                    })
                                     .setPositiveButton(R.string.button_ok, null)
                                     .show()
                         }
