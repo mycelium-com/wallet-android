@@ -338,7 +338,7 @@ class ExchangeFragment : Fragment(), BackListener {
         if (!SettingsPreference.exchangeConfirmationEnabled) {
             viewModel.mbwManager.runPinProtectedFunction(activity) {
                 action()
-            }.setOnDismissListener { updateAmount() }
+            }?.setOnDismissListener { updateAmount() }
         } else {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
@@ -351,7 +351,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         viewModel.mbwManager.runPinProtectedFunction(activity) {
                             action()
-                        }.setOnDismissListener { updateAmount() }
+                        }?.setOnDismissListener { updateAmount() }
                     }
                     .setNegativeButton(R.string.cancel, null)
                     .setOnDismissListener { updateAmount() }
