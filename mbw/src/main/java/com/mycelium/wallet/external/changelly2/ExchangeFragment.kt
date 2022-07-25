@@ -51,10 +51,7 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
@@ -154,28 +151,15 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         binding?.buyLayout?.coinSymbol?.setOnClickListener(selectBuyAccount)
         binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
-        viewModel.sellValue.observe(viewLifecycleOwner) {
+        viewModel.sellValue.observe(viewLifecycleOwner) { amount ->
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
                 updateAmountIfChanged()
-                val amount = binding?.sellLayout?.coinValue?.text?.toString()
-                viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
-                    try {
-                        (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
-                                .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                                .stripTrailingZeros()
-                                .toPlainString()
-                    } catch (e: NumberFormatException) {
-                        "N/A"
-                    }
-                } else {
-                    null
-                }
+                computeBuyValue()
             }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
-        viewModel.buyValue.observe(viewLifecycleOwner) {
+        viewModel.buyValue.observe(viewLifecycleOwner) { amount ->
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
-                val amount = binding?.buyLayout?.coinValue?.text?.toString()
                 viewModel.sellValue.value = if (amount?.isNotEmpty() == true) {
                     try {
                         amount.toBigDecimal().setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
@@ -201,6 +185,8 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.fromAccount.value = oldTo
             viewModel.toAccount.value = oldFrom
             viewModel.sellValue.value = oldBuy
+            viewModel.swapEnableDelay.value = true
+            it.postDelayed({ viewModel.swapEnableDelay.value = false }, 1000) //avoid recalculation values gap
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {
@@ -270,8 +256,11 @@ class ExchangeFragment : Fragment(), BackListener {
                         } else {
                             loader(false)
                             AlertDialog.Builder(requireContext())
-                                    .setMessage(result?.error?.message)
+                                    .setMessage(if (result?.error?.message?.startsWith("rateId was expired") == true)
+                                        getString(R.string.changelly_error_rate_expired)
+                                    else result?.error?.message)
                                     .setPositiveButton(R.string.button_ok, null)
+                                    .setOnDismissListener { updateAmount() }
                                     .show()
                         }
                     },
@@ -280,6 +269,7 @@ class ExchangeFragment : Fragment(), BackListener {
                         AlertDialog.Builder(requireContext())
                                 .setMessage(msg)
                                 .setPositiveButton(R.string.button_ok, null)
+                                .setOnDismissListener { updateAmount() }
                                 .show()
                     })
         }
@@ -322,11 +312,33 @@ class ExchangeFragment : Fragment(), BackListener {
                 binding?.progress?.clearAnimation()
             }
         }
+        viewModel.exchangeInfo.observe(viewLifecycleOwner) {
+            computeBuyValue()
+        }
+    }
+
+    private fun computeBuyValue() {
+        val amount = viewModel.sellValue.value
+        viewModel.buyValue.value = if (amount?.isNotEmpty() == true
+                && viewModel.exchangeInfo.value?.result != null) {
+            try {
+                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
+                        .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
+                        .stripTrailingZeros()
+                        .toPlainString()
+            } catch (e: NumberFormatException) {
+                "N/A"
+            }
+        } else {
+            null
+        }
     }
 
     private fun acceptDialog(unsignedTx: Transaction?, result: ChangellyResponse<ChangellyTransactionOffer>, action: () -> Unit) {
         if (!SettingsPreference.exchangeConfirmationEnabled) {
-            action()
+            viewModel.mbwManager.runPinProtectedFunction(activity) {
+                action()
+            }.setOnDismissListener { updateAmount() }
         } else {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
@@ -337,9 +349,12 @@ class ExchangeFragment : Fragment(), BackListener {
                             result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyTo?.toUpperCase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
-                        action()
+                        viewModel.mbwManager.runPinProtectedFunction(activity) {
+                            action()
+                        }.setOnDismissListener { updateAmount() }
                     }
                     .setNegativeButton(R.string.cancel, null)
+                    .setOnDismissListener { updateAmount() }
                     .show()
         }
     }

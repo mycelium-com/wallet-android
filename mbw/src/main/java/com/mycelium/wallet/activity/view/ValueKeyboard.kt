@@ -94,7 +94,7 @@ class ValueKeyboard : ConstraintLayout {
             view.setOnClickListener { view ->
                 when (view.id) {
                     R.id.btn_max -> {
-                        value.setEntry(spendableValue, maxDecimals)
+                        value.setEntry(spendableValue, maxDecimals, true)
                     }
                     R.id.btn_backspace -> {
                         value.clicked(DEL)
@@ -278,9 +278,9 @@ class ValueKeyboard : ConstraintLayout {
             }
         }
 
-        fun setEntry(number: BigDecimal?, maxDecimals: Int) {
+        fun setEntry(number: BigDecimal?, maxDecimals: Int, zeroAcceptable:Boolean = false) {
             _maxDecimals = maxDecimals
-            entry = if (number == null) {
+            entry = if (number == null || (!zeroAcceptable && number.compareTo(BigDecimal.ZERO) == 0)) {
                 ""
             } else {
                 number.setScale(_maxDecimals, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString()
