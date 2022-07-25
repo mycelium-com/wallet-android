@@ -256,10 +256,9 @@ class ExchangeFragment : Fragment(), BackListener {
                         } else {
                             loader(false)
                             AlertDialog.Builder(requireContext())
-                                    .setMessage(if (result?.error?.message?.startsWith("rateId was expired"))
+                                    .setMessage(if (result?.error?.message?.startsWith("rateId was expired") == true)
                                         getString(R.string.changelly_error_rate_expired)
-                                            else -> result?.error?.message
-                        })
+                                    else result?.error?.message)
                                     .setPositiveButton(R.string.button_ok, null)
                                     .show()
                         }
