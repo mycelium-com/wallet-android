@@ -281,23 +281,23 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     null
             )
         } catch (e: OutputTooSmallException) {
-            errorTransaction.value = res.getString(R.string.amount_too_small_short,
-                    Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
+            errorTransaction.postValue(res.getString(R.string.amount_too_small_short,
+                    Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit()))
         } catch (e: InsufficientFundsForFeeException) {
             if (account is ERC20Account) {
                 val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
-                errorTransaction.value = res.getString(R.string.please_top_up_your_eth_account,
-                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP
+                errorTransaction.postValue(res.getString(R.string.please_top_up_your_eth_account,
+                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP)
             } else {
-                errorTransaction.value = res.getString(R.string.insufficient_funds_for_fee)
+                errorTransaction.postValue(res.getString(R.string.insufficient_funds_for_fee))
             }
         } catch (e: InsufficientFundsException) {
-            errorTransaction.value = res.getString(R.string.insufficient_funds)
+            errorTransaction.postValue(res.getString(R.string.insufficient_funds))
         } catch (e: BuildTransactionException) {
             mbwManager.reportIgnoredException("MinerFeeException", e)
-            errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
+            errorTransaction.postValue(res.getString(R.string.tx_build_error) + " " + e.message)
         } catch (e: Exception) {
-            errorTransaction.value = res.getString(R.string.tx_build_error) + " " + e.message
+            errorTransaction.postValue(res.getString(R.string.tx_build_error) + " " + e.message)
         }
         return null
     }
