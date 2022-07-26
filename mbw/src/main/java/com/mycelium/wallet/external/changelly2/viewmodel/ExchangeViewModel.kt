@@ -326,5 +326,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         errorTransaction.value = ""
         errorRemote.value = ""
         errorKeyboard.value = ""
+        fromAccount.value = fromAccount.value
+        toAccount.value = toAccount.value
     }
 }

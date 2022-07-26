@@ -533,6 +533,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID, toAccountId)
                 }
             }.show(parentFragmentManager, "exchange_result")
+            viewModel.mbwManager.getWalletManager(false).startSynchronization(viewModel.fromAccount.value?.id)
             viewModel.reset()
         }
     }
