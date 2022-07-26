@@ -25,10 +25,7 @@ import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.settings.SettingsPreference
-import com.mycelium.wallet.activity.util.resizeTextView
-import com.mycelium.wallet.activity.util.startCursor
-import com.mycelium.wallet.activity.util.stopCursor
-import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
@@ -45,7 +42,6 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
@@ -245,11 +241,13 @@ class ExchangeFragment : Fragment(), BackListener {
                                             viewModel.fromAddress.value!!
                                         else
                                             result.result!!.payinAddress!!,
-                                        result.result!!.amountExpectedFrom!!)
-                                launch(Dispatchers.Main) {
-                                    loader(false)
-                                    acceptDialog(unsignedTx, result) {
-                                        sendTx(result.result!!.id!!, unsignedTx!!)
+                                        result.result!!.amountExpectedFrom.toPlainString())
+                                if(unsignedTx != null) {
+                                    launch(Dispatchers.Main) {
+                                        loader(false)
+                                        acceptDialog(unsignedTx, result) {
+                                            sendTx(result.result!!.id!!, unsignedTx)
+                                        }
                                     }
                                 }
                             }
@@ -359,7 +357,7 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
-    private fun prepareTx(addressTo: String, amount: BigDecimal): Transaction? =
+    private fun prepareTx(addressTo: String, amount: String): Transaction? =
             viewModel.fromAccount.value?.let { account ->
                 val address = when (account) {
                     is EthAccount, is ERC20Account -> {
@@ -370,12 +368,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     }
                     else -> TODO("Account not supported yet")
                 }
-                val feeEstimation = viewModel.mbwManager.getFeeProvider(account.basedOnCoinType).estimation
-                account.createTx(address,
-                        viewModel.fromAccount.value!!.coinType.value(amount.toPlainString()),
-                        FeePerKbFee(feeEstimation.normal),
-                        null
-                )
+                viewModel.prepateTx(address, amount)
             }
 
     private fun sendTx(txId: String, createTx: Transaction) {
