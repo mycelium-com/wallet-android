@@ -190,6 +190,9 @@ public class HDAccountKeyManager {
          case BIP84:
             purpose = HdKeyPath.BIP84;
             break;
+         case BIP86:
+            purpose = HdKeyPath.BIP86;
+            break;
          default:
             throw new NotImplementedError();
       }

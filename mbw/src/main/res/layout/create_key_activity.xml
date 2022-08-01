@@ -58,6 +58,15 @@
                 android:textSize="20sp"
                 android:layout_marginTop="12dp"
                 android:typeface="monospace" />
+
+            <com.mycelium.wallet.activity.util.AddressLabel
+                android:id="@+id/tvAddressBech32m"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginTop="12dp"
+                android:typeface="monospace" />
+
         </LinearLayout>
 
         <View

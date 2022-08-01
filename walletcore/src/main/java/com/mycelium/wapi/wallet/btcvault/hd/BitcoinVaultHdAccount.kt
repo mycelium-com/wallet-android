@@ -507,6 +507,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
                     }.eachCount().maxBy { it.value }!!.key
                     getChangeAddress(mostCommonOutputType)
                 }
+                ChangeAddressMode.P2TR -> throw IllegalStateException()
                 ChangeAddressMode.NONE -> throw IllegalStateException()
             }
 
@@ -515,6 +516,7 @@ class BitcoinVaultHdAccount(protected var accountContext: BitcoinVaultHDAccountC
             return when (changeAddressModeReference.get()!!) {
                 ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
                 ChangeAddressMode.P2SH_P2WPKH, ChangeAddressMode.PRIVACY -> getChangeAddress(BipDerivationType.BIP49)
+                ChangeAddressMode.P2TR -> throw IllegalStateException()
                 ChangeAddressMode.NONE -> throw IllegalStateException()
             }
         }

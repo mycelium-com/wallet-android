@@ -48,6 +48,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
             AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters, ignoreCompression)
             AddressType.P2WPKH -> toP2WPKH(networkParameters, ignoreCompression)
+            AddressType.P2TR -> toP2TRAddress(networkParameters, ignoreCompression)
         }
     }
 
@@ -78,6 +79,13 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
                 SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
             } else {
                 throw IllegalStateException("Can't create segwit address from uncompressed key")
+            }
+
+    private fun toP2TRAddress(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): SegwitAddress =
+            if (ignoreCompression || isCompressed) {
+                SegwitAddress(networkParameters, 0x01, HashUtils.addressHash(pubKeyCompressed))
+            } else {
+                throw IllegalStateException("Can't create taproot address from uncompressed key")
             }
 
     /**
@@ -133,8 +141,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         private const val serialVersionUID = 1L
         private const val HASH_TYPE = 1
         private fun SUPPORTED_ADDRESS_TYPES(isCompressed: Boolean) = if (isCompressed) {
-            listOf(AddressType.P2PKH, AddressType.P2WPKH, AddressType.P2SH_P2WPKH
-            )
+            listOf(AddressType.P2PKH, AddressType.P2WPKH, AddressType.P2SH_P2WPKH, AddressType.P2TR)
         } else {
             // P2WPKH (and native P2WSH) do not allow uncompressed public keys as per
             // [BIP143](https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#restrictions-on-public-key-type).

@@ -127,6 +127,9 @@ public class StandardTransactionBuilder {
          case P2WPKH:
             script = new ScriptOutputP2WPKH(sendTo.getTypeSpecificBytes());
             break;
+         case P2TR:
+            script = new ScriptOutputP2TR(sendTo.getTypeSpecificBytes());
+            break;
          default:
             throw new NotImplementedError();
       }
@@ -422,7 +425,7 @@ public class StandardTransactionBuilder {
          UnspentTransactionOutput oldest = null;
          for (UnspentTransactionOutput output : unspent) {
             if (!(output.script instanceof ScriptOutputP2PKH) && !(output.script instanceof ScriptOutputP2SH)
-                    && !(output.script instanceof ScriptOutputP2WPKH)) {
+                    && !(output.script instanceof ScriptOutputP2WPKH) && !(output.script instanceof ScriptOutputP2TR)) {
                // only look for certain scripts
                continue;
             }
