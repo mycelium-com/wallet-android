@@ -293,9 +293,6 @@ class ExchangeFragment : Fragment(), BackListener {
             }
             updateExchangeRate()
         }
-        binding?.policyTerms?.setOnClickListener {
-            openLink(LINK_TERMS)
-        }
         updateAmount()
         viewModel.rateLoading.observe(viewLifecycleOwner) {
             if (it) {
