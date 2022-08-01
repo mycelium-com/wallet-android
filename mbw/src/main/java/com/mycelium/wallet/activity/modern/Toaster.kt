@@ -58,13 +58,13 @@ class Toaster(val context: Context) {
     fun toastSyncFailed(syncStatusInfo: SyncStatusInfo? = null) {
         toast(when(syncStatusInfo?.status) {
             SyncStatus.INTERRUPT -> {
-                context.getString(R.string.sync_failed_s, "Reason: Interrupted by application")
+                context.getString(R.string.sync_failed_reason_s, context.getString(R.string.interrupted_by_application))
             }
             SyncStatus.ERROR -> {
-                context.getString(R.string.sync_failed_s, "Reason: " + context.getString(R.string.no_server_connection, ""))
+                context.getString(R.string.sync_failed_reason_s, context.getString(R.string.no_server_connection, ""))
             }
             SyncStatus.ERROR_INTERNET_CONNECTION -> {
-                context.getString(R.string.sync_failed_s, "Reason: " + context.getString(R.string.no_network_connection))
+                context.getString(R.string.sync_failed_reason_s, context.getString(R.string.no_network_connection))
             }
             else -> {
                 context.getString(R.string.sync_failed_s, "")
