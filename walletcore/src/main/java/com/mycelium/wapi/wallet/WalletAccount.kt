@@ -179,7 +179,7 @@ interface WalletAccount<A : Address> : SyncPausable {
      * Determine the maximum spendable amount you can send in a transaction
      * Destination address can be null
      */
-    fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: A?): Value
+    fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: A?, txData: TransactionData?): Value
 
     /**
      * Returns the number of retrieved transactions during synchronization

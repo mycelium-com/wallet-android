@@ -25,10 +25,7 @@ import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.settings.SettingsPreference
-import com.mycelium.wallet.activity.util.resizeTextView
-import com.mycelium.wallet.activity.util.startCursor
-import com.mycelium.wallet.activity.util.stopCursor
-import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
@@ -45,16 +42,12 @@ import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
@@ -78,7 +71,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     .getAllActiveAccounts()
                     .firstOrNull { it.canSpend() && viewModel.isSupported(it.coinType) }
         }
-        viewModel.toAccount.value = viewModel.getToAccount()
+        viewModel.toAccount.value = viewModel.getToAccountForInit()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
             it?.result
                     ?.filter { it.fixRateEnabled && it.enabled }
@@ -113,12 +106,13 @@ class ExchangeFragment : Fragment(), BackListener {
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
-                    val maxSpendable = viewModel.fromAccount.value?.calculateMaxSpendableAmount(feeEstimation.normal, null)
+                    val maxSpendable = viewModel.fromAccount.value?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)
                     withContext(Dispatchers.Main) {
                         spendableValue = maxSpendable?.valueAsBigDecimal
                     }
                 }
             }
+            viewModel.keyboardActive.value = true
         }
         val selectSellAccount = { _: View ->
             binding?.layoutValueKeyboard?.numericKeyboard?.done()
@@ -142,6 +136,7 @@ class ExchangeFragment : Fragment(), BackListener {
                 maxDecimals = viewModel.toCurrency.value?.friendlyDigits ?: 0
                 visibility = View.VISIBLE
             }
+            viewModel.keyboardActive.value = true
         }
         val selectBuyAccount = { _: View ->
             SelectAccountFragment().apply {
@@ -152,28 +147,15 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         binding?.buyLayout?.coinSymbol?.setOnClickListener(selectBuyAccount)
         binding?.buyLayout?.layoutAccount?.setOnClickListener(selectBuyAccount)
-        viewModel.sellValue.observe(viewLifecycleOwner) {
-            updateAmountIfChanged()
+        viewModel.sellValue.observe(viewLifecycleOwner) { amount ->
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView != binding?.buyLayout?.coinValue) {
-                val amount = binding?.sellLayout?.coinValue?.text?.toString()
-                viewModel.buyValue.value = if (amount?.isNotEmpty() == true) {
-                    try {
-                        (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
-                                .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                                .stripTrailingZeros()
-                                .toPlainString()
-                    } catch (e: NumberFormatException) {
-                        "N/A"
-                    }
-                } else {
-                    null
-                }
+                updateAmountIfChanged()
+                computeBuyValue()
             }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
-        viewModel.buyValue.observe(viewLifecycleOwner) {
+        viewModel.buyValue.observe(viewLifecycleOwner) { amount ->
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
-                val amount = binding?.buyLayout?.coinValue?.text?.toString()
                 viewModel.sellValue.value = if (amount?.isNotEmpty() == true) {
                     try {
                         amount.toBigDecimal().setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
@@ -199,12 +181,15 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.fromAccount.value = oldTo
             viewModel.toAccount.value = oldFrom
             viewModel.sellValue.value = oldBuy
+            viewModel.swapEnableDelay.value = true
+            it.postDelayed({ viewModel.swapEnableDelay.value = false }, 1000) //avoid recalculation values gap
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {
                 override fun done() {
                     binding?.sellLayout?.coinValue?.stopCursor()
                     binding?.buyLayout?.coinValue?.stopCursor()
+                    viewModel.keyboardActive.value = false
                 }
             }
             errorListener = object : ValueKeyboard.ErrorListener {
@@ -256,19 +241,24 @@ class ExchangeFragment : Fragment(), BackListener {
                                             viewModel.fromAddress.value!!
                                         else
                                             result.result!!.payinAddress!!,
-                                        result.result!!.amountExpectedFrom!!)
-                                launch(Dispatchers.Main) {
-                                    loader(false)
-                                    acceptDialog(unsignedTx, result) {
-                                        sendTx(result.result!!.id!!, unsignedTx!!)
+                                        result.result!!.amountExpectedFrom.toPlainString())
+                                if(unsignedTx != null) {
+                                    launch(Dispatchers.Main) {
+                                        loader(false)
+                                        acceptDialog(unsignedTx, result) {
+                                            sendTx(result.result!!.id!!, unsignedTx)
+                                        }
                                     }
                                 }
                             }
                         } else {
                             loader(false)
                             AlertDialog.Builder(requireContext())
-                                    .setMessage(result?.error?.message)
+                                    .setMessage(if (result?.error?.message?.startsWith("rateId was expired") == true)
+                                        getString(R.string.changelly_error_rate_expired)
+                                    else result?.error?.message)
                                     .setPositiveButton(R.string.button_ok, null)
+                                    .setOnDismissListener { updateAmount() }
                                     .show()
                         }
                     },
@@ -277,6 +267,7 @@ class ExchangeFragment : Fragment(), BackListener {
                         AlertDialog.Builder(requireContext())
                                 .setMessage(msg)
                                 .setPositiveButton(R.string.button_ok, null)
+                                .setOnDismissListener { updateAmount() }
                                 .show()
                     })
         }
@@ -319,11 +310,33 @@ class ExchangeFragment : Fragment(), BackListener {
                 binding?.progress?.clearAnimation()
             }
         }
+        viewModel.exchangeInfo.observe(viewLifecycleOwner) {
+            computeBuyValue()
+        }
+    }
+
+    private fun computeBuyValue() {
+        val amount = viewModel.sellValue.value
+        viewModel.buyValue.value = if (amount?.isNotEmpty() == true
+                && viewModel.exchangeInfo.value?.result != null) {
+            try {
+                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
+                        .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
+                        .stripTrailingZeros()
+                        .toPlainString()
+            } catch (e: NumberFormatException) {
+                "N/A"
+            }
+        } else {
+            null
+        }
     }
 
     private fun acceptDialog(unsignedTx: Transaction?, result: ChangellyResponse<ChangellyTransactionOffer>, action: () -> Unit) {
         if (!SettingsPreference.exchangeConfirmationEnabled) {
-            action()
+            viewModel.mbwManager.runPinProtectedFunction(activity) {
+                action()
+            }?.setOnDismissListener { updateAmount() }
         } else {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
@@ -334,14 +347,17 @@ class ExchangeFragment : Fragment(), BackListener {
                             result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
                             result.result?.currencyTo?.toUpperCase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
-                        action()
+                        viewModel.mbwManager.runPinProtectedFunction(activity) {
+                            action()
+                        }?.setOnDismissListener { updateAmount() }
                     }
                     .setNegativeButton(R.string.cancel, null)
+                    .setOnDismissListener { updateAmount() }
                     .show()
         }
     }
 
-    private fun prepareTx(addressTo: String, amount: BigDecimal): Transaction? =
+    private fun prepareTx(addressTo: String, amount: String): Transaction? =
             viewModel.fromAccount.value?.let { account ->
                 val address = when (account) {
                     is EthAccount, is ERC20Account -> {
@@ -352,12 +368,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     }
                     else -> TODO("Account not supported yet")
                 }
-                val feeEstimation = viewModel.mbwManager.getFeeProvider(account.basedOnCoinType).estimation
-                account.createTx(address,
-                        viewModel.fromAccount.value!!.coinType.value(amount.toPlainString()),
-                        FeePerKbFee(feeEstimation.normal),
-                        null
-                )
+                viewModel.prepateTx(address, amount)
             }
 
     private fun sendTx(txId: String, createTx: Transaction) {
@@ -477,20 +488,6 @@ class ExchangeFragment : Fragment(), BackListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.exchange_changelly2, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-            when (item.itemId) {
-                R.id.history -> {
-                    HistoryFragment().show(parentFragmentManager, TAG_HISTORY)
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
-
     override fun onStart() {
         super.onStart()
         MbwManager.getEventBus().register(this)
@@ -516,7 +513,7 @@ class ExchangeFragment : Fragment(), BackListener {
 
     @Subscribe
     fun broadcastResult(result: TransactionBroadcasted) {
-        if (result.result.resultType == BroadcastResultType.SUCCESS) {
+        if (result.result.resultType == BroadcastResultType.SUCCESS && result.txid != null) {
             val fromAccountId = viewModel.fromAccount.value?.id
             val toAccountId = viewModel.toAccount.value?.id
             val history = pref.getStringSet(KEY_HISTORY, null) ?: setOf()
@@ -536,6 +533,8 @@ class ExchangeFragment : Fragment(), BackListener {
                     putSerializable(ExchangeResultFragment.KEY_ACCOUNT_TO_ID, toAccountId)
                 }
             }.show(parentFragmentManager, "exchange_result")
+            viewModel.mbwManager.getWalletManager(false).startSynchronization(viewModel.fromAccount.value?.id)
+            viewModel.reset()
         }
     }
 

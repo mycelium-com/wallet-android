@@ -49,7 +49,7 @@ class ERC20Account(private val chainId: Byte,
         } ?: (fee as FeePerKbFee).feePerKb
         val inputData = getInputData(address.toString(), amount.value)
 
-        if (calculateMaxSpendableAmount(gasPrice, null) < amount) {
+        if (calculateMaxSpendableAmount(gasPrice, null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < Transfer.GAS_LIMIT) {
@@ -170,7 +170,7 @@ class ERC20Account(private val chainId: Byte,
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?): Value =
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?, txData: TransactionData?): Value =
             accountBalance.spendable
 
     override val syncTotalRetrievedTransactions = 0 // TODO implement after full transaction history implementation

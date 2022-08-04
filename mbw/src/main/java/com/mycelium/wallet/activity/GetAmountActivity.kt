@@ -118,7 +118,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
                 ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress))
+            viewModel.maxSpendableAmount.postValue(
+                viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress, txData))
         }
 
         // if no amount is set, create an null amount with the correct currency

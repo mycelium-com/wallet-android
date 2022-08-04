@@ -1,7 +1,5 @@
 package com.mycelium.wallet.external
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +8,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.adapter.BuySellSelectAdapter
 import com.mycelium.wallet.external.adapter.BuySellSelectItem
+import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -35,11 +34,10 @@ class BuySellBankCardActivity : AppCompatActivity(R.layout.activity_buysell_bank
                             it.cryptoCurrencies.contains(Util.trimTestnetSymbolDecoration(currency.symbol))
                 }?.map {
                     BuySellSelectItem(it.title, it.description.replace("%currency%", currency.name), null, it.iconUrl) {
-                        startActivity(Intent(Intent.ACTION_VIEW,
-                                Uri.parse(it.link
-                                        .replace("%currency%", currency.symbol)
-                                        .replace("%address%", address.toString())
-                                        .replace("%lang%", MbwManager.getInstance(this).language))))
+                        openLink(it.link
+                                .replace("%currency%", currency.symbol)
+                                .replace("%address%", address.toString())
+                                .replace("%lang%", MbwManager.getInstance(this).language))
                     }
                 } ?: listOf())
     }

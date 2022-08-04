@@ -24,6 +24,7 @@ class ExchangeResultViewModel : ViewModel() {
     val fromAddress = MutableLiveData("")
     val toAddress = MutableLiveData("")
     val trackLink = MutableLiveData<String>()
+    val isExchangeComplete = MutableLiveData(false)
 
     val more = MutableLiveData(true)
     val moreText = Transformations.map(more) {
@@ -43,6 +44,7 @@ class ExchangeResultViewModel : ViewModel() {
         trackLink.value = result.trackUrl
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.amountExpectedTo, result.currencyTo)
+        isExchangeComplete.value = result.status == "finished"
     }
 
     private fun getFiatValue(amount: BigDecimal?, currency: String) =

@@ -48,6 +48,7 @@ import com.mycelium.wallet.databinding.ModernMainBinding
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.ChangellyConstants
 import com.mycelium.wallet.external.changelly2.ExchangeFragment
+import com.mycelium.wallet.external.changelly2.HistoryFragment
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.fio.FioRequestNotificator
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper
@@ -358,6 +359,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             inflater.inflate(R.menu.record_fio_options, menu)
         }
         inflater.inflate(R.menu.giftbox, menu)
+        inflater.inflate(R.menu.exchange_changelly2, menu)
         return true
     }
 
@@ -399,6 +401,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         val isAddressBook = TAB_ADDRESS_BOOK == tabTag
         Preconditions.checkNotNull(menu.findItem(R.id.miAddAddress)).isVisible = isAddressBook
         Preconditions.checkNotNull(menu.findItem(R.id.miGiftBox)).isVisible = isContentEnabled(GiftboxConstants.PARTNER_ID)
+        Preconditions.checkNotNull(menu.findItem(R.id.history)).isVisible = isContentEnabled(ChangellyConstants.PARTNER_ID_CHANGELLY)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -457,6 +460,10 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 }
                 R.id.miGiftBox -> {
                     GiftBoxRootActivity.start(this)
+                    true
+                }
+                R.id.history -> {
+                    HistoryFragment().show(supportFragmentManager, ExchangeFragment.TAG_HISTORY)
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
