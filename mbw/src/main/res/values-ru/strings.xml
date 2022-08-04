@@ -426,7 +426,7 @@
     <string name="lt_cash_only_hint_cash_only">Торгуй с глазу на глаз, только наличные.</string>
     <!-- LT end -->
     <string name="cs_private_key_description">Вы используете приватный ключ со следующим  Bitcoin адресом:</string>
-    <string name="cs_address_description">Вы отсканировали биткой адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
+    <string name="cs_address_description">Вы отсканировали биткойн адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
     <string name="sync_total_retrieved_transactions">Идет синхронизация: %1$d транзакций загружено</string>
     <string name="archiving_account_title">Архивирование аккаунта</string>
     <string name="new_version_exists">Доступна новая версия</string>
@@ -570,7 +570,7 @@
     <string name="lt_confirm_delete_trader_message">Вы хотите удалить  вашу информацию? Вся торговая информация и рейтинги будут окончательно удалены и не могут быть восстановлены.</string>
     <string name="rescan_account_menu_item">Обновить аккаунт</string>
     <string name="add_advanced_account_warning">Предупреждение: \n, эти ключи не будут включены в Резервную Копию на основе  Master Seed. Вы должны убедиться, что у вас есть  для  них отдельная Резервная Копия, с  совершенно другим порядком создания.</string>
-    <string name="new_bitcoin_address_created">Был создан новый случайный приватный ключ со следующим биткоин-адресом:</string>
+    <string name="new_bitcoin_address_created">Был создан новый случайный приватный ключ со следующим биткойн-адресом:</string>
     <string name="shuffle">Еще раз</string>
     <string name="toast_warning_low_fee">может занять больше времени для  подтверждения</string>
     <string name="account_number">Аккаунт %d</string>
@@ -791,7 +791,7 @@
     <string name="share_x_address">Поделиться %s адресом</string>
     <string name="save">Сохранить</string>
     <string name="your_privacy_out_priority">Ваша конфиденциальность является нашим главным приоритетом</string>
-    <string name="colu_before_sending_make_sure">Перед отправкой ваших цифровых активов убедитесь, что отправляете их на адрес для работы с цифровыми активами, а не на случайный биткоин-адрес. Нажмите <font color="#4583de">сюда</font> чтобы ознакомиться с процедурой восстановления ваших цифровых активов.</string>
+    <string name="colu_before_sending_make_sure">Перед отправкой ваших цифровых активов убедитесь, что отправляете их на адрес для работы с цифровыми активами, а не на случайный биткойн-адрес. Нажмите <font color="#4583de">сюда</font> чтобы ознакомиться с процедурой восстановления ваших цифровых активов.</string>
     <string name="what_is_it">Что это?</string>
     <string name="error_start_google_calendar">Что-то не так с Google календарем</string>
     <string name="both_rmc_will_deleted" formatted="false">Оба аккаунта: %s and %s будут удалены.</string>
