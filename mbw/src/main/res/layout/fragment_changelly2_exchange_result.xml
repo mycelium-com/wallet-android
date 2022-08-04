@@ -29,7 +29,7 @@
                 android:theme="@style/MyceliumFIOMapping.ActionBar"
                 app:layout_constraintTop_toTopOf="parent"
                 app:navigationIcon="@drawable/ic_back_arrow"
-                app:title="Exchange history" />
+                app:title="@string/exchange_history" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/startGuidline"
@@ -87,7 +87,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/received"
+                android:text="@{vm.isExchangeComplete ? @string/changelly_received : @string/changelly_receiving}"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="@id/endGuidline"

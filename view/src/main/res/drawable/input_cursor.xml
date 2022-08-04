@@ -6,7 +6,7 @@
             <solid android:color="#ffffff" />
             <size
                 android:width="2dp"
-                android:height="36sp" />
+                android:height="24sp" />
         </shape>
     </item>
     <item android:duration="1000">
@@ -14,7 +14,7 @@
             <solid android:color="@color/transparent" />
             <size
                 android:width="2dp"
-                android:height="36sp" />
+                android:height="24sp" />
         </shape>
     </item>
 </animation-list>

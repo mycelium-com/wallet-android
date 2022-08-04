@@ -26,6 +26,10 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <queries>
+        <package android:name="org.torproject.android" />
+    </queries>
+
     <application
         android:name=".WalletApplication"
         android:allowBackup="false"
@@ -139,7 +143,6 @@
         <activity
             android:name=".activity.modern.ModernMain"
             android:exported="true"
-            android:launchMode="singleInstance"
             android:theme="@style/MyceliumActionBar">
             <intent-filter android:label="Exchange">
                 <action android:name="action.CHANGELLY" />

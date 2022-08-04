@@ -9,6 +9,7 @@ import android.view.Window
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.send.SendCoinsActivity.Companion.getIntent
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
@@ -21,7 +22,7 @@ import java.lang.NullPointerException
 import java.util.*
 
 class SendInitializationActivity : Activity() {
-    private val mbwManager: MbwManager = MbwManager.getInstance(application)
+    private val mbwManager: MbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     private lateinit var account: WalletAccount<*>
     private var uri: AssetUri? = null
     private var isColdStorage = false

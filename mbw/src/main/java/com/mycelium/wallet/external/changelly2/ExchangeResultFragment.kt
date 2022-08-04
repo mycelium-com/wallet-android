@@ -113,11 +113,13 @@ class ExchangeResultFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let {
-            viewModel.mbwManager.getWalletManager(false).getAccount(it)
-                    ?.getTxSummary(HexUtils.toBytes(arguments?.getString(KEY_CHAIN_TX)))?.let { tx ->
-                        updateTx(tx)
-                    }
+        (arguments?.getSerializable(KEY_ACCOUNT_FROM_ID) as UUID?)?.let { fromAccount ->
+            arguments?.getString(KEY_CHAIN_TX)?.let { chainTx ->
+                viewModel.mbwManager.getWalletManager(false).getAccount(fromAccount)
+                        ?.getTxSummary(HexUtils.toBytes(chainTx))?.let { tx ->
+                            updateTx(tx)
+                        }
+            }
         } ?: let {
             binding?.txDetailsLayout?.visibility = View.GONE
             binding?.more?.visibility = View.GONE
