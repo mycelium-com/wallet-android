@@ -38,7 +38,6 @@ import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
-import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -588,9 +587,7 @@ class ExchangeFragment : Fragment(), BackListener {
         const val KEY_HISTORY = "tx_history"
         const val TAG_SELECT_ACCOUNT_BUY = "select_account_for_buy"
         const val TAG_SELECT_ACCOUNT_SELL = "select_account_for_sell"
-        const val TAG_HISTORY = "history"
-
-        const val LINK_TERMS = "https://changelly.com/terms-of-use"
+        const val TAG_HISTORY = "history"        
 
         fun iconPath(coin: CryptoCurrency) =
                 iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
