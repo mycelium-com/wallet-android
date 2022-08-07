@@ -27,6 +27,7 @@ class ExportAsQrBtcSAViewModel(context: Application) : ExportAsQrMultiKeysViewMo
                 1 -> BipDerivationType.BIP44
                 2 -> BipDerivationType.BIP49
                 3 -> BipDerivationType.BIP84
+                4 -> BipDerivationType.BIP86
                 else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
             })
         }
@@ -40,6 +41,7 @@ class ExportAsQrBtcSAViewModel(context: Application) : ExportAsQrMultiKeysViewMo
             1 -> AddressType.P2PKH
             2 -> AddressType.P2SH_P2WPKH
             3 -> AddressType.P2WPKH
+            4 -> AddressType.P2TR
             else -> throw  IllegalStateException("Unexpected toggle position")
         }
         return publicKey.toAddress(network, addressType).toString()

@@ -83,7 +83,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
 
     private fun toP2TRAddress(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): SegwitAddress =
             if (ignoreCompression || isCompressed) {
-                SegwitAddress(networkParameters, 0x01, HashUtils.addressHash(pubKeyCompressed))
+                SegwitAddress(networkParameters, 0x01, pubKeyCompressed)
             } else {
                 throw IllegalStateException("Can't create taproot address from uncompressed key")
             }

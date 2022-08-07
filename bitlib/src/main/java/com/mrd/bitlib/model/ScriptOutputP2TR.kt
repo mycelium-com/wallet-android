@@ -3,7 +3,7 @@ package com.mrd.bitlib.model
 import java.io.Serializable
 
 /**
- * Native SegWit pay-to-witness-public-key-hash script output
+ * Native SegWit pay-to-taproot script output
  */
 class ScriptOutputP2TR : ScriptOutput, Serializable {
     private val addressBytes: ByteArray
@@ -28,7 +28,7 @@ class ScriptOutputP2TR : ScriptOutput, Serializable {
         fun isScriptOutputP2TR(chunks: Array<ByteArray>): Boolean {
             if (chunks.size != 2) return false
             if (!Script.isOP(chunks[0], Script.OP_1)) return false
-            return chunks[1].size == 20
+            return chunks[1].size == 32
         }
     }
 }

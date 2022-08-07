@@ -22,6 +22,7 @@ class ExportAsQrBtcHDViewModel(context: Application) : ExportAsQrMultiKeysViewMo
             1 -> BipDerivationType.BIP44
             2 -> BipDerivationType.BIP49
             3 -> BipDerivationType.BIP84
+            4 -> BipDerivationType.BIP86
             else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
         })
         model.accountDataString.value = data

@@ -36,7 +36,7 @@ class Bech32Test {
             assertEquals("Failed to roundtrip '$valid' -> '$recode'",
                     valid.toLowerCase(Locale.ROOT), recode.toLowerCase(Locale.ROOT))
             // Test encoding with an uppercase HRP
-            recode = Bech32.encode(dec.hrp.toUpperCase(Locale.ROOT), dec.values)
+            recode = Bech32.encode(Bech32.Encoding.BECH32, dec.hrp.toUpperCase(Locale.ROOT), dec.values)
             assertEquals("Failed to roundtrip '$valid' -> '$recode'",
                     valid.toLowerCase(Locale.ROOT), recode.toLowerCase(Locale.ROOT))
         }

@@ -46,16 +46,19 @@ open class UnsignedTransaction constructor(
                     ?:
                     // This should not happen as we only work on outputs that we have keys for
                     throw RuntimeException("Public key not found")
-
+            var signAlgorithm = SignAlgorithm.Standard
             when (utxo.script) {
-                is ScriptOutputP2SH  -> {
+                is ScriptOutputP2SH -> {
                     getInputScript(publicKey, transaction, i, true)
+                    signAlgorithm = SignAlgorithm.Standard
                 }
                 is ScriptOutputP2WPKH -> {
                     getInputScript(publicKey, transaction, i, false)
+                    signAlgorithm = SignAlgorithm.Standard
                 }
                 is ScriptOutputP2TR -> {
                     getInputScriptP2TR(publicKey, transaction, i)
+                    signAlgorithm = SignAlgorithm.Schnorr
                 }
             }
 
@@ -78,7 +81,7 @@ open class UnsignedTransaction constructor(
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 
-            signingRequests[i] = SigningRequest(publicKey, hash)
+            signingRequests[i] = SigningRequest(publicKey, hash, signAlgorithm)
         }
     }
 
