@@ -35,7 +35,6 @@ import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
-import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -158,12 +157,15 @@ class ExchangeFragment : Fragment(), BackListener {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
                 viewModel.sellValue.value = if (amount?.isNotEmpty() == true) {
                     try {
-                        amount.toBigDecimal().setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                                ?.div(viewModel.exchangeInfo.value?.result!!)
+                        val friendlyDigits = viewModel.fromCurrency.value?.friendlyDigits
+                        val exchangeInfoResult = viewModel.exchangeInfo.value?.result
+                        if (friendlyDigits == null || exchangeInfoResult == null) N_A
+                        else amount.toBigDecimal().setScale(friendlyDigits, RoundingMode.HALF_UP)
+                                ?.div(exchangeInfoResult)
                                 ?.stripTrailingZeros()
-                                ?.toPlainString() ?: "N/A"
+                                ?.toPlainString() ?: N_A
                     } catch (e: NumberFormatException) {
-                        "N/A"
+                        N_A
                     }
                 } else {
                     null
@@ -290,9 +292,6 @@ class ExchangeFragment : Fragment(), BackListener {
                         .into(it)
             }
             updateExchangeRate()
-        }
-        binding?.policyTerms?.setOnClickListener {
-            openLink(LINK_TERMS)
         }
         updateAmount()
         viewModel.rateLoading.observe(viewLifecycleOwner) {
@@ -586,8 +585,7 @@ class ExchangeFragment : Fragment(), BackListener {
         const val TAG_SELECT_ACCOUNT_BUY = "select_account_for_buy"
         const val TAG_SELECT_ACCOUNT_SELL = "select_account_for_sell"
         const val TAG_HISTORY = "history"
-
-        const val LINK_TERMS = "https://changelly.com/terms-of-use"
+        private const val N_A = "N/A"
 
         fun iconPath(coin: CryptoCurrency) =
                 iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
