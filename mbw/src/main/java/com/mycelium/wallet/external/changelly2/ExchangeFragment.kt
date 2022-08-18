@@ -185,6 +185,11 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.sellValue.value = oldBuy
             viewModel.swapEnableDelay.value = true
             it.postDelayed({ viewModel.swapEnableDelay.value = false }, 1000) //avoid recalculation values gap
+            it.startAnimation(RotateAnimation(0f, 180f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                    .apply {
+                        interpolator = LinearInterpolator()
+                        duration = 500
+                    })
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {
