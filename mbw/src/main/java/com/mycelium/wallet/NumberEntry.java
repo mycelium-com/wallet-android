@@ -69,33 +69,25 @@ public class NumberEntry {
          }
       }
       _entry = text;
-      _maxDecimals = maxDecimals;
       _listener = listener;
-      _llNumberEntry = (LinearLayout) parent.findViewById(R.id.llNumberEntry);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btOne), 1);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btTwo), 2);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btThree), 3);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btFour), 4);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btFive), 5);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btSix), 6);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btSeven), 7);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btEight), 8);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btNine), 9);
-      if (_maxDecimals > 0) {
-         setClickListener((Button) _llNumberEntry.findViewById(R.id.btDot), DOT);
-      } else{
-         ((Button) _llNumberEntry.findViewById(R.id.btDot)).setText("");
-      }
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btZero), 0);
-      setClickListener((Button) _llNumberEntry.findViewById(R.id.btDel), DEL);
+      _llNumberEntry = parent.findViewById(R.id.llNumberEntry);
+      setClickListener(_llNumberEntry.findViewById(R.id.btOne), 1);
+      setClickListener(_llNumberEntry.findViewById(R.id.btTwo), 2);
+      setClickListener(_llNumberEntry.findViewById(R.id.btThree), 3);
+      setClickListener(_llNumberEntry.findViewById(R.id.btFour), 4);
+      setClickListener(_llNumberEntry.findViewById(R.id.btFive), 5);
+      setClickListener(_llNumberEntry.findViewById(R.id.btSix), 6);
+      setClickListener(_llNumberEntry.findViewById(R.id.btSeven), 7);
+      setClickListener(_llNumberEntry.findViewById(R.id.btEight), 8);
+      setClickListener(_llNumberEntry.findViewById(R.id.btNine), 9);
+      setClickListener(_llNumberEntry.findViewById(R.id.btZero), 0);
+      setClickListener(_llNumberEntry.findViewById(R.id.btDel), DEL);
+      setMaxDecimals(maxDecimals);
 
-      _llNumberEntry.findViewById(R.id.btDel).setOnLongClickListener(new View.OnLongClickListener() {
-         @Override
-         public boolean onLongClick(View v) {
-            _entry = "";
-            _listener.onEntryChanged(_entry, false);
-            return true;
-         }
+      _llNumberEntry.findViewById(R.id.btDel).setOnLongClickListener((view) -> {
+         _entry = "";
+         _listener.onEntryChanged(_entry, false);
+         return true;
       });
    }
 
@@ -164,7 +156,9 @@ public class NumberEntry {
    }
 
    public void setEntry(BigDecimal number, int maxDecimals) {
-      _maxDecimals = maxDecimals;
+      if (_maxDecimals != maxDecimals) {
+         setMaxDecimals(maxDecimals);
+      }
       if (number == null || number.compareTo(BigDecimal.ZERO) == 0) {
          _entry = "";
       } else {
@@ -213,4 +207,17 @@ public class NumberEntry {
       _llNumberEntry.findViewById(R.id.btDel).setEnabled(enabled);
    }
 
+   private void setMaxDecimals(int maxDecimals) {
+      _maxDecimals = maxDecimals;
+      Button dotButton = _llNumberEntry.findViewById(R.id.btDot);
+      if (dotButton == null)
+         return;
+      if (_maxDecimals > 0) {
+         dotButton.setText(".");
+         setClickListener(dotButton, DOT);
+      } else {
+         dotButton.setText("");
+         dotButton.setOnClickListener(null);
+      }
+   }
 }

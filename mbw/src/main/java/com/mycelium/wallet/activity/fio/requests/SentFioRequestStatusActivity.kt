@@ -110,7 +110,9 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         } else {
             val amount = (intent.getSerializableExtra(ApproveFioRequestActivity.AMOUNT) as Value)
             tvAmount.text = amount.toStringWithUnit()
-            val convertedAmount = mbwManager.exchangeRateManager.get(amount, mbwManager.getFiatCurrency(amount.type)).toStringWithUnit()
+            val fiatCurrency = mbwManager.getFiatCurrency(amount.type)
+            val value = mbwManager.exchangeRateManager.get(amount, fiatCurrency) ?: Value.zeroValue(fiatCurrency)
+            val convertedAmount = value.toStringWithUnit()
             tvConvertedAmount.text = " ~ $convertedAmount"
         }
     }

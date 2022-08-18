@@ -18,7 +18,6 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 
 class MinerFeeFragment : PreferenceFragmentCompat() {
@@ -49,7 +48,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
                     title = name
                     summary = getString(R.string.settings_summary_fio_fee, "", "")
                     layoutResource = R.layout.preference_layout_no_icon
-                    val account = mbwManager.getWalletManager(false).getFioAccounts().first() as FioAccount
+                    val account = mbwManager.getWalletManager(false).getFioAccounts().first()
                     SendFioModel.UpdateFeeTask(account) { feeInSUF ->
                         val coinType = account.coinType
                         val feeValue = if (feeInSUF != null) {
@@ -57,8 +56,11 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
                         } else {
                             Value.valueOf(coinType, DEFAULT_FEE)
                         }
-                        summary = getString(R.string.settings_summary_fio_fee, feeValue.toStringWithUnit(),
-                                "~${mbwManager.exchangeRateManager.get(feeValue, mbwManager.getFiatCurrency(coinType)).toStringWithUnit()}")
+                        summary = this@MinerFeeFragment.context?.getString(
+                            R.string.settings_summary_fio_fee,
+                            feeValue.toStringWithUnit(),
+                            "~${mbwManager.exchangeRateManager.get(feeValue, mbwManager.getFiatCurrency(coinType)).toStringWithUnit()}"
+                        )
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 })
             } else {
