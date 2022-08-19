@@ -132,7 +132,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         selectTab(if (intent.getStringExtra(TAB_KEY) != null) intent.getStringExtra(TAB_KEY) else TAB_ACCOUNTS)
         _toaster = Toaster(this)
         val cl = DarkThemeChangeLog(this)
-        if (cl.isFirstRun && cl.getChangeLog(false).size > 0 && !cl.isFirstRunEver) {
+        if (cl.isFirstRun && cl.getChangeLog(false).isNotEmpty() && !cl.isFirstRunEver) {
             cl.logDialog.show()
         }
         checkTorState()
