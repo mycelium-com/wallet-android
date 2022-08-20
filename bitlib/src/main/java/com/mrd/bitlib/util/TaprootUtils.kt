@@ -29,13 +29,14 @@ class TaprootUtils {
                 taggedHash("TapTweak", msg)
 
         fun outputKey(internalKey: Point): ByteArray {
-            val HTT = hashTapTweak(internalKey.x.toBigInteger().toByteArray().let {
-                it.copyOfRange(1, it.size)
-            })
+            val HTT = hashTapTweak(internalKey.x.toBigInteger().toByteArray()
+                    .let {
+                        if (it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
+                    })
             return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toBigInteger()
                     .toByteArray()
                     .let {
-                        it.copyOfRange(1, it.size)
+                        if (it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
                     }
         }
 
