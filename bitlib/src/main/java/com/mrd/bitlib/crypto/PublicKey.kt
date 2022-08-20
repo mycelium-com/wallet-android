@@ -48,7 +48,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
             AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters, ignoreCompression)
             AddressType.P2WPKH -> toP2WPKH(networkParameters, ignoreCompression)
-            AddressType.P2TR -> toP2TRAddress(networkParameters, ignoreCompression)
+            AddressType.P2TR -> toP2TRAddress(networkParameters)
         }
     }
 
@@ -74,19 +74,18 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     /**
      * @return [AddressType.P2WPKH] address
      */
-    private fun toP2WPKH(networkParameters: NetworkParameters, ignoreCompression: Boolean = false) : SegwitAddress =
+    private fun toP2WPKH(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): SegwitAddress =
             if (ignoreCompression || isCompressed) {
                 SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
             } else {
                 throw IllegalStateException("Can't create segwit address from uncompressed key")
             }
 
-    private fun toP2TRAddress(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): SegwitAddress =
-            if (ignoreCompression || isCompressed) {
-                SegwitAddress(networkParameters, 0x01, pubKeyCompressed)
-            } else {
-                throw IllegalStateException("Can't create taproot address from uncompressed key")
-            }
+    private fun toP2TRAddress(networkParameters: NetworkParameters): SegwitAddress {
+        val internalKey = TaprootUtils.lift_x(Q)
+        val outputKey = TaprootUtils.outputKey(internalKey!!)
+        return SegwitAddress(networkParameters, 0x01, outputKey)
+    }
 
     /**
      * @return [AddressType.P2PKH] address

@@ -166,10 +166,10 @@ public class SegwitAddress extends BitcoinAddress implements Serializable {
         if (version == 0) {
             return AddressType.P2WPKH;
         } else if (version == 1) {
-//            if (program.length == WITNESS_PROGRAM_LENGTH_TR) {
+            if (program.length == WITNESS_PROGRAM_LENGTH_TR) {
                 return AddressType.P2TR;
-//            }
-//            throw new IllegalStateException();// cannot happen
+            }
+            throw new IllegalStateException();// cannot happen
         }
         throw new IllegalStateException("cannot handle: " + version);
     }

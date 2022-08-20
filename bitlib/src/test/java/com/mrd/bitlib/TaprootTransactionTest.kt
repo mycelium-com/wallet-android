@@ -2,16 +2,21 @@ package com.mrd.bitlib
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.SegwitAddress
 import com.mrd.bitlib.util.HexUtils
+import com.mrd.bitlib.util.TaprootUtils
 import org.junit.Assert
 import org.junit.Test
 
-
-// https://github.com/bitcoin-core/btcdeb/blob/master/doc/tapscript-example-with-tap.md
-
+//https://github.com/bitcoin/bips/blob/master/bip-0086.mediawiki
+//https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki
+//https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki
+//https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki
+//https://github.com/bitcoin/bips/blob/master/bip-0386.mediawiki
 
 class TaprootTransactionTest {
 
@@ -26,6 +31,8 @@ class TaprootTransactionTest {
     val bip86PrivateKey = InMemoryPrivateKey("KyRv5iFPHG7iB5E4CqvMzH3WFJVhbfYK4VY7XAedd9Ys69mEsPLQ",
             NetworkParameters.productionNetwork)
     val bip86PublicKey = PublicKey(HexUtils.toBytes("03cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115"))
+    val bip86InternalKey = HexUtils.toBytes("cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115")
+    val bip86OutputKey = HexUtils.toBytes("a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c")
     val bip86Address = BitcoinAddress.fromString("bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr")
 
     @Test
@@ -35,10 +42,42 @@ class TaprootTransactionTest {
     }
 
     @Test
-    fun testBip86Keys() {
-        Assert.assertArrayEquals(bip86PrivateKey.publicKey.publicKeyBytes, bip86PublicKey.publicKeyBytes)
-        Assert.assertEquals(bip86Address,
-                bip86PrivateKey.publicKey.toAddress(NetworkParameters.productionNetwork, AddressType.P2TR, true))
+    fun testTaggedHash() {
+        val hash = TaprootUtils.taggedHash("SampleTagName", "Input data".toByteArray())
+        Assert.assertEquals("4c55df56134d7f37d3295850659f2e3729128c969b3386ec661feb7dfe29a99c", HexUtils.toHex(hash))
     }
+
+    @Test
+    fun testAddressFromOutpurKey() {
+        val address = SegwitAddress(NetworkParameters.productionNetwork, 1, bip86OutputKey)
+        Assert.assertEquals(bip86Address, address)
+    }
+
+    @Test
+    fun testOutputKeyFromInternalKey() {
+        val outputKey = TaprootUtils.outputKey(Parameters.curve.decodePoint(HexUtils.toBytes("02") + bip86InternalKey))
+        Assert.assertArrayEquals(bip86OutputKey, outputKey)
+    }
+
+    @Test
+    fun testBip86Keys() {
+        Assert.assertEquals(bip86PrivateKey.publicKey.Q.x.toBigInteger(), bip86PublicKey.Q.x.toBigInteger())
+
+        val internalKey = TaprootUtils.lift_x(bip86PublicKey.Q)
+        val k = internalKey!!.x.toBigInteger().toByteArray().copyOfRange(1, internalKey.x.toBigInteger().toByteArray().size)
+        Assert.assertArrayEquals(bip86InternalKey, k)
+
+        val outputKey = TaprootUtils.outputKey(internalKey)
+        Assert.assertArrayEquals(bip86OutputKey, outputKey)
+
+        val trAddress = SegwitAddress(NetworkParameters.productionNetwork, 1, outputKey)
+        Assert.assertEquals(bip86Address, trAddress)
+    }
+
+    @Test
+    fun testPublicKey() {
+        Assert.assertEquals(bip86Address, bip86PublicKey.toAddress(NetworkParameters.productionNetwork, AddressType.P2TR))
+    }
+
 }
 
