@@ -131,10 +131,10 @@ class ModernMain : AppCompatActivity(), BackHandler {
         addAdsTabs(binding.pagerTabs)
         selectTab(if (intent.getStringExtra(TAB_KEY) != null) intent.getStringExtra(TAB_KEY) else TAB_ACCOUNTS)
         _toaster = Toaster(this)
-        val cl = DarkThemeChangeLog(this)
-        if (cl.isFirstRun && cl.getChangeLog(false).isNotEmpty() && !cl.isFirstRunEver) {
-            cl.logDialog.show()
-        }
+//        val cl = DarkThemeChangeLog(this)
+//        if (cl.isFirstRun && cl.getChangeLog(false).isNotEmpty() && !cl.isFirstRunEver) {
+//            cl.logDialog.show()
+//        }
         checkTorState()
         if (savedInstanceState != null) {
             _lastSync = savedInstanceState.getLong(LAST_SYNC, 0)
