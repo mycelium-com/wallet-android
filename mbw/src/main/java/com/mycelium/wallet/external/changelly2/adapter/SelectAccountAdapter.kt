@@ -22,7 +22,7 @@ class GroupModel(val title: String) : AccountListItem {
             AccountListItem.Type.GROUP_TYPE
 }
 
-class SelectAccountAdapter : AccountAdapter(DiffCallback()) {
+class SelectAccountAdapter : AccountAdapter() {
 
     var addAccountListener: ((CryptoCurrency) -> Unit)? = null
     var groupModelClickListener: ((GroupModel) -> Unit)? = null
