@@ -1772,10 +1772,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_receiving">Receiving</string>
     <string name="changelly_received">Received</string>
     <string name="changelly_error_rate_expired">Exchange rate is outdated, please try again.</string>
-    <string name="contact_support_team">Contact Support Team</string>
+    <string name="contact_support_team">Contact Support</string>
     <string name="share_logs">Share Logs</string>
-    <string name="support_team">Support team</string>
-    <string name="support_team_text">Please describe the issue. What did you do? In order to understand problem, please attache logs.</string>
+    <string name="support_team">Contact Support</string>
+    <string name="support_team_text">Please describe the issue and the steps to reproduce it. To get a complete picture of the problem, please attach the logs.</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
