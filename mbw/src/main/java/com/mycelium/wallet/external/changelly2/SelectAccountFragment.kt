@@ -71,6 +71,7 @@ class SelectAccountFragment : DialogFragment() {
                     .apply { action = MainActions.ACTION_ACCOUNTS })
         }
         binding?.list?.adapter = adapter
+        binding?.list?.itemAnimator = null
         adapter.accountClickListener = { accountItem ->
             setAccount(accountItem.accountId)
         }
