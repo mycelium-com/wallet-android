@@ -3,10 +3,8 @@ package com.mycelium.wallet.external.changelly2.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.purchase.adapter.AccountAdapter
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
-import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.databinding.ItemGiftboxSelectAccountBinding
 import com.mycelium.wallet.databinding.ItemGiftboxSelectAccountGroupBinding
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
