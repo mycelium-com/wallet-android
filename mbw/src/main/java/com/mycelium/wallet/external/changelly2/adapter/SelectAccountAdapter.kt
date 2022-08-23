@@ -3,6 +3,7 @@ package com.mycelium.wallet.external.changelly2.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.giftbox.purchase.adapter.AccountAdapter
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem
 import com.mycelium.wallet.databinding.ItemGiftboxSelectAccountBinding
@@ -20,7 +21,7 @@ class GroupModel(val title: String) : AccountListItem {
             AccountListItem.Type.GROUP_TYPE
 }
 
-class SelectAccountAdapter : AccountAdapter() {
+class SelectAccountAdapter : AccountAdapter(ChangellyDiffCallback()) {
 
     var addAccountListener: ((CryptoCurrency) -> Unit)? = null
     var groupModelClickListener: ((GroupModel) -> Unit)? = null
@@ -67,4 +68,26 @@ class SelectAccountAdapter : AccountAdapter() {
     class AddAccountHolder(val binding: ItemGiftboxSelectAccountBinding) : RecyclerView.ViewHolder(binding.root)
 
     class GroupHolder(val binding: ItemGiftboxSelectAccountGroupBinding) : RecyclerView.ViewHolder(binding.root)
+
+    class ChangellyDiffCallback : DiffCallback() {
+        override fun areItemsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
+                when {
+                    oldItem.getType() != newItem.getType() -> false
+                    oldItem.getType() == AccountListItem.Type.ADD_ACCOUNT_TYPE ->
+                        equalsValuesBy(newItem as AddAccountModel, oldItem as AddAccountModel, { it.coinType })
+                    oldItem.getType() == AccountListItem.Type.GROUP_TYPE ->
+                        equalsValuesBy(newItem as GroupModel, oldItem as GroupModel, { it.title })
+                    else -> super.areContentsTheSame(oldItem, newItem)
+                }
+
+        override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
+                when {
+                    oldItem.getType() != newItem.getType() -> false
+                    oldItem.getType() == AccountListItem.Type.ADD_ACCOUNT_TYPE ->
+                        equalsValuesBy(newItem as AddAccountModel, oldItem as AddAccountModel, { it.coinType })
+                    oldItem.getType() == AccountListItem.Type.GROUP_TYPE ->
+                        equalsValuesBy(newItem as GroupModel, oldItem as GroupModel, { it.title }, { it.isCollapsed })
+                    else -> super.areContentsTheSame(oldItem, newItem)
+                }
+    }
 }

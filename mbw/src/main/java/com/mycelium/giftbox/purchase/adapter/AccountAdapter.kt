@@ -2,6 +2,7 @@ package com.mycelium.giftbox.purchase.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.giftbox.purchase.adapter.holder.AccountGroupViewHolder
@@ -14,7 +15,8 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 
 
-open class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(DiffCallback()) {
+open class AccountAdapter(diffCallback: DiffUtil.ItemCallback<AccountListItem> = DiffCallback())
+    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(diffCallback) {
     var accountClickListener: ((AccountViewModel) -> Unit)? = null
     var groupClickListener: ((AccountsGroupModel) -> Unit)? = null
 
@@ -57,7 +59,7 @@ open class AccountAdapter : ListAdapter<AccountListItem, RecyclerView.ViewHolder
 
     override fun getItemViewType(position: Int) = getItem(position).getType().typeId
 
-    class DiffCallback : AccountListAdapter.ItemListDiffCallback() {
+    open class DiffCallback : AccountListAdapter.ItemListDiffCallback() {
         override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
                 when (oldItem.getType()) {
                     AccountListItem.Type.ACCOUNT_TYPE -> {
