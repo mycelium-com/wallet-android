@@ -15,8 +15,7 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountsGroupModel
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 
 
-open class AccountAdapter(diffCallback: DiffUtil.ItemCallback<AccountListItem> = DiffCallback())
-    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(diffCallback) {
+open class AccountAdapter() : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(DiffCallback()) {
     var accountClickListener: ((AccountViewModel) -> Unit)? = null
     var groupClickListener: ((AccountsGroupModel) -> Unit)? = null
 
@@ -59,7 +58,7 @@ open class AccountAdapter(diffCallback: DiffUtil.ItemCallback<AccountListItem> =
 
     override fun getItemViewType(position: Int) = getItem(position).getType().typeId
 
-    open class DiffCallback : AccountListAdapter.ItemListDiffCallback() {
+    class DiffCallback : AccountListAdapter.ItemListDiffCallback() {
         override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
                 when (oldItem.getType()) {
                     AccountListItem.Type.ACCOUNT_TYPE -> {
