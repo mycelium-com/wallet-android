@@ -188,6 +188,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     .apply {
                         interpolator = OvershootInterpolator(1f)
                         duration = 500
+                        fillAfter = true
                     }
             it.startAnimation(animation)
         }
