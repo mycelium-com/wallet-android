@@ -60,6 +60,7 @@
     <string name="amount_too_small_short">Amount must exceed %s (network limit)</string>
     <string name="miner_fee_label">Miner fees</string>
     <string name="miner_fee_title">Miner Fee</string>
+    <string name="history_row_miner_fee_label">Transaction fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
