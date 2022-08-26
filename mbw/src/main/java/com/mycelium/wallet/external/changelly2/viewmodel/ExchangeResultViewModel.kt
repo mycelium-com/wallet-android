@@ -23,7 +23,8 @@ class ExchangeResultViewModel : ViewModel() {
     val date = MutableLiveData<String>()
     val fromAddress = MutableLiveData("")
     val toAddress = MutableLiveData("")
-    val trackLink = MutableLiveData<String>()
+    val trackLink = MutableLiveData("")
+    val trackLinkText = MutableLiveData("")
     val isExchangeComplete = MutableLiveData(false)
 
     val more = MutableLiveData(true)
@@ -41,10 +42,14 @@ class ExchangeResultViewModel : ViewModel() {
         spendValue.value = "${result.amountExpectedFrom} ${result.currencyFrom.toUpperCase()}"
         getValue.value = "${result.amountExpectedTo} ${result.currencyTo.toUpperCase()}"
         date.value = DateFormat.getDateInstance(DateFormat.LONG).format(Date(result.createdAt * 1000L))
-        trackLink.value = result.trackUrl
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.amountExpectedTo, result.currencyTo)
         isExchangeComplete.value = result.status == "finished"
+        val showLink = result.status in arrayOf("finished", "refunded", "failed", "expired", "hold")
+        trackLink.value = if (showLink) result.trackUrl else ""
+        trackLinkText.value =
+                if (showLink) WalletApplication.getInstance().getString(R.string.link_to_track_transaction)
+                else WalletApplication.getInstance().getString(R.string.exchanging).capitalize()
     }
 
     private fun getFiatValue(amount: BigDecimal?, currency: String) =

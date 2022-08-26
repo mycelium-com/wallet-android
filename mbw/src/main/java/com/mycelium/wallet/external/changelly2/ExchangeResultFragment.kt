@@ -47,7 +47,9 @@ class ExchangeResultFragment : DialogFragment() {
             dismissAllowingStateLoss()
         }
         binding?.trackLink?.setOnClickListener {
-            openLink(viewModel.trackLink.value)
+            if(viewModel.trackLink.value?.isNotEmpty() == true) {
+                openLink(viewModel.trackLink.value)
+            }
         }
         update(arguments?.getString(KEY_CHANGELLY_TX_ID))
         val walletManager = viewModel.mbwManager.getWalletManager(false)
