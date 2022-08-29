@@ -31,11 +31,6 @@
 
     <string name="vn_banner_description">Mua và bán Bitcoin với VNĐ</string>
 
-    <!-- from libNetCipher -->
-    <string name="market_orbot">market://search?q=pname:org.torproject.android</string>
-    <!--/ from libNetCipher -->
-
-
     <string-array name="languages">
         <item>bg</item>
         <item>cs</item>
