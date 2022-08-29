@@ -25,6 +25,7 @@ class ExchangeResultViewModel : ViewModel() {
     val toAddress = MutableLiveData("")
     val trackLink = MutableLiveData("")
     val trackLinkText = MutableLiveData("")
+    val trackInProgress = MutableLiveData(false)
     val isExchangeComplete = MutableLiveData(false)
 
     val more = MutableLiveData(true)
@@ -45,11 +46,12 @@ class ExchangeResultViewModel : ViewModel() {
         spendValueFiat.value = getFiatValue(result.amountExpectedFrom, result.currencyFrom)
         getValueFiat.value = getFiatValue(result.amountExpectedTo, result.currencyTo)
         isExchangeComplete.value = result.status == "finished"
-        val showLink = result.status in arrayOf("finished", "refunded", "failed", "expired", "hold")
-        trackLink.value = if (showLink) result.trackUrl else ""
+        trackLink.value = if (result.status in LINK_ACTIVE_LIST) result.trackUrl else ""
+        trackInProgress.value = result.status !in LINK_TEXT_LIST
         trackLinkText.value =
-                if (showLink) WalletApplication.getInstance().getString(R.string.link_to_track_transaction)
-                else WalletApplication.getInstance().getString(R.string.exchanging).capitalize()
+                if (!trackInProgress.value!!) WalletApplication.getInstance().getString(R.string.link_to_track_transaction)
+                else WalletApplication.getInstance().getString(R.string.exchange_in_progress)
+
     }
 
     private fun getFiatValue(amount: BigDecimal?, currency: String) =
@@ -63,4 +65,8 @@ class ExchangeResultViewModel : ViewModel() {
                         }
                     } ?: ""
 
+    companion object {
+        val LINK_ACTIVE_LIST = arrayOf("finished", "refunded", "failed", "expired", "hold", "sending", "exchanging")
+        val LINK_TEXT_LIST = arrayOf("finished", "refunded", "failed", "expired", "hold")
+    }
 }
