@@ -181,7 +181,7 @@ class ExchangeResultFragment : DialogFragment() {
     }
     private fun startProgressAnimation() {
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) { counter ->
-            binding?.trackLinkWait?.setImageDrawable(RingDrawable(counter / 30f * 360f, Color.parseColor("#2E6699")))
+            binding?.trackLinkWait?.setImageDrawable(RingDrawable(counter % 30 / 30f * 360f, Color.parseColor("#2E6699")))
         }
     }
 
