@@ -19,6 +19,7 @@ import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.TransactionSummary
+import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -70,6 +71,7 @@ class ExchangeResultFragment : DialogFragment() {
         }?.let {
             "${AddressUtils.toShortString(it.receiveAddress.toString())} ${it.label}"
         } ?: ""
+        startProgressAnimation()
     }
 
     private fun update(txId: String?) {
@@ -130,7 +132,6 @@ class ExchangeResultFragment : DialogFragment() {
             binding?.txDetailsLayout?.visibility = View.GONE
             binding?.more?.visibility = View.GONE
         }
-        startProgressAnimation()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
@@ -179,8 +180,12 @@ class ExchangeResultFragment : DialogFragment() {
         binding?.txDetails?.tvDate?.text = DateFormat.getDateInstance(DateFormat.LONG, locale).format(date)
         binding?.txDetails?.tvTime?.text = DateFormat.getTimeInstance(DateFormat.LONG, locale).format(date)
     }
+
+    private var animationJob: Job? = null
+
     private fun startProgressAnimation() {
-        startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) { counter ->
+        animationJob?.cancel()
+        animationJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) { counter ->
             binding?.trackLinkWait?.setImageDrawable(RingDrawable(counter % 30 / 30f * 360f, Color.parseColor("#2E6699")))
         }
     }
