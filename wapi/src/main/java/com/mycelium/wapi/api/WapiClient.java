@@ -66,6 +66,10 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
       _objectMapper.registerModule(new WapiJsonModule());
    }
 
+   public ServerEndpoints getServerEndpoints() {
+      return _serverEndpoints;
+   }
+
    private <T> WapiResponse<T> sendRequest(String function, Object request, TypeReference<WapiResponse<T>> typeReference) {
       try {
          Response response = getConnectionAndSendRequest(function, request);

@@ -351,13 +351,6 @@ public class MbwManager {
         _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         mainLoopHandler.post(() -> _eventBus.register(MbwManager.this));
 
-        // init tor - if needed
-        try {
-            setTorMode(ServerEndpointType.Types.valueOf(preferences.getString(Constants.TOR_MODE, "")));
-        } catch (IllegalArgumentException ex) {
-            setTorMode(ServerEndpointType.Types.ONLY_HTTPS);
-        }
-
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi(configuration.getElectrumEndpoints(), configuration.getWapiEndpoints());
@@ -373,6 +366,13 @@ public class MbwManager {
         TradeSessionDb tradeSessionDb = new TradeSessionDb(_applicationContext);
         _ltApi = initLt();
         _localTraderManager = new LocalTraderManager(_applicationContext, tradeSessionDb, getLtApi(), this);
+
+        // init tor - if needed
+        try {
+            setTorMode(ServerEndpointType.Types.valueOf(preferences.getString(Constants.TOR_MODE, "")));
+        } catch (IllegalArgumentException ex) {
+            setTorMode(ServerEndpointType.Types.ONLY_HTTPS);
+        }
 
         _pin = new Pin(
                 preferences.getString(Constants.PIN_SETTING, ""),
@@ -654,6 +654,7 @@ public class MbwManager {
 
         _environment.getWapiEndpoints().setTorManager(this._torManager);
         _environment.getLtEndpoints().setTorManager(this._torManager);
+        _wapi.getServerEndpoints().setTorManager(this._torManager);
     }
 
     public AddressType getDefaultAddressType() {
@@ -1501,6 +1502,7 @@ public class MbwManager {
 
         _environment.getWapiEndpoints().setAllowedEndpointTypes(serverEndpointType);
         _environment.getLtEndpoints().setAllowedEndpointTypes(serverEndpointType);
+        _wapi.getServerEndpoints().setAllowedEndpointTypes(serverEndpointType);
     }
 
     public ServerEndpointType.Types getTorMode() {
