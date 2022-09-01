@@ -14,11 +14,17 @@ class FioRequestService : Service() {
     override fun onBind(p0: Intent?): IBinder? = null
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 // TODO may be we need update fio request before move forward
-        startActivity(Intent(this,
-                if (MbwManager.getInstance(context).isAppInForeground) ApproveFioRequestActivity::class.java else StartupActivity::class.java)
-                .setAction(FIO_REQUEST_ACTION)
-                .putExtras(requireNotNull(intent))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        intent?.let {
+            val activityClass =
+                if (MbwManager.getInstance(applicationContext).isAppInForeground) ApproveFioRequestActivity::class.java
+                else StartupActivity::class.java
+            startActivity(
+                Intent(applicationContext, activityClass)
+                    .setAction(FIO_REQUEST_ACTION)
+                    .putExtras(it)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
         return START_STICKY
     }
 }
