@@ -5,9 +5,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.view.animation.Animation
-import android.view.animation.LinearInterpolator
-import android.view.animation.RotateAnimation
+import android.view.animation.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -185,6 +183,14 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.sellValue.value = oldBuy
             viewModel.swapEnableDelay.value = true
             it.postDelayed({ viewModel.swapEnableDelay.value = false }, 1000) //avoid recalculation values gap
+            val animation = RotateAnimation(0f, if ((viewModel.swapDirection++) % 2 == 0) 180f else -180f,
+                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                    .apply {
+                        interpolator = OvershootInterpolator(1f)
+                        duration = 500
+                        fillAfter = true
+                    }
+            it.startAnimation(animation)
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {
