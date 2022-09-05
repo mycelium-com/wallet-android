@@ -24,7 +24,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.collections.ArrayList
 
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
@@ -66,8 +65,8 @@ class WapiClientElectrumX @JvmOverloads constructor(
         updateClient()
     }
 
-    override fun serverListChanged(newEndpoints: Array<TcpEndpoint>) {
-        rpcClient.endpointsChanged(newEndpoints)
+    override fun serverListChanged(newEndpoints: List<TcpEndpoint>) {
+        rpcClient.endpointsChanged(newEndpoints.toTypedArray())
     }
 
     init {
@@ -412,5 +411,5 @@ data class TransactionHistoryInfo(
 }
 
 interface ServerElectrumListChangedListener {
-    fun serverListChanged(newEndpoints: Array<TcpEndpoint>)
+    fun serverListChanged(newEndpoints: List<TcpEndpoint>)
 }
