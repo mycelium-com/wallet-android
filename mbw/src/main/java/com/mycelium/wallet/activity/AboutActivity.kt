@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.DialogInterface
@@ -14,11 +13,12 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RawRes
+import androidx.appcompat.app.AppCompatActivity
 import com.google.common.base.Joiner
-import com.mycelium.wallet.activity.modern.DarkThemeChangeLog
 import com.mycelium.wallet.activity.modern.Toaster
 import com.google.common.io.ByteSource
 import com.mycelium.wallet.*
+import com.mycelium.wallet.activity.changelog.ChangeLog
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.response.VersionInfoExResponse
 import com.mycelium.wapi.wallet.SyncMode
@@ -29,7 +29,7 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class AboutActivity : Activity() {
+class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.about_activity)
@@ -42,9 +42,7 @@ class AboutActivity : Activity() {
         setLicenseForButton(bt_license_zxing, R.raw.license_zxing)
         setLicenseForButton(bt_license_pdfwriter, R.raw.license_pdfwriter)
         setLicenseForButton(bt_special_thanks, R.raw.special_thanks)
-        bt_show_changelog.setOnClickListener {
-            DarkThemeChangeLog(this).fullLogDialog.show()
-        }
+        bt_show_changelog.setOnClickListener { ChangeLog.show(supportFragmentManager) }
         bt_check_update.setOnClickListener { v: View? ->
             val progress = ProgressDialog.show(this, getString(R.string.update_check),
                     getString(R.string.please_wait), true)

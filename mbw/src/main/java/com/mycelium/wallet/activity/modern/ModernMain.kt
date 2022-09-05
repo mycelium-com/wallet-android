@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.google.common.base.Preconditions
 import com.mycelium.giftbox.GiftBoxRootActivity
@@ -23,6 +24,7 @@ import com.mycelium.net.ServerEndpointType
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.ActionActivity
 import com.mycelium.wallet.activity.MessageVerifyActivity
+import com.mycelium.wallet.activity.changelog.ChangeLog
 import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.activity.main.BalanceMasterFragment
@@ -60,6 +62,7 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.onionkit.ui.OrbotHelper
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -131,10 +134,6 @@ class ModernMain : AppCompatActivity(), BackHandler {
         addAdsTabs(binding.pagerTabs)
         selectTab(if (intent.getStringExtra(TAB_KEY) != null) intent.getStringExtra(TAB_KEY) else TAB_ACCOUNTS)
         _toaster = Toaster(this)
-        val cl = DarkThemeChangeLog(this)
-        if (cl.isFirstRun && cl.getChangeLog(false).size > 0 && !cl.isFirstRunEver) {
-            cl.logDialog.show()
-        }
         checkTorState()
         if (savedInstanceState != null) {
             _lastSync = savedInstanceState.getLong(LAST_SYNC, 0)
@@ -150,6 +149,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
         val tab = mTabsAdapter!!.indexOf(TAB_EXCHANGE)
         binding.pagerTabs.getTabAt(tab)?.setCustomView(R.layout.layout_exchange_tab)
+
+        lifecycleScope.launch { ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager) }
     }
 
     fun selectTab(tabTag: String?) {
