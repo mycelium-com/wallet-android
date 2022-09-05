@@ -37,6 +37,7 @@ package com.mycelium.net;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class ServerEndpoints {
@@ -60,13 +61,7 @@ public class ServerEndpoints {
    }
 
    private void setupEnpoints(HttpEndpoint points[]) {
-      for (HttpEndpoint endpoint : points) {
-         endpoints.add(endpoint);
-         if (endpoint instanceof HttpsEndpoint && !(endpoint instanceof TorHttpsEndpoint)) {
-            HttpsEndpoint e = (HttpsEndpoint) endpoint;
-            this.endpoints.add(new TorHttpsEndpoint(e.getBaseUrl(), e.certificateThumbprint));
-         }
-      }
+      Collections.addAll(endpoints, points);
    }
 
    public HttpEndpoint getCurrentEndpoint(){
