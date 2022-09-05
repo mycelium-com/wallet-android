@@ -82,8 +82,10 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         if (!this.endpoints.contentEquals(newEndpoints)) {
             this.endpoints = newEndpoints
             curEndpointIndex = 0
-            // Close current connection
-            closeConnection()
+            thread {
+                // Close current connection
+                closeConnection()
+            }
         }
     }
 
