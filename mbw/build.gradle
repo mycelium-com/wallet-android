@@ -101,7 +101,6 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.1.0-beta01"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
-    implementation "com.github.AppDevNext:ChangeLog:3.2.0"
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
     implementation "com.jakewharton:butterknife:10.1.0"
     kapt "com.jakewharton:butterknife-compiler:10.1.0"
