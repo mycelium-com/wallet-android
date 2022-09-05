@@ -187,7 +187,6 @@
         <item name="dropDownListViewStyle">@style/DropDownListViewStyle</item>
 
         <item name="actionBarStyle">@style/MyceliumActionBarStyle</item>
-
     </style>
 
     <style name="MyceliumActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
@@ -668,5 +667,13 @@
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="MyceliumModern.BottomSheetDialogTheme.Transparent" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/MyceliumModern.BottomSheetDialog.Transparent</item>
+    </style>
+
+    <style name="MyceliumModern.BottomSheetDialog.Transparent" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="backgroundTint">@android:color/transparent</item>
     </style>
 </resources>
