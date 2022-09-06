@@ -7,8 +7,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.activity.StartupActivity
 import com.mycelium.wallet.activity.fio.requests.ApproveFioRequestActivity
 import com.mycelium.wallet.fio.FioRequestNotificator.FIO_REQUEST_ACTION
-import com.mycelium.wallet.fio.FioRequestNotificator.context
-
 
 class FioRequestService : Service() {
     override fun onBind(p0: Intent?): IBinder? = null

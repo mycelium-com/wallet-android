@@ -60,6 +60,8 @@ abstract class SendCoinsModel(
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
     val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
     val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
+    val fioMemo: MutableLiveData<String?> = MutableLiveData()
+    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
         override fun setValue(value: TransactionData?) {
@@ -79,10 +81,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    enum class TransactionDataStatus {
-        READY, TYPING
-    }
-
     val receivingAddress: MutableLiveData<Address?> = object : MutableLiveData<Address?>() {
         override fun setValue(value: Address?) {
             if (value != this.value) {
@@ -93,9 +91,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    val fioMemo: MutableLiveData<String?> = MutableLiveData()
-
-    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val payeeFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
         override fun setValue(value: String?) {
@@ -531,6 +526,10 @@ abstract class SendCoinsModel(
 
     enum class TransactionStatus {
         BUILDING, MISSING_ARGUMENTS, OUTPUT_TOO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
+    }
+
+    enum class TransactionDataStatus {
+        READY, TYPING
     }
 
     companion object {

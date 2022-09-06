@@ -89,6 +89,7 @@
     <string name="approximate_fiat_value">%2$s %1$s</string>
     <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
+    <string name="interrupted_by_application">Interrupted by application</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
     <string name="unrecognized_private_key_format">Unrecognized private key format</string>
@@ -1697,6 +1698,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="purchase_failed">Purchase Failed</string>
     <string name="processing">Processing...</string>
     <string name="success_s">Success, %s</string>
+    <string name="sync_failed_reason_s">Synchronization failed. Reason: %s</string>
     <string name="sync_failed_s">Synchronization failed. %s</string>
     <string name="giftcard_order_title">Gift card order</string>
     <string name="select_country">Select country</string>
