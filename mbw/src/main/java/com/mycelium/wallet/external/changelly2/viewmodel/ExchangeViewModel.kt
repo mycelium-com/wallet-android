@@ -47,6 +47,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val keyboardActive = MutableLiveData(false)
     val rateLoading = MutableLiveData(false)
     var changellyTx: String? = null
+    var swapDirection = 0
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
