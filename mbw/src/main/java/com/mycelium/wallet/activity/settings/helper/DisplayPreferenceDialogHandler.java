@@ -55,7 +55,7 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
                     // it seems that the size of a list (such as exchanges) might change before clicking OK
                     // so we compare it to new value just before proceeding
                     final int newSize = listPreference.getEntryValues().length;
-                    if (newSize == origSize) {
+                    if (newSize == origSize && arrayAdapter.getSelected() >= 0 &&  arrayAdapter.getSelected() < newSize) {
                         String value = listPreference.getEntryValues()[arrayAdapter.getSelected()].toString();
                         if (listPreference.callChangeListener(value)) {
                             listPreference.setValue(value);
