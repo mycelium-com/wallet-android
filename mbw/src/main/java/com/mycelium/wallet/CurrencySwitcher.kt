@@ -106,8 +106,8 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         this.denominationMap = denominationMap
     }
 
-    fun getCurrentCurrency(coinType: AssetInfo): AssetInfo? {
-        return currentCurrencyMap[coinType]
+    fun getCurrentCurrency(coinType: AssetInfo): AssetInfo {
+        return currentCurrencyMap[coinType] ?: FiatType(Constants.DEFAULT_CURRENCY)
     }
 
     fun getCurrentFiatCurrency(coinType: AssetInfo): AssetInfo {
@@ -117,10 +117,11 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
     fun getDenomination(coinType: AssetInfo): Denomination = denominationMap[coinType] ?: Denomination.UNIT
 
     fun getCurrentCurrencyIncludingDenomination(coinType: AssetInfo): String {
-        return if (currentCurrencyMap[coinType] is FiatType) {
-            currentCurrencyMap[coinType]!!.symbol
+        val currentCurrency = getCurrentCurrency(coinType)
+        return if (currentCurrency is FiatType) {
+            currentCurrency.symbol
         } else {
-            denominationMap[coinType]!!.getUnicodeString(currentCurrencyMap[coinType]!!.symbol)
+            getDenomination(coinType).getUnicodeString(currentCurrency.symbol)
         }
     }
 

@@ -132,7 +132,7 @@
         app:layout_constraintTop_toTopOf="@id/btn_5" />
 
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/btn_copy"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -191,7 +191,7 @@
         app:layout_constraintStart_toStartOf="@id/btn_6"
         app:layout_constraintTop_toTopOf="@id/btn_7" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/btn_backspace"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -238,7 +238,7 @@
         app:layout_constraintTop_toTopOf="@id/btn_0" />
 
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/btn_done"
         android:layout_width="0dp"
         android:layout_height="0dp"
