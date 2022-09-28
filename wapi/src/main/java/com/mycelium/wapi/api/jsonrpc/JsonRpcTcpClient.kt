@@ -73,7 +73,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
 
         // Force all waiting write methods to stop
         if (!isConnectionThreadActive) {
-            continuations.values.forEach { it.cancel() }
+            continuations.values.forEach { it.takeIf { !it.isCompleted && !it.isCancelled }?.cancel() }
         }
     }
 
@@ -271,7 +271,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
 
     private fun removeCurrentRequestData(requestId: String) {
         awaitingRequestsMap.remove(requestId)
-        continuations.remove(requestId)?.cancel()
+        continuations.remove(requestId)?.takeIf { !it.isCompleted && !it.isCancelled }?.cancel()
     }
 
     private fun closeConnection() {
