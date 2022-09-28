@@ -7,6 +7,7 @@ import android.graphics.drawable.AnimationDrawable
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import com.mycelium.wallet.R
 
 
@@ -79,13 +80,9 @@ fun View.expand(end: (() -> Unit)? = null) {
 }
 
 fun TextView.startCursor() {
-    setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.input_cursor, 0)
-    post {
-        val animationDrawable = compoundDrawables[2] as AnimationDrawable
-        if (!animationDrawable.isRunning) {
-            animationDrawable.start()
-        }
-    }
+    val rightDrawable = ResourcesCompat.getDrawable(resources, R.drawable.input_cursor, context.theme)
+    setCompoundDrawablesWithIntrinsicBounds(null, null, rightDrawable, null)
+    post { (rightDrawable as? AnimationDrawable)?.takeUnless(AnimationDrawable::isRunning)?.start() }
     hint = null
 }
 
