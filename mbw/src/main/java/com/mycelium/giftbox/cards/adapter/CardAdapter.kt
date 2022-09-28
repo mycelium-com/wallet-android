@@ -39,7 +39,7 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItem(position).type) {
+        when (getItem(holder.bindingAdapterPosition).type) {
             TYPE_CARD -> {
                 val purchasedItem = getItem(position) as CardItem
                 val item = purchasedItem.card
