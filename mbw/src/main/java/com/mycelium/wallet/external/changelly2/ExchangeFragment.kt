@@ -110,7 +110,7 @@ class ExchangeFragment : Fragment(), BackListener {
                             null,
                             null
                         )
-                    } catch (exignored: Exception) {
+                    } catch (ignored: Exception) {
                         null
                     }
 
