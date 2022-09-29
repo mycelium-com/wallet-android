@@ -103,13 +103,11 @@ class ExchangeFragment : Fragment(), BackListener {
                 visibility = View.VISIBLE
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
+                    val feeEstimation = viewModel.mbwManager
+                        .getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
                     val maxSpendable = try {
-                        viewModel.fromAccount.value?.calculateMaxSpendableAmount(
-                            feeEstimation.normal,
-                            null,
-                            null
-                        )
+                        viewModel.fromAccount.value
+                            ?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)
                     } catch (ignored: Exception) {
                         null
                     }
