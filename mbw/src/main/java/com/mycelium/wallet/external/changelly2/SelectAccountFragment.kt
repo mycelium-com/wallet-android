@@ -99,10 +99,10 @@ class SelectAccountFragment : DialogFragment() {
     private fun setAccount(accountId: UUID) {
         val account = viewModel.mbwManager.getWalletManager(false).getAccount(accountId)
         if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
-            viewModel.fromAccount.value = account
-            viewModel.sellValue.value = ""
+            viewModel.fromAccount.postValue(account)
+            viewModel.sellValue.postValue("")
         } else {
-            viewModel.toAccount.value = account
+            viewModel.toAccount.postValue(account)
         }
         dismissAllowingStateLoss()
     }
