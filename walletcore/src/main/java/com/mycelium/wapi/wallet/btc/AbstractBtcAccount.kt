@@ -59,7 +59,6 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
-import java.lang.IllegalStateException
 import java.lang.RuntimeException
 import java.nio.ByteBuffer
 import java.text.ParseException
