@@ -45,9 +45,12 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItem(position).type) {
+        val bindingAdapterPosition = holder.bindingAdapterPosition
+        if (bindingAdapterPosition == RecyclerView.NO_POSITION)
+            return
+        when (getItem(bindingAdapterPosition).type) {
             TYPE_CARD -> {
-                val purchasedItem = getItem(position) as PurchasedOrderItem
+                val purchasedItem = getItem(bindingAdapterPosition) as PurchasedOrderItem
                 val item = purchasedItem.order
                 holder.itemView.title.text = item.productName
                 val amount = (item.amount?.toBigDecimal() ?: BigDecimal.ZERO) *
@@ -89,18 +92,18 @@ class OrderAdapter : ListAdapter<PurchasedItem, RecyclerView.ViewHolder>(DiffCal
                         .into(holder.itemView.image)
                 if (!purchasedItem.redeemed) {
                     holder.itemView.setOnClickListener {
-                        itemClickListener?.invoke((getItem(holder.adapterPosition) as PurchasedOrderItem).order)
+                        itemClickListener?.invoke((getItem(bindingAdapterPosition) as PurchasedOrderItem).order)
                     }
                 } else {
                     holder.itemView.setOnClickListener(null)
                 }
             }
             TYPE_GROUP -> {
-                val item = getItem(position) as PurchasedGroupItem
+                val item = getItem(bindingAdapterPosition) as PurchasedGroupItem
                 holder.itemView.groupTitle.text = item.title
                 holder.itemView.expand.rotation = if (item.isOpened) 180f else 0f
                 holder.itemView.setOnClickListener {
-                    groupListener?.invoke((getItem(holder.adapterPosition) as PurchasedGroupItem).title)
+                    groupListener?.invoke((getItem(bindingAdapterPosition) as PurchasedGroupItem).title)
                 }
             }
         }

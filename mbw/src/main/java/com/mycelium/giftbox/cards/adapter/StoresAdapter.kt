@@ -30,8 +30,11 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val bindingAdapterPosition = holder.bindingAdapterPosition
+        if (bindingAdapterPosition == RecyclerView.NO_POSITION)
+            return
         if (getItemViewType(position) == TYPE_CARD) {
-            val item = getItem(position)
+            val item = getItem(bindingAdapterPosition)
             Glide.with(holder.itemView.image)
                     .load(item?.cardImageUrl)
                     .apply(RequestOptions()
@@ -52,7 +55,7 @@ class StoresAdapter : ListAdapter<ProductInfo, RecyclerView.ViewHolder>(DiffCall
                         }
             }
             holder.itemView.setOnClickListener {
-                itemClickListener?.invoke(getItem(holder.adapterPosition))
+                itemClickListener?.invoke(getItem(bindingAdapterPosition))
             }
         }
     }
