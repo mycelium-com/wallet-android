@@ -46,9 +46,15 @@ public abstract class InstantExtSigActivity extends ExtSigAccountSelectorActivit
       return new AdapterView.OnItemClickListener() {
          @Override
          public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
-            Intent intent = SendInitializationActivity.getIntent(InstantExtSigActivity.this, item.id, true);
-            InstantExtSigActivity.this.startActivityForResult(intent, REQUEST_SEND);
+            final HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
+            if (item != null && item.id != null) {
+               final Intent intent = SendInitializationActivity.getIntent(
+                       InstantExtSigActivity.this,
+                       item.id,
+                       true
+               );
+               InstantExtSigActivity.this.startActivityForResult(intent, REQUEST_SEND);
+            }
          }
       };
    }

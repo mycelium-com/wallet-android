@@ -64,6 +64,7 @@ import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -171,11 +172,10 @@ public class InstantWalletActivity extends FragmentActivity {
                           .setTitle("Choose blockchain")
                           .setSingleChoiceItems(choices, 0, (dialogInterface, i) -> selectedItem[0] = i)
                           .setPositiveButton(this.getString(R.string.ok), (dialogInterface, i) -> {
-                             if (selectedItem[0] == 0) {
-                                sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getBtcCoinType()));
-                             } else {
-                                sendWithAccount(mbwManager.createOnTheFlyAccount(key, Utils.getFIOCoinType()));
-                             }
+                             final CryptoCurrency currency = selectedItem[0] == 0
+                                     ? Utils.getBtcCoinType()
+                                     : Utils.getFIOCoinType();
+                             sendWithAccount(mbwManager.createOnTheFlyAccount(key, currency));
                           })
                           .setNegativeButton(this.getString(R.string.cancel), null)
                           .show();
