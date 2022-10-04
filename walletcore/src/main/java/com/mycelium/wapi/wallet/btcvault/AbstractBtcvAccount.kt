@@ -1404,12 +1404,14 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         get() = coinType
 
     override val accountBalance: Balance
-        get() = Balance(
-            valueOf(coinType, cachedBalance!!.confirmed),
-            valueOf(coinType, cachedBalance!!.pendingReceiving),
-            valueOf(coinType, cachedBalance!!.pendingSending),
-            valueOf(coinType, cachedBalance!!.pendingChange))
-
+        get() = cachedBalance?.let { balance ->
+            Balance(
+                valueOf(coinType, balance.confirmed),
+                valueOf(coinType, balance.pendingReceiving),
+                valueOf(coinType, balance.pendingSending),
+                valueOf(coinType, balance.pendingChange)
+            )
+        } ?: Balance.getZeroBalance(coinType)
     override val syncTotalRetrievedTransactions: Int
         get() = syncTotalRetrievedTxs
 
