@@ -187,6 +187,12 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     val validateData = MediatorLiveData<Boolean>().apply {
         value = isValid()
+        addSource(toAddress) {
+            value = isValid()
+        }
+        addSource(fromAddress) {
+            value = isValid()
+        }
         addSource(sellValue) {
             value = isValid()
         }
@@ -205,6 +211,8 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                 val res = getApplication<WalletApplication>().resources
                 val amount = sellValue.value?.toBigDecimal()
                 when {
+                    toAddress.value == null -> false
+                    fromAddress.value == null -> false
                     rateLoading.value == true -> false
                     amount == null -> false
                     amount == BigDecimal.ZERO -> false
