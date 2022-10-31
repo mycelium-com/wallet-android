@@ -272,10 +272,8 @@ public class VerifyBackupActivity extends Activity {
                  showDialogMessage("Not supported backup! Please contact support.", false);
              }
          } else {
-            final String error =
-                    intent != null && intent.hasExtra(StringHandlerActivity.RESULT_ERROR)
-                            ? intent.getStringExtra(StringHandlerActivity.RESULT_ERROR)
-                            : null;
+            final String keyError = StringHandlerActivity.RESULT_ERROR;
+            final String error = intent != null && intent.hasExtra(keyError) ? intent.getStringExtra(keyError) : null;
             if (error != null) {
                showDialogMessage(error, false);
             }
