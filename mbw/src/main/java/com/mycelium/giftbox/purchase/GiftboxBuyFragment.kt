@@ -29,12 +29,9 @@ import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel
 import com.mycelium.wallet.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Value
-import kotlinx.coroutines.*
-import java.util.*
 
 
 class GiftboxBuyFragment : Fragment() {
