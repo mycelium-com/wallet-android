@@ -59,7 +59,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)!!
     }
     val zeroCryptoValue by lazy {
-        account.basedOnCoinType.value(0)
+        account.coinType.value(0)
     }
 
     fun getPreseletedValues(): List<Value> {
@@ -79,6 +79,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         callbackFlow {
             try {
                 val address = when (account) {
+                    is ERC20Account,
                     is EthAccount -> {
                         EthAddress(Utils.getEthCoinType(), orderResponse.value!!.payinAddress!!)
                     }
@@ -223,9 +224,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getCryptoAmount(price: PriceResponse): Value = getCryptoAmount(price.priceOffer!!)
 
     private fun getCryptoAmount(price: String): Value {
-        val cryptoUnit = BigDecimal(price).movePointRight(account.basedOnCoinType.unitExponent)
+        val cryptoUnit = BigDecimal(price).movePointRight(account.coinType.unitExponent)
                 .toBigInteger()
-        return Value.valueOf(account.basedOnCoinType, cryptoUnit)
+        return Value.valueOf(account.coinType, cryptoUnit)
     }
 
     fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
