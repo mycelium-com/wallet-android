@@ -2,6 +2,7 @@ package com.mycelium.giftbox.purchase
 
 import android.content.*
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -101,7 +102,7 @@ class GiftboxBuyFragment : Fragment() {
         }
 
         viewModel.warningQuantityMessage.observe(viewLifecycleOwner) {
-            binding?.tlQuanity?.error = it
+            binding?.tlQuanity?.error = Html.fromHtml(it)
             val isError = !it.isNullOrEmpty()
             binding?.tvQuanity?.setTextColor(
                     ContextCompat.getColor(
