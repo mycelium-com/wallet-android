@@ -379,7 +379,9 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())) to null
         } catch (e: InsufficientFundsForFeeException) {
             if (account is ERC20Account) {
-                val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                val totalFee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                val parentAccountBalance = account.ethAcc.accountBalance.spendable
+                val fee = totalFee - parentAccountBalance
                 Status(AmountValidation.NotEnoughFunds, res.getString(R.string.please_top_up_your_eth_account,
                         account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + ExchangeViewModel.TAG_ETH_TOP_UP)
             } else {
