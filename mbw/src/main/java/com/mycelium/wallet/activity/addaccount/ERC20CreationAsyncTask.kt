@@ -62,7 +62,7 @@ fun MbwManager.createERC20(tokens: List<ERC20Token>,
             getWalletManager(false)
                     .createAccounts(ERC20Config(token, ethAccount))
                     .apply {
-                        ethAccount.addEnabledToken(token.name)
+                        ethAccount.addEnabledToken(token.contractAddress)
                     }
         }
         withContext(Dispatchers.Main) {

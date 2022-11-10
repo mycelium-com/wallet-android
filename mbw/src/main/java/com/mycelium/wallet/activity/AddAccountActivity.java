@@ -197,7 +197,7 @@ public class AddAccountActivity extends AppCompatActivity {
             WalletAccount ethAccount = _mbwManager.getWalletManager(false).getAccount(ethAccountId);
             List<String> enabledTokens = ((EthAccount) ethAccount).getEnabledTokens();
             for (Map.Entry<String, ERC20Token> entry : supportedTokens.entrySet()) {
-                if (enabledTokens.contains(entry.getKey())) {
+                if (enabledTokens.contains(entry.getValue().getContractAddress())) {
                     result.add(entry.getValue());
                 }
             }

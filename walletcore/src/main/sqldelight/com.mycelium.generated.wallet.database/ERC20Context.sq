@@ -30,6 +30,14 @@ FROM Erc20Context AS ec
     ON ec.uuid = c.uuid
         WHERE ec.uuid = (?);
 
+selectAllERC20ContextByParent:
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId
+FROM Erc20Context AS ec
+    INNER JOIN AccountContext AS c
+    ON ec.uuid = c.uuid
+        WHERE ec.ethAccountId = (?);
+
+
 insert:
 INSERT INTO Erc20Context(uuid, nonce, contractAddress, unitExponent, symbol, ethAccountId)
 VALUES (?, ?, ?, ?, ?, ?);
