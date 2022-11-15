@@ -239,7 +239,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         "~" + it.toStringFriendlyWithUnit()
     }
     val minerFeeFiat = Transformations.map(minerFeeCrypto) {
-        convertToFiat(it) ?: zeroFiatValue
+        mbwManager.exchangeRateManager.get(it, Utils.getTypeByName(productInfo.currencyCode)) ?: zeroFiatValue
     }
     val minerFeeFiatString = Transformations.map(minerFeeFiat) {
         if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
