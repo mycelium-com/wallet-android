@@ -26,20 +26,21 @@ import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.txdetails.*
+import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment
+import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment
+import com.mycelium.wallet.activity.txdetails.EthDetailsFragment
+import com.mycelium.wallet.activity.txdetails.FioDetailsFragment
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
-import kotlinx.android.synthetic.main.details_common.*
-import kotlinx.android.synthetic.main.details_common.view.*
-import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
-import kotlinx.android.synthetic.main.giftcard_send_info.*
 import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.*
@@ -73,7 +74,11 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.minerFeeFiat.value = args.minerFeeFiat?.toStringWithUnit()
+        viewModel.minerFeeFiat.value = args.minerFeeFiat?.let {
+            if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
+                "<0.01 " + it.type.symbol
+            } else it.toStringFriendlyWithUnit()
+        }
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()
         loadProduct()
         loadOrder()
