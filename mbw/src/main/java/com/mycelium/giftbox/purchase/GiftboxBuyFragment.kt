@@ -171,11 +171,10 @@ class GiftboxBuyFragment : Fragment() {
                     if (viewModel.quantityInt.value!! >= GiftboxBuyViewModel.MAX_QUANTITY) {
                         viewModel.warningQuantityMessage.value =
                                 "Max available cards: ${GiftboxBuyViewModel.MAX_QUANTITY} cards"
+                    } else if (viewModel.totalProgress.value != true) {
+                        viewModel.warningQuantityMessage.value =
+                                getString(R.string.insufficient_funds)
                     }
-//                    else if (viewModel.totalProgress.value != true) {
-//                        viewModel.warningQuantityMessage.value =
-//                                getString(R.string.insufficient_funds)
-//                    }
                 }
             }
             binding?.amountRoot?.setOnClickListener(if (args.product.availableDenominations == null) defaultClickListener else preselectedClickListener)
