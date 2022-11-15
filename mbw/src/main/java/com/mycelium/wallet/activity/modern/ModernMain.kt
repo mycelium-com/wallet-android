@@ -194,6 +194,9 @@ class ModernMain : AppCompatActivity(), BackHandler {
             MainActions.ACTION_EXCHANGE -> {
                 selectTab(TAB_EXCHANGE)
             }
+            MainActions.ACTION_BALANCE -> {
+                selectTab(TAB_BALANCE)
+            }
             else -> if(intent.hasExtra("action")) {
                 startActivity(Intent(this, ActionActivity::class.java).putExtras(intent))
             }
