@@ -17,12 +17,10 @@ import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.crypto.*
-
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
-import java.lang.Exception
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -38,24 +36,15 @@ class EthAccount(private val chainId: Byte,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
 
-    var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
-            ?: mutableListOf()
+    val enabledTokens: List<String>
+        get() = accountContext.enabledTokens ?: listOf()
 
     val accountIndex: Int
         get() = accountContext.accountIndex
 
-    fun removeEnabledToken(tokenName: String) {
-        enabledTokens.remove(tokenName)
-        accountContext.enabledTokens = enabledTokens
+    fun updateEnabledTokens() {
+        accountContext.updateEnabledTokens()
     }
-
-    fun addEnabledToken(tokenName: String) {
-        enabledTokens.add(tokenName)
-        accountContext.enabledTokens = enabledTokens
-    }
-
-    fun isEnabledToken(tokenName: String) = enabledTokens.contains(tokenName)
-
     fun hasHadActivity(): Boolean =
             accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 

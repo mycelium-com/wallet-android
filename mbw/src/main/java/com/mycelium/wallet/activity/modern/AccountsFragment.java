@@ -464,7 +464,7 @@ public class AccountsFragment extends Fragment {
                         }
                     } else if (accountToDelete instanceof ERC20Account) {
                         EthAccount ethAccount = getLinkedEthAccount(accountToDelete);
-                        ethAccount.removeEnabledToken(accountToDelete.getCoinType().getName());
+                        ethAccount.updateEnabledTokens();
                     } else {
                         //Check if this SingleAddress account is related with ColuAccount
                         WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
