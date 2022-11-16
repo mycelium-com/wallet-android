@@ -168,7 +168,8 @@ class BroadcastDialog : DialogFragment() {
             BroadcastResultType.REJECT_MALFORMED -> {
                 // Transaction rejected, display message and exit
                 Utils.setClipboardString(HexUtils.toHex(transaction.txBytes()), context)
-                Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_malformed, broadcastResult.errorMessage)) {
+                Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_malformed,
+                        broadcastResult.errorMessage?.replace("\\[[0-9a-fA-F]+\\]".toRegex(), ""))) {
                     returnResult(broadcastResult)
                 }
             }
