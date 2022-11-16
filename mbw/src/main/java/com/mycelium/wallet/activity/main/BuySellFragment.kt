@@ -55,7 +55,6 @@ import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.external.Ads.openFio
 import com.mycelium.wallet.external.BuySellSelectActivity
-import com.mycelium.wallet.external.changelly.ChangellyActivity
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity
 import com.mycelium.wallet.external.partner.model.BuySellButton
 import com.mycelium.wallet.external.partner.startContentLink
@@ -72,7 +71,11 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
     }
 
     private lateinit var mbwManager: MbwManager
-    private val buttonAdapter = ButtonAdapter()
+    private val buttonAdapter = ButtonAdapter().apply {
+        clickListener = {
+            onClick(it)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(false)
@@ -88,7 +91,6 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
         super.onViewCreated(view, savedInstanceState)
         button_list.adapter = buttonAdapter
         button_list.addOnScrollListener(ItemCentralizer())
-        buttonAdapter.setClickListener(this)
         recreateActions()
     }
 
@@ -118,7 +120,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
                 addFio(actions)
             }
         }
-        buttonAdapter.setButtons(actions)
+        buttonAdapter.submitList(actions)
         button_list.postDelayed(ScrollToRunner(1), 500)
     }
 
@@ -134,13 +136,25 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
                     indexs.add(it)
                     args.putInt("index", it)
                 }
-                if (ACTION.values().map { it.toString() }.contains(button.name)) {
-                    actions.find { it.id == ACTION.valueOf(button.name ?: "") }?.let { item ->
+                if (ACTION.values().map { it.toString() }.contains(button.parentId)) {
+                    actions.find { it.id == ACTION.valueOf(button.parentId ?: "") }?.let { item ->
+                        if (button.name?.isNotEmpty() == true && button.name != item.id.name) {
+                            item.text = button.name
+                        }
+                        if (button.iconUrl?.isNotEmpty() == true) {
+                            item.iconUrl = button.iconUrl
+                        }
                         item.args = args
                     }
                 } else {
                     actions.add(ActionButton(ACTION.ADS, button.name
                             ?: "", 0, button.iconUrl, args))
+                }
+            } else {
+                if (ACTION.values().map { it.toString() }.contains(button.parentId)) {
+                    actions.find { it.id == ACTION.valueOf(button.parentId ?: "") }?.let { item ->
+                        actions.remove(item)
+                    }
                 }
             }
         }
