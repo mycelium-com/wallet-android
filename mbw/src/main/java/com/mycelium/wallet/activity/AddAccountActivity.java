@@ -52,6 +52,8 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.bequant.BequantConstants;
@@ -254,21 +256,21 @@ public class AddAccountActivity extends AppCompatActivity {
         List<ERC20Token> supportedTokens = new ArrayList<>(_mbwManager.getSupportedERC20Tokens().values());
         Collections.sort(supportedTokens, (a1, a2) -> a1.getName().compareTo(a2.getName()));
         List<ERC20Token> addedTokens = getAddedTokens(ethAccountId);
-        final ERC20TokenAdapter arrayAdapter = new ERC20TokenAdapter(AddAccountActivity.this,
-                R.layout.token_item,
-                supportedTokens,
-                addedTokens);
-
-        arrayAdapter.setSelectListener(new Function1<List<ERC20Token>, Unit>() {
+        final ERC20TokenAdapter arrayAdapter = new ERC20TokenAdapter(addedTokens);
+        arrayAdapter.setSelectListener(new Function1<ERC20Token, Unit>() {
             @Override
-            public Unit invoke(List<ERC20Token> erc20Tokens) {
-                positiveButton.setEnabled(!erc20Tokens.isEmpty());
+            public Unit invoke(ERC20Token erc20Token) {
+                positiveButton.setEnabled(!arrayAdapter.getSelectedList().isEmpty());
                 return null;
             }
         });
+        arrayAdapter.submit(supportedTokens);
         LayoutSelectEthAccountToErc20TitleBinding titleBinding = LayoutSelectEthAccountToErc20TitleBinding.inflate(LayoutInflater.from(this));
+        RecyclerView rv = new RecyclerView(this);
+        rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        rv.setAdapter(arrayAdapter);
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setAdapter(arrayAdapter, null)
+                .setView(rv)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
         if (addedTokens.size() < supportedTokens.size()) {
             titleBinding.titleText.setText(ethAccount != null ?
