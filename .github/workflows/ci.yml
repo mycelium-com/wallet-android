@@ -14,20 +14,42 @@ jobs:
       !contains(github.event.head_commit.message, '#skip-ci')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          #ssh-key: ${{ secrets.DEPLOYER_GITHUB_SSH_KEY }}
 
-      - name: Set up JDK environment
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu'
-          java-version: '8'
+    - name: install deps
+      run: sudo apt-get install -y unzip diffutils
 
-      - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
 
-      - uses: actions/upload-artifact@v2
-        with:
-          path: |
-            mbw/build/outputs/apk/
+    - name: Set up JDK environment
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '8'
+
+    - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
+
+    - uses: actions/upload-artifact@v3
+      with:
+        path: mbw/build/outputs/apk/
+
+    - run: mv mbw/build/outputs/apk apk_prev
+
+    - name: reproduce build
+      run: ./gradlew clean mbw::assembleProdnetDebug
+
+    - name: unzip buildA
+      run: unzip -d buildA -qq apk_prev/prodnet/debug/mbw-prodnet-debug.apk || exit 1
+
+    - name: unzip buildB
+      run: unzip -d buildB -qq mbw/build/outputs/apk/prodnet/debug/mbw-prodnet-debug.apk || exit 1
+
+    - name: compare build
+      run: |
+        set -x;
+        diffResult=$( diff --brief --recursive buildA buildB ) && diffExactlyTheSame=true;
+        diffCount=$( echo "$diffResult" | grep -vcE "(META-INF|^$)" );
+        if ((diffCount != 0)); then
+          exit 1;
+        fi
