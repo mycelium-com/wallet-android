@@ -49,9 +49,7 @@ jobs:
       run: |
         set -x;
         diffResult=$( diff --brief --recursive buildA buildB ) && diffExactlyTheSame=true;
-        diffCount=$( echo "$diffResult" | grep -vcE "(META-INF|^$)" );
+        diffCount=$( echo "$diffResult" | grep -vcE "(META-INF|^$)" ) && diffSignificant=true;
         if ((diffCount != 0)); then
           exit 1;
-        else
-          exit 0;
         fi
