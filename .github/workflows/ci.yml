@@ -52,4 +52,6 @@ jobs:
         diffCount=$( echo "$diffResult" | grep -vcE "(META-INF|^$)" );
         if ((diffCount != 0)); then
           exit 1;
+        else
+          exit 0;
         fi
