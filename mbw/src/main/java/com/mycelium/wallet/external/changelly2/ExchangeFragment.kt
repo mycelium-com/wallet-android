@@ -4,10 +4,16 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
-import android.view.animation.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.OvershootInterpolator
+import android.view.animation.RotateAnimation
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,7 +29,10 @@ import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.settings.SettingsPreference
-import com.mycelium.wallet.activity.util.*
+import com.mycelium.wallet.activity.util.resizeTextView
+import com.mycelium.wallet.activity.util.startCursor
+import com.mycelium.wallet.activity.util.stopCursor
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
@@ -44,7 +53,10 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
@@ -149,6 +161,9 @@ class ExchangeFragment : Fragment(), BackListener {
                 updateAmountIfChanged()
                 computeBuyValue()
             }
+            if(binding?.sellLayout?.coinValue?.text?.toString() != amount) {
+                binding?.sellLayout?.coinValue?.setText(amount)
+            }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
         viewModel.buyValue.observe(viewLifecycleOwner) { amount ->
@@ -168,6 +183,9 @@ class ExchangeFragment : Fragment(), BackListener {
                 } else {
                     null
                 }
+            }
+            if(binding?.buyLayout?.coinValue?.text?.toString() != amount) {
+                binding?.buyLayout?.coinValue?.setText(amount)
             }
             binding?.buyLayout?.coinValue?.resizeTextView()
         }
@@ -317,6 +335,12 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         viewModel.exchangeInfo.observe(viewLifecycleOwner) {
             computeBuyValue()
+        }
+        binding?.buyLayout?.coinValue?.doOnTextChanged { text, start, before, count ->
+            viewModel.buyValue.value = binding?.buyLayout?.coinValue?.text?.toString()
+        }
+        binding?.sellLayout?.coinValue?.doOnTextChanged { text, start, before, count ->
+            viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
         }
     }
 

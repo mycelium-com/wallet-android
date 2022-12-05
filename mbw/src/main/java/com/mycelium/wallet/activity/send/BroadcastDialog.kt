@@ -22,8 +22,8 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import com.squareup.otto.Bus
 import java.util.*
-import java.util.logging.Logger
 import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class BroadcastDialog : DialogFragment() {
@@ -168,7 +168,8 @@ class BroadcastDialog : DialogFragment() {
             BroadcastResultType.REJECT_MALFORMED -> {
                 // Transaction rejected, display message and exit
                 Utils.setClipboardString(HexUtils.toHex(transaction.txBytes()), context)
-                Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_malformed) {
+                Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_malformed,
+                        broadcastResult.errorMessage?.replace("\\[[0-9a-fA-F]+\\]".toRegex(), ""))) {
                     returnResult(broadcastResult)
                 }
             }
