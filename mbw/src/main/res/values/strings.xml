@@ -217,7 +217,7 @@
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
-    <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_rejected_malformed">Transaction signing failed.\n Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request. \n %s</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="checking_fio_address">Checking FIO Name…</string>
