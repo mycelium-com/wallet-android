@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -65,8 +66,20 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             field = value
             lifecycleScope.launch(IO) {
                 getPriceResponse(value!!).collect {
+                    val exchangeRate = BigDecimal(it?.exchangeRate ?: "-1")
+                    if (it?.status != PriceResponse.Status.sUCCESS || exchangeRate <= BigDecimal.ZERO) {
+                        withContext(Dispatchers.Main) {
+                            AlertDialog.Builder(requireActivity())
+                                    .setTitle(R.string.error)
+                                    .setMessage(getString(R.string.giftcard_coin_not_acceptable, value.type.name))
+                                    .setPositiveButton(R.string.button_ok) { _, _ ->
+                                        findNavController().popBackStack()
+                                    }
+                                    .show()
+                        }
+                        return@collect
+                    }
                     withContext(Dispatchers.Main) {
-                        val exchangeRate = BigDecimal(it!!.exchangeRate)
                         //update crypto amount
                         val cryptoAmountFromFiat =
                             value.valueAsLong.toBigDecimal()
