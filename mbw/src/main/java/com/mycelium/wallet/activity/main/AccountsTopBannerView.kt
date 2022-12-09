@@ -22,9 +22,9 @@ class AccountsTopBannerView : FrameLayout {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     init {
-        LayoutTopBannerBinding.inflate(LayoutInflater.from(context)).apply {
+        LayoutTopBannerBinding.inflate(LayoutInflater.from(context), this, true).apply {
             binding = this
-        }.root
+        }
     }
 
     override fun onFinishInflate() {
