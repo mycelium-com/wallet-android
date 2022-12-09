@@ -5,12 +5,10 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <fragment
+    <com.mycelium.wallet.activity.main.AccountsTopBannerView
         android:id="@+id/topBanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:name="com.mycelium.wallet.activity.main.AccountsTopBannerFragment"
-        tools:layout="@layout/layout_top_banner"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
