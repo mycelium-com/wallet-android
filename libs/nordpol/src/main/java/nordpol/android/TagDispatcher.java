@@ -113,7 +113,8 @@ public class TagDispatcher {
    @TargetApi(Build.VERSION_CODES.KITKAT)
    private void enableForegroundDispatch(NfcAdapter adapter, Intent intent) {
       if (adapter.isEnabled()) {
-         PendingIntent tagIntent = PendingIntent.getActivity(activity, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+         PendingIntent tagIntent = PendingIntent.getActivity(activity, 0, intent,
+                 PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
          IntentFilter tag = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
 
          adapter.enableForegroundDispatch(activity, tagIntent, new IntentFilter[]{tag},
