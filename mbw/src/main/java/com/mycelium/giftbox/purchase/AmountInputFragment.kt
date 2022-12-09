@@ -81,13 +81,8 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                     }
                     withContext(Dispatchers.Main) {
                         //update crypto amount
-                        val cryptoAmountFromFiat =
-                            value.valueAsLong.toBigDecimal()
-                                .setScale(account?.coinType?.unitExponent!!) / toUnits(
-                                Utils.getTypeByName(
-                                    args.product.currencyCode!!
-                                )!!, exchangeRate
-                            ).toBigDecimal()
+                        val cryptoAmountFromFiat = value.valueAsLong.toBigDecimal().setScale(account?.coinType?.unitExponent!!) /
+                                        exchangeRate.movePointRight(Utils.getTypeByName(args.product.currencyCode!!)!!.unitExponent)
                         val cryptoAmountValue =
                             valueOf(
                                 account?.coinType!!,
