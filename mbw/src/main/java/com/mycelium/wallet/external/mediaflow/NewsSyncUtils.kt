@@ -161,7 +161,8 @@ object NewsSyncUtils {
         if (newTopics.size == 1 && newTopics[0].image?.isNotEmpty() == true) {
             val news = newTopics[0]
             val activityIntent = createSingleNewsIntent(context, news)
-            val pIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pIntent = PendingIntent.getActivity(context, 0, activityIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             builder.setContentIntent(pIntent)
             Handler(Looper.getMainLooper()).post {
                 Glide.with(context.applicationContext)
@@ -185,7 +186,8 @@ object NewsSyncUtils {
             remoteViews.setTextViewText(R.id.title, Html.fromHtml(news.title.rendered))
 
             val activityIntent = createSingleNewsIntent(context, news)
-            val pIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pIntent = PendingIntent.getActivity(context, 0, activityIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
             builder.setContent(remoteViews)
                     .setContentIntent(pIntent)
@@ -201,7 +203,8 @@ object NewsSyncUtils {
 
             val activityIntent = Intent(context, StartupActivity::class.java)
             activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
-            val pIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pIntent = PendingIntent.getActivity(context, 0, activityIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             builder.setContentIntent(pIntent)
             NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
         }
