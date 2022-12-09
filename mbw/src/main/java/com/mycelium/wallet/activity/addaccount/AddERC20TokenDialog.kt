@@ -62,9 +62,9 @@ class AddERC20TokenDialog : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        dialog?.window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
+        val width = (resources.displayMetrics.widthPixels * 0.90).toInt()
+        val height = (resources.displayMetrics.heightPixels * 0.80).toInt()
+        dialog?.window?.setLayout(width, height)
     }
 
     /**

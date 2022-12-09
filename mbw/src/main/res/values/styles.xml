@@ -155,7 +155,7 @@
     </style>
 
     <style name="MyceliumModern.Dialog.BlueButtons.InFragment">
-        <item name="android:windowBackground">@drawable/dialog_background_with_margin</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
     <style name="MyceliumNoActionBarFullScreen" parent="MyceliumModern">
