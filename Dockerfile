@@ -15,13 +15,14 @@ RUN dpkg --add-architecture i386 && \
     apt-get clean
 
 # download and install Android SDK
-ARG ANDROID_SDK_VERSION=4333796
+ARG ANDROID_SDK_VERSION=9123335
 ENV ANDROID_HOME /opt/android-sdk
-RUN mkdir -p /opt/android-sdk && cd /opt/android-sdk && \
-    wget -q https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_VERSION}.zip && \
-    unzip *tools*linux*.zip && \
-    rm *tools*linux*.zip && \
-    yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+RUN mkdir -p $ANDROID_HOME && cd $ANDROID_HOME && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_VERSION}_latest.zip && \
+    unzip *commandlinetools*linux*.zip -d cmdline-tools/ && \
+    rm *commandlinetools*linux*.zip && \
+    mv cmdline-tools/cmdline-tools/ cmdline-tools/latest/ && \
+    yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
 # download and install Android NDK
 ENV ANDROID_NDK_HOME /opt/android-ndk
