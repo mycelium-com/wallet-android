@@ -39,9 +39,9 @@ open class TransactionSummary(var type: CryptoCurrency,
         this.fee = fee
     }
 
-    fun getType(): AssetInfo {
-        return type
-    }
+//    fun getType(): AssetInfo {
+//        return type
+//    }
 
     override fun equals(o: Any?): Boolean {
         if (this === o) return true
