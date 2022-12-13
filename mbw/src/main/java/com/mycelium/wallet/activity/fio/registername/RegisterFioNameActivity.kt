@@ -88,8 +88,8 @@ class RegisterFioNameActivity : AppCompatActivity(R.layout.activity_fio_add_addr
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
