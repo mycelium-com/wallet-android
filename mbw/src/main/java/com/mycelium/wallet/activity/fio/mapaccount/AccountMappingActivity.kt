@@ -57,8 +57,8 @@ class AccountMappingActivity : AppCompatActivity(R.layout.activity_account_mappi
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
