@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.MinerFee
@@ -52,8 +54,8 @@ abstract class SendCoinsModel(
     val errorText: MutableLiveData<String> = MutableLiveData()
     val genericUri: MutableLiveData<AssetUri?> = MutableLiveData()
     val paymentFetched: MutableLiveData<Boolean> = MutableLiveData()
-    val amountFormatted: MutableLiveData<String> = MutableLiveData()
-    val alternativeAmountFormatted: MutableLiveData<String> = MutableLiveData()
+//    val amountFormatted: MutableLiveData<String> = MutableLiveData()
+//    val alternativeAmountFormatted: MutableLiveData<String> = MutableLiveData()
     val heapWarning: MutableLiveData<CharSequence> = MutableLiveData()
     val feeWarning: MutableLiveData<CharSequence> = MutableLiveData()
     val showStaleWarning: MutableLiveData<Boolean> = MutableLiveData()
@@ -102,15 +104,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    val transactionStatus: MutableLiveData<TransactionStatus> = object : MutableLiveData<TransactionStatus>() {
-        override fun setValue(value: TransactionStatus) {
-            if (value != this.value) {
-                super.setValue(value)
-                amountUpdatePublisher.onNext(Unit)
-            }
-        }
-    }
-
     val amount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
         override fun setValue(value: Value) {
             if (value != this.value) {
@@ -121,13 +114,28 @@ abstract class SendCoinsModel(
         }
     }
 
+    val transactionStatus: MutableLiveData<TransactionStatus> = object : MutableLiveData<TransactionStatus>() {
+        override fun setValue(value: TransactionStatus) {
+            if (value != this.value) {
+                super.setValue(value)
+                amountUpdatePublisher.onNext(Unit)
+            }
+        }
+    }
+    val amountFormatted: LiveData<String> = Transformations.map(amount) {
+        getRequestedAmountFormatted()
+    }
+
     private val alternativeAmount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
         override fun setValue(value: Value?) {
             if (value != this.value) {
                 super.setValue(value ?: Value.zeroValue(account.coinType))
-                alternativeAmountFormatted.postValue(getRequestedAmountAlternativeFormatted())
+//                alternativeAmountFormatted.postValue(getRequestedAmountAlternativeFormatted())
             }
         }
+    }
+    val alternativeAmountFormatted: LiveData<String> = Transformations.map(alternativeAmount) {
+        getRequestedAmountAlternativeFormatted()
     }
 
     val selectedFee = object : MutableLiveData<Value>() {
@@ -198,8 +206,8 @@ abstract class SendCoinsModel(
         receivingAddressText.value = ""
         receivingAddressAdditional.value = ""
         receivingLabel.value = ""
-        amountFormatted.value = ""
-        alternativeAmountFormatted.value = ""
+//        amountFormatted.value = ""
+//        alternativeAmountFormatted.value = ""
         feeWarning.value = ""
         heapWarning.value = ""
 
@@ -243,7 +251,7 @@ abstract class SendCoinsModel(
         listToDispose.add(amountUpdatePublisher.toFlowable(BackpressureStrategy.LATEST)
                 .observeOn(Schedulers.computation())
                 .switchMapCompletable {
-                    amountFormatted.postValue(getRequestedAmountFormatted())
+//                    amountFormatted.postValue(getRequestedAmountFormatted())
                     updateAlternativeAmount(amount.value)
                     Completable.complete()
                 }
@@ -364,8 +372,8 @@ abstract class SendCoinsModel(
         } else {
             account.coinType
         }
+        alternativeAmount.postValue(mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), enteredAmount!!, exchangeTo))
         val rate = mbwManager.exchangeRateManager.getRate(enteredAmount, exchangeTo)
-        alternativeAmount.postValue(rate.getValue(enteredAmount, exchangeTo))
         alternativeAmountWarning.postValue(rate.isRateOld)
     }
 
@@ -469,7 +477,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getTransactionStatus(): TransactionStatus {
-        val toSend = mbwManager.exchangeRateManager.get(amount.value!!, account.coinType) ?: amount.value!!
+        val toSend = mbwManager.exchangeRateManager.get(mbwManager.getWalletManager(false), amount.value!!, account.coinType) ?: amount.value!!
 
         try {
             return when {
