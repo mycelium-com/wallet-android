@@ -116,9 +116,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
         txData = intent.getSerializableExtra(TX_DATA) as TransactionData?
         destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)?.takeIf {
-            val expectedAddressClass = viewModel.account?.dummyAddress?.let { it::class.java }
-            val destinationAddressClass = destinationAddress?.let { it::class.java }
-            expectedAddressClass == destinationAddressClass
+            it.coinType == viewModel.account!!.coinType
         } ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
             viewModel.maxSpendableAmount.postValue(
