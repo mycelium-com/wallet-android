@@ -171,7 +171,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         if (isNullOrZero(viewModel.maxSpendableAmount.value)) {
             Toaster(this).toast(R.string.insufficient_funds, true)
         } else {
-            viewModel.amount.value = viewModel.maxSpendableAmount.value
+            viewModel.amount.value = viewModel.convert(viewModel.maxSpendableAmount.value!!, viewModel.currentCurrency.value!!)
+                    ?: viewModel.maxSpendableAmount.value!!
             // set the current shown currency to the amount's currency
             viewModel.currentCurrency.value = viewModel.amount.value!!.type
             updateUI()
