@@ -161,7 +161,8 @@ class FcmListenerService : FirebaseMessagingService() {
             LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.ACTIVE_TRADES)
         }
         val pinProtectedIntent = PinProtectedActivity.createIntent(this, intent)
-        val pIntent = PendingIntent.getActivity(this, 0, pinProtectedIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        val pIntent = PendingIntent.getActivity(this, 0, pinProtectedIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val title = resources.getString(R.string.lt_mycelium_local_trader_title)
         val message = resources.getString(R.string.lt_new_trading_activity_message)
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)
@@ -205,7 +206,8 @@ class FcmListenerService : FirebaseMessagingService() {
             // We don't know this type, so we ignore it
             return
         }
-        val pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+        val pIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val title = resources.getString(R.string.lt_mycelium_local_trader_title)
         val message = resources.getString(R.string.lt_ad_deactivating_message)
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)

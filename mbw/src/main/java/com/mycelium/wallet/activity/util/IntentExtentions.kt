@@ -31,7 +31,7 @@ fun Intent.getHdKeyNode(): HdKeyNode {
 
 fun Intent.getAddress(walletManager: WalletManager, fragmentManager: FragmentManager) {
     checkType(ResultType.ADDRESS_STRING)
-    val address = getStringExtra(RESULT_ADDRESS_STRING_KEY)
+    val address = getStringExtra(RESULT_ADDRESS_STRING_KEY)!!
     val addresses = walletManager.parseAddress(address)
     SelectAssetDialog.getInstance(addresses).show(fragmentManager, "dialog")
 }
@@ -48,7 +48,7 @@ fun Intent.getAssetUri(): AssetUri {
 
 fun Intent.getUri(): Uri {
     checkType(ResultType.URI)
-    return getParcelableExtra(RESULT_URI_KEY) as Uri
+    return getParcelableExtra(RESULT_URI_KEY)!!
 }
 
 fun Intent.getShare(): BipSss.Share {
