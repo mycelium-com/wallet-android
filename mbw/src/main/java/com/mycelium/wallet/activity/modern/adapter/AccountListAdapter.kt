@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -28,7 +27,6 @@ import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
-import kotlin.collections.ArrayList
 
 class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
@@ -260,8 +258,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     open class ItemListDiffCallback() : DiffUtil.ItemCallback<AccountListItem>() {
-        override fun areItemsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean {
-            return when {
+        override fun areItemsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
+             when {
                 oldItem.getType() != newItem.getType() -> false
                 listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem.getType() } -> {
                     (oldItem as AccountsGroupModel).titleId == (newItem as AccountsGroupModel).titleId
@@ -274,7 +272,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 }
                 else -> true
             }
-        }
 
         override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
                 when (oldItem.getType()) {
