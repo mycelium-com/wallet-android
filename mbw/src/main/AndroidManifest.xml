@@ -52,7 +52,7 @@
                 android:resource="@xml/my_paths" />
         </provider> <!-- Service for Cloud Messaging -->
         <service android:name=".lt.notification.FcmListenerService"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

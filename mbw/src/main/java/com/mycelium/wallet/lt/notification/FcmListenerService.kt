@@ -30,6 +30,12 @@ import com.mycelium.wallet.external.mediaflow.NewsSyncUtils.handle
 import com.mycelium.wallet.lt.activity.LtMainActivity
 
 class FcmListenerService : FirebaseMessagingService() {
+
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        MbwManager.getInstance(this).localTraderManager.storeGcmRegistrationId(token)
+    }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val data: Map<*, *> = remoteMessage.data
         val messageType = remoteMessage.messageType // null for firebase
