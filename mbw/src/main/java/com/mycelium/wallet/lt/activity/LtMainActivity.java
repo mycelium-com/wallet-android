@@ -181,7 +181,6 @@ public class LtMainActivity extends AppCompatActivity {
          @Override
          public void onComplete(@NonNull Task<String> task) {
             if (task.isSuccessful()) {
-               Log.e("!!!!", "FirebaseMessaging.getInstance().getToken=" + task.getResult());
                _ltManager.storeGcmRegistrationId(task.getResult());
             }
          }
