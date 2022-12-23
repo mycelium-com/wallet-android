@@ -161,6 +161,7 @@ class FcmListenerService : FirebaseMessagingService() {
     }
 
     private fun showTradeNotification(type: String, lastChange: Long) {
+        createNotificationChannel(this, LT_CHANNEL_ID, "Trade messages")
         val intent = if (LtApi.TRADE_FINAL_NOTIFICATION_TYPE == type) {
             LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.TRADE_HISTORY)
         } else {
@@ -199,11 +200,11 @@ class FcmListenerService : FirebaseMessagingService() {
         }
 
         // Notify
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0, builder.build())
+        NotificationManagerCompat.from(this).notify(ID_TRADE_NOTIFICATION, builder.build())
     }
 
     private fun showAdNotification(type: String) {
+        createNotificationChannel(this, LT_CHANNEL_ID, "Trade messages")
         val intent = if (LtApi.AD_TIME_OUT_NOTIFICATION_TYPE == type) {
             PinProtectedActivity.createIntent(this,
                     LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS)
@@ -240,8 +241,7 @@ class FcmListenerService : FirebaseMessagingService() {
         }
 
         // Notify
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0, builder.build())
+        NotificationManagerCompat.from(this).notify(ID_TRADE_AD_ACTIVITY_NOTIFICATION, builder.build())
     }
 
     companion object {
@@ -263,5 +263,7 @@ class FcmListenerService : FirebaseMessagingService() {
         const val MEDIA_TOPIC = "/topics/all"
         private const val TYPE_ADS_NOTIFICATION = "advertise"
         private const val ID_ADS_NOTIFICATION = 726463
+        private const val ID_TRADE_NOTIFICATION = 1726460
+        private const val ID_TRADE_AD_ACTIVITY_NOTIFICATION = 1726461
     }
 }
