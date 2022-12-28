@@ -149,7 +149,7 @@ public abstract class ExternalSignatureDevice {
         // clear the token-queue - under some circumstances it might happen that the requestPermission
         // callback already returned but this functions wasn't waiting anymore
         gotRights.clear();
-        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0, intent, 0));
+        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE));
 
 
         // retry because of InterruptedException
