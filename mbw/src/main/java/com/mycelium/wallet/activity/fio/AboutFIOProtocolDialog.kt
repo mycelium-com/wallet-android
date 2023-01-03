@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.view.Window.FEATURE_NO_TITLE
 import androidx.fragment.app.DialogFragment
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.external.partner.openLink
 import kotlinx.android.synthetic.main.dialog_about_fio_protocol.*
 
 
@@ -29,7 +29,7 @@ class AboutFIOProtocolDialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fioProtocolText.setOnClickListener {
-            Utils.openWebsite(requireContext(), "https://kb.fioprotocol.io/fio-protocol/fio-overview")
+            openLink("https://kb.fioprotocol.io/fio-protocol/fio-overview")
         }
         toolbar.setNavigationOnClickListener {
             dismissAllowingStateLoss()
