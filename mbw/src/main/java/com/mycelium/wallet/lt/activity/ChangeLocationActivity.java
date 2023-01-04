@@ -42,6 +42,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.lt.api.model.GpsLocation;
 import com.mycelium.wallet.GpsLocationFetcher;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
@@ -51,7 +53,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.lt.LocalTraderManager;
 
-public class ChangeLocationActivity extends Activity {
+public class ChangeLocationActivity extends AppCompatActivity {
    protected static final int ENTER_LOCATION_REQUEST_CODE = 0;
 
    public static void callMe(Activity currentActivity) {

@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity
 
-import android.app.Activity
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
@@ -8,6 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -21,7 +21,7 @@ import com.mycelium.wallet.Utils
 import java.lang.Exception
 import java.util.regex.Pattern
 
-class MessageVerifyActivity : Activity() {
+class MessageVerifyActivity : AppCompatActivity() {
     private val messagePattern = Pattern.compile("""
     -----BEGIN BITCOIN SIGNED MESSAGE-----(?s)
     ?(.*?)

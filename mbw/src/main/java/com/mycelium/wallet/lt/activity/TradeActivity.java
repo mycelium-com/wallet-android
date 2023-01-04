@@ -67,6 +67,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
@@ -117,7 +118,7 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
 
-public class TradeActivity extends Activity {
+public class TradeActivity extends AppCompatActivity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
    protected static final int REFRESH_PRICE_REQUEST_CODE = 2;
    private static final int SIGN_TX_REQUEST_CODE = 3;

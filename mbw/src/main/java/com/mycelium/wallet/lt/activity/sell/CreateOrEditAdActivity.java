@@ -55,6 +55,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.Ad;
@@ -87,7 +89,7 @@ import com.mycelium.wallet.lt.api.Request;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreateOrEditAdActivity extends Activity {
+public class CreateOrEditAdActivity extends AppCompatActivity {
 
    private static final int CHANGE_LOCATION_REQUEST_CODE = 0;
    private static final int ENTER_MAX_AMOUNT_REQUEST_CODE = 1;

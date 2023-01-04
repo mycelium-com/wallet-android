@@ -34,13 +34,14 @@
 
 package com.mycelium.wallet.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
@@ -50,7 +51,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 
-public class HandleUrlActivity extends Activity {
+public class HandleUrlActivity extends AppCompatActivity {
    private static final String URI = "uri";
    private Uri uri;
 

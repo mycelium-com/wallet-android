@@ -34,11 +34,12 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wallet.MbwManager;
@@ -53,7 +54,7 @@ import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider;
 import java.util.List;
 import java.util.UUID;
 
-public class HDSigningActivity extends Activity {
+public class HDSigningActivity extends AppCompatActivity {
     private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
 
     private SigningClickListener _signingClickListener;

@@ -46,6 +46,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.AddressType;
@@ -65,7 +67,7 @@ import java.util.UUID;
  * CreateTrader{1|2|3}Activity are a sort of Trader Account Creation Wizard.
  * You start at 1, go to 2, finish at 3.
  */
-public class CreateTrader3Activity extends Activity {
+public class CreateTrader3Activity extends AppCompatActivity {
    public static void callMe(Activity currentActivity, UUID accountId, InMemoryPrivateKey privateKey) {
       Intent intent = new Intent(currentActivity, CreateTrader3Activity.class)
               .putExtra("accountId", accountId)

@@ -42,13 +42,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.wallet.R;
 
 /**
  * CreateTrader{1|2|3}Activity are a sort of Trader Account Creation Wizard.
  * You start at 1, go to 2, finish at 3.
  */
-public class CreateTrader1Activity extends Activity {
+public class CreateTrader1Activity extends AppCompatActivity {
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, CreateTrader1Activity.class);
       currentActivity.startActivityForResult(intent, requestCode);

@@ -43,13 +43,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.VersionManager;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
 
-public class UpdateNotificationActivity extends Activity {
+public class UpdateNotificationActivity extends AppCompatActivity {
    public static final String RESPONSE = "WalletVersionResponse";
 
    @Override

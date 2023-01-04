@@ -1,6 +1,5 @@
 package com.mycelium.wallet.simplex;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +8,8 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.vending.licensing.AESObfuscator;
 import com.google.android.vending.licensing.LicenseChecker;
@@ -23,7 +24,7 @@ import com.squareup.otto.ThreadEnforcer;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
-public class SimplexMainActivity extends Activity {
+public class SimplexMainActivity extends AppCompatActivity {
     private static final int ERROR_CONTACTING_SERVER = 0x101;
     private static final int ERROR_INVALID_PACKAGE_NAME = 0x102;
     private static final int ERROR_NON_MATCHING_UID = 0x103;

@@ -43,6 +43,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mrd.bitlib.crypto.BipSss;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.content.HandleConfigFactory;
@@ -50,7 +53,7 @@ import com.mycelium.wallet.content.ResultType;
 
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
 
-public class BipSsImportActivity extends Activity {
+public class BipSsImportActivity extends AppCompatActivity {
    public static final String RESULT_SECRET = "secret";
    private static final int REQUEST_SHARE_CODE = 1;
 

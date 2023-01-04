@@ -42,6 +42,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -58,7 +60,7 @@ import com.mycelium.wallet.lt.api.Request;
 
 import java.util.UUID;
 
-public class SendRequestActivity extends Activity {
+public class SendRequestActivity extends AppCompatActivity {
 
    private static final int CREATE_TRADER_RESULT_CODE = 1;
    private static final int SOLVE_CAPTCHA_RESULT_CODE = 2;

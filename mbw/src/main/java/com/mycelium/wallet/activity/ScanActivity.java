@@ -40,6 +40,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Surface;
@@ -56,7 +57,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
  * own. If a scan result comes back it parses it and may launch other activities
  * to decode the result. This happens for instance when decrypting private keys.
  */
-public class ScanActivity extends Activity {
+public class ScanActivity extends AppCompatActivity {
    private boolean hasCameraPermission;
 
    public static void callMe(Activity currentActivity, int requestCode, StringHandleConfig stringHandleConfig) {

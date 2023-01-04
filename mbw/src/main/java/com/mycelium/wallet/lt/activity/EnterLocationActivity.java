@@ -46,6 +46,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
@@ -54,7 +56,7 @@ import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.DelayAutoCompleteTextView;
 
-public class EnterLocationActivity extends Activity {
+public class EnterLocationActivity extends AppCompatActivity {
    public static void callMeForResult(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, EnterLocationActivity.class);
       currentActivity.startActivityForResult(intent, requestCode);

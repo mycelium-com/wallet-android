@@ -44,6 +44,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.BitcoinAddress;
@@ -69,7 +71,7 @@ import java.util.UUID;
  * CreateTrader{1|2|3}Activity are a sort of Trader Account Creation Wizard.
  * You start at 1, go to 2, finish at 3.
  */
-public class CreateTrader2Activity extends Activity {
+public class CreateTrader2Activity extends AppCompatActivity {
 
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, CreateTrader2Activity.class);

@@ -41,6 +41,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Window;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -56,7 +58,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 
 import java.util.UUID;
 
-public class SignTransactionActivity extends Activity {
+public class SignTransactionActivity extends AppCompatActivity {
    protected MbwManager _mbwManager;
    protected WalletAccount<?> _account;
    protected boolean _isColdStorage;

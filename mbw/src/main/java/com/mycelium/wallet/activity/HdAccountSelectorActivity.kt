@@ -33,7 +33,6 @@
  */
 package com.mycelium.wallet.activity
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -42,6 +41,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import com.google.common.collect.Iterables
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
@@ -68,7 +68,7 @@ import java.io.Serializable
 import java.util.*
 import javax.annotation.Nonnull
 
-abstract class HdAccountSelectorActivity : Activity(), MasterseedPasswordSetter {
+abstract class HdAccountSelectorActivity : AppCompatActivity(), MasterseedPasswordSetter {
     @JvmField
     protected var accounts = ArrayList<HdAccountWrapper>()
     @JvmField

@@ -40,6 +40,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import android.text.Editable;
 import android.text.InputType;
@@ -57,7 +58,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-public class DecryptBip38PrivateKeyActivity extends Activity {
+public class DecryptBip38PrivateKeyActivity extends AppCompatActivity {
    private EditText passwordEdit;
    private CheckBox checkboxShowPassword;
    Bip38KeyDecryptionTask task;
