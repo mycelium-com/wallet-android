@@ -263,7 +263,7 @@ class FcmListenerService : FirebaseMessagingService() {
         const val MEDIA_TOPIC = "/topics/all"
         private const val TYPE_ADS_NOTIFICATION = "advertise"
         private const val ID_ADS_NOTIFICATION = 726463
-        private const val ID_TRADE_NOTIFICATION = 1726460
-        private const val ID_TRADE_AD_ACTIVITY_NOTIFICATION = 1726461
+        const val ID_TRADE_NOTIFICATION = 1726460
+        const val ID_TRADE_AD_ACTIVITY_NOTIFICATION = 1726461
     }
 }

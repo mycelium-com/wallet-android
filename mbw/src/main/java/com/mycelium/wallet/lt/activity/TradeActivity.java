@@ -64,9 +64,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
@@ -116,6 +116,8 @@ import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
+import static com.mycelium.wallet.lt.notification.FcmListenerService.ID_TRADE_AD_ACTIVITY_NOTIFICATION;
+import static com.mycelium.wallet.lt.notification.FcmListenerService.ID_TRADE_NOTIFICATION;
 
 public class TradeActivity extends Activity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
@@ -207,7 +209,8 @@ public class TradeActivity extends Activity {
       _lvChat.setOnItemLongClickListener(chatLongClickListener);
 
       Utils.showOptionalMessage(this, R.string.lt_cash_only_warning);
-
+      NotificationManagerCompat.from(this).cancel(ID_TRADE_NOTIFICATION);
+      NotificationManagerCompat.from(this).cancel(ID_TRADE_AD_ACTIVITY_NOTIFICATION);
    }
 
    @Override
