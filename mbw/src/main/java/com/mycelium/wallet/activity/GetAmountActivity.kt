@@ -391,8 +391,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 checkTransaction()
             }
         } else {
-            binding.btOk.isEnabled = true
-            checkAmount()
+            binding.btOk.isEnabled = checkAmount()
         }
     }
 
@@ -468,7 +467,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
-    private fun checkAmount() {
+    private fun checkAmount(): Boolean {
         var amount = viewModel.amount.value
         // if _amount is not in account's currency then convert to account's currency before checking amount
         if (mainCurrencyType != viewModel.currentCurrency.value) {
@@ -480,10 +479,13 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                     val minAmount = valueOf(viewModel.account?.coinType!!, MINIMUM_OUTPUT_VALUE).toStringWithUnit()
                     binding.error.text = getString(R.string.amount_too_small_short, minAmount)
                     binding.error.isVisible = true
+                    return false
                 } else {
                     binding.error.isVisible = false
+                    return true
                 }
             }
+            else -> return true
         }
     }
 
