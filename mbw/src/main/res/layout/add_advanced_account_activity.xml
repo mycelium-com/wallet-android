@@ -59,10 +59,6 @@
                 android:gravity="center"
                 android:text="@string/trezor_import_account"/>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
                     <Button
                         android:id="@+id/btTrezor"
                         android:layout_width="wrap_content"
@@ -73,17 +69,6 @@
                         android:paddingEnd="30dp"
                         android:text="@string/trezor"/>
 
-                    <Button
-                        android:id="@+id/btBuyTrezor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="5dp"
-                        android:paddingStart="30dp"
-                        android:paddingEnd="30dp"
-                        android:text="@string/buy_one"/>
-            </LinearLayout>
 
         <TextView
                 android:layout_width="wrap_content"
@@ -91,10 +76,6 @@
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/keepkey_import_account"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
 
                     <Button
                         android:id="@+id/btKeepKey"
@@ -106,28 +87,12 @@
                         android:paddingEnd="30dp"
                         android:text="@string/keepkey"/>
 
-                    <Button
-                        android:id="@+id/btBuyKeepKey"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="5dp"
-                        android:paddingStart="30dp"
-                        android:paddingEnd="30dp"
-                        android:text="@string/buy_one"/>
-            </LinearLayout>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/ledger_import_account"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
 
                     <Button
                         android:id="@+id/btLedger"
@@ -138,18 +103,6 @@
                         android:paddingStart="30dp"
                         android:paddingEnd="30dp"
                         android:text="@string/ledger"/>
-
-                    <Button
-                        android:id="@+id/btBuyLedger"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginTop="5dp"
-                        android:paddingStart="30dp"
-                        android:paddingEnd="30dp"
-                        android:text="@string/buy_one"/>
-            </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
