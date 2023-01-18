@@ -220,7 +220,7 @@ object NewsSyncUtils {
 
     private fun createNotificationMediaFlowBuilder(context: Context): NotificationCompat.Builder =
             NotificationCompat.Builder(context, NewsConstants.NEWS)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(R.drawable.notification_icon)
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentTitle(context.getString(R.string.media_flow_notification_title))

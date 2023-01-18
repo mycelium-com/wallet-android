@@ -115,7 +115,7 @@ object FioRequestNotificator {
 
     private fun createNotification(context: Context): NotificationCompat.Builder =
             NotificationCompat.Builder(context.applicationContext, chanelId)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(R.drawable.notification_icon)
                     .setAutoCancel(true)
                     .setSubText("FIO Request")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
