@@ -314,6 +314,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         data class TokenData(val name: String, val symbol: String, val unitExponent: Int, val prodAddress: String, val testnetAddress: String = prodAddress)
 
         val tokens = listOf(
+                //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
             TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498", "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
             TokenData("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7", "0x7c352ea63cefc099db667e848e1318878bbbcaaf"),
             TokenData("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0x07865c6e87b9f70255377e024ace6630c1eaa37f"),
@@ -394,7 +395,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
             TokenData("Mycelium Token", "MT", 7, "0x364f56e35e75227516878cc249f11ea9b3e41b09", "0x71b59f06a47c9c403d0e3ec303008bcf78fa9af6"),
             TokenData("Fantom Token", "FTM", 18, "0x4E15361FD6b4BB609Fa63C81A2be19d873717870"),
-            TokenData("SHIBA INU", "SHIB", 18, "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"),
+            TokenData("SHIBA INU", "SHIB", 18, "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
             TokenData("Paxos Gold", "PAXG", 18, "0x45804880De22913dAFE09f4980848ECE6EcbAf78"),
             TokenData("Wrapped BTC", "WBTC", 8, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
             TokenData("Loopring", "LRC", 18, "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD"),
