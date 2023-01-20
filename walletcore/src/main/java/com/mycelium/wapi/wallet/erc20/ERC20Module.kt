@@ -34,7 +34,7 @@ class ERC20Module(
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
-    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else ChainId.ROPSTEN
+    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else CHAIN_ID_GOERLI
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
@@ -127,6 +127,7 @@ class ERC20Module(
     }
 
     companion object {
+        private const val CHAIN_ID_GOERLI: Byte = 5
         const val ID: String = "ERC20"
     }
 }
