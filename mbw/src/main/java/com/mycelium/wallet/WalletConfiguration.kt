@@ -310,16 +310,21 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private var serverFioHistoryListChangedListeners: ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
     private var fioTpidChangedListeners: ArrayList<FioTpidChangedListener> = arrayListOf()
 
+    //https://github.com/bokkypoobah/WeenusTokenFaucet
     fun getSupportedERC20Tokens(): Map<String, ERC20Token> {
         data class TokenData(val name: String, val symbol: String, val unitExponent: Int, val prodAddress: String, val testnetAddress: String = prodAddress)
 
         val tokens = listOf(
                 //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
-            TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498", "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
+                //            TokenData("WEENUS", "WEENUS", 18, "0x2823589Ae095D99bD64dEeA80B4690313e2fB519", "0xaFF4481D10270F50f203E0763e2597776068CBc5"),
+                //            TokenData("XEENUS", "XEENUS", 18, "0xeEf5E2d8255E973d587217f9509B416b41CA5870", "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c"),
+                //            TokenData("YEENUS", "YEENUS", 8, "0x187E63F9eBA692A0ac98d3edE6fEb870AF0079e1", "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7"),
+            TokenData("ZEENUS", "ZEENUS", 0, "0x0693c3a780A0a757E803a4BD76bCf43d438f8806", "0x1f9061B953bBa0E36BF50F21876132DcF276fC6e"),
+            TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498", "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c"),
             TokenData("Tether USD(ERC20)", "USDT20", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7", "0x7c352ea63cefc099db667e848e1318878bbbcaaf"),
             TokenData("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0x07865c6e87b9f70255377e024ace6630c1eaa37f"),
             TokenData("HuobiToken", "HT", 18, "0x6f259637dcd74c767781e37bc6133cd6a68aa161"),
-            TokenData("Binance USD", "BUSD", 18, "0x4fabb145d64652a948d72533023f6e7a623c7c53", "0x5aff428676c5440719adcaf5ecdc7bdf2fbffbe7"),
+            TokenData("Binance USD", "BUSD", 18, "0x4fabb145d64652a948d72533023f6e7a623c7c53", "0xaFF4481D10270F50f203E0763e2597776068CBc5"),
             TokenData("Bitfinex LEO", "LEO", 18, "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3"),
             TokenData("TrueUSD", "TUSD", 18, "0x0000000000085d4780B73119b644AE5ecd22b376", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
             TokenData("ChainLink", "LINK", 18, "0x514910771AF9Ca656af840dff83E8264EcF986CA", "0x88bb053c5ddec8574fcd4d3b1692d43282a11281"),
@@ -330,7 +335,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Basic Attention Token", "BAT", 18, "0x0D8775F648430679A709E98d2b0Cb6250d2887EF", "0x6742036904A63661A3feD2CAa9eF0890F5E58769"),
             TokenData("BIX Token", "BIX", 18, "0xb3104b4B9Da82025E8b9F8Fb28b3553ce2f67069"),
             TokenData("MCO", "MCO", 8, "0xB63B606Ac810a52cCa15e44bB630fd42D8d1d83d"),
-            TokenData("Storj", "STORJ", 8, "0xB64ef51C888972c908CFacf59B47C1AfBC0Ab8aC", "0xc39a4fc849db2fef1e69d81933a0fe4e929717f7"),
+            TokenData("Storj", "STORJ", 8, "0xB64ef51C888972c908CFacf59B47C1AfBC0Ab8aC", "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7"),
             TokenData("Gemini dollar", "GUSD", 2, "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd", "0x796628d910c97fac85ff6f2f328cefcd2e694a14"),
             TokenData("KyberNetwork", "KNC", 18, "0xdd974D5C2e2928deA5F71b9825b8b646686BD200"),
             TokenData("Kyber Network Crystal v2", "KNC", 18, "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202"),
