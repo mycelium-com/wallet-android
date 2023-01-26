@@ -127,9 +127,8 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
-    val totalAmountCryptoSingle: LiveData<Value> = totalAmountCrypto(forSingleItem = true)
-    val totalAmountCryptoSingleString = Transformations.map(totalAmountCryptoSingle) {
-        it.toStringFriendlyWithUnit()
+    val totalAmountCryptoSingleString = Transformations.map(totalAmountCrypto) {
+        it.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE).toStringFriendlyWithUnit()
     }
 
     private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
@@ -259,17 +258,16 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     val isGrantedPlus =
             Transformations.map(
-                    zip4(
+                    zip3(
                             totalAmountCrypto,
-                            totalAmountCryptoSingle,
                             warningQuantityMessage,
                             totalProgress
-                    ) { total: Value, single: Value, quantityError: String, progress: Boolean ->
-                        Quad(total, single, quantityError, progress)
+                    ) { total: Value, quantityError: String, progress: Boolean ->
+                        Triple(total, quantityError, progress)
                     }
             ) {
-                val (total, single, quantityError, progress) = it
-                total.plus(single)
+                val (total, quantityError, progress) = it
+                total.plus(total.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE))
                         .lessOrEqualThan(getAccountBalance()) && quantityError.isEmpty() && !progress
             }
 
@@ -314,7 +312,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     //colors
-    val totalAmountSingleCryptoColor = Transformations.map(totalAmountCryptoSingle) {
+    val totalAmountSingleCryptoColor = Transformations.map(totalAmountCrypto) {
         getColorByCryptoValue(it)
     }
 
