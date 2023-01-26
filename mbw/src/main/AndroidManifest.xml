@@ -210,7 +210,9 @@
             android:name=".external.changelly.ChangellyActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".external.changelly.ChangellyOfferActivity" />
-        <activity android:name=".lt.activity.LtMainActivity" />
+        <activity
+            android:name=".lt.activity.LtMainActivity"
+            android:launchMode="singleInstance" />
         <activity android:name=".lt.activity.CreateTrader1Activity" />
         <activity android:name=".lt.activity.CreateTrader2Activity" />
         <activity android:name=".lt.activity.CreateTrader3Activity" />
