@@ -10,10 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.text.toSpannable
+import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mycelium.wallet.BuildConfig
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.UpdateNotificationActivity
 import com.mycelium.wallet.databinding.FragmentAppUpdateNotificationBinding
@@ -34,8 +36,18 @@ class UpdateNotificationBottomSheetDialogFragment : BottomSheetDialogFragment() 
         val response = arguments?.getSerializable(UpdateNotificationActivity.RESPONSE) as VersionInfoExResponse
         binding?.header?.titleTextView?.text = getString(R.string.update_acvailable)
         binding?.header?.versionTextView?.text = getString(R.string.current_version_s, BuildConfig.VERSION_NAME)
-        binding?.updateMessage?.text = response.versionMessage
+        if (response.versionMessage?.isNotEmpty() == true) {
+            binding?.updateMessage?.text = response.versionMessage
+            binding?.updateMessage?.isVisible = true
+            binding?.listTypeTextView?.isVisible = true
+        } else {
+            binding?.updateMessage?.isVisible = false
+            binding?.listTypeTextView?.isVisible = false
+        }
+        binding?.newVersion?.text = getString(R.string.new_version_s, response.versionNumber)
         binding?.skip?.setOnClickListener {
+            MbwManager.getInstance(requireContext()).versionManager
+                    .ignoreVersion(response.versionNumber)
             dismiss()
         }
         binding?.updateFromMycelium?.setOnClickListener {

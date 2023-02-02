@@ -24,6 +24,24 @@
         android:layout_marginTop="15dp" />
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:text="@string/update_to_new_features"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/newVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/new_version_s"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
         android:id="@+id/updateMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,13 +50,13 @@
         android:layout_marginBottom="30dp"
         android:singleLine="false"
         android:text="Placeholder Text\nwhat you are missing in the new version\n *) new feature 1\n *) new feature 2\n *) new feature 3\n *) new feature 4\n *) new feature 5\n *) new feature 6"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        tools:ignore="HardcodedText" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/listTypeTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:paddingHorizontal="20dp"
         android:text="@string/changelog_button_show_more"
@@ -50,6 +68,7 @@
         android:id="@+id/getUpdate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:paddingHorizontal="20dp"
         android:text="Get update version from:"

@@ -112,7 +112,7 @@ public class WalletVersion {
 
          for (WalletVersion latestVersion : walletVersions) {
             if (latestVersion.isGreaterThan(clientVersion)) {
-               return new VersionInfoExResponse(latestVersion.toString(), "Update available", URI.create("https://wallet.mycelium.com"), null);
+               return new VersionInfoExResponse(latestVersion.toString(), "", URI.create("https://wallet.mycelium.com"), null);
             }
          }
       }

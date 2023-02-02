@@ -1792,4 +1792,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelog_version_placeholder">Version: %s</string>
     <string name="update_acvailable">Update available</string>
     <string name="current_version_s">Current version: %s</string>
+    <string name="update_to_new_features">Update Mycelium to get new features and improved functionality.</string>
+    <string name="new_version_s">New version: %s</string>
 </resources>
