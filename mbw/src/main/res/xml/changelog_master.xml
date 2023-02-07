@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.16.0.16" versioncode="3160016">
+        <change>Bug fixes</change>
+    </release>
     <release version="3.16.0.15" versioncode="3160015">
         <change>Bug fixes</change>
     </release>
