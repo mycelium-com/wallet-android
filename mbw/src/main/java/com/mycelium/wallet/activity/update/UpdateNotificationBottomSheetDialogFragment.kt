@@ -36,7 +36,8 @@ class UpdateNotificationBottomSheetDialogFragment : BottomSheetDialogFragment() 
         val response = arguments?.getSerializable(UpdateNotificationActivity.RESPONSE) as VersionInfoExResponse
         binding?.header?.titleTextView?.text = getString(R.string.update_acvailable)
         binding?.header?.versionTextView?.text = getString(R.string.current_version_s, BuildConfig.VERSION_NAME)
-        if (response.versionMessage?.isNotEmpty() == true) {
+        if (response.versionMessage?.isNotEmpty() == true &&
+            !"Update available".equals(response.versionMessage, true)) {
             binding?.updateMessage?.text = response.versionMessage
             binding?.updateMessage?.isVisible = true
             binding?.listTypeTextView?.isVisible = true
