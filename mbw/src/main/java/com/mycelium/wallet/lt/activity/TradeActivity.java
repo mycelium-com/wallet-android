@@ -199,7 +199,7 @@ public class TradeActivity extends Activity {
 
       _mbwManager.getLocalTraderManager().markViewed(_tradeSession);
 
-      _chatAdapter = new ChatAdapter(this, new ArrayList<ChatEntry>());
+      _chatAdapter = new ChatAdapter(this, new ArrayList<>());
 
       _lvChat = findViewById(R.id.lvChat);
       _lvChat.setAdapter(_chatAdapter);
@@ -209,6 +209,19 @@ public class TradeActivity extends Activity {
       _lvChat.setOnItemLongClickListener(chatLongClickListener);
 
       Utils.showOptionalMessage(this, R.string.lt_cash_only_warning);
+   }
+
+   @Override
+   protected void onNewIntent(Intent intent) {
+      super.onNewIntent(intent);
+      handleIntent(intent);
+      _mbwManager.getLocalTraderManager().markViewed(_tradeSession);
+   }
+
+   private void handleIntent(Intent intent) {
+      if (intent != null) {
+         _tradeSession = (TradeSession) intent.getSerializableExtra("tradeSession");
+      }
       NotificationManagerCompat.from(this).cancel(ID_TRADE_NOTIFICATION);
       NotificationManagerCompat.from(this).cancel(ID_TRADE_AD_ACTIVITY_NOTIFICATION);
    }
