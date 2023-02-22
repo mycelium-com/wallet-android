@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.update
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -28,12 +29,14 @@ class UpdateNotificationBottomSheetDialogFragment : BottomSheetDialogFragment() 
 
     private var binding: FragmentAppUpdateNotificationBinding? = null
 
+    private var versionNumber: String = ""
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             FragmentAppUpdateNotificationBinding.inflate(inflater, container, false).also { binding = it }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val response = arguments?.getSerializable(UpdateNotificationActivity.RESPONSE) as VersionInfoExResponse
+        versionNumber = response.versionNumber
         binding?.header?.titleTextView?.text = getString(R.string.update_acvailable)
         binding?.header?.versionTextView?.text = getString(R.string.current_version_s, BuildConfig.VERSION_NAME)
         if (response.versionMessage?.isNotEmpty() == true &&
@@ -47,8 +50,6 @@ class UpdateNotificationBottomSheetDialogFragment : BottomSheetDialogFragment() 
         }
         binding?.newVersion?.text = getString(R.string.new_version_s, response.versionNumber)
         binding?.skip?.setOnClickListener {
-            MbwManager.getInstance(requireContext()).versionManager
-                    .ignoreVersion(response.versionNumber)
             dismiss()
         }
         binding?.updateFromMycelium?.setOnClickListener {
@@ -70,6 +71,10 @@ class UpdateNotificationBottomSheetDialogFragment : BottomSheetDialogFragment() 
             skipCollapsed = true
             state = BottomSheetBehavior.STATE_EXPANDED
         }
+    }
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        MbwManager.getInstance(requireContext()).versionManager.ignoreVersion(versionNumber)
     }
 
     override fun onDestroyView() {
