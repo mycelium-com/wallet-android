@@ -43,7 +43,6 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
    private Tag detectedTag;
    private byte[] aid;
 
-   public static final int FLAG_MUTABLE = 1<<25;
    private static final String LOG_TAG = "BTChipTransportAndroid";
 
    private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
