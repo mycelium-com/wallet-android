@@ -18,18 +18,12 @@ object Util {
      */
     @JvmStatic
     fun trimTestnetSymbolDecoration(symbol: String): String =
-            when (symbol) {
-                "tBTC", "tBTCV", "tETH" -> symbol.substring(1)
-                else -> symbol
-            }
+        if (symbol.startsWith("t")) symbol.substring(1) else symbol
 
     @JvmStatic
     fun addTestnetSymbolDecoration(symbol: String, isTestnet: Boolean): String =
             if (isTestnet) {
-                when (symbol) {
-                    "BTC", "BTCV", "ETH" -> "t$symbol"
-                    else -> symbol
-                }
+                if(!symbol.startsWith("t")) "t$symbol" else symbol
             } else {
                 symbol
             }
