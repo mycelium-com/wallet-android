@@ -1,10 +1,7 @@
 package com.mycelium.giftbox.cards
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -19,9 +16,14 @@ import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fragment_bequant_main.*
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.util.collapse
+import com.mycelium.wallet.activity.util.expand
+import com.mycelium.wallet.databinding.FragmentGiftBoxBinding
+import com.mycelium.wallet.event.NetworkConnectionStateChanged
+import com.squareup.otto.Subscribe
 
-class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
+class GiftBoxFragment : Fragment() {
 
     var mediator: TabLayoutMediator? = null
 
@@ -32,11 +34,21 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
             2 to PURCHASES).toBiMap()
 
     private var refreshItem: MenuItem? = null
+    private var binding: FragmentGiftBoxBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FragmentGiftBoxBinding.inflate(inflater)
+        .apply {
+            binding = this
+        }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,9 +56,9 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
             it.setDisplayHomeAsUpEnabled(true)
             it.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_back_arrow))
         }
-        pager.adapter = CardsFragmentAdapter(childFragmentManager, lifecycle)
-        pager.offscreenPageLimit = 2
-        mediator = TabLayoutMediator(tabs, pager) { tab, position ->
+        binding?.pager?.adapter = CardsFragmentAdapter(childFragmentManager, lifecycle)
+        binding?.pager?.offscreenPageLimit = 2
+        mediator = TabLayoutMediator(binding?.tabs!!, binding?.pager!!) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.stores)
                 1 -> tab.text = getString(R.string.mygiftcards)
@@ -61,6 +73,7 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
                 hideRefresh()
             }
         })
+        updateNetworkConnectionState()
     }
 
     val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -71,14 +84,16 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
 
     override fun onResume() {
         super.onResume()
-        pager.postDelayed({
-            pager.currentItem = tabMap.inverse()[activityViewModel.currentTab.value] ?: 0
-            pager.registerOnPageChangeCallback(pageChangeCallback)
+        MbwManager.getEventBus().register(this)
+        binding?.pager?.postDelayed({
+            binding?.pager?.currentItem = tabMap.inverse()[activityViewModel.currentTab.value] ?: 0
+            binding?.pager?.registerOnPageChangeCallback(pageChangeCallback)
         }, 10)
     }
 
     override fun onPause() {
-        pager.unregisterOnPageChangeCallback(pageChangeCallback)
+        binding?.pager?.unregisterOnPageChangeCallback(pageChangeCallback)
+        MbwManager.getEventBus().unregister(this)
         super.onPause()
     }
 
@@ -100,6 +115,10 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
                 else -> super.onOptionsItemSelected(item)
             }
 
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
+    }
     private fun hideRefresh() {
         refreshItem?.actionView = null
     }
@@ -107,6 +126,19 @@ class GiftBoxFragment : Fragment(R.layout.fragment_gift_box) {
     private fun showRefresh() {
         refreshItem?.setActionView(R.layout.actionbar_indeterminate_progress)?.apply {
             actionView?.findViewById<ImageView>(R.id.ivTorIcon)?.visibility = View.GONE
+        }
+    }
+
+    @Subscribe
+    fun networkConnectionChanged(event: NetworkConnectionStateChanged){
+        updateNetworkConnectionState()
+    }
+
+    fun updateNetworkConnectionState() {
+        if (Utils.isConnected(requireContext())) {
+            binding?.connectionError?.collapse()
+        } else {
+            binding?.connectionError?.expand()
         }
     }
 

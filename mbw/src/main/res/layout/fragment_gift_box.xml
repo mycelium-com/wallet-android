@@ -8,13 +8,28 @@
         android:layout_height="match_parent"
         tools:context="com.mycelium.giftbox.cards.GiftBoxFragment">
 
+        <TextView
+            android:id="@+id/connectionError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#30B7E4"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="@string/connection_issues"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             style="@style/Giftbox.Tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/connectionError"
             app:tabMode="scrollable"
             app:tabTextAppearance="@style/GiftboxTabText" />
 

@@ -29,6 +29,7 @@ import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
+import com.mycelium.wallet.event.NetworkConnectionStateChanged
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Job
 
@@ -183,4 +184,12 @@ class StoresFragment : Fragment() {
     internal fun updateOrder(request: RefreshOrdersRequest) {
         loadData()
     }
+
+    @Subscribe
+    fun networkConnectionChanged(event: NetworkConnectionStateChanged){
+        if(event.connected) {
+            loadData()
+        }
+    }
+
 }
