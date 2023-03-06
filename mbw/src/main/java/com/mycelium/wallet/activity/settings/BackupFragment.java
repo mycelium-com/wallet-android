@@ -66,6 +66,8 @@ public class BackupFragment extends PreferenceFragmentCompat {
         legacyBackupVerify.setOnPreferenceClickListener(legacyBackupVerifyClickListener);
 
         simulateClick(mOpenType);
+
+        showOrHideLegacyBackup();
     }
 
     @SuppressLint("RestrictedApi")
@@ -87,12 +89,6 @@ public class BackupFragment extends PreferenceFragmentCompat {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onResume() {
-        showOrHideLegacyBackup();
-        super.onResume();
     }
 
     private final Preference.OnPreferenceClickListener legacyBackupClickListener = preference -> {
