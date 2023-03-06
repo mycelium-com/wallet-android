@@ -423,9 +423,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("XYO", "XYO", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E758")
         )
         val namePostfix = if (BuildConfig.FLAVOR == "prodnet") "" else " test"
-        val symbolPrefix = if (BuildConfig.FLAVOR == "prodnet") "" else " t"
+        val symbolPrefix = if (BuildConfig.FLAVOR == "prodnet") "" else "t"
         return tokens
-            .map { ERC20Token(it.name + namePostfix, symbolPrefix + it.symbol,
+            .map { ERC20Token(it.name + namePostfix, "$symbolPrefix${it.symbol}",
                 it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
             .associateBy { it.name }
     }
