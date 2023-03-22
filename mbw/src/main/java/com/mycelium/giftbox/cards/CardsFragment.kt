@@ -102,8 +102,10 @@ class CardsFragment : Fragment() {
             binding?.noResultText?.visibility = if (cards.isEmpty()) VISIBLE else GONE
             binding?.noResultTitle?.visibility = if (cards.isEmpty()) VISIBLE else GONE
             adapter.submitList(generateList(cards))
-        }, { _, msg ->
-            Toaster(this).toast(msg, true)
+        }, { code, msg ->
+            if(code != 400) {
+                Toaster(this).toast(msg, true)
+            }
         })
     }
 

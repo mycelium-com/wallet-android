@@ -149,10 +149,12 @@ class StoresFragment : Fragment() {
                     viewModel.setProductsResponse(it, offset != -1L)
                     adapter.submitList(viewModel.products)
                 },
-                error = { _, msg ->
+                error = { code, msg ->
                     adapter.submitList(listOf())
                     viewModel.state.value = ListState.ERROR
-                    Toaster(this).toast(msg, true)
+                    if(code != 400) {
+                        Toaster(this).toast(msg, true)
+                    }
                 })
     }
 
