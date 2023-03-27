@@ -170,8 +170,8 @@ private class Vin {
 class TokenTransfer {
     val from: String = ""
     val to: String = ""
-    private val contract: String = ""
-    private val token: String = ""
+    val contract: String = ""
+    val token: String = ""
     val name: String = ""
     val value: BigInteger = BigInteger.ZERO
 

@@ -43,6 +43,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
    private Tag detectedTag;
    private byte[] aid;
 
+   public static final int FLAG_MUTABLE = 1<<25;
    private static final String LOG_TAG = "BTChipTransportAndroid";
 
    private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
@@ -148,7 +149,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
       final Intent intent = new Intent(ACTION_USB_PERMISSION);
 
       gotRights.clear();
-      usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0, intent, 0));
+      usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE));
       // retry because of InterruptedException
       while (true) {
          try {
