@@ -697,7 +697,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
                 _logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION")
                 BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
             } else if (errorCode == Wapi.ElectrumxError.REJECT_MALFORMED.errorCode) {
-                if (response.errorMessage.contains("min relay fee not met")) {
+                if (response.errorMessage.contains("fee not met")) {
                     BroadcastResult(response.errorMessage, BroadcastResultType.REJECT_INSUFFICIENT_FEE)
                 } else {
                     BroadcastResult(response.errorMessage, BroadcastResultType.REJECT_MALFORMED)
