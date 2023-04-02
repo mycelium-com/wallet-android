@@ -22,7 +22,6 @@ import org.web3j.crypto.Keys
 import org.web3j.tx.ChainId
 import java.util.*
 
-
 class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: Backing<EthAccountContext>,
@@ -36,7 +35,7 @@ class EthereumModule(
     val password = ""
     fun getBip44Path(accountIndex: Int): HdKeyPath = HdKeyPath.valueOf("m/44'/60'/$accountIndex'/0/0")
     private val coinType = if (networkParameters.isProdnet) EthMain else EthTest
-    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else ChainId.ROPSTEN
+    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else CHAIN_ID_GOERLI
 
     private val accounts = mutableMapOf<UUID, EthAccount>()
     override val id = ID
@@ -176,6 +175,7 @@ class EthereumModule(
             ?: -1
 
     companion object {
+        private const val CHAIN_ID_GOERLI: Byte = 5
         const val ID: String = "Ethereum"
     }
 }
