@@ -103,11 +103,13 @@ public class VersionManager {
    }
 
    public void showVersionDialog(final VersionInfoExResponse response, final FragmentActivity activity) {
-      UpdateNotificationBottomSheetDialogFragment dialog = new UpdateNotificationBottomSheetDialogFragment();
-      Bundle bundle = new Bundle();
-      bundle.putSerializable(UpdateNotificationActivity.RESPONSE, response);
-      dialog.setArguments(bundle);
-      dialog.show(activity.getSupportFragmentManager(), "update_notification");
+      if (activity.getSupportFragmentManager().findFragmentByTag("update_notification") == null) {
+         UpdateNotificationBottomSheetDialogFragment dialog = new UpdateNotificationBottomSheetDialogFragment();
+         Bundle bundle = new Bundle();
+         bundle.putSerializable(UpdateNotificationActivity.RESPONSE, response);
+         dialog.setArguments(bundle);
+         dialog.show(activity.getSupportFragmentManager(), "update_notification");
+      }
    }
 
    public void initBackgroundVersionChecker() {
