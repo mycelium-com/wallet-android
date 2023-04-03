@@ -50,6 +50,7 @@ class UpdateNotificationBottomSheetDialogFragment : BottomSheetDialogFragment() 
         }
         binding?.newVersion?.text = getString(R.string.new_version_s, response.versionNumber)
         binding?.skip?.setOnClickListener {
+            MbwManager.getInstance(requireContext()).versionManager.ignoreVersion(versionNumber)
             dismiss()
         }
         binding?.updateFromMycelium?.setOnClickListener {
@@ -71,10 +72,6 @@ class UpdateNotificationBottomSheetDialogFragment : BottomSheetDialogFragment() 
             skipCollapsed = true
             state = BottomSheetBehavior.STATE_EXPANDED
         }
-    }
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        MbwManager.getInstance(requireContext()).versionManager.ignoreVersion(versionNumber)
     }
 
     override fun onDestroyView() {
