@@ -196,7 +196,7 @@ public class TradeActivity extends Activity {
       if (savedInstanceState != null) {
          _tradeSession = (TradeSession) savedInstanceState.getSerializable("tradeSession");
       }
-
+      handleIntent(getIntent());
       _mbwManager.getLocalTraderManager().markViewed(_tradeSession);
 
       _chatAdapter = new ChatAdapter(this, new ArrayList<>());
