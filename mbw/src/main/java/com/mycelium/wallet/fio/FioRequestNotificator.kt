@@ -87,7 +87,8 @@ object FioRequestNotificator {
                                 .setCustomContentView(smallView)
                                 .setCustomBigContentView(bigView)
                                 .setContentIntent(PendingIntent.getService(context, 0,
-                                        createSingleFIORequestIntent(context, it), PendingIntent.FLAG_UPDATE_CURRENT))
+                                        createSingleFIORequestIntent(context, it),
+                                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
                                 .setGroup(fioRequestNotificationGroup)
                                 .build())
                 preferences.edit().putBoolean(it.fioRequestId.toString(), true).apply()

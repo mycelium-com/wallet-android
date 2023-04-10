@@ -8,6 +8,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -18,6 +19,7 @@ import com.mycelium.giftbox.cards.adapter.CardListItem
 import com.mycelium.giftbox.cards.adapter.GroupItem
 import com.mycelium.giftbox.cards.event.OrdersUpdate
 import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
+import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.model.Card
 import com.mycelium.giftbox.shareGiftcard
@@ -34,6 +36,7 @@ class CardsFragment : Fragment() {
     private val cards = mutableListOf<Card>()
     private val adapter = CardAdapter()
     private var binding: FragmentGiftboxPurchasedBinding? = null
+    private val activityViewModel: GiftBoxViewModel by activityViewModels()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -85,6 +88,7 @@ class CardsFragment : Fragment() {
                 binding?.list?.smoothScrollToPosition(adapter.currentList.indexOfFirst { it is GroupItem && it.title == group } + 5)
             }, 300)
         }
+        activityViewModel.currentTab.observeForever { binding?.list?.scrollToPosition(0) }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(1)) {
             loadData()
         }

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.external.changelly2
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.forEach
@@ -8,16 +9,21 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.view.RingDrawable
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeResultBinding
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeResultViewModel
 import com.mycelium.wallet.external.partner.openLink
+import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.TransactionSummary
+import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class ExchangeResultFragment : DialogFragment() {
@@ -47,9 +53,16 @@ class ExchangeResultFragment : DialogFragment() {
             dismissAllowingStateLoss()
         }
         binding?.trackLink?.setOnClickListener {
-            openLink(viewModel.trackLink.value)
+            if(viewModel.trackLink.value?.isNotEmpty() == true) {
+                openLink(viewModel.trackLink.value)
+            }
         }
-        update(arguments?.getString(KEY_CHANGELLY_TX_ID))
+        arguments?.getString(KEY_CHANGELLY_TX_ID)?.let{
+            update(it)
+        }?: run {
+            Toaster(requireContext()).toast("Something went wrong! Exchange transaction id is null", false)
+            dismissAllowingStateLoss()
+        }
         val walletManager = viewModel.mbwManager.getWalletManager(false)
         binding?.more?.setOnClickListener {
             viewModel.more.value = !viewModel.more.value!!
@@ -64,11 +77,12 @@ class ExchangeResultFragment : DialogFragment() {
         }?.let {
             "${AddressUtils.toShortString(it.receiveAddress.toString())} ${it.label}"
         } ?: ""
+        startProgressAnimation()
     }
 
-    private fun update(txId: String?) {
+    private fun update(txId: String) {
         loader(true)
-        Changelly2Repository.getTransaction(lifecycleScope, txId!!,
+        Changelly2Repository.getTransaction(lifecycleScope, txId,
                 { response ->
                     response?.result?.first()?.let { result ->
                         binding?.toolbar?.title = result.getReadableStatus("exchange")
@@ -129,7 +143,12 @@ class ExchangeResultFragment : DialogFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 R.id.refresh -> {
-                    update(arguments?.getString(KEY_CHANGELLY_TX_ID))
+                    arguments?.getString(KEY_CHANGELLY_TX_ID)?.let {
+                        update(it)
+                    } ?: run {
+                        Toaster(requireContext()).toast("Something went wrong! Exchange transaction id is null", false)
+                        dismissAllowingStateLoss()
+                    }
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
@@ -171,6 +190,15 @@ class ExchangeResultFragment : DialogFragment() {
         val locale = resources.configuration.locale
         binding?.txDetails?.tvDate?.text = DateFormat.getDateInstance(DateFormat.LONG, locale).format(date)
         binding?.txDetails?.tvTime?.text = DateFormat.getTimeInstance(DateFormat.LONG, locale).format(date)
+    }
+
+    private var animationJob: Job? = null
+
+    private fun startProgressAnimation() {
+        animationJob?.cancel()
+        animationJob = startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.SECONDS.toMillis(1)) { counter ->
+            binding?.trackLinkWait?.setImageDrawable(RingDrawable(counter % 30 / 30f * 360f, Color.parseColor("#2E6699")))
+        }
     }
 
     companion object {

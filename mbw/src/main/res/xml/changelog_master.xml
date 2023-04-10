@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="3.16.0.8" versioncode="3160008">
-        <change>Added Exchange functionality</change>
-        <change>Improved gas price estimations for ETH and ERC-20 transactions</change>
-        <change>Improved Gift cards purchase experience</change>
-        <change>Added satoshi denomination</change>
-        <change>Minor improvements and bug fixes</change>
+    <release version="3.16.0.16" versioncode="3160016">
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.16.0.15" versioncode="3160015">
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.16.0.14" versioncode="3160014">
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.16.0.13" versioncode="3160013">
+        <change>Crypto to crypto exchange</change>
+        <change>Improved gas price estimations for ETH and ERC-20</change>
+        <change>Improved gift card purchase experience</change>
+        <change>Satoshi denomination</change>
+        <change>Updated 'What's new' pop-up</change>
+        <change>Bug fixes</change>
     </release>
     <release version="3.15.0.0" versioncode="3150000">
         <change>Added ability to set gas price manually</change>

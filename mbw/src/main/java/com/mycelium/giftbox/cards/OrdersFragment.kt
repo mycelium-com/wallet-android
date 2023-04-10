@@ -81,6 +81,7 @@ class OrdersFragment : Fragment() {
                 binding?.list?.smoothScrollToPosition(adapter.currentList.indexOfFirst { it is PurchasedGroupItem && it.title == group } + 5)
             }, 300)
         }
+        activityViewModel.currentTab.observeForever { binding?.list?.scrollToPosition(0) }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(1)) {
             loadData()
         }

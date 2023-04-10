@@ -4,12 +4,16 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
+import android.view.animation.OvershootInterpolator
 import android.view.animation.RotateAnimation
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -25,7 +29,10 @@ import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.settings.SettingsPreference
-import com.mycelium.wallet.activity.util.*
+import com.mycelium.wallet.activity.util.resizeTextView
+import com.mycelium.wallet.activity.util.startCursor
+import com.mycelium.wallet.activity.util.stopCursor
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.ValueKeyboard
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
@@ -35,6 +42,7 @@ import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
+import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -46,7 +54,10 @@ import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.squareup.otto.Subscribe
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
@@ -151,22 +162,31 @@ class ExchangeFragment : Fragment(), BackListener {
                 updateAmountIfChanged()
                 computeBuyValue()
             }
+            if(binding?.sellLayout?.coinValue?.text?.toString() != amount) {
+                binding?.sellLayout?.coinValue?.setText(amount)
+            }
             binding?.sellLayout?.coinValue?.resizeTextView()
         }
         viewModel.buyValue.observe(viewLifecycleOwner) { amount ->
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
                 viewModel.sellValue.value = if (amount?.isNotEmpty() == true) {
                     try {
-                        amount.toBigDecimal().setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                                ?.div(viewModel.exchangeInfo.value?.result!!)
+                        val friendlyDigits = viewModel.fromCurrency.value?.friendlyDigits
+                        val exchangeInfoResult = viewModel.exchangeInfo.value?.result
+                        if (friendlyDigits == null || exchangeInfoResult == null) N_A
+                        else amount.toBigDecimal().setScale(friendlyDigits, RoundingMode.HALF_UP)
+                                ?.div(exchangeInfoResult)
                                 ?.stripTrailingZeros()
-                                ?.toPlainString() ?: "N/A"
+                                ?.toPlainString() ?: N_A
                     } catch (e: NumberFormatException) {
-                        "N/A"
+                        N_A
                     }
                 } else {
                     null
                 }
+            }
+            if(binding?.buyLayout?.coinValue?.text?.toString() != amount) {
+                binding?.buyLayout?.coinValue?.setText(amount)
             }
             binding?.buyLayout?.coinValue?.resizeTextView()
         }
@@ -182,6 +202,14 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.sellValue.value = oldBuy
             viewModel.swapEnableDelay.value = true
             it.postDelayed({ viewModel.swapEnableDelay.value = false }, 1000) //avoid recalculation values gap
+            val animation = RotateAnimation(0f, if ((viewModel.swapDirection++) % 2 == 0) 180f else -180f,
+                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                    .apply {
+                        interpolator = OvershootInterpolator(1f)
+                        duration = 500
+                        fillAfter = true
+                    }
+            it.startAnimation(animation)
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {
@@ -308,6 +336,15 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         viewModel.exchangeInfo.observe(viewLifecycleOwner) {
             computeBuyValue()
+        }
+        binding?.buyLayout?.coinValue?.doOnTextChanged { text, start, before, count ->
+            viewModel.buyValue.value = binding?.buyLayout?.coinValue?.text?.toString()
+        }
+        binding?.sellLayout?.coinValue?.doOnTextChanged { text, start, before, count ->
+            viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
+        }
+        binding?.policyTerms?.setOnClickListener {
+            openLink(CHANGELLY_TERM_OF_USER)
         }
     }
 
@@ -581,12 +618,15 @@ class ExchangeFragment : Fragment(), BackListener {
         const val KEY_HISTORY = "tx_history"
         const val TAG_SELECT_ACCOUNT_BUY = "select_account_for_buy"
         const val TAG_SELECT_ACCOUNT_SELL = "select_account_for_sell"
-        const val TAG_HISTORY = "history"        
+        const val TAG_HISTORY = "history"
+        private const val N_A = "N/A"
 
         fun iconPath(coin: CryptoCurrency) =
                 iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
 
         fun iconPath(coin: String) =
                 Uri.parse("file:///android_asset/token-logos/" + coin.toLowerCase() + "_logo.png")
+
+        const val CHANGELLY_TERM_OF_USER = "https://changelly.com/terms-of-use"
     }
 }
