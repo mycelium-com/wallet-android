@@ -42,6 +42,7 @@ import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
+import com.mycelium.wallet.external.partner.openLink
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.Transaction
@@ -342,6 +343,9 @@ class ExchangeFragment : Fragment(), BackListener {
         binding?.sellLayout?.coinValue?.doOnTextChanged { text, start, before, count ->
             viewModel.sellValue.value = binding?.sellLayout?.coinValue?.text?.toString()
         }
+        binding?.policyTerms?.setOnClickListener {
+            openLink(CHANGELLY_TERM_OF_USER)
+        }
     }
 
     private fun computeBuyValue() {
@@ -622,5 +626,7 @@ class ExchangeFragment : Fragment(), BackListener {
 
         fun iconPath(coin: String) =
                 Uri.parse("file:///android_asset/token-logos/" + coin.toLowerCase() + "_logo.png")
+
+        const val CHANGELLY_TERM_OF_USER = "https://changelly.com/terms-of-use"
     }
 }
