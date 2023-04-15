@@ -106,7 +106,7 @@ class EthereumModule(
             ethAccount
         } else {
             val accountContext = createAccountContext(uuid)
-            val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
+            val ethAddress = EthAddress(coinType, String(secureStore.getPlaintextValue(uuid.toString().toByteArray())))
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
             val ethAccount = EthAccount(chainId, accountContext, address = ethAddress, backing = ethAccountBacking,
                     accountListener = accountListener, blockchainService = blockchainService)
