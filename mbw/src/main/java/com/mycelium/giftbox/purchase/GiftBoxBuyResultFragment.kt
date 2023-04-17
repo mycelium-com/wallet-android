@@ -112,6 +112,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         args.accountId?.let { accountId ->
             val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
             val account = walletManager.getAccount(accountId)
+            walletManager.startSynchronization(accountId)
             args.transaction?.id?.let { txId ->
                 tx = account?.getTxSummary(txId)!!
                 val findFragmentById =
