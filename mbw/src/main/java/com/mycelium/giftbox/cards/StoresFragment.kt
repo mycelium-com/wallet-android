@@ -29,6 +29,7 @@ import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentGiftboxStoresBinding
 import com.mycelium.wallet.databinding.ItemGiftBoxTagBinding
+import com.mycelium.wallet.event.NetworkConnectionStateChanged
 import com.squareup.otto.Subscribe
 import kotlinx.coroutines.Job
 
@@ -148,10 +149,12 @@ class StoresFragment : Fragment() {
                     viewModel.setProductsResponse(it, offset != -1L)
                     adapter.submitList(viewModel.products)
                 },
-                error = { _, msg ->
+                error = { code, msg ->
                     adapter.submitList(listOf())
                     viewModel.state.value = ListState.ERROR
-                    Toaster(this).toast(msg, true)
+                    if(code != 400) {
+                        Toaster(this).toast(msg, true)
+                    }
                 })
     }
 
@@ -183,4 +186,12 @@ class StoresFragment : Fragment() {
     internal fun updateOrder(request: RefreshOrdersRequest) {
         loadData()
     }
+
+    @Subscribe
+    fun networkConnectionChanged(event: NetworkConnectionStateChanged){
+        if(event.connected) {
+            loadData()
+        }
+    }
+
 }

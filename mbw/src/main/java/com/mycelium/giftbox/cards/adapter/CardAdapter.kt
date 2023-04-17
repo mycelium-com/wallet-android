@@ -27,6 +27,7 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
     var itemClickListener: ((Card) -> Unit)? = null
     var itemShareListener: ((Card) -> Unit)? = null
     var itemRedeemListener: ((Card) -> Unit)? = null
+    var itemUnredeemListener: ((Card) -> Unit)? = null
     var itemDeleteListener: ((Card) -> Unit)? = null
     var groupListener: ((String) -> Unit)? = null
 
@@ -46,6 +47,7 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                 holder.itemView.title.text = item.productName
                 holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
                 holder.itemView.additional.text = item.timestamp?.getDateString(holder.itemView.resources)
+                holder.itemView.redeemLayer.visibility = if (purchasedItem.redeemed) View.VISIBLE else View.GONE
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
                         .apply(RequestOptions()
@@ -58,16 +60,20 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                     PopupMenu(view.context, view).apply {
                         menuInflater.inflate(R.menu.giftbox_purchased_list, menu)
                         menu.findItem(R.id.redeem).isVisible = !purchasedItem.redeemed
+                        menu.findItem(R.id.unredeem).isVisible = purchasedItem.redeemed
                         setOnMenuItemClickListener { menuItem ->
                             when (menuItem.itemId) {
                                 R.id.share -> {
-                                    itemShareListener?.invoke((getItem(holder.adapterPosition) as CardItem).card)
+                                    itemShareListener?.invoke((getItem(holder.absoluteAdapterPosition) as CardItem).card)
                                 }
                                 R.id.delete -> {
-                                    itemDeleteListener?.invoke((getItem(holder.adapterPosition) as CardItem).card)
+                                    itemDeleteListener?.invoke((getItem(holder.absoluteAdapterPosition) as CardItem).card)
                                 }
                                 R.id.redeem -> {
-                                    itemRedeemListener?.invoke((getItem(holder.adapterPosition) as CardItem).card)
+                                    itemRedeemListener?.invoke((getItem(holder.absoluteAdapterPosition) as CardItem).card)
+                                }
+                                R.id.unredeem -> {
+                                    itemUnredeemListener?.invoke((getItem(holder.absoluteAdapterPosition) as CardItem).card)
                                 }
                             }
                             true

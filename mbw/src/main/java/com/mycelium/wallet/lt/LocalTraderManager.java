@@ -720,7 +720,7 @@ public class LocalTraderManager {
      *
      * @param regId registration ID
      */
-    private synchronized void storeGcmRegistrationId(String regId) {
+     public synchronized void storeGcmRegistrationId(String regId) {
         int appVersion = getAppVersion();
         Log.i(TAG, "Saving regId on app version " + appVersion);
         getGcmPreferences().edit()

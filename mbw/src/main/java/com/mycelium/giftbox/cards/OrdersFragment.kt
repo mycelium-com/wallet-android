@@ -106,10 +106,12 @@ class OrdersFragment : Fragment() {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
             MbwManager.getEventBus().post(OrdersUpdate())
-        }, error = { _, msg ->
+        }, error = { code, msg ->
             adapter.submitList(listOf())
             viewModel.state.value = ListState.ERROR
-            Toaster(this).toast(msg, true)
+            if(code != 400) {
+                Toaster(this).toast(msg, true)
+            }
         }, finally = {
             activityViewModel.orderLoading.value = false
         })
