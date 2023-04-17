@@ -26,7 +26,10 @@ import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.txdetails.*
+import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment
+import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment
+import com.mycelium.wallet.activity.txdetails.EthDetailsFragment
+import com.mycelium.wallet.activity.txdetails.FioDetailsFragment
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
@@ -36,10 +39,6 @@ import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
-import kotlinx.android.synthetic.main.details_common.*
-import kotlinx.android.synthetic.main.details_common.view.*
-import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
-import kotlinx.android.synthetic.main.giftcard_send_info.*
 import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.*
@@ -227,6 +226,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.successTitle?.setTextColor(resources.getColor(R.color.giftbox_state_title_ok))
+                binding?.orderScheme?.successText?.setTextColor(resources.getColor(R.color.giftbox_state_text))
                 binding?.finish?.text = getString(R.string.mygiftcards)
                 binding?.finish?.setOnClickListener {
                     activityViewModel.currentTab.value = GiftBoxFragment.CARDS

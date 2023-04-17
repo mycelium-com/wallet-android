@@ -69,6 +69,11 @@ class CardsFragment : Fragment() {
                 loadData()
             }
         }
+        adapter.itemUnredeemListener = {
+            GitboxAPI.giftRepository.unredeem(it, lifecycleScope) {
+                loadData()
+            }
+        }
         adapter.itemDeleteListener = {
             AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
                     .setTitle(getString(R.string.delete_gift_card))
