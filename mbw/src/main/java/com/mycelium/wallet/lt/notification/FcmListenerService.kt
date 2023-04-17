@@ -64,7 +64,7 @@ class FcmListenerService : FirebaseMessagingService() {
         val link = remoteMessage.data["action"] ?: ""
         createNotificationChannel(this, TYPE_ADS_NOTIFICATION, "Advertise messages")
         val builder = NotificationCompat.Builder(this, TYPE_ADS_NOTIFICATION)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentTitle(remoteMessage.notification?.title)
@@ -168,7 +168,7 @@ class FcmListenerService : FirebaseMessagingService() {
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
 
@@ -213,7 +213,7 @@ class FcmListenerService : FirebaseMessagingService() {
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
 
