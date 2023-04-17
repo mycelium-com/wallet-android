@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Handler
@@ -57,7 +58,7 @@ object NewsSyncUtils {
 
     private const val mediaFlowNotificationId = 34563487
     private const val mediaFlowNotificationGroup = "Media Flow"
-    private const val TAG_IMPORTANT = "important"
+    public const val TAG_IMPORTANT = "important"
 
     @JvmStatic
     fun startNewsUpdateRepeating(context: Context) {
@@ -220,7 +221,8 @@ object NewsSyncUtils {
 
     private fun createNotificationMediaFlowBuilder(context: Context): NotificationCompat.Builder =
             NotificationCompat.Builder(context, NewsConstants.NEWS)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_notification_icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_notification_icon))
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentTitle(context.getString(R.string.media_flow_notification_title))
