@@ -69,6 +69,11 @@ class CardsFragment : Fragment() {
                 loadData()
             }
         }
+        adapter.itemUnredeemListener = {
+            GitboxAPI.giftRepository.unredeem(it, lifecycleScope) {
+                loadData()
+            }
+        }
         adapter.itemDeleteListener = {
             AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
                     .setTitle(getString(R.string.delete_gift_card))
@@ -102,8 +107,10 @@ class CardsFragment : Fragment() {
             binding?.noResultText?.visibility = if (cards.isEmpty()) VISIBLE else GONE
             binding?.noResultTitle?.visibility = if (cards.isEmpty()) VISIBLE else GONE
             adapter.submitList(generateList(cards))
-        }, { _, msg ->
-            Toaster(this).toast(msg, true)
+        }, { code, msg ->
+            if(code != 400) {
+                Toaster(this).toast(msg, true)
+            }
         })
     }
 
