@@ -436,8 +436,10 @@ class ExchangeFragment : Fragment(), BackListener {
                             viewModel.errorRemote.value = result?.error?.message ?: ""
                         }
                     },
-                    { _, msg ->
-                        viewModel.errorRemote.value = msg
+                    { code, msg ->
+                        if(code != 400) {
+                            viewModel.errorRemote.value = msg
+                        }
                     },
                     {
                         viewModel.rateLoading.value = false
@@ -483,8 +485,10 @@ class ExchangeFragment : Fragment(), BackListener {
                                         viewModel.errorRemote.value = result?.error?.message ?: ""
                                     }
                                 },
-                                { _, msg ->
-                                    viewModel.errorRemote.value = msg
+                                { code, msg ->
+                                    if(code != 400) {
+                                        viewModel.errorRemote.value = msg
+                                    }
                                 },
                                 {
                                     viewModel.rateLoading.value = false
