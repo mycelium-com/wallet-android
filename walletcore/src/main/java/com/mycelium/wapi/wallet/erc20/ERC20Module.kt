@@ -119,12 +119,12 @@ class ERC20Module(
                 accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
         val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
-        val account = if (secureStore.hasCiphertextValue(uuid.toString().toByteArray())) {
-            val credentials = Credentials.create(
-                Keys.deserialize(
-                    secureStore.getDecryptedValue(accountContext.ethAccountId.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
-                )
-            )
+        val decryptedKey = secureStore.getDecryptedValue(
+            accountContext.ethAccountId.toString().toByteArray(),
+            AesKeyCipher.defaultKeyCipher()
+        )
+        val account = if (decryptedKey != null) {
+            val credentials = Credentials.create(Keys.deserialize(decryptedKey))
             ERC20Account(
                 chainId, accountContext, token, ethAccount, credentials, accountBacking,
                 accountListener, blockchainService
