@@ -35,11 +35,12 @@ class ERC20Account(private val chainId: Byte,
                    private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    val ethAcc: EthAccount,
-                   credentials: Credentials,
+                   credentials: Credentials? = null,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   blockchainService: EthBlockchainService) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, ERC20Account::class.simpleName), SyncPausable {
+                   blockchainService: EthBlockchainService,
+                   address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, blockchainService, ERC20Account::class.simpleName, address), SyncPausable {
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)

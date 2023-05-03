@@ -47,6 +47,8 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
 
    private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
 
+   public static final int FLAG_MUTABLE = 1<<25;
+
    private static final byte TEST_APDU[] = {(byte) 0xe0, (byte) 0xc4, (byte) 0x00, (byte) 0x00, (byte) 0x00};
 
    /**
@@ -148,7 +150,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
       final Intent intent = new Intent(ACTION_USB_PERMISSION);
 
       gotRights.clear();
-      usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE));
+      usbManager.requestPermission(device, PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE));
       // retry because of InterruptedException
       while (true) {
          try {
