@@ -5,9 +5,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.view.animation.Animation
-import android.view.animation.LinearInterpolator
-import android.view.animation.RotateAnimation
+import android.view.animation.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -157,12 +155,15 @@ class ExchangeFragment : Fragment(), BackListener {
             if (binding?.layoutValueKeyboard?.numericKeyboard?.inputTextView == binding?.buyLayout?.coinValue) {
                 viewModel.sellValue.value = if (amount?.isNotEmpty() == true) {
                     try {
-                        amount.toBigDecimal().setScale(viewModel.fromCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
-                                ?.div(viewModel.exchangeInfo.value?.result!!)
+                        val friendlyDigits = viewModel.fromCurrency.value?.friendlyDigits
+                        val exchangeInfoResult = viewModel.exchangeInfo.value?.result
+                        if (friendlyDigits == null || exchangeInfoResult == null) N_A
+                        else amount.toBigDecimal().setScale(friendlyDigits, RoundingMode.HALF_UP)
+                                ?.div(exchangeInfoResult)
                                 ?.stripTrailingZeros()
-                                ?.toPlainString() ?: "N/A"
+                                ?.toPlainString() ?: N_A
                     } catch (e: NumberFormatException) {
-                        "N/A"
+                        N_A
                     }
                 } else {
                     null
@@ -182,6 +183,14 @@ class ExchangeFragment : Fragment(), BackListener {
             viewModel.sellValue.value = oldBuy
             viewModel.swapEnableDelay.value = true
             it.postDelayed({ viewModel.swapEnableDelay.value = false }, 1000) //avoid recalculation values gap
+            val animation = RotateAnimation(0f, if ((viewModel.swapDirection++) % 2 == 0) 180f else -180f,
+                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                    .apply {
+                        interpolator = OvershootInterpolator(1f)
+                        duration = 500
+                        fillAfter = true
+                    }
+            it.startAnimation(animation)
         }
         binding?.layoutValueKeyboard?.numericKeyboard?.apply {
             inputListener = object : ValueKeyboard.SimpleInputListener() {
@@ -581,7 +590,8 @@ class ExchangeFragment : Fragment(), BackListener {
         const val KEY_HISTORY = "tx_history"
         const val TAG_SELECT_ACCOUNT_BUY = "select_account_for_buy"
         const val TAG_SELECT_ACCOUNT_SELL = "select_account_for_sell"
-        const val TAG_HISTORY = "history"        
+        const val TAG_HISTORY = "history"
+        private const val N_A = "N/A"
 
         fun iconPath(coin: CryptoCurrency) =
                 iconPath(Util.trimTestnetSymbolDecoration(coin.symbol))
