@@ -89,6 +89,8 @@ import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
 import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
@@ -214,6 +216,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          new Toaster(this).toast("Importing unrelated Ethereum accounts still to be implemented.", false);
          return;
       }
+
       new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
    }
 
@@ -481,7 +484,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
    }
 
    enum AddressCheckResult {
-      AccountExists, BTC, NonBtc
+      AccountExists, BTC, NonBtc, ETH
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
@@ -501,6 +504,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
          if (address instanceof BtcAddress) {
             return AddressCheckResult.BTC;
+         } else if (address instanceof EthAddress) {
+            return AddressCheckResult.ETH;
          } else {
             return AddressCheckResult.NonBtc;
          }
@@ -516,6 +521,11 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                UUID account1 = _mbwManager.getWalletManager(false)
                        .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
                finishOk(account1, false);
+               break;
+            case ETH:
+               UUID account2 = _mbwManager.getWalletManager(false)
+                       .createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
+               finishOk(account2, false);
                break;
             case NonBtc:
                if ("FIO".equals(address.getCoinType().getSymbol())) {
