@@ -319,8 +319,34 @@ android {
                 ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
                         '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
                 EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
-                FioApiServers = '{"https://fio.greymass.com/v1/"}'
-                FioHistoryServers = '{"https://fio.greymass.com/v1/"}'
+                FioApiServers = '{"https://fio.eu.eosamsterdam.net/v1/",' +
+                        '"https://fio.eosdac.io/v1/",' +
+                        '"https://fio.eosphere.io/v1/",' +
+                        '"https://fio.eosrio.io/v1/",' +
+                        '"https://fio.acherontrading.com/v1/",' +
+                        '"https://fio.eos.barcelona/v1/",' +
+                        '"https://fio.zenblocks.io/v1/",' +
+                        '"https://api.fio.alohaeos.com/v1/",' +
+                        '"https://fio.greymass.com/v1/",' +
+                        '"https://fio.genereos.io/v1/",' +
+                        '"https://fio.eosusa.news/v1/",' +
+                        '"https://fio.eosargentina.io/v1/",' +
+                        '"https://fio.cryptolions.io/v1/",' +
+                        '"https://fio-mainnet.eosblocksmith.io/v1/",' +
+                        '"https://api.fio.currencyhub.io/v1/",' +
+                        '"https://fio.eoscannon.io/v1/",' +
+                        '"https://fio.eosdublin.io/v1/",' +
+                        '"https://api.fiosweden.org/v1/",' +
+                        '"https://api.fio.greeneosio.com/v1/",' +
+                        '"https://fioapi.ledgerwise.io/v1/",' +
+                        '"https://api.fio.services/v1/",' +
+                        '"https://fio.eostribe.io/v1/",' +
+                        '"https://fio-za.eostribe.io/v1/"}'
+                FioHistoryServers = '{"https://fio.greymass.com/v1/",' +
+                        '"https://fio.greymass.com/v1/",' +
+                        '"https://fio.eosphere.io/v1/",' +
+                        '"https://api.fiosweden.org/v1/",' +
+                        '"https://fio.eosphere.io/v1/"}'
                 tpid = ""
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
