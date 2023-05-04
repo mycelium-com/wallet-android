@@ -5,6 +5,7 @@
     tools:showIn="@layout/send_coins_activity_btc">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.send.model.SendBtcViewModel" />
@@ -32,6 +33,7 @@
             android:layout_marginHorizontal="@dimen/horizontal_page_margin"
             android:text="@string/send_fee_hint"
             android:textColor="#BEBEBE"
+            android:visibility="@{viewModel.feeHintShow() ? View.GONE : View.VISIBLE}"
             android:textSize="14sp" />
     </LinearLayout>
 </layout>
