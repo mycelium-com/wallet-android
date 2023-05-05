@@ -314,7 +314,7 @@ android {
                         '"tcp-tls://electrumx-1a2.mycelium.com:50002",' +
                         '"tcp-tls://electrumx-2a0.mycelium.com:10000",' +
                         '"tcp-tls://electrumx-2a0.mycelium.com:10001"}'
-                WapiServers='"[{\\\'cert-sha1\':\\\'1A:B4:0D:28:19:AB:F2:24:54:04:71:CD:F2:D0:C8:52:62:FF:34:0C\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
+                WapiServers='"[{\\\'cert-sha1\':\\\'1A:B4:0D:28:19:AB:F2:24:54:04:71:CD:F2:D0:C8:52:62:FF:34:0C\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'},' +
                         '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'}]"'
                 ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
                         '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
