@@ -13,6 +13,7 @@ import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.external.changelly.model.FixRate
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
@@ -32,9 +33,9 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     var currencies = setOf("BTC", "ETH")
     val fromAccount = MutableLiveData<WalletAccount<*>>()
     val exchangeInfo = MutableLiveData<FixRate>()
-    val sellValue = object :MutableLiveData<String>() {
+    val sellValue = object : MutableLiveData<String>() {
         override fun setValue(value: String?) {
-            if(this.value != value) {
+            if (this.value != value) {
                 super.setValue(value)
             }
         }
@@ -46,6 +47,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val keyboardActive = MutableLiveData(false)
     val rateLoading = MutableLiveData(false)
     var changellyTx: String? = null
+    var swapDirection = 0
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
@@ -206,13 +208,13 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     rateLoading.value == true -> false
                     amount == null -> false
                     amount == BigDecimal.ZERO -> false
-                    amount < exchangeInfo.value?.minFrom -> {
+                    exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
                                 exchangeInfo.value?.from?.toUpperCase())
                         false
                     }
-                    amount > exchangeInfo.value?.maxFrom -> {
+                    exchangeInfo.value?.maxFrom != null && amount > exchangeInfo.value?.maxFrom -> {
                         errorTransaction.value = res.getString(R.string.exchange_max_msg,
                                 exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
                                 exchangeInfo.value?.from?.toUpperCase())
@@ -233,24 +235,20 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         }
         val feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
         try {
-            return account.createTx(
-                    account.dummyAddress,
-                    value,
-                    FeePerKbFee(feeEstimation.normal),
-                    null
-            ).apply {
-                minerFee.value =
-                        res.getString(R.string.miner_fee) + " " +
-                        this.totalFee().toStringFriendlyWithUnit() + " " +
-                        mbwManager.exchangeRateManager
-                                .get(this.totalFee(), mbwManager.getFiatCurrency(this.type))
-                                ?.toStringFriendlyWithUnit()?.let { "≈$it" }
-            }
+            return prepateTx(account.dummyAddress, sellValue.value!!)
+                    ?.apply {
+                        minerFee.value =
+                                res.getString(R.string.miner_fee) + " " +
+                                        this.totalFee().toStringFriendlyWithUnit() + " " +
+                                        mbwManager.exchangeRateManager
+                                                .get(this.totalFee(), mbwManager.getFiatCurrency(this.type))
+                                                ?.toStringFriendlyWithUnit()?.let { "≈$it" }
+                    }
         } catch (e: OutputTooSmallException) {
             errorTransaction.value = res.getString(R.string.amount_too_small_short,
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
         } catch (e: InsufficientFundsForFeeException) {
-            if(account is ERC20Account) {
+            if (account is ERC20Account) {
                 val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
                 errorTransaction.value = res.getString(R.string.please_top_up_your_eth_account,
                         account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP
@@ -268,8 +266,45 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         return null
     }
 
-    fun convert(value:Value) =
-        " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
+    fun prepateTx(address: Address, amount: String): Transaction? {
+        val res = getApplication<WalletApplication>().resources
+        val account = fromAccount.value!!
+        val value = account.coinType.value(amount)
+        if (value.equalZero()) {
+            return null
+        }
+        val feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+        try {
+            return account.createTx(
+                    address,
+                    value,
+                    FeePerKbFee(feeEstimation.normal),
+                    null
+            )
+        } catch (e: OutputTooSmallException) {
+            errorTransaction.postValue(res.getString(R.string.amount_too_small_short,
+                    Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit()))
+        } catch (e: InsufficientFundsForFeeException) {
+            if (account is ERC20Account) {
+                val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                errorTransaction.postValue(res.getString(R.string.please_top_up_your_eth_account,
+                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP)
+            } else {
+                errorTransaction.postValue(res.getString(R.string.insufficient_funds_for_fee))
+            }
+        } catch (e: InsufficientFundsException) {
+            errorTransaction.postValue(res.getString(R.string.insufficient_funds))
+        } catch (e: BuildTransactionException) {
+            mbwManager.reportIgnoredException("MinerFeeException", e)
+            errorTransaction.postValue(res.getString(R.string.tx_build_error) + " " + e.message)
+        } catch (e: Exception) {
+            errorTransaction.postValue(res.getString(R.string.tx_build_error) + " " + e.message)
+        }
+        return null
+    }
+
+    fun convert(value: Value) =
+            " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 
 
     fun getToAccountForInit() = Utils.sortAccounts(mbwManager.getWalletManager(false)
@@ -292,5 +327,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         errorTransaction.value = ""
         errorRemote.value = ""
         errorKeyboard.value = ""
+        fromAccount.value = fromAccount.value
+        toAccount.value = toAccount.value
     }
 }

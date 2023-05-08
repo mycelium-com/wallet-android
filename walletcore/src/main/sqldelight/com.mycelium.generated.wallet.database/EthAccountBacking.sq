@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
     gasUsed TEXT AS BigInteger DEFAULT 21000 NOT NULL,
     success INTEGER AS Boolean NOT NULL DEFAULT 1,
     internalValue TEXT AS Value,
+    hasTokenTransfers INTEGER AS Boolean NOT NULL DEFAULT 0,
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
             REFERENCES AccountBacking (txid, uuid)
@@ -23,7 +24,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
 
 selectTransactionSummaries:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue, eb.hasTokenTransfers
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -35,7 +36,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummariesSince:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue, eb.hasTokenTransfers
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -44,7 +45,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
-     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue
+     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success, eb.internalValue, eb.hasTokenTransfers
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -52,7 +53,7 @@ FROM EthAccountBacking AS eb
 
 selectUnconfirmedTransactions:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-           b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
+           b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.hasTokenTransfers
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -60,8 +61,8 @@ FROM EthAccountBacking AS eb
 
 insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit,
-                                         success, internalValue)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                                         success, internalValue, hasTokenTransfers)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 updateGasUsed:
 UPDATE EthAccountBacking
