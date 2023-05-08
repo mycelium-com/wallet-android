@@ -91,12 +91,12 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
 
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
-        val btcFee = fee as FeePerKbFee
-        val btcTransaction =
-            BtcTransaction(coinType, address as BtcAddress, amount, btcFee.feePerKb)
-        val receivers = ArrayList<BtcReceiver>()
-        receivers.add(BtcReceiver(btcTransaction.destination!!.address, btcTransaction.amount!!.valueAsLong))
         return try {
+            val btcFee = fee as FeePerKbFee
+            val btcTransaction =
+                BtcTransaction(coinType, address as BtcAddress, amount, btcFee.feePerKb)
+            val receivers = ArrayList<BtcReceiver>()
+            receivers.add(BtcReceiver(btcTransaction.destination!!.address, btcTransaction.amount!!.valueAsLong))
             btcTransaction.unsignedTx =
                 createUnsignedTransaction(receivers, btcTransaction.feePerKb!!.valueAsLong)
             btcTransaction
@@ -104,7 +104,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
             throw OutputTooSmallException(ex)
         } catch (ex: InsufficientBtcException) {
             throw InsufficientFundsException(ex)
-        } catch (ex: UnableToBuildTransactionException) {
+        } catch (ex: Exception) {
             throw BuildTransactionException(ex)
         }
     }
