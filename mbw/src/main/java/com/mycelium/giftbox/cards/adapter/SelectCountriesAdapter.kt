@@ -3,6 +3,7 @@ package com.mycelium.giftbox.cards.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +13,7 @@ import com.mycelium.wallet.WalletApplication
 import kotlinx.android.synthetic.main.listview_item_with_radiobutton.view.*
 
 val ALL_COUNTRIES = CountryModel(WalletApplication.getInstance().getString(R.string.all_countries), "", "", 0)
+val RUSSIA =  CountryModel(WalletApplication.getInstance().getString(R.string.russia), "", "RUS", 0, null, "Coming soon", false)
 
 class SelectCountriesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder>(DiffCallback()) {
     var selected: CountryModel = ALL_COUNTRIES
@@ -25,8 +27,15 @@ class SelectCountriesAdapter : ListAdapter<CountryModel, RecyclerView.ViewHolder
         holder.itemView.tv_currency_name.text = item.name
         holder.itemView.tv_currency_short.text = item.acronym3
         holder.itemView.checkbox_currency.isChecked = selected == item
-        holder.itemView.setOnClickListener {
-            toggleChecked(getItem(holder.adapterPosition))
+        holder.itemView.description.isVisible = item.description != null
+        holder.itemView.description.text = item.description
+        holder.itemView.checkbox_currency.isEnabled = item.enabled
+        if (item.enabled) {
+            holder.itemView.setOnClickListener {
+                toggleChecked(getItem(holder.adapterPosition))
+            }
+        } else {
+            holder.itemView.setOnClickListener(null)
         }
     }
 
