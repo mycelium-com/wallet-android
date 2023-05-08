@@ -18,8 +18,8 @@ import com.mycelium.giftbox.client.models.CurrencyInfos
 import com.mycelium.giftbox.details.viewmodel.GiftBoxStoreDetailsViewModel
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.setupDescription
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.databinding.FragmentGiftboxStoreDetailsBinding
+import com.mycelium.wallet.external.partner.openLink
 
 class GiftBoxStoreDetailsFragment : Fragment() {
     private var binding: FragmentGiftboxStoreDetailsBinding? = null
@@ -64,7 +64,7 @@ class GiftBoxStoreDetailsFragment : Fragment() {
             }
         }
         binding?.layoutDescription?.terms?.setOnClickListener {
-            Utils.openWebsite(requireContext(), viewModel.productInfo.value?.termsAndConditionsPdfUrl)
+            openLink(viewModel.productInfo.value?.termsAndConditionsPdfUrl)
         }
         viewModel.description.observe(viewLifecycleOwner) {
             binding?.layoutDescription?.tvDescription?.setupDescription(it,
