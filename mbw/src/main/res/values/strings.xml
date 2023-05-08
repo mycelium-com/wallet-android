@@ -1770,6 +1770,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_accept_dialog_title">Exchange</string>
     <string name="exchange_accept_dialog_msg">You send: %s %s\nMiners fee: %s\n\nYou get: %s %s</string>
     <string name="sent">Sent</string>
+    <string name="received">Received</string>
+    <string name="unredeemed">Unredeem card</string>
     <string name="changelly_receiving">Receiving</string>
     <string name="changelly_received">Received</string>
     <string name="changelly_error_rate_expired">Exchange rate is outdated, please try again.</string>
@@ -1790,8 +1792,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelog_button_show_more">Learn more about latest updates</string>
     <string name="changelog_button_close">OPEN MYCELIUM WALLET</string>
     <string name="changelog_version_placeholder">Version: %s</string>
+
     <string name="update_acvailable">Update available</string>
     <string name="current_version_s">Current version: %s</string>
     <string name="update_to_new_features">Update Mycelium to get new features and improved functionality.</string>
     <string name="new_version_s">New version: %s</string>
+
+    <string name="send_fee_hint"><b>ATTENTION.</b> Transactions with low priority miner fee may never be confirmed or confirmed in many hours or even days. Don\'t choose low priority if you don\'t understand how bitcoin network works.</string>
+    <string name="hours_or_more">%s or more</string>
+    <string name="russia">Russia</string>
 </resources>
