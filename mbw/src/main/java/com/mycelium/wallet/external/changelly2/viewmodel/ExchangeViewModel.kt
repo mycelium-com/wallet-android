@@ -296,9 +296,10 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit()))
         } catch (e: InsufficientFundsForFeeException) {
             if (account is ERC20Account) {
-                val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                val parentAccountBalance = account.ethAcc.accountBalance.spendable
+                val topUpForFee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger()) - parentAccountBalance
                 errorTransaction.postValue(res.getString(R.string.please_top_up_your_eth_account,
-                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP)
+                        account.ethAcc.label, topUpForFee.toStringFriendlyWithUnit(), convert(topUpForFee)) + TAG_ETH_TOP_UP)
             } else {
                 errorTransaction.postValue(res.getString(R.string.insufficient_funds_for_fee))
             }

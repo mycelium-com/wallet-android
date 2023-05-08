@@ -73,6 +73,7 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
+import com.mycelium.wallet.external.partner.PartnerExtKt;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -106,9 +107,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class AddAdvancedAccountActivity extends AppCompatActivity implements ImportCoCoHDAccount.FinishListener {
-   public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
-   public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
-   public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
    public static final int RESULT_MSG = 25;
 
    public static void callMe(Activity activity, int requestCode) {
@@ -153,15 +151,10 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
       findViewById(R.id.btTrezor).setOnClickListener(view -> TrezorAccountImportActivity.callMe(activity, TREZOR_RESULT_CODE));
 
-      findViewById(R.id.btBuyTrezor).setOnClickListener(view -> Utils.openWebsite(activity, BUY_TREZOR_LINK));
-
       findViewById(R.id.btKeepKey).setOnClickListener(view -> KeepKeyAccountImportActivity.callMe(activity, KEEPKEY_RESULT_CODE));
-
-      findViewById(R.id.btBuyKeepKey).setOnClickListener(view -> Utils.openWebsite(activity, BUY_KEEPKEY_LINK));
 
       findViewById(R.id.btLedger).setOnClickListener(view -> LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE));
 
-      findViewById(R.id.btBuyLedger).setOnClickListener(view -> Utils.openWebsite(activity, BUY_LEDGER_LINK));
       btGenerateNewBchSingleKey.setVisibility(View.GONE);
 
       btCreateFioLegacyAccount.setOnClickListener(view -> {
