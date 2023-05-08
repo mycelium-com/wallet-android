@@ -151,8 +151,18 @@ class Tx {
     val tokenTransfers: List<TokenTransfer> = emptyList()
 
     fun getTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? =
-            tokenTransfers.find { it.token.equals(contractAddress, true) &&
+            tokenTransfers.filter { it.token().equals(contractAddress, true) &&
                     (it.to.equals(ownerAddress, true) || it.from.equals(ownerAddress, true))
+            }.let { list ->
+                if (list.isNotEmpty()) {
+                    var sum = BigInteger.ZERO
+                    list.forEach { sum = sum.plus(it.value) }
+                    list.first().let {
+                        TokenTransfer(it.from, it.to, it.contract, it.token, it.name, sum)
+                    }
+                } else {
+                    null
+                }
             }
 
     override fun toString(): String {
@@ -167,14 +177,18 @@ private class Vin {
     val addresses: List<String>? = emptyList()
 }
 
-class TokenTransfer {
-    val from: String = ""
-    val to: String = ""
-    val token: String = ""
-    val name: String = ""
+class TokenTransfer(
+    val from: String = "",
+    val to: String = "",
+    val contract: String = "",
+    val token: String = "",
+    val name: String = "",
     val value: BigInteger = BigInteger.ZERO
+) {
 
-    override fun toString() = "{'from':$from,'to':$to,'token':$token,'name':$name,'value':$value}"
+    fun token() = contract.ifEmpty { token }
+
+    override fun toString() = "{'from':$from,'to':$to,'token':${token()},'name':$name,'value':$value}"
 }
 
 private class EthereumSpecific {

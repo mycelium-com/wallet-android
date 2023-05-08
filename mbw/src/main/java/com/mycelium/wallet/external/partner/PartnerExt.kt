@@ -32,7 +32,7 @@ private fun startContentLink(link: String?, startAction: (Intent) -> Unit) {
             } else {
                 startAction(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
             }
-        } catch (ignored: ActivityNotFoundException) {
+        } catch (ignored: Exception) {
         }
     }
 }
@@ -40,7 +40,7 @@ private fun startContentLink(link: String?, startAction: (Intent) -> Unit) {
 fun Fragment.openLink(link: String?) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
-    } catch (e: ActivityNotFoundException) {
+    } catch (e: Exception) {
         Toaster(this).toast("Can't open ${link}", true)
     }
 }
@@ -48,7 +48,7 @@ fun Fragment.openLink(link: String?) {
 fun Context.openLink(link: String?) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
-    } catch (e: ActivityNotFoundException) {
+    } catch (e: Exception) {
         Toaster(this).toast("Can't open ${link}", true)
     }
 }

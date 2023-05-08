@@ -36,6 +36,8 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
 
 abstract class SendCoinsModel(
         val context: Context,
@@ -492,7 +494,7 @@ abstract class SendCoinsModel(
             return TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE
         } catch (ex: InsufficientFundsException) {
             return TransactionStatus.INSUFFICIENT_FUNDS
-        } catch (ex: IOException) {
+        } catch (ex: Exception) {
             return TransactionStatus.BUILD_ERROR
         }
     }
@@ -506,6 +508,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getFeeItemList(): List<FeeItem> {
+        Logger.getLogger(SendCoinsModel::class.java.simpleName).log(Level.INFO,"Estimation send coin economy = ${feeEstimation?.economy?.toStringWithUnit()} normal = ${feeEstimation?.normal?.toStringWithUnit()}")
         return feeItemsBuilder.getFeeItemList(account.basedOnCoinType,
                 feeEstimation, feeLvl.value, estimateTxSize())
     }

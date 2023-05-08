@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.mycelium.giftbox.GiftboxPreference
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -34,6 +35,9 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.getActiveEthAccounts
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 
@@ -97,14 +101,15 @@ class SelectAccountFragment : DialogFragment() {
     }
 
     private fun setAccount(accountId: UUID) {
-        val account = viewModel.mbwManager.getWalletManager(false).getAccount(accountId)
-        if (arguments?.getString(KEY_TYPE) == VALUE_SELL) {
-            viewModel.fromAccount.value = account
-            viewModel.sellValue.value = ""
-        } else {
-            viewModel.toAccount.value = account
+        val keyType = arguments?.getString(KEY_TYPE)
+        lifecycleScope.launch {
+            val account = viewModel.mbwManager.getWalletManager(false).getAccount(accountId)
+            if (keyType == VALUE_SELL) {
+                viewModel.fromAccount.postValue(account)
+                viewModel.sellValue.postValue("")
+            } else { viewModel.toAccount.postValue(account) }
+            withContext(Dispatchers.Main.immediate) { dismissAllowingStateLoss() }
         }
-        dismissAllowingStateLoss()
     }
 
     override fun onStart() {
