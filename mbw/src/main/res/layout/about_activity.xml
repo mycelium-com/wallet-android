@@ -236,27 +236,13 @@
             android:id="@+id/bt_license_pdfwriter"
             android:layout_marginBottom="@dimen/buttonspacing" />
 
-        <Button
-            android:layout_width="@dimen/about_buttonsize"
+        <!-- should be removed after few app iteration update-->
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/boost_look_ahead_button_label"
-            android:id="@+id/bt_boost_look_ahead"
-            android:layout_marginBottom="@dimen/buttonspacing" />
-
-        <Button
-            android:layout_width="@dimen/about_buttonsize"
-            android:layout_height="wrap_content"
-            android:text="@string/connection_logs"
-            android:id="@+id/bt_show_server_info"
-            android:layout_marginBottom="@dimen/buttonspacing" />
-
-        <Button
-            android:id="@+id/bt_fio_server_error_logs"
-            android:layout_width="@dimen/about_buttonsize"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/buttonspacing"
-            android:text="@string/fio_server_error_logs"
-            android:visibility="gone" />
-
+            android:layout_margin="@dimen/horizontal_page_margin"
+            android:text="'Logs' and 'Missing Transactions' moved to Settings > Help"
+            android:textColor="@color/lightgrey"
+            android:textSize="12sp" />
     </LinearLayout>
 </ScrollView>
