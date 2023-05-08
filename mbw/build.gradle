@@ -84,7 +84,7 @@ dependencies {
     //not upgrading. This will be replaced with firebase
     implementation "com.google.android.gms:play-services-base:10.2.1"
     implementation "com.google.android.gms:play-services-gcm:10.2.1"
-    implementation "com.google.firebase:firebase-messaging:17.3.4"
+    implementation "com.google.firebase:firebase-messaging:23.1.1"
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "com.squareup:otto:$ottoVersion"
 
@@ -94,14 +94,13 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.1"
-    implementation "androidx.work:work-runtime:$workManagerVersion"
+    implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     implementation "androidx.viewpager2:viewpager2:1.1.0-beta01"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
-    implementation "de.cketti.library.changelog:ckchangelog:1.2.2"
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
     implementation "com.jakewharton:butterknife:10.1.0"
     kapt "com.jakewharton:butterknife-compiler:10.1.0"
@@ -219,8 +218,9 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3160008
-        versionName '3.16.0.8'
+        versionCode 3160100
+        versionName '3.16.1.0'
+
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion

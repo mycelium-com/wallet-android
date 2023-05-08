@@ -4,20 +4,22 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
-
-class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
-    : Worker(context, workerParams) {
-    override fun doWork(): Result {
+class MediaFlowSyncWorker(private val context: Context, workerParams: WorkerParameters)
+    : CoroutineWorker(context, workerParams) {
+    override suspend fun doWork(): Result  = withContext(Dispatchers.IO) {
         if (!SettingsPreference.mediaFlowEnabled) {
-            return Result.success()
+            return@withContext Result.success()
         }
         val preference = context.getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null)
@@ -57,7 +59,7 @@ class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
                     .apply()
             LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_DONE_ACTION))
         }
-        return if (failed) Result.failure() else Result.success()
+        return@withContext if (failed) Result.failure() else Result.success()
     }
 
     private fun loadTopics(after: String?, failed: () -> Unit): Map<News, NewsDatabase.SqlState>? {

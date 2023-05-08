@@ -23,6 +23,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.TransactionSummary;
+import com.mycelium.wapi.wallet.TransactionSummaryKt;
 import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -133,8 +134,9 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
       String value = transactionFiatValuePref.getString(record.getIdHex(), null);
-      tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
-      if(value != null) {
+      boolean showFiatTimed = value != null && !TransactionSummaryKt.isMinerFeeTx(record, _mbwManager.getSelectedAccount());
+      tvFiatTimed.setVisibility(showFiatTimed ? View.VISIBLE : View.GONE);
+      if (value != null) {
          tvFiatTimed.setText(value);
       }
 
@@ -193,7 +195,11 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
             confirmationsText = _context.getResources().getString(R.string.confirmations, confirmations);
          }
       }
-      tvLabel.setText(confirmationsText + (label.isEmpty() ? "" : " / " + label));
+      String minerFeeLabel = "";
+      if (TransactionSummaryKt.isMinerFeeTx(record, _mbwManager.getSelectedAccount())) {
+         minerFeeLabel = " / " + _context.getString(R.string.history_row_miner_fee_label);
+      }
+      tvLabel.setText(confirmationsText + minerFeeLabel + (label.isEmpty() ? "" : " / " + label));
 
       // Show risky unconfirmed warning if necessary
       TextView tvWarnings = rowView.findViewById(R.id.tvUnconfirmedWarning);
