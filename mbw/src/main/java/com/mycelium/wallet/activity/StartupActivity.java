@@ -308,10 +308,12 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       delayedFinish.run();
    }
 
-   private Runnable delayedFinish = new Runnable() {
+   private final Runnable delayedFinish = new Runnable() {
       @Override
       public void run() {
-         if (_mbwManager.isUnlockPinRequired()) {
+         final MbwManager manager = _mbwManager;
+         final boolean isUnlockPinRequired = manager != null && manager.isUnlockPinRequired();
+         if (isUnlockPinRequired) {
 
             // set a click handler to the background, so that
             // if the PIN-Pad closes, you can reopen it by touching the background
