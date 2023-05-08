@@ -51,7 +51,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/my_paths" />
         </provider> <!-- Service for Cloud Messaging -->
-        <service android:name=".lt.notification.FcmListenerService">
+        <service android:name=".lt.notification.FcmListenerService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -63,6 +64,7 @@
         <activity
             android:name=".activity.StartupActivity"
             android:label="@string/app_short_name"
+            android:exported="true"
             android:theme="@style/MyceliumLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -208,14 +210,17 @@
             android:name=".external.changelly.ChangellyActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".external.changelly.ChangellyOfferActivity" />
-        <activity android:name=".lt.activity.LtMainActivity" />
+        <activity
+            android:name=".lt.activity.LtMainActivity"
+            android:launchMode="singleInstance" />
         <activity android:name=".lt.activity.CreateTrader1Activity" />
         <activity android:name=".lt.activity.CreateTrader2Activity" />
         <activity android:name=".lt.activity.CreateTrader3Activity" />
         <activity android:name=".lt.activity.SolveCaptchaActivity" />
         <activity
             android:name=".lt.activity.TradeActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
+            android:windowSoftInputMode="stateHidden|adjustPan"
+            android:launchMode="singleInstance" />
         <activity android:name=".lt.activity.ChangeLocationActivity" />
         <activity
             android:name=".lt.activity.EnterLocationActivity"
@@ -325,6 +330,7 @@
         <activity
             android:name="com.mycelium.bequant.sign.SignActivity"
             android:launchMode="singleInstance"
+            android:exported="true"
             android:theme="@style/BequantSign">
             <intent-filter
                 android:autoVerify="true"
@@ -356,6 +362,7 @@
         <activity
             android:name="com.mycelium.bequant.signup.TwoFactorActivity"
             android:launchMode="singleInstance"
+            android:exported="true"
             android:theme="@style/BequantSign">
             <intent-filter android:label="deeplink_to_totp_confirm">
                 <action android:name="android.intent.action.VIEW" />
@@ -369,7 +376,8 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity">
+        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity"
+            android:exported="true">
             <intent-filter android:label="GiftBox">
                 <action android:name="action.GIFTBOX" />
                 <category android:name="android.intent.category.DEFAULT" />
