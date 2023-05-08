@@ -36,7 +36,11 @@ final class AccountCreatorHelper {
             if (context == null) {
                 return null;
             }
-            return MbwManager.getInstance(context).createAdditionalBip44AccountsUninterruptedly(accounts).get(0);
+            final List<UUID> uuids = MbwManager.getInstance(context)
+                    .createAdditionalBip44AccountsUninterruptedly(accounts);
+            if (uuids.isEmpty())
+                return null;
+            return uuids.get(0);
         }
 
         @Override

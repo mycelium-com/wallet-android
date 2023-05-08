@@ -77,7 +77,7 @@ class AddressFragment : Fragment() {
         if (drawableForAccount != null) {
             ivAccountType.setImageDrawable(drawableForAccount)
         }
-        viewModel.getAccountAddress().observe(this, Observer { newAddress ->
+        viewModel.getAccountAddress().observe(viewLifecycleOwner, Observer { newAddress ->
             if (newAddress != null) {
                 ivQR.qrCode = viewModel.getAddressString()
             }

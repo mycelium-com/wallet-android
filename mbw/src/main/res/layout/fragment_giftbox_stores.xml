@@ -46,7 +46,6 @@
                 android:paddingEnd="12dp"
                 android:paddingBottom="12dp"
                 android:singleLine="true"
-                android:text="@={viewModel.search}"
                 android:textColor="#FFFFFD"
                 android:textSize="16sp"
                 app:drawableStartCompat="@drawable/ic_search" />
@@ -87,7 +86,7 @@
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:text="@string/gift_cards_with_discount"
             android:textColor="@color/fio_white_alpha_0_6"
-            android:textSize="12sp"
+            android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tags"
             app:layout_goneMarginTop="16dp" />
@@ -100,7 +99,7 @@
             android:drawablePadding="6dp"
             android:text="@{activityViewModel.currentCountries()}"
             android:textColor="#60B687"
-            android:textSize="12sp"
+            android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_glyph"
             app:layout_constraintBaseline_toBaselineOf="@id/giftCardLabel"
             app:layout_constraintRight_toRightOf="parent" />

@@ -165,7 +165,7 @@ class ReceiveCoinsModel(
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
         val mBuilder = NotificationCompat.Builder(context, "coins received channel")
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setSound(soundUri, AudioManager.STREAM_NOTIFICATION) //This sets the sound to play
         notificationManager!!.notify(0, mBuilder.build())
         lastAddressBalance = sum
