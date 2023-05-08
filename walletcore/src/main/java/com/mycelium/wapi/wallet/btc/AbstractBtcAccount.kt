@@ -59,7 +59,6 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
-import java.lang.IllegalStateException
 import java.lang.RuntimeException
 import java.nio.ByteBuffer
 import java.text.ParseException
@@ -67,6 +66,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.IllegalStateException
 
 abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacking, protected val _network: NetworkParameters, wapi: Wapi) :
     SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider {
@@ -1052,6 +1052,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         } catch (e: InsufficientBtcException) {
             zeroValue(coinType)
         } catch (e: UnableToBuildTransactionException) {
+            zeroValue(coinType)
+        } catch (e: IllegalStateException) {
             zeroValue(coinType)
         }
     }
