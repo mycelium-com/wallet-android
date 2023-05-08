@@ -971,5 +971,6 @@
     <string name="connection_issues"><b>Проблемы с соединением.</b> Убедитесь, что вы онлайн.</string>
     <string name="changelly2_policy_text">Сервис предоставляется сторонним поставщиком API. Нажимая на кнопку Exchange, вы принимаете <font color="#4583de">Условия использования</font>.</string>
     <string name="course_outdated">курс устарел</string>
+    <string name="unredeemed">Восстановить</string>
     <string name="changelly_error_rate_expired">Обменный курс устарел, пожалуйста, повторите попытку.</string>
 </resources>

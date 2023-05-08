@@ -51,7 +51,7 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                 Glide.with(holder.itemView.image)
                         .load(item.productImg)
                         .apply(RequestOptions()
-                                .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner))))
+                                .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner)), ))
                         .into(holder.itemView.image)
                 holder.itemView.setOnClickListener {
                     itemClickListener?.invoke((getItem(holder.adapterPosition) as CardItem).card)

@@ -88,12 +88,13 @@ class StoresFragment : Fragment() {
             override fun isLoading() = viewModel.state.value == ListState.LOADING
         })
         binding?.searchInput?.doOnTextChanged { _, _, _, _ ->
+            viewModel.search.value = binding?.searchInput?.text?.toString()
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                 loadData()
             }
         }
         binding?.searchClose?.setOnClickListener {
-            viewModel.search.value = null
+            binding?.searchInput?.text = null
             hideKeyboard()
         }
         if (viewModel.products.isEmpty() || activityViewModel.reloadStore) {
