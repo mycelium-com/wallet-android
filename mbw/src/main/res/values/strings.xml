@@ -217,7 +217,7 @@
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
-    <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_rejected_malformed">Transaction signing failed.\n Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request. \n %s</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="checking_fio_address">Checking FIO Name…</string>
@@ -1754,7 +1754,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="connection_issues"><b>Connection issues.</b> Please make sure you\'re online.</string>
     <string name="course_outdated">course is outdated</string>
     <string name="network_s">%s Network</string>
-    <string name="changelly2_policy_text">Exchange service is available through third-party API provider.</string>
+    <string name="changelly2_policy_text">Service is available through third-party API provider. By clicking Exchange you accept the <font color="#4583de">Terms of Use</font>.</string>
     <string name="changelly2_select_from">Select account:</string>
     <string name="changelly2_select_to">Select account to receive funds:</string>
     <string name="exchange_history">Exchange History</string>
@@ -1770,6 +1770,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_accept_dialog_title">Exchange</string>
     <string name="exchange_accept_dialog_msg">You send: %s %s\nMiners fee: %s\n\nYou get: %s %s</string>
     <string name="sent">Sent</string>
+    <string name="received">Received</string>
+    <string name="unredeemed">Unredeem card</string>
     <string name="changelly_receiving">Receiving</string>
     <string name="changelly_received">Received</string>
     <string name="changelly_error_rate_expired">Exchange rate is outdated, please try again.</string>
@@ -1790,4 +1792,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelog_button_show_more">Learn more about latest updates</string>
     <string name="changelog_button_close">OPEN MYCELIUM WALLET</string>
     <string name="changelog_version_placeholder">Version: %s</string>
+
+    <string name="update_acvailable">Update available</string>
+    <string name="current_version_s">Current version: %s</string>
+    <string name="update_to_new_features">Update Mycelium to get new features and improved functionality.</string>
+    <string name="new_version_s">New version: %s</string>
+
+    <string name="send_fee_hint"><b>ATTENTION.</b> Transactions with low priority miner fee may never be confirmed or confirmed in many hours or even days. Don\'t choose low priority if you don\'t understand how bitcoin network works.</string>
+    <string name="hours_or_more">%s or more</string>
+    <string name="russia">Russia</string>
 </resources>

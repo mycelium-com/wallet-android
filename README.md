@@ -38,7 +38,7 @@ Windows type:
 Alternatively you can install the latest version from the [Play Store](https://play.google.com/store/apps/details?id=com.mycelium.wallet).
 
 If you cannot access the Play store, you can obtain the apk directly from the Mycelium Bitcoin
-Wallet [download page](https://wallet.mycelium.com/contact.html).
+Wallet [download page](https://wallet.mycelium.com/).
 
 App Download Verification
 -------------------------
@@ -75,39 +75,36 @@ Deterministic builds
 ====================
 
 To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium
-wallet yourself using Docker and compare both images following these steps:
+wallet yourself using [Podman](https://podman.io/getting-started/) and compare both images following these steps:
 
 * Get the source as above
-* Create your own Docker image from our simple Dockerfile
+* Create your own builder image from our simple Dockerfile
 
-        $ docker build . --tag mycelium-wallet
+      $ podman build --no-cache --tag mycelium_builder .
 
-  Check that this step succeeds by listing the available docker images:
+* Build using disorderfs to eliminate non-determinism caused by file ordering
 
-        $ docker images | grep mycelium-wallet
+      $ podman run --rm --interactive --tty \
+          --device /dev/fuse \
+          --cap-add SYS_ADMIN \
+          --volume .:/app \
+          mycelium_builder \
+          bash -c "apt update;
+          apt install -y disorderfs;
+          mkdir /project/
+          disorderfs --sort-dirents=yes --reverse-dirents=no /app/ /project/;
+          cd /project/
+          ./gradlew -x lint -x test clean :mbw:assembleProdnetRelease;"
 
-* Use disorderfs to eliminate non-determinism caused by file ordering
+  If you see errors about local paths not being found, remove/move away `local.properties`.
 
-        $ mkdir /tmp/s
-        $ sudo disorderfs --sort-dirents=yes --reverse-dirents=no --multi-user=yes $PWD /tmp/s
-        $ cd /tmp/s
-
-* Build Mycelium using Docker
-
-        $ docker run --rm --volume $(pwd):/project --workdir /project -it mycelium-wallet bash
-        # yes | /opt/android-sdk/tools/bin/sdkmanager "build-tools;28.0.3"
-        # ./gradlew clean :mbw:assProdRel
-            
-  If you see errors about local paths not being found, remove/move away `local.properties`. Run the
-  mycelium-wallet docker with gradle compilation of mbw.
-  As docker
-  might run as a different user, its generated files will also be "not yours". Make them yours using
-  `chown` as super user.
+  As container might run as a different user, its generated files will also be "not yours".
+  Make them yours using `chown` as super user.
   
   The app can now be found in `mbw/build/outputs/apk/prodnet/release/mbw-prodnet-release.apk`.
   
   As maintainer with release keys you want to run a slightly different command:
-  Add these docker parameters: `--volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest`
+  Add these parameters: `--volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest`
   Build all these targets `:mbw:assBtctRel :mbw:assProdRel :mbw:assBtctDeb :mbw:assProdDeb`
   and to get an error on missing release keys, add this gradle option `-PenforceReleaseSigning`
   

@@ -43,10 +43,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBar.Tab;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,8 +56,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.AddressType;
@@ -172,6 +177,14 @@ public class LtMainActivity extends AppCompatActivity {
       if (savedInstanceState != null) {
          _hasWelcomed = savedInstanceState.getBoolean("hasWelcomed", false);
       }
+      FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+         @Override
+         public void onComplete(@NonNull Task<String> task) {
+            if (task.isSuccessful()) {
+               _ltManager.storeGcmRegistrationId(task.getResult());
+            }
+         }
+      });
    }
 
    @Override
