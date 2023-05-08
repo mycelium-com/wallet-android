@@ -494,7 +494,7 @@ abstract class SendCoinsModel(
             return TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE
         } catch (ex: InsufficientFundsException) {
             return TransactionStatus.INSUFFICIENT_FUNDS
-        } catch (ex: IOException) {
+        } catch (ex: Exception) {
             return TransactionStatus.BUILD_ERROR
         }
     }
