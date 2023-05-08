@@ -40,19 +40,23 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.widget.TextView;
+
+import androidx.fragment.app.FragmentActivity;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.mycelium.wallet.activity.UpdateNotificationActivity;
+import com.mycelium.wallet.activity.update.UpdateNotificationBottomSheetDialogFragment;
 import com.mycelium.wallet.api.AbstractCallbackHandler;
 import com.mycelium.wallet.api.AsynchronousApi;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
@@ -98,10 +102,14 @@ public class VersionManager {
       backgroundHandler = new Handler(context.getMainLooper());
    }
 
-   public void showVersionDialog(final VersionInfoExResponse response, final Context activity) {
-      Intent intent = new Intent(activity, UpdateNotificationActivity.class);
-      intent.putExtra(UpdateNotificationActivity.RESPONSE,response);
-      activity.startActivity(intent);
+   public void showVersionDialog(final VersionInfoExResponse response, final FragmentActivity activity) {
+      if (activity.getSupportFragmentManager().findFragmentByTag("update_notification") == null) {
+         UpdateNotificationBottomSheetDialogFragment dialog = new UpdateNotificationBottomSheetDialogFragment();
+         Bundle bundle = new Bundle();
+         bundle.putSerializable(UpdateNotificationActivity.RESPONSE, response);
+         dialog.setArguments(bundle);
+         dialog.show(activity.getSupportFragmentManager(), "update_notification");
+      }
    }
 
    public void initBackgroundVersionChecker() {
@@ -326,7 +334,7 @@ public class VersionManager {
       return preferences.edit();
    }
 
-   public void showIfRelevant(VersionInfoExResponse response, Context modernMain) {
+   public void showIfRelevant(VersionInfoExResponse response, FragmentActivity modernMain) {
       if (isIgnored(response.versionNumber)) {
          return;
       }

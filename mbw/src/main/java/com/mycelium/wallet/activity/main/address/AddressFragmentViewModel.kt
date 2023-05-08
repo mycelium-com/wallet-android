@@ -44,7 +44,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         Toaster(context).toast(R.string.copied_to_clipboard, true)
     }
 
-    fun getAddressString(): String = getAccountAddress().value!!.toString()
+    fun getAddressString(): String? = getAccountAddress().value?.toString()
 
     fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString() == "")
 
