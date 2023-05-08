@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -25,6 +26,7 @@ import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 
@@ -52,7 +54,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
             if (value?.coinType == it.coinType) {
-                value = getToAccountForInit()
+                viewModelScope.launch { postValue(getToAccountForInit()) }
             }
         }
     }
