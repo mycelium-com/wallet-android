@@ -50,6 +50,7 @@ import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
@@ -115,8 +116,15 @@ class ExchangeFragment : Fragment(), BackListener {
                 visibility = View.VISIBLE
 
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val feeEstimation = viewModel.mbwManager.getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
-                    val maxSpendable = viewModel.fromAccount.value?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)
+                    val feeEstimation = viewModel.mbwManager
+                        .getFeeProvider(viewModel.fromAccount.value!!.basedOnCoinType).estimation
+                    val maxSpendable = try {
+                        viewModel.fromAccount.value
+                            ?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)
+                    } catch (ignored: Exception) {
+                        null
+                    }
+
                     withContext(Dispatchers.Main) {
                         spendableValue = maxSpendable?.valueAsBigDecimal
                     }
