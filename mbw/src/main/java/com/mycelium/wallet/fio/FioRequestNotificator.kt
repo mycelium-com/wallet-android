@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
@@ -87,7 +88,8 @@ object FioRequestNotificator {
                                 .setCustomContentView(smallView)
                                 .setCustomBigContentView(bigView)
                                 .setContentIntent(PendingIntent.getService(context, 0,
-                                        createSingleFIORequestIntent(context, it), PendingIntent.FLAG_UPDATE_CURRENT))
+                                        createSingleFIORequestIntent(context, it),
+                                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
                                 .setGroup(fioRequestNotificationGroup)
                                 .build())
                 preferences.edit().putBoolean(it.fioRequestId.toString(), true).apply()
@@ -114,7 +116,8 @@ object FioRequestNotificator {
 
     private fun createNotification(context: Context): NotificationCompat.Builder =
             NotificationCompat.Builder(context.applicationContext, chanelId)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_notification_icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_notification_icon))
                     .setAutoCancel(true)
                     .setSubText("FIO Request")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)

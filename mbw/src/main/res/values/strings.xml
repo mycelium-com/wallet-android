@@ -217,7 +217,7 @@
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
-    <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_rejected_malformed">Transaction signing failed.\n Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request. \n %s</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="checking_fio_address">Checking FIO Name…</string>
@@ -1658,7 +1658,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="trusted_providers">Trusted providers</string>
     <string name="buy_crypto_safely">Buy and sell %s safely and easily using your debit/credit card.</string>
     <string name="buy_sell_s_button">BUY / SELL %s</string>
-    <string name="boost_look_ahead_button_label">Missing Transactions?</string>
+    <string name="boost_look_ahead_button_label">Missing Transactions</string>
     <string name="btcv_hd_accounts_name">Bitcoin Vault HD</string>
     <string name="gift_card_amount">Gift card amount:</string>
     <string name="gift_cards_with_discount">Gift cards</string>
@@ -1754,7 +1754,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="connection_issues"><b>Connection issues.</b> Please make sure you\'re online.</string>
     <string name="course_outdated">course is outdated</string>
     <string name="network_s">%s Network</string>
-    <string name="changelly2_policy_text">Exchange service is available through third-party API provider.</string>
+    <string name="changelly2_policy_text">Service is available through third-party API provider. By clicking Exchange you accept the <font color="#4583de">Terms of Use</font>.</string>
     <string name="changelly2_select_from">Select account:</string>
     <string name="changelly2_select_to">Select account to receive funds:</string>
     <string name="exchange_history">Exchange History</string>
@@ -1770,9 +1770,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_accept_dialog_title">Exchange</string>
     <string name="exchange_accept_dialog_msg">You send: %s %s\nMiners fee: %s\n\nYou get: %s %s</string>
     <string name="sent">Sent</string>
+    <string name="received">Received</string>
+    <string name="unredeemed">Unredeem card</string>
     <string name="changelly_receiving">Receiving</string>
     <string name="changelly_received">Received</string>
     <string name="changelly_error_rate_expired">Exchange rate is outdated, please try again.</string>
+    <string name="contact_support_team">Contact Support</string>
+    <string name="share_logs">Share Logs</string>
+    <string name="support_team">Contact Support</string>
+    <string name="support_team_text">Please describe the issue and the steps to reproduce it. To get a complete picture of the problem, please attach the logs.</string>
     <string name="link_to_track_transaction">Exchange status</string>
     <string name="exchange_in_progress">Exchange in progress</string>
     <plurals name="d_countries">
@@ -1784,10 +1790,49 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         <item quantity="one">%d card</item>
         <item quantity="other">%d cards</item>
     </plurals>
-
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[The most common cases of missing coins are easily
+                        resolved. Please read carefully before contacting support:<br><br>
+                        <h4>No server connection</h4>
+                        When the wallet can\'t talk to the servers, it can\'t correctly display your
+                        balance and might even display 0BTC if you tried to reload the account.
+                        <b>Don\'t panic.</b> Check your internet connection or if our servers have
+                        issues, our engineers are probably already hard at work fixing the issue.
+                        In any case, as long as you don\'t see a transaction where your funds left
+                        your wallet, your funds should still be in your wallet, protected by your
+                        12 words backup that in the worst case works with most other Bitcoin
+                        wallets. Do not try deleting and reinstalling the app unless you are 100%
+                        sure you have all the backups.
+                        <h4>Restored wallet with "12 words + passphrase" using the PIN as passphrase</h4>
+                        Adding
+                        the wrong passphrase doesn\'t result in an error but in restoring
+                        of a different, empty wallet. <b>Try restoring your wallet with only "12
+                        words".</b>
+                        <h4>Coins are in "Account 2"</h4>
+                        If you restored from a backup of a wallet that had more than just "Account
+                        1", you have to manually recreate missing accounts to re-discover them. To
+                        do so, just <b>go to the
+                        "Accounts" tab and create a "new" account</b>.
+                        <h4> Coins are beyond the standard "look-ahead" or "gap limit":</h4>
+                        If you used third party tools to receive coins into your wallet such as
+                        BTC-Pay Server, the wallet checking only 20 future addresses beyond
+                        your last unused address might not find those transactions. <b>Press
+                        "Boost Gap Limit"</b> below to check if this is the case. This will check
+                        for 200 addresses on all active accounts once.?]]></string>
+    <string name="boost_gap_limit">Boost Gap Limit</string>
+    <string name="help_share_logs_text">We get your logs only if you share them with us. Logs do not contain personal information.</string>
+    <string name="missing_tx_text">Most common cases of missing coins and how it can be resolved.</string>
     <string name="changelog_title">What\'s new in Mycelium</string>
     <string name="changelog_button_show_less">Show less</string>
     <string name="changelog_button_show_more">Learn more about latest updates</string>
     <string name="changelog_button_close">OPEN MYCELIUM WALLET</string>
     <string name="changelog_version_placeholder">Version: %s</string>
+
+    <string name="update_acvailable">Update available</string>
+    <string name="current_version_s">Current version: %s</string>
+    <string name="update_to_new_features">Update Mycelium to get new features and improved functionality.</string>
+    <string name="new_version_s">New version: %s</string>
+
+    <string name="send_fee_hint"><b>ATTENTION.</b> Transactions with low priority miner fee may never be confirmed or confirmed in many hours or even days. Don\'t choose low priority if you don\'t understand how bitcoin network works.</string>
+    <string name="hours_or_more">%s or more</string>
+    <string name="russia">Russia</string>
 </resources>

@@ -46,7 +46,6 @@
                 android:paddingEnd="12dp"
                 android:paddingBottom="12dp"
                 android:singleLine="true"
-                android:text="@={viewModel.search}"
                 android:textColor="#FFFFFD"
                 android:textSize="16sp"
                 app:drawableStartCompat="@drawable/ic_search" />
