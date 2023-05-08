@@ -314,8 +314,7 @@ android {
                         '"tcp-tls://electrumx-1a2.mycelium.com:50002",' +
                         '"tcp-tls://electrumx-2a0.mycelium.com:10000",' +
                         '"tcp-tls://electrumx-2a0.mycelium.com:10001"}'
-                WapiServers='"[{\\\'cert-sha1\':\\\'1A:B4:0D:28:19:AB:F2:24:54:04:71:CD:F2:D0:C8:52:62:FF:34:0C\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'},' +
-                        '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'}]"'
+                WapiServers='"[{\\\'cert-sha1\':\\\'17:62:9D:04:0D:4E:1E:A2:9A:BD:FF:9F:38:1B:18:8F:94:3E:8B:5F\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'}]"'
                 ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
                         '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
                 EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
@@ -379,8 +378,7 @@ android {
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
                 ElectrumServers = '{"tcp-tls://wallet-testnet.mycelium.com:19335"}'
-                WapiServers='"[{\\\'cert-sha1\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'},' +
-                        '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
+                WapiServers='"[{\\\'cert-sha1\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}]"'
                 EthBlockBook = '{"https://bb-eth.mycelium.com:19126"}'
                 ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.btcv.stage.rnd.land:443"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
