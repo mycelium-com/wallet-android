@@ -47,6 +47,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val keyboardActive = MutableLiveData(false)
     val rateLoading = MutableLiveData(false)
     var changellyTx: String? = null
+    var swapDirection = 0
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
@@ -186,6 +187,12 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     val validateData = MediatorLiveData<Boolean>().apply {
         value = isValid()
+        addSource(toAddress) {
+            value = isValid()
+        }
+        addSource(fromAddress) {
+            value = isValid()
+        }
         addSource(sellValue) {
             value = isValid()
         }
@@ -204,16 +211,18 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                 val res = getApplication<WalletApplication>().resources
                 val amount = sellValue.value?.toBigDecimal()
                 when {
+                    toAddress.value == null -> false
+                    fromAddress.value == null -> false
                     rateLoading.value == true -> false
                     amount == null -> false
                     amount == BigDecimal.ZERO -> false
-                    amount < exchangeInfo.value?.minFrom -> {
+                    exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
                                 exchangeInfo.value?.from?.toUpperCase())
                         false
                     }
-                    amount > exchangeInfo.value?.maxFrom -> {
+                    exchangeInfo.value?.maxFrom != null && amount > exchangeInfo.value?.maxFrom -> {
                         errorTransaction.value = res.getString(R.string.exchange_max_msg,
                                 exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
                                 exchangeInfo.value?.from?.toUpperCase())

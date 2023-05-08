@@ -36,6 +36,8 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
 
 abstract class SendCoinsModel(
         val context: Context,
@@ -60,6 +62,8 @@ abstract class SendCoinsModel(
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
     val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
     val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
+    val fioMemo: MutableLiveData<String?> = MutableLiveData()
+    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
         override fun setValue(value: TransactionData?) {
@@ -79,10 +83,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    enum class TransactionDataStatus {
-        READY, TYPING
-    }
-
     val receivingAddress: MutableLiveData<Address?> = object : MutableLiveData<Address?>() {
         override fun setValue(value: Address?) {
             if (value != this.value) {
@@ -93,9 +93,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    val fioMemo: MutableLiveData<String?> = MutableLiveData()
-
-    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val payeeFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
         override fun setValue(value: String?) {
@@ -511,6 +508,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getFeeItemList(): List<FeeItem> {
+        Logger.getLogger(SendCoinsModel::class.java.simpleName).log(Level.INFO,"Estimation send coin economy = ${feeEstimation?.economy?.toStringWithUnit()} normal = ${feeEstimation?.normal?.toStringWithUnit()}")
         return feeItemsBuilder.getFeeItemList(account.basedOnCoinType,
                 feeEstimation, feeLvl.value, estimateTxSize())
     }
@@ -531,6 +529,10 @@ abstract class SendCoinsModel(
 
     enum class TransactionStatus {
         BUILDING, MISSING_ARGUMENTS, OUTPUT_TOO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
+    }
+
+    enum class TransactionDataStatus {
+        READY, TYPING
     }
 
     companion object {

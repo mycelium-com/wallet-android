@@ -331,7 +331,7 @@ class TransactionHistoryFragment : Fragment() {
                     //I set default values
                     private fun updateActionBar(actionMode: ActionMode, menu: Menu) {
                         Preconditions.checkNotNull(menu.findItem(R.id.miShowDetails))
-                        Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).isVisible = !record.isIncoming
+                        Preconditions.checkNotNull(menu.findItem(R.id.miAddToAddressBook)).isVisible = !record.isIncoming && record.destinationAddresses.size > 0
                         if (model.account.value is Bip44BCHAccount || model.account.value is SingleAddressBCHAccount
                                 || model.account.value is AbstractEthERC20Account || model.account.value is FioAccount) {
                             Preconditions.checkNotNull(menu.findItem(R.id.miCancelTransaction)).isVisible = false
@@ -369,9 +369,11 @@ class TransactionHistoryFragment : Fragment() {
                                 if (model.account.value is ColuAccount) {
                                     defaultName = (model.account.value as ColuAccount).coluLabel
                                 }
-                                val address = record.destinationAddresses[0]
-                                EnterAddressLabelUtil.enterAddressLabel(requireContext(), model.storage,
-                                        address, defaultName, addressLabelChanged)
+                                if(record.destinationAddresses.size > 0) {
+                                    val address = record.destinationAddresses[0]
+                                    EnterAddressLabelUtil.enterAddressLabel(requireContext(), model.storage,
+                                            address, defaultName, addressLabelChanged)
+                                }
                             }
                             R.id.miCancelTransaction -> AlertDialog.Builder(context)
                                     .setTitle(_context.getString(R.string.remove_queued_transaction_title))

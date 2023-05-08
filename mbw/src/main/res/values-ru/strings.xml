@@ -42,6 +42,7 @@
     <string name="amount_too_small_short">Сумма должна превышать %s (лимит сети)</string>
     <string name="miner_fee_label">Вознаграждение</string>
     <string name="miner_fee_title">Вознаграждение майнеров</string>
+    <string name="history_row_miner_fee_label">Комиссия за транзакцию</string>
     <string name="synchronizing">Синхронизация</string>
     <string name="transaction_not_sent">Не удалось передать транзакцию</string>
     <string name="queue_transaction_message">Не удалось передать транзакцию. \nвы  бы хотели  поставить транзакцию в очередь, чтобы она была  отправлена автоматически, как только вы будете онлайн?</string>
@@ -968,7 +969,8 @@
     <string name="gift_cards_menu">Сертификаты</string>
     <string name="paid">Транзакция отправлена</string>
     <string name="connection_issues"><b>Проблемы с соединением.</b> Убедитесь, что вы онлайн.</string>
-    <string name="changelly2_policy_text">Сервис предоставляется сторонним поставщиком API.</string>
+    <string name="changelly2_policy_text">Сервис предоставляется сторонним поставщиком API. Нажимая на кнопку Exchange, вы принимаете <font color="#4583de">Условия использования</font>.</string>
     <string name="course_outdated">курс устарел</string>
+    <string name="unredeemed">Восстановить</string>
     <string name="changelly_error_rate_expired">Обменный курс устарел, пожалуйста, повторите попытку.</string>
 </resources>
