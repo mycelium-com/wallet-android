@@ -208,7 +208,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     private fun activateNfc() {
         viewModel.checkNfcAvailable()
         val nfc = viewModel.getNfc()
-        if (nfc?.isNdefPushEnabled == true) {
+        if (nfc?.isEnabled == true) {
             nfc.setNdefPushMessageCallback(NfcAdapter.CreateNdefMessageCallback {
                 val uriRecord = NdefRecord.createUri(viewModel.getPaymentUri())
                 NdefMessage(arrayOf(uriRecord))
