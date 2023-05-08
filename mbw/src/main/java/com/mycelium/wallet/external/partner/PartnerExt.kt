@@ -48,7 +48,7 @@ fun Fragment.openLink(link: String?) {
 fun Context.openLink(link: String?) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
-    } catch (e: ActivityNotFoundException) {
+    } catch (e: Exception) {
         Toaster(this).toast("Can't open ${link}", true)
     }
 }
