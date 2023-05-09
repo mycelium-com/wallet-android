@@ -586,10 +586,19 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          case StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE:
             String content = data.getStringExtra("base58Key");
             if (content != null) {
-               InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
-               UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(key, Utils.getBtcCoinType());
-               SendInitializationActivity.callMe(this, onTheFlyAccount, true);
-               finish();
+               final Optional<InMemoryPrivateKey> optionalKey = InMemoryPrivateKey.fromBase58String(
+                       content,
+                       _mbwManager.getNetwork()
+               );
+               if (optionalKey.isPresent()) {
+                  final InMemoryPrivateKey key = optionalKey.get();
+                  final UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(
+                          key,
+                          Utils.getBtcCoinType()
+                  );
+                  SendInitializationActivity.callMe(this, onTheFlyAccount, true);
+                  finish();
+               }
                return;
             }
          case REQUEST_FROM_URI:
