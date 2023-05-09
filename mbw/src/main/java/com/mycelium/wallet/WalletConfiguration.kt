@@ -326,13 +326,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         data class TokenData(val name: String, val symbol: String, val unitExponent: Int, val prodAddress: String, val testnetAddress: String = prodAddress)
 
         val tokens = listOf(
+                //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
             TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498", "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
             TokenData("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7", "0x7c352ea63cefc099db667e848e1318878bbbcaaf"),
             TokenData("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0x07865c6e87b9f70255377e024ace6630c1eaa37f"),
             TokenData("HuobiToken", "HT", 18, "0x6f259637dcd74c767781e37bc6133cd6a68aa161"),
             TokenData("Binance USD", "BUSD", 18, "0x4fabb145d64652a948d72533023f6e7a623c7c53", "0x5aff428676c5440719adcaf5ecdc7bdf2fbffbe7"),
             TokenData("Bitfinex LEO", "LEO", 18, "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3"),
-            TokenData("TrueUSD", "TUSD", 18, "0x0000000000085d4780B73119b644AE5ecd22b376", "0x0E66251dCcf86Fe38ED4AeE2d09761A01B04be67"),
+            TokenData("TrueUSD", "TUSD", 18, "0x0000000000085d4780B73119b644AE5ecd22b376", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
             TokenData("ChainLink", "LINK", 18, "0x514910771AF9Ca656af840dff83E8264EcF986CA", "0x88bb053c5ddec8574fcd4d3b1692d43282a11281"),
             TokenData("Paxos Standard", "PAX", 18, "0x8E870D67F660D95d5be530380D0eC0bd388289E1"),
             TokenData("ZBToken", "ZB", 18, "0xBd0793332e9fB844A52a205A233EF27a5b34B927"),
@@ -434,8 +435,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("XYO", "XYO", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E758")
         )
         val namePostfix = if (BuildConfig.FLAVOR == "prodnet") "" else " test"
+        val symbolPrefix = if (BuildConfig.FLAVOR == "prodnet") "" else "t"
         return tokens
-            .map { ERC20Token(it.name + namePostfix, it.symbol, it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
+            .map { ERC20Token(it.name + namePostfix, "$symbolPrefix${it.symbol}",
+                it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
             .associateBy { it.name }
     }
 

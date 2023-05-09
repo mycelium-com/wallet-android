@@ -517,8 +517,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             helpPrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    startActivity(Intent.createChooser(new Intent(Intent.ACTION_SENDTO)
-                            .setData(Uri.parse("mailto:support@mycelium.com")), getString(R.string.send_mail)));
+                    requireFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, new HelpFragment())
+                            .addToBackStack("help")
+                            .commitAllowingStateLoss();
                     return false;
                 }
             });

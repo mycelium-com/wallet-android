@@ -60,8 +60,7 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
-import info.guardianproject.netcipher.proxy.OrbotHelper
-import kotlinx.coroutines.launch
+import info.guardianproject.onionkit.ui.OrbotHelper
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -149,7 +148,9 @@ class ModernMain : AppCompatActivity(), BackHandler {
         val tab = mTabsAdapter!!.indexOf(TAB_EXCHANGE)
         binding.pagerTabs.getTabAt(tab)?.setCustomView(R.layout.layout_exchange_tab)
 
-        lifecycleScope.launch { ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager) }
+        lifecycleScope.launchWhenResumed {
+            ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
+        }
     }
 
     fun selectTab(tabTag: String?) {

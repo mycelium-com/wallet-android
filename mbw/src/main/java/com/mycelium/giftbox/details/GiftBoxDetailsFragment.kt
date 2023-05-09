@@ -17,6 +17,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.databinding.FragmentGiftboxDetailsBinding
+import com.mycelium.wallet.external.partner.openLink
 
 class GiftBoxDetailsFragment : Fragment() {
     private var binding: FragmentGiftboxDetailsBinding? = null
@@ -56,7 +57,7 @@ class GiftBoxDetailsFragment : Fragment() {
             findNavController().navigate(GiftBoxDetailsFragmentDirections.actionRedeem(viewModel.productInfo!!))
         }
         binding?.layoutDescription?.terms?.setOnClickListener {
-            Utils.openWebsite(requireContext(), viewModel.productInfo?.termsAndConditionsPdfUrl)
+            openLink(viewModel.productInfo?.termsAndConditionsPdfUrl)
         }
         binding?.share?.setOnClickListener {
             shareGiftcard(viewModel.orderResponse!!)

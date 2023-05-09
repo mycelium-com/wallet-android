@@ -73,6 +73,7 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
+import com.mycelium.wallet.external.partner.PartnerExtKt;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -89,6 +90,8 @@ import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 import com.mycelium.wapi.wallet.fio.FIOAddressConfig;
 import com.mycelium.wapi.wallet.fio.FIOUnrelatedHDConfig;
@@ -104,9 +107,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class AddAdvancedAccountActivity extends AppCompatActivity implements ImportCoCoHDAccount.FinishListener {
-   public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
-   public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
-   public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
    public static final int RESULT_MSG = 25;
 
    public static void callMe(Activity activity, int requestCode) {
@@ -151,15 +151,10 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
       findViewById(R.id.btTrezor).setOnClickListener(view -> TrezorAccountImportActivity.callMe(activity, TREZOR_RESULT_CODE));
 
-      findViewById(R.id.btBuyTrezor).setOnClickListener(view -> Utils.openWebsite(activity, BUY_TREZOR_LINK));
-
       findViewById(R.id.btKeepKey).setOnClickListener(view -> KeepKeyAccountImportActivity.callMe(activity, KEEPKEY_RESULT_CODE));
-
-      findViewById(R.id.btBuyKeepKey).setOnClickListener(view -> Utils.openWebsite(activity, BUY_KEEPKEY_LINK));
 
       findViewById(R.id.btLedger).setOnClickListener(view -> LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE));
 
-      findViewById(R.id.btBuyLedger).setOnClickListener(view -> Utils.openWebsite(activity, BUY_LEDGER_LINK));
       btGenerateNewBchSingleKey.setVisibility(View.GONE);
 
       btCreateFioLegacyAccount.setOnClickListener(view -> {
@@ -214,6 +209,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
          new Toaster(this).toast("Importing unrelated Ethereum accounts still to be implemented.", false);
          return;
       }
+
       new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
    }
 
@@ -481,7 +477,7 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
    }
 
    enum AddressCheckResult {
-      AccountExists, BTC, NonBtc
+      AccountExists, BTC, NonBtc, ETH
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
@@ -501,6 +497,8 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
 
          if (address instanceof BtcAddress) {
             return AddressCheckResult.BTC;
+         } else if (address instanceof EthAddress) {
+            return AddressCheckResult.ETH;
          } else {
             return AddressCheckResult.NonBtc;
          }
@@ -516,6 +514,11 @@ public class AddAdvancedAccountActivity extends AppCompatActivity implements Imp
                UUID account1 = _mbwManager.getWalletManager(false)
                        .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
                finishOk(account1, false);
+               break;
+            case ETH:
+               UUID account2 = _mbwManager.getWalletManager(false)
+                       .createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
+               finishOk(account2, false);
                break;
             case NonBtc:
                if ("FIO".equals(address.getCoinType().getSymbol())) {

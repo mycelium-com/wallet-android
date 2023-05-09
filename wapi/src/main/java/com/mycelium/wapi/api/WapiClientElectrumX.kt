@@ -315,10 +315,8 @@ class WapiClientElectrumX @JvmOverloads constructor(
 
     override suspend fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
-            val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
-            val requestsList = ArrayList<RpcRequestOut>()
-            blocks.forEach { nBlocks ->
-                requestsList.add(RpcRequestOut(ESTIMATE_FEE_METHOD, RpcParams.listParams(nBlocks)))
+            val requestsList = blocks.map { nBlocks ->
+                RpcRequestOut(ESTIMATE_FEE_METHOD, RpcParams.listParams(nBlocks))
             }
 
             val estimatesArray = rpcClient.write(requestsList, MAX_RESPONSE_TIMEOUT).responses
@@ -349,6 +347,7 @@ class WapiClientElectrumX @JvmOverloads constructor(
     }
 
     companion object {
+        val blocks = listOf(1, 2, 3, 4, 5, 10, 15, 20)   // this is what the wapi server used
         private const val LIST_UNSPENT_METHOD = "blockchain.scripthash.listunspent"
         private const val ESTIMATE_FEE_METHOD = "blockchain.estimatefee"
         private const val BROADCAST_METHOD = "blockchain.transaction.broadcast"

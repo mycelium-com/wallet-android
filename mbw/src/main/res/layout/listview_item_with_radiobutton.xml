@@ -16,24 +16,47 @@
         android:clickable="false"
         android:focusable="false" />
 
-    <TextView
-        android:id="@+id/tv_currency_name"
-        style="?android:attr/dropDownItemStyle"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ellipsize="marquee"
-        android:focusable="false"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
-        android:textSize="16sp"
-        tools:text="United States Dollar" />
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/tv_currency_name"
+            style="?android:attr/dropDownItemStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:focusable="false"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
+            android:textSize="16sp"
+            tools:text="United States Dollar" />
+
+        <TextView
+            android:id="@+id/description"
+            style="?android:attr/dropDownItemStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:focusable="false"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
+            android:textColor="@color/white_alpha_0_6"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="Coming soon"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_currency_short"
         style="?android:attr/dropDownItemStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:ellipsize="marquee"
         android:focusable="false"
         android:singleLine="true"
