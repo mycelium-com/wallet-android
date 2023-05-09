@@ -21,6 +21,7 @@ import kotlinx.android.parcel.Parcelize
  * @param extraIdName Extra ID - used together with the send address for some blockchains (e.g EOS, XLM, etc..)
  * @param fullName Full name of currency
  * @param name Currency short code
+ * @param contractAddress Address of smart contract (where relevant)
  */
 @Parcelize
 
@@ -33,7 +34,10 @@ data class CurrencyInfo(
     var fullName: String? = null,
     /* Currency short code */
     @JsonProperty("name")
-    var name: String? = null
+    var name: String? = null,
+    /* Address of smart contract (where relevant) */
+    @JsonProperty("contractAddress")
+    var contractAddress: String? = null
 ) : Parcelable
 
 class CurrencyInfos : ArrayList<CurrencyInfo>()

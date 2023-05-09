@@ -22,6 +22,12 @@ fun Activity.startContentLink(link: String?) {
     }
 }
 
+fun Context.startContentLink(link: String?) {
+    startContentLink(link) {
+        startActivity(it)
+    }
+}
+
 private fun startContentLink(link: String?, startAction: (Intent) -> Unit) {
     if (link != null) {
         try {
