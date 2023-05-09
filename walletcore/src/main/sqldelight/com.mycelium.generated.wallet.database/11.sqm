@@ -1,1 +1,2 @@
 ALTER TABLE EthAccountBacking ADD COLUMN hasTokenTransfers INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE EthAccountBacking ADD COLUMN gasPrice TEXT;

@@ -65,8 +65,8 @@ class WapiClientElectrumX @JvmOverloads constructor(
         updateClient()
     }
 
-    override fun serverListChanged(newEndpoints: Array<TcpEndpoint>) {
-        rpcClient.endpointsChanged(newEndpoints)
+    override fun serverListChanged(newEndpoints: List<TcpEndpoint>) {
+        rpcClient.endpointsChanged(newEndpoints.toTypedArray())
     }
 
     init {
@@ -410,5 +410,5 @@ data class TransactionHistoryInfo(
 }
 
 interface ServerElectrumListChangedListener {
-    fun serverListChanged(newEndpoints: Array<TcpEndpoint>)
+    fun serverListChanged(newEndpoints: List<TcpEndpoint>)
 }

@@ -16,6 +16,7 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.getCardValue
+import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.NumberEntry
 import com.mycelium.wallet.R
@@ -130,7 +131,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 setEnteredAmount(args.product.maximumValue.toPlainString()!!)
                 numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
             }
-            tvCardValue.text = args.product?.getCardValue()
+            tvCardValue.text = args.product.getCardValue()
             if(account is ERC20Account) {
                 binding.parentAccountLayout.isVisible = true
                 binding.erc20Tips.isVisible = true
@@ -224,7 +225,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             code = args.product.code ?: "",
             quantity = 1,
             amount = _amount?.valueAsLong?.div(100)?.toInt()!!,
-            currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
+            currencyId = zeroCryptoValue!!.getCurrencyId(),
             success = { priceResponse ->
                 val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
                 val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable())

@@ -33,6 +33,7 @@ import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel
+import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
@@ -107,8 +108,8 @@ class GiftboxBuyFragment : Fragment() {
             binding?.btEnterAmountPreselected?.background = null
             val isNotSetYet =
                     viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
-            if (isNotSetYet && viewModel.getPreseletedValues().isNotEmpty()) {
-                viewModel.totalAmountFiatSingle.value = viewModel.getPreseletedValues()[0]
+            if (isNotSetYet && viewModel.getPreselectedValues().isNotEmpty()) {
+                viewModel.totalAmountFiatSingle.value = viewModel.getPreselectedValues()[0]
             }
             binding?.btEnterAmountPreselected?.setOnClickListener(preselectedClickListener)
         } else {
@@ -194,7 +195,7 @@ class GiftboxBuyFragment : Fragment() {
                         code = args.product.code!!,
                         amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
                         quantity = viewModel.quantityString.value?.toInt()!!,
-                        currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
+                        currencyId = viewModel.zeroCryptoValue!!.getCurrencyId(),
                         success = { orderResponse ->
                             viewModel.orderResponse.value = orderResponse
                             viewModel.sendTransactionAction.value = Unit
@@ -226,9 +227,8 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
-
     private fun showChoicePreselectedValuesDialog() {
-        val preselectedList = viewModel.getPreseletedValues()
+        val preselectedList = viewModel.getPreselectedValues()
         val preselectedValue = viewModel.totalAmountFiatSingle.value
         val selectedIndex = if (preselectedValue != null) {
             preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }
