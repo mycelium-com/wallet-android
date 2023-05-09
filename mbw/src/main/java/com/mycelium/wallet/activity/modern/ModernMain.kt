@@ -60,7 +60,7 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
-import info.guardianproject.onionkit.ui.OrbotHelper
+import info.guardianproject.netcipher.proxy.OrbotHelper
 import java.util.*
 import java.util.concurrent.TimeUnit
 
