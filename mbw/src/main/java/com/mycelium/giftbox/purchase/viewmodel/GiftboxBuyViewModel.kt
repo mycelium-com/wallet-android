@@ -128,7 +128,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     val totalAmountCryptoSingleString = Transformations.map(totalAmountCrypto) {
         it.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE).toStringFriendlyWithUnit()
     }
-    val txValid =  MutableLiveData<AmountValidation>()
+    val txValid =  MutableLiveData<AmountValidation?>()
 
     private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
             zip2(
@@ -175,7 +175,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                                                 account,
                                                 cryptoAmount
                                         )
-                                        txValid.postValue(checkValidTransaction)
+                                        txValid.postValue(checkValidTransaction.state)
                                         if (checkValidTransaction.state == AmountValidation.Ok) {
                                             tempTransaction.postValue(transaction)
                                             offer(cryptoAmount)
