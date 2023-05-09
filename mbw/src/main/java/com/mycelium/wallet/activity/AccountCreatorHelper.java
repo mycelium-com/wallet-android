@@ -4,8 +4,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.mycelium.wallet.MbwManager;
+import com.mycelium.wapi.wallet.manager.Config;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,10 +22,12 @@ final class AccountCreatorHelper {
     public static class CreateAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
         private WeakReference<Context> contextWeakReference;
         private WeakReference<AccountCreationObserver> observerWeakReference;
+        private List<Config> accounts;
 
-        CreateAccountAsyncTask(Context context, AccountCreationObserver observer) {
+        CreateAccountAsyncTask(Context context, AccountCreationObserver observer, List<Config> accounts) {
             contextWeakReference = new WeakReference<>(context);
             observerWeakReference = new WeakReference<>(observer);
+            this.accounts = accounts;
         }
 
         @Override
@@ -32,7 +36,11 @@ final class AccountCreatorHelper {
             if (context == null) {
                 return null;
             }
-            return MbwManager.getInstance(context).createAdditionalBip44Account(context);
+            final List<UUID> uuids = MbwManager.getInstance(context)
+                    .createAdditionalBip44AccountsUninterruptedly(accounts);
+            if (uuids.isEmpty())
+                return null;
+            return uuids.get(0);
         }
 
         @Override

@@ -407,8 +407,8 @@
     <string name="copy_signature">將簽名複製到剪貼板</string>
     <string name="share_signature">分享文字 + 簽名</string>
     <string name="sig_copied">複製簽名到剪貼板</string>
-    <string name="signed_message_subject">比特幣簽名的信息</string>
-    <string name="signed_message_share">共享比特幣簽名的信息</string>
+    <string name="signed_message_subject_btc">比特幣簽名的信息</string>
+    <string name="signed_message_share_btc">共享比特幣簽名的信息</string>
     <string name="signing_inprogress">信息簽名中。 。 。</string>
     <string name="geocode_error">地理編碼器錯誤: %s \n 請稍後再試。</string>
     <string name="fetching_info">正在從服務器讀取信息</string>

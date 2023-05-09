@@ -11,7 +11,7 @@ class ERC20AccountContext(override val uuid: UUID,
                           currency: CryptoCurrency,
                           accountName: String,
                           balance: Balance,
-                          listener: (ERC20AccountContext) -> Unit,
+                          val listener: (ERC20AccountContext) -> Unit,
                           override val contractAddress: String,
                           override val symbol: String,
                           override val unitExponent: Int,
@@ -20,10 +20,14 @@ class ERC20AccountContext(override val uuid: UUID,
                           blockHeight: Int = 0,
                           nonce: BigInteger = BigInteger.ZERO) :
         Erc20Context by Erc20Context.Impl(uuid, nonce, contractAddress, unitExponent, symbol, ethAccountId),
-        AccountContextImpl<ERC20AccountContext>(uuid, currency, accountName, balance, listener, archived, blockHeight) {
+        AccountContextImpl(uuid, currency, accountName, balance, archived, blockHeight) {
+    override fun onChange() {
+        listener(this)
+    }
+
     override var nonce = nonce
         set(value) {
             field = value
-            listener.invoke(this)
+            onChange()
         }
 }

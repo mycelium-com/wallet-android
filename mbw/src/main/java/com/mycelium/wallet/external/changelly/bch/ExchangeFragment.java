@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,8 +32,8 @@ import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
-import com.mycelium.wallet.external.changelly.Constants;
+import com.mycelium.wallet.external.changelly.ChangellyConstants;
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -57,8 +56,8 @@ import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getActiveBTCSingleAddressAccounts;
-import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
-import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.ABOUT;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
 import static com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModuleKt.getBCHBip44Accounts;
 import static com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModuleKt.getBCHSingleAddressAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
@@ -75,7 +74,7 @@ public class ExchangeFragment extends Fragment {
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String FROM_VALUE = "fromValue";
     private static final String TAG = "ChangellyActivity";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
 
     @BindView(R.id.scrollView)
     ScrollView scrollView;
@@ -204,7 +203,7 @@ public class ExchangeFragment extends Fragment {
             }
         });
         valueKeyboard.setMaxText(getString(R.string.use_all_funds), 14);
-        valueKeyboard.setPasteVisibility(View.GONE);
+        valueKeyboard.setPasteVisibility(false);
 
         valueKeyboard.setVisibility(View.GONE);
         buttonContinue.setEnabled(false);
@@ -253,12 +252,12 @@ public class ExchangeFragment extends Fragment {
         }
         Fragment fragment = new ConfirmExchangeFragment();
         Bundle bundle = new Bundle();
-        bundle.putDouble(Constants.FROM_AMOUNT, dblAmount);
+        bundle.putDouble(ChangellyConstants.FROM_AMOUNT, dblAmount);
         WalletAccount toAccount = toAccountAdapter.getItem(toRecyclerView.getSelectedItem()).account;
-        bundle.putSerializable(Constants.DESTADDRESS, toAccount.getId());
+        bundle.putSerializable(ChangellyConstants.DESTADDRESS, toAccount.getId());
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
-        bundle.putSerializable(Constants.FROM_ADDRESS, fromAccount.getId());
-        bundle.putString(Constants.TO_AMOUNT, toValue.getText().toString());
+        bundle.putSerializable(ChangellyConstants.FROM_ADDRESS, fromAccount.getId());
+        bundle.putString(ChangellyConstants.TO_AMOUNT, toValue.getText().toString());
 
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
@@ -519,16 +518,16 @@ public class ExchangeFragment extends Fragment {
         updateUi();
     }
 
-    class GetMinCallback implements Callback<ChangellyAnswerDouble> {
+    class GetMinCallback implements Callback<ChangellyResponse<Double>> {
         @Override
-        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Response<ChangellyAnswerDouble> response) {
-            ChangellyAnswerDouble result = response.body();
-            if(result == null || result.result == NOT_LOADED) {
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call, @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
+            if(result == null || result.getResult() == NOT_LOADED) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
                 new Toaster(getActivity()).toast("Service unavailable", false);
                 return;
             }
-            double min = result.result;
+            double min = result.getResult();
             Log.d(TAG, "Received minimum amount: " + min);
             cachedMinAmountWithFee.clear();
             sharedPreferences.edit()
@@ -538,12 +537,12 @@ public class ExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call, @NonNull Throwable t) {
             toast("Service unavailable");
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+    class GetOfferCallback implements Callback<ChangellyResponse<Double>> {
         double fromAmount;
 
         GetOfferCallback(double fromAmount) {
@@ -551,11 +550,11 @@ public class ExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAnswerDouble> response) {
-            ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
+                               @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
             if(result != null) {
-                double amount = result.result;
+                double amount = result.getResult();
                 avoidTextChangeEvent = true;
                 try {
                     if (fromAmount == getFromExcludeFee().doubleValue()) {
@@ -576,7 +575,7 @@ public class ExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }

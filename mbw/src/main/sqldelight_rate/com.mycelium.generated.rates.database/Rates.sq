@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS Rate(
+    fromCurrency TEXT NOT NULL,
+    toCurrency TEXT NOT NULL,
+    market TEXT NOT NULL,
+    rate REAL NOT NULL,
+    timestamp INTEGER NOT NULL,
+    PRIMARY KEY (fromCurrency, toCurrency, market)
+);
+
+insertRate:
+INSERT OR REPLACE INTO Rate(fromCurrency, toCurrency, market, rate, timestamp)
+VALUES (?, ?, ?, ?, ?);
+
+selectAll:
+SELECT * FROM Rate AS rt;
+
+select:
+SELECT * FROM Rate AS rt
+WHERE rt.fromCurrency = (:fromCurrency) AND rt.toCurrency = (:toCurrency) AND rt.market  = (:market);
+

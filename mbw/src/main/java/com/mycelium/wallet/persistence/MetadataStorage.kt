@@ -167,14 +167,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             storeKeyCategoryValueEntry(SEPA_IS_ENABLED, if (enable) "1" else "0")
         }
 
-    var changellyIsEnabled: Boolean
-        get() {
-            return getKeyCategoryValueEntry(CHANGELLY_IS_ENABLED, "1") == "1"
-        }
-        set(enable) {
-            storeKeyCategoryValueEntry(CHANGELLY_IS_ENABLED, if (enable) "1" else "0")
-        }
-
     val lastFullSync: Optional<Long>
         get() {
             val lastDateStr = getKeyCategoryValueEntry(SYNC_LAST_FULLSYNC)
@@ -469,7 +461,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
     private val SWISH_CREDIT_CARD_IS_ENABLED = MetadataKeyCategory("swish_cc", "enable")
     private val SIMPLEX_IS_ENABLED = MetadataKeyCategory("simplex", "enable")
     private val SEPA_IS_ENABLED = MetadataKeyCategory("sepa", "enable")
-    private val CHANGELLY_IS_ENABLED = MetadataKeyCategory("changelly", "enable")
     private val EMAIL = "email"
     @JvmField
     val PAIRED_SERVICE_COLU = "colu"

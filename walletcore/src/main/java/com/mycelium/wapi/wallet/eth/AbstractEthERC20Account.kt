@@ -6,6 +6,8 @@ import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.web3j.crypto.Credentials
 import java.io.IOException
 import java.math.BigInteger
@@ -36,16 +38,16 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     }
 
     @Throws(IOException::class)
-    protected fun getNewNonce(): BigInteger {
-        val nonce = blockchainService.getNonce(receivingAddress.addressString)
+    protected suspend fun getNewNonce(): BigInteger {
+        val nonce = withContext(Dispatchers.IO) { blockchainService.getNonce(receivingAddress.addressString) }
         setNonce(nonce)
         return getNonce()
     }
 
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         if (isArchived) { return false }
         syncing = true
-        var synced = false
+        val synced: Boolean
         try {
             if (!maySync) {
                 return false
@@ -54,7 +56,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             if (!maySync) {
                 return false
             }
-            val synced = doSynchronization(mode)
+            synced = doSynchronization(mode)
             if (!maySync) {
                 return false
             }
@@ -68,7 +70,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         return synced
     }
 
-    abstract fun doSynchronization(mode: SyncMode?): Boolean
+    abstract suspend fun doSynchronization(mode: SyncMode?): Boolean
     abstract fun setNonce(nonce: BigInteger)
     abstract fun getNonce(): BigInteger
     abstract fun setBlockChainHeight(height: Int)
@@ -78,7 +80,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         // TODO("not implemented")
     }
 
-    override fun isSpendingUnconfirmed(tx: Transaction?) = false
+    override fun isSpendingUnconfirmed(tx: Transaction) = false
 
     override fun queueTransaction(transaction: Transaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -88,24 +90,26 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getReceiveAddress() = receivingAddress
+    override val receiveAddress
+        get() = receivingAddress
 
-    override fun getDummyAddress() = EthAddress.getDummyAddress(coinType)
+    override val dummyAddress = EthAddress.getDummyAddress(coinType)
 
-    override fun getDummyAddress(subType: String?): EthAddress = dummyAddress
+    override fun getDummyAddress(subType: String): EthAddress = dummyAddress
 
-    override fun getDependentAccounts() = emptyList<WalletAccount<Address>>()
+    override val dependentAccounts
+        get() = emptyList<WalletAccount<Address>>()
 
     override fun isMineAddress(address: Address?) = address == receivingAddress
 
     override fun isExchangeable() = true
 
-    override fun getTx(transactionId: ByteArray?): Transaction {
+    override fun getTx(transactionId: ByteArray): Transaction? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
-            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)!!
+    override fun getTxSummary(transactionId: ByteArray): TransactionSummary? =
+            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
@@ -121,13 +125,14 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     override fun isSyncing() = syncing
 
-    override fun isActive() = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
-    private fun updateBlockHeight() {
+    private suspend fun updateBlockHeight() {
         try {
-            val latestBlockHeight = blockchainService.getBlockHeight()
+            val latestBlockHeight = withContext(Dispatchers.IO) { blockchainService.getBlockHeight() }
 
-            blockChainHeight = latestBlockHeight.toInt()
+            setBlockChainHeight(latestBlockHeight.toInt())
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error synchronizing ETH/ERC-20, ${e.localizedMessage}")
         }

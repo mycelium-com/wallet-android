@@ -12,7 +12,10 @@ import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
@@ -32,32 +35,34 @@ class ERC20Account(private val chainId: Byte,
                    private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    val ethAcc: EthAccount,
-                   credentials: Credentials,
+                   credentials: Credentials? = null,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   blockchainService: EthBlockchainService) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, blockchainService, ERC20Account::class.simpleName), SyncPausable {
+                   blockchainService: EthBlockchainService,
+                   address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, blockchainService, ERC20Account::class.simpleName, address), SyncPausable {
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
-        val gasPrice = (fee as FeePerKbFee).feePerKb.value
+        val gasPrice = ethTxData?.suggestedGasPrice?.let {
+            Value.valueOf(basedOnCoinType, it)
+        } ?: (fee as FeePerKbFee).feePerKb
         val inputData = getInputData(address.toString(), amount.value)
         val estimatedGasUsed = ethTxData?.gasLimit?.toInt() ?: ((Transfer.GAS_LIMIT.toInt() + TOKEN_TRANSFER_GAS_LIMIT) / 2).toInt()
 
-        if (calculateMaxSpendableAmount(null, null) < amount) {
+        if (calculateMaxSpendableAmount(gasPrice, null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
-        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        if (gasLimit < Transfer.GAS_LIMIT) {
+            throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
-        if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
-            throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
+        if (ethAcc.accountBalance.spendable.value < gasPrice.value * gasLimit) {
+            throw InsufficientFundsForFeeException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
         return EthTransaction(basedOnCoinType, address.toString(), Value.zeroValue(basedOnCoinType),
-            gasPrice, accountContext.nonce, gasLimit, inputData, estimatedGasUsed, amount
-        )
+            gasPrice.value, accountContext.nonce, gasLimit, inputData, estimatedGasUsed,  amount)
     }
 
     private fun getInputData(address: String, value: BigInteger): String {
@@ -90,7 +95,7 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, tx.gasPrice, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
+                    accountContext.nonce, tx.gasPrice, true, null, true, tx.gasLimit, tx.estimatedGasUsed.toBigInteger())
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -103,20 +108,23 @@ class ERC20Account(private val chainId: Byte,
         }
     }
 
-    override fun getCoinType() = token
+    override val coinType: ERC20Token
+        get() = token
 
-    override fun getBasedOnCoinType() = accountContext.currency
+    override val basedOnCoinType
+        get() = accountContext.currency
 
-    override fun getAccountBalance() = readBalance()
+    override val accountBalance: Balance
+        get() = readBalance()
 
-    override fun getLabel(): String = accountContext.accountName
-
-    override fun setLabel(label: String?) {
-        accountContext.accountName = label!!
-    }
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
+        }
 
     @Synchronized
-    override fun doSynchronization(mode: SyncMode?): Boolean {
+    override suspend fun doSynchronization(mode: SyncMode?): Boolean {
         val syncTx = syncTransactions()
         updateBalanceCache()
         return syncTx
@@ -134,9 +142,11 @@ class ERC20Account(private val chainId: Byte,
 
     override fun getBlockChainHeight() = accountContext.blockHeight
 
-    override fun isArchived() = accountContext.archived
+    override val isArchived: Boolean
+        get() = accountContext.archived
 
-    override fun isActive() = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
     override fun archiveAccount() {
         accountContext.archived = true
@@ -157,18 +167,19 @@ class ERC20Account(private val chainId: Byte,
 
     override fun isDerivedFromInternalMasterseed() = false
 
-    override fun getId(): UUID = accountContext.uuid
+    override val id: UUID
+        get() = accountContext.uuid
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: EthAddress?): Value =
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?, txData: TransactionData?): Value =
             accountBalance.spendable
 
-    override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
+    override val syncTotalRetrievedTransactions = 0 // TODO implement after full transaction history implementation
 
-    override fun getTypicalEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
+    override val typicalEstimatedTransactionSize = TOKEN_TRANSFER_GAS_LIMIT.toInt()
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -183,6 +194,10 @@ class ERC20Account(private val chainId: Byte,
             return true
         }
         return false
+    }
+
+    override fun signMessage(message: String, address: Address?): String {
+        TODO("Not yet implemented")
     }
 
     private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
@@ -206,16 +221,17 @@ class ERC20Account(private val chainId: Byte,
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)
 
-    private fun syncTransactions():Boolean {
+    private suspend fun syncTransactions():Boolean {
         try {
-            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
+            val remoteTransactions = withContext(Dispatchers.IO) { blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress) }
+            //TODO convert backing.putTransaction to backing.putTransactions
             remoteTransactions.forEach { tx ->
-                tx.getTokenTransfer(token.contractAddress)?.also { tokenTransfer ->
+                tx.getTokenTransfer(token.contractAddress, receivingAddress.addressString)?.also { tokenTransfer ->
                     backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tokenTransfer.from,
                             tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
                             Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
                                     ?: typicalEstimatedTransactionSize.toBigInteger())),
-                            tx.confirmations.toInt(), tx.nonce, tx.gasPrice, null, tx.success, tx.gasLimit, tx.gasUsed)
+                            tx.confirmations.toInt(), tx.nonce, tx.gasPrice, true, null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
             val localTxs = getUnconfirmedTransactions()
@@ -259,6 +275,7 @@ class ERC20Account(private val chainId: Byte,
     }
 
     companion object {
-        private const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
+        const val TOKEN_TRANSFER_GAS_LIMIT = 90_000L
+        val AVG_TOKEN_TRANSFER_GAS = (Transfer.GAS_LIMIT.toLong() + TOKEN_TRANSFER_GAS_LIMIT) / 2
     }
 }

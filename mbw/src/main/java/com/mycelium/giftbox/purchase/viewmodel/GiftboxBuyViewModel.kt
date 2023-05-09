@@ -158,7 +158,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                             code = productInfo.code ?: "",
                             quantity = quantity,
                             amount = amount.valueAsBigDecimal.toInt(),
-                            currencyId = zeroCryptoValue!!.getCurrencyId(),
+                            currencyId = zeroCryptoValue.getCurrencyId(),
                             success = { priceResponse ->
                                 if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                                     return@getPrice
@@ -173,8 +173,13 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                                                 cryptoAmount
                                         )
                                         txValid.postValue(checkValidTransaction)
-                                        tempTransaction.postValue(transaction)
-                                        offer(cryptoAmount)
+                                        if (checkValidTransaction == AmountValidation.Ok) {
+                                            tempTransaction.postValue(transaction)
+                                            offer(cryptoAmount)
+                                        } else if(checkValidTransaction == AmountValidation.NotEnoughFunds) {
+                                            warningQuantityMessage.postValue(WalletApplication.getInstance()
+                                                .getString(R.string.insufficient_funds))
+                                        }
                                     }
                                 } else {
                                     offer(cryptoAmount)
@@ -190,7 +195,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                 }
             }
             awaitClose { }
-        }.onStart { emit(zeroCryptoValue!!) }.asLiveData()
+        }.onStart { emit(zeroCryptoValue) }.asLiveData()
     }
 
     val errorAmountMessage: LiveData<String> = Transformations.map(totalAmountCrypto) {
@@ -251,7 +256,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getMaxSpendable() =
             mbwManager.getWalletManager(false)
                     .getAccount(accountId.value!!)
-                    ?.calculateMaxSpendableAmount(feeEstimation.normal, null)!!
+                    ?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
 
 
     val isGrantedPlus =
@@ -308,7 +313,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     private fun getAccountBalance(): Value {
-        return account.accountBalance?.spendable!!
+        return account.accountBalance.spendable!!
     }
 
     //colors
@@ -357,7 +362,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                     if (it.moreThanZero()) R.color.white else R.color.darkgrey
             )
 
-    fun checkValidTransaction(
+    private fun checkValidTransaction(
             account: WalletAccount<*>,
             value: Value
     ): Pair<AmountValidation, Transaction?> {

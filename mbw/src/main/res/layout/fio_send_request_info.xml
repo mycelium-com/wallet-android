@@ -166,24 +166,33 @@
                 android:id="@+id/tvSatisfyFromAccountTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="9dp"
                 android:text="Spending from:"
                 android:textColor="@color/fio_white_alpha_0_8"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromTitle" />
+                android:textSize="14sp" />
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/spinnerSpendingFromAccount"
                 style="@style/Widget.AppCompat.Spinner.DropDown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
                 android:paddingEnd="24dp"
                 android:background="@drawable/send_coin_spinner_selector"
                 app:layout_constraintBaseline_toBaselineOf="@id/tvSatisfyFromAccountTitle"
-                app:layout_constraintStart_toEndOf="@id/tvSatisfyFromAccountTitle"
-                tools:listitem="@layout/layout_spending_from_account"/>
+                tools:listitem="@layout/layout_spending_from_account" />
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/spendingFlow"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromTitle"
+                app:flow_horizontalGap="4dp"
+                app:flow_horizontalStyle="packed"
+                app:flow_horizontalBias="0"
+                app:flow_wrapMode="chain"
+                app:constraint_referenced_ids="tvSatisfyFromAccountTitle,spinnerSpendingFromAccount" />
 
             <TextView
                 android:id="@+id/tvMemoToTitle"
@@ -194,7 +203,7 @@
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvSatisfyFromAccountTitle" />
+                app:layout_constraintTop_toBottomOf="@id/spendingFlow" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"

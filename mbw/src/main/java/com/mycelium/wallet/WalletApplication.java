@@ -69,11 +69,17 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
     private static WalletApplication INSTANCE;
     private NetworkChangedReceiver networkChangedReceiver;
+    private Timer checkNetworkTimer;
+    private final Logger logger = Logger.getLogger(WalletApplication.class.getSimpleName());
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -220,29 +226,41 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         private int numStarted = 0;
         private int numOfCreated = 0;
         // so we would understand if app was just created, or restored from background
-        private boolean isBackground = false;
+        private boolean isBackground = true;
 
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
             numOfCreated++;
+            MbwManager.getInstance(getApplicationContext()).setActivityCount(numOfCreated);
         }
 
         @Override
         public void onActivityStarted(Activity activity) {
             setupLanguage();
             if (numStarted == 0 && isBackground) {
+                logger.log(Level.INFO, "Went to foreground");
                 // app returned from background
                 MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
                 mbwManager.setAppInForeground(true);
                 // as monitoring the connection state doesn't work in background, establish the
                 // right connection state here.
-                boolean connected = Utils.isConnected(getApplicationContext());
-                // checking state of networkConnected variable only for WalletManager is sufficient
-                // as ColuManager, Wapi and WalletManager networkConnected variables are changed simultaneously
-                if (mbwManager.getWalletManager(false).isNetworkConnected() != connected) {
-                    mbwManager.getWalletManager(false).setNetworkConnected(connected);
-                    mbwManager.getWapi().setNetworkConnected(connected);
-                }
+                // delay the check so that the state has room to switch between blocked and connected
+                // statuses when returning back from idle (doze) mode
+                checkNetworkTimer = new Timer();
+                checkNetworkTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        boolean connected = Utils.isConnected(getApplicationContext(), "went foreground");
+                        if (mbwManager.getWalletManager(false).isNetworkConnected() != connected) {
+                            mbwManager.getWalletManager(false).setNetworkConnected(connected);
+                            mbwManager.getWapi().setNetworkConnected(connected);
+                            mbwManager.getBtcvWapi().setNetworkConnected(connected);
+                        }
+                        if (connected) {
+                            checkNetworkTimer.cancel();
+                        }
+                    }
+                }, 0, 1000);
                 isBackground = false;
             }
             numStarted++;
@@ -260,7 +278,11 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             if (numStarted == 0) {
                 // app is going background
                 MbwManager.getInstance(getApplicationContext()).setAppInForeground(false);
+                if (checkNetworkTimer != null) {
+                    checkNetworkTimer.cancel();
+                }
                 isBackground = true;
+                logger.log(Level.INFO, "Went to background");
             }
             Toaster.onStop();
         }
@@ -271,6 +293,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         @Override
         public void onActivityDestroyed(Activity activity) {
             numOfCreated--;
+            MbwManager.getInstance(getApplicationContext()).setActivityCount(numOfCreated);
         }
     }
 

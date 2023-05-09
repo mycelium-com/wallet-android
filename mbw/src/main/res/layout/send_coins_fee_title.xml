@@ -2,12 +2,12 @@
 
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/tvFeeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/miner_fee_title"
-        android:layout_marginTop="24dp"
-        android:textSize="14sp"
-        android:textColor="@color/fio_white_alpha_0_6"
-        xmlns:tools="http://schemas.android.com/tools"
-        tools:showIn="@layout/send_coins_activity"/>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tvFeeLabel"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:text="@string/miner_fee_title"
+    android:textColor="@color/fio_white_alpha_0_6"
+    android:textSize="14sp"
+    tools:showIn="@layout/send_coins_activity" />

@@ -168,6 +168,7 @@ class GiftboxBuyFragment : Fragment() {
         binding?.btSend?.setOnClickListener {
             MbwManager.getInstance(WalletApplication.getInstance()).runPinProtectedFunction(activity) {
                 loader(true)
+                binding?.btSend?.isEnabled = false
                 GitboxAPI.giftRepository.createOrder(
                         viewModel.viewModelScope,
                         code = args.product.code!!,
@@ -179,6 +180,8 @@ class GiftboxBuyFragment : Fragment() {
                             viewModel.sendTransactionAction.value = Unit
                         },
                         error = { _, error ->
+                            loader(false)
+                            binding?.btSend?.isEnabled = true
                             AlertDialog.Builder(requireContext(), R.style.MyceliumModern_Dialog)
                                     .setTitle(getString(R.string.tx_not_sent))
                                     .setMessage(getString(R.string.check_internet_and_try_again))
@@ -192,9 +195,7 @@ class GiftboxBuyFragment : Fragment() {
                                         }
                                     }
                                     .show()
-                        }, finally = {
-                    loader(false)
-                })
+                        })
 
                 viewModel.sendTransaction.observe(viewLifecycleOwner) {
                     loader(false)
@@ -256,6 +257,7 @@ class GiftboxBuyFragment : Fragment() {
                 )
             )
         } else {
+            binding?.btSend?.isEnabled = true
             Toaster(requireActivity())
                 .toast(broadcastResult.errorMessage ?: broadcastResult.resultType.toString(), false)
         }

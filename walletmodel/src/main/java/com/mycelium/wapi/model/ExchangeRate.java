@@ -33,6 +33,8 @@ public class ExchangeRate implements Serializable {
    @JsonProperty
    public final Double price; // null if price is not available
 
+   public String fromCurrency;
+
    public ExchangeRate(
            @JsonProperty("name") String name,
            @JsonProperty("time") long time,
@@ -42,6 +44,16 @@ public class ExchangeRate implements Serializable {
       this.time = time;
       this.currency = currency;
       this.price = price;
+   }
+
+   public ExchangeRate(
+           String name,
+           long time,
+           double price,
+           String fromCurrency,
+           String toCurrency) {
+      this(name, time, price, toCurrency);
+      this.fromCurrency = fromCurrency;
    }
 
    public static ExchangeRate missingRate(String name, long time, String currency) {

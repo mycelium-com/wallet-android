@@ -398,8 +398,8 @@
     <string name="copy_signature">Copier la signature dans le presse-papier</string>
     <string name="share_signature">Partager texte  + signature</string>
     <string name="sig_copied">Signature copiée dans le presse-papier</string>
-    <string name="signed_message_subject">Message Bitcoin signé</string>
-    <string name="signed_message_share">Partagez le message Bitcoin signé</string>
+    <string name="signed_message_subject_btc">Message Bitcoin signé</string>
+    <string name="signed_message_share_btc">Partagez le message Bitcoin signé</string>
     <string name="signing_inprogress">Signature en cours&#8230;</string>
     <string name="geocode_error">Erreur de géo-codeur: %s\nVeuillez essayer de nouveau plus tard.</string>
     <string name="fetching_info">En attente d\'informations du serveur</string>

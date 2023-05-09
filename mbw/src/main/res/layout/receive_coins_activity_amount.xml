@@ -61,8 +61,27 @@
             tools:text="5 tBTC" />
 
         <TextView
+            android:id="@+id/tvAmountFiatWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_mono_regular"
+            android:singleLine="true"
+            android:text="@string/course_outdated"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/fio_yellow"
+            android:visibility="@{viewModel.getCourseOutdated ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvAmountFiat"
+            app:layout_constraintEnd_toStartOf="@id/tvAmountFiat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintHorizontal_bias="1.0"
+            tools:visibility="gone"/>
+
+        <TextView
             android:id="@+id/tvAmountFiat"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_mono_regular"
             android:singleLine="true"
@@ -73,7 +92,8 @@
             android:visibility="@{Value.isNullOrZero(viewModel.requestedAmountAlternative) ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="@id/btEnterAmount"
             app:layout_constraintEnd_toEndOf="@id/tvAmount"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.75"
+            app:layout_constraintStart_toEndOf="@id/tvAmountFiatWarning"
             tools:text="55.02 USD" />
 
         <View

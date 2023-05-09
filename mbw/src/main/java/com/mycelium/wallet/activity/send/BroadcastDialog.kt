@@ -22,20 +22,24 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import com.squareup.otto.Bus
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class BroadcastDialog : DialogFragment() {
+
+
     companion object {
         const val accountId = "account_id"
         const val coldStorage = "isColdStorage"
         const val tx = "transaction"
-
+        val logger = Logger.getLogger(BroadcastDialog::class.java.simpleName)
         @JvmOverloads
         @JvmStatic
         fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
                    , transactionSummary: TransactionSummary): BroadcastDialog {
             val transaction = account.getTx(transactionSummary.id)
-            return create(account, isColdStorage, transaction)
+            return create(account, isColdStorage, transaction!!)
         }
 
         @JvmOverloads
@@ -78,6 +82,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun startBroadcastingTask() {
+        logger.log(Level.INFO, "Start broadcasting")
         // Broadcast the transaction in the background
         if (activity != null) {
             task = BroadcastTask(account, transaction) {
@@ -87,6 +92,7 @@ class BroadcastDialog : DialogFragment() {
             if (Utils.isConnected(context)) {
                 task?.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             } else {
+                logger.log(Level.INFO, "Not connected")
                 task?.listener?.invoke(BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION))
             }
         } else {
@@ -119,6 +125,7 @@ class BroadcastDialog : DialogFragment() {
                 account.broadcastTx(transaction)
             } catch (e: TransactionBroadcastException) {
                 Log.e("BroadcastDialog", "", e)
+                logger.log(Level.SEVERE, "Broadcast error", e)
                 BroadcastResult(BroadcastResultType.REJECTED)
             }
         }
@@ -129,6 +136,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun handleResult(broadcastResult: BroadcastResult) {
+        logger.log(Level.INFO, "Broadcasting result: ", broadcastResult.resultType.toString())
         when (broadcastResult.resultType) {
             BroadcastResultType.REJECT_DUPLICATE -> // Transaction rejected, display message and exit
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_double_spending_message) {
@@ -160,7 +168,8 @@ class BroadcastDialog : DialogFragment() {
             BroadcastResultType.REJECT_MALFORMED -> {
                 // Transaction rejected, display message and exit
                 Utils.setClipboardString(HexUtils.toHex(transaction.txBytes()), context)
-                Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_malformed) {
+                Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_malformed,
+                        broadcastResult.errorMessage?.replace("\\[[0-9a-fA-F]+\\]".toRegex(), ""))) {
                     returnResult(broadcastResult)
                 }
             }

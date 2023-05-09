@@ -9,6 +9,8 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.logging.Level
+import java.util.logging.Logger
 
 abstract class WapiFeeProvider(private val wapi: Wapi, private val feeBacking: FeeEstimationsBacking) : FeeProvider {
     abstract override val coinType: AssetInfo
@@ -19,7 +21,10 @@ abstract class WapiFeeProvider(private val wapi: Wapi, private val feeBacking: F
         // we try to get fee estimation from server
         estimation = withContext(Dispatchers.IO) {
             try {
-                val response = wapi.minerFeeEstimations
+                val response = wapi.getMinerFeeEstimations()
+                Logger.getLogger(WapiFeeProvider::class.java.simpleName)
+                    .log(Level.INFO, "WapiFeeProvider ${response?.result?.feeEstimation?.getEstimation(20).toString()}" +
+                            " ${response?.result?.feeEstimation?.getEstimation(3).toString()}")
                 val oldStyleFeeEstimation = response.result.feeEstimation
                 fun convert(blocks: Int): Value {
                     val estimate = oldStyleFeeEstimation.getEstimation(blocks)

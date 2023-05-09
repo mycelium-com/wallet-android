@@ -25,6 +25,8 @@ import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.SentFIORequestContent
 import fiofoundation.io.fiosdk.models.fionetworkprovider.response.PushTransactionResponse
 import fiofoundation.io.fiosdk.utilities.Utils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.math.BigInteger
 import java.text.SimpleDateFormat
 import java.util.*
@@ -146,11 +148,14 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
                                                         obtId = obtId,
                                                         maxFee = fiosdk.getFeeForRecordObtData(payerFioAddress).fee,
                                                         memo = memo).getActionTraceResponse()
+        if(actionTraceResponse?.status == "sent_to_blockchain") {
+            backing.deletePendingRequest(fioRequestId)
+        }
         return actionTraceResponse != null && actionTraceResponse.status == "sent_to_blockchain"
     }
 
-    private fun getFioNames(): List<RegisteredFIOName> = try {
-        FioBlockchainService.getFioNames(fioEndpoints, receivingAddress.toString())?.fio_addresses?.map {
+    private suspend fun getFioNames(): List<RegisteredFIOName> = try {
+        withContext(Dispatchers.IO) { FioBlockchainService.getFioNames(fioEndpoints, receivingAddress.toString()) } ?.fio_addresses?.map {
             val bundledTxsNum = FioBlockchainService.getBundledTxsNum(fioEndpoints, it.fio_address) ?: DEFAULT_BUNDLED_TXS_NUM
             RegisteredFIOName(it.fio_address, convertToDate(it.expiration), bundledTxsNum)
         } ?: emptyList()
@@ -161,8 +166,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         emptyList()
     }
 
-    private fun getFioDomains(): List<FIODomain> = try {
-        FioBlockchainService.getFioNames(fioEndpoints, receivingAddress.toString())?.fio_domains?.map {
+    private suspend fun getFioDomains(): List<FIODomain> = try {
+        withContext(Dispatchers.IO) { FioBlockchainService.getFioNames(fioEndpoints, receivingAddress.toString()) }?.fio_domains?.map {
             FIODomain(it.fio_domain, convertToDate(it.expiration), it.isPublic != 0)
         } ?: emptyList()
     } catch (e: Exception) {
@@ -183,17 +188,17 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
-        if (amount > calculateMaxSpendableAmount((fee as FeePerKbFee).feePerKb, address as FioAddress)) {
+        if (amount > calculateMaxSpendableAmount((fee as FeePerKbFee).feePerKb, address as FioAddress, null)) {
             throw InsufficientFundsException(Throwable("Invalid amount"))
         }
 
         return FioTransaction(coinType, address.toString(), amount, fee.feePerKb)
     }
 
-    override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
     }
 
-    override fun broadcastTx(tx: Transaction?): BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         val fioTx = tx as FioTransaction
         return try {
             val response = getFioSdk()!!.transferTokens(fioTx.toAddress, fioTx.value.value, fioTx.fee.value)
@@ -218,23 +223,27 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
     }
 
-    override fun getReceiveAddress(): FioAddress = receivingAddress
+    override val receiveAddress: FioAddress
+        get() = receivingAddress
 
-    override fun getCoinType(): CryptoCurrency = accountContext.currency
+    override val coinType: CryptoCurrency
+        get() = accountContext.currency
 
-    override fun getBasedOnCoinType(): CryptoCurrency = coinType
+    override val basedOnCoinType: CryptoCurrency
+        get() = coinType
 
-    override fun getAccountBalance(): Balance = accountContext.balance
+    override val accountBalance: Balance
+        get() = accountContext.balance
 
     override fun isMineAddress(address: Address?): Boolean = address == receiveAddress
 
     override fun isExchangeable(): Boolean = true
 
-    override fun getTx(transactionId: ByteArray?): Transaction {
+    override fun getTx(transactionId: ByteArray): Transaction? {
         TODO("Not yet implemented")
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
+    override fun getTxSummary(transactionId: ByteArray): TransactionSummary? =
             backing.getTransactionSummary(HexUtils.toHex(transactionId), receiveAddress.toString())!!
 
     fun getRequestsGroups() = backing.getRequestsGroups()
@@ -242,7 +251,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     fun rejectFundsRequest(fioRequestId: BigInteger, fioName: String): PushTransactionResponse.ActionTraceResponse? {
         val fiosdk = getFioSdk()
-        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse()
+        return fiosdk!!.rejectFundsRequest(fioRequestId, fiosdk.getFeeForRejectFundsRequest(fioName).fee).getActionTraceResponse().also {
+            backing.deletePendingRequest(fioRequestId)
+        }
     }
 
     fun requestFunds(payerFioAddress: String, payeeFioAddress: String,
@@ -263,17 +274,16 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         return mutableListOf()
     }
 
-    override fun getLabel(): String = accountContext.accountName
-
-    override fun setLabel(label: String?) {
-        label?.let {
-            accountContext.accountName = it
+    override var label: String
+        get() = accountContext.accountName
+        set(value) {
+            accountContext.accountName = value
         }
-    }
 
-    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false
+    override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
-    override fun synchronize(mode: SyncMode?): Boolean {
+    @Synchronized // need to avoid double call in one time
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         var syncResult = false
         try {
@@ -304,9 +314,9 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         return true
     }
 
-    private fun updateBalance(): Boolean {
+    private suspend fun updateBalance(): Boolean {
         try {
-            val fioBalance = balanceService.getBalance()
+            val fioBalance = withContext(Dispatchers.IO) { balanceService.getBalance() }
             val newBalance = Balance(Value.valueOf(coinType, fioBalance),
                     Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
             if (newBalance != accountContext.balance) {
@@ -325,13 +335,13 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
     }
 
-    private fun updateMappings() {
+    private suspend fun updateMappings() {
         val fioNameMappings = try {
             accountContext.registeredFIONames?.map { fioName ->
-                fioName.name to FioBlockchainService
+                fioName.name to withContext(Dispatchers.IO) {FioBlockchainService
                         .getPubkeysByFioName(fioEndpoints, fioName.name).map {
                             "${it.chainCode}-${it.tokenCode}" to it.publicAddress
-                        }.toMap()
+                        }}.toMap()
             }?.toMap()
         } catch (e: Exception) {
             if (e is FIOError) {
@@ -340,17 +350,17 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
             null
         } ?: return
 
-        walletManager.getAllActiveAccounts().forEach { account ->
+        val mappings = walletManager.getAllActiveAccounts().flatMap { account ->
             val chainCode = account.basedOnCoinType.symbol.toUpperCase(Locale.US)
             val tokenCode = account.coinType.symbol.toUpperCase(Locale.US)
-            accountContext.registeredFIONames?.forEach { fioName ->
+            accountContext.registeredFIONames?.map {  fioName ->
                 val publicAddress = account.coinType.parseAddress(fioNameMappings[fioName.name]!!["$chainCode-$tokenCode"])
-                if (account.isMineAddress(publicAddress)) {
-                    backing.insertOrUpdateMapping(fioName.name, publicAddress.toString(), chainCode,
-                            tokenCode, account.id)
-                }
-            }
+                if(account.isMineAddress(publicAddress))
+                    FioAccountBacking.Mapping(fioName.name, publicAddress.toString(), chainCode, tokenCode, account.id)
+                else null
+            }?.filterNotNull()?: emptyList()
         }
+        backing.insertOrUpdateMappings(mappings)
     }
 
     private fun renewPendingFioRequests(pendingFioRequests: List<FIORequestContent>) {
@@ -367,10 +377,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         })
     }
 
-    private fun syncFioRequests() {
+    private suspend fun syncFioRequests() {
         val fiosdk = getFioSdk()
         try {
-            val pendingFioRequests = fiosdk?.getPendingFioRequests() ?: emptyList()
+            val pendingFioRequests = withContext(Dispatchers.IO) { fiosdk?.getPendingFioRequests() ?: emptyList() }
             logger.log(Level.INFO, "Received ${pendingFioRequests.size} pending requests")
             renewPendingFioRequests(pendingFioRequests)
         } catch (ex: FIOError) {
@@ -387,7 +397,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
 
         try {
-            val sentFioRequests = fiosdk?.getSentFioRequests() ?: emptyList()
+            val sentFioRequests = withContext(Dispatchers.IO) { fiosdk?.getSentFioRequests() ?: emptyList() }
             renewSentFioRequests(sentFioRequests)
             logger.log(Level.INFO, "Received ${sentFioRequests.size} sent requests")
         } catch (ex: FIOError) {
@@ -404,12 +414,12 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
     }
 
-    private fun syncFioOBT() {
+    private suspend fun syncFioOBT() {
         // we don't sync obt records for read-only accounts yet
         if (privkeyString == null) return
 
         try {
-            val obtList = fioBlockchainService.getObtData(receivingAddress.toString(), privkeyString)
+            val obtList = withContext(Dispatchers.IO) { fioBlockchainService.getObtData(receivingAddress.toString(), privkeyString) }
             logger.log(Level.INFO, "Received OBT list with ${obtList.size} items")
             backing.putOBT(obtList)
         } catch (ex: Exception) {
@@ -420,7 +430,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         }
     }
 
-    private fun syncFioAddresses() {
+    private suspend fun syncFioAddresses() {
         val fioNames = getFioNames()
         fioNames.forEach {
             addOrUpdateRegisteredName(it)
@@ -442,7 +452,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         accountContext.registeredFIONames = registeredFIONames
     }
 
-    private fun syncFioDomains() {
+    private suspend fun syncFioDomains() {
         val fioDomains = getFioDomains()
         fioDomains.forEach {
             addOrUpdateRegisteredDomain(it)
@@ -464,8 +474,8 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         accountContext.registeredFIODomains = registeredFIODomains
     }
 
-    private fun updateBlockHeight(): Boolean = try {
-        accountContext.blockHeight = fioBlockchainService.getLatestBlock().toInt()
+    private suspend fun updateBlockHeight(): Boolean = try {
+        accountContext.blockHeight = withContext(Dispatchers.IO) { fioBlockchainService.getLatestBlock().toInt() }
         true
     } catch (e: Exception) {
         lastSyncInfo = SyncStatusInfo(SyncStatus.ERROR)
@@ -476,14 +486,10 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         false
     }
 
-    private fun syncTransactions(): Boolean {
+    private suspend fun syncTransactions(): Boolean {
         try {
-            fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger()).forEach {
-                backing.putTransaction(it.blockNumber.toInt(), it.timestamp, it.txid, "",
-                        it.fromAddress, it.toAddress, it.sum,
-                        kotlin.math.max(accountContext.blockHeight - it.blockNumber.toInt(), 0),
-                        it.fee, it.transferred, it.memo)
-            }
+            val txs = withContext(Dispatchers.IO) { fioBlockchainService.getTransactions(receivingAddress.toString(), accountContext.blockHeight.toBigInteger()) }
+            backing.putTransactions(accountContext.blockHeight, txs)
 
             accountContext.actionSequenceNumber =
                     fioBlockchainService.getAccountActionSeqNumber(Utils.generateActor(receivingAddress.toString()))
@@ -505,11 +511,17 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun canSign(): Boolean = false
 
+    override fun signMessage(message: String, address: Address?): String {
+        TODO("Not yet implemented")
+    }
+
     override fun isSyncing(): Boolean = syncing
 
-    override fun isArchived(): Boolean = accountContext.archived
+    override val isArchived: Boolean
+        get() = accountContext.archived
 
-    override fun isActive(): Boolean = !isArchived
+    override val isActive: Boolean
+        get() = !isArchived
 
     override fun archiveAccount() {
         accountContext.archived = true
@@ -530,34 +542,32 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
 
     override fun isDerivedFromInternalMasterseed(): Boolean = accountContext.accountType == FioAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
-    override fun getId(): UUID = accountContext.uuid
+    override val id: UUID
+        get() = accountContext.uuid
 
     override fun broadcastOutgoingTransactions(): Boolean = true
 
     override fun removeAllQueuedTransactions() {
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: FioAddress?): Value {
-        val spendableWithFee = accountBalance.spendable - (minerFeePerKilobyte
-                ?: Value.zeroValue(coinType))
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: FioAddress?, txData: TransactionData?): Value {
+        val spendableWithFee = accountBalance.spendable - minerFeePerKilobyte
         return if (spendableWithFee.isNegative()) Value.zeroValue(coinType) else spendableWithFee
     }
 
-    override fun getSyncTotalRetrievedTransactions(): Int = 0
+    override val syncTotalRetrievedTransactions: Int = 0
 
-    override fun getTypicalEstimatedTransactionSize(): Int = 0
+    override val typicalEstimatedTransactionSize: Int = 0
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("Not yet implemented")
     }
 
-    override fun getDummyAddress(): FioAddress = FioAddress(coinType, FioAddressData(""))
+    override val dummyAddress: FioAddress = FioAddress(coinType, FioAddressData(""))
 
-    override fun getDummyAddress(subType: String?): FioAddress = dummyAddress
+    override fun getDummyAddress(subType: String): FioAddress = dummyAddress
 
-    override fun getDependentAccounts(): MutableList<WalletAccount<Address>> {
-        return mutableListOf()
-    }
+    override val dependentAccounts: List<WalletAccount<Address>> = emptyList()
 
     override fun queueTransaction(transaction: Transaction) {
         TODO("Not yet implemented")

@@ -5,6 +5,7 @@ import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
+import com.mycelium.wallet.fio.event.FioRequestStatusChanged
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioGroup
 import com.mycelium.wapi.wallet.fio.getActiveFioAccounts
@@ -100,6 +101,11 @@ class FioRequestsLiveData(val mbwManager: MbwManager) : LiveData<MutableList<Fio
 
     @Subscribe
     fun transactionLabelChanged(event: TransactionLabelChanged) {
+        startHistoryUpdate()
+    }
+
+    @Subscribe
+    fun requestChanged(event: FioRequestStatusChanged) {
         startHistoryUpdate()
     }
 

@@ -9,6 +9,7 @@ import android.view.Window
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.send.SendCoinsActivity.Companion.getIntent
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
@@ -16,13 +17,12 @@ import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.interruptSync
-import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
 
 class SendInitializationActivity : Activity() {
-    private val mbwManager: MbwManager = MbwManager.getInstance(application)
+    private val mbwManager: MbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     private lateinit var account: WalletAccount<*>
     private var uri: AssetUri? = null
     private var isColdStorage = false
@@ -113,7 +113,7 @@ class SendInitializationActivity : Activity() {
         if (isFinishing) {
             return
         }
-        if (account.isSyncing && (account.coinType.isUtxosBased || isColdStorage)) {
+        if (account.isSyncing() && (account.coinType.isUtxosBased || isColdStorage)) {
             // wait till its finished syncing
             // no need wait for non utxo's based accounts
             return

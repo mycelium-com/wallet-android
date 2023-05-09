@@ -8,11 +8,12 @@ import java.math.BigInteger
 class EthTransactionSummary(val sender: EthAddress, val receiver: EthAddress, val nonce: BigInteger?,
                             val value: Value, val internalValue: Value?, val gasLimit: BigInteger,
                             val gasUsed: BigInteger, val gasPrice: BigInteger,
-                            type: CryptoCurrency?, id: ByteArray?, hash: ByteArray?,
-                            transferred: Value?, timestamp: Long, height: Int, confirmations: Int,
-                            isQueuedOutgoing: Boolean, inputs: List<InputViewModel>?,
-                            outputs: List<OutputViewModel>?,
-                            destinationAddresses: List<Address>?,
+                            val hasTokenTransfers: Boolean,
+                            type: CryptoCurrency, id: ByteArray, hash: ByteArray,
+                            transferred: Value, timestamp: Long, height: Int, confirmations: Int,
+                            isQueuedOutgoing: Boolean, inputs: List<InputViewModel>,
+                            outputs: List<OutputViewModel>,
+                            destinationAddresses: List<Address>,
                             risk: ConfirmationRiskProfileLocal?, rawSize: Int, fee: Value?)
     : TransactionSummary(type, id, hash, transferred, timestamp, height, confirmations,
         isQueuedOutgoing, inputs, outputs, destinationAddresses, risk, rawSize, fee)

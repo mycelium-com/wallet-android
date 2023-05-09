@@ -17,7 +17,7 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.client.models.TotpCreateResponse
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.external.partner.openLink
 import kotlinx.android.synthetic.main.fragment_bequant_backup_code.*
 import kotlinx.android.synthetic.main.layout_dialog_view_msg.view.*
 
@@ -61,7 +61,7 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
                         this.message?.let {
                             it.text = Html.fromHtml(context.getString(R.string.try_request_backup_again))
                             it.setOnClickListener {
-                                Utils.openWebsite(requireContext(), BequantConstants.LINK_SUPPORT_CENTER)
+                                openLink(BequantConstants.LINK_SUPPORT_CENTER)
                             }
                         }
                         this.message

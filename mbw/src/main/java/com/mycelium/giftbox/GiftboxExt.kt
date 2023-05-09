@@ -14,6 +14,8 @@ import com.mycelium.giftbox.model.Card
 import com.mycelium.wallet.R
 import com.squareup.sqldelight.ColumnAdapter
 import java.text.DateFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.*
 
 @BindingAdapter("image")
@@ -85,7 +87,13 @@ fun Fragment.shareGiftcard(card: Card) {
 }
 
 val dateAdapter = object : ColumnAdapter<Date, String> {
-    override fun decode(databaseValue: String): Date = DateFormat.getDateTimeInstance().parse(databaseValue)
+    val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ")
 
-    override fun encode(value: Date): String = DateFormat.getDateTimeInstance().format(value)
+    override fun decode(databaseValue: String): Date = try {
+        date.parse(databaseValue)
+    } catch (e: ParseException) {
+        DateFormat.getDateTimeInstance().parse(databaseValue)
+    }
+
+    override fun encode(value: Date): String = date.format(value)
 }

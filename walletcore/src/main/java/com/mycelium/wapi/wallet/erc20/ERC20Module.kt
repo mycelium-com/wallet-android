@@ -8,12 +8,13 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.genericdb.Backing
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
@@ -27,22 +28,23 @@ class ERC20Module(
         private val backing: Backing<ERC20AccountContext>,
         private val walletDB: WalletDB,
         private val blockchainService: EthBlockchainService,
-        networkParameters: NetworkParameters,
+        private val networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?,
         private val ethereumModule: EthereumModule) : WalletModule(metaDataStorage) {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
-    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else ChainId.ROPSTEN
+    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else CHAIN_ID_GOERLI
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
         val baseLabel: String
         when (config) {
             is ERC20Config -> {
-                val credentials = Credentials.create(Keys.deserialize(
-                        secureStore.getDecryptedValue(config.ethAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
+                val credentials = if(config.ethAccount.canSpend())
+                    Credentials.create(Keys.deserialize(secureStore.getDecryptedValue(
+                        config.ethAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher()))) else null
                 val token = config.token as ERC20Token
                 baseLabel = token.name
 
@@ -52,7 +54,7 @@ class ERC20Module(
                 backing.createAccountContext(accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
                 result = ERC20Account(chainId, accountContext, token, config.ethAccount, credentials, accountBacking,
-                        accountListener, blockchainService)
+                        accountListener, blockchainService, if(config.ethAccount.canSpend()) null else config.ethAccount.receivingAddress)
             }
             else -> throw NotImplementedError("Unknown config")
         }
@@ -113,22 +115,34 @@ class ERC20Module(
 
     private fun accountFromUUID(uuid: UUID): ERC20Account {
         val accountContext = createAccountContext(uuid)
-        val credentials = Credentials.create(Keys.deserialize(
-                secureStore.getDecryptedValue(accountContext.ethAccountId.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
-
-        val token = ERC20Token(accountContext.accountName, accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
+        val token = ERC20Token(accountContext.accountName + if (networkParameters.isProdnet) "" else " test",
+                accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
         val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
-        val account = ERC20Account(chainId, accountContext, token, ethAccount, credentials, accountBacking,
-                accountListener, blockchainService)
+        val decryptedKey = secureStore.getDecryptedValue(
+            accountContext.ethAccountId.toString().toByteArray(),
+            AesKeyCipher.defaultKeyCipher()
+        )
+        val account = if (decryptedKey != null) {
+            val credentials = Credentials.create(Keys.deserialize(decryptedKey))
+            ERC20Account(
+                chainId, accountContext, token, ethAccount, credentials, accountBacking,
+                accountListener, blockchainService
+            )
+        } else {
+            val ethAddress = EthAddress(token, String(secureStore.getPlaintextValue(ethAccount.id.toString().toByteArray())))
+            ERC20Account(chainId, accountContext, token, ethAccount, null, accountBacking,
+                accountListener, blockchainService, ethAddress)
+        }
         accounts[account.id] = account
         return account
     }
 
     companion object {
+        private const val CHAIN_ID_GOERLI: Byte = 5
         const val ID: String = "ERC20"
     }
 }
 
-fun WalletManager.getERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible }.map { it as ERC20Account }
-fun WalletManager.getActiveERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible && it.isActive }.map { it as ERC20Account }
+fun WalletManager.getERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible() }.map { it as ERC20Account }
+fun WalletManager.getActiveERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible() && it.isActive }.map { it as ERC20Account }

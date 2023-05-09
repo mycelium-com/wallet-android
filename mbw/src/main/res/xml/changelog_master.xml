@@ -1,5 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.16.1.0" versioncode="3160100">
+        <change>ERC-20 support for Gift Cards</change>
+        <change>Updated 'Help' section (available via Settings)</change>
+        <change>New 'Update available' pop-up</change>
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.16.0.16" versioncode="3160016">
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.16.0.15" versioncode="3160015">
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.16.0.14" versioncode="3160014">
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.16.0.13" versioncode="3160013">
+        <change>Crypto to crypto exchange</change>
+        <change>Improved gas price estimations for ETH and ERC-20</change>
+        <change>Improved gift card purchase experience</change>
+        <change>Satoshi denomination</change>
+        <change>Updated 'What's new' pop-up</change>
+        <change>Bug fixes</change>
+    </release>
+    <release version="3.15.0.0" versioncode="3150000">
+        <change>Added ability to set gas price manually</change>
+    </release>
+    <release version="3.14.1.0" versioncode="3140100">
+        <change>Minor configuration updates</change>
+    </release>
+    <release version="3.14.0.0" versioncode="3140000">
+        <change>Added network state banner on main screen</change>
+        <change>Fixed crash when scanning bitcoin addresses from cold storage menu</change>
+        <change>Fixed crash when trying to send Btcv</change>
+    </release>
+    <release version="3.13.9.0" versioncode="3130900">
+        <change>Fixed issues when creating a Single Address account from an address</change>
+    </release>
+    <release version="3.13.8.0" versioncode="3130800">
+        <change>Fixed issues with read-only Single Address accounts</change>
+    </release>
+    <release version="3.13.7.0" versioncode="3130700">
+        <change>Synchronization improvements</change>
+    </release>
+    <release version="3.13.6.0" versioncode="3130600">
+        <change>Fixed synchronization issues when restoring existing master seed from a phrase</change>
+        <change>Fixed issues with ERC-20 transactions having multiple receivers</change>
+    </release>
+    <release version="3.13.4.0" versioncode="3130400">
+        <change>Accounts' initialization order improvements</change>
+    </release>
+    <release version="3.13.3.0" versioncode="3130300">
+        <change>Bugfix for the accounts' group control behavior</change>
+    </release>
+    <release version="3.13.2.0" versioncode="3130200">
+        <change>Added signing with using ETH account</change>
+        <change>ETH and FIO accounts are created by default at startup</change>
+        <change>Fixes for ERC-20 send screen and receive amount screen</change>
+        <change>Fixed issues with popups in case of connection absence</change>
+        <change>FIO bugfixes</change>
+    </release>
     <release version="3.8.8.0" versioncode="3080800">
         <change>Feature to temporarily extend the gap limit</change>
     </release>

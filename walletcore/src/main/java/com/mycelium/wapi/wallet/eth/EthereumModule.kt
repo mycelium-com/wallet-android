@@ -22,7 +22,6 @@ import org.web3j.crypto.Keys
 import org.web3j.tx.ChainId
 import java.util.*
 
-
 class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: Backing<EthAccountContext>,
@@ -36,7 +35,7 @@ class EthereumModule(
     val password = ""
     fun getBip44Path(accountIndex: Int): HdKeyPath = HdKeyPath.valueOf("m/44'/60'/$accountIndex'/0/0")
     private val coinType = if (networkParameters.isProdnet) EthMain else EthTest
-    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else ChainId.ROPSTEN
+    private val chainId = if (networkParameters.isProdnet) ChainId.MAINNET else CHAIN_ID_GOERLI
 
     private val accounts = mutableMapOf<UUID, EthAccount>()
     override val id = ID
@@ -107,7 +106,7 @@ class EthereumModule(
             ethAccount
         } else {
             val accountContext = createAccountContext(uuid)
-            val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
+            val ethAddress = EthAddress(coinType, String(secureStore.getPlaintextValue(uuid.toString().toByteArray())))
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
             val ethAccount = EthAccount(chainId, accountContext, address = ethAddress, backing = ethAccountBacking,
                     accountListener = accountListener, blockchainService = blockchainService)
@@ -170,15 +169,16 @@ class EthereumModule(
     }
 
     private fun getCurrentBip44Index() = accounts.values
-            .filter { it.isDerivedFromInternalMasterseed }
+            .filter { it.isDerivedFromInternalMasterseed() }
             .maxBy { it.accountIndex }
             ?.accountIndex
             ?: -1
 
     companion object {
+        private const val CHAIN_ID_GOERLI: Byte = 5
         const val ID: String = "Ethereum"
     }
 }
 
-fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
-fun WalletManager.getActiveEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible && it.isActive }
+fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible() }
+fun WalletManager.getActiveEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible() && it.isActive }

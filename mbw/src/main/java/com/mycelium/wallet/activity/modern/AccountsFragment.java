@@ -81,6 +81,7 @@ import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.fio.AboutFIOProtocolDialog;
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
+import com.mycelium.wallet.activity.modern.event.SelectTab;
 import com.mycelium.wallet.activity.modern.helper.FioHelper;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -89,6 +90,7 @@ import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.ExchangeSourceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -646,7 +648,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (_mbwManager.isAccountCanBeDeleted(account)) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
@@ -728,7 +730,7 @@ public class AccountsFragment extends Fragment {
                         FioHelper.chooseAccountToMap(requireActivity(), requireFocusedAccount());
                         return true;
                     case R.id.miFIORequests:
-                        ((ModernMain) getActivity()).selectRequestTab();
+                        MbwManager.getEventBus().post(new SelectTab(ModernMain.TAB_FIO_REQUESTS));
                         return true;
                     case R.id.miAboutFIOProtocol:
                         new AboutFIOProtocolDialog().show(getParentFragmentManager(), "modal");
@@ -1216,6 +1218,11 @@ public class AccountsFragment extends Fragment {
 
     @Subscribe
     public void exchangeSourceChange(ExchangeSourceChanged event) {
+        accountListAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe
+    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
         accountListAdapter.notifyDataSetChanged();
     }
 

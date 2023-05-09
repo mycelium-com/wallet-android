@@ -59,12 +59,6 @@
     <style name="MyceliumActionBar" parent="MyceliumModern">
         <!-- Load it later in code with a lower pixel format, to save some memory
         <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
-
-        <item name="android:windowActionBar">false</item>
-        <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionModeOverlay">true</item>
     </style>
 
 
@@ -168,7 +162,9 @@
 
     <style name="MyceliumModern" parent="AppBaseTheme">
         <!--<item name="android:windowFullscreen">true</item>-->
-
+        <!--   <item name="android:windowActionBar">false</item>
+           <item name="windowActionBar">false</item>-->
+        <!--<item name="android:windowNoTitle">true</item>-->
         <item name="android:popupBackground">@drawable/semi_black</item>
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
@@ -191,7 +187,6 @@
         <item name="dropDownListViewStyle">@style/DropDownListViewStyle</item>
 
         <item name="actionBarStyle">@style/MyceliumActionBarStyle</item>
-
     </style>
 
     <style name="MyceliumActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
@@ -465,6 +460,12 @@
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
 
+    <style name="Dialog.Changelly" parent="AppBaseTheme" >
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
+
     <style name="Bequant" parent="MyceliumModern">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -666,5 +667,13 @@
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="MyceliumModern.BottomSheetDialogTheme.Transparent" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/MyceliumModern.BottomSheetDialog.Transparent</item>
+    </style>
+
+    <style name="MyceliumModern.BottomSheetDialog.Transparent" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="backgroundTint">@android:color/transparent</item>
     </style>
 </resources>

@@ -399,8 +399,8 @@
     <string name="copy_signature">Copiar firma al portapapeles</string>
     <string name="share_signature">Compartir Texto + Firma</string>
     <string name="sig_copied">Firma copiada en el portapapeles</string>
-    <string name="signed_message_subject">Mensaje firmado con bitcoin</string>
-    <string name="signed_message_share">Compartir mensaje firmado con Bitcoin</string>
+    <string name="signed_message_subject_btc">Mensaje firmado con bitcoin</string>
+    <string name="signed_message_share_btc">Compartir mensaje firmado con Bitcoin</string>
     <string name="signing_inprogress">Firmando el mensaje&#8230;</string>
     <string name="geocode_error">Error del geocoder: %s \n por favor intentalo de nuevo más tarde.</string>
     <string name="fetching_info">Obteniendo información del servidor</string>

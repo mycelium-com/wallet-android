@@ -15,6 +15,7 @@ import com.mycelium.wallet.activity.fio.mapaccount.AccountMappingActivity
 import com.mycelium.wallet.activity.fio.registername.RegisterFioNameActivity.Companion.start
 import com.mycelium.wallet.activity.modern.AccountsFragment
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.event.SyncStopped
@@ -74,7 +75,7 @@ class FioProtocolBannerFragment : Fragment() {
             AddAccountActivity.callMe(this, AccountsFragment.ADD_RECORD_RESULT_CODE)
         }
         btFioRequests.setOnClickListener {
-            (activity as ModernMain?)!!.selectRequestTab()
+            MbwManager.getEventBus().post(SelectTab(ModernMain.TAB_FIO_REQUESTS))
         }
         btFioNames.setOnClickListener {
             startActivity(Intent(context, AccountMappingActivity::class.java)

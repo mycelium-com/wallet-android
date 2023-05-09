@@ -31,13 +31,16 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
     private lateinit var viewModel: FioRequestCreateViewModel
 
     companion object {
+        const val FIO_ADDRESS_FROM = "FIO_ADDRESS_FROM"
         const val FIO_ADDRESS_TO = "FIO_ADDRESS_TO"
         const val FIO_TOKEN_TO = "FIO_TOKEN_TO"
 
         @JvmStatic
-        fun start(context: Context, amount: Value?, fioAdrressTo: String, fioTokenTo: Address?, accountToSelect: UUID) =
+        fun start(context: Context, amount: Value?, fioAddressFrom: String,
+                  fioAdrressTo: String, fioTokenTo: Address?, accountToSelect: UUID) =
                 context.startActivity(Intent(context, FioRequestCreateActivity::class.java)
                         .putExtra(SendCoinsActivity.AMOUNT, amount)
+                        .putExtra(FIO_ADDRESS_FROM, fioAddressFrom)
                         .putExtra(FIO_ADDRESS_TO, fioAdrressTo)
                         .putExtra(FIO_TOKEN_TO, fioTokenTo)
                         .putExtra(SendCoinsActivity.ACCOUNT, accountToSelect))
@@ -45,6 +48,7 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val fioAddressFrom = intent.getStringExtra(FIO_ADDRESS_FROM)
         val fioAddressTo = intent.getStringExtra(FIO_ADDRESS_TO)
         val tokenAddressTo = intent.getSerializableExtra(FIO_TOKEN_TO) as Address?
         val mbwManager = MbwManager.getInstance(application)
@@ -63,9 +67,9 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
         if (savedInstanceState != null) {
             viewModel.loadInstance(savedInstanceState)
         }
+        viewModel.payeeFioName.value = fioAddressFrom
         viewModel.payerFioName.value = fioAddressTo
         viewModel.payerTokenPublicAddress.value = tokenAddressTo.toString()
-
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         supportActionBar?.run {
@@ -129,8 +133,8 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
                 SendCoinsActivity.GET_AMOUNT_RESULT_CODE, account.coinType)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true
@@ -141,11 +145,12 @@ class FioRequestCreateActivity : AppCompatActivity(), AmountListener {
     fun showPayeeSelector() {
         val payeeFioAddreses = viewModel.getPayeeFioAddreses()
         val payeeFioAddresesStr = payeeFioAddreses?.map { it.name }?.toTypedArray()
+        val checkedPosition = payeeFioAddresesStr?.indexOfFirst { it == viewModel.payeeFioName.value }
         AlertDialog.Builder(this)
-                .setSingleChoiceItems(payeeFioAddresesStr, 0, null)
-                .setPositiveButton(R.string.button_ok) { dialog, whichButton ->
+                .setSingleChoiceItems(payeeFioAddresesStr, checkedPosition ?: 0, null)
+                .setPositiveButton(R.string.button_ok) { dialog, _ ->
                     dialog.dismiss()
-                    val selectedPosition: Int = (dialog as AlertDialog).getListView().getCheckedItemPosition()
+                    val selectedPosition: Int = (dialog as AlertDialog).listView.checkedItemPosition
                     val payeeAddress = payeeFioAddreses?.get(selectedPosition)
                     viewModel.payeeFioName.value = payeeAddress?.name
                 }

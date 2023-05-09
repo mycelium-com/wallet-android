@@ -3,6 +3,8 @@ package com.mycelium.wallet.activity.settings
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.GsonBuilder
+import com.mycelium.bequant.BequantConstants
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.wallet.Constants
 import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
@@ -20,6 +22,7 @@ object SettingsPreference {
     private const val BUY_SELL_KEY = "buysell"
     private const val BALANCE_KEY = "balance"
     private const val PARTNER_ENABLED = "partner-enabled"
+    private const val EXCHANGE_CONFIRMATION_ENABLE = "exchange_confiramation_enable"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val gson by lazy {
         GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
@@ -51,6 +54,11 @@ object SettingsPreference {
     var mediaFlowEnabled
         get() = sharedPreferences.getBoolean(MEDIA_FLOW_ENABLE, true)
         set(value) = sharedPreferences.edit().putBoolean(MEDIA_FLOW_ENABLE, value).apply()
+
+    @JvmStatic
+    var exchangeConfirmationEnabled
+        get() = sharedPreferences.getBoolean(EXCHANGE_CONFIRMATION_ENABLE, false)
+        set(value) = sharedPreferences.edit().putBoolean(EXCHANGE_CONFIRMATION_ENABLE, value).apply()
 
 
     fun getPartnersHeaderTitle(): String? = getPartnersLocalized()?.title
@@ -96,7 +104,10 @@ object SettingsPreference {
     }
 
     @JvmStatic
-    fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean("${PARTNER_ENABLED}-${partnerInfoId}", true)
+    fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean(
+        "${PARTNER_ENABLED}-${partnerInfoId}",
+        if (partnerInfoId == BequantConstants.PARTNER_ID) BequantPreference.isLogged() else true
+    )
 
     fun setEnabled(partnerInfoId: String, enable: Boolean) {
         sharedPreferences.edit().putBoolean("${PARTNER_ENABLED}-${partnerInfoId}", enable).apply()

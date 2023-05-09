@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <import type="android.text.Html" />
 
         <import type="androidx.lifecycle.AndroidViewModel" />
 
@@ -58,18 +61,94 @@
                     bind:listener="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
-                <!-- Advanced block -->
+                <!-- Amount Error -->
                 <include
-                    layout="@layout/send_coins_advanced_block"
-                    bind:activity="@{activity}"
+                    layout="@layout/send_coins_insufficient"
                     bind:viewModel="@{viewModel}" />
-
             </LinearLayout>
+
+            <!-- Advanced block -->
+            <include
+                layout="@layout/send_coins_advanced_block"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
 
             <!--Fee selector-->
             <include
-                layout="@layout/send_coins_fee_block"
+                layout="@layout/send_coins_fee_block_eth"
                 bind:viewModel="@{viewModel}" />
+
+            <TextView
+                android:id="@+id/tvHighestPossibleFeeInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="11dp"
+                android:textColor="@color/fio_white_alpha_0_6"
+                android:textSize="14sp"
+                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
+                tools:text="This is the max fee you may have to pay to send the transaction from ETH Account 1.  However, most likely miner fee will not exceed 0.0026 ETH ~5.00 USD. For details please see miner fee calculation." />
+
+            <TextView
+                android:id="@+id/tvThisIsUpdatedFee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginEnd="16dp"
+                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
+                android:text="@{Html.fromHtml(@string/erc20_this_is_updated_fee)}"
+                android:textColor="@color/fio_white_alpha_0_6"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:text="This is the updated fee based on set Gas Limit. For details please see miner fee calculation."
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/llNotEnoughEth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:layout_marginTop="11dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvPleaseTopUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/fio_red"
+                    android:textSize="14sp"
+                    tools:text="@string/please_top_up_your_eth_account" />
+
+                <LinearLayout
+                    android:id="@+id/llParentEthAccountBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvParentEthAccountBalanceLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/fio_white_alpha_0_6"
+                        android:textSize="14sp"
+                        tools:text="ETH Account 1:" />
+
+                    <TextView
+                        android:id="@+id/tvParentEthAccountBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/fio_white_alpha_0_6"
+                        android:textSize="14sp"
+                        tools:text=" 0 ETH" />
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- Sender -->
             <include
@@ -82,11 +161,6 @@
                 layout="@layout/fio_memo_input"
                 bind:fioMemo="@{viewModel.fioMemo}"
                 bind:payeeFioName="@{viewModel.payeeFioName}" />
-
-            <!-- Amount Error -->
-            <include
-                layout="@layout/send_coins_insufficient"
-                bind:viewModel="@{viewModel}" />
 
             <!--Update progress bar-->
             <include

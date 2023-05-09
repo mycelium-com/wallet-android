@@ -275,7 +275,7 @@ class FioModule(
     }
 
     private fun getCurrentBip44Index() = accounts.values
-            .filter { it.isDerivedFromInternalMasterseed }
+            .filter { it.isDerivedFromInternalMasterseed() }
             .maxBy { it.accountIndex }
             ?.accountIndex
             ?: -1
@@ -343,14 +343,14 @@ class FioModule(
     }
 }
 
-fun WalletManager.getFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible }
+fun WalletManager.getFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible() }
         .map { it as FioAccount }.sortedBy { it.accountIndex }
 
-fun WalletManager.getActiveSpendableFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible && it.isActive && it.canSpend() }
+fun WalletManager.getActiveSpendableFioAccounts() = getAccounts().filter { it is FioAccount && it.isVisible() && it.isActive && it.canSpend() }
         .map { it as FioAccount }.sortedBy { it.accountIndex }
 
 fun WalletManager.getActiveFioAccounts() = getAccounts()
-        .filter { it is FioAccount && it.isVisible && it.isActive }
+        .filter { it is FioAccount && it.isVisible() && it.isActive }
         .map { it as FioAccount }
 
 fun WalletManager.getActiveFioAccount(fioName: String) = getActiveFioAccounts().firstOrNull { fioAccount ->

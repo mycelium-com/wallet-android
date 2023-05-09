@@ -205,8 +205,8 @@
     <string name="copy_signature">העתק חתימה ללוח העתק הדבק (Clipboard)</string>
     <string name="share_signature">שתף טקסט + חתימה</string>
     <string name="sig_copied">חתימה הועתקה ללוח העתק הדבק (Clipboard)</string>
-    <string name="signed_message_subject">הודעת ביטקוין חתומה</string>
-    <string name="signed_message_share">שתף הודעת ביטקוין חתומה</string>
+    <string name="signed_message_subject_btc">הודעת ביטקוין חתומה</string>
+    <string name="signed_message_share_btc">שתף הודעת ביטקוין חתומה</string>
     <string name="signing_inprogress">חותם על הודעה&#8230;</string>
     <!-- BitID -->
     <!-- BitID end -->

@@ -392,8 +392,8 @@
     <string name="copy_signature">Kopiera signatur till urklipp</string>
     <string name="share_signature">Dela text + signatur</string>
     <string name="sig_copied">Signatur kopierad till urklipp</string>
-    <string name="signed_message_subject">Bitcoin-signerat meddelande</string>
-    <string name="signed_message_share">Dela bitcoin-signerat meddelande</string>
+    <string name="signed_message_subject_btc">Bitcoin-signerat meddelande</string>
+    <string name="signed_message_share_btc">Dela bitcoin-signerat meddelande</string>
     <string name="signing_inprogress">Signerar meddelande&#8230;</string>
     <string name="geocode_error">Fel från geocoder: %s \n Försök igen senare.</string>
     <string name="fetching_info">Hämtar info från server</string>

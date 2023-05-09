@@ -403,8 +403,8 @@
     <string name="copy_signature">Copiar Assinatura para a Área de Transferência</string>
     <string name="share_signature">Compartilhar Texto + Assinatura</string>
     <string name="sig_copied">Assinatura copiada para a área de transferência</string>
-    <string name="signed_message_subject">Mensagem Bitcoin assinada</string>
-    <string name="signed_message_share">Compartilhar mensagem Bitcoin assinada</string>
+    <string name="signed_message_subject_btc">Mensagem Bitcoin assinada</string>
+    <string name="signed_message_share_btc">Compartilhar mensagem Bitcoin assinada</string>
     <string name="signing_inprogress">Assinando Mensagem&#8230;</string>
     <string name="geocode_error">Erro do geocoder: %s \n por favor tente novamente mais tarde.</string>
     <string name="fetching_info">Adquirindo informações do servidor</string>

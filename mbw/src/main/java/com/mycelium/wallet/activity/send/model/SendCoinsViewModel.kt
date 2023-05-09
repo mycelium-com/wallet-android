@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast.*
-import androidx.databinding.InverseMethod
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -53,7 +52,6 @@ import com.mycelium.wapi.wallet.fio.RecordObtData
 import com.mycelium.wapi.wallet.fio.getActiveFioAccount
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
-import java.math.BigInteger
 import java.util.*
 import java.util.regex.Pattern
 
@@ -87,15 +85,19 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         @Subscribe
         fun syncFailed(event: SyncFailed) {
             progressDialog?.dismiss()
-            makeText(activity, R.string.warning_sync_failed_reusing_first, LENGTH_LONG).show()
+            activity?.let {
+                makeText(it, R.string.warning_sync_failed_reusing_first, LENGTH_LONG).show()
+            }
         }
 
         @Subscribe
         fun paymentRequestException(ex: PaymentRequestException) {
             //todo: maybe hint the user, that the merchant might broadcast the transaction later anyhow
             // and we should move funds to a new address to circumvent it
-            Utils.showSimpleMessageDialog(activity,
-                    String.format(context.getString(R.string.payment_request_error_while_getting_ack), ex.message))
+            activity?.let {
+                Utils.showSimpleMessageDialog(it,
+                        String.format(context.getString(R.string.payment_request_error_while_getting_ack), ex.message))
+            }
         }
 
         @Subscribe
@@ -205,6 +207,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getTransactionData() = model.transactionData
 
+    fun getTransactionDataStatus() = model.transactionDataStatus
+
     fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
             this::hasPaymentRequestHandler)
 
@@ -229,6 +233,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun getRequestedAmountAlternativeFormatted() = model.alternativeAmountFormatted
 
+    fun getCourseOutdated() = model.alternativeAmountWarning
+
     fun showStaleWarning() = model.showStaleWarning
 
     fun getTransaction() = model.transaction
@@ -243,6 +249,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     }
 
     override fun onCleared() {
+        activity = null
         MbwManager.getEventBus().unregister(eventListener)
         model.onCleared()
         super.onCleared()
@@ -299,7 +306,9 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     fun onClickClipboard() {
         val uri = model.clipboardUri.value ?: return
-        makeText(activity, context.getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show()
+        activity?.let {
+            makeText(it, context.getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show()
+        }
         model.receivingAddress.value = uri.address
         if (uri.value != null && !uri.value!!.isNegative()) {
             model.amount.value = uri.value
@@ -308,11 +317,13 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
 
     open fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
         if (requestCode == SendCoinsActivity.GET_AMOUNT_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-            // Get result from AmountEntry
-            val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
-            model.apply {
-                amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
-                updateAlternativeAmount(enteredAmount)
+            if (data?.getBooleanExtra(GetAmountActivity.EXIT_TO_MAIN_SCREEN, false) == true) {
+                activity.setResult(Activity.RESULT_CANCELED)
+                activity.finish()
+            } else {
+                // Get result from AmountEntry
+                val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
+                model.amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
             }
         } else if (requestCode == SendCoinsActivity.SCAN_RESULT_CODE) {
             handleScanResults(resultCode, data, activity)
@@ -390,7 +401,9 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
         if (uri.value?.isPositive() == true) {
             //we set the amount to the one contained in the qr code, even if another one was entered previously
             if (!Value.isNullOrZero(model.amount.value)) {
-                makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
+                activity?.let {
+                    makeText(it, R.string.amount_changed, LENGTH_LONG).show()
+                }
             }
             model.amount.value = uri.value
         }
@@ -433,20 +446,3 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     }
 }
 
-object Converter {
-    @InverseMethod("stringToBigInt")
-    @JvmStatic
-    fun bigIntToString(value: BigInteger?): String {
-        return value?.toString() ?: ""
-    }
-
-    @JvmStatic
-    fun stringToBigInt(value: String): BigInteger? {
-        return if (value.isNotEmpty()) BigInteger(value) else null
-    }
-
-    @JvmStatic
-    fun valueToStr(value: Value?): String =
-            value?.toStringWithUnit() ?: SendFioModel.DEFAULT_FEE
-
-}

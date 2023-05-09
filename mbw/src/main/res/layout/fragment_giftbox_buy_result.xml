@@ -144,6 +144,20 @@
                         app:layout_constraintBaseline_toBaselineOf="@id/tvMinerFeeAmount"
                         app:layout_constraintLeft_toRightOf="@id/tvMinerFeeAmount" />
 
+                    <androidx.constraintlayout.helper.widget.Flow
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        app:constraint_referenced_ids="tvMinerFeeLabel,tvMinerFeeAmount,tvMinerFeeAmountCrypto"
+                        app:flow_horizontalBias="0"
+                        app:flow_horizontalGap="8dp"
+                        app:flow_horizontalStyle="packed"
+                        app:flow_verticalBias="0"
+                        app:flow_wrapMode="chain"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView

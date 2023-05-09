@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Completed" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:gravity="end"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/status"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/status"
+        tools:text="19 Nov 15:32" />
+
+    <TextView
+        android:id="@+id/amountFrom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="12dp"
+        android:textColor="#A4A4A5"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/iconFrom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/status"
+        tools:text="0.10637455 BTC" />
+
+    <ImageView
+        android:id="@+id/iconFrom"
+        android:layout_width="18dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/amountFrom"
+        app:layout_constraintEnd_toStartOf="@id/arrow"
+        app:layout_constraintStart_toEndOf="@id/amountFrom"
+        app:layout_constraintTop_toTopOf="@id/amountFrom" />
+
+    <ImageView
+        android:id="@+id/arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_keyboard_arrow_right_white_24dp"
+        app:layout_constraintBottom_toBottomOf="@id/iconFrom"
+        app:layout_constraintEnd_toStartOf="@id/iconTo"
+        app:layout_constraintStart_toEndOf="@id/iconFrom"
+        app:layout_constraintTop_toTopOf="@id/iconFrom" />
+
+    <ImageView
+        android:id="@+id/iconTo"
+        android:layout_width="18dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/amountFrom"
+        app:layout_constraintEnd_toStartOf="@id/amountTo"
+        app:layout_constraintStart_toEndOf="@id/arrow"
+        app:layout_constraintTop_toTopOf="@id/amountFrom" />
+
+    <TextView
+        android:id="@+id/amountTo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="end"
+        android:textColor="#A4A4A5"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/amountFrom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iconTo"
+        tools:text="0.10637455 BTC" />
+</androidx.constraintlayout.widget.ConstraintLayout>

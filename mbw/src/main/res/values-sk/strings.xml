@@ -196,8 +196,8 @@
     <string name="copy_signature">Skopíruj Podpis do Schránky</string>
     <string name="share_signature">Zdieľať Text a Podpis</string>
     <string name="sig_copied">Podpis bol skopírovaný do Schránky</string>
-    <string name="signed_message_subject">Bitcoinová podpísaná správa</string>
-    <string name="signed_message_share">Zdieľať podpísanú Bitcoinovú správu</string>
+    <string name="signed_message_subject_btc">Bitcoinová podpísaná správa</string>
+    <string name="signed_message_share_btc">Zdieľať podpísanú Bitcoinovú správu</string>
     <string name="signing_inprogress">Podpisujem Správu&#8230;</string>
     <!-- BitID -->
     <!-- BitID end -->

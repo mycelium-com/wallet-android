@@ -6,12 +6,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import androidx.lifecycle.MutableLiveData
+import com.mrd.bitlib.TransactionUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
+import com.mycelium.wallet.activity.util.get
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
@@ -23,6 +25,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import com.squareup.otto.Subscribe
 import io.reactivex.BackpressureStrategy
@@ -33,6 +36,8 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
 
 abstract class SendCoinsModel(
         val context: Context,
@@ -56,9 +61,21 @@ abstract class SendCoinsModel(
     val showStaleWarning: MutableLiveData<Boolean> = MutableLiveData()
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
     val recipientRepresentation = MutableLiveData(SendCoinsViewModel.RecipientRepresentation.ASK)
+    val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
+    val fioMemo: MutableLiveData<String?> = MutableLiveData()
+    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
         override fun setValue(value: TransactionData?) {
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+            }
+        }
+    }
+
+    val transactionDataStatus: MutableLiveData<TransactionDataStatus> = object : MutableLiveData<TransactionDataStatus>() {
+        override fun setValue(value: TransactionDataStatus) {
             if (value != this.value) {
                 super.setValue(value)
                 txRebuildPublisher.onNext(Unit)
@@ -76,9 +93,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    val fioMemo: MutableLiveData<String?> = MutableLiveData()
-
-    val payerFioName: MutableLiveData<String?> = MutableLiveData()
 
     val payeeFioName: MutableLiveData<String?> = object : MutableLiveData<String?>() {
         override fun setValue(value: String?) {
@@ -159,8 +173,8 @@ abstract class SendCoinsModel(
     protected var feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
 
     var paymentRequestHandlerUUID: String? = null
+    val txRebuildPublisher: PublishSubject<Unit> = PublishSubject.create()
     private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.getFiatCurrency(account.coinType))
-    private val txRebuildPublisher: PublishSubject<Unit> = PublishSubject.create()
     private val amountUpdatePublisher: PublishSubject<Unit> = PublishSubject.create()
     private val receiverChanged: PublishSubject<Unit> = PublishSubject.create()
 
@@ -334,6 +348,10 @@ abstract class SendCoinsModel(
         }
     }
 
+    fun setAlternativeAmountWarning(show: Boolean) {
+        alternativeAmountWarning.value = show
+    }
+
     /**
      * This function called on viewModel destroy to unsubscribe
      */
@@ -348,8 +366,9 @@ abstract class SendCoinsModel(
         } else {
             account.coinType
         }
-        alternativeAmount.postValue(mbwManager.exchangeRateManager.get(enteredAmount, exchangeTo)
-                ?: Value.zeroValue(account.coinType))
+        val rate = mbwManager.exchangeRateManager.getRate(enteredAmount, exchangeTo)
+        alternativeAmount.postValue(rate.getValue(enteredAmount, exchangeTo))
+        alternativeAmountWarning.postValue(rate.isRateOld)
     }
 
     private fun updateReceiverAddressText(hasPaymentRequest: Boolean) {
@@ -379,7 +398,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    private fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
+    protected open fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
 
     /**
      * Recalculate the transaction based on the current choices.
@@ -392,15 +411,18 @@ abstract class SendCoinsModel(
 
     protected open fun updateErrorMessage(transactionStatus: TransactionStatus) {
         errorText.postValue(when (transactionStatus) {
-            TransactionStatus.OUTPUT_TO_SMALL -> {
+            TransactionStatus.OUTPUT_TOO_SMALL -> {
                 // Amount too small
                 if (!Value.isNullOrZero(amount.value)) {
-                    context.getString(R.string.amount_too_small_short)
+                    // TODO refactor: now it's btc specific but "Amount too small" status for now is possible only for btc in the app
+                    context.getString(R.string.amount_too_small_short, Value.valueOf(account.coinType,
+                        TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
                 } else {
                     ""
                 }
             }
             TransactionStatus.INSUFFICIENT_FUNDS -> context.getString(R.string.insufficient_funds)
+            TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE -> context.getString(R.string.insufficient_funds_for_fee)
             TransactionStatus.BUILD_ERROR -> context.getString(R.string.tx_build_error)
             else -> ""
         })
@@ -409,7 +431,7 @@ abstract class SendCoinsModel(
     private fun getRequestedAmountFormatted(): String {
         return if (Value.isNullOrZero(amount.value)) {
             ""
-        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             getValueInAccountCurrency().toStringWithUnit(mbwManager.getDenomination(account.coinType))
@@ -419,7 +441,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getRequestedAmountAlternativeFormatted(): String {
-        return if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+        return if (transactionStatus.value == TransactionStatus.OUTPUT_TOO_SMALL
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             ""
@@ -456,10 +478,10 @@ abstract class SendCoinsModel(
                 paymentRequestHandler.value?.hasValidPaymentRequest() == true -> {
                     handlePaymentRequest(toSend)
                 }
-                receivingAddress.value != null && !toSend.isZero()-> {
+                receivingAddress.value != null && !toSend.isZero() && transactionDataStatus.value != TransactionDataStatus.TYPING -> {
                     // createTx potentially takes long, if server interaction is involved
-                    transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
-                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
+                    transaction = account.createTx(receivingAddress.value!!, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
+                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))
                     TransactionStatus.OK
                 }
                 else -> TransactionStatus.MISSING_ARGUMENTS
@@ -467,10 +489,12 @@ abstract class SendCoinsModel(
         } catch (ex: BuildTransactionException) {
             return TransactionStatus.MISSING_ARGUMENTS
         } catch (ex: OutputTooSmallException) {
-            return TransactionStatus.OUTPUT_TO_SMALL
+            return TransactionStatus.OUTPUT_TOO_SMALL
+        } catch (ex: InsufficientFundsForFeeException) {
+            return TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE
         } catch (ex: InsufficientFundsException) {
             return TransactionStatus.INSUFFICIENT_FUNDS
-        } catch (ex: IOException) {
+        } catch (ex: Exception) {
             return TransactionStatus.BUILD_ERROR
         }
     }
@@ -484,6 +508,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getFeeItemList(): List<FeeItem> {
+        Logger.getLogger(SendCoinsModel::class.java.simpleName).log(Level.INFO,"Estimation send coin economy = ${feeEstimation?.economy?.toStringWithUnit()} normal = ${feeEstimation?.normal?.toStringWithUnit()}")
         return feeItemsBuilder.getFeeItemList(account.basedOnCoinType,
                 feeEstimation, feeLvl.value, estimateTxSize())
     }
@@ -503,7 +528,11 @@ abstract class SendCoinsModel(
     }
 
     enum class TransactionStatus {
-        BUILDING, MISSING_ARGUMENTS, OUTPUT_TO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
+        BUILDING, MISSING_ARGUMENTS, OUTPUT_TOO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
+    }
+
+    enum class TransactionDataStatus {
+        READY, TYPING
     }
 
     companion object {

@@ -40,7 +40,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -48,10 +47,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.PrivateKeyProvider;
 import com.mycelium.wapi.wallet.btc.bip44.AddressesListProvider;
 
 import java.util.List;
@@ -113,15 +109,8 @@ public class HDSigningActivity extends Activity {
             if (addressLabel.getAddress() == null) {
                 return;
             }
-            InMemoryPrivateKey key;
             BtcAddress btcAddress = (BtcAddress) addressLabel.getAddress();
-            PrivateKeyProvider privateKeyProvider = (PrivateKeyProvider)_mbwManager.getWalletManager(false).getAccount(_accountid);
-            try {
-                key = privateKeyProvider.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                throw new RuntimeException(invalidKeyCipher);
-            }
-            MessageSigningActivity.callMe(HDSigningActivity.this, key, btcAddress);
+            MessageSigningActivity.callMe(HDSigningActivity.this, btcAddress, _accountid);
         }
     }
 }

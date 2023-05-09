@@ -70,7 +70,7 @@ public class SignatureSValueTest {
       // Generate hash that would create S-value below Parameters.MAX_SIG_S with
       // or without the fix. (positive test)
       toSign = HashUtils.sha256(new byte[]{0x02});
-      sig = pk.generateSignature(toSign, rnd);
+      sig = pk.generateSignature(toSign);
       // Verify that the S parameter is below MAX_SIG_S
       assertSmallS(sig);
       // Verify that the signature is valid
@@ -79,7 +79,7 @@ public class SignatureSValueTest {
       // Generate hash that would create S-value above Parameters.MAX_SIG_S
       // without the fix. (negative test)
       toSign = HashUtils.sha256(new byte[]{0x00});
-      sig = pk.generateSignature(toSign, rnd);
+      sig = pk.generateSignature(toSign);
       // Verify that the S parameter is below MAX_SIG_S
       assertSmallS(sig);
       // Verify that the signature is valid

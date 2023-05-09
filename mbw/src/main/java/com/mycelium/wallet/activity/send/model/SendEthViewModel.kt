@@ -1,13 +1,14 @@
 package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Application
 import android.content.Intent
-import androidx.databinding.InverseMethod
 import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.EthFeeFormatter
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.wallet.WalletAccount
@@ -15,6 +16,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
+import java.math.BigInteger
 import java.util.regex.Pattern
 
 open class SendEthViewModel(application: Application) : SendCoinsViewModel(application) {
@@ -61,13 +63,13 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         }
     }
 
-    var isAdvancedBlockExpanded: MutableLiveData<Boolean> = MutableLiveData()
+    val isAdvancedBlockExpanded: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun expandCollapseAdvancedBlock() {
-        isAdvancedBlockExpanded.value = isAdvancedBlockExpanded.value != true
-    }
+    fun getParentAccount() = (model as SendEthModel).parentAccount
 
     fun getGasLimit() = (model as SendEthModel).gasLimit
+
+    fun getGasPrice() = (model as SendEthModel).gasPrice
 
     fun getInputData() = (model as SendEthModel).inputData
 
@@ -75,7 +77,44 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     fun getSelectedTxItem() = (model as SendEthModel).selectedTxItem
 
-    fun showGasLimitError() = (model as SendEthModel).showGasLimitError
+    fun getEstimatedFee() = (model as SendEthModel).estimatedFee
+
+    fun getTotalFee() = (model as SendEthModel).totalFee
+
+    fun getGasLimitStatus() = (model as SendEthModel).gasLimitStatus
+
+    fun getDenomination() = (model as SendEthModel).denomination
+
+    fun getDefaultGasLimit(): BigInteger = (model as SendEthModel).account.let {
+        if (it is ERC20Account) {
+            BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
+        } else {
+            BigInteger.valueOf(it.typicalEstimatedTransactionSize.toLong())
+        }
+    }
+
+    fun getSecondsUntilNextUpdate() = (model as SendEthModel).feeUpdater.secondsUntilNextUpdate
+
+    fun convert(value: Value): String =
+        " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
+
+    fun minerFeeInfoClickListener() {
+        AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
+            .setMessage(R.string.miner_fee_erc20_info)
+            .setTitle(R.string.miner_fee_erc20_info_title)
+            .setPositiveButton(R.string.button_ok, null)
+            .create()
+            .show()
+    }
+
+    fun gasLimitErc20InfoClickListener(activity: Activity) {
+        AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
+            .setMessage(R.string.gas_limit_erc20_info)
+            .setTitle(R.string.gas_limit_erc20_info_title)
+            .setPositiveButton(R.string.button_ok, null)
+            .create()
+            .show()
+    }
 
     override fun sendTransaction(activity: Activity) {
         if (isColdStorage() || model.account is HDAccountExternalSignature) {

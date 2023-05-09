@@ -49,7 +49,7 @@ class MessageVerifyActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_verify)
         ButterKnife.bind(this)
-        signedMessageEditText!!.hint = String.format(MessageSigningActivity.TEMPLATE, "Message", "Address", "Signature")
+        signedMessageEditText!!.hint = String.format(MessageSigningActivity.BTC_TEMPLATE, "Message", "Address", "Signature")
     }
 
     override fun onResume() {

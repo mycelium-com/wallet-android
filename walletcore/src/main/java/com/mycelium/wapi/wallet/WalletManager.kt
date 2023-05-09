@@ -4,6 +4,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.AssetInfo
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 import java.util.logging.Logger
-
+import kotlinx.coroutines.sync.Mutex
 
 class WalletManager
 @JvmOverloads
@@ -60,7 +61,9 @@ constructor(val network: NetworkParameters,
         walletModules[moduleID]?.setCurrencySettings(settings)
     }
 
+    @Volatile
     var isNetworkConnected: Boolean = false
+
     var walletListener: WalletListener? = null
 
     var state: State = State.OFF
@@ -112,13 +115,26 @@ constructor(val network: NetworkParameters,
     fun createAccounts(config: Config): List<UUID> {
         getAllActiveAccounts().interruptSync()
         val result = mutableMapOf<UUID, WalletAccount<*>>()
+        addAccounts(config, result)
+        accounts.putAll(result)
+        return result.keys.toList()
+    }
+
+    fun createAccountsUninterruptedly(config: Config): List<UUID> {
+        val result = mutableMapOf<UUID, WalletAccount<*>>()
+        addAccounts(config, result)
+        accounts.putAll(result)
+        return result.keys.toList()
+    }
+
+    private fun addAccounts(config: Config, result: MutableMap<UUID, WalletAccount<*>>) {
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {
                 try {
                     val account = it.createAccount(config)
                     result[account.id] = account
 
-                    account.dependentAccounts?.forEach { walletAccount ->
+                    account.dependentAccounts.forEach { walletAccount ->
                         result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){
@@ -126,8 +142,6 @@ constructor(val network: NetworkParameters,
                 }
             }
         }
-        accounts.putAll(result)
-        return result.keys.toList()
     }
 
     @JvmOverloads
@@ -154,7 +168,7 @@ constructor(val network: NetworkParameters,
         if (isNetworkConnected) {
             feeEstimations.triggerRefresh()
         }
-        Thread(Synchronizer(this, mode, accounts)).start()
+        Synchronizer(this, mode, accounts).start()
         return isNetworkConnected
     }
 
@@ -224,6 +238,9 @@ constructor(val network: NetworkParameters,
     fun getCryptocurrenciesNames(): List<String> = getAssetTypes()
             .filterNot { it is ColuMain || it is ERC20Token }
             .map { it.name }
+
+    fun getMasterSeedDerivedAccounts(): Map<CryptoCurrency, List<WalletAccount<*>>> =
+        accounts.values.filter { it.isDerivedFromInternalMasterseed() }.groupBy { it.coinType }
 
     fun parseAddress(address: String): List<Address> = walletModules.values
                 .flatMap { it.getSupportedAssets() }

@@ -50,6 +50,7 @@ import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.toggleable_currency_display.view.*
@@ -194,11 +195,11 @@ open class ToggleableCurrencyDisplay : LinearLayout {
     }
 
     fun setValue(sum: ValueSum, totalBalance: Boolean) {
-        val toCurrency: AssetInfo = if (totalBalance) {
-            currencySwitcher.currentTotalCurrency!!
+        val toCurrency: AssetInfo = (if (totalBalance) {
+            currencySwitcher.currentTotalCurrency
         } else {
-            currencySwitcher.currentCurrencyMap[coinType]!!
-        }
+            currencySwitcher.currentCurrencyMap[coinType]
+        }) ?: FiatType("USD")
         this.currentValue = currencySwitcher.getValue(sum, toCurrency)
         updateUi()
     }

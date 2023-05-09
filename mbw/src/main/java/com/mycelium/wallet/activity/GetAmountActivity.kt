@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -13,11 +14,12 @@ import android.view.Window
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.google.common.base.Preconditions
+import com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.*
 import com.mycelium.wallet.NumberEntry.NumberEntryListener
@@ -25,6 +27,7 @@ import com.mycelium.wallet.activity.getamount.AmountValidation
 import com.mycelium.wallet.activity.getamount.GetAmountViewModel
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.databinding.GetAmountActivityBinding
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
@@ -38,6 +41,9 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.erc20.ERC20Account.Companion.TOKEN_TRANSFER_GAS_LIMIT
+import com.mycelium.wapi.wallet.eth.EthTransactionData
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
@@ -47,6 +53,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.*
 
 class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
@@ -86,6 +93,9 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             initSendMode()
         }
         updateUI()
+        if (isSendMode) {
+            updateERC20RelatedUI()
+        }
         checkEntry()
         setupActionBar()
     }
@@ -107,10 +117,15 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         // Calculate the maximum amount that can be spent where we send everything we got to another address
         _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
         txData = intent.getSerializableExtra(TX_DATA) as TransactionData?
-        destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
-                ?: viewModel.account!!.dummyAddress
+        destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)?.takeIf {
+            val expectedAddressClass = viewModel.account?.dummyAddress?.let { it::class.java }
+            val destinationAddressClass = destinationAddress?.let { it::class.java }
+            expectedAddressClass == destinationAddressClass
+        } ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress))
+            viewModel.maxSpendableAmount.postValue(
+                viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress, txData)
+            )
         }
 
         // if no amount is set, create an null amount with the correct currency
@@ -252,9 +267,41 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             binding.tvAmount.text = ""
         }
 
-
         // Check whether we can show the paste button
         binding.btPaste.visibility = if (enablePaste()) View.VISIBLE else View.GONE
+    }
+
+    private fun updateERC20RelatedUI() {
+        (viewModel.account as? ERC20Account)?.ethAcc?.let { parentEthAccount ->
+            val gasLimit = (txData as? EthTransactionData)?.gasLimit
+                ?: BigInteger.valueOf(TOKEN_TRANSFER_GAS_LIMIT)
+            val fee = Value.valueOf(_kbMinerFee!!.type, gasLimit * _kbMinerFee!!.value)
+            val isNotEnoughEth = parentEthAccount.accountBalance.spendable.lessThan(fee)
+
+            if (isNotEnoughEth) {
+                val denomination = _mbwManager!!.getDenomination(parentEthAccount.coinType)
+                val convertedFee = " ~${
+                    _mbwManager!!.exchangeRateManager.get(fee, _mbwManager!!.getFiatCurrency(viewModel.account!!.coinType))
+                        ?.toStringFriendlyWithUnit() ?: ""
+                }"
+
+                binding.tvPleaseTopUp.apply {
+                    text =
+                        Html.fromHtml(getString(R.string.please_top_up_your_eth_account, parentEthAccount.label, fee.toStringFriendlyWithUnit(denomination), convertedFee))
+                    setOnClickListener {
+                        _mbwManager!!.setSelectedAccount(parentEthAccount.id)
+                        setResult(RESULT_OK, Intent().putExtra(EXIT_TO_MAIN_SCREEN, true))
+                        finish()
+                    }
+                    visibility = View.VISIBLE
+                }
+                binding.tvParentEthAccountBalanceLabel.text = getString(R.string.parent_eth_account, parentEthAccount.label)
+                binding.tvParentEthAccountBalance.text = " ${parentEthAccount.accountBalance.spendable.toStringFriendlyWithUnit(denomination)}"
+                binding.llParentEthAccountBalance.visibility = View.VISIBLE
+                binding.tvEthRequiredInfo.visibility = View.VISIBLE
+                binding.divider.setBackgroundColor(resources.getColor(R.color.fio_red))
+            }
+        }
     }
 
     public override fun onSaveInstanceState(savedInstanceState: Bundle) {
@@ -344,7 +391,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 checkTransaction()
             }
         } else {
-            binding.btOk.isEnabled = true
+            binding.btOk.isEnabled = checkAmount()
         }
     }
 
@@ -420,6 +467,28 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         }
     }
 
+    private fun checkAmount(): Boolean {
+        var amount = viewModel.amount.value
+        // if _amount is not in account's currency then convert to account's currency before checking amount
+        if (mainCurrencyType != viewModel.currentCurrency.value) {
+            amount = viewModel.convert(viewModel.amount.value!!, mainCurrencyType)
+        }
+        when(viewModel.account?.coinType){
+            Utils.getBtcCoinType() -> {
+                if (amount != null && BigInteger.ZERO < amount.value && amount.value < MINIMUM_OUTPUT_VALUE.toBigInteger()) {
+                    val minAmount = valueOf(viewModel.account?.coinType!!, MINIMUM_OUTPUT_VALUE).toStringWithUnit()
+                    binding.error.text = getString(R.string.amount_too_small_short, minAmount)
+                    binding.error.isVisible = true
+                    return false
+                } else {
+                    binding.error.isVisible = false
+                    return true
+                }
+            }
+            else -> return true
+        }
+    }
+
 
     @Subscribe
     fun exchangeRatesRefreshed(event: ExchangeRatesRefreshed) {
@@ -446,6 +515,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         const val DESTINATION_ADDRESS = "destinationAddress"
         const val SEND_MODE = "sendmode"
         const val TX_DATA = "txData"
+        const val EXIT_TO_MAIN_SCREEN = "exitToMain"
 
         /**
          * Get Amount for spending

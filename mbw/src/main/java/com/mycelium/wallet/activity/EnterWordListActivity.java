@@ -56,17 +56,19 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.event.SeedFromWordsCreated;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
-import com.squareup.otto.Bus;
+import com.mycelium.wapi.wallet.manager.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import static com.mycelium.wallet.activity.StartupActivity.mainAccounts;
 
 public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener,
         AccountCreatorHelper.AccountCreationObserver {
@@ -123,7 +125,11 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
 
       // we don't want to proceed to enter the wordlist, we already have the master seed.
       if (!_seedOnly && _mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
-         new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this, EnterWordListActivity.this).execute();
+         List<Config> needsToBeCreatedMasterSeedAccounts = _mbwManager.checkMainAccountsCreated();
+         if (needsToBeCreatedMasterSeedAccounts.size() != 0) {
+            new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this,
+                    EnterWordListActivity.this, needsToBeCreatedMasterSeedAccounts).execute();
+         }
       }
 
       // Prevent the OS from taking screenshots of this activity
@@ -258,7 +264,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
          _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
          _progress.setMessage(getString(R.string.importing_master_seed_from_wordlist));
          _progress.show();
-         new MasterSeedFromWordsAsyncTask(MbwManager.getEventBus(), enteredWords, password).execute();
+         new MasterSeedFromWordsAsyncTask(enteredWords, password).execute();
       }
    }
 
@@ -273,12 +279,10 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    }
 
    private class MasterSeedFromWordsAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private Bus bus;
       private List<String> wordList;
       private String password;
 
-      MasterSeedFromWordsAsyncTask(Bus bus, List<String> wordList, String password) {
-         this.bus = bus;
+      MasterSeedFromWordsAsyncTask(List<String> wordList, String password) {
          this.wordList = wordList;
          this.password = password;
       }
@@ -289,7 +293,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
             Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, password);
             _mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
-            return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
+            return _mbwManager.createAdditionalBip44AccountsUninterruptedly(mainAccounts).get(0);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
@@ -297,20 +301,16 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
 
       @Override
       protected void onPostExecute(UUID account) {
-         bus.post(new SeedFromWordsCreated(account));
+         onAccountCreated(account);
       }
    }
 
    @Override
-   public void onAccountCreated(UUID accountid) {
+   public void onAccountCreated(UUID accountId) {
       _progress.dismiss();
-      finishOk(accountid);
-   }
-
-   @com.squareup.otto.Subscribe
-   public void seedCreated(SeedFromWordsCreated event) {
-      _progress.dismiss();
-      finishOk(event.account);
+      MbwManager.getEventBus().post(new AccountCreated(accountId));
+      MbwManager.getEventBus().post(new AccountChanged(accountId));
+      finishOk(accountId);
    }
 
    @Override

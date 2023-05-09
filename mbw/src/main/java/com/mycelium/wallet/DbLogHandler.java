@@ -1,7 +1,8 @@
 package com.mycelium.wallet;
 
-import com.mycelium.generated.wallet.database.LogsQueries;
-import com.mycelium.generated.wallet.database.WalletDB;
+
+import com.mycelium.generated.logger.database.LoggerDB;
+import com.mycelium.generated.logger.database.LogsQueries;
 
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
@@ -11,7 +12,7 @@ public class DbLogHandler extends Handler {
     private static final Integer MAX_LOG_RECORDS = 50000;
     private final LogsQueries logsQueries;
 
-    public DbLogHandler(WalletDB db) {
+    public DbLogHandler(LoggerDB db) {
         logsQueries = db.getLogsQueries();
     }
 

@@ -398,8 +398,8 @@
     <string name="copy_signature">Αντιγραφή της Υπογραφής στο Πρόχειρο</string>
     <string name="share_signature">Αποστολή Κειμένου + Υπογραφής</string>
     <string name="sig_copied">Η υπογραφή αντεγράφη στο πρόχειρο</string>
-    <string name="signed_message_subject">Μήνυμα υπογεγραμμένο με λογαριασμό Bitcoin</string>
-    <string name="signed_message_share">Αποστολή υπογεγραμμένου μηνύματος</string>
+    <string name="signed_message_subject_btc">Μήνυμα υπογεγραμμένο με λογαριασμό Bitcoin</string>
+    <string name="signed_message_share_btc">Αποστολή υπογεγραμμένου μηνύματος</string>
     <string name="signing_inprogress">Το Μήνυμα Υπογράφεται&#8230;</string>
     <string name="geocode_error">Σφάλμα από geocoder: %s \n παρακαλώ δοκιμάστε ξανά αργότερα.</string>
     <string name="fetching_info">Γίνεται λήψη πληροφοριών από το διακομιστή</string>

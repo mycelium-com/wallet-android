@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.SyncStatus
@@ -32,6 +33,9 @@ class Toaster(val context: Context) {
 
     fun toast(message: String, shortDuration: Boolean) {
         cancelCurrentToast()
+        if(!MbwManager.getInstance(context).isAppInForeground) {
+            return
+        }
         if (fragment != null && !fragment!!.isAdded) {
             return
         }
@@ -54,13 +58,13 @@ class Toaster(val context: Context) {
     fun toastSyncFailed(syncStatusInfo: SyncStatusInfo? = null) {
         toast(when(syncStatusInfo?.status) {
             SyncStatus.INTERRUPT -> {
-                context.getString(R.string.sync_failed_s, "Reason: Interrupted by application")
+                context.getString(R.string.sync_failed_reason_s, context.getString(R.string.interrupted_by_application))
             }
             SyncStatus.ERROR -> {
-                context.getString(R.string.sync_failed_s, "Reason: " + context.getString(R.string.no_server_connection, ""))
+                context.getString(R.string.sync_failed_reason_s, context.getString(R.string.no_server_connection, ""))
             }
             SyncStatus.ERROR_INTERNET_CONNECTION -> {
-                context.getString(R.string.sync_failed_s, "Reason: " + context.getString(R.string.no_network_connection))
+                context.getString(R.string.sync_failed_reason_s, context.getString(R.string.no_network_connection))
             }
             else -> {
                 context.getString(R.string.sync_failed_s, "")

@@ -392,8 +392,8 @@
     <string name="copy_signature">署名をクリップボードにコピーします。</string>
     <string name="share_signature">メッセージと署名を他のアプリに共有する</string>
     <string name="sig_copied">クリップボードにコピーされた署名</string>
-    <string name="signed_message_subject">ビットコイン署名付きのメッセージ</string>
-    <string name="signed_message_share">ビットコイン署名付きのメッセージを共有する</string>
+    <string name="signed_message_subject_btc">ビットコイン署名付きのメッセージ</string>
+    <string name="signed_message_share_btc">ビットコイン署名付きのメッセージを共有する</string>
     <string name="signing_inprogress">メッセージに署名しています...</string>
     <string name="geocode_error">ジオコーダからのエラー： %s \n もう一度やり直してください。</string>
     <string name="fetching_info">サーバーから情報を取得中</string>

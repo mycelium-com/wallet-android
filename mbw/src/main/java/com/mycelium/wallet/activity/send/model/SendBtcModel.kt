@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.Html
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS
@@ -36,6 +37,9 @@ class SendBtcModel(context: Context,
     val receivingAddressesList: MutableLiveData<List<Address>> = MutableLiveData()
     val feeDescription: MutableLiveData<String> = MutableLiveData()
     val isFeeExtended: MutableLiveData<Boolean> = MutableLiveData()
+    val feeHintShow = Transformations.map(feeLvl) {
+        it != MinerFee.LOWPRIO
+    }
 
     init {
         receivingAddressesList.value = emptyList()
@@ -89,7 +93,7 @@ class SendBtcModel(context: Context,
             ?: true
 
     fun sendResponseToPR(): Boolean {
-        val address = BitcoinAddress(mbwManager.selectedAccount.receiveAddress.getBytes())
+        val address = BitcoinAddress(mbwManager.selectedAccount.receiveAddress!!.getBytes())
         val transaction = (signedTransaction as BtcTransaction).tx
         return paymentRequestHandler.value!!.sendResponse(transaction, address)
     }
@@ -113,7 +117,7 @@ class SendBtcModel(context: Context,
 
         val btcAccount = account as AbstractBtcAccount
         transaction = btcAccount.createTxFromOutputList(outputs, FeePerKbFee(selectedFee.value!!).feePerKb.valueAsLong)
-        spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
+        spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))
         receivingAddress.postValue(null)
         transactionLabel.postValue(paymentRequestInformation.paymentDetails.memo)
 
@@ -130,7 +134,13 @@ class SendBtcModel(context: Context,
                         MinerFee.PRIORITY -> 1
                     }
                     val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks, BTC_BLOCK_TIME_IN_SECONDS)
-                    FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
+                    FeeLvlItem(
+                        fee,
+                        if (fee == MinerFee.LOWPRIO)
+                            context.getString(R.string.hours_or_more, duration)
+                        else "~$duration",
+                        SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM
+                    )
                 }
     }
 

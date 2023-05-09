@@ -390,8 +390,8 @@
     <string name="copy_signature">Kopjo firmën në memorje</string>
     <string name="share_signature">Ndaje tekstin + firmën</string>
     <string name="sig_copied">Firma është kopjuar në memorje</string>
-    <string name="signed_message_subject">Bitcoin mesazhi i firmosur</string>
-    <string name="signed_message_share">Ndaje Bitcoin mesazhin e firmosur</string>
+    <string name="signed_message_subject_btc">Bitcoin mesazhi i firmosur</string>
+    <string name="signed_message_share_btc">Ndaje Bitcoin mesazhin e firmosur</string>
     <string name="signing_inprogress">Duke firmosur mesazh&#8230;</string>
     <string name="geocode_error">Gabim nga geocoder: %s \n ju lutem provoni prapë.</string>
     <string name="fetching_info">Duke marrë info nga serveri</string>

@@ -401,8 +401,8 @@
     <string name="copy_signature">Kopiraj podpis na odložišče</string>
     <string name="share_signature">Deli besedilo in podpis</string>
     <string name="sig_copied">Podpis skopiran na odložišče</string>
-    <string name="signed_message_subject">Podpisano sporočilo</string>
-    <string name="signed_message_share">Deli podpisano sporočilo</string>
+    <string name="signed_message_subject_btc">Podpisano sporočilo</string>
+    <string name="signed_message_share_btc">Deli podpisano sporočilo</string>
     <string name="signing_inprogress">Podpisujem sporočilo&#8230;</string>
     <string name="geocode_error">Napaka pri pridobivanju lokacijskih podatkov: %s \nProsimo, poskusite spet kasneje.</string>
     <string name="fetching_info">Prenašam podatke s strežnika</string>

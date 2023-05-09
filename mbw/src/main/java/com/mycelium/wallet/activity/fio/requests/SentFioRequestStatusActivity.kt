@@ -15,10 +15,9 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wapi.api.lib.CurrencyCode
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.Util.convertToDate
-import com.mycelium.wapi.wallet.Util.getCoinByChain
+import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fio.FioRequestStatus
 import fiofoundation.io.fiosdk.models.fionetworkprovider.FIORequestContent
@@ -93,20 +92,27 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
 
     private fun setAmount() {
         if (fioRequestContent != null) {
-            val requestedCurrency = getCoinByChain(mbwManager.network, fioRequestContent!!.deserializedContent!!.chainCode)
+            val requestedCurrency = (COINS.values + mbwManager.getWalletManager(false).getAssetTypes()).firstOrNull {
+                it.symbol.equals(fioRequestContent!!.deserializedContent!!.tokenCode, true)
+                        && if(mbwManager.network.isTestnet) it.name.contains("test", true) else true
+            }
             if (requestedCurrency != null) {
                 val amount = Value.valueOf(requestedCurrency, Util.strToBigInteger(requestedCurrency,
                         fioRequestContent!!.deserializedContent!!.amount))
                 tvAmount.text = amount.toStringWithUnit()
-                val convertedAmount = mbwManager.exchangeRateManager.get(amount, Utils.getTypeByName(CurrencyCode.USD.shortString)!!).toStringWithUnit()
-                tvConvertedAmount.text = " ~ $convertedAmount"
+                mbwManager.exchangeRateManager.get(amount, mbwManager.getFiatCurrency(requestedCurrency))
+                        ?.toStringWithUnit()?.let {
+                            tvConvertedAmount.text = " ~ $it"
+                        }
             } else {
                 tvAmount.text = "${fioRequestContent!!.deserializedContent!!.amount} ${fioRequestContent!!.deserializedContent!!.tokenCode}"
             }
         } else {
             val amount = (intent.getSerializableExtra(ApproveFioRequestActivity.AMOUNT) as Value)
             tvAmount.text = amount.toStringWithUnit()
-            val convertedAmount = mbwManager.exchangeRateManager.get(amount, Utils.getTypeByName(CurrencyCode.USD.shortString)!!).toStringWithUnit()
+            val fiatCurrency = mbwManager.getFiatCurrency(amount.type)
+            val value = mbwManager.exchangeRateManager.get(amount, fiatCurrency) ?: Value.zeroValue(fiatCurrency)
+            val convertedAmount = value.toStringWithUnit()
             tvConvertedAmount.text = " ~ $convertedAmount"
         }
     }
@@ -143,8 +149,8 @@ class SentFioRequestStatusActivity : AppCompatActivity() {
         return "$dateString $timeString"
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
                 android.R.id.home -> {
                     onBackPressed()
                     true

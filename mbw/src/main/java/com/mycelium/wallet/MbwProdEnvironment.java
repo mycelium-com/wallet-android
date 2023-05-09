@@ -133,12 +133,12 @@ public class MbwProdEnvironment extends MbwEnvironment {
     */
    private static final Map<String, List<BlockExplorer>> prodnetExplorerClearEndpoints = new HashMap<String, List<BlockExplorer>>() {{
       put(BitcoinMain.get().getName(), new ArrayList<BlockExplorer>() {{
-         add(new BlockExplorer("SBT", "smartbit", "https://www.smartbit.com.au/address/", "https://www.smartbit.com.au/tx/", null, null));
+         add(new BlockExplorer("SBT", "blockCypher", "https://live.blockcypher.com/btc/address/", "https://live.blockcypher.com/btc/tx/", null, null));
          add(new BlockExplorer("BCI", "blockchain.info", "https://blockchain.info/address/", "https://blockchain.info/tx/", "https://blockchainbdgpzk.onion/address/", "https://blockchainbdgpzk.onion/tx/"));
          add(new BlockExplorer("BPY", "BitPay", "https://insight.bitpay.com/address/", "https://insight.bitpay.com/tx/", null, null));
-         add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/address/", "http://blockexplorer.com/tx/", null, null));
+//         add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/address/", "http://blockexplorer.com/tx/", null, null));
          add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc/address/", "https://live.blockcypher.com/btc/tx/", null, null));
-         add(new BlockExplorer("TBC", "TradeBlock", "https://tradeblock.com/blockchain/address/", "https://tradeblock.com/blockchain/tx/", null, null));
+//         add(new BlockExplorer("TBC", "TradeBlock", "https://tradeblock.com/blockchain/address/", "https://tradeblock.com/blockchain/tx/", null, null));
          add(new BlockExplorer("BLC", "blockonomics.co", "https://www.blockonomics.co/#/search?q=", "https://www.blockonomics.co/api/tx?txid=", null, null));
       }});
       put(EthMain.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{

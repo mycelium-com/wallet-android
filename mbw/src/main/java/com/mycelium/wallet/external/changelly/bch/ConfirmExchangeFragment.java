@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.megiontechnologies.BitcoinCash;
 import com.mycelium.wallet.BuildConfig;
@@ -32,9 +31,10 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
-import com.mycelium.wallet.external.changelly.Constants;
+import com.mycelium.wallet.external.changelly.ChangellyConstants;
 import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
+import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -70,8 +70,8 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
-import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
-import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.ABOUT;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
@@ -79,7 +79,7 @@ public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
     public static final int UPDATE_TIME = 60;
     public static final String BLOCKTRAIL_TRANSACTION = "https://www.blocktrail.com/_network_/tx/_id_";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -117,7 +117,7 @@ public class ConfirmExchangeFragment extends Fragment {
     Double amount;
     Double sentAmount;
 
-    private ChangellyAPIService.ChangellyTransactionOffer offer;
+    private ChangellyTransactionOffer offer;
     private ProgressDialog progressDialog;
 
     private String lastOperationId;
@@ -129,10 +129,10 @@ public class ConfirmExchangeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        UUID toAddress = (UUID) getArguments().getSerializable(Constants.DESTADDRESS);
-        UUID fromAddress = (UUID) getArguments().getSerializable(Constants.FROM_ADDRESS);
-        toValue = getArguments().getString(Constants.TO_AMOUNT);
-        amount = getArguments().getDouble(Constants.FROM_AMOUNT);
+        UUID toAddress = (UUID) getArguments().getSerializable(ChangellyConstants.DESTADDRESS);
+        UUID fromAddress = (UUID) getArguments().getSerializable(ChangellyConstants.FROM_ADDRESS);
+        toValue = getArguments().getString(ChangellyConstants.TO_AMOUNT);
+        amount = getArguments().getDouble(ChangellyConstants.FROM_AMOUNT);
         mbwManager = MbwManager.getInstance(getActivity());
         mbwManager.getEventBus().register(this);
         fromAccount = mbwManager.getWalletManager(false).getAccount(fromAddress);
@@ -391,7 +391,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
     }
 
-    class GetAmountCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+    class GetAmountCallback implements Callback<ChangellyResponse<Double>> {
         double fromAmount;
 
         GetAmountCallback(double fromAmount) {
@@ -399,11 +399,11 @@ public class ConfirmExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAPIService.ChangellyAnswerDouble> response) {
-            ChangellyAPIService.ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
+                               @NonNull Response<ChangellyResponse<Double>> response) {
+            ChangellyResponse<Double> result = response.body();
             if(result != null) {
-                double amount = result.result;
+                double amount = result.getResult();
                 progressBar.setVisibility(View.INVISIBLE);
                 toValue = decimalFormat.format(amount);
                 offerUpdateText.removeCallbacks(updateOffer);
@@ -414,26 +414,26 @@ public class ConfirmExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
                               @NonNull Throwable t) {
             new Toaster(getActivity()).toast("Service unavailable", true);
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyTransaction> {
+    class GetOfferCallback implements Callback<ChangellyResponse<ChangellyTransactionOffer>> {
         @Override
-        public void onResponse(@NonNull Call<ChangellyTransaction> call,
-                               @NonNull Response<ChangellyTransaction> response) {
-            ChangellyTransaction result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<ChangellyTransactionOffer>> call,
+                               @NonNull Response<ChangellyResponse<ChangellyTransactionOffer>> response) {
+            ChangellyResponse<ChangellyTransactionOffer> result = response.body();
             if(result != null) {
                 buttonContinue.setEnabled(true);
-                offer = result.result;
+                offer = result.getResult();
                 updateUI();
             }
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyTransaction> call, @NonNull Throwable t) {
+        public void onFailure(@NonNull Call<ChangellyResponse<ChangellyTransactionOffer>> call, @NonNull Throwable t) {
         }
     }
 }

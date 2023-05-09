@@ -16,6 +16,7 @@ import com.mycelium.giftbox.cards.adapter.OrderAdapter
 import com.mycelium.giftbox.cards.adapter.PurchasedGroupItem
 import com.mycelium.giftbox.cards.adapter.PurchasedLoadingItem
 import com.mycelium.giftbox.cards.adapter.PurchasedOrderItem
+import com.mycelium.giftbox.cards.event.OrdersUpdate
 import com.mycelium.giftbox.cards.event.RefreshOrdersRequest
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.giftbox.cards.viewmodel.PurchasedViewModel
@@ -80,6 +81,7 @@ class OrdersFragment : Fragment() {
                 binding?.list?.smoothScrollToPosition(adapter.currentList.indexOfFirst { it is PurchasedGroupItem && it.title == group } + 5)
             }, 300)
         }
+        activityViewModel.currentTab.observeForever { binding?.list?.scrollToPosition(0) }
         startCoroutineTimer(lifecycleScope, repeatMillis = TimeUnit.MINUTES.toMillis(1)) {
             loadData()
         }
@@ -103,10 +105,13 @@ class OrdersFragment : Fragment() {
         GitboxAPI.giftRepository.getOrders(lifecycleScope, offset, success = {
             viewModel.setOrdersResponse(it, offset != 0L)
             adapter.submitList(generateList(viewModel.orders.value ?: emptyList()))
-        }, error = { _, msg ->
+            MbwManager.getEventBus().post(OrdersUpdate())
+        }, error = { code, msg ->
             adapter.submitList(listOf())
             viewModel.state.value = ListState.ERROR
-            Toaster(this).toast(msg, true)
+            if(code != 400) {
+                Toaster(this).toast(msg, true)
+            }
         }, finally = {
             activityViewModel.orderLoading.value = false
         })

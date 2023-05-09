@@ -26,11 +26,11 @@ class InvestmentModule(metaDataStorage: IMetaDataStorage) : WalletModule(metaDat
 
     override fun getAccounts(): List<WalletAccount<*>> = listOf(account)
 
-    override fun getAccountById(id: UUID): WalletAccount<*>? = account
+    override fun getAccountById(id: UUID): WalletAccount<*> = account
 
     companion object {
         const val ID: String = "BEQUANT_MODULE"
     }
 }
 
-fun WalletManager.getInvestmentAccounts() = getAccounts().filter { it is InvestmentAccount && it.isVisible }
+fun WalletManager.getInvestmentAccounts() = getAccounts().filter { it is InvestmentAccount && it.isVisible() }

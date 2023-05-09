@@ -128,7 +128,7 @@ class FIONameDetailsFragment : Fragment() {
                     .mapNotNull { walletManager.getAccount(it.accountId) }
             GlobalScope.launch(Dispatchers.IO) {
                 fioModule.mapFioNameToAccounts(args.fioName.name, accounts)
-                if (globalViewModel.mode.value == Mode.NEED_FIO_NAME_MAPPING &&
+                if (isResumed && globalViewModel.mode.value == Mode.NEED_FIO_NAME_MAPPING &&
                         accounts.contains(globalViewModel.extraAccount.value)) {
                     withContext(Dispatchers.Main) {
                         activity?.run {

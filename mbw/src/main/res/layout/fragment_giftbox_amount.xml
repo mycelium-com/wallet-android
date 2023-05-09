@@ -197,6 +197,7 @@
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
                     android:text="@string/button_ok"
+                    android:enabled="false"
                     android:textSize="20sp" />
             </LinearLayout>
         </LinearLayout>

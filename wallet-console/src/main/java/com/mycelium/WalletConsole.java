@@ -87,13 +87,14 @@ class WalletConsole {
         }
     }
 
+/*
     public static void main(String[] args) {
         BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
 
         final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{
                 new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
         });
-        
+
         Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, new TcpEndpoint[]{new TcpEndpoint("electrumx.mycelium.com", 4432, true)}, "0", 1);
         Wapi btcvWapi = new WapiClientElectrumX(testnetWapiEndpoints, new TcpEndpoint[]{new TcpEndpoint("electrumx-mainnet1.bitcoinvault.global", 443, true)}, "0", 1);
 
@@ -165,6 +166,7 @@ class WalletConsole {
             ex.printStackTrace();
         }
     }
+*/
 
     /*
 

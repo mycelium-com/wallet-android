@@ -42,23 +42,15 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     override fun queueTransaction(transaction: Transaction) {
     }
 
-    override fun getBasedOnCoinType(): CryptoCurrency {
-        return if (networkParameters.isProdnet) BitcoinMain else BitcoinTest
-    }
+    override val basedOnCoinType: CryptoCurrency
+        get() = if (networkParameters.isProdnet) BitcoinMain else BitcoinTest
 
     var linkedAccount: SingleAddressAccount? = null
 
-    override fun getDependentAccounts(): MutableList<WalletAccount<*>> {
-        val result = ArrayList<WalletAccount<*>>()
-        linkedAccount?.let {
-            result.add(it)
-        }
-        return result
-    }
+    override val dependentAccounts: List<WalletAccount<*>>
+        get() = listOfNotNull(linkedAccount)
 
-    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean {
-        return false
-    }
+    override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
     override fun getTx(txid: ByteArray): Transaction {
         val txJson = accountBacking.getTx(Sha256Hash(txid))
@@ -78,9 +70,8 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return BtcAddress(coinType, address)
     }
 
-    override fun getDummyAddress(): BtcAddress {
-        return BtcAddress(coinType, BitcoinAddress.getNullAddress(networkParameters))
-    }
+    override val dummyAddress: BtcAddress =
+        BtcAddress(coinType, BitcoinAddress.getNullAddress(networkParameters))
 
     override fun removeAllQueuedTransactions() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -94,10 +85,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     var coluLabel: String? = null
 
     protected var cachedBalance: Balance
-    private val addressList: Map<AddressType, BtcAddress>
+    private val addressList: Map<AddressType, BtcAddress> = context.address ?: mapOf()
 
     init {
-        addressList = context.address ?: mapOf()
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         val transactions = accountBacking.getTransactions(0, 2000)
         val transactionSummaries = getGenericListFromJsonTxList(transactions)
@@ -117,27 +107,23 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return btcAddress
     }
 
-    override fun getId(): UUID = uuid
+    override val id: UUID
+        get() = uuid
 
-    override fun getLabel(): String {
-        return coluLabel.toString()
-    }
-
-    override fun setLabel(label: String?) {
-        coluLabel = label
-    }
+    override var label: String = "Unknown"
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getReceiveAddress(): BtcAddress {
-        return addressList[AddressType.P2PKH] ?: addressList.values.toList()[0]
-    }
+    override val receiveAddress: BtcAddress
+        get() = addressList[AddressType.P2PKH] ?: addressList.values.toList()[0]
 
-    override fun getCoinType(): CryptoCurrency = type
+    override val coinType: CryptoCurrency
+        get() = type
 
-    override fun getAccountBalance(): Balance = cachedBalance
+    override val accountBalance: Balance
+        get() = cachedBalance
 
     override fun isMineAddress(address: Address?): Boolean {
         for (btcAddress in addressList) {
@@ -161,12 +147,12 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddres: BtcAddress): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddress: BtcAddress?, txData: TransactionData?): Value {
         return accountBalance.spendable
     }
 
     @Synchronized
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
         try {
             if (!maySync) {
@@ -241,9 +227,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return ExportableAccount.Data(privKey, publicDataMap)
     }
 
-    override fun isArchived() = context.isArchived()
+    override val isArchived: Boolean
+        get() = context.isArchived()
 
-    override fun isActive() = !context.isArchived()
+    override val isActive: Boolean
+        get() = !context.isArchived()
 
     override fun archiveAccount() {
         context.setArchived(true)
@@ -271,14 +259,12 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun broadcastOutgoingTransactions(): Boolean = true
 
-    override fun getSyncTotalRetrievedTransactions(): Int {
-        return 0
-    }
+    override val syncTotalRetrievedTransactions: Int = 0
 
-    override fun createTx(address: Address?, amount: Value?, fee: Fee?, data: TransactionData?): Transaction? {
+    override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val feePerKb = (fee as FeePerKbFee).feePerKb
-        val coluTx = ColuTransaction(coinType, address as BtcAddress, amount!!, feePerKb)
-        val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
+        val coluTx = ColuTransaction(coinType, address as BtcAddress, amount, feePerKb)
+        val fromAddresses = mutableListOf(receiveAddress)
         val json = coluClient.prepareTransaction(coluTx.destination!!, fromAddresses, coluTx.amount!!, feePerKb)
         coluTx.baseTransaction = json
         return coluTx
@@ -286,14 +272,14 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         if (request is ColuTransaction) {
-            val signedTransaction = signTransaction(request.baseTransaction, this)
+            val signedTransaction = signTransaction(request.baseTransaction, this, keyCipher)
             request.transaction = signedTransaction
         } else {
             TODO("signTx not implemented for ${request.javaClass.simpleName}")
         }
     }
 
-    private fun signTransaction(txid: ColuBroadcastTxHex.Json?, coluAccount: ColuAccount?): BitcoinTransaction? {
+    private fun signTransaction(txid: ColuBroadcastTxHex.Json?, coluAccount: ColuAccount?, keyCipher: KeyCipher): BitcoinTransaction? {
         if (txid == null) {
 //            Log.e(TAG, "signTx: No transaction to sign !")
             return null
@@ -333,8 +319,8 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         val parameters = org.bitcoinj.core.NetworkParameters.fromID(id)
         val signTx = org.bitcoinj.core.Transaction(parameters, txBytes)
 
-        val privateKeyBytes = coluAccount.getPrivateKey(null)!!.privateKeyBytes
-        val publicKeyBytes = coluAccount.getPrivateKey(null)!!.publicKey.publicKeyBytes
+        val privateKeyBytes = coluAccount.getPrivateKey(keyCipher).privateKeyBytes
+        val publicKeyBytes = coluAccount.getPrivateKey(keyCipher).publicKey.publicKeyBytes
         val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
         val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(parameters))
@@ -365,14 +351,13 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         }
     }
 
-    override fun getTypicalEstimatedTransactionSize(): Int {
+    override val typicalEstimatedTransactionSize: Int =
         // Colu transaction is a typical bitcoin transaction containing additional inputs and OP_RETURN data
         // Typical Colu transaction has 2 inputs and 4 outputs
-        return FeeEstimatorBuilder().setLegacyInputs(2)
-                .setLegacyOutputs(4)
-                .createFeeEstimator()
-                .estimateTransactionSize()
-    }
+        FeeEstimatorBuilder().setLegacyInputs(2)
+            .setLegacyOutputs(4)
+            .createFeeEstimator()
+            .estimateTransactionSize()
 
     override fun getUnspentOutputViewModels(): List<OutputViewModel> {
         val result = mutableListOf<OutputViewModel>()
@@ -382,12 +367,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return result
     }
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey? {
-        return privateKey
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
+        return privateKey!!
     }
 
-    fun genericTransactionSummaryFromJson(transaction: Tx.Json): TransactionSummary? {
-
+    private fun genericTransactionSummaryFromJson(transaction: Tx.Json): TransactionSummary? {
         var transferred = Value.zeroValue(coinType)
         val destinationAddresses = arrayListOf<Address>()
 
@@ -444,7 +428,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return null
     }
 
-    fun utxosFromJson(json: AddressTransactionsInfo.Json, address: Address): MutableList<TransactionOutputEx> {
+    private fun utxosFromJson(json: AddressTransactionsInfo.Json, address: Address): MutableList<TransactionOutputEx> {
         val utxos = mutableListOf<TransactionOutputEx>()
         for (utxo in json.utxos) {
             utxo.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->
@@ -455,5 +439,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return utxos
     }
 
-    override fun canSign(): Boolean = true
+    override fun canSign(): Boolean = privateKey != null
+
+    override fun signMessage(message: String, address: Address?): String {
+        return privateKey!!.signMessage(message).base64Signature
+    }
 }

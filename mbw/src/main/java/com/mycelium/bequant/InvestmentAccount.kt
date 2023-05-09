@@ -1,9 +1,12 @@
 package com.mycelium.bequant
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.model.BitcoinAddress
+import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.bequant.common.assetInfoById
 import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
@@ -19,7 +22,8 @@ import com.mycelium.bequant.remote.trading.model.Balance as BequantBalance
 
 
 class InvestmentAccount : WalletAccount<BtcAddress> {
-    private val id = UUID.nameUUIDFromBytes("bequant_account".toByteArray())
+    override val id
+        get() = UUID.nameUUIDFromBytes("bequant_account".toByteArray())
 
     private val cachedBalance: Balance
         get() = Balance(BequantPreference.getLastKnownBalance(),
@@ -36,7 +40,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun createTx(address: Address?, amount: Value?, fee: Fee?, data: TransactionData?): Transaction {
+    override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         TODO("Not yet implemented")
     }
 
@@ -44,31 +48,38 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
-    override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
+    override fun signMessage(message: String, address: Address?): String {
         TODO("Not yet implemented")
     }
 
-    override fun broadcastTx(tx: Transaction?): BroadcastResult {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         TODO("Not yet implemented")
     }
 
-    override fun getReceiveAddress(): BtcAddress? = null
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
+        TODO("Not yet implemented")
+    }
 
-    override fun getCoinType(): CryptoCurrency = Utils.getBtcCoinType()
+    override val receiveAddress: BtcAddress? = null
 
-    override fun getBasedOnCoinType(): CryptoCurrency = Utils.getBtcCoinType()
+    override val coinType: CryptoCurrency
+        get() = Utils.getBtcCoinType()
 
-    override fun getAccountBalance(): Balance = cachedBalance
+    override val basedOnCoinType: CryptoCurrency
+        get() = Utils.getBtcCoinType()
+
+    override val accountBalance: Balance
+        get() = cachedBalance
 
     override fun isMineAddress(address: Address?): Boolean = false
 
     override fun isExchangeable(): Boolean = true
 
-    override fun getTx(transactionId: ByteArray?): Transaction {
+    override fun getTx(transactionId: ByteArray): Transaction? {
         TODO("Not yet implemented")
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary {
+    override fun getTxSummary(transactionId: ByteArray): TransactionSummary? {
         TODO("Not yet implemented")
     }
 
@@ -81,14 +92,11 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> =
             mutableListOf()
 
-    override fun getLabel(): String = "Trading Account"
+    override var label: String = "Trading Account"
 
-    override fun setLabel(label: String?) {
-    }
+    override fun isSpendingUnconfirmed(tx: Transaction): Boolean = false
 
-    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean = false
-
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override suspend fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
         val totalBalances = mutableListOf<BequantBalance>()
         if(BequantPreference.hasKeys()) {
@@ -145,9 +153,11 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         lastSyncInfo = syncStatusInfo
     }
 
-    override fun isArchived(): Boolean = false
+    override val isArchived: Boolean
+        get() = false
 
-    override fun isActive(): Boolean = true
+    override val isActive: Boolean
+        get() = SettingsPreference.isEnabled(BequantConstants.PARTNER_ID)
 
     override fun archiveAccount() {
     }
@@ -162,36 +172,31 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
 
     override fun isDerivedFromInternalMasterseed(): Boolean = false
 
-    override fun getId(): UUID = id
-
     override fun broadcastOutgoingTransactions(): Boolean = true
 
     override fun removeAllQueuedTransactions() {
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: BtcAddress?): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: BtcAddress?, txData: TransactionData?): Value {
         TODO("Not yet implemented")
     }
 
-    override fun getSyncTotalRetrievedTransactions(): Int = 0
+    override val syncTotalRetrievedTransactions: Int = 0
 
-    override fun getTypicalEstimatedTransactionSize(): Int {
+    override val typicalEstimatedTransactionSize: Int = 0
+
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey {
         TODO("Not yet implemented")
     }
 
-    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+    override val dummyAddress: BtcAddress =
+        BtcAddress(coinType, BitcoinAddress.getNullAddress(NetworkParameters.testNetwork))
+
+    override fun getDummyAddress(subType: String): BtcAddress {
         TODO("Not yet implemented")
     }
 
-    override fun getDummyAddress(): BtcAddress {
-        TODO("Not yet implemented")
-    }
-
-    override fun getDummyAddress(subType: String?): BtcAddress {
-        TODO("Not yet implemented")
-    }
-
-    override fun getDependentAccounts(): List<WalletAccount<Address>> = listOf()
+    override val dependentAccounts: List<WalletAccount<Address>> = listOf()
 
     override fun queueTransaction(transaction: Transaction) {
         TODO("Not yet implemented")

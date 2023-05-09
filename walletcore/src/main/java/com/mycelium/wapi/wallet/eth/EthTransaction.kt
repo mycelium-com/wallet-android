@@ -18,5 +18,5 @@ class EthTransaction(type: CryptoCurrency, val toAddress: String, val ethValue: 
     override fun txBytes() = txBinary
     override fun totalFee(): Value = Value.valueOf(type, gasPrice.times(estimatedTransactionSize.toBigInteger()) )
 
-    override fun getEstimatedTransactionSize() = estimatedGasUsed
+    override fun getEstimatedTransactionSize() = gasLimit.toInt()
 }

@@ -13,6 +13,9 @@ class SynchronizeFinishedListener: WalletListener{
         latch.countDown()
     }
 
+    override fun accountSyncStopped(walletAccount: WalletAccount<*>) {
+    }
+
     fun waitForSyncFinished() {
         try {
             latch.await()

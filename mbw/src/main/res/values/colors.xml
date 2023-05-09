@@ -61,6 +61,7 @@
     <color name="preference_item_color">#2c2c2c</color>
     <color name="btn_text_color">#5aa7e6</color>
     <color name="media_flow_status_color">#881a1a1a</color>
+    <color name="white_alpha_0_2">#33ffffff</color>
 
     <color name="fio_green">#51F129</color>
     <color name="fio_red">#D21614</color>
@@ -102,4 +103,6 @@
     <color name="giftbox_yellow">#EF9D44</color>
     <color name="giftbox_green">#2F9A41</color>
     <color name="giftbox_gray">#595959</color>
+    <color name="giftbox_state_text">#aaaaaa</color>
+    <color name="giftbox_state_title_ok">#5EBA89</color>
 </resources>

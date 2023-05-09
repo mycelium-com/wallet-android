@@ -27,6 +27,8 @@ import com.mrd.bitlib.util.Sha256Hash;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.annotation.Nullable;
+
 public class TransactionEx implements Serializable, Comparable<TransactionEx> {
    private static final long serialVersionUID = 1L;
 
@@ -89,6 +91,7 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
       }
    }
 
+   @Nullable
    public static TransactionOutputEx getTransactionOutput(TransactionEx tex, int index) {
       if (index < 0) {
          return null;
