@@ -59,7 +59,6 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
-import java.lang.IllegalStateException
 import java.lang.RuntimeException
 import java.nio.ByteBuffer
 import java.text.ParseException
@@ -67,6 +66,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.IllegalStateException
 
 abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacking, protected val _network: NetworkParameters, wapi: Wapi) :
     SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider {
@@ -91,12 +91,12 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
 
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
-        val btcFee = fee as FeePerKbFee
-        val btcTransaction =
-            BtcTransaction(coinType, address as BtcAddress, amount, btcFee.feePerKb)
-        val receivers = ArrayList<BtcReceiver>()
-        receivers.add(BtcReceiver(btcTransaction.destination!!.address, btcTransaction.amount!!.valueAsLong))
         return try {
+            val btcFee = fee as FeePerKbFee
+            val btcTransaction =
+                BtcTransaction(coinType, address as BtcAddress, amount, btcFee.feePerKb)
+            val receivers = ArrayList<BtcReceiver>()
+            receivers.add(BtcReceiver(btcTransaction.destination!!.address, btcTransaction.amount!!.valueAsLong))
             btcTransaction.unsignedTx =
                 createUnsignedTransaction(receivers, btcTransaction.feePerKb!!.valueAsLong)
             btcTransaction
@@ -104,7 +104,7 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
             throw OutputTooSmallException(ex)
         } catch (ex: InsufficientBtcException) {
             throw InsufficientFundsException(ex)
-        } catch (ex: UnableToBuildTransactionException) {
+        } catch (ex: Exception) {
             throw BuildTransactionException(ex)
         }
     }
@@ -1052,6 +1052,8 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         } catch (e: InsufficientBtcException) {
             zeroValue(coinType)
         } catch (e: UnableToBuildTransactionException) {
+            zeroValue(coinType)
+        } catch (e: IllegalStateException) {
             zeroValue(coinType)
         }
     }

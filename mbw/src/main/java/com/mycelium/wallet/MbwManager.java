@@ -1544,12 +1544,10 @@ public class MbwManager {
     }
 
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey, CryptoCurrency coinType) {
-        UUID accountId;
-        if (coinType instanceof FIOToken) {
-            accountId = _tempWalletManager.createAccounts(new FIOPrivateKeyConfig(privateKey)).get(0);
-        } else {
-            accountId = _tempWalletManager.createAccounts(new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher())).get(0);
-        }
+        final Config config = coinType instanceof FIOToken
+                ? new FIOPrivateKeyConfig(privateKey)
+                : new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher());
+        final UUID accountId = _tempWalletManager.createAccounts(config).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.startSynchronization(accountId);
         return accountId;

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.Html
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS
@@ -14,8 +15,8 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wapi.wallet.BitcoinBasedTransaction
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.BitcoinBasedTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcTransaction
@@ -36,6 +37,9 @@ class SendBtcModel(context: Context,
     val receivingAddressesList: MutableLiveData<List<Address>> = MutableLiveData()
     val feeDescription: MutableLiveData<String> = MutableLiveData()
     val isFeeExtended: MutableLiveData<Boolean> = MutableLiveData()
+    val feeHintShow = Transformations.map(feeLvl) {
+        it != MinerFee.LOWPRIO
+    }
 
     init {
         receivingAddressesList.value = emptyList()
@@ -58,7 +62,7 @@ class SendBtcModel(context: Context,
                             feeDescription.postValue("$inCount In- / $outCount Outputs, ~$size bytes")
 
                             val fee = calculateFee()
-                            if (fee != size * selectedFee.value!!.valueAsLong / 1000) {
+                            if (fee > size * selectedFee.value!!.valueAsLong / 1000) {
                                 val value = Value.valueOf(account.coinType, fee)
                                 val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(account.coinType))
                                 val fiat = if (fiatValue != null) {
@@ -130,7 +134,13 @@ class SendBtcModel(context: Context,
                         MinerFee.PRIORITY -> 1
                     }
                     val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks, BTC_BLOCK_TIME_IN_SECONDS)
-                    FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
+                    FeeLvlItem(
+                        fee,
+                        if (fee == MinerFee.LOWPRIO)
+                            context.getString(R.string.hours_or_more, duration)
+                        else "~$duration",
+                        SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM
+                    )
                 }
     }
 

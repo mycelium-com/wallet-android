@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -25,6 +26,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.ActionActivity
 import com.mycelium.wallet.activity.PinProtectedActivity
+import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils.handle
 import com.mycelium.wallet.lt.activity.LtMainActivity
@@ -70,7 +72,7 @@ class FcmListenerService : FirebaseMessagingService() {
         val link = remoteMessage.data["action"] ?: ""
         createNotificationChannel(this, TYPE_ADS_NOTIFICATION, "Advertise messages")
         val builder = NotificationCompat.Builder(this, TYPE_ADS_NOTIFICATION)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentTitle(remoteMessage.notification?.title)
@@ -168,14 +170,21 @@ class FcmListenerService : FirebaseMessagingService() {
             LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.ACTIVE_TRADES)
         }
         val pinProtectedIntent = PinProtectedActivity.createIntent(this, intent)
-        val pIntent = PendingIntent.getActivity(this, 0, pinProtectedIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+        val stackBuilder = TaskStackBuilder.create(this)
+        stackBuilder.addNextIntent(Intent(this, ModernMain::class.java))
+        stackBuilder.addNextIntent(pinProtectedIntent)
+        val pIntent = stackBuilder.getPendingIntent(
+            0,
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val title = resources.getString(R.string.lt_mycelium_local_trader_title)
         val message = resources.getString(R.string.lt_new_trading_activity_message)
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
 
@@ -220,7 +229,7 @@ class FcmListenerService : FirebaseMessagingService() {
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
 
@@ -263,7 +272,7 @@ class FcmListenerService : FirebaseMessagingService() {
         const val MEDIA_TOPIC = "/topics/all"
         private const val TYPE_ADS_NOTIFICATION = "advertise"
         private const val ID_ADS_NOTIFICATION = 726463
-        private const val ID_TRADE_NOTIFICATION = 1726460
-        private const val ID_TRADE_AD_ACTIVITY_NOTIFICATION = 1726461
+        const val ID_TRADE_NOTIFICATION = 1726460
+        const val ID_TRADE_AD_ACTIVITY_NOTIFICATION = 1726461
     }
 }

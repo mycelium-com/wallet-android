@@ -7,8 +7,11 @@ import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.giftbox.cards.adapter.ALL_COUNTRIES
+import com.mycelium.giftbox.cards.adapter.RUSSIA
 import com.mycelium.giftbox.cards.adapter.SelectCountriesAdapter
 import com.mycelium.giftbox.cards.viewmodel.GiftBoxViewModel
 import com.mycelium.wallet.R
@@ -39,9 +42,10 @@ class SelectCountriesFragment : Fragment() {
         adapter.selectedChangeListener = {
             activityViewModel.selectedCountries.value = if (it.code != 0) listOf(it) else listOf()
             activityViewModel.reloadStore = true
+            binding?.list?.postDelayed({ findNavController().popBackStack() }, 150) //for more smotch ui
         }
         val countryList = listOf(ALL_COUNTRIES) +
-                activityViewModel.countries.value
+                (listOf(RUSSIA) + (activityViewModel.countries.value ?: emptyList()))
                         ?.sortedWith(compareBy({ activityViewModel.selectedCountries.value?.contains(it) != true }, { it.name }))!!
         adapter.submitList(countryList)
         binding?.search?.doAfterTextChanged { search ->
