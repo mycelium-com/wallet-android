@@ -69,7 +69,7 @@ class FIONetResponse(@SerializedName("api-servers") val fioApiServers: FioServer
 
 class WapiSectionResponse(val primary: Array<HttpsUrlResponse>)
 
-class ElectrumXResponse(val primary: Array<UrlResponse>)
+class ElectrumXResponse(val primary: Array<UrlResponse>, val tor: Array<UrlResponse>)
 
 class EthServerResponse(val primary: Array<UrlResponse>)
 
@@ -89,6 +89,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
     fun updateConfig() {
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
+            val oldElectrum = electrumServers
+            val oldElectrumBTCV = electrumBTCVServers
+            val oldEth = ethBBServers
+            val oldFioApi = fioApiServers
+            val oldFioHistory = fioHistoryServers
+            val oldFioTpid = tpid
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
                 val service = Retrofit.Builder()
@@ -110,6 +116,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     } else {
                         myceliumNodesResponse?.btcMainnet
                     }?.electrumx?.primary?.map { it.url }?.toSet()
+
+                    val electrumXTorNodes = if (network.isTestnet) {
+                        myceliumNodesResponse?.btcTestnet
+                    } else {
+                        myceliumNodesResponse?.btcMainnet
+                    }?.electrumx?.tor?.map { it.url }?.toSet()
 
                     val wapiNodes = if (network.isTestnet) {
                         myceliumNodesResponse?.btcTestnet
@@ -151,6 +163,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     electrumXnodes?.let {
                         prefEditor.putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                     }
+                    electrumXTorNodes?.let {
+                        prefEditor.putStringSet(PREFS_ELECTRUM_TOR_SERVERS, electrumXTorNodes)
+                    }
 
                     wapiNodes?.let {
                         prefEditor.putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
@@ -159,13 +174,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     electrumXBTCVnodes?.let {
                         prefEditor.putStringSet(PREFS_ELECTRUM_BTCV_SERVERS, electrumXBTCVnodes)
                     }
-
-                    val oldElectrum = electrumServers
-                    val oldElectrumBTCV = electrumBTCVServers
-                    val oldEth = ethBBServers
-                    val oldFioApi = fioApiServers
-                    val oldFioHistory = fioHistoryServers
-                    val oldFioTpid = tpid
 
                     ethServersFromResponse?.let {
                         prefEditor.putStringSet(PREFS_ETH_BB_SERVERS, ethServersFromResponse)
@@ -200,11 +208,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     prefEditor.apply()
 
                     if (oldElectrum != electrumServers) {
-                        serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                        serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints())
                     }
 
                     if (oldElectrumBTCV != electrumBTCVServers) {
-                        serverElectrumVListChangedListener?.serverListChanged(getElectrumVEndpoints().toTypedArray())
+                        serverElectrumVListChangedListener?.serverListChanged(getElectrumVEndpoints())
                     }
 
                     if (oldEth != ethBBServers) {
@@ -239,6 +247,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private val electrumServers: Set<String>
         get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
 
+    private val electrumTorServers: Set<String>
+        get() = prefs.getStringSet(PREFS_ELECTRUM_TOR_SERVERS, setOf())!!
+
     // Returns the set of Wapi servers
     private val wapiServers: String
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
@@ -264,22 +275,23 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         return getElectrumEndpoints(electrumServers)
     }
 
+    fun getElectrumTorEndpoints(): List<TcpEndpoint> = getElectrumEndpoints(electrumTorServers)
+
     fun getElectrumVEndpoints(): List<TcpEndpoint> {
         return getElectrumEndpoints(electrumBTCVServers)
     }
 
-    private fun getElectrumEndpoints(electrumServers: Set<String>): ArrayList<TcpEndpoint> {
-        val result = ArrayList<TcpEndpoint>()
-        electrumServers.forEach {
+    private fun getElectrumEndpoints(electrumServers: Set<String>): List<TcpEndpoint> =
+        electrumServers.mapNotNull {
             try {
-                val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
-                result.add(TcpEndpoint(strs[0], strs[1].toInt()))
+                it.replace(TCP_TLS_PREFIX, "").split(":").let { strs ->
+                    TcpEndpoint(strs[0], strs[1].toInt())
+                }
             } catch (ex: Exception) {
                 // We ignore endpoints given in wrong format
+                null
             }
         }
-        return result
-    }
 
     fun getWapiEndpoints(): List<HttpEndpoint> {
         return getEndpoints(wapiServers)
@@ -343,6 +355,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
+        const val PREFS_ELECTRUM_TOR_SERVERS = "electrum_tor_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
         const val PREFS_ELECTRUM_BTCV_SERVERS = "electrum_btcv_servers"
         const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"

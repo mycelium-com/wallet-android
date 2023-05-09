@@ -146,6 +146,7 @@ dependencies {
         exclude group: "com.android.support"
     }
     kapt "com.github.bumptech.glide:compiler:4.7.1"
+    implementation "info.guardianproject.netcipher:netcipher:2.1.0"
 
 
     androidTestImplementation 'androidx.test:core:1.2.0'

@@ -466,6 +466,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
                case "mycelium":
                   handleMyceliumUri(intentUri);
                   break;
+               default:
+                  return false;
             }
             return true;
          }

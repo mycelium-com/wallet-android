@@ -11,6 +11,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.Thread.sleep
 import java.net.InetSocketAddress
+import java.net.Proxy
 import java.net.Socket
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -81,8 +82,10 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
         if (!this.endpoints.contentEquals(newEndpoints)) {
             this.endpoints = newEndpoints
             curEndpointIndex = 0
-            // Close current connection
-            closeConnection()
+            thread {
+                // Close current connection
+                closeConnection()
+            }
         }
     }
 
@@ -101,8 +104,12 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>, androidA
                 val currentEndpoint = endpoints[curEndpointIndex]
                 try {
                     logger.log(Level.INFO, "Connecting to ${currentEndpoint.host}:${currentEndpoint.port}")
-
-                    socket = (if (currentEndpoint.useSsl) ssf.createSocket() else Socket()).apply {
+                    socket = when {
+                        currentEndpoint.host.endsWith(".onion") ->
+                            Socket(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 9050)))
+                        currentEndpoint.useSsl -> ssf.createSocket()
+                        else -> Socket()
+                    }.apply {
                         soTimeout = MAX_READ_RESPONSE_TIMEOUT.toInt()
                         connect(InetSocketAddress(currentEndpoint.host, currentEndpoint.port))
                         keepAlive = true

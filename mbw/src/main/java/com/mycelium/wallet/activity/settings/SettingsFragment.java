@@ -1,5 +1,7 @@
 package com.mycelium.wallet.activity.settings;
 
+import static android.app.Activity.RESULT_CANCELED;
+
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -56,6 +58,7 @@ import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
+import com.mycelium.wallet.activity.settings.helper.UseTorHelper;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
@@ -70,9 +73,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import info.guardianproject.onionkit.ui.OrbotHelper;
-
-import static android.app.Activity.RESULT_CANCELED;
+import info.guardianproject.netcipher.proxy.OrbotHelper;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final int REQUEST_CODE_UNINSTALL = 1;
@@ -354,9 +355,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     if (useTor.isChecked()) {
-                        OrbotHelper obh = new OrbotHelper(getActivity());
-                        if (!obh.isOrbotInstalled()) {
-                            obh.promptToInstall(requireActivity());
+                        if (!OrbotHelper.isOrbotInstalled(requireContext())) {
+                            UseTorHelper.promptToInstall(requireActivity());
                             useTor.setChecked(false);
                         }
                     }
