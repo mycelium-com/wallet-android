@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mycelium.wallet.activity.changelog.datasource.ChangeLogDataSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
 internal object ChangeLog {
@@ -25,7 +26,16 @@ internal object ChangeLog {
         context: Context,
         fragmentManager: FragmentManager,
         tag: String? = null
-    ): BottomSheetDialogFragment? = if (ChangeLogDataSource(context.applicationContext).hasNewReleaseChangeLog()) {
-        withContext(Dispatchers.Main.immediate) { show(fragmentManager, tag) }
-    } else null
+    ): BottomSheetDialogFragment? {
+        val hasNewReleaseChangeLog = ChangeLogDataSource(context.applicationContext).hasNewReleaseChangeLog()
+        return if (
+            hasNewReleaseChangeLog &&
+            !fragmentManager.isStateSaved &&
+            !fragmentManager.isDestroyed
+        ) {
+            withContext(Dispatchers.Main.immediate) {
+                if (isActive) show(fragmentManager, tag) else null
+            }
+        } else null
+    }
 }

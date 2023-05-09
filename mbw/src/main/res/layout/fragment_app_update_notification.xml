@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_bottom_sheet"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:theme="@style/MyceliumModern"
+    tools:context=".activity.changelog.ChangeLogBottomSheetDialogFragment">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/indicator_bottom_sheet_drag" />
+
+    <include
+        android:id="@+id/header"
+        layout="@layout/adapter_item_change_log_latest_release"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:text="@string/update_to_new_features"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/newVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/new_version_s"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/updateMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:singleLine="false"
+        android:text="Placeholder Text\nwhat you are missing in the new version\n *) new feature 1\n *) new feature 2\n *) new feature 3\n *) new feature 4\n *) new feature 5\n *) new feature 6"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/listTypeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:paddingHorizontal="20dp"
+        android:text="@string/changelog_button_show_more"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#449CEE"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/getUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:paddingHorizontal="20dp"
+        android:text="Get update version from:"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/updateFromMycelium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:text="@string/mycelium_com"
+        android:textAllCaps="true"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/updateFromGooglePlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/google_play"
+        android:textAllCaps="true" />
+
+    <Button
+        android:id="@+id/skip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:paddingVertical="16dp"
+        android:background="@null"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="20dp"
+        android:text="SKIP"
+        android:textAllCaps="true" />
+
+</LinearLayout>
