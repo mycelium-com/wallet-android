@@ -40,9 +40,12 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (getItem(position).type) {
+        val bindingAdapterPosition = holder.bindingAdapterPosition
+        if (bindingAdapterPosition == RecyclerView.NO_POSITION)
+            return
+        when (getItem(bindingAdapterPosition).type) {
             TYPE_CARD -> {
-                val purchasedItem = getItem(position) as CardItem
+                val purchasedItem = getItem(bindingAdapterPosition) as CardItem
                 val item = purchasedItem.card
                 holder.itemView.title.text = item.productName
                 holder.itemView.description.text = "${item.amount} ${item.currencyCode}"
@@ -54,7 +57,7 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                                 .transforms(CenterCrop(), RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.giftbox_small_corner)), ))
                         .into(holder.itemView.image)
                 holder.itemView.setOnClickListener {
-                    itemClickListener?.invoke((getItem(holder.adapterPosition) as CardItem).card)
+                    itemClickListener?.invoke((getItem(bindingAdapterPosition) as CardItem).card)
                 }
                 holder.itemView.more.setOnClickListener { view ->
                     PopupMenu(view.context, view).apply {
@@ -82,11 +85,11 @@ class CardAdapter : ListAdapter<CardListItem, RecyclerView.ViewHolder>(DiffCallb
                 }
             }
             TYPE_GROUP -> {
-                val item = getItem(position) as GroupItem
+                val item = getItem(bindingAdapterPosition) as GroupItem
                 holder.itemView.groupTitle.text = item.title
                 holder.itemView.expand.rotation = if (item.isOpened) 180f else 0f
                 holder.itemView.setOnClickListener {
-                    groupListener?.invoke((getItem(holder.adapterPosition) as GroupItem).title)
+                    groupListener?.invoke((getItem(bindingAdapterPosition) as GroupItem).title)
                 }
             }
         }
