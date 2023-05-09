@@ -15,8 +15,8 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wapi.wallet.BitcoinBasedTransaction
 import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.BitcoinBasedTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcTransaction
@@ -62,7 +62,7 @@ class SendBtcModel(context: Context,
                             feeDescription.postValue("$inCount In- / $outCount Outputs, ~$size bytes")
 
                             val fee = calculateFee()
-                            if (fee != size * selectedFee.value!!.valueAsLong / 1000) {
+                            if (fee > size * selectedFee.value!!.valueAsLong / 1000) {
                                 val value = Value.valueOf(account.coinType, fee)
                                 val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(account.coinType))
                                 val fiat = if (fiatValue != null) {

@@ -118,9 +118,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
         txData = intent.getSerializableExtra(TX_DATA) as TransactionData?
         destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)?.takeIf {
-            val expectedAddressClass = viewModel.account?.dummyAddress?.let { it::class.java }
-            val destinationAddressClass = destinationAddress?.let { it::class.java }
-            expectedAddressClass == destinationAddressClass
+            it.coinType == viewModel.account!!.coinType
         } ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
             viewModel.maxSpendableAmount.postValue(
@@ -173,7 +171,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         if (isNullOrZero(viewModel.maxSpendableAmount.value)) {
             Toaster(this).toast(R.string.insufficient_funds, true)
         } else {
-            viewModel.amount.value = viewModel.maxSpendableAmount.value
+            viewModel.amount.value = viewModel.convert(viewModel.maxSpendableAmount.value!!, viewModel.currentCurrency.value!!)
+                    ?: viewModel.maxSpendableAmount.value!!
             // set the current shown currency to the amount's currency
             viewModel.currentCurrency.value = viewModel.amount.value!!.type
             updateUI()

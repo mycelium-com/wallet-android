@@ -178,8 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="start"
-                android:textSize="18sp"
-                android:textStyle="italic" />
+                android:textSize="18sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
