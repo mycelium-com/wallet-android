@@ -21,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class ExternalSignatureDevice {
     private static final String TAG = "ExtSig";
     private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
+    public static final int FLAG_MUTABLE = 1<<25;
     private UsbDeviceConnection conn;
     private String serial;
     private UsbEndpoint epr, epw;
@@ -149,7 +150,7 @@ public abstract class ExternalSignatureDevice {
         // clear the token-queue - under some circumstances it might happen that the requestPermission
         // callback already returned but this functions wasn't waiting anymore
         gotRights.clear();
-        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE));
+        usbManager.requestPermission(extSigDevice, PendingIntent.getBroadcast(context, 0, intent, FLAG_MUTABLE));
 
 
         // retry because of InterruptedException
