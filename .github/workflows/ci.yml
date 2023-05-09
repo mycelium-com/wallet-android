@@ -8,6 +8,9 @@ on:
     branches:
     - develop
     - master
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     if: >
@@ -49,7 +52,16 @@ jobs:
       run: |
         git reset --hard HEAD
         git clean -dfx
-        rm -rf fiosdk_kotlin/androidfioserializationprovider/.cxx/        
+
+        cd fiosdk_kotlin
+        git reset --hard HEAD
+        git clean -dfx
+
+        cd ../wallet-android-modularization-tools
+        git reset --hard HEAD
+        git clean -dfx
+
+        cd ..
         ./gradlew clean mbw::assembleProdnetDebug
 
     - name: Unzip buildA

@@ -70,7 +70,6 @@ import kotlinx.android.synthetic.main.send_coins_advanced_block.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_description.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
-import kotlinx.android.synthetic.main.send_coins_fee_selector.feeValueList
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
 import kotlinx.android.synthetic.main.send_coins_fee_title_eth.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
@@ -510,8 +509,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun onClickAddressBook() {
-        val intent = Intent(this, GetFromAddressBookActivity::class.java)
-        startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE)
+        startActivityForResult(Intent(this, GetFromAddressBookActivity::class.java)
+                .putExtra(ACCOUNT, viewModel.getAccount().id)
+                .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage()),
+                ADDRESS_BOOK_RESULT_CODE)
     }
 
     fun onClickManualEntry() {

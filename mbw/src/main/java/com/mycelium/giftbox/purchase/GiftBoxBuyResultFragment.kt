@@ -117,6 +117,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         args.accountId?.let { accountId ->
             val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
             val account = walletManager.getAccount(accountId)
+            walletManager.startSynchronization(accountId)
             args.transaction?.id?.let { txId ->
                 tx = account?.getTxSummary(txId)!!
                 val findFragmentById =
@@ -231,6 +232,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.successTitle?.setTextColor(resources.getColor(R.color.giftbox_state_title_ok))
+                binding?.orderScheme?.successText?.setTextColor(resources.getColor(R.color.giftbox_state_text))
                 binding?.finish?.text = getString(R.string.mygiftcards)
                 binding?.finish?.setOnClickListener {
                     activityViewModel.currentTab.value = GiftBoxFragment.CARDS

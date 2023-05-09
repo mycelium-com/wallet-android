@@ -432,8 +432,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("district0x", "dnt", 18, "0x0abdace70d3790235af448c88547603b945604ea")
         )
         val namePostfix = if (BuildConfig.FLAVOR == "prodnet") "" else " test"
+        val symbolPrefix = if (BuildConfig.FLAVOR == "prodnet") "" else "t"
         return tokens
-            .map { ERC20Token(it.name + namePostfix, it.symbol, it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
+            .map { ERC20Token(it.name + namePostfix, "$symbolPrefix${it.symbol}",
+                it.unitExponent, if (BuildConfig.FLAVOR == "prodnet") it.prodAddress else it.testnetAddress) }
             .associateBy { it.name }
     }
 
