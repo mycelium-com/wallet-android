@@ -27,7 +27,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, arguments?.getString(ARG_PREFS_ROOT))
 
-        val mbwManager = MbwManager.getInstance(activity!!.application)
+        val mbwManager = MbwManager.getInstance(requireContext().applicationContext)
         displayPreferenceDialogHandler = DisplayPreferenceDialogHandler(preferenceScreen.context)
         setHasOptionsMenu(true)
         (activity as SettingsActivity).supportActionBar!!.apply {
@@ -51,15 +51,15 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
                     val account = mbwManager.getWalletManager(false).getFioAccounts().first()
                     SendFioModel.UpdateFeeTask(account) { feeInSUF ->
                         val coinType = account.coinType
-                        val feeValue = if (feeInSUF != null) {
-                            Value.valueOf(coinType, feeInSUF)
-                        } else {
-                            Value.valueOf(coinType, DEFAULT_FEE)
-                        }
+                        val feeValue = Value.valueOf(coinType, feeInSUF ?: DEFAULT_FEE)
+                        val rate = mbwManager.exchangeRateManager
+                            .get(feeValue, mbwManager.getFiatCurrency(coinType))
+                            ?.let { "~${it.toStringWithUnit()}" }
+                            .orEmpty()
                         summary = this@MinerFeeFragment.context?.getString(
                             R.string.settings_summary_fio_fee,
                             feeValue.toStringWithUnit(),
-                            "~${mbwManager.exchangeRateManager.get(feeValue, mbwManager.getFiatCurrency(coinType)).toStringWithUnit()}"
+                            rate
                         )
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 })
@@ -88,7 +88,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            fragmentManager!!.popBackStack()
+            requireFragmentManager().popBackStack()
             return true
         }
         return super.onOptionsItemSelected(item)

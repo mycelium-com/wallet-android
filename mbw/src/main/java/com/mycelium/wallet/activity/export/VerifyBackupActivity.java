@@ -271,10 +271,11 @@ public class VerifyBackupActivity extends AppCompatActivity {
              } else if (type == ResultType.MASTER_SEED) {
                  verify(getMasterSeed(intent));
              } else {
-                 showDialogMessage("Not supported backup! Please contact suport.", false);
+                 showDialogMessage("Not supported backup! Please contact support.", false);
              }
          } else {
-            String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
+            final String keyError = StringHandlerActivity.RESULT_ERROR;
+            final String error = intent != null && intent.hasExtra(keyError) ? intent.getStringExtra(keyError) : null;
             if (error != null) {
                showDialogMessage(error, false);
             }

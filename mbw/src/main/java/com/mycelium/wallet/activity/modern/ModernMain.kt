@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.modern
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.SpannableString
@@ -61,8 +60,7 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule
 import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
-import info.guardianproject.onionkit.ui.OrbotHelper
-import kotlinx.coroutines.launch
+import info.guardianproject.netcipher.proxy.OrbotHelper
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -150,7 +148,9 @@ class ModernMain : AppCompatActivity(), BackHandler {
         val tab = mTabsAdapter!!.indexOf(TAB_EXCHANGE)
         binding.pagerTabs.getTabAt(tab)?.setCustomView(R.layout.layout_exchange_tab)
 
-        lifecycleScope.launch { ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager) }
+        lifecycleScope.launchWhenResumed {
+            ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
+        }
     }
 
     fun selectTab(tabTag: String?) {
@@ -256,13 +256,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
     private fun checkTorState() {
         if (mbwManager.torMode == ServerEndpointType.Types.ONLY_TOR) {
-            val obh = OrbotHelper(this)
-            // only check for Orbot if the OS is older than AndroidN (SDK_INT==24),
-            // because the current check does not work any more
-            // see: https://github.com/mycelium-com/wallet/issues/288#issuecomment-257261708
-            if (!obh.isOrbotRunning(this) && Build.VERSION.SDK_INT < 24) {
-                obh.requestOrbotStart(this)
-            }
+            OrbotHelper.get(this).init()
         }
     }
 

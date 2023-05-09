@@ -44,6 +44,7 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -124,9 +125,9 @@ public class ConnectionLogsActivity extends AppCompatActivity {
                 if (info.name.equals("androidx.core.content.FileProvider")) {
                     String authority = info.authority;
                     Uri uri = FileProvider.getUriForFile(getApplicationContext(), authority, logsExport);
-                    Intent intent = ShareCompat.IntentBuilder.from(this)
+                    Intent intent = new ShareCompat.IntentBuilder(this)
                             .setStream(uri)  // uri from FileProvider
-                            .setType("text/plain")
+                            .setType("*/*")
                             .setSubject(getResources().getString(R.string.connection_logs))
                             .setText(getResources().getString(R.string.connection_logs))
                             .getIntent()

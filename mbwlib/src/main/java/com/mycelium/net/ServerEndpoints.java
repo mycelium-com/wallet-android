@@ -35,30 +35,33 @@
 package com.mycelium.net;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class ServerEndpoints {
 
-   final private ArrayList<HttpEndpoint> endpoints;
+   final private ArrayList<HttpEndpoint> endpoints= new ArrayList<>();
    private int currentEndpoint;
    private ServerEndpointType allowedEndpointTypes = ServerEndpointType.ONLY_HTTPS;
 
 
    public ServerEndpoints(HttpEndpoint endpoints[]) {
-      this.endpoints = Lists.newArrayList(endpoints);
+      setupEnpoints(endpoints);
       currentEndpoint = new Random().nextInt(this.endpoints.size());
       // ensure correct kind of endpoint
       switchToNextEndpoint();
    }
 
    public ServerEndpoints(HttpEndpoint endpoints[], int initialEndpoint) {
-      this.endpoints = Lists.newArrayList(endpoints);
-
+      setupEnpoints(endpoints);
       Preconditions.checkElementIndex(initialEndpoint, endpoints.length);
       currentEndpoint = initialEndpoint;
+   }
+
+   private void setupEnpoints(HttpEndpoint points[]) {
+      Collections.addAll(endpoints, points);
    }
 
    public HttpEndpoint getCurrentEndpoint(){

@@ -145,10 +145,12 @@ public class GetSpendingRecordActivity extends AppCompatActivity {
    class RecordClicked implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
-         ViewAccountModel model = accountsAdapter.getItem(position);
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
-         callSendInitActivity(account);
-         GetSpendingRecordActivity.this.finish();
+         final ViewAccountModel model = accountsAdapter.getItem(position);
+         final WalletAccount<?> account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
+         if (account != null) {
+            callSendInitActivity(account);
+            GetSpendingRecordActivity.this.finish();
+         }
       }
    }
 

@@ -102,7 +102,7 @@ abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewMode
     }
 
     fun checkNfcAvailable() {
-        isNfcAvailable.value = model.nfc?.isNdefPushEnabled == true
+        isNfcAvailable.value = model.nfc?.isEnabled == true
     }
 
     fun getNfc() = model.nfc
