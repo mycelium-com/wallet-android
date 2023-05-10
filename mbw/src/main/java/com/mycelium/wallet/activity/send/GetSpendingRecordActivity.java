@@ -39,6 +39,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +65,7 @@ import java.util.List;
 
 import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
-public class GetSpendingRecordActivity extends Activity {
+public class GetSpendingRecordActivity extends AppCompatActivity {
    private AssetUri _uri;
    private MbwManager _mbwManager;
    private boolean _showAccounts = false;

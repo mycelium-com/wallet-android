@@ -52,6 +52,8 @@ import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -109,7 +111,7 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
+public class StartupActivity extends AppCompatActivity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;

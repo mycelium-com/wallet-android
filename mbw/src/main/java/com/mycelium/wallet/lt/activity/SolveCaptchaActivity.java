@@ -50,6 +50,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.lt.api.model.Captcha;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
@@ -62,7 +64,7 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetCaptcha;
 import com.mycelium.wallet.lt.api.SolveCaptcha;
 
-public class SolveCaptchaActivity extends Activity implements NumberEntryListener {
+public class SolveCaptchaActivity extends AppCompatActivity implements NumberEntryListener {
 
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, SolveCaptchaActivity.class);

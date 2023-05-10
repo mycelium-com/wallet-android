@@ -48,6 +48,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 
@@ -70,7 +71,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ConnectionLogsActivity extends Activity {
+public class ConnectionLogsActivity extends AppCompatActivity {
 
     private final static long MAX_TO_SHOW = 100;
 

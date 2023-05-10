@@ -67,6 +67,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
@@ -119,7 +120,7 @@ import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
 import static com.mycelium.wallet.lt.notification.FcmListenerService.ID_TRADE_AD_ACTIVITY_NOTIFICATION;
 import static com.mycelium.wallet.lt.notification.FcmListenerService.ID_TRADE_NOTIFICATION;
 
-public class TradeActivity extends Activity {
+public class TradeActivity extends AppCompatActivity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
    protected static final int REFRESH_PRICE_REQUEST_CODE = 2;
    private static final int SIGN_TX_REQUEST_CODE = 3;
