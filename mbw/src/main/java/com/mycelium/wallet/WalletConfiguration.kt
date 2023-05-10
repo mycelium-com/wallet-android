@@ -322,6 +322,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private var serverFioHistoryListChangedListeners: ArrayList<ServerFioHistoryListChangedListener> = arrayListOf()
     private var fioTpidChangedListeners: ArrayList<FioTpidChangedListener> = arrayListOf()
 
+    //https://github.com/bokkypoobah/WeenusTokenFaucet
     fun getSupportedERC20Tokens(): Map<String, ERC20Token> {
         val namePostfix = if (BuildConfig.FLAVOR == "prodnet") "" else " test"
         val symbolPrefix = if (BuildConfig.FLAVOR == "prodnet") "" else "t"
@@ -368,17 +369,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
 
         val TOKENS = listOf(
-            //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
-            TokenData(
-                "0x",
-                "ZRX",
-                18,
-                "0xe41d2489571d322189246dafa5ebde1f4699f498",
-                "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"
+                //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
+                //            TokenData("WEENUS", "WEENUS", 18, "0x2823589Ae095D99bD64dEeA80B4690313e2fB519", "0xaFF4481D10270F50f203E0763e2597776068CBc5"),
+                //            TokenData("XEENUS", "XEENUS", 18, "0xeEf5E2d8255E973d587217f9509B416b41CA5870", "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c"),
+                //            TokenData("YEENUS", "YEENUS", 8, "0x187E63F9eBA692A0ac98d3edE6fEb870AF0079e1", "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7"),
+            TokenData("ZEENUS", "ZEENUS", 0, "0x0693c3a780A0a757E803a4BD76bCf43d438f8806", "0x1f9061B953bBa0E36BF50F21876132DcF276fC6e"),
+            TokenData("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498", "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c"
             ),
             TokenData(
-                "Tether USD",
-                "USDT",
+                "Tether USD(ERC20)", "USDT20",
                 6,
                 "0xdac17f958d2ee523a2206206994597c13d831ec7",
                 "0x7c352ea63cefc099db667e848e1318878bbbcaaf"
@@ -396,7 +395,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "BUSD",
                 18,
                 "0x4fabb145d64652a948d72533023f6e7a623c7c53",
-                "0x5aff428676c5440719adcaf5ecdc7bdf2fbffbe7"
+                "0xaFF4481D10270F50f203E0763e2597776068CBc5"
             ),
             TokenData("Bitfinex LEO", "LEO", 18, "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3"),
             TokenData(
@@ -413,7 +412,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "0x514910771AF9Ca656af840dff83E8264EcF986CA",
                 "0x88bb053c5ddec8574fcd4d3b1692d43282a11281"
             ),
-            TokenData("Paxos Standard", "PAX", 18, "0x8E870D67F660D95d5be530380D0eC0bd388289E1"),
+            TokenData("Pax Dollar", "USDP", 18, "0x8E870D67F660D95d5be530380D0eC0bd388289E1"),
             TokenData("ZBToken", "ZB", 18, "0xBd0793332e9fB844A52a205A233EF27a5b34B927"),
             TokenData("OKB", "OKB", 18, "0x75231F58b43240C9718Dd58B4967c5114342a86c"),
             TokenData("OmiseGO", "OMG", 18, "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07"),
@@ -431,7 +430,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "STORJ",
                 8,
                 "0xB64ef51C888972c908CFacf59B47C1AfBC0Ab8aC",
-                "0xc39a4fc849db2fef1e69d81933a0fe4e929717f7"
+                "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7"
             ),
             TokenData(
                 "Gemini dollar",
@@ -451,10 +450,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Lambda", "LAMB", 18, "0x8971f9fd7196e5cEE2C1032B50F656855af7Dd26"),
             TokenData("chiliZ", "CHZ", 18, "0x3506424F91fD33084466F402d5D97f05F8e3b4AF"),
             TokenData(
-                "Augur",
+                "Augur (REPv2)",
                 "REP",
                 18,
-                "0x1985365e9f78359a9B6AD760e32412f4a445E862",
+                "0x221657776846890989a759ba2973e427dff5c9bb",
                 "0xa9e5813de9de1732e52e1f2de416006cf7fe7320"
             ),
             TokenData("IOSToken", "IOST", 18, "0xFA1a856Cfa3409CFa145Fa4e20Eb270dF3EB21ab"),
@@ -463,7 +462,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Streamr", "DATA", 18, "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023"),
             TokenData("Loom Token", "LOOM", 18, "0xA4e8C3Ec456107eA67d3075bF9e3DF3A75823DB0"),
             TokenData(
-                "Matic",
+                "Polygon",
                 "MATIC",
                 18,
                 "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
@@ -485,11 +484,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "0xb365f85a80a4164f8c6df5a35558c2e730019f8b"
             ),
             TokenData("Uquid Coin", "UQC", 18, "0xD01DB73E047855Efb414e6202098C4Be4Cd2423B"),
-            TokenData("HoloToken", "HOT", 18, "0x6c6EE5e31d828De241282B9606C8e98Ea48526E2"),
+            TokenData("Holo", "HOT", 18, "0x6c6EE5e31d828De241282B9606C8e98Ea48526E2"),
             TokenData("Origin Protocol", "OGN", 18, "0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26"),
             TokenData("Tellor", "TRB", 18, "0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5"),
             TokenData("Chromia", "CHR", 6, "0x915044526758533dfB918ecEb6e44bc21632060D"),
-            TokenData("Crypto.com Coin", "CRO", 8, "0xA0b73E1Ff0B80914AB6fe0444E65848C4C34450b"),
+            TokenData("Crypto.com Coin", "CROOLD", 8, "0xA0b73E1Ff0B80914AB6fe0444E65848C4C34450b"),
             TokenData(
                 "EnjinCoin",
                 "ENJ",
@@ -500,7 +499,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("HedgeTrade", "HEDG", 18, "0xF1290473E210b2108A85237fbCd7b6eb42Cc654F"),
             TokenData("Maker", "MKR", 18, "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"),
             TokenData("Hyperion", "HYN", 18, "0xE99A894a69d7c2e3C92E61B64C505A6a57d2bC07"),
-            TokenData("Synthetix Network", "SNX", 18, "0xC011A72400E58ecD99Ee497CF89E3775d4bd732F"),
+            TokenData("Synthetix", "SNX", 18, "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f"),
             TokenData("Kucoin Shares", "KCS", 6, "0x039B5649A59967e3e936D7471f9c3700100Ee1ab"),
             TokenData("Numeraire", "NMR", 18, "0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671"),
             TokenData("Crypterium", "CRPT", 18, "0x80A7E048F37A50500351C204Cb407766fA3baE7f"),
@@ -513,7 +512,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "0x4a220E6096B25EADb88358cb44068A3248254675",
                 "0x516802d3e54b9fc7328dd0dadb76401dd1d55dc6"
             ),
-            TokenData("Golem", "GNT", 18, "0xa74476443119A942dE498590Fe1f2454d7D4aC0d"),
+            TokenData("Golem", "GNT", 18, "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429"),
             TokenData("Metal", "MTL", 8, "0xF433089366899D83a9f26A773D59ec7eCF30355e"),
             TokenData("Nexo", "NEXO", 18, "0xB62132e35a6c13ee1EE0f84dC5d40bad8d815206"),
             TokenData("Theta Token", "THETA", 18, "0x3883f5e181fccaF8410FA61e12b59BAd963fb645"),
@@ -525,6 +524,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "0x960b236A07cf122663c4303350609A66A7B288C0",
                 "0xc72c77bee61caa5f00ced8d86e64d0fe380c6cf9"
             ),
+            TokenData("Aragon V2", "ANT", 18, "0xa117000000f279d81a1d3cc75430faa017fa5a2e", "0xc72c77bee61caa5f00ced8d86e64d0fe380c6cf9"),
             TokenData("Swipe", "SXP", 18, "0x8CE9137d39326AD0cD6491fb5CC0CbA0e089b6A9"),
             TokenData("Gnosis", "GNO", 18, "0x6810e776880C02933D47DB1b9fc05908e5386b96"),
             TokenData("SwissBorg", "CHSB", 8, "0xba9d4199faB4f26eFE3551D490E3821486f135Ba"),
@@ -536,7 +536,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359"
             ),
             TokenData("Mixin", "XIN", 18, "0xA974c709cFb4566686553a20790685A47acEAA33"),
-            TokenData("Republic", "REN", 18, "0x408e41876cCCDC0F92210600ef50372656052a38"),
+            TokenData("Ren", "REN", 18, "0x408e41876cCCDC0F92210600ef50372656052a38"),
             TokenData(
                 "Centrality Token",
                 "CENNZ",
@@ -579,23 +579,23 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Fantom Token", "FTM", 18, "0x4E15361FD6b4BB609Fa63C81A2be19d873717870"),
             TokenData("SHIBA INU", "SHIB", 18, "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"),
             TokenData("Paxos Gold", "PAXG", 18, "0x45804880De22913dAFE09f4980848ECE6EcbAf78"),
-            TokenData("Wrapped BTC", "WBTC", 8, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
+            TokenData("Wrapped Bitcoin", "WBTC", 8, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
             TokenData("Loopring", "LRC", 18, "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD"),
             TokenData("Curve DAO Token", "CRV", 18, "0xD533a949740bb3306d119CC777fa900bA034cd52"),
             TokenData("HEX", "HEX", 8, "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39"),
-            TokenData("SAND", "SAND", 18, "0x3845badAde8e6dFF049820680d1F14bD3903a5d0"),
-            TokenData("FTT", "FTT", 18, "0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9"),
+            TokenData("The Sandbox", "SAND", 18, "0x3845badAde8e6dFF049820680d1F14bD3903a5d0"),
+            TokenData("FTX Token", "FTT", 18, "0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9"),
             TokenData("Aave Token", "AAVE", 18, "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9"),
             TokenData("Uniswap", "UNI", 18, "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"),
             TokenData(
-                "Axie Infinity Shard",
+                "Axie Infinity",
                 "AXS",
                 18,
                 "0xBB0E17EF65F82Ab018d8EDd776e8DD940327B28b"
             ),
             TokenData("RLC", "RLC", 9, "0x607F4C5BB672230e8672085532f7e901544a7375"),
             TokenData("yearn.finance", "YFI", 18, "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"),
-            TokenData("Graph Token", "GRT", 18, "0xc944E90C64B2c07662A292be6244BDf05Cda44a7"),
+            TokenData("The Graph", "GRT", 18, "0xc944E90C64B2c07662A292be6244BDf05Cda44a7"),
             TokenData("Civic", "CVC", 8, "0x41e5560054824eA6B0732E656E3Ad64E20e94E45"),
             TokenData("Gala", "GALA", 8, "0x15D4c048F83bd7e37d49eA4C83a07267Ec4203dA"),
             TokenData("Illuvium", "ILV", 18, "0x767FE9EDC9E0dF98E07454847909b5E959D7ca0E"),
@@ -606,8 +606,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Compound", "COMP", 18, "0xc00e94Cb662C3520282E6f5717214004A7f26888"),
             TokenData("Render Token", "RNDR", 18, "0x6De037ef9aD2725EB40118Bb1702EBb27e4Aeb24"),
             TokenData("dYdX", "DYDX", 18, "0x92D6C1e31e14520e676a687F0a93788B716BEff5"),
-            TokenData("Ankr Network", "ANKR", 18, "0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4"),
-            TokenData("XYO", "XYO", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E758")
+            TokenData("Ankr", "ANKR", 18, "0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4"),
+            TokenData("XYO", "XYO", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E758"),
+            TokenData("Request", "REQ", 18, "0x8f8221afbb33998d8584a2b05749ba73c37a938a"),
+            TokenData("UMA", "UMA", 18, "0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828"),
+            TokenData("Viberate", "vib", 18, "0x2C974B2d0BA1716E644c1FC59982a89DDD2fF724"),
+            TokenData("district0x", "dnt", 18, "0x0abdace70d3790235af448c88547603b945604ea")
         )
     }
 }

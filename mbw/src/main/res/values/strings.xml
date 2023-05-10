@@ -1827,6 +1827,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelog_button_close">OPEN MYCELIUM WALLET</string>
     <string name="changelog_version_placeholder">Version: %s</string>
 
+    <string name="etc20_require_eth">All Ethereum network transactions require ETH to pay miner fee.</string>
+    <string name="giftcard_coin_not_acceptable">%s coin don\'t acceptable.\nPlease contact with support.</string>
+
     <string name="update_acvailable">Update available</string>
     <string name="current_version_s">Current version: %s</string>
     <string name="update_to_new_features">Update Mycelium to get new features and improved functionality.</string>

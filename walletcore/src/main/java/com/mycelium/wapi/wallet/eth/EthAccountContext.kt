@@ -12,6 +12,7 @@ class EthAccountContext(override val uuid: UUID,
                         accountName: String,
                         balance: Balance,
                         val listener: (EthAccountContext) -> Unit,
+                        val loadListener: (UUID) -> EthAccountContext?,
                         override val accountIndex: Int,
                         enabledTokens: List<String>? = null,
                         archived: Boolean = false,
@@ -21,6 +22,10 @@ class EthAccountContext(override val uuid: UUID,
         AccountContextImpl(uuid, currency, accountName, balance, archived, blockHeight) {
     override fun onChange() {
         listener(this)
+    }
+
+    fun updateEnabledTokens() {
+        enabledTokens = loadListener(uuid)?.enabledTokens
     }
 
     override var nonce = nonce

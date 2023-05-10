@@ -4,6 +4,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.*
 import com.google.gson.Gson
+import com.mrd.bitlib.TransactionUtils
 import com.mrd.bitlib.model.BitcoinAddress
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.OrderResponse
@@ -16,16 +17,19 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.*
+import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
 import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -121,11 +125,10 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     val totalAmountCrypto: LiveData<Value> = totalAmountCrypto()
-    val totalAmountCryptoSingle: LiveData<Value> = totalAmountCrypto(forSingleItem = true)
-    val totalAmountCryptoSingleString = Transformations.map(totalAmountCryptoSingle) {
-        it.toStringFriendlyWithUnit()
+    val totalAmountCryptoSingleString = Transformations.map(totalAmountCrypto) {
+        it.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE).toStringFriendlyWithUnit()
     }
-    val txValid =  MutableLiveData<AmountValidation>()
+    val txValid =  MutableLiveData<AmountValidation?>()
 
     private fun totalAmountCrypto(forSingleItem: Boolean = false) = Transformations.switchMap(
             zip2(
@@ -172,13 +175,12 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                                                 account,
                                                 cryptoAmount
                                         )
-                                        txValid.postValue(checkValidTransaction)
-                                        if (checkValidTransaction == AmountValidation.Ok) {
+                                        txValid.postValue(checkValidTransaction.state)
+                                        if (checkValidTransaction.state == AmountValidation.Ok) {
                                             tempTransaction.postValue(transaction)
                                             offer(cryptoAmount)
-                                        } else if(checkValidTransaction == AmountValidation.NotEnoughFunds) {
-                                            warningQuantityMessage.postValue(WalletApplication.getInstance()
-                                                .getString(R.string.insufficient_funds))
+                                        } else {
+                                            warningQuantityMessage.postValue(checkValidTransaction.message)
                                         }
                                     }
                                 } else {
@@ -228,7 +230,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun getCryptoAmount(price: String): Value {
         val cryptoUnit = BigDecimal(price).movePointRight(account.coinType?.unitExponent!!)
                 .toBigInteger()
-        return Value.valueOf(account.coinType!!, cryptoUnit)
+        return Value.valueOf(account.coinType, cryptoUnit)
     }
 
     fun getAssetInfo() = Utils.getTypeByName(productInfo.currencyCode)!!
@@ -241,7 +243,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         it?.toStringFriendlyWithUnit()?.let { "~$it" } ?: ""
     }
     val minerFeeFiat = Transformations.map(minerFeeCrypto) {
-        it?.let { mbwManager.exchangeRateManager.get(it, zeroFiatValue.type) } ?: zeroFiatValue
+        mbwManager.exchangeRateManager.get(it, Utils.getTypeByName(productInfo.currencyCode)) ?: zeroFiatValue
     }
     val minerFeeFiatString = Transformations.map(minerFeeFiat) {
         if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
@@ -261,17 +263,16 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
     val isGrantedPlus =
             Transformations.map(
-                    zip4(
+                    zip3(
                             totalAmountCrypto,
-                            totalAmountCryptoSingle,
                             warningQuantityMessage,
                             totalProgress
-                    ) { total: Value, single: Value, quantityError: String, progress: Boolean ->
-                        Quad(total, single, quantityError, progress)
+                    ) { total: Value, quantityError: String, progress: Boolean ->
+                        Triple(total, quantityError, progress)
                     }
             ) {
-                val (total, single, quantityError, progress) = it
-                total.plus(single)
+                val (total, quantityError, progress) = it
+                total.plus(total.div(quantityInt.value?.toBigInteger() ?: BigInteger.ONE))
                         .lessOrEqualThan(getAccountBalance()) && quantityError.isEmpty() && !progress
             }
 
@@ -317,7 +318,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     //colors
-    val totalAmountSingleCryptoColor = Transformations.map(totalAmountCryptoSingle) {
+    val totalAmountSingleCryptoColor = Transformations.map(totalAmountCrypto) {
         getColorByCryptoValue(it)
     }
 
@@ -365,30 +366,45 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     private fun checkValidTransaction(
             account: WalletAccount<*>,
             value: Value
-    ): Pair<AmountValidation, Transaction?> {
-        val transaction: Transaction?
+    ): Pair<Status, Transaction?> {
         if (value.equalZero()) {
-            return AmountValidation.Ok to null //entering a fiat value + exchange is not available
+            return Status(AmountValidation.Ok) to null //entering a fiat value + exchange is not available
         }
-        try {
-            transaction = account.createTx(
+        val res = WalletApplication.getInstance().resources
+        return try {
+            Status(AmountValidation.Ok) to account.createTx(
                     account.dummyAddress,
                     value,
                     FeePerKbFee(feeEstimation.normal),
                     null
             )
         } catch (e: OutputTooSmallException) {
-            return AmountValidation.ValueTooSmall to null
+            Status(AmountValidation.ValueTooSmall, res.getString(R.string.amount_too_small_short,
+                    Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())) to null
+        } catch (e: InsufficientFundsForFeeException) {
+            if (account is ERC20Account) {
+                val totalFee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                val parentAccountBalance = account.ethAcc.accountBalance.spendable
+                val fee = totalFee - parentAccountBalance
+                Status(AmountValidation.NotEnoughFunds, res.getString(R.string.please_top_up_your_eth_account,
+                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + ExchangeViewModel.TAG_ETH_TOP_UP)
+            } else {
+                Status(AmountValidation.NotEnoughFunds, res.getString(R.string.insufficient_funds_for_fee))
+            } to null
         } catch (e: InsufficientFundsException) {
-            return AmountValidation.NotEnoughFunds to null
+            Status(AmountValidation.NotEnoughFunds, res.getString(R.string.insufficient_funds)) to null
         } catch (e: BuildTransactionException) {
             mbwManager.reportIgnoredException("MinerFeeException", e)
-            return AmountValidation.Invalid to null
+            Status(AmountValidation.Invalid, res.getString(R.string.tx_build_error) + " " + e.message) to null
         } catch (e: Exception) {
-            return AmountValidation.Invalid to null
+            Status(AmountValidation.Invalid, res.getString(R.string.tx_build_error) + " " + e.message) to null
         }
-        return AmountValidation.Ok to transaction
     }
+
+    fun convert(value: Value) =
+            " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
+
+    data class Status(val state: AmountValidation, val message: String = "")
 
     enum class AmountValidation {
         Ok, ValueTooSmall, Invalid, NotEnoughFunds

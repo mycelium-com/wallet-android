@@ -35,7 +35,7 @@ jobs:
       with:
         submodules: recursive
 
-    - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
+    - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug mbw::assembleBtctestnetRelease
 
     - uses: actions/upload-artifact@v3
       with:

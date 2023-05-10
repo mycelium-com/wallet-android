@@ -152,6 +152,7 @@ class EthereumModule(
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
                     backing::updateAccountContext,
+                    backing::loadAccountContext,
                     accountContextInDB.accountIndex,
                     accountContextInDB.enabledTokens,
                     accountContextInDB.archived,
@@ -164,6 +165,7 @@ class EthereumModule(
                     "Ethereum ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
                     backing::updateAccountContext,
+                    backing::loadAccountContext,
                     getCurrentBip44Index() + 1)
         }
     }
