@@ -62,6 +62,8 @@ import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {
@@ -97,6 +99,14 @@ public class BalanceMasterFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.record_options_menu_outputs, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MbwManager mbwManager = MbwManager.getInstance(requireActivity());
+        WalletAccount account = mbwManager.getSelectedAccount();
+        menu.findItem(R.id.miShowOutputs).setVisible(account.isActive() && !(account instanceof AbstractEthERC20Account) && !(account instanceof FioAccount));
     }
 
     @Override
@@ -150,6 +160,7 @@ public class BalanceMasterFragment extends Fragment {
     @Subscribe
     public void selectedAccountChanged(SelectedAccountChanged event) {
         updateAddressView();
+        requireActivity().invalidateOptionsMenu();
     }
 
     private void updateAddressView() {
