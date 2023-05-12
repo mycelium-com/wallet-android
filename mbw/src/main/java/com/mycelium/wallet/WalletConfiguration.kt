@@ -524,7 +524,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 "0x960b236A07cf122663c4303350609A66A7B288C0",
                 "0xc72c77bee61caa5f00ced8d86e64d0fe380c6cf9"
             ),
-            TokenData("Aragon V2", "ANT", 18, "0xa117000000f279d81a1d3cc75430faa017fa5a2e", "0xc72c77bee61caa5f00ced8d86e64d0fe380c6cf9"),
+            TokenData("Aragon V2", "ANT", 18, "0xa117000000f279d81a1d3cc75430faa017fa5a2e"),
             TokenData("Swipe", "SXP", 18, "0x8CE9137d39326AD0cD6491fb5CC0CbA0e089b6A9"),
             TokenData("Gnosis", "GNO", 18, "0x6810e776880C02933D47DB1b9fc05908e5386b96"),
             TokenData("SwissBorg", "CHSB", 8, "0xba9d4199faB4f26eFE3551D490E3821486f135Ba"),
