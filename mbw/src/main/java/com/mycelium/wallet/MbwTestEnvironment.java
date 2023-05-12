@@ -106,7 +106,6 @@ public class MbwTestEnvironment extends MbwEnvironment {
             add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
             add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
 //            add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
-            add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
          }});
          put(EthTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
             add(new BlockExplorer("ETS", "etherscan.io", "https://goerli.etherscan.io/address/", "https://goerli.etherscan.io/tx/0x", null, null));
