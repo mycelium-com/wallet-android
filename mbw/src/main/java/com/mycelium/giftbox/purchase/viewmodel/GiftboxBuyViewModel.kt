@@ -58,7 +58,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
         mbwManager.getWalletManager(false).getAccount(accountId.value!!)!!
     }
     val zeroCryptoValue by lazy {
-        account.coinType?.value(0)
+        account.coinType.value(0)
     }
 
     fun getPreselectedValues(): List<Value> {
@@ -149,13 +149,16 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                 if (!forSingleItem) {
                     totalAmountFiat.value = amount.times(quantity.toLong())
                 }
-                if (quantity > MAX_QUANTITY) {
+                if (quantity >= MAX_QUANTITY) {
                     warningQuantityMessage.value = WalletApplication.getInstance()
                             .getString(R.string.max_available_cards_d, MAX_QUANTITY)
                 } else {
                     if (!forSingleItem) {
                         warningQuantityMessage.value = ""
                     }
+                }
+                if (quantity > MAX_QUANTITY) {
+                } else {
                     totalProgress.value = true
                     GitboxAPI.giftRepository.getPrice(viewModelScope,
                             code = productInfo.code ?: "",
@@ -175,7 +178,7 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
                                                 account,
                                                 cryptoAmount
                                         )
-                                        txValid.postValue(checkValidTransaction.state)
+//                                        txValid.postValue(checkValidTransaction.state)
                                         if (checkValidTransaction.state == AmountValidation.Ok) {
                                             tempTransaction.postValue(transaction)
                                             offer(cryptoAmount)
@@ -237,10 +240,10 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
 
 
     val minerFeeCrypto = Transformations.map(tempTransaction) {
-        it?.totalFee()
+        it.totalFee()
     }
     val minerFeeCryptoString = Transformations.map(minerFeeCrypto) {
-        it?.toStringFriendlyWithUnit()?.let { "~$it" } ?: ""
+        "~" + it.toStringFriendlyWithUnit()
     }
     val minerFeeFiat = Transformations.map(minerFeeCrypto) {
         mbwManager.exchangeRateManager.get(it, Utils.getTypeByName(productInfo.currencyCode)) ?: zeroFiatValue
@@ -281,14 +284,13 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
     }
 
     val isGranted = Transformations.map(
-            zip4(
+            zip3(
                     totalAmountCrypto,
                     totalProgress,
-                    quantityInt,
-                    txValid
-            ) { total: Value, progress: Boolean, quantity: Int, txValid -> Quad(total, progress, quantity, txValid) }) {
-        val (total, progress, quantity, txValid) = it
-        return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && quantity <= MAX_QUANTITY && !progress && txValid == AmountValidation.Ok
+                    quantityInt
+            ) { total: Value, progress: Boolean, quantity: Int -> Triple(total, progress, quantity) }) {
+        val (total, progress, quantity) = it
+        return@map total.lessOrEqualThan(getAccountBalance()) && total.moreThanZero() && quantity <= MAX_QUANTITY && !progress
     }
 
     val plusBackground = Transformations.map(isGrantedPlus) {
@@ -351,10 +353,10 @@ class GiftboxBuyViewModel(val productInfo: ProductInfo) : ViewModel(), OrderHead
             amount.movePointRight(assetInfo.unitExponent).setScale(0, RoundingMode.HALF_UP)
                     .toBigIntegerExact()
 
-    private fun getColorByCryptoValue(it: Value?) =
+    private fun getColorByCryptoValue(it: Value) =
             ContextCompat.getColor(
                     WalletApplication.getInstance(),
-                    if (it?.moreThanZero() == true) R.color.white_alpha_0_6 else R.color.darkgrey
+                    if (it.moreThanZero()) R.color.white_alpha_0_6 else R.color.darkgrey
             )
 
     private fun getColorByFiatValue(it: Value) =
