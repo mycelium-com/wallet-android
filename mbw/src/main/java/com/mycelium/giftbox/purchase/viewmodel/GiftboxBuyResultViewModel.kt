@@ -54,7 +54,7 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
         var asset = orderResponse.currencyFromInfo?.name?.toAssetInfo()
         if (asset == null) {
             asset = MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false).getAssetTypes()
-                    .find { it.symbol.equals(orderResponse.currencyFromInfo?.name, true) }
+                    .find { it.getCurrencyId().equals(orderResponse.currencyFromInfo?.name, true) }
         }
         totalAmountCryptoString.value =
                 asset?.value(orderResponse.amountExpectedFrom ?: "")?.toStringFriendlyWithUnit()

@@ -424,3 +424,11 @@ fun Value.getCurrencyId(): String {
     }
     return currencyId
 }
+
+fun AssetInfo.getCurrencyId() : String {
+    var currencyId = symbol.removePrefix("t")
+    if (currencyId.equals("usdt", true)) {
+        currencyId = "usdt20"
+    }
+    return currencyId
+}
