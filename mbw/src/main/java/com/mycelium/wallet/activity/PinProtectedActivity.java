@@ -34,17 +34,19 @@
 
 package com.mycelium.wallet.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
 
-public class PinProtectedActivity extends Activity{
+public class PinProtectedActivity extends AppCompatActivity {
 
    private static final String START_ACTIVITY = "startActivity";
    private PinDialog pinDialog;

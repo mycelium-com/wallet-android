@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.Html;
 import android.view.Window;
 
 import com.mycelium.wallet.R;
 
-public class RestartPopupActivity extends Activity {
+public class RestartPopupActivity extends AppCompatActivity {
     public static final String RESTART_WARNING_HEADER = "RESTART_WARNING_HEADER";
     public static final String RESTART_REQUIRED = "RESTART_REQUIRED";
 

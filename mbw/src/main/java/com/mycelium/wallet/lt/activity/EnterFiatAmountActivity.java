@@ -44,12 +44,14 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 
-public class EnterFiatAmountActivity extends Activity implements NumberEntryListener {
+public class EnterFiatAmountActivity extends AppCompatActivity implements NumberEntryListener {
 
    public static void callMe(Activity currentActivity, String currency, Integer amount, int requestCode) {
       Intent intent = new Intent(currentActivity, EnterFiatAmountActivity.class);

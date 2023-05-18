@@ -12,39 +12,34 @@ open class ERC20Backing(walletDB: WalletDB, private val generalBacking: Backing<
     : Backing<ERC20AccountContext> {
     private val erc20Queries = walletDB.eRC20ContextQueries
 
-    override fun loadAccountContexts() = erc20Queries.selectAllERC20Contexts(
-            mapper = { uuid: UUID,
-                       currency: CryptoCurrency,
-                       accountName: String,
-                       archived: Boolean,
-                       balance: Balance,
-                       blockHeight: Int,
-                       nonce: BigInteger,
-                       contractAddress: String,
-                       unitExponent: Int,
-                       symbol: String,
-                       ethAccountId: UUID ->
-                ERC20AccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        contractAddress, symbol, unitExponent, ethAccountId, archived, blockHeight, nonce)
-            })
-            .executeAsList()
+    private fun migrateSymbols(symbol: String): String =
+            when (symbol) {
+                "USDT" -> "USDT20"
+                else -> symbol
+            }
 
-    override fun loadAccountContext(accountId: UUID) = erc20Queries.selectERC20ContextByUUID(accountId,
-            mapper = { uuid: UUID,
-                       currency: CryptoCurrency,
-                       accountName: String,
-                       archived: Boolean,
-                       balance: Balance,
-                       blockHeight: Int,
-                       nonce: BigInteger,
-                       contractAddress: String,
-                       unitExponent: Int,
-                       symbol: String,
-                       ethAccountId: UUID ->
-                ERC20AccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        contractAddress, symbol, unitExponent, ethAccountId, archived, blockHeight, nonce)
-            })
-            .executeAsOneOrNull()
+    val accountMapper = { uuid: UUID,
+                          currency: CryptoCurrency,
+                          accountName: String,
+                          archived: Boolean,
+                          balance: Balance,
+                          blockHeight: Int,
+                          nonce: BigInteger,
+                          contractAddress: String,
+                          unitExponent: Int,
+                          symbol: String,
+                          ethAccountId: UUID ->
+        ERC20AccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
+                contractAddress, migrateSymbols(symbol), unitExponent, ethAccountId, archived, blockHeight, nonce)
+    }
+
+    override fun loadAccountContexts() =
+            erc20Queries.selectAllERC20Contexts(accountMapper)
+                    .executeAsList()
+
+    override fun loadAccountContext(accountId: UUID) =
+            erc20Queries.selectERC20ContextByUUID(accountId, accountMapper)
+                    .executeAsOneOrNull()
 
     override fun createAccountContext(context: ERC20AccountContext) {
         generalBacking.createAccountContext(context)

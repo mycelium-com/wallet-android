@@ -40,6 +40,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip38;
@@ -68,7 +70,7 @@ import com.mycelium.wapi.wallet.Address;
 
 import java.util.UUID;
 
-public class StringHandlerActivity extends Activity {
+public class StringHandlerActivity extends AppCompatActivity {
    public static final String CONFIG = "config";
    public static final String CONTENT = "content";
    public static final String RESULT_ERROR = "error";

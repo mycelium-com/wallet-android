@@ -51,6 +51,8 @@ open class SendBtcViewModel(application: Application) : SendCoinsViewModel(appli
         }
     }
 
+    fun feeHintShow() = (model as SendBtcModel).feeHintShow
+
     fun getReceivingAddresses() = (model as SendBtcModel).receivingAddressesList
 
     fun getFeeDescription() = (model as SendBtcModel).feeDescription

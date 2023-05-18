@@ -88,4 +88,9 @@ class FeeEstimatorBuilder {
         return FeeEstimator(legacyInputs, p2shSegwitInputs, bechInputs, legacyOutputs, p2shOutputs,
                 bechOutputs, minerFeePerKb)
     }
+
+    override fun toString(): String =
+            "FeeEstimatorBuilder(legacyInputs=$legacyInputs, p2shSegwitInputs=$p2shSegwitInputs" +
+                    ", bechInputs=$bechInputs, legacyOutputs=$legacyOutputs, p2shOutputs=$p2shOutputs" +
+                    ", bechOutputs=$bechOutputs, minerFeePerKb=$minerFeePerKb)"
 }

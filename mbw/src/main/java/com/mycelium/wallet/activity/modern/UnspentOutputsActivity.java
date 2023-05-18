@@ -42,6 +42,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
@@ -53,7 +55,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 import java.util.List;
 import java.util.UUID;
 
-public class UnspentOutputsActivity extends Activity {
+public class UnspentOutputsActivity extends AppCompatActivity {
    private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
    private static final LinearLayout.LayoutParams FPWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
 

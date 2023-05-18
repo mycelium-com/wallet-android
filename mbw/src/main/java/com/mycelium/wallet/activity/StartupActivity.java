@@ -52,6 +52,8 @@ import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -109,7 +111,7 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
+public class StartupActivity extends AppCompatActivity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
@@ -308,10 +310,12 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       delayedFinish.run();
    }
 
-   private Runnable delayedFinish = new Runnable() {
+   private final Runnable delayedFinish = new Runnable() {
       @Override
       public void run() {
-         if (_mbwManager.isUnlockPinRequired()) {
+         final MbwManager manager = _mbwManager;
+         final boolean isUnlockPinRequired = manager != null && manager.isUnlockPinRequired();
+         if (isUnlockPinRequired) {
 
             // set a click handler to the background, so that
             // if the PIN-Pad closes, you can reopen it by touching the background
@@ -464,6 +468,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
                case "mycelium":
                   handleMyceliumUri(intentUri);
                   break;
+               default:
+                  return false;
             }
             return true;
          }
@@ -584,10 +590,19 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          case StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE:
             String content = data.getStringExtra("base58Key");
             if (content != null) {
-               InMemoryPrivateKey key = InMemoryPrivateKey.fromBase58String(content, _mbwManager.getNetwork()).get();
-               UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(key, Utils.getBtcCoinType());
-               SendInitializationActivity.callMe(this, onTheFlyAccount, true);
-               finish();
+               final Optional<InMemoryPrivateKey> optionalKey = InMemoryPrivateKey.fromBase58String(
+                       content,
+                       _mbwManager.getNetwork()
+               );
+               if (optionalKey.isPresent()) {
+                  final InMemoryPrivateKey key = optionalKey.get();
+                  final UUID onTheFlyAccount = MbwManager.getInstance(this).createOnTheFlyAccount(
+                          key,
+                          Utils.getBtcCoinType()
+                  );
+                  SendInitializationActivity.callMe(this, onTheFlyAccount, true);
+                  finish();
+               }
                return;
             }
          case REQUEST_FROM_URI:

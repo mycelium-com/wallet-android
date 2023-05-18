@@ -7,6 +7,7 @@ import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.giftbox.client.models.OrderResponse
 import com.mycelium.giftbox.client.models.ProductInfo
 import com.mycelium.giftbox.common.OrderHeaderViewModel
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
@@ -50,7 +51,12 @@ class GiftboxBuyResultViewModel : ViewModel(), OrderHeaderViewModel {
         cardValue.value = "${cardAmount.stripTrailingZeros().toPlainString()} ${orderResponse.currencyCode}"
         quantity.value = orderResponse.quantity?.toInt() ?: 0
         totalAmountFiatString.value = "${orderResponse.amount?.toBigDecimal()?.times(orderResponse.quantity!!)} ${orderResponse.currencyCode}"
-        totalAmountCryptoString.value = orderResponse.currencyFromInfo?.name?.toAssetInfo()
-                ?.value(orderResponse.amountExpectedFrom ?: "")?.toStringFriendlyWithUnit()
+        var asset = orderResponse.currencyFromInfo?.name?.toAssetInfo()
+        if (asset == null) {
+            asset = MbwManager.getInstance(WalletApplication.getInstance()).getWalletManager(false).getAssetTypes()
+                    .find { it.symbol.equals(orderResponse.currencyFromInfo?.name, true) }
+        }
+        totalAmountCryptoString.value =
+                asset?.value(orderResponse.amountExpectedFrom ?: "")?.toStringFriendlyWithUnit()
     }
 }

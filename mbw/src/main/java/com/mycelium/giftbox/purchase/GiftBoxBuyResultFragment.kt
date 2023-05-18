@@ -32,12 +32,14 @@ import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment
 import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment
 import com.mycelium.wallet.activity.txdetails.EthDetailsFragment
 import com.mycelium.wallet.activity.txdetails.FioDetailsFragment
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
@@ -74,7 +76,11 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.minerFeeFiat.value = args.minerFeeFiat?.toStringWithUnit()
+        viewModel.minerFeeFiat.value = args.minerFeeFiat?.let {
+            if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
+                "<0.01 " + it.type.symbol
+            } else it.toStringFriendlyWithUnit()
+        }
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()
         loadProduct()
         loadOrder()
@@ -113,6 +119,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         args.accountId?.let { accountId ->
             val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
             val account = walletManager.getAccount(accountId)
+            walletManager.startSynchronization(accountId)
             args.transaction?.id?.let { txId ->
                 tx = account?.getTxSummary(txId)!!
                 val findFragmentById =
@@ -228,6 +235,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.successTitle?.setTextColor(resources.getColor(R.color.giftbox_state_title_ok))
+                binding?.orderScheme?.successText?.setTextColor(resources.getColor(R.color.giftbox_state_text))
                 binding?.finish?.text = getString(R.string.mygiftcards)
                 binding?.finish?.setOnClickListener {
                     activityViewModel.currentTab.value = GiftBoxFragment.CARDS

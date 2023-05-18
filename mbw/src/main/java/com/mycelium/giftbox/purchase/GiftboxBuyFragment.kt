@@ -1,7 +1,11 @@
 package com.mycelium.giftbox.purchase
 
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +14,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
+import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -26,15 +33,21 @@ import com.mycelium.giftbox.client.models.getCardValue
 import com.mycelium.giftbox.loadImage
 import com.mycelium.giftbox.purchase.adapter.CustomSimpleAdapter
 import com.mycelium.giftbox.purchase.viewmodel.GiftboxBuyViewModel
-import com.mycelium.wallet.*
+import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.util.*
+import com.mycelium.wallet.activity.modern.event.SelectTab
+import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyBinding
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.coins.Value
-import kotlinx.coroutines.*
-import java.util.*
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 
 
 class GiftboxBuyFragment : Fragment() {
@@ -95,8 +108,8 @@ class GiftboxBuyFragment : Fragment() {
             binding?.btEnterAmountPreselected?.background = null
             val isNotSetYet =
                     viewModel.totalAmountFiatSingle.value == null || viewModel.totalAmountFiatSingle.value?.isZero() ?: true
-            if (isNotSetYet && viewModel.getPreseletedValues().isNotEmpty()) {
-                viewModel.totalAmountFiatSingle.value = viewModel.getPreseletedValues()[0]
+            if (isNotSetYet && viewModel.getPreselectedValues().isNotEmpty()) {
+                viewModel.totalAmountFiatSingle.value = viewModel.getPreselectedValues()[0]
             }
             binding?.btEnterAmountPreselected?.setOnClickListener(preselectedClickListener)
         } else {
@@ -104,13 +117,22 @@ class GiftboxBuyFragment : Fragment() {
         }
 
         viewModel.warningQuantityMessage.observe(viewLifecycleOwner) {
-            binding?.tlQuanity?.error = it
+            binding?.tlQuanity?.error = Html.fromHtml(it)
             val isError = !it.isNullOrEmpty()
             binding?.tvQuanity?.setTextColor(
                     ContextCompat.getColor(
                             requireContext(), if (isError) R.color.red_error else R.color.white
                     )
             )
+        }
+        binding?.tlQuanity?.setOnClickListener {
+            val account = viewModel.account
+            if (account is ERC20Account && viewModel.warningQuantityMessage.value?.contains(ExchangeViewModel.TAG_ETH_TOP_UP) == true) {
+                MbwManager.getInstance(WalletApplication.getInstance()).setSelectedAccount(account.ethAcc.id)
+                requireActivity().finishAffinity()
+                startActivity(Intent(requireContext(), ModernMain::class.java)
+                        .apply { action = MainActions.ACTION_BALANCE })
+            }
         }
 
         loader(true)
@@ -173,7 +195,7 @@ class GiftboxBuyFragment : Fragment() {
                         code = args.product.code!!,
                         amount = (viewModel.totalAmountFiatSingle.value?.valueAsLong?.div(100))?.toInt()!!,
                         quantity = viewModel.quantityString.value?.toInt()!!,
-                        currencyId = viewModel.zeroCryptoValue?.currencySymbol?.removePrefix("t")!!,
+                        currencyId = viewModel.zeroCryptoValue!!.getCurrencyId(),
                         success = { orderResponse ->
                             viewModel.orderResponse.value = orderResponse
                             viewModel.sendTransactionAction.value = Unit
@@ -205,9 +227,8 @@ class GiftboxBuyFragment : Fragment() {
         }
     }
 
-
     private fun showChoicePreselectedValuesDialog() {
-        val preselectedList = viewModel.getPreseletedValues()
+        val preselectedList = viewModel.getPreselectedValues()
         val preselectedValue = viewModel.totalAmountFiatSingle.value
         val selectedIndex = if (preselectedValue != null) {
             preselectedList.indexOfFirst { it.equalsTo(preselectedValue) }

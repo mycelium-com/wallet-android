@@ -46,6 +46,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.lt.api.model.AdSearchItem;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
@@ -54,7 +56,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.CreateTrade;
 
-public class CreateTradeActivity extends Activity implements NumberEntryListener {
+public class CreateTradeActivity extends AppCompatActivity implements NumberEntryListener {
 
    public static void callMe(Activity currentActivity, AdSearchItem adSearchItem) {
       Intent intent = new Intent(currentActivity, CreateTradeActivity.class);

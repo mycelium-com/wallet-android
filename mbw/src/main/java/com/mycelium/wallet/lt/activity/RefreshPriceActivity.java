@@ -45,6 +45,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
@@ -59,7 +61,7 @@ import com.mycelium.wallet.lt.api.AssessBtcSellPrice;
 
 import java.util.Locale;
 
-public class RefreshPriceActivity extends Activity {
+public class RefreshPriceActivity extends AppCompatActivity {
 
    public static void callMeForResult(Activity currentActivity, TradeSession tradeSession, int requestCode) {
       Intent intent = new Intent(currentActivity, RefreshPriceActivity.class);
