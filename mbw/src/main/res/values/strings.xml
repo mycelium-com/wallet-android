@@ -1790,5 +1790,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelog_button_show_more">Learn more about latest updates</string>
     <string name="changelog_button_close">OPEN MYCELIUM WALLET</string>
     <string name="changelog_version_placeholder">Version: %s</string>
-    <string name="giftbox_expired_text">Order expired. Please contact with support.</string>
+    <string name="giftbox_expired_text"><![CDATA[The order expired. Please contact the support - <font color="#4583de">support@mycelium.com</font>]]></string>
 </resources>

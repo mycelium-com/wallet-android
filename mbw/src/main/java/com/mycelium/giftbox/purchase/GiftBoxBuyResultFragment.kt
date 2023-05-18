@@ -1,5 +1,7 @@
 package com.mycelium.giftbox.purchase
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.view.*
@@ -26,7 +28,10 @@ import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.txdetails.*
+import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment
+import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment
+import com.mycelium.wallet.activity.txdetails.EthDetailsFragment
+import com.mycelium.wallet.activity.txdetails.FioDetailsFragment
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
@@ -36,10 +41,6 @@ import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
-import kotlinx.android.synthetic.main.details_common.*
-import kotlinx.android.synthetic.main.details_common.view.*
-import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
-import kotlinx.android.synthetic.main.giftcard_send_info.*
 import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.*
@@ -190,6 +191,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         if (args.accountId == null) {
             paymentText = paymentText.replace("<[^>]*>".toRegex(), "")
         }
+        binding?.orderScheme?.paymentText?.setOnClickListener(null)
         when (order.status) {
             Status.pROCESSING -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
@@ -255,7 +257,16 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_gray)
                 binding?.orderScheme?.paymentTitle?.text = getString(R.string.failed)
                 binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
-                binding?.orderScheme?.paymentText?.text = getString(R.string.giftbox_expired_text)
+                binding?.orderScheme?.paymentText?.text = Html.fromHtml(getString(R.string.giftbox_expired_text))
+                binding?.orderScheme?.paymentText?.setOnClickListener {
+                    startActivity(
+                        Intent.createChooser(
+                            Intent(Intent.ACTION_SENDTO)
+                                .setData(Uri.parse("mailto:support@mycelium.com")),
+                            getString(R.string.send_mail)
+                        )
+                    )
+                }
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
                 binding?.orderScheme?.paymentIcon?.background = null
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
