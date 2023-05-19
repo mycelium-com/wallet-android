@@ -1,5 +1,7 @@
 package com.mycelium.giftbox.purchase
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.view.*
@@ -196,6 +198,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         if (args.accountId == null) {
             paymentText = paymentText.replace("<[^>]*>".toRegex(), "")
         }
+        binding?.orderScheme?.paymentText?.setOnClickListener(null)
         when (order.status) {
             Status.pROCESSING -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
@@ -247,6 +250,32 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.paymentTitle?.text = getString(R.string.failed)
                 binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
                 binding?.orderScheme?.paymentText?.text = getString(R.string.giftbox_failed_text)
+                binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
+                binding?.orderScheme?.paymentIcon?.background = null
+                binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
+                binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
+                    setFontSize(16f)
+                    setFontColor(resources.getColor(R.color.giftbox_gray))
+                })
+                binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
+                binding?.finish?.text = getString(R.string.return_to_payment)
+            }
+            Status.EXPIRED -> {
+                binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
+                binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_gray)
+                binding?.orderScheme?.paymentTitle?.text = getString(R.string.failed)
+                binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+                binding?.orderScheme?.paymentText?.text = Html.fromHtml(getString(R.string.giftbox_expired_text))
+                binding?.orderScheme?.paymentText?.setOnClickListener {
+                    startActivity(
+                        Intent.createChooser(
+                            Intent(Intent.ACTION_SENDTO)
+                                .setData(Uri.parse("mailto:support@mycelium.com")),
+                            getString(R.string.send_mail)
+                        )
+                    )
+                }
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
                 binding?.orderScheme?.paymentIcon?.background = null
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)

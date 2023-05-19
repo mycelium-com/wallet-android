@@ -973,4 +973,5 @@
     <string name="course_outdated">курс устарел</string>
     <string name="unredeemed">Восстановить</string>
     <string name="changelly_error_rate_expired">Обменный курс устарел, пожалуйста, повторите попытку.</string>
+    <string name="giftbox_expired_text"><![CDATA[Срок действия заказа истёк. Пожалуйста, свяжитесь с поддержкой - <font color="#4583de">support@mycelium.com</font>]]></string>
 </resources>
