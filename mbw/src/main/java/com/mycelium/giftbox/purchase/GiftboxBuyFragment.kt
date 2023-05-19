@@ -172,9 +172,6 @@ class GiftboxBuyFragment : Fragment() {
                     if (viewModel.quantityInt.value!! >= GiftboxBuyViewModel.MAX_QUANTITY) {
                         viewModel.warningQuantityMessage.value =
                                 "Max available cards: ${GiftboxBuyViewModel.MAX_QUANTITY} cards"
-                    } else if (viewModel.totalProgress.value != true) {
-                        viewModel.warningQuantityMessage.value =
-                                getString(R.string.insufficient_funds)
                     }
                 }
             }
