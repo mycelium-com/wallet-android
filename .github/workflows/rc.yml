@@ -1,9 +1,9 @@
-name: CI
+name: RC
 on:
-  pull_request:
-    branches: ['**']
+  push:
+    branches: [master]
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}
   cancel-in-progress: true
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
       with:
         submodules: recursive
 
-    - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug mbw::assembleBtctestnetRelease
+    - run: ./gradlew clean test mbw::assembleProdnetRelease
 
     - uses: actions/upload-artifact@v3
       with:
@@ -37,7 +37,7 @@ jobs:
 
     - name: Check Target SDK
       run: |
-        target_sdk=$(/usr/local/lib/android/sdk/cmdline-tools/latest/bin/apkanalyzer manifest target-sdk mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk)
+        target_sdk=$(/usr/local/lib/android/sdk/cmdline-tools/latest/bin/apkanalyzer manifest target-sdk mbw/build/outputs/apk/prodnet/release/mbw-prodnet-release.apk)
         echo "$target_sdk" | grep "^31$"
 
     - run: mv mbw/build/outputs/apk /tmp/buildA
@@ -56,13 +56,13 @@ jobs:
         git clean -dfx
 
         cd ..
-        ./gradlew clean mbw::assembleBtctestnetRelease
+        ./gradlew clean mbw::assembleProdnetRelease
 
     - name: Unzip buildA
-      run: unzip -d buildA -qq /tmp/buildA/btctestnet/release/mbw-btctestnet-release.apk
+      run: unzip -d buildA -qq /tmp/buildA/prodnet/release/mbw-prodnet-release.apk
 
     - name: Unzip buildB
-      run: unzip -d buildB -qq mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk
+      run: unzip -d buildB -qq mbw/build/outputs/apk/prodnet/release/mbw-prodnet-release.apk
 
     - name: Compare builds
       run: |
