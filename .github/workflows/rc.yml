@@ -25,9 +25,9 @@ jobs:
       with:
         image: mycelium_builder:latest
         options: >
-          --volume ${{ github.workspace }}:/app
+          --volume ${{ github.workspace }}:/project/
         run: |
-          cd /app
+          cd /project/
           ./gradlew clean test mbw::assembleProdnetRelease mbw::assembleBtctestnetRelease mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
 
     - uses: actions/upload-artifact@v3
