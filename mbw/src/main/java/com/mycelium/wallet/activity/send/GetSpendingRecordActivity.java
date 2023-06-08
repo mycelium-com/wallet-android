@@ -92,8 +92,12 @@ public class GetSpendingRecordActivity extends AppCompatActivity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_spending_record_activity);
-      _mbwManager = MbwManager.getInstance(this.getApplication());
-      builder = new RecordRowBuilder(_mbwManager, getResources());
+
+      // Optimized to not cause 4 bytes difference in DEX thus failing build reproducibility check
+      final MbwManager _mbwManagerInstance = MbwManager.getInstance(this.getApplication());
+      _mbwManager = _mbwManagerInstance;
+      builder = new RecordRowBuilder(_mbwManagerInstance, getResources());
+
       listView = findViewById(R.id.lvRecords);
       listView.setOnItemClickListener(new RecordClicked());
 

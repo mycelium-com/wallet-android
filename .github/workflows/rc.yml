@@ -20,14 +20,18 @@ jobs:
       with:
         tags: mycelium_builder:latest
         push: false
+        context: ${{ github.workspace }}
 
     - uses: addnab/docker-run-action@v3
       with:
         image: mycelium_builder:latest
         options: >
-          --volume ${{ github.workspace }}:/app
+          --volume ${{ github.workspace }}:/app/
+          --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined
         run: |
-          cd /app
+          mkdir /project/
+          disorderfs --sort-dirents=yes --reverse-dirents=no /app/ /project/;
+          cd /project/
           ./gradlew clean test mbw::assembleProdnetRelease mbw::assembleBtctestnetRelease mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
 
     - uses: actions/upload-artifact@v3
