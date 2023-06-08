@@ -20,6 +20,7 @@ jobs:
       with:
         tags: mycelium_builder:latest
         push: false
+        context: ${{ github.workspace }}
 
     - uses: addnab/docker-run-action@v3
       with:
