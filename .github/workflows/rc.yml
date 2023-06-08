@@ -26,8 +26,11 @@ jobs:
       with:
         image: mycelium_builder:latest
         options: >
-          --volume ${{ github.workspace }}:/project/
+          --volume ${{ github.workspace }}:/app/
+          --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined
         run: |
+          mkdir /project/
+          disorderfs --sort-dirents=yes --reverse-dirents=no /app/ /project/;
           cd /project/
           ./gradlew clean test mbw::assembleProdnetRelease mbw::assembleBtctestnetRelease mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
 

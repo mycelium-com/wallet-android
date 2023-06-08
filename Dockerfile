@@ -6,7 +6,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get update -y && \
     apt-get install -y wget \
             openjdk-11-jdk \
-            git unzip && \
+            git unzip disorderfs && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
