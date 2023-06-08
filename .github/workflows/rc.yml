@@ -29,11 +29,11 @@ jobs:
       with:
         submodules: recursive
 
-    - run: ./gradlew clean test mbw::assembleProdnetRelease
+    - run: ./gradlew clean test mbw::assembleProdnetRelease mbw::assembleBtctestnetRelease mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
 
     - uses: actions/upload-artifact@v3
       with:
-        path: mbw/build/outputs/apk/
+        path: mbw/build/outputs/
 
     - name: Check Target SDK
       run: |
