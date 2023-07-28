@@ -3,16 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
     android:orientation="vertical">
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="wrap_content"
+        android:layout_width="88dp"
         android:layout_height="88dp" />
 
     <TextView
         android:id="@+id/text"
         android:layout_width="match_parent"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:layout_height="wrap_content"
         tools:text="lore" />
 
