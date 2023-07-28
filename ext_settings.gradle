@@ -2,10 +2,10 @@
 ext {
     guavaVersion = '23.0-android'
     gradleVersion = '4.1.1'
-    androidCompileSdkVersion = 31
+    androidCompileSdkVersion = 33
     androidSdkBuildVersion = '30.0.3'
     androidMinSdkVersion = 19
-    androidTargetSdkVersion = 31
+    androidTargetSdkVersion = 33
     junitVersion = '4.12'
     kotlin_version = '1.3.72'
     coroutines_version = "1.3.0-M2"
