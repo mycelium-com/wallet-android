@@ -372,6 +372,18 @@
         <item name="android:paddingEnd">@dimen/button_padding_large</item>
     </style>
 
+    <style name="MyceliumAdsButton" parent="android:style/Widget.Button">
+        <item name="android:layout_marginStart">3dp</item>
+        <item name="android:layout_marginEnd">3dp</item>
+        <item name="textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:background">@drawable/background_action_btn_ads</item>
+        <item name="android:textColor">@color/fio_white_alpha_0_8</item>
+        <item name="android:paddingStart">@dimen/button_padding_large</item>
+        <item name="android:paddingEnd">@dimen/button_padding_large</item>
+    </style>
+
     <style name="Switch" parent="Theme.AppCompat.Light">
         <item name="colorSwitchThumbNormal">@color/lightgrey</item>
         <item name="android:colorForeground">@color/grey</item>
