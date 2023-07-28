@@ -7,13 +7,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.bequant.common.equalsValuesBy
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ItemQuadAdsBinding
 import com.mycelium.wallet.external.partner.model.BuySellButton
 
 class QuadAdsAdapter : ListAdapter<BuySellButton, RecyclerView.ViewHolder>(QuadDiffCallback()) {
-    private var clickListener: ((BuySellButton) -> Unit)? = null
+    var clickListener: ((BuySellButton) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         ButtonHolder(
@@ -27,6 +30,13 @@ class QuadAdsAdapter : ListAdapter<BuySellButton, RecyclerView.ViewHolder>(QuadD
         button.binding.text.text = actionButton!!.name
         Glide.with(button.itemView)
             .load(actionButton.iconUrl)
+            .apply(
+                RequestOptions()
+                    .transforms(
+                        CenterCrop(),
+                        RoundedCorners(holder.itemView.resources.getDimensionPixelSize(R.dimen.quad_ads_corner)),
+                    )
+            )
             .into(button.binding.image)
         button.itemView.setOnClickListener(View.OnClickListener {
             clickListener?.invoke(actionButton)

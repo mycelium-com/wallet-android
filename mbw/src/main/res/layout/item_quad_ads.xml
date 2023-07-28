@@ -18,6 +18,8 @@
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:paddingStart="8dp"
+        android:textColor="@color/fio_white_alpha_0_8"
+        android:textSize="11dp"
         android:paddingEnd="8dp"
         android:layout_height="wrap_content"
         tools:text="lore" />

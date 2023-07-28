@@ -67,7 +67,6 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.main_buy_sell_fragment.*
 
 class BuySellFragment : Fragment(), ButtonClickListener {
     enum class ACTION {
@@ -105,6 +104,7 @@ class BuySellFragment : Fragment(), ButtonClickListener {
         binding?.quadList?.adapter = quadAdapter
         recreateActions()
         quadAdapter.submitList(getBalanceContent()?.quads?.sortedBy { it.index })
+        quadAdapter.clickListener = { startContentLink(it.link) }
     }
 
     private fun recreateActions() {
@@ -134,7 +134,7 @@ class BuySellFragment : Fragment(), ButtonClickListener {
             }
         }
         buttonAdapter.setButtons(actions)
-        button_list.postDelayed(ScrollToRunner(1), 500)
+        binding?.buttonList?.postDelayed(ScrollToRunner(1), 500)
     }
 
     private fun addAdsContent(actions: MutableList<ActionButton>) {
@@ -198,7 +198,7 @@ class BuySellFragment : Fragment(), ButtonClickListener {
 
     internal inner class ScrollToRunner(var scrollTo: Int) : Runnable {
         override fun run() {
-            button_list?.smoothScrollToPosition(scrollTo)
+            binding?.buttonList?.smoothScrollToPosition(scrollTo)
         }
     }
 
