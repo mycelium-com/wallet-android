@@ -9,6 +9,15 @@
         android:id="@+id/button_list"
         android:layout_width="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
+        android:layout_gravity="center" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/quad_list"
+        android:layout_width="match_parent"
+        android:layout_marginTop="40dp"
         android:layout_marginBottom="10dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"

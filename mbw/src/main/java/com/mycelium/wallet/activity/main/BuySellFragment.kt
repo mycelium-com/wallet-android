@@ -36,7 +36,9 @@ package com.mycelium.wallet.activity.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.mycelium.view.ItemCentralizer
 import com.mycelium.wallet.MbwManager
@@ -44,6 +46,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter
 import com.mycelium.wallet.activity.main.adapter.ButtonClickListener
+import com.mycelium.wallet.activity.main.adapter.QuadAdsAdapter
 import com.mycelium.wallet.activity.main.model.ActionButton
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.modern.event.SelectTab
@@ -51,11 +54,11 @@ import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBalanceContent
 import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
+import com.mycelium.wallet.databinding.MainBuySellFragmentBinding
 import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.external.Ads.openFio
 import com.mycelium.wallet.external.BuySellSelectActivity
-import com.mycelium.wallet.external.changelly.ChangellyActivity
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity
 import com.mycelium.wallet.external.partner.model.BuySellButton
 import com.mycelium.wallet.external.partner.startContentLink
@@ -64,15 +67,16 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.squareup.otto.Subscribe
-import kotlinx.android.synthetic.main.main_buy_sell_fragment.*
 
-class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickListener {
+class BuySellFragment : Fragment(), ButtonClickListener {
     enum class ACTION {
         BCH, ALT_COIN, BTC, FIO, ETH, ADS, BUY_SELL_ERC20
     }
 
     private lateinit var mbwManager: MbwManager
     private val buttonAdapter = ButtonAdapter()
+    private val quadAdapter = QuadAdsAdapter()
+    private var binding: MainBuySellFragmentBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(false)
@@ -84,12 +88,23 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
         mbwManager = MbwManager.getInstance(context)
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = MainBuySellFragmentBinding.inflate(inflater).apply {
+        binding = this
+    }.root
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        button_list.adapter = buttonAdapter
-        button_list.addOnScrollListener(ItemCentralizer())
+        binding?.buttonList?.adapter = buttonAdapter
+        binding?.buttonList?.addOnScrollListener(ItemCentralizer())
         buttonAdapter.setClickListener(this)
+        binding?.quadList?.adapter = quadAdapter
         recreateActions()
+        quadAdapter.submitList(getBalanceContent()?.quads?.sortedBy { it.index })
+        quadAdapter.clickListener = { startContentLink(it.link) }
     }
 
     private fun recreateActions() {
@@ -119,7 +134,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
             }
         }
         buttonAdapter.setButtons(actions)
-        button_list.postDelayed(ScrollToRunner(1), 500)
+        binding?.buttonList?.postDelayed(ScrollToRunner(1), 500)
     }
 
     private fun addAdsContent(actions: MutableList<ActionButton>) {
@@ -183,7 +198,7 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
 
     internal inner class ScrollToRunner(var scrollTo: Int) : Runnable {
         override fun run() {
-            button_list?.smoothScrollToPosition(scrollTo)
+            binding?.buttonList?.smoothScrollToPosition(scrollTo)
         }
     }
 
@@ -197,6 +212,11 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
     override fun onStop() {
         MbwManager.getEventBus().unregister(this)
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     @Subscribe
