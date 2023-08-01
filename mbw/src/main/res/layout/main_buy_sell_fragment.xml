@@ -9,7 +9,7 @@
         android:id="@+id/button_list"
         android:layout_width="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
         android:layout_gravity="center" />
