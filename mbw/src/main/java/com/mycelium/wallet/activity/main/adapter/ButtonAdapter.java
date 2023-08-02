@@ -79,9 +79,9 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
             button.setTextColor(actionButton.getTextColor() != 0 ?
                     actionButton.getTextColor() : button.getResources().getColor(R.color.fio_white_alpha_0_8));
-            button.setPadding(button.getResources().getDimensionPixelSize(actionButton.getIcon() != 0 ?
-                            R.dimen.page_margin_width : R.dimen.button_padding_large)
-                    , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
+//            button.setPadding(button.getResources().getDimensionPixelSize(actionButton.getIcon() != 0 ?
+//                            R.dimen.page_margin_width : R.dimen.button_padding_large)
+//                    , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

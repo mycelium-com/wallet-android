@@ -102,6 +102,7 @@ class BuySellFragment : Fragment(), ButtonClickListener {
         binding?.buttonList?.addOnScrollListener(ItemCentralizer())
         buttonAdapter.setClickListener(this)
         binding?.quadList?.adapter = quadAdapter
+        binding?.quadList?.addOnScrollListener(ItemCentralizer())
         recreateActions()
         quadAdapter.submitList(getBalanceContent()?.quads?.sortedBy { it.index })
         quadAdapter.clickListener = { startContentLink(it.link) }

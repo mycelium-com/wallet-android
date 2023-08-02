@@ -4,21 +4,18 @@
         <shape>
             <solid android:color="#3b3b3b"/>
             <corners android:radius="12dp"/>
-            <padding android:left="@dimen/button_padding_ads" android:right="@dimen/button_padding_ads"/>
         </shape>
     </item>
     <item android:state_enabled="false">
         <shape>
             <solid android:color="#1e1e1e"/>
             <corners android:radius="12dp"/>
-            <padding android:left="@dimen/button_padding_ads" android:right="@dimen/button_padding_ads"/>
         </shape>
     </item>
     <item>
         <shape>
             <solid android:color="@color/btn_bg_color"/>
             <corners android:radius="12dp"/>
-            <padding android:left="@dimen/button_padding_ads" android:right="@dimen/button_padding_ads"/>
         </shape>
     </item>
 </selector>
