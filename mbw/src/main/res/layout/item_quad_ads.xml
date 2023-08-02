@@ -9,13 +9,13 @@
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="88dp"
-        android:layout_height="88dp" />
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
 
     <TextView
         android:id="@+id/text"
         android:layout_width="match_parent"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:gravity="center"
         android:paddingStart="8dp"
         android:textColor="@color/fio_white_alpha_0_8"
