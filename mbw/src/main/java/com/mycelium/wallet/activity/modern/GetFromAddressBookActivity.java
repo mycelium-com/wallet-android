@@ -35,13 +35,15 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.os.Bundle;
-import androidx.viewpager.widget.ViewPager;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 
 public class GetFromAddressBookActivity extends AppCompatActivity {
    private static final String TAB_MY_ADDRESSES = "tab_my_addresses";
@@ -90,6 +92,10 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
       ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, availableForSending);
+      if (getIntent().hasExtra(SendCoinsActivity.ACCOUNT)) {
+         ownBundle.putSerializable(SendCoinsActivity.ACCOUNT, getIntent().getSerializableExtra(SendCoinsActivity.ACCOUNT));
+         ownBundle.putBoolean(SendCoinsActivity.IS_COLD_STORAGE, getIntent().getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false));
+      }
       return ownBundle;
    }
 }

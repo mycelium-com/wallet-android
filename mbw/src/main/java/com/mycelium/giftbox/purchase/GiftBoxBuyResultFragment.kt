@@ -1,5 +1,7 @@
 package com.mycelium.giftbox.purchase
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.view.*
@@ -26,20 +28,21 @@ import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.activity.txdetails.*
+import com.mycelium.wallet.activity.txdetails.BtcDetailsFragment
+import com.mycelium.wallet.activity.txdetails.BtcvDetailsFragment
+import com.mycelium.wallet.activity.txdetails.EthDetailsFragment
+import com.mycelium.wallet.activity.txdetails.FioDetailsFragment
+import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.databinding.FragmentGiftboxBuyResultBinding
 import com.mycelium.wallet.startCoroutineTimer
 import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btcvault.hd.BitcoinVaultHdAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
-import kotlinx.android.synthetic.main.details_common.*
-import kotlinx.android.synthetic.main.details_common.view.*
-import kotlinx.android.synthetic.main.fragment_giftbox_buy_result.*
-import kotlinx.android.synthetic.main.giftcard_send_info.*
 import kotlinx.coroutines.Job
 import java.text.DateFormat
 import java.util.*
@@ -73,7 +76,11 @@ class GiftBoxBuyResultFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.minerFeeFiat.value = args.minerFeeFiat?.toStringWithUnit()
+        viewModel.minerFeeFiat.value = args.minerFeeFiat?.let {
+            if (it.lessThan(Value(it.type, 1.toBigInteger()))) {
+                "<0.01 " + it.type.symbol
+            } else it.toStringFriendlyWithUnit()
+        }
         viewModel.minerFeeCrypto.value = "~" + args.minerFeeCrypto?.toStringWithUnit()
         loadProduct()
         loadOrder()
@@ -112,6 +119,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         args.accountId?.let { accountId ->
             val walletManager = MbwManager.getInstance(requireContext()).getWalletManager(false)
             val account = walletManager.getAccount(accountId)
+            walletManager.startSynchronization(accountId)
             args.transaction?.id?.let { txId ->
                 tx = account?.getTxSummary(txId)!!
                 val findFragmentById =
@@ -190,6 +198,7 @@ class GiftBoxBuyResultFragment : Fragment() {
         if (args.accountId == null) {
             paymentText = paymentText.replace("<[^>]*>".toRegex(), "")
         }
+        binding?.orderScheme?.paymentText?.setOnClickListener(null)
         when (order.status) {
             Status.pROCESSING -> {
                 binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
@@ -226,6 +235,8 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.line2?.setBackgroundColor(resources.getColor(R.color.bequant_green))
                 binding?.orderScheme?.successIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
                 binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.successTitle?.setTextColor(resources.getColor(R.color.giftbox_state_title_ok))
+                binding?.orderScheme?.successText?.setTextColor(resources.getColor(R.color.giftbox_state_text))
                 binding?.finish?.text = getString(R.string.mygiftcards)
                 binding?.finish?.setOnClickListener {
                     activityViewModel.currentTab.value = GiftBoxFragment.CARDS
@@ -239,6 +250,32 @@ class GiftBoxBuyResultFragment : Fragment() {
                 binding?.orderScheme?.paymentTitle?.text = getString(R.string.failed)
                 binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
                 binding?.orderScheme?.paymentText?.text = getString(R.string.giftbox_failed_text)
+                binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
+                binding?.orderScheme?.paymentIcon?.background = null
+                binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)
+                binding?.orderScheme?.successIcon?.setImageDrawable(TextDrawable(resources, "3").apply {
+                    setFontSize(16f)
+                    setFontColor(resources.getColor(R.color.giftbox_gray))
+                })
+                binding?.orderScheme?.successIcon?.setBackgroundResource(R.drawable.circle_dash_gray)
+                binding?.finish?.text = getString(R.string.return_to_payment)
+            }
+            Status.EXPIRED -> {
+                binding?.orderScheme?.paidIcon?.setImageResource(R.drawable.ic_vertical_stepper_done)
+                binding?.orderScheme?.paidIcon?.setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_completed)
+                binding?.orderScheme?.line1?.setBackgroundResource(R.drawable.line_dash_gray)
+                binding?.orderScheme?.paymentTitle?.text = getString(R.string.failed)
+                binding?.orderScheme?.paymentTitle?.setTextColor(resources.getColor(R.color.sender_recyclerview_background_red))
+                binding?.orderScheme?.paymentText?.text = Html.fromHtml(getString(R.string.giftbox_expired_text))
+                binding?.orderScheme?.paymentText?.setOnClickListener {
+                    startActivity(
+                        Intent.createChooser(
+                            Intent(Intent.ACTION_SENDTO)
+                                .setData(Uri.parse("mailto:support@mycelium.com")),
+                            getString(R.string.send_mail)
+                        )
+                    )
+                }
                 binding?.orderScheme?.paymentIcon?.setImageResource(R.drawable.ic_bequant_clear_24)
                 binding?.orderScheme?.paymentIcon?.background = null
                 binding?.orderScheme?.line2?.setBackgroundResource(R.drawable.line_dash_gray)

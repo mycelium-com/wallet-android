@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -23,7 +24,7 @@ import kotlinx.android.synthetic.main.message_signing.*
 import java.util.*
 import kotlin.concurrent.thread
 
-class MessageSigningActivity : Activity() {
+class MessageSigningActivity : AppCompatActivity() {
     private var signature: String? = null
     private var messageText: String? = null
     private var address: Address? = null

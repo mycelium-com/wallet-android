@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -25,11 +26,18 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.ActionActivity
 import com.mycelium.wallet.activity.PinProtectedActivity
+import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils.handle
 import com.mycelium.wallet.lt.activity.LtMainActivity
 
 class FcmListenerService : FirebaseMessagingService() {
+
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        MbwManager.getInstance(this).localTraderManager.storeGcmRegistrationId(token)
+    }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val data: Map<*, *> = remoteMessage.data
         val messageType = remoteMessage.messageType // null for firebase
@@ -64,7 +72,7 @@ class FcmListenerService : FirebaseMessagingService() {
         val link = remoteMessage.data["action"] ?: ""
         createNotificationChannel(this, TYPE_ADS_NOTIFICATION, "Advertise messages")
         val builder = NotificationCompat.Builder(this, TYPE_ADS_NOTIFICATION)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentTitle(remoteMessage.notification?.title)
@@ -155,19 +163,28 @@ class FcmListenerService : FirebaseMessagingService() {
     }
 
     private fun showTradeNotification(type: String, lastChange: Long) {
+        createNotificationChannel(this, LT_CHANNEL_ID, "Trade messages")
         val intent = if (LtApi.TRADE_FINAL_NOTIFICATION_TYPE == type) {
             LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.TRADE_HISTORY)
         } else {
             LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.ACTIVE_TRADES)
         }
         val pinProtectedIntent = PinProtectedActivity.createIntent(this, intent)
-        val pIntent = PendingIntent.getActivity(this, 0, pinProtectedIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+        val stackBuilder = TaskStackBuilder.create(this)
+        stackBuilder.addNextIntent(Intent(this, ModernMain::class.java))
+        stackBuilder.addNextIntent(pinProtectedIntent)
+        val pIntent = stackBuilder.getPendingIntent(
+            0,
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val title = resources.getString(R.string.lt_mycelium_local_trader_title)
         val message = resources.getString(R.string.lt_new_trading_activity_message)
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
 
@@ -192,11 +209,11 @@ class FcmListenerService : FirebaseMessagingService() {
         }
 
         // Notify
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0, builder.build())
+        NotificationManagerCompat.from(this).notify(ID_TRADE_NOTIFICATION, builder.build())
     }
 
     private fun showAdNotification(type: String) {
+        createNotificationChannel(this, LT_CHANNEL_ID, "Trade messages")
         val intent = if (LtApi.AD_TIME_OUT_NOTIFICATION_TYPE == type) {
             PinProtectedActivity.createIntent(this,
                     LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS)
@@ -205,13 +222,14 @@ class FcmListenerService : FirebaseMessagingService() {
             // We don't know this type, so we ignore it
             return
         }
-        val pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+        val pIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val title = resources.getString(R.string.lt_mycelium_local_trader_title)
         val message = resources.getString(R.string.lt_ad_deactivating_message)
         val builder = NotificationCompat.Builder(this, LT_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
 
@@ -232,8 +250,7 @@ class FcmListenerService : FirebaseMessagingService() {
         }
 
         // Notify
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0, builder.build())
+        NotificationManagerCompat.from(this).notify(ID_TRADE_AD_ACTIVITY_NOTIFICATION, builder.build())
     }
 
     companion object {
@@ -255,5 +272,7 @@ class FcmListenerService : FirebaseMessagingService() {
         const val MEDIA_TOPIC = "/topics/all"
         private const val TYPE_ADS_NOTIFICATION = "advertise"
         private const val ID_ADS_NOTIFICATION = 726463
+        const val ID_TRADE_NOTIFICATION = 1726460
+        const val ID_TRADE_AD_ACTIVITY_NOTIFICATION = 1726461
     }
 }

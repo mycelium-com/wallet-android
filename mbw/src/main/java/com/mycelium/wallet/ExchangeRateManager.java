@@ -130,6 +130,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             try {
                 List<GetExchangeRatesResponse> responses = new ArrayList<>(cryptocurrencies.size() * selectedCurrencies.size());
                 for (String cryptocurrency : cryptocurrencies) {
+                    cryptocurrency = cryptocurrency.equals("USDT20") ? "USDT" : cryptocurrency;
                     for (String currency : selectedCurrencies) {
                         responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION,
                                 Util.trimTestnetSymbolDecoration(cryptocurrency), currency)).getResult());
@@ -231,6 +232,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         _latestRates = new HashMap<>();
         for (GetExchangeRatesResponse response : latestRates) {
             String fromCurrency = Util.addTestnetSymbolDecoration(response.getFromCurrency(), BuildConfig.FLAVOR.equals("btctestnet"));
+            fromCurrency = fromCurrency.equals("USDT") ? "USDT20" : fromCurrency;
             String toCurrency = Util.addTestnetSymbolDecoration(response.getToCurrency(), BuildConfig.FLAVOR.equals("btctestnet"));
             if (_latestRates.get(fromCurrency) != null) {
                 _latestRates.get(fromCurrency).put(toCurrency, response);

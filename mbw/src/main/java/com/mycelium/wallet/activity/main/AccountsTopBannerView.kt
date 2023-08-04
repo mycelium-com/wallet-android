@@ -1,32 +1,34 @@
 package com.mycelium.wallet.activity.main
 
 import android.content.Context
-import android.os.Bundle
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.widget.FrameLayout
 import com.bumptech.glide.Glide
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.databinding.LayoutTopBannerBinding
 import com.mycelium.wallet.external.partner.startContentLink
 import com.mycelium.wallet.randomOrNull
 
-class AccountsTopBannerFragment : Fragment() {
+class AccountsTopBannerView : FrameLayout {
     private var binding: LayoutTopBannerBinding? = null
-    private val preference by lazy { requireActivity().getSharedPreferences(ACCOUNTS_TOP_BANNER_PREF, Context.MODE_PRIVATE) }
+    private val preference by lazy { context.getSharedPreferences(ACCOUNTS_TOP_BANNER_PREF, Context.MODE_PRIVATE) }
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View =
-            LayoutTopBannerBinding.inflate(inflater).apply {
-                binding = this
-            }.root
+    constructor(context: Context) : super(context)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+
+    init {
+        LayoutTopBannerBinding.inflate(LayoutInflater.from(context), this, true).apply {
+            binding = this
+        }
+    }
+
+    override fun onFinishInflate() {
+        super.onFinishInflate()
         SettingsPreference.getAccountsContent()?.bannersTop
                 ?.filter {
                     it.isActive() && preference.getBoolean(it.parentId, true)
@@ -37,18 +39,13 @@ class AccountsTopBannerFragment : Fragment() {
                             .load(banner.imageUrl)
                             .into(binding?.bannerImage!!)
                     binding?.topBanner?.setOnClickListener {
-                        startContentLink(banner.link)
+                        context.startContentLink(banner.link)
                     }
                     binding?.bannerClose?.setOnClickListener {
                         binding?.topBanner?.visibility = View.GONE
                         preference.edit().putBoolean(banner.parentId, false).apply()
                     }
                 }
-    }
-
-    override fun onDestroyView() {
-        binding = null
-        super.onDestroyView()
     }
 
     companion object {

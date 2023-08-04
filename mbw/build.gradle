@@ -84,7 +84,7 @@ dependencies {
     //not upgrading. This will be replaced with firebase
     implementation "com.google.android.gms:play-services-base:10.2.1"
     implementation "com.google.android.gms:play-services-gcm:10.2.1"
-    implementation "com.google.firebase:firebase-messaging:17.3.4"
+    implementation "com.google.firebase:firebase-messaging:23.1.1"
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "com.squareup:otto:$ottoVersion"
 
@@ -146,6 +146,7 @@ dependencies {
         exclude group: "com.android.support"
     }
     kapt "com.github.bumptech.glide:compiler:4.7.1"
+    implementation "info.guardianproject.netcipher:netcipher:2.1.0"
 
 
     androidTestImplementation 'androidx.test:core:1.2.0'
@@ -218,8 +219,9 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3160013
-        versionName '3.16.0.13'
+        versionCode 3160100
+        versionName '3.16.1.0'
+
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
@@ -307,23 +309,45 @@ android {
 
                 ElectrumServers = '{"tcp-tls://electrumx-1a.mycelium.com:10000",' +
                         '"tcp-tls://electrumx-1a0.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-1a0.mycelium.com:10001",' +
+                        '"tcp-tls://electrumx-1a0.mycelium.com:50002",' +
                         '"tcp-tls://electrumx-1a1.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-1a1.mycelium.com:10001",' +
+                        '"tcp-tls://electrumx-1a1.mycelium.com:50002",' +
                         '"tcp-tls://electrumx-1a2.mycelium.com:10000",' +
                         '"tcp-tls://electrumx-1a2.mycelium.com:50002",' +
                         '"tcp-tls://electrumx-2a0.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-2a0.mycelium.com:10001",' +
-                        '"tcp-tls://electrumx-2a1.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-2a1.mycelium.com:10001"}'
-                WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
-                        '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
-                        '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
+                        '"tcp-tls://electrumx-2a0.mycelium.com:10001"}'
+                WapiServers='"[{\\\'cert-sha1\':\\\'17:62:9D:04:0D:4E:1E:A2:9A:BD:FF:9F:38:1B:18:8F:94:3E:8B:5F\\\',\\\'url\\\':\\\'https://wapi.mycelium.com\\\'}]"'
                 ElectrumBTCVServers ='{"tcp-tls://electrumx-mainnet1.bitcoinvault.global:443",' +
                         '"tcp-tls://electrumx-mainnet2.bitcoinvault.global:443"}'
-                EthBlockBook = '{"https://eth1.trezor.io", "https://eth2.trezor.io"}'
-                FioApiServers = '{"https://fio.greymass.com/v1/"}'
-                FioHistoryServers = '{"https://fio.greymass.com/v1/"}'
+                EthBlockBook = '{"https://bb-eth.mycelium.com:9136"}'
+                FioApiServers = '{"https://fio.eu.eosamsterdam.net/v1/",' +
+                        '"https://fio.eosdac.io/v1/",' +
+                        '"https://fio.eosphere.io/v1/",' +
+                        '"https://fio.eosrio.io/v1/",' +
+                        '"https://fio.acherontrading.com/v1/",' +
+                        '"https://fio.eos.barcelona/v1/",' +
+                        '"https://fio.zenblocks.io/v1/",' +
+                        '"https://api.fio.alohaeos.com/v1/",' +
+                        '"https://fio.greymass.com/v1/",' +
+                        '"https://fio.genereos.io/v1/",' +
+                        '"https://fio.eosusa.news/v1/",' +
+                        '"https://fio.eosargentina.io/v1/",' +
+                        '"https://fio.cryptolions.io/v1/",' +
+                        '"https://fio-mainnet.eosblocksmith.io/v1/",' +
+                        '"https://api.fio.currencyhub.io/v1/",' +
+                        '"https://fio.eoscannon.io/v1/",' +
+                        '"https://fio.eosdublin.io/v1/",' +
+                        '"https://api.fiosweden.org/v1/",' +
+                        '"https://api.fio.greeneosio.com/v1/",' +
+                        '"https://fioapi.ledgerwise.io/v1/",' +
+                        '"https://api.fio.services/v1/",' +
+                        '"https://fio.eostribe.io/v1/",' +
+                        '"https://fio-za.eostribe.io/v1/"}'
+                FioHistoryServers = '{"https://fio.greymass.com/v1/",' +
+                        '"https://fio.greymass.com/v1/",' +
+                        '"https://fio.eosphere.io/v1/",' +
+                        '"https://api.fiosweden.org/v1/",' +
+                        '"https://fio.eosphere.io/v1/"}'
                 tpid = ""
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
@@ -356,10 +380,8 @@ android {
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
                 ElectrumServers = '{"tcp-tls://wallet-testnet.mycelium.com:19335"}'
-                WapiServers='"[{\\\'cert-sha1\':\\\'E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F\\\',\\\'url\\\':\\\'https://mws31.mycelium.com/wapitestnet\\\'},' +
-                        '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
-                        '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
-                EthBlockBook = '{"https://ropsten1.trezor.io", "https://ropsten2.trezor.io"}'
+                WapiServers='"[{\\\'cert-sha1\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}]"'
+                EthBlockBook = '{"https://bb-eth.mycelium.com:19126"}'
                 ElectrumBTCVServers ='{"tcp-tls://electrumx.testnet.btcv.stage.rnd.land:443"}'
                 FioApiServers = '{"https://fiotestnet.greymass.com/v1/"}'
                 FioHistoryServers = '{"https://fiotestnet.greymass.com/v1/"}'

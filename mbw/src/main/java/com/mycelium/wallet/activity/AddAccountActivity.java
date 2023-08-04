@@ -37,7 +37,6 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -45,7 +44,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -59,16 +57,15 @@ import com.mycelium.bequant.BequantPreference;
 import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.addaccount.AddERC20TokenDialog;
 import com.mycelium.wallet.activity.addaccount.ERC20CreationAsyncTask;
 import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
-import com.mycelium.wallet.activity.addaccount.ERC20TokenAdapter;
 import com.mycelium.wallet.activity.addaccount.ETHCreationAsyncTask;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.databinding.AddAccountActivityBinding;
 import com.mycelium.wallet.databinding.LayoutSelectEthAccountToErc20Binding;
-import com.mycelium.wallet.databinding.LayoutSelectEthAccountToErc20TitleBinding;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -186,25 +183,6 @@ public class AddAccountActivity extends AppCompatActivity {
         binding.btErc20Create.setOnClickListener(v -> showEthAccountsOptions());
     }
 
-    /**
-     * @return all supported tokens or all supported tokens except these that are already enabled for
-     * account with ethAccountId.
-     */
-    private List<ERC20Token> getAddedTokens(@Nullable UUID ethAccountId) {
-        List<ERC20Token> result = new ArrayList<>();
-        Map<String, ERC20Token> supportedTokens = _mbwManager.getSupportedERC20Tokens();
-        if (ethAccountId != null) {
-            WalletAccount ethAccount = _mbwManager.getWalletManager(false).getAccount(ethAccountId);
-            List<String> enabledTokens = ((EthAccount) ethAccount).getEnabledTokens();
-            for (Map.Entry<String, ERC20Token> entry : supportedTokens.entrySet()) {
-                if (enabledTokens.contains(entry.getKey())) {
-                    result.add(entry.getValue());
-                }
-            }
-        }
-        return result;
-    }
-
     private void showEthAccountsOptions() {
         final ERC20EthAccountAdapter arrayAdapter = new ERC20EthAccountAdapter(this, R.layout.checked_item);
         List<WalletAccount<?>> accounts = EthereumModuleKt.getActiveEthAccounts(_mbwManager.getWalletManager(false));
@@ -247,35 +225,17 @@ public class AddAccountActivity extends AppCompatActivity {
      * @param ethAccountId if it's null we would need to create new ethereum account first
      * before creating erc20 account
      */
-    Button positiveButton = null;
-
     private void showERC20TokensOptions(@Nullable UUID ethAccountId) {
         final EthAccount ethAccount = ethAccountId != null ? (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId) : null;
-        List<ERC20Token> supportedTokens = new ArrayList<>(_mbwManager.getSupportedERC20Tokens().values());
-        Collections.sort(supportedTokens, (a1, a2) -> a1.getName().compareTo(a2.getName()));
-        List<ERC20Token> addedTokens = getAddedTokens(ethAccountId);
-        final ERC20TokenAdapter arrayAdapter = new ERC20TokenAdapter(AddAccountActivity.this,
-                R.layout.token_item,
-                supportedTokens,
-                addedTokens);
-
-        arrayAdapter.setSelectListener(new Function1<List<ERC20Token>, Unit>() {
+        AddERC20TokenDialog dialog = new AddERC20TokenDialog();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("account_id", ethAccountId);
+        dialog.setArguments(bundle);
+        dialog.setListener(new Function1<List<ERC20Token>, Unit>() {
             @Override
-            public Unit invoke(List<ERC20Token> erc20Tokens) {
-                positiveButton.setEnabled(!erc20Tokens.isEmpty());
-                return null;
-            }
-        });
-        LayoutSelectEthAccountToErc20TitleBinding titleBinding = LayoutSelectEthAccountToErc20TitleBinding.inflate(LayoutInflater.from(this));
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setAdapter(arrayAdapter, null)
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
-        if (addedTokens.size() < supportedTokens.size()) {
-            titleBinding.titleText.setText(ethAccount != null ?
-                    getString(R.string.select_token, ethAccount.getLabel()) : getString(R.string.select_token_new_account));
-            builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+            public Unit invoke(List<ERC20Token> list) {
                 if (ethAccount != null) {
-                    new ERC20CreationAsyncTask(_mbwManager, arrayAdapter.getSelectedList(), ethAccount,
+                    new ERC20CreationAsyncTask(_mbwManager, list, ethAccount,
                             () -> {
                                 showProgress(R.string.erc20_account_creation_started);
                                 return null;
@@ -295,7 +255,6 @@ public class AddAccountActivity extends AppCompatActivity {
                 } else {
                     // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
                     if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
-                        List<ERC20Token> list = arrayAdapter.getSelectedList();
                         ethCreationAsyncTask = new ETHCreationAsyncTask(_mbwManager,
                                 () -> {
                                     showProgress(R.string.eth_account_creation_started);
@@ -324,21 +283,10 @@ public class AddAccountActivity extends AppCompatActivity {
                         ethCreationAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 }
-            });
-        } else {
-            titleBinding.titleText.setText(ethAccount != null ?
-                    getString(R.string.list_added_tokens, ethAccount.getLabel()) : getString(R.string.list_added_tokens_new_account));
-        }
-        builder.setCustomTitle(titleBinding.getRoot());
-        AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positiveButton.setEnabled(false);
+                return null;
             }
         });
-        dialog.show();
+        dialog.show(getSupportFragmentManager(), "add_erc20_token");
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {

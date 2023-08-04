@@ -11,35 +11,28 @@ import java.util.*
 open class EthBacking(walletDB: WalletDB, private val generalBacking: Backing<AccountContext>)
     : Backing<EthAccountContext> {
     private val ethQueries = walletDB.ethContextQueries
+    private val erc20Queries = walletDB.eRC20ContextQueries
 
-    override fun loadAccountContexts() = ethQueries.selectAll(
-            mapper = { uuid: UUID,
-                       currency: CryptoCurrency,
-                       accountName: String,
-                       archived: Boolean,
-                       balance: Balance,
-                       blockHeight: Int,
-                       nonce: BigInteger,
-                       enabledTokens: List<String>?,
-                       accountIndex: Int ->
-                EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, enabledTokens, archived, blockHeight, nonce)
-            })
+    val accountMapper = { uuid: UUID,
+                          currency: CryptoCurrency,
+                          accountName: String,
+                          archived: Boolean,
+                          balance: Balance,
+                          blockHeight: Int,
+                          nonce: BigInteger,
+                          enabledTokens: List<String>?,
+                          accountIndex: Int ->
+        val tokens = erc20Queries.selectAllERC20ContextByParent(uuid).executeAsList()
+        EthAccountContext(uuid, currency, accountName, balance,
+                this::updateAccountContext,
+                this::loadAccountContext,
+                accountIndex, tokens.map { it.contractAddress }, archived, blockHeight, nonce)
+    }
+
+    override fun loadAccountContexts():List<EthAccountContext> = ethQueries.selectAll(accountMapper)
             .executeAsList()
 
-    override fun loadAccountContext(accountId: UUID) = ethQueries.selectByUUID(accountId,
-            mapper = { uuid: UUID,
-                       currency: CryptoCurrency,
-                       accountName: String,
-                       archived: Boolean,
-                       balance: Balance,
-                       blockHeight: Int,
-                       nonce: BigInteger,
-                       enabledTokens: List<String>?,
-                       accountIndex: Int ->
-                EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        accountIndex, enabledTokens, archived, blockHeight, nonce)
-            })
+    override fun loadAccountContext(accountId: UUID): EthAccountContext? = ethQueries.selectByUUID(accountId, accountMapper)
             .executeAsOneOrNull()
 
     override fun createAccountContext(context: EthAccountContext) {

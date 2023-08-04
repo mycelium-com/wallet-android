@@ -42,6 +42,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -75,7 +77,7 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey
 import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 
-public class VerifyBackupActivity extends Activity {
+public class VerifyBackupActivity extends AppCompatActivity {
    private static final int SCAN_RESULT_CODE = 0;
 
    public static void callMe(Activity currentActivity) {
@@ -269,10 +271,11 @@ public class VerifyBackupActivity extends Activity {
              } else if (type == ResultType.MASTER_SEED) {
                  verify(getMasterSeed(intent));
              } else {
-                 showDialogMessage("Not supported backup! Please contact suport.", false);
+                 showDialogMessage("Not supported backup! Please contact support.", false);
              }
          } else {
-            String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
+            final String keyError = StringHandlerActivity.RESULT_ERROR;
+            final String error = intent != null && intent.hasExtra(keyError) ? intent.getStringExtra(keyError) : null;
             if (error != null) {
                showDialogMessage(error, false);
             }

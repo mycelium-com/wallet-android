@@ -62,9 +62,11 @@ class HistoryFragment : DialogFragment() {
 
     private fun update() {
         val txIds = (pref.getStringSet(ExchangeFragment.KEY_HISTORY, null) ?: setOf()).toList()
+            .filterNotNull()
+            .filterNot { it.isEmpty() }
         if (txIds.isNotEmpty()) {
             loader(true)
-            Changelly2Repository.getTransactions(lifecycleScope, txIds.toList(),
+            Changelly2Repository.getTransactions(lifecycleScope, txIds,
                     {
                         it?.result?.let {
                             adapter.submitList(it.map {

@@ -46,9 +46,9 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
@@ -68,7 +68,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Locale;
 
-public class MrdDecryptDataActivity extends Activity {
+public class MrdDecryptDataActivity extends AppCompatActivity {
    public static final CharMatcher LETTERS = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('A', 'Z'));
    public static final Splitter SPLIT_3 = Splitter.fixedLength(3);
    public static final Joiner JOIN_SPACE = Joiner.on(' ');
