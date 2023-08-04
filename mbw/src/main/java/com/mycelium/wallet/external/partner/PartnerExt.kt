@@ -1,29 +1,32 @@
 package com.mycelium.wallet.external.partner
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.net.Uri
+import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.modern.Toaster
-import com.mycelium.wallet.external.changelly2.ExchangeFragment
 
-fun Fragment.startContentLink(link: String?) {
+fun Fragment.startContentLink(link: String?, data: Bundle? = null) {
     startContentLink(link) {
+        data?.apply { it.putExtras(data) }
         startActivity(it)
     }
 }
 
-fun Activity.startContentLink(link: String?) {
+fun Activity.startContentLink(link: String?, data: Bundle? = null) {
     startContentLink(link) {
+        data?.apply { it.putExtras(data) }
         startActivity(it)
     }
 }
 
-fun Context.startContentLink(link: String?) {
+fun Context.startContentLink(link: String?, data: Bundle? = null) {
     startContentLink(link) {
+        data?.apply { it.putExtras(data) }
         startActivity(it)
     }
 }
@@ -34,7 +37,7 @@ private fun startContentLink(link: String?, startAction: (Intent) -> Unit) {
             if (link.startsWith("mycelium://action.")) {
                 startAction(Intent(Uri.parse(link).host).apply {
                     setPackage(WalletApplication.getInstance().packageName)
-                })
+                }.addFlags(FLAG_ACTIVITY_SINGLE_TOP))
             } else {
                 startAction(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
             }

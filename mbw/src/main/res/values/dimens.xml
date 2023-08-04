@@ -5,6 +5,7 @@
     <dimen name="ab_icon_size">16dp</dimen>
     <dimen name="bigtext">22sp</dimen>
     <dimen name="button_padding">10dp</dimen>
+    <dimen name="button_padding_ads">16dp</dimen>
     <dimen name="button_padding_large">24dp</dimen>
     <dimen name="balance_qrcode">100dp</dimen>
     <dimen name="small_qrcode">130dp</dimen>
@@ -36,7 +37,7 @@
     <dimen name="media_slider_height">260dp</dimen>
     <dimen name="media_head_margin_sum">150dp</dimen>
     <dimen name="item_media_flow_width">260dp</dimen>
-    <dimen name="button_ads_icon_size">16dp</dimen>
+    <dimen name="button_ads_icon_size">24dp</dimen>
     <dimen name="fio_mapping_group_margin">4dp</dimen>
     <dimen name="fio_list_item_space">8dp</dimen>
     <dimen name="horizontal_page_margin">16dp</dimen>
@@ -50,4 +51,5 @@
     <dimen name="otp_view_cursor_width">2dp</dimen>
 
     <dimen name="giftbox_small_corner">4dp</dimen>
+    <dimen name="quad_ads_corner">12dp</dimen>
 </resources>
