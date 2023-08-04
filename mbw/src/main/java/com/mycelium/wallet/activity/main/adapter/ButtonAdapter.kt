@@ -50,8 +50,8 @@ class ButtonAdapter : ListAdapter<ActionButton, RecyclerView.ViewHolder>(ButtonD
             } else {
                 button.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             }
-            button.setTextColor(if (actionButton.textColor != 0) actionButton.textColor else button.resources.getColor(R.color.btn_text_color))
-            button.setPadding(button.resources.getDimensionPixelSize(if (actionButton.icon != 0) R.dimen.page_margin_width else R.dimen.button_padding_large), button.paddingTop, button.paddingRight, button.paddingBottom)
+//            button.setTextColor(if (actionButton.textColor != 0) actionButton.textColor else button.resources.getColor(R.color.btn_text_color))
+//            button.setPadding(button.resources.getDimensionPixelSize(if (actionButton.icon != 0) R.dimen.page_margin_width else R.dimen.button_padding_large), button.paddingTop, button.paddingRight, button.paddingBottom)
             button.setOnClickListener {
                 clickListener?.invoke(actionButton)
             }
