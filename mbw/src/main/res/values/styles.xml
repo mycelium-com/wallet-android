@@ -375,7 +375,7 @@
     <style name="MyceliumAdsButton" parent="android:style/Widget.Button">
         <item name="android:layout_marginStart">3dp</item>
         <item name="android:layout_marginEnd">3dp</item>
-        <item name="textSize">12sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/background_action_btn_ads</item>

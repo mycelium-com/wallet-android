@@ -61,6 +61,7 @@ import com.mycelium.wallet.external.Ads.openFio
 import com.mycelium.wallet.external.BuySellSelectActivity
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity
 import com.mycelium.wallet.external.partner.model.BuySellButton
+import com.mycelium.wallet.external.partner.model.check
 import com.mycelium.wallet.external.partner.startContentLink
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
@@ -109,68 +110,34 @@ class BuySellFragment : Fragment(), ButtonClickListener {
     }
 
     private fun recreateActions() {
-        val actions = mutableListOf<ActionButton>()
-        if (mbwManager.selectedAccount is AbstractEthERC20Account) {
-            actions.add(ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)))
-            if (mbwManager.selectedAccount is ERC20Account &&
-                    SettingsPreference.getBuySellContent()?.exchangeList?.any { it.isActive() && isContentEnabled(it.parentId) && it.cryptoCurrencies.contains(mbwManager.selectedAccount.coinType.symbol) } == true) {
-                actions.add(ActionButton(ACTION.BUY_SELL_ERC20,
-                        getString(R.string.buy_sell_s_button, mbwManager.selectedAccount.coinType.symbol)))
-            } else {
-                actions.add(ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)))
+        buttonAdapter.setButtons(mutableListOf<ActionButton>().apply {
+            addAdsContent(this)
+            if (mbwManager.selectedAccount !is AbstractEthERC20Account) {
+                addFio(this)
             }
-            addAdsContent(actions)
-        } else {
-            val showButton = mbwManager.environmentSettings.buySellServices.any { input -> input!!.isEnabled(mbwManager) }
-            if (mbwManager.selectedAccount is Bip44BCHAccount ||
-                    mbwManager.selectedAccount is SingleAddressBCHAccount) {
-                actions.add(ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)))
-            } else {
-                actions.add(ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)))
-                if (showButton) {
-                    actions.add(ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)))
-                }
-                addAdsContent(actions)
-                addFio(actions)
-            }
-        }
-        buttonAdapter.setButtons(actions)
+        })
         binding?.buttonList?.postDelayed(ScrollToRunner(1), 500)
     }
 
     private fun addAdsContent(actions: MutableList<ActionButton>) {
-        val balanceContent = getBalanceContent()
-                ?: return
-        val indexs = mutableSetOf<Int>()
-        for (button in balanceContent.buttons) {
-            if (button.isActive() && isContentEnabled(button.parentId ?: "")) {
-                val args = Bundle()
-                args.putSerializable("data", button)
-                button.index?.let {
-                    indexs.add(it)
-                    args.putInt("index", it)
-                }
-                if (ACTION.values().map { it.toString() }.contains(button.name)) {
-                    actions.find { it.id == ACTION.valueOf(button.name ?: "") }?.let { item ->
-                        item.args = args
-                    }
-                } else {
-                    actions.add(ActionButton(ACTION.ADS, button.name
-                            ?: "", 0, button.iconUrl, args))
-                }
+        val balanceContent = getBalanceContent() ?: return
+        actions.addAll(balanceContent.buttons
+            .filter {
+                it.isActive() && isContentEnabled(it.parentId ?: "")
+                        && it.filter.check(mbwManager.selectedAccount)
             }
-        }
-        var index = 0
-        actions.forEach {
-            if (!it.args.containsKey("index")) {
-                while (indexs.contains(index)) {
-                    index++
-                }
-                it.args.putInt("index", index)
-            }
-        }
-        actions.sortBy { it.args.getInt("index") }
+            .sortedBy { it.index }
+            .map {
+                ActionButton(ACTION.ADS, handleName(it.name) ?: "", 0, it.iconUrl,
+                    Bundle().apply {
+                        putSerializable("data", it)
+                        putInt("index", it.index ?: Int.MAX_VALUE)
+                    })
+            })
     }
+    private fun handleName(name: String?) =
+        name?.replace("%%%account.type.name%%%", mbwManager.selectedAccount.coinType.name)
+            ?.replace("%%%account.type.symbol%%%", mbwManager.selectedAccount.coinType.symbol)
 
     private fun addFio(actions: MutableList<ActionButton>) {
         if (fioEnabled) {
@@ -180,18 +147,12 @@ class BuySellFragment : Fragment(), ButtonClickListener {
 
     override fun onClick(actionButton: ActionButton) {
         when (actionButton.id) {
-            ACTION.BCH -> startActivity(Intent(activity, ExchangeActivity::class.java))
-            ACTION.ALT_COIN -> MbwManager.getEventBus().post(SelectTab(ModernMain.TAB_EXCHANGE))
-            ACTION.ETH -> startActivity(Intent(activity, BuySellSelectActivity::class.java)
-                    .putExtra("currency", Utils.getEthCoinType()))
-            ACTION.BTC -> startActivity(Intent(activity, BuySellSelectActivity::class.java)
-                    .putExtra("currency", Utils.getBtcCoinType()))
-            ACTION.BUY_SELL_ERC20 -> startActivity(Intent(activity, BuySellSelectActivity::class.java)
-                    .putExtra("currency", mbwManager.selectedAccount.coinType))
             ACTION.FIO -> openFio(requireContext())
             ACTION.ADS -> if (actionButton.args.containsKey("data")) {
                 (actionButton.args.getSerializable("data") as BuySellButton?)?.let { data ->
-                    startContentLink(data.link)
+                    startContentLink(data.link, Bundle().apply {
+                        putSerializable("currency", mbwManager.selectedAccount.coinType)
+                    })
                 }
             }
         }
