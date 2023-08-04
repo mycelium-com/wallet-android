@@ -43,14 +43,10 @@ import androidx.fragment.app.Fragment
 import com.mycelium.view.ItemCentralizer
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter
 import com.mycelium.wallet.activity.main.adapter.ButtonClickListener
 import com.mycelium.wallet.activity.main.adapter.QuadAdsAdapter
 import com.mycelium.wallet.activity.main.model.ActionButton
-import com.mycelium.wallet.activity.modern.ModernMain
-import com.mycelium.wallet.activity.modern.event.SelectTab
-import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBalanceContent
 import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
@@ -58,24 +54,23 @@ import com.mycelium.wallet.databinding.MainBuySellFragmentBinding
 import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wallet.external.Ads.openFio
-import com.mycelium.wallet.external.BuySellSelectActivity
-import com.mycelium.wallet.external.changelly.bch.ExchangeActivity
 import com.mycelium.wallet.external.partner.model.BuySellButton
 import com.mycelium.wallet.external.partner.model.check
 import com.mycelium.wallet.external.partner.startContentLink
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.squareup.otto.Subscribe
 
 class BuySellFragment : Fragment(), ButtonClickListener {
     enum class ACTION {
-        BCH, ALT_COIN, BTC, FIO, ETH, ADS, BUY_SELL_ERC20
+        FIO, ADS
     }
 
     private lateinit var mbwManager: MbwManager
-    private val buttonAdapter = ButtonAdapter()
+    private val buttonAdapter = ButtonAdapter().apply {
+        clickListener = {
+            onClick(it)
+        }
+    }
     private val quadAdapter = QuadAdsAdapter()
     private var binding: MainBuySellFragmentBinding? = null
 
@@ -101,7 +96,6 @@ class BuySellFragment : Fragment(), ButtonClickListener {
         super.onViewCreated(view, savedInstanceState)
         binding?.buttonList?.adapter = buttonAdapter
         binding?.buttonList?.addOnScrollListener(ItemCentralizer())
-        buttonAdapter.setClickListener(this)
         binding?.quadList?.adapter = quadAdapter
         binding?.quadList?.addOnScrollListener(ItemCentralizer())
         recreateActions()
@@ -110,7 +104,7 @@ class BuySellFragment : Fragment(), ButtonClickListener {
     }
 
     private fun recreateActions() {
-        buttonAdapter.setButtons(mutableListOf<ActionButton>().apply {
+        buttonAdapter.submitList(mutableListOf<ActionButton>().apply {
             addAdsContent(this)
             if (mbwManager.selectedAccount !is AbstractEthERC20Account) {
                 addFio(this)
@@ -135,6 +129,7 @@ class BuySellFragment : Fragment(), ButtonClickListener {
                     })
             })
     }
+
     private fun handleName(name: String?) =
         name?.replace("%%%account.type.name%%%", mbwManager.selectedAccount.coinType.name)
             ?.replace("%%%account.type.symbol%%%", mbwManager.selectedAccount.coinType.symbol)
