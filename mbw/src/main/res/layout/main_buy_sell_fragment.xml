@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -12,7 +13,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        tools:listitem="@layout/item_action_button"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/quad_list"
@@ -22,6 +24,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.InfiniteLinearLayoutManager"
+        tools:listitem="@layout/item_quad_ads"
         android:layout_gravity="center" />
 
 </LinearLayout>
