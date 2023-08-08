@@ -366,7 +366,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val ONION_DOMAIN = ".onion"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
-        const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
+        const val AMAZON_S3_STORAGE_ADDRESS = "https://wallet-config.mycelium.com"
 
         val TOKENS = listOf(
                 //            TokenData("FAUCET", "FAU", 18, "0x55296f69f40Ea6d20E478533C15A6B08B654E759", "0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc"),
