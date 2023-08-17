@@ -6,7 +6,8 @@ import com.mycelium.wapi.wallet.eth.EthAddress
 import java.math.BigInteger
 
 class EthTransactionSummary(val sender: EthAddress, val receiver: EthAddress, val nonce: BigInteger?,
-                            val value: Value, val internalValue: Value?, val gasLimit: BigInteger, val gasUsed: BigInteger,
+                            val value: Value, val internalValue: Value?, val gasLimit: BigInteger,
+                            val gasUsed: BigInteger, val gasPrice: BigInteger,
                             val hasTokenTransfers: Boolean,
                             type: CryptoCurrency, id: ByteArray, hash: ByteArray,
                             transferred: Value, timestamp: Long, height: Int, confirmations: Int,

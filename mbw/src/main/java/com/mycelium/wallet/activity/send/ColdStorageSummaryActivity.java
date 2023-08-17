@@ -44,6 +44,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
@@ -59,7 +61,7 @@ import com.mycelium.wapi.wallet.coins.AssetInfo;
 
 import java.util.UUID;
 
-public class ColdStorageSummaryActivity extends Activity {
+public class ColdStorageSummaryActivity extends AppCompatActivity {
    private static final int SEND_MAIN_REQUEST_CODE = 1;
    private MbwManager _mbwManager;
    private WalletAccount _account;

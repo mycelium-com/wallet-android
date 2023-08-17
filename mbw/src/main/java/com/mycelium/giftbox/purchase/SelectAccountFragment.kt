@@ -28,6 +28,8 @@ import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.activity.view.loader
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.Util
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_giftbox_select_account.*
 import kotlinx.coroutines.Dispatchers
@@ -75,9 +77,10 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
             MbwManager.getEventBus().post(AccountListChanged())
         }
     }
-
+    
     private fun generateAccountList(accountView: List<AccountsGroupModel>) {
-        val currencies = args.currencies.mapNotNull { it.name }
+        val currenciesByName = args.currencies.mapNotNull { it.name }
+        val currenciesByAddress = args.currencies.mapNotNull { it.contractAddress }
         val accountsList = mutableListOf<AccountListItem>()
         accountView.forEach { accountsGroup->
             if (accountsGroup.getType() == AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE) {
@@ -86,8 +89,8 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
             val accounts = accountsGroup.accountsList
                     .filterIsInstance(AccountViewModel::class.java)
                     .filter {
-                        it.canSpend && it.balance?.spendable?.moreThanZero() == true
-                                && currencies.find { cur -> cur.equals(Util.trimTestnetSymbolDecoration(it.coinType.symbol), true) } != null
+                        it.canSpend && it.balance?.spendable?.moreThanZero() == true &&
+                                isAccountTypeSupported(it.coinType, currenciesByName, currenciesByAddress)
                     }
             if (accounts.isNotEmpty()) {
                 val group = AccountsGroupModel(
@@ -110,6 +113,22 @@ class SelectAccountFragment : Fragment(R.layout.fragment_giftbox_select_account)
         emptyList.visibility = if (accountsList.isEmpty()) VISIBLE else GONE
         selectAccountLabel.visibility = if (accountsList.isEmpty()) GONE else VISIBLE
         adapter.submitList(accountsList)
+    }
+
+    private fun isAccountTypeSupported(
+        type: CryptoCurrency,
+        currenciesByName: List<String>,
+        currenciesByAddress: List<String>
+    ) = when (type) {
+        is ERC20Token -> {
+            currenciesByAddress.find { cur ->
+                cur.equals(type.contractAddress, true) } != null
+        }
+        else -> {
+            currenciesByName.find { cur ->
+                cur.equals(Util.trimTestnetSymbolDecoration(type.symbol), true)
+            } != null
+        }
     }
 
     override fun onDestroy() {

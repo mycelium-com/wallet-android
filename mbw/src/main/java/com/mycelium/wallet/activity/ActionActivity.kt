@@ -3,11 +3,12 @@ package com.mycelium.wallet.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.external.partner.startContentLink
 
 
-class ActionActivity : Activity() {
+class ActionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         if (MbwManager.getInstance(this).activityCount > 0) {
             startContentLink(intent.getStringExtra("action"))

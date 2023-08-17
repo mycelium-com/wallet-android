@@ -39,6 +39,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +65,7 @@ import java.util.List;
 
 import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
-public class GetSpendingRecordActivity extends Activity {
+public class GetSpendingRecordActivity extends AppCompatActivity {
    private AssetUri _uri;
    private MbwManager _mbwManager;
    private boolean _showAccounts = false;
@@ -90,8 +92,12 @@ public class GetSpendingRecordActivity extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_spending_record_activity);
-      _mbwManager = MbwManager.getInstance(this.getApplication());
-      builder = new RecordRowBuilder(_mbwManager, getResources());
+
+      // Optimized to not cause 4 bytes difference in DEX thus failing build reproducibility check
+      final MbwManager _mbwManagerInstance = MbwManager.getInstance(this.getApplication());
+      _mbwManager = _mbwManagerInstance;
+      builder = new RecordRowBuilder(_mbwManagerInstance, getResources());
+
       listView = findViewById(R.id.lvRecords);
       listView.setOnItemClickListener(new RecordClicked());
 
@@ -143,10 +149,12 @@ public class GetSpendingRecordActivity extends Activity {
    class RecordClicked implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
-         ViewAccountModel model = accountsAdapter.getItem(position);
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
-         callSendInitActivity(account);
-         GetSpendingRecordActivity.this.finish();
+         final ViewAccountModel model = accountsAdapter.getItem(position);
+         final WalletAccount<?> account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
+         if (account != null) {
+            callSendInitActivity(account);
+            GetSpendingRecordActivity.this.finish();
+         }
       }
    }
 

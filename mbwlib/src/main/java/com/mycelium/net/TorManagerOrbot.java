@@ -7,6 +7,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 
+import info.guardianproject.netcipher.proxy.OrbotHelper;
+
 public class TorManagerOrbot extends TorManager {
 
    public TorManagerOrbot() {
@@ -27,9 +29,8 @@ public class TorManagerOrbot extends TorManager {
 
    @Override
    public OkHttpClient setupClient(OkHttpClient client) {
-      SocketAddress proxyAddress = new InetSocketAddress("127.0.0.1", 8118);
-      Proxy proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
-      client.setProxy(proxy);
+      SocketAddress proxyAddress = new InetSocketAddress("127.0.0.1", OrbotHelper.DEFAULT_PROXY_HTTP_PORT);
+      client.setProxy(new Proxy(Proxy.Type.HTTP, proxyAddress));
       return client;
    }
 

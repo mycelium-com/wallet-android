@@ -16,10 +16,6 @@
             type="String" />
 
         <variable
-            name="value"
-            type="String" />
-
-        <variable
             name="fiatValue"
             type="String" />
 
@@ -124,7 +120,6 @@
             android:textColor="@color/white"
             android:textSize="24sp"
             android:minHeight="24sp"
-            android:text="@={value}"
             android:hint="0"
             app:layout_constraintEnd_toStartOf="@id/coinIcon"
             app:layout_constraintHorizontal_bias="0.0"

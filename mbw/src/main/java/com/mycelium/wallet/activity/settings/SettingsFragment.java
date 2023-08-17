@@ -1,5 +1,7 @@
 package com.mycelium.wallet.activity.settings;
 
+import static android.app.Activity.RESULT_CANCELED;
+
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -56,6 +58,7 @@ import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
+import com.mycelium.wallet.activity.settings.helper.UseTorHelper;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
@@ -70,9 +73,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import info.guardianproject.onionkit.ui.OrbotHelper;
-
-import static android.app.Activity.RESULT_CANCELED;
+import info.guardianproject.netcipher.proxy.OrbotHelper;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final int REQUEST_CODE_UNINSTALL = 1;
@@ -354,9 +355,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     if (useTor.isChecked()) {
-                        OrbotHelper obh = new OrbotHelper(getActivity());
-                        if (!obh.isOrbotInstalled()) {
-                            obh.promptToInstall(requireActivity());
+                        if (!OrbotHelper.isOrbotInstalled(requireContext())) {
+                            UseTorHelper.promptToInstall(requireActivity());
                             useTor.setChecked(false);
                         }
                     }
@@ -517,8 +517,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             helpPrefs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    startActivity(Intent.createChooser(new Intent(Intent.ACTION_SENDTO)
-                            .setData(Uri.parse("mailto:support@mycelium.com")), getString(R.string.send_mail)));
+                    requireFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, new HelpFragment())
+                            .addToBackStack("help")
+                            .commitAllowingStateLoss();
                     return false;
                 }
             });

@@ -13,5 +13,7 @@ enum class Status(val value: String) {
     @JsonProperty(value = "ERROR")
     eRROR("ERROR"),
     @JsonProperty(value = "PROCESSING")
-    pROCESSING("PROCESSING");
+    pROCESSING("PROCESSING"),
+    @JsonProperty(value = "EXPIRED")
+    EXPIRED("EXPIRED");
 }
