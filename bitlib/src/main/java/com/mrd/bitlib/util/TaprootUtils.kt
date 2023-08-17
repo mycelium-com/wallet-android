@@ -30,14 +30,20 @@ class TaprootUtils {
 
         fun outputKey(internalKey: Point): ByteArray {
             val HTT = hashTapTweak(internalKey.x.toBigInteger().toByteArray()
-                    .let {
-                        if (it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
-                    })
+                .let {
+                    if (it.size > 32 && it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
+                })
+                .let {
+                    if (it.size != 32) throw RuntimeException("Wrong HTT key calculation") else it
+                }
             return internalKey.add(Parameters.G.multiply(BigInteger(1, HTT))).x.toBigInteger()
-                    .toByteArray()
-                    .let {
-                        if (it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
-                    }
+                .toByteArray()
+                .let {
+                    if (it.size > 32 && it[0] == 0.toByte()) it.copyOfRange(1, it.size) else it
+                }
+                .let {
+                    if (it.size != 32) throw RuntimeException("Wrong outputKey calculation") else it
+                }
         }
 
 //        fun scriptPubKey(internalKey: Point): ByteArray =
