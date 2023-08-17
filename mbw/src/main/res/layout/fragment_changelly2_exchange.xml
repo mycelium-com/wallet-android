@@ -68,7 +68,7 @@
                     bind:chain="@{vm.fromChain}"
                     bind:coinType="@{vm.fromCurrency}"
                     bind:fiatValue="@{vm.fiatSellValue}"
-                    bind:label="@{@string/bequant_you_send}"
+                    bind:partLabel="@{@string/bequant_you_send}"
                     bind:value="@={vm.sellValue}" />
 
                 <View
@@ -106,11 +106,11 @@
                     app:layout_constraintStart_toStartOf="@id/iconFix"
                     app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iconFix"
                     android:layout_width="10dp"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_lock"
+                    app:srcCompat="@drawable/ic_lock"
                     android:layout_marginStart="32dp"
                     app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
@@ -163,27 +163,28 @@
                     app:layout_constraintStart_toEndOf="@id/exchangeRateToValue"
                     bind:text="USDT" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/progress"
                     android:layout_width="10dp"
                     android:layout_height="10dp"
                     android:layout_gravity="center"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="32dp"
-                    android:src="@drawable/ic_progress"
+                    app:srcCompat="@drawable/ic_progress"
                     app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
                     app:layout_constraintEnd_toStartOf="@id/swapAccount"
                     app:layout_constraintStart_toEndOf="@id/exchangeRateToCurrency"
                     app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
                 <!--                </LinearLayout>-->
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/swapAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="32dp"
-                    android:enabled="@{vm.toAccount.canSpend()}"
-                    android:src="@drawable/ic_exchange"
+                    android:enabled="@{vm.swapEnabled}"
+                    android:alpha="@{vm.swapEnabled ? 1.0f : 0.7f}"
+                    app:srcCompat="@drawable/ic_exchange"
                     app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
@@ -204,40 +205,37 @@
                     bind:chain="@{vm.toChain}"
                     bind:coinType="@{vm.toCurrency}"
                     bind:fiatValue="@{vm.fiatBuyValue}"
-                    bind:label="@{@string/bequant_you_get}"
+                    bind:partLabel="@{@string/bequant_you_get}"
                     bind:value="@={vm.buyValue}" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="@id/minerFee"
-                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
-                    android:background="@drawable/bg_coin_value"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toTopOf="@id/minerFee"
-                    android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"/>
-
-                <TextView
+                <FrameLayout
                     android:id="@+id/minerFee"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
                     android:layout_marginStart="16dp"
+                    android:layout_marginTop="32dp"
                     android:layout_marginEnd="16dp"
-                    android:drawableTint="#888888"
-                    android:drawableStart="@drawable/ic_info_icon"
-                    android:drawablePadding="4dp"
-                    android:padding="4dp"
-                    android:textColor="#888888"
-                    android:textSize="14sp"
-                    android:text="@{vm.minerFee}"
+                    android:background="@drawable/bg_coin_value"
                     android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"
                     app:layout_constraintEnd_toEndOf="@id/endGuidline"
                     app:layout_constraintStart_toStartOf="@id/startGuidline"
-                    app:layout_constraintTop_toBottomOf="@id/buyLayout"
-                    bind:text="Miner fee: 0.00005611 ETH ≈54.20 USD" />
+                    app:layout_constraintTop_toBottomOf="@id/buyLayout">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:drawableStart="@drawable/ic_info_icon"
+                        android:drawablePadding="4dp"
+                        android:drawableTint="#888888"
+                        android:padding="4dp"
+                        android:text="@{vm.minerFee}"
+                        android:textColor="#888888"
+                        android:textSize="14sp"
+                        android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"
+                        bind:text="Miner fee: 0.00005611 ETH ≈54.20 USD" />
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/error"

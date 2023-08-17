@@ -115,10 +115,15 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         // Calculate the maximum amount that can be spent where we send everything we got to another address
         _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
         txData = intent.getSerializableExtra(TX_DATA) as TransactionData?
-        destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
-                ?: viewModel.account!!.dummyAddress
+        destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)?.takeIf {
+            val expectedAddressClass = viewModel.account?.dummyAddress?.let { it::class.java }
+            val destinationAddressClass = destinationAddress?.let { it::class.java }
+            expectedAddressClass == destinationAddressClass
+        } ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress))
+            viewModel.maxSpendableAmount.postValue(
+                viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress, txData)
+            )
         }
 
         // if no amount is set, create an null amount with the correct currency

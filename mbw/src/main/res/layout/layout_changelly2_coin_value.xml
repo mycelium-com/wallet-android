@@ -12,7 +12,7 @@
         <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
 
         <variable
-            name="label"
+            name="partLabel"
             type="String" />
 
         <variable
@@ -73,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@{label}"
+            android:text="@{partLabel}"
             android:textColor="#61666B"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="@id/startGuidline"

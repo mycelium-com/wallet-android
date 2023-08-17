@@ -133,7 +133,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     }
 
     private fun getMaxSpendable() =
-        account?.calculateMaxSpendableAmount(feeEstimation.normal, null)!!
+        account?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
 
     private val feeEstimation by lazy {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation

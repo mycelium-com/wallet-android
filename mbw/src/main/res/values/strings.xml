@@ -60,6 +60,7 @@
     <string name="amount_too_small_short">Amount must exceed %s (network limit)</string>
     <string name="miner_fee_label">Miner fees</string>
     <string name="miner_fee_title">Miner Fee</string>
+    <string name="history_row_miner_fee_label">Transaction fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
@@ -88,6 +89,7 @@
     <string name="approximate_fiat_value">%2$s %1$s</string>
     <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
+    <string name="interrupted_by_application">Interrupted by application</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
     <string name="unrecognized_private_key_format">Unrecognized private key format</string>
@@ -1698,6 +1700,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="purchase_failed">Purchase Failed</string>
     <string name="processing">Processing...</string>
     <string name="success_s">Success, %s</string>
+    <string name="sync_failed_reason_s">Synchronization failed. Reason: %s</string>
     <string name="sync_failed_s">Synchronization failed. %s</string>
     <string name="giftcard_order_title">Gift card order</string>
     <string name="select_country">Select country</string>
@@ -1754,8 +1757,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="course_outdated">course is outdated</string>
     <string name="network_s">%s Network</string>
     <string name="changelly2_policy_text">Exchange service is available through third-party API provider.</string>
-    <string name="changelly2_select_from">Select account to exchange:</string>
-    <string name="changelly2_select_to">Select account to get:</string>
+    <string name="changelly2_select_from">Select account:</string>
+    <string name="changelly2_select_to">Select account to receive funds:</string>
     <string name="exchange_history">Exchange History</string>
     <string name="tab_exchange_title">EXCHANGE</string>
     <string name="no_operations_history">No operations history</string>
@@ -1769,7 +1772,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_accept_dialog_title">Exchange</string>
     <string name="exchange_accept_dialog_msg">You send: %s %s\nMiners fee: %s\n\nYou get: %s %s</string>
     <string name="sent">Sent</string>
-    <string name="received">Received</string>
+    <string name="changelly_receiving">Receiving</string>
+    <string name="changelly_received">Received</string>
+    <string name="changelly_error_rate_expired">Exchange rate is outdated, please try again.</string>
+    <string name="link_to_track_transaction">Exchange status</string>
+    <string name="exchange_in_progress">Exchange in progress</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
@@ -1779,4 +1786,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         <item quantity="one">%d card</item>
         <item quantity="other">%d cards</item>
     </plurals>
+
+    <string name="changelog_title">What\'s new in Mycelium</string>
+    <string name="changelog_button_show_less">Show less</string>
+    <string name="changelog_button_show_more">Learn more about latest updates</string>
+    <string name="changelog_button_close">OPEN MYCELIUM WALLET</string>
+    <string name="changelog_version_placeholder">Version: %s</string>
 </resources>

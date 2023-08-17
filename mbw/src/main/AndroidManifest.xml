@@ -26,6 +26,10 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <queries>
+        <package android:name="org.torproject.android" />
+    </queries>
+
     <application
         android:name=".WalletApplication"
         android:allowBackup="false"

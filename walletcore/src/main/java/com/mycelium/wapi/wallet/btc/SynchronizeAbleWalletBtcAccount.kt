@@ -12,11 +12,8 @@ import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.model.BalanceSatoshis
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.BroadcastResult
-import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
-import com.mycelium.wapi.wallet.SyncMode
-import com.mycelium.wapi.wallet.SyncPausableAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import java.util.*
@@ -109,7 +106,7 @@ abstract class SynchronizeAbleWalletBtcAccount : SyncPausableAccount(), WalletBt
     abstract override fun deleteTransaction(transactionId: Sha256Hash): Boolean
     abstract override fun cancelQueuedTransaction(transaction: Sha256Hash): Boolean
     abstract override fun getNetwork(): NetworkParameters
-    abstract override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddress: BtcAddress?): Value
+    abstract override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddress: BtcAddress?, txData: TransactionData?): Value
     @Throws(BtcOutputTooSmallException::class, InsufficientBtcException::class, UnableToBuildTransactionException::class)
     abstract override fun createUnsignedTransaction(receivers: List<BtcReceiver>, minerFeeToUse: Long): UnsignedTransaction
     @Throws(BtcOutputTooSmallException::class, InsufficientBtcException::class, UnableToBuildTransactionException::class)

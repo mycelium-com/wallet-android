@@ -87,7 +87,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/received"
+                android:text="@{vm.isExchangeComplete ? @string/changelly_received : @string/changelly_receiving}"
                 android:textColor="@color/fio_white_alpha_0_8"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="@id/endGuidline"
@@ -217,15 +217,27 @@
 
             <TextView
                 android:id="@+id/trackLink"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Link to track transaction"
-                android:textColor="@color/fio_prm_btn_line"
-                android:visibility="@{vm.trackLink.isEmpty() ? View.GONE : View.VISIBLE }"
-                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                android:text="@{vm.trackLinkText}"
+                android:textSize="14sp"
+                android:textColor="@color/exchange_link_text_color"
+                android:enabled="@{!vm.trackLink.isEmpty()}"
                 app:layout_constraintStart_toStartOf="@id/startGuidline"
-                app:layout_constraintTop_toBottomOf="@id/toLabel" />
+                app:layout_constraintTop_toBottomOf="@id/toLabel"
+                tools:text="@string/link_to_track_transaction"/>
+
+            <ImageView
+                android:id="@+id/trackLinkWait"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_progress"
+                android:visibility="@{vm.trackInProgress ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@id/trackLink"
+                app:layout_constraintStart_toEndOf="@id/trackLink"
+                app:layout_constraintTop_toTopOf="@id/trackLink" />
 
 
             <TextView

@@ -49,7 +49,7 @@ class ERC20Account(private val chainId: Byte,
         } ?: (fee as FeePerKbFee).feePerKb
         val inputData = getInputData(address.toString(), amount.value)
 
-        if (calculateMaxSpendableAmount(gasPrice, null) < amount) {
+        if (calculateMaxSpendableAmount(gasPrice, null, null) < amount) {
             throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < Transfer.GAS_LIMIT) {
@@ -93,7 +93,7 @@ class ERC20Account(private val chainId: Byte,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.tokenValue!!.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
-                    accountContext.nonce, null, true, tx.gasLimit, tx.gasLimit)
+                    accountContext.nonce, true, null, true, tx.gasLimit, tx.gasLimit)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -170,7 +170,7 @@ class ERC20Account(private val chainId: Byte,
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?): Value =
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: EthAddress?, txData: TransactionData?): Value =
             accountBalance.spendable
 
     override val syncTotalRetrievedTransactions = 0 // TODO implement after full transaction history implementation
@@ -229,7 +229,8 @@ class ERC20Account(private val chainId: Byte,
                             tokenTransfer.to, Value.valueOf(basedOnCoinType, tokenTransfer.value),
                             Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
                                     ?: typicalEstimatedTransactionSize.toBigInteger())),
-                            tx.confirmations.toInt(), tx.nonce, null, tx.success, tx.gasLimit, tx.gasUsed)
+                            tx.confirmations.toInt(), tx.nonce, true,
+                        null, tx.success, tx.gasLimit, tx.gasUsed)
                 }
             }
             val localTxs = getUnconfirmedTransactions()

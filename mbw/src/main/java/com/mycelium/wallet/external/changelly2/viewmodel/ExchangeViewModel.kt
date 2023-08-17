@@ -1,7 +1,6 @@
 package com.mycelium.wallet.external.changelly2.viewmodel
 
 import android.app.Application
-import android.text.Html
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,8 +12,8 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wallet.external.changelly.bch.estimateFeeFromTransferrableAmount
 import com.mycelium.wallet.external.changelly.model.FixRate
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.WalletAccount
@@ -22,7 +21,6 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
-import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.InsufficientFundsForFeeException
@@ -35,7 +33,13 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     var currencies = setOf("BTC", "ETH")
     val fromAccount = MutableLiveData<WalletAccount<*>>()
     val exchangeInfo = MutableLiveData<FixRate>()
-    val sellValue = MutableLiveData<String>()
+    val sellValue = object : MutableLiveData<String>() {
+        override fun setValue(value: String?) {
+            if (this.value != value) {
+                super.setValue(value)
+            }
+        }
+    }
     val buyValue = MutableLiveData<String>()
     val errorKeyboard = MutableLiveData("")
     val errorTransaction = MutableLiveData("")
@@ -43,12 +47,31 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     val keyboardActive = MutableLiveData(false)
     val rateLoading = MutableLiveData(false)
     var changellyTx: String? = null
+    var swapDirection = 0
 
     val toAccount = MediatorLiveData<WalletAccount<*>>().apply {
         addSource(fromAccount) {
             if (value?.coinType == it.coinType) {
                 value = getToAccountForInit()
             }
+        }
+    }
+    val swapEnableDelay = MutableLiveData<Boolean>(false)
+    val swapEnabled = MediatorLiveData<Boolean>().apply {
+        value = false
+        fun update() {
+            value = toAccount.value?.canSpend() ?: false
+                    && rateLoading.value == false
+                    && swapEnableDelay.value == false
+        }
+        addSource(toAccount) {
+            update()
+        }
+        addSource(rateLoading) {
+            update()
+        }
+        addSource(swapEnableDelay) {
+            update()
         }
     }
 
@@ -185,13 +208,13 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
                     rateLoading.value == true -> false
                     amount == null -> false
                     amount == BigDecimal.ZERO -> false
-                    amount < exchangeInfo.value?.minFrom -> {
+                    exchangeInfo.value?.minFrom != null && amount < exchangeInfo.value?.minFrom  -> {
                         errorTransaction.value = res.getString(R.string.exchange_min_msg,
                                 exchangeInfo.value?.minFrom?.stripTrailingZeros()?.toPlainString(),
                                 exchangeInfo.value?.from?.toUpperCase())
                         false
                     }
-                    amount > exchangeInfo.value?.maxFrom -> {
+                    exchangeInfo.value?.maxFrom != null && amount > exchangeInfo.value?.maxFrom -> {
                         errorTransaction.value = res.getString(R.string.exchange_max_msg,
                                 exchangeInfo.value?.maxFrom?.stripTrailingZeros()?.toPlainString(),
                                 exchangeInfo.value?.from?.toUpperCase())
@@ -212,24 +235,20 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         }
         val feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
         try {
-            return account.createTx(
-                    account.dummyAddress,
-                    value,
-                    FeePerKbFee(feeEstimation.normal),
-                    null
-            ).apply {
-                minerFee.value =
-                        res.getString(R.string.miner_fee) + " " +
-                        this.totalFee().toStringFriendlyWithUnit() + " " +
-                        mbwManager.exchangeRateManager
-                                .get(this.totalFee(), mbwManager.getFiatCurrency(this.type))
-                                ?.toStringFriendlyWithUnit()?.let { "≈$it" }
-            }
+            return prepateTx(account.dummyAddress, sellValue.value!!)
+                    ?.apply {
+                        minerFee.value =
+                                res.getString(R.string.miner_fee) + " " +
+                                        this.totalFee().toStringFriendlyWithUnit() + " " +
+                                        mbwManager.exchangeRateManager
+                                                .get(this.totalFee(), mbwManager.getFiatCurrency(this.type))
+                                                ?.toStringFriendlyWithUnit()?.let { "≈$it" }
+                    }
         } catch (e: OutputTooSmallException) {
             errorTransaction.value = res.getString(R.string.amount_too_small_short,
                     Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit())
         } catch (e: InsufficientFundsForFeeException) {
-            if(account is ERC20Account) {
+            if (account is ERC20Account) {
                 val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
                 errorTransaction.value = res.getString(R.string.please_top_up_your_eth_account,
                         account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP
@@ -247,8 +266,45 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
         return null
     }
 
-    fun convert(value:Value) =
-        " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
+    fun prepateTx(address: Address, amount: String): Transaction? {
+        val res = getApplication<WalletApplication>().resources
+        val account = fromAccount.value!!
+        val value = account.coinType.value(amount)
+        if (value.equalZero()) {
+            return null
+        }
+        val feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
+        try {
+            return account.createTx(
+                    address,
+                    value,
+                    FeePerKbFee(feeEstimation.normal),
+                    null
+            )
+        } catch (e: OutputTooSmallException) {
+            errorTransaction.postValue(res.getString(R.string.amount_too_small_short,
+                    Value.valueOf(account.coinType, TransactionUtils.MINIMUM_OUTPUT_VALUE).toStringWithUnit()))
+        } catch (e: InsufficientFundsForFeeException) {
+            if (account is ERC20Account) {
+                val fee = feeEstimation.normal.times(account.typicalEstimatedTransactionSize.toBigInteger())
+                errorTransaction.postValue(res.getString(R.string.please_top_up_your_eth_account,
+                        account.ethAcc.label, fee.toStringFriendlyWithUnit(), convert(fee)) + TAG_ETH_TOP_UP)
+            } else {
+                errorTransaction.postValue(res.getString(R.string.insufficient_funds_for_fee))
+            }
+        } catch (e: InsufficientFundsException) {
+            errorTransaction.postValue(res.getString(R.string.insufficient_funds))
+        } catch (e: BuildTransactionException) {
+            mbwManager.reportIgnoredException("MinerFeeException", e)
+            errorTransaction.postValue(res.getString(R.string.tx_build_error) + " " + e.message)
+        } catch (e: Exception) {
+            errorTransaction.postValue(res.getString(R.string.tx_build_error) + " " + e.message)
+        }
+        return null
+    }
+
+    fun convert(value: Value) =
+            " ~${mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(value.type))?.toStringFriendlyWithUnit() ?: ""}"
 
 
     fun getToAccountForInit() = Utils.sortAccounts(mbwManager.getWalletManager(false)
@@ -263,5 +319,15 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
 
     companion object {
         const val TAG_ETH_TOP_UP = "<hiden type=\"TAG_ETH_TOP_UP\"/>"
+    }
+
+    fun reset() {
+        sellValue.value = ""
+        buyValue.value = ""
+        errorTransaction.value = ""
+        errorRemote.value = ""
+        errorKeyboard.value = ""
+        fromAccount.value = fromAccount.value
+        toAccount.value = toAccount.value
     }
 }
