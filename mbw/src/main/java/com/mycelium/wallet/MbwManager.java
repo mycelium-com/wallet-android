@@ -1505,9 +1505,18 @@ public class MbwManager {
             }
         }
 
-        _environment.getWapiEndpoints().setAllowedEndpointTypes(serverEndpointType);
-        _environment.getLtEndpoints().setAllowedEndpointTypes(serverEndpointType);
-        _wapi.getServerEndpoints().setAllowedEndpointTypes(serverEndpointType);
+        try {
+            _environment.getWapiEndpoints().setAllowedEndpointTypes(serverEndpointType);
+        } catch (IOException e) {
+        }
+        try {
+            _environment.getLtEndpoints().setAllowedEndpointTypes(serverEndpointType);
+        } catch (IOException e) {
+        }
+        try {
+            _wapi.getServerEndpoints().setAllowedEndpointTypes(serverEndpointType);
+        } catch (IOException e) {
+        }
         List<TcpEndpoint> endpoints = torMode == ServerEndpointType.Types.ONLY_TOR ?
                 configuration.getElectrumTorEndpoints() : configuration.getElectrumEndpoints();
         _wapi.serverListChanged(endpoints);
