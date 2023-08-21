@@ -166,6 +166,7 @@ public class Bech32 {
      */
     public static Bech32Data decode(final String str) throws Bech32Exception {
         boolean lower = false, upper = false;
+        if(str == null) throw new Bech32Exception("Null address");
         if (str.length() < 8) throw new Bech32Exception("Input too short");
         if (str.length() > 90) throw new Bech32Exception("Input too long");
         for (int i = 0; i < str.length(); ++i) {

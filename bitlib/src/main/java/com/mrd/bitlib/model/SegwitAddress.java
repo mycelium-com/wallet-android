@@ -147,12 +147,10 @@ public class SegwitAddress extends BitcoinAddress implements Serializable {
         String ret;
         try {
             enc.write(convertBits(witprog, 0, witprog.length, 8, 5, true));
-            if (witver == 0) {
-                ret = Bech32.encode(Bech32.Encoding.BECH32, hrp, enc.toByteArray());
-            } else if (witver == 1) {
+            if (witver == 1) {
                 ret = Bech32.encode(Bech32.Encoding.BECH32M, hrp, enc.toByteArray());
             } else {
-                ret = null;
+                ret = Bech32.encode(Bech32.Encoding.BECH32, hrp, enc.toByteArray());
             }
         } catch (Bech32.Bech32Exception | IOException e) {
             throw new SegwitAddressException(e);
