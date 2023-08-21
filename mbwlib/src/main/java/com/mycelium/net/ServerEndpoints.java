@@ -48,11 +48,14 @@ public class ServerEndpoints {
    private ServerEndpointType allowedEndpointTypes = ServerEndpointType.ONLY_HTTPS;
 
 
-   public ServerEndpoints(HttpEndpoint endpoints[]) throws IOException {
+   public ServerEndpoints(HttpEndpoint endpoints[]) {
       setupEnpoints(endpoints);
       currentEndpoint = new Random().nextInt(this.endpoints.size());
       // ensure correct kind of endpoint
-      switchToNextEndpoint();
+      try {
+         switchToNextEndpoint();
+      } catch (IOException e) {
+      }
    }
 
    public ServerEndpoints(HttpEndpoint endpoints[], int initialEndpoint) {
