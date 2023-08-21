@@ -47,7 +47,7 @@ class FeeEstimator(private val legacyInputs: Int, private val p2shSegwitInputs: 
         // fee is based on the size of the transaction, we have to pay for
         // every 1000 bytes
         val txSizeKb = (estimateTransactionSize() / 1000.0).toFloat() //in kilobytes
-        return (txSizeKb * minerFeePerKb * 2).toLong()
+        return (txSizeKb * minerFeePerKb).toLong()
     }
 
     companion object {

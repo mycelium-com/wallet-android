@@ -106,6 +106,6 @@ class FeeEstimatorBuilder {
 
     override fun toString(): String =
             "FeeEstimatorBuilder(legacyInputs=$legacyInputs, p2shSegwitInputs=$p2shSegwitInputs" +
-                    ", bechInputs=$bechInputs, legacyOutputs=$legacyOutputs, p2shOutputs=$p2shOutputs" +
-                    ", bechOutputs=$bechOutputs, minerFeePerKb=$minerFeePerKb)"
+                    ", bechInputs=$bechInputs, bech32mInputs=$bech32mInputs, legacyOutputs=$legacyOutputs, p2shOutputs=$p2shOutputs" +
+                    ", bechOutputs=$bechOutputs, bech32mOutputs=${bech32mOutputs}, minerFeePerKb=$minerFeePerKb)"
 }
