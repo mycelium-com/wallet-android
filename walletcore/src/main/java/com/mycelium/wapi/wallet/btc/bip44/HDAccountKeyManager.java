@@ -30,9 +30,10 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SecureSubKeyValueStore;
-import kotlin.NotImplementedError;
 
 import java.util.UUID;
+
+import kotlin.NotImplementedError;
 
 /**
  * Management functions for keys associated with a BIP44 account.
@@ -190,6 +191,9 @@ public class HDAccountKeyManager {
          case BIP84:
             purpose = HdKeyPath.BIP84;
             break;
+         case BIP86:
+            purpose = HdKeyPath.BIP86;
+            break;
          default:
             throw new NotImplementedError();
       }
@@ -268,9 +272,13 @@ public class HDAccountKeyManager {
       try {
          ByteReader reader = new ByteReader(bytes);
          // Address bytes
-         reader.getBytes(21);
+         if (bytes[0] == 0x51) { //taproot
+            reader.getBytes(33);
+         } else {
+            reader.getBytes(21);
+         }
          // Read length encoded string
-         String addressString = new String(reader.getBytes((int) reader.get()));
+         String addressString = new String(reader.getBytes(reader.get()));
          BitcoinAddress address = BitcoinAddress.fromString(addressString);
          address.setBip32Path(path);
          return address;

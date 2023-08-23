@@ -33,6 +33,11 @@ import java.io.Serializable;
  */
 public class SegwitAddress extends BitcoinAddress implements Serializable {
     private static final long serialVersionUID = 1L;
+    public static final int WITNESS_PROGRAM_LENGTH_PKH = 20;
+    public static final int WITNESS_PROGRAM_LENGTH_SH = 32;
+    public static final int WITNESS_PROGRAM_LENGTH_TR = 32;
+    public static final int WITNESS_PROGRAM_MIN_LENGTH = 2;
+    public static final int WITNESS_PROGRAM_MAX_LENGTH = 40;
 
     private final byte version;
     private final byte[] program;
@@ -142,7 +147,11 @@ public class SegwitAddress extends BitcoinAddress implements Serializable {
         String ret;
         try {
             enc.write(convertBits(witprog, 0, witprog.length, 8, 5, true));
-            ret = Bech32.encode(hrp, enc.toByteArray());
+            if (witver == 1) {
+                ret = Bech32.encode(Bech32.Encoding.BECH32M, hrp, enc.toByteArray());
+            } else {
+                ret = Bech32.encode(Bech32.Encoding.BECH32, hrp, enc.toByteArray());
+            }
         } catch (Bech32.Bech32Exception | IOException e) {
             throw new SegwitAddressException(e);
         }
@@ -152,7 +161,15 @@ public class SegwitAddress extends BitcoinAddress implements Serializable {
 
     @Override
     public AddressType getType() {
-        return AddressType.P2WPKH;
+        if (version == 0) {
+            return AddressType.P2WPKH;
+        } else if (version == 1) {
+            if (program.length == WITNESS_PROGRAM_LENGTH_TR) {
+                return AddressType.P2TR;
+            }
+            throw new IllegalStateException();// cannot happen
+        }
+        throw new IllegalStateException("cannot handle: " + version);
     }
 
 

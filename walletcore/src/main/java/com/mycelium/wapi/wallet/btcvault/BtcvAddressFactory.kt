@@ -52,6 +52,7 @@ class BtcvAddressFactory(val coinType: CryptoCurrency, val networkParameters: Co
             AddressType.P2PKH -> toP2PKHAddress(coinType, networkParameters)
             AddressType.P2SH_P2WPKH -> toNestedP2WPKH(coinType, networkParameters, ignoreCompression)
             AddressType.P2WPKH -> toP2WPKH(coinType, networkParameters, ignoreCompression)
+            AddressType.P2TR -> TODO("not supported")
         }
     }
 

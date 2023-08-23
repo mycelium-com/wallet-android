@@ -6,9 +6,11 @@ class FeeEstimatorBuilder {
     private var legacyInputs: Int = 0
     private var p2shSegwitInputs: Int = 0
     private var bechInputs: Int = 0
+    private var bech32mInputs: Int = 0
     private var legacyOutputs: Int = 0
     private var p2shOutputs: Int = 0
     private var bechOutputs: Int = 0
+    private var bech32mOutputs: Int = 0
     private var minerFeePerKb: Long = 0
 
     fun setLegacyInputs(legacyInputs: Int): FeeEstimatorBuilder {
@@ -26,6 +28,11 @@ class FeeEstimatorBuilder {
         return this
     }
 
+    fun setBech32mInputs(inputs: Int): FeeEstimatorBuilder {
+        this.bech32mInputs = inputs
+        return this
+    }
+
     fun setLegacyOutputs(legacyOutputs: Int): FeeEstimatorBuilder {
         this.legacyOutputs = legacyOutputs
         return this
@@ -36,6 +43,7 @@ class FeeEstimatorBuilder {
             AddressType.P2PKH -> legacyOutputs++
             AddressType.P2WPKH -> bechOutputs++
             AddressType.P2SH_P2WPKH -> p2shOutputs++
+            AddressType.P2TR -> bech32mOutputs++
         }
         return this
     }
@@ -50,13 +58,19 @@ class FeeEstimatorBuilder {
         return this
     }
 
+    fun setBech32mOutputs(outputs: Int): FeeEstimatorBuilder {
+        this.bech32mOutputs = outputs
+        return this
+    }
+
     fun setArrayOfInputs(inputsList: Iterable<UnspentTransactionOutput>) =
             setArrayOfInputs(inputsList.toList().toTypedArray())
 
     fun setArrayOfInputs(inputsArray: Array<UnspentTransactionOutput>): FeeEstimatorBuilder {
-        legacyInputs = inputsArray.filter { it.script is ScriptOutputP2PKH }.count()
-        p2shSegwitInputs = inputsArray.filter { it.script is ScriptOutputP2SH }.count()
-        bechInputs = inputsArray.filter { it.script is ScriptOutputP2WPKH }.count()
+        legacyInputs = inputsArray.count { it.script is ScriptOutputP2PKH }
+        p2shSegwitInputs = inputsArray.count { it.script is ScriptOutputP2SH }
+        bechInputs = inputsArray.count { it.script is ScriptOutputP2WPKH }
+        bech32mInputs = inputsArray.count { it.script is ScriptOutputP2TR }
         return this
     }
 
@@ -70,9 +84,10 @@ class FeeEstimatorBuilder {
      */
     fun setArrayOfOutputs(outputsArray: Array<TransactionOutput>?): FeeEstimatorBuilder {
         if (outputsArray != null) {
-            legacyOutputs = outputsArray.filter { it.script is ScriptOutputP2PKH }.count()
-            p2shOutputs = outputsArray.filter { it.script is ScriptOutputP2SH }.count()
-            bechOutputs = outputsArray.filter { it.script is ScriptOutputP2WPKH }.count()
+            legacyOutputs = outputsArray.count { it.script is ScriptOutputP2PKH }
+            p2shOutputs = outputsArray.count { it.script is ScriptOutputP2SH }
+            bechOutputs = outputsArray.count { it.script is ScriptOutputP2WPKH }
+            bech32mOutputs = outputsArray.count { it.script is ScriptOutputP2TR }
         } else {
             legacyOutputs = 2
         }
@@ -84,13 +99,13 @@ class FeeEstimatorBuilder {
         return this
     }
 
-    fun createFeeEstimator(): FeeEstimator {
-        return FeeEstimator(legacyInputs, p2shSegwitInputs, bechInputs, legacyOutputs, p2shOutputs,
-                bechOutputs, minerFeePerKb)
-    }
+
+    fun createFeeEstimator(): FeeEstimator =
+            FeeEstimator(legacyInputs, p2shSegwitInputs, bechInputs, bech32mInputs,
+                    legacyOutputs, p2shOutputs, bechOutputs, bech32mOutputs, minerFeePerKb)
 
     override fun toString(): String =
             "FeeEstimatorBuilder(legacyInputs=$legacyInputs, p2shSegwitInputs=$p2shSegwitInputs" +
-                    ", bechInputs=$bechInputs, legacyOutputs=$legacyOutputs, p2shOutputs=$p2shOutputs" +
-                    ", bechOutputs=$bechOutputs, minerFeePerKb=$minerFeePerKb)"
+                    ", bechInputs=$bechInputs, bech32mInputs=$bech32mInputs, legacyOutputs=$legacyOutputs, p2shOutputs=$p2shOutputs" +
+                    ", bechOutputs=$bechOutputs, bech32mOutputs=${bech32mOutputs}, minerFeePerKb=$minerFeePerKb)"
 }

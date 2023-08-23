@@ -29,6 +29,9 @@ public abstract class ScriptOutput extends Script {
       if (chunks == null) {
          return null;
       }
+      if (ScriptOutputP2TR.isScriptOutputP2TR(chunks)) {
+         return new ScriptOutputP2TR(chunks, scriptBytes);
+      }
       if (ScriptOutputP2WPKH.isScriptOutputP2WPKH(chunks)) {
          return new ScriptOutputP2WPKH(chunks, scriptBytes);
       }

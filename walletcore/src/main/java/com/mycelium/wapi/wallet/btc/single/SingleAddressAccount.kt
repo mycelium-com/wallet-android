@@ -312,6 +312,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         return when (changeAddressModeReference.get()) {
             ChangeAddressMode.P2WPKH -> getAddress(AddressType.P2WPKH)
             ChangeAddressMode.P2SH_P2WPKH -> getAddress(AddressType.P2SH_P2WPKH)
+            ChangeAddressMode.P2TR -> getAddress(AddressType.P2TR)
             ChangeAddressMode.PRIVACY -> getAddress(destinationAddress.type)
             else -> throw IllegalStateException()
         } ?: address
@@ -337,6 +338,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
         return when (changeAddressModeReference.get()) {
             ChangeAddressMode.P2WPKH -> getAddress(AddressType.P2WPKH)
             ChangeAddressMode.P2SH_P2WPKH -> getAddress(AddressType.P2SH_P2WPKH)
+            ChangeAddressMode.P2TR -> getAddress(AddressType.P2TR)
             ChangeAddressMode.PRIVACY -> getAddress(maxedOn)
             else -> throw IllegalStateException()
         } ?: address
@@ -360,7 +362,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
     override fun getPrivateKeyForAddress(address: BitcoinAddress, cipher: KeyCipher): InMemoryPrivateKey? {
         val privateKey = getPrivateKey(cipher)
         return if (_addressList.contains(address) && privateKey != null) {
-            if (address.type === AddressType.P2SH_P2WPKH || address.type === AddressType.P2WPKH) {
+            if (address.type in arrayOf(AddressType.P2SH_P2WPKH, AddressType.P2WPKH, AddressType.P2TR)) {
                 InMemoryPrivateKey(privateKey.privateKeyBytes, true)
             } else {
                 privateKey
@@ -433,7 +435,7 @@ open class SingleAddressAccount @JvmOverloads constructor(private var _context: 
 
     fun getAddress(type: AddressType?): BitcoinAddress? {
         if (publicKey != null && !publicKey.isCompressed) {
-            if (type === AddressType.P2SH_P2WPKH || type === AddressType.P2WPKH) {
+            if (type in arrayOf(AddressType.P2SH_P2WPKH, AddressType.P2WPKH, AddressType.P2TR)) {
                 return null
             }
         }

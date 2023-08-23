@@ -24,6 +24,9 @@ public class ScriptInput extends Script {
    public static final ScriptInput EMPTY = new ScriptInput(new byte[] {});
 
    public static ScriptInput fromScriptBytes(byte[] scriptBytes) throws ScriptParsingException {
+      if(isTRProgram(depush(scriptBytes))) {
+         return new ScriptInputP2TR(scriptBytes);
+      }
       if (isWitnessProgram(depush(scriptBytes))) {
          byte[] witnessProgram = getWitnessProgram(depush(scriptBytes));
          if (witnessProgram.length == 20) {
@@ -45,6 +48,16 @@ public class ScriptInput extends Script {
          return new ScriptInputP2SHMultisig(chunks, scriptBytes);
       }
       return new ScriptInput(scriptBytes);
+   }
+
+   private static boolean isTRProgram(byte[] scriptBytes) {
+      if (scriptBytes.length < 4 || scriptBytes.length > 42) {
+         return false;
+      }
+      if (scriptBytes[0] != Script.OP_1) {
+         return false;
+      }
+      return true;
    }
 
    /**
