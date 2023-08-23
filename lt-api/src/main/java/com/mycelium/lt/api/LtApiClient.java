@@ -165,7 +165,11 @@ public class LtApiClient implements LtApi {
          }
 
          // We had an IO exception or a bad status, fail over and try again
-         _serverEndpoints.switchToNextEndpoint();
+         try {
+            _serverEndpoints.switchToNextEndpoint();
+         } catch (IOException e) {
+            return null;
+         }
          // Check if we are back at the initial endpoint, in which case we have
          // to give up
          if (_serverEndpoints.getCurrentEndpointIndex() == originalConnectionIndex) {
