@@ -148,6 +148,7 @@
             android:theme="@style/MyceliumActionBar">
             <intent-filter android:label="Exchange">
                 <action android:name="action.CHANGELLY" />
+                <action android:name="action.changelly" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter android:label="Exchange">
@@ -267,7 +268,14 @@
             android:label="@string/title_activity_bit_idauthentication" />
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
-        <activity android:name=".external.BuySellSelectActivity" />
+        <activity
+            android:name=".external.BuySellSelectActivity"
+            android:exported="false">
+            <intent-filter android:label="Market">
+                <action android:name="action.BUY_SELL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name=".external.BuySellSelectCountryActivity"/>
         <activity android:name=".external.BuySellBankCardActivity"/>
         <activity android:name=".activity.MessageVerifyActivity" />

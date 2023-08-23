@@ -191,7 +191,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
                 mTransactionsTab!!.select()
                 binding.pager.currentItem = mTabsAdapter!!.indexOf(TAB_HISTORY)
             }
-            MainActions.ACTION_EXCHANGE -> {
+            MainActions.ACTION_EXCHANGE.toLowerCase(), MainActions.ACTION_EXCHANGE -> {
                 selectTab(TAB_EXCHANGE)
             }
             MainActions.ACTION_BALANCE -> {

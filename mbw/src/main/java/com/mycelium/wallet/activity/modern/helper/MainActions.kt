@@ -6,4 +6,5 @@ object MainActions {
     const val ACTION_TXS = "main.transactions"
     const val ACTION_EXCHANGE = "action.CHANGELLY"
     const val ACTION_BALANCE = "action.BALANCE"
+    const val ACTION_BUY_SELL = "action.BUY_SELL"
 }
