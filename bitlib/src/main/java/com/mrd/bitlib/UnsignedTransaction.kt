@@ -46,13 +46,19 @@ open class UnsignedTransaction constructor(
                     ?:
                     // This should not happen as we only work on outputs that we have keys for
                     throw RuntimeException("Public key not found")
-
+            var signAlgorithm = SignAlgorithm.Standard
             when (utxo.script) {
-                is ScriptOutputP2SH  -> {
+                is ScriptOutputP2SH -> {
                     getInputScript(publicKey, transaction, i, true)
+                    signAlgorithm = SignAlgorithm.Standard
                 }
                 is ScriptOutputP2WPKH -> {
                     getInputScript(publicKey, transaction, i, false)
+                    signAlgorithm = SignAlgorithm.Standard
+                }
+                is ScriptOutputP2TR -> {
+                    getInputScriptP2TR(publicKey, transaction, i)
+                    signAlgorithm = SignAlgorithm.Schnorr
                 }
             }
 
@@ -75,8 +81,15 @@ open class UnsignedTransaction constructor(
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 
-            signingRequests[i] = SigningRequest(publicKey, hash)
+            signingRequests[i] = SigningRequest(publicKey, hash, signAlgorithm)
         }
+    }
+
+    private fun getInputScriptP2TR(publicKey: PublicKey, transaction: BitcoinTransaction, i: Int) {
+        val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_1.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
+        val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+        transaction.inputs[i].script = inputScript
+        inputs[i].script = inputScript
     }
 
     private fun getInputScript(publicKey: PublicKey, transaction: BitcoinTransaction, i: Int, isNested: Boolean) {
@@ -92,7 +105,8 @@ open class UnsignedTransaction constructor(
             .any(this::isSegwitOutputScript)
 
     private fun isSegwitOutputScript(script: ScriptOutput) =
-        script is ScriptOutputP2WPKH || script is ScriptOutputP2SH
+        script is ScriptOutputP2WPKH || script is ScriptOutputP2SH || script is ScriptOutputP2TR
+
 
     fun isSegWitOutput(i: Int) =
             isSegwitOutputScript(fundingOutputs[i].script)
@@ -130,7 +144,8 @@ open class UnsignedTransaction constructor(
         private val SUPPORTED_SCRIPTS = listOf(
                 ScriptOutputP2PKH::class.java,
                 ScriptOutputP2SH::class.java,
-                ScriptOutputP2WPKH::class.java
+                ScriptOutputP2WPKH::class.java,
+                ScriptOutputP2TR::class.java
         )
     }
 }

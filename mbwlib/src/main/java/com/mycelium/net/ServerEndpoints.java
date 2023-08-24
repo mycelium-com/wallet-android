@@ -36,6 +36,7 @@ package com.mycelium.net;
 
 import com.google.common.base.Preconditions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -51,7 +52,10 @@ public class ServerEndpoints {
       setupEnpoints(endpoints);
       currentEndpoint = new Random().nextInt(this.endpoints.size());
       // ensure correct kind of endpoint
-      switchToNextEndpoint();
+      try {
+         switchToNextEndpoint();
+      } catch (IOException e) {
+      }
    }
 
    public ServerEndpoints(HttpEndpoint endpoints[], int initialEndpoint) {
@@ -76,7 +80,7 @@ public class ServerEndpoints {
       return endpoints.size();
    }
 
-   public synchronized void switchToNextEndpoint(){
+   public synchronized void switchToNextEndpoint() throws IOException {
       HttpEndpoint selectedEndpoint;
       int cnt=0;
       int tmpCurrentEndpoint = currentEndpoint;
@@ -85,13 +89,13 @@ public class ServerEndpoints {
          selectedEndpoint = endpoints.get(tmpCurrentEndpoint);
          cnt++;
          if (cnt>endpoints.size()){
-            throw new RuntimeException("No valid next Endpoint found, " + allowedEndpointTypes.toString());
+            throw new IOException("No valid next Endpoint found, " + allowedEndpointTypes.toString());
          }
       }while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
       currentEndpoint = tmpCurrentEndpoint;
    }
 
-   public void setAllowedEndpointTypes(ServerEndpointType types){
+   public void setAllowedEndpointTypes(ServerEndpointType types) throws IOException {
       allowedEndpointTypes=types;
       switchToNextEndpoint();
    }

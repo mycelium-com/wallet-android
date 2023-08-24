@@ -172,7 +172,11 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
             logError("Send request fail", e);
          }
          // Try the next server
-         _serverEndpoints.switchToNextEndpoint();
+         try {
+            _serverEndpoints.switchToNextEndpoint();
+         } catch (IOException e) {
+            return null;
+         }
          if (_serverEndpoints.getCurrentEndpointIndex() == originalConnectionIndex) {
             // We have tried all URLs
             return null;

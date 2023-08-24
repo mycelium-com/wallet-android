@@ -35,9 +35,10 @@ object Parameters {
     @JvmField
     val MAX_SIG_S: BigInteger
 
+    val p = BigInteger(1,
+            HexUtils.toBytes("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"))
+
     init {
-        val p = BigInteger(1,
-                HexUtils.toBytes("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"))
         val a = BigInteger.ZERO
         val b = BigInteger.valueOf(7)
         curve = Curve(p, a, b)

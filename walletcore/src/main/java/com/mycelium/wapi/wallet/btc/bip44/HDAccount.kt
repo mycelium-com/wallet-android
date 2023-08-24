@@ -498,6 +498,7 @@ open class HDAccount(
             when (changeAddressModeReference.get()!!) {
                 ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
                 ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+                ChangeAddressMode.P2TR -> getChangeAddress(BipDerivationType.BIP86)
                 ChangeAddressMode.PRIVACY -> {
                     val mostCommonOutputType = destinationAddresses.groupingBy {
                         BipDerivationType.getDerivationTypeByAddress(it)
@@ -510,6 +511,7 @@ open class HDAccount(
     override val changeAddress: BitcoinAddress
         get() = when (changeAddressModeReference.get()!!) {
             ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2TR -> getChangeAddress(BipDerivationType.BIP86)
             ChangeAddressMode.P2SH_P2WPKH, ChangeAddressMode.PRIVACY -> getChangeAddress(BipDerivationType.BIP49)
             ChangeAddressMode.NONE -> throw IllegalStateException()
         }
