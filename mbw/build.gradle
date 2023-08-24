@@ -219,8 +219,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3160100
-        versionName '3.16.1.0'
+        versionCode 3160200
+        versionName '3.16.2.0'
 
         multiDexEnabled true
 

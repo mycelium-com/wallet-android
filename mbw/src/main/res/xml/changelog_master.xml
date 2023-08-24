@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.16.2.0" versioncode="3160200">
+        <change>New balance buttons</change>
+        <change>Bug fixes</change>
+        <change>Updated interface</change>
+    </release>
     <release version="3.16.1.0" versioncode="3160100">
         <change>ERC-20 support for Gift Cards</change>
         <change>Updated 'Help' section (available via Settings)</change>
