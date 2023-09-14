@@ -34,8 +34,8 @@ public class InfiniteLinearLayoutManager extends CenterLayoutManager {
             int position = mCurrentPosition;
             int itemCount = mRecyclerView.getAdapter().getItemCount();
             if (itemCount > 0) {
-                position = position % itemCount;
                 position = position < 0 ? itemCount + position : position;
+                position = position % itemCount;
             }
             final View view = recycler.getViewForPosition(position);
             mCurrentPosition += mItemDirection;
