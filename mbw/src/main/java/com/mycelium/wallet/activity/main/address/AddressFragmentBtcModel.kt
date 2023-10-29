@@ -39,7 +39,9 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
     }
 
     private fun getNextType(): AddressType {
-        val addressTypes = (model.account as AddressContainer).availableAddressTypes
+        var addressTypes = (model.account as AddressContainer).availableAddressTypes
+        // TODO remove after full taproot implementation
+        addressTypes = addressTypes - AddressType.P2TR
         val currentAddressTypeIndex = addressTypes.lastIndexOf(currentType)
         return addressTypes[(currentAddressTypeIndex + 1) % addressTypes.size]
     }
