@@ -140,7 +140,8 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         private const val serialVersionUID = 1L
         private const val HASH_TYPE = 1
         private fun SUPPORTED_ADDRESS_TYPES(isCompressed: Boolean) = if (isCompressed) {
-            listOf(AddressType.P2PKH, AddressType.P2WPKH, AddressType.P2SH_P2WPKH, AddressType.P2TR)
+            // TODO restore AddressType.P2TR after full taproot implementation
+            listOf(AddressType.P2PKH, AddressType.P2WPKH, AddressType.P2SH_P2WPKH) //, AddressType.P2TR)
         } else {
             // P2WPKH (and native P2WSH) do not allow uncompressed public keys as per
             // [BIP143](https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#restrictions-on-public-key-type).
