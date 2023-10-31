@@ -49,13 +49,6 @@
                 android:onClick="@{_ -> viewModel.onToggleClicked(3)}"
                 android:text="@{viewModel.privateDataSelected ? @string/export_toggle_zprv : @string/export_toggle_zpub}" />
 
-            <RadioButton
-                android:id="@+id/rb_key_x_taproot"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="@{_ -> viewModel.onToggleClicked(4)}"
-                android:text="@{viewModel.privateDataSelected ? @string/export_toggle_zprv : @string/export_toggle_zpub}" />
-
         </RadioGroup>
     </LinearLayout>
 </layout>

@@ -88,9 +88,9 @@ class ButtonAdapter : ListAdapter<ActionButton, RecyclerView.ViewHolder>(ButtonD
 
     class ButtonDiffCallback : DiffUtil.ItemCallback<ActionButton>() {
         override fun areItemsTheSame(oldItem: ActionButton, newItem: ActionButton): Boolean =
-                oldItem.id == newItem.id
+            equalsValuesBy(oldItem, newItem, { it.id }, { it.text }, { it.iconUrl })
 
         override fun areContentsTheSame(oldItem: ActionButton, newItem: ActionButton): Boolean =
-                equalsValuesBy(oldItem, newItem, { it.text }, { it.iconUrl }, { it.icon }, { it.textColor })
+            equalsValuesBy(oldItem, newItem, { it.text }, { it.iconUrl }, { it.icon }, { it.textColor })
     }
 }

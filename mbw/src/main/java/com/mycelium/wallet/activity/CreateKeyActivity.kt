@@ -45,7 +45,6 @@ class CreateKeyActivity : AppCompatActivity() {
                 binding.tvAddressP2PKH.address = AddressUtils.fromAddress(addresses[AddressType.P2PKH])
                 binding.tvAddressP2SH.address = AddressUtils.fromAddress(addresses[AddressType.P2SH_P2WPKH])
                 binding.tvAddressBech.address = AddressUtils.fromAddress(addresses[AddressType.P2WPKH])
-                binding.tvAddressBech32m.address = AddressUtils.fromAddress(addresses[AddressType.P2TR])
                 binding.btShuffle.isEnabled = true
                 binding.btUse.isEnabled = true
             }
