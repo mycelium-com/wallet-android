@@ -206,3 +206,8 @@ interface WalletAccount<A : Address> : SyncPausable {
      */
     fun queueTransaction(transaction: Transaction)
 }
+
+interface MultiOutputWalletAccount<A : Address> : WalletAccount<A> {
+    @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
+    fun createTx(outputs: List<Pair<Address, Value>>, fee: Fee, data: TransactionData?): Transaction
+}

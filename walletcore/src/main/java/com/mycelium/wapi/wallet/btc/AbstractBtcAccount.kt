@@ -69,7 +69,7 @@ import java.util.logging.Logger
 import kotlin.IllegalStateException
 
 abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacking, protected val _network: NetworkParameters, wapi: Wapi) :
-    SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider {
+    SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider, MultiOutputWalletAccount<BtcAddress> {
     private val coluTransferInstructionsParser: ColuTransferInstructionsParser
 
     interface EventHandler {
