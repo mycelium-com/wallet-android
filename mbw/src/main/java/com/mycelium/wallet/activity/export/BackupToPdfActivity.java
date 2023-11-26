@@ -47,6 +47,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import android.view.WindowManager;
@@ -85,7 +86,7 @@ import java.util.Map;
 
 import static android.text.format.DateFormat.getDateFormat;
 
-public class BackupToPdfActivity extends Activity {
+public class BackupToPdfActivity extends AppCompatActivity {
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, BackupToPdfActivity.class);
       currentActivity.startActivity(intent);

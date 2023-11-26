@@ -884,7 +884,7 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
     protected abstract fun getChangeAddress(vararg destinationAddresses: BtcvAddress): BtcvAddress
 
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcvAddress?): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Value, destinationAddress: BtcvAddress?, txData: TransactionData?): Value {
         checkNotArchived()
         val spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.valueAsLong))
         var satoshis: Long = 0
@@ -1245,17 +1245,18 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
 
     open inner class PublicKeyRing : IPublicKeyRing {
         override fun findPublicKeyByAddress(address: BitcoinAddress): PublicKey {
-            val publicKey = getPublicKeyForAddress(address)
+            val btcvAddress = toBtcvAddress(address)
+            val publicKey = getPublicKeyForAddress(btcvAddress)
             if (publicKey != null) {
-                return if (address.type === AddressType.P2SH_P2WPKH
-                        || address.type === AddressType.P2WPKH) {
+                return if (btcvAddress.type === AddressType.P2SH_P2WPKH
+                        || btcvAddress.type === AddressType.P2WPKH) {
                     PublicKey(publicKey.pubKeyCompressed)
                 } else publicKey
             }
             // something unexpected happened - the account might be in a undefined state
             // drop local cached data (transaction history, addresses - metadata will be kept)
             dropCachedData()
-            throw RuntimeException(String.format("Unable to find public key for address %s acc:%s", address.toString(), this@AbstractBtcvAccount.javaClass.toString()))
+            throw RuntimeException(String.format("Unable to find public key for address %s acc:%s", btcvAddress.toString(), this@AbstractBtcvAccount.javaClass.toString()))
         }
     }
 
@@ -1403,12 +1404,14 @@ abstract class AbstractBtcvAccount protected constructor(val accountBacking: Btc
         get() = coinType
 
     override val accountBalance: Balance
-        get() = Balance(
-            valueOf(coinType, cachedBalance!!.confirmed),
-            valueOf(coinType, cachedBalance!!.pendingReceiving),
-            valueOf(coinType, cachedBalance!!.pendingSending),
-            valueOf(coinType, cachedBalance!!.pendingChange))
-
+        get() = cachedBalance?.let { balance ->
+            Balance(
+                valueOf(coinType, balance.confirmed),
+                valueOf(coinType, balance.pendingReceiving),
+                valueOf(coinType, balance.pendingSending),
+                valueOf(coinType, balance.pendingChange)
+            )
+        } ?: Balance.getZeroBalance(coinType)
     override val syncTotalRetrievedTransactions: Int
         get() = syncTotalRetrievedTxs
 

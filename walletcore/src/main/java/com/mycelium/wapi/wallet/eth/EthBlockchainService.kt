@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet.eth
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.net.HttpEndpoint
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,13 +11,9 @@ import java.io.IOException
 import java.math.BigInteger
 import java.net.URL
 
-class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
-                           networkParameters: NetworkParameters)
+class EthBlockchainService(private var endpoints: List<HttpEndpoint>)
     : ServerEthListChangedListener {
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    private val etherscanApiUrl = if (networkParameters.isProdnet) "https://api.etherscan.io" else
-        "https://api-ropsten.etherscan.io"
-    private val OFFSET = 10000
 
     @Throws(IOException::class)
     private fun fetchTransactions(address: String): List<Tx> {
@@ -32,41 +27,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
             val response = mapper.readValue(URL(urlString), Response::class.java)
             result.addAll(response.transactions)
         }
-        calcInternalValue(address, result)
         return result
-    }
-
-    // internal value is the ether that was sent to the user by a contract
-    private fun calcInternalValue(address: String, result: MutableList<Tx>) {
-        try {
-            val intTxs: MutableList<EtherscanInternalTransactions.InternalTransaction> = mutableListOf()
-            var i = 1
-            var urlString = "$etherscanApiUrl/api?module=account&action=txlistinternal&address=$address&startblock=0&endblock=99999999&page=$i&offset=$OFFSET&sort=asc&apikey=KWQPBBFJQYAT5P447MM8322R5BVY8C2MG2"
-            var response = mapper.readValue(URL(urlString), EtherscanInternalTransactions::class.java)
-            intTxs.addAll(response.result)
-            while (response.result.size == OFFSET) {
-                i++
-                urlString = "$etherscanApiUrl/api?module=account&action=txlistinternal&address=$address&startblock=0&endblock=99999999&page=$i&offset=$OFFSET&sort=asc&apikey=KWQPBBFJQYAT5P447MM8322R5BVY8C2MG2"
-                response = mapper.readValue(URL(urlString), EtherscanInternalTransactions::class.java)
-                intTxs.addAll(response.result)
-            }
-
-            val txsToAdd = intTxs.filterNot { intTx -> result.map { it.txid }.contains(intTx.hash) }
-            result.addAll(txsToAdd.map {
-                getTransaction(it.hash)
-            })
-
-            // maps hash to [value of transferred eth within tx with the hash]
-            val mapp = intTxs.map { tx ->
-                tx.hash to intTxs.filter {
-                    it.hash == tx.hash && it.to.equals(address, true)
-                }.map { it.value }.fold(BigInteger.ZERO, BigInteger::add)
-            }.toMap()
-            result.forEach { tx ->
-                tx.internalValue = mapp[tx.txid]
-            }
-        } catch (ignore: Exception) {
-        }
     }
 
     fun sendTransaction(hex: String): SendResult {
@@ -90,8 +51,14 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
 
     fun getNonce(address: String): BigInteger {
         val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
-        val result = mapper.readValue(URL(urlString), NonceResponse::class.java)
+        val result = mapper.readValue(URL(urlString), AccountBasicInfoResponse::class.java)
         return result.nonce + BigInteger.valueOf(result.unconfirmedTxs)
+    }
+
+    fun getBalance(address: String): BalanceResponse {
+        val urlString = "${endpoints.random()}/api/v2/address/$address?details=basic"
+        val result = mapper.readValue(URL(urlString), AccountBasicInfoResponse::class.java)
+        return BalanceResponse(result.balance, result.unconfirmedBalance)
     }
 
     fun getTransaction(hash: String): Tx {
@@ -114,13 +81,17 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>,
     class SendResult(val success: Boolean, val message: String?)
 }
 
+data class BalanceResponse(val confirmed: BigInteger, val unconfirmed: BigInteger)
+
 private class ApiResponse {
     val blockbook: BlockbookInfo? = null
 }
 
-private class NonceResponse {
+private class AccountBasicInfoResponse {
     val nonce: BigInteger = BigInteger.ZERO
     val unconfirmedTxs: Long = 0
+    val balance: BigInteger = BigInteger.ZERO
+    val unconfirmedBalance: BigInteger = BigInteger.ZERO
 }
 
 private class BlockbookInfo {
@@ -137,16 +108,6 @@ private class Response {
     val totalPages: Int = 0
 }
 
-private class EtherscanInternalTransactions {
-    val status: Int = 0
-    val result: List<InternalTransaction> = emptyList()
-
-    class InternalTransaction {
-        val hash: String = ""
-        val to: String = ""
-        val value: BigInteger = BigInteger.ZERO
-    }
-}
 class Tx {
     val txid: String = ""
 
@@ -190,8 +151,18 @@ class Tx {
     val tokenTransfers: List<TokenTransfer> = emptyList()
 
     fun getTokenTransfer(contractAddress: String, ownerAddress: String): TokenTransfer? =
-            tokenTransfers.find { it.token.equals(contractAddress, true) &&
+            tokenTransfers.filter { it.token().equals(contractAddress, true) &&
                     (it.to.equals(ownerAddress, true) || it.from.equals(ownerAddress, true))
+            }.let { list ->
+                if (list.isNotEmpty()) {
+                    var sum = BigInteger.ZERO
+                    list.forEach { sum = sum.plus(it.value) }
+                    list.first().let {
+                        TokenTransfer(it.from, it.to, it.contract, it.token, it.name, sum)
+                    }
+                } else {
+                    null
+                }
             }
 
     override fun toString(): String {
@@ -206,14 +177,18 @@ private class Vin {
     val addresses: List<String>? = emptyList()
 }
 
-class TokenTransfer {
-    val from: String = ""
-    val to: String = ""
-    val token: String = ""
-    val name: String = ""
+class TokenTransfer(
+    val from: String = "",
+    val to: String = "",
+    val contract: String = "",
+    val token: String = "",
+    val name: String = "",
     val value: BigInteger = BigInteger.ZERO
+) {
 
-    override fun toString() = "{'from':$from,'to':$to,'token':$token,'name':$name,'value':$value}"
+    fun token() = contract.ifEmpty { token }
+
+    override fun toString() = "{'from':$from,'to':$to,'token':${token()},'name':$name,'value':$value}"
 }
 
 private class EthereumSpecific {

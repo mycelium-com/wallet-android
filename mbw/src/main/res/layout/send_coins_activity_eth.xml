@@ -61,17 +61,21 @@
                     bind:listener="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
-                <!-- Advanced block -->
+                <!-- Amount Error -->
                 <include
-                    layout="@layout/send_coins_advanced_block"
-                    bind:activity="@{activity}"
+                    layout="@layout/send_coins_insufficient"
                     bind:viewModel="@{viewModel}" />
-
             </LinearLayout>
+
+            <!-- Advanced block -->
+            <include
+                layout="@layout/send_coins_advanced_block"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
 
             <!--Fee selector-->
             <include
-                layout="@layout/send_coins_fee_block"
+                layout="@layout/send_coins_fee_block_eth"
                 bind:viewModel="@{viewModel}" />
 
             <TextView
@@ -83,7 +87,7 @@
                 android:layout_marginTop="11dp"
                 android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
-                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener(activity)}"
+                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
                 tools:text="This is the max fee you may have to pay to send the transaction from ETH Account 1.  However, most likely miner fee will not exceed 0.0026 ETH ~5.00 USD. For details please see miner fee calculation." />
 
             <TextView
@@ -93,7 +97,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="11dp"
                 android:layout_marginEnd="16dp"
-                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener(activity)}"
+                android:onClick="@{_ -> viewModel.minerFeeInfoClickListener()}"
                 android:text="@{Html.fromHtml(@string/erc20_this_is_updated_fee)}"
                 android:textColor="@color/fio_white_alpha_0_6"
                 android:textSize="14sp"
@@ -157,11 +161,6 @@
                 layout="@layout/fio_memo_input"
                 bind:fioMemo="@{viewModel.fioMemo}"
                 bind:payeeFioName="@{viewModel.payeeFioName}" />
-
-            <!-- Amount Error -->
-            <include
-                layout="@layout/send_coins_insufficient"
-                bind:viewModel="@{viewModel}" />
 
             <!--Update progress bar-->
             <include

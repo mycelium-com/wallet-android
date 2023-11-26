@@ -66,6 +66,10 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
       _objectMapper.registerModule(new WapiJsonModule());
    }
 
+   public ServerEndpoints getServerEndpoints() {
+      return _serverEndpoints;
+   }
+
    private <T> WapiResponse<T> sendRequest(String function, Object request, TypeReference<WapiResponse<T>> typeReference) {
       try {
          Response response = getConnectionAndSendRequest(function, request);
@@ -137,7 +141,8 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
             // build request
             final String toSend = getPostBody(request);
             Request rq = new Request.Builder()
-                  .addHeader(MYCELIUM_VERSION_HEADER, versionCode)
+                  .header(MYCELIUM_VERSION_HEADER, versionCode)
+                  .header("Content-Type", "application/json")
                   .post(RequestBody.create(MediaType.parse("application/json"), toSend))
                   .url(serverEndpoint.getUri(WapiConst.WAPI_BASE_PATH, function).toString())
                   .build();
@@ -167,7 +172,11 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
             logError("Send request fail", e);
          }
          // Try the next server
-         _serverEndpoints.switchToNextEndpoint();
+         try {
+            _serverEndpoints.switchToNextEndpoint();
+         } catch (IOException e) {
+            return null;
+         }
          if (_serverEndpoints.getCurrentEndpointIndex() == originalConnectionIndex) {
             // We have tried all URLs
             return null;

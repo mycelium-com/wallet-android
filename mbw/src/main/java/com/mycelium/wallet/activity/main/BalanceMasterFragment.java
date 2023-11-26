@@ -35,13 +35,19 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
@@ -49,12 +55,15 @@ import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.address.AddressFragment;
+import com.mycelium.wallet.activity.modern.UnspentOutputsActivity;
 import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
+import com.mycelium.wapi.wallet.fio.FioAccount;
 import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {
@@ -84,6 +93,37 @@ public class BalanceMasterFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.record_options_menu_outputs, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MbwManager mbwManager = MbwManager.getInstance(requireActivity());
+        WalletAccount account = mbwManager.getSelectedAccount();
+        menu.findItem(R.id.miShowOutputs).setVisible(account.isActive() && !(account instanceof AbstractEthERC20Account) && !(account instanceof FioAccount));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.miShowOutputs) {
+            showOutputs();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void showOutputs() {
+        WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
+        account.interruptSync();
+        startActivity(new Intent(getActivity(), UnspentOutputsActivity.class)
+                .putExtra("account", account.getId()));
     }
 
     @Override
@@ -120,6 +160,7 @@ public class BalanceMasterFragment extends Fragment {
     @Subscribe
     public void selectedAccountChanged(SelectedAccountChanged event) {
         updateAddressView();
+        requireActivity().invalidateOptionsMenu();
     }
 
     private void updateAddressView() {

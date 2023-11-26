@@ -6,6 +6,8 @@
 
     <data>
 
+        <import type="com.mycelium.wallet.activity.send.model.SendCoinsModel.TransactionStatus" />
+
         <import type="com.mycelium.wapi.wallet.coins.Value" />
 
         <import type="android.view.View" />
@@ -50,7 +52,7 @@
             android:singleLine="true"
             android:text="@{viewModel.requestedAmountFormatted}"
             android:textAlignment="@{viewModel.requestedAmountFormatted.isEmpty() ? View.TEXT_ALIGNMENT_TEXT_START : View.TEXT_ALIGNMENT_TEXT_END}"
-            android:textColor="@color/white"
+            android:textColor="@{viewModel.getTransactionStatus == TransactionStatus.INSUFFICIENT_FUNDS ? @color/fio_red : @color/white}"
             android:textColorHint="@color/darkgrey"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@id/tvAmountFiat"
@@ -61,8 +63,27 @@
             tools:text="0.05 tBTC" />
 
         <TextView
+            android:id="@+id/tvAmountFiatWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_mono_regular"
+            android:singleLine="true"
+            android:text="@string/course_outdated"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/fio_yellow"
+            android:visibility="@{viewModel.getCourseOutdated ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvAmountFiat"
+            app:layout_constraintEnd_toStartOf="@id/tvAmountFiat"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintHorizontal_bias="1.0"
+            tools:visibility="visible"/>
+
+        <TextView
             android:id="@+id/tvAmountFiat"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_mono_regular"
             android:singleLine="true"
@@ -73,7 +94,7 @@
             android:visibility="@{viewModel.requestedAmountAlternativeFormatted.isEmpty() ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="@id/btEnterAmount"
             app:layout_constraintEnd_toEndOf="@id/tvAmount"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvAmountFiatWarning"
             tools:text="55.02 USD" />
 
         <View

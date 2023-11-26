@@ -51,6 +51,8 @@ open class SendBtcViewModel(application: Application) : SendCoinsViewModel(appli
         }
     }
 
+    fun feeHintShow() = (model as SendBtcModel).feeHintShow
+
     fun getReceivingAddresses() = (model as SendBtcModel).receivingAddressesList
 
     fun getFeeDescription() = (model as SendBtcModel).feeDescription
@@ -130,6 +132,7 @@ fun updateReceiversView(view: SelectableRecyclerView, receivingAddressesList: Mu
         addressLabels[AddressType.P2PKH] = arrayOf("Legacy", "P2PKH")
         addressLabels[AddressType.P2WPKH] = arrayOf("SegWit native", "Bech32")
         addressLabels[AddressType.P2SH_P2WPKH] = arrayOf("SegWit compat.", "P2SH")
+        addressLabels[AddressType.P2TR] = arrayOf("Taproot", "Bech32m")
 
         val addressesList = ArrayList<AddressItem>()
         for (address in receivingAddressesList.value!!) {

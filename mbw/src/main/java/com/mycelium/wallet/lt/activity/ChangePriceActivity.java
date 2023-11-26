@@ -52,6 +52,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.lt.api.model.BtcSellPrice;
 import com.mycelium.lt.api.model.PriceFormula;
@@ -71,7 +73,7 @@ import com.mycelium.wallet.lt.LtAndroidUtils.PriceFormulaChoice;
 import com.mycelium.wallet.lt.api.AssessBtcSellPrice;
 import com.mycelium.wallet.lt.api.GetPriceFormulas;
 
-public class ChangePriceActivity extends Activity {
+public class ChangePriceActivity extends AppCompatActivity {
 
    public static final String RESULT_STRING = "result";
 

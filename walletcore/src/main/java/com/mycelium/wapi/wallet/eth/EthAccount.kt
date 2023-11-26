@@ -17,7 +17,6 @@ import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.crypto.*
-
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
@@ -37,37 +36,27 @@ class EthAccount(private val chainId: Byte,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, blockchainService, EthAccount::class.simpleName, address), SyncPausable {
 
-    var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
-            ?: mutableListOf()
+    val enabledTokens: List<String>
+        get() = accountContext.enabledTokens ?: listOf()
 
     val accountIndex: Int
         get() = accountContext.accountIndex
 
-    fun removeEnabledToken(tokenName: String) {
-        enabledTokens.remove(tokenName)
-        accountContext.enabledTokens = enabledTokens
+    fun updateEnabledTokens() {
+        accountContext.updateEnabledTokens()
     }
-
-    fun addEnabledToken(tokenName: String) {
-        enabledTokens.add(tokenName)
-        accountContext.enabledTokens = enabledTokens
-    }
-
-    fun isEnabledToken(tokenName: String) = enabledTokens.contains(tokenName)
-
     fun hasHadActivity(): Boolean =
             accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 
     @Throws(InsufficientFundsException::class, BuildTransactionException::class)
-    override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
-        val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
+    override fun createTx(toAddress: Address, value: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = data as? EthTransactionData
         val nonce = ethTxData?.nonce ?: accountContext.nonce
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
-        val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
+        val gasPrice = ethTxData?.suggestedGasPrice?.let { Value.valueOf(coinType, it) } ?: (fee as FeePerKbFee).feePerKb
 
-        if (gasPriceValue.value <= BigInteger.ZERO) {
+        if (gasPrice.value <= BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
         if (value.value < BigInteger.ZERO) {
@@ -76,11 +65,11 @@ class EthAccount(private val chainId: Byte,
         if (gasLimit < Transfer.GAS_LIMIT) {
             throw BuildTransactionException(Throwable("Gas limit must be at least ${Transfer.GAS_LIMIT}"))
         }
-        if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
+        if (value > calculateMaxSpendableAmount(gasPrice, null, ethTxData)) {
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
-                    " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
+                    " ether with gas price " + Convert.fromWei(gasPrice.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
-        return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
+        return EthTransaction(coinType, toAddress.toString(), value, gasPrice.value, nonce, gasLimit, inputData)
     }
 
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
@@ -111,7 +100,7 @@ class EthAccount(private val chainId: Byte,
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.ethValue,
-                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, gasLimit = tx.gasLimit)
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce, tx.gasPrice, gasLimit = tx.gasLimit)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
@@ -141,9 +130,23 @@ class EthAccount(private val chainId: Byte,
     }
 
     override fun updateBalanceCache(): Boolean {
-        val pendingReceiving = getPendingReceiving()
-        val pendingSending = getPendingSending()
-        val newBalance = Balance(valueOf(coinType, getConfirmed() - pendingSending),
+        val balResponse: BalanceResponse?
+        try {
+            balResponse = blockchainService.getBalance(receivingAddress.addressString)
+        } catch (e: Exception) {
+            logger.log(Level.WARNING, "Couldn't update eth balance:  ${e.javaClass} ${e.localizedMessage}. Using cached value.")
+            return false
+        }
+
+        var pendingReceiving = BigInteger.ZERO
+        var pendingSending = BigInteger.ZERO
+        if (balResponse.unconfirmed <= BigInteger.ZERO) {
+            pendingSending = balResponse.unconfirmed.negate()
+        } else {
+            pendingReceiving = balResponse.unconfirmed
+        }
+
+        val newBalance = Balance(valueOf(coinType, balResponse.confirmed - pendingSending),
                 valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
         if (newBalance != accountContext.balance) {
             accountContext.balance = newBalance
@@ -154,35 +157,6 @@ class EthAccount(private val chainId: Byte,
     }
 
     override fun canSign() = credentials != null
-
-    private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
-            .filter { it.confirmations > 0 }
-            .map { it.transferred.value }
-            .fold(BigInteger.ZERO, BigInteger::add)
-
-    private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
-            !it.sender.addressString.equals(receiveAddress.addressString, true)
-                    && it.receiver.addressString.equals(receiveAddress.addressString, true)
-        }
-                .map { it.value.value }
-                .fold(BigInteger.ZERO, BigInteger::add)
-    }
-
-    private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
-            it.sender.addressString.equals(receiveAddress.addressString, true)
-                    && !it.receiver.addressString.equals(receiveAddress.addressString, true)
-        }
-                .map { tx -> tx.value.value + tx.fee!!.value }
-                .fold(BigInteger.ZERO, BigInteger::add) +
-                backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
-                    it.sender.addressString.equals(receiveAddress.addressString, true)
-                            && it.receiver.addressString.equals(receiveAddress.addressString, true)
-                }
-                        .map { tx -> tx.fee!!.value }
-                        .fold(BigInteger.ZERO, BigInteger::add)
-    }
 
     private suspend fun syncTransactions(): Boolean {
         try {
@@ -232,8 +206,11 @@ class EthAccount(private val chainId: Byte,
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?): Value {
-        val spendable = accountBalance.spendable - gasPrice * typicalEstimatedTransactionSize.toLong()
+    override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?, txData: TransactionData?): Value {
+        val gp =
+            (txData as? EthTransactionData)?.suggestedGasPrice?.let { Value.valueOf(coinType, it) } ?: gasPrice
+        val gl = (txData as? EthTransactionData)?.gasLimit ?: typicalEstimatedTransactionSize.toBigInteger()
+        val spendable = accountBalance.spendable - gp * gl
         return max(spendable, Value.zeroValue(coinType))
     }
 

@@ -16,6 +16,8 @@
 
 package com.mrd.bitlib;
 
+import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -25,13 +27,35 @@ import com.google.common.collect.Ordering;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
-import com.mrd.bitlib.model.*;
-import kotlin.NotImplementedError;
+import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.BitcoinAddress;
+import com.mrd.bitlib.model.BitcoinTransaction;
+import com.mrd.bitlib.model.InputWitness;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutputList;
+import com.mrd.bitlib.model.ScriptInput;
+import com.mrd.bitlib.model.ScriptInputP2WPKH;
+import com.mrd.bitlib.model.ScriptInputP2WSH;
+import com.mrd.bitlib.model.ScriptInputStandard;
+import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputP2PKH;
+import com.mrd.bitlib.model.ScriptOutputP2SH;
+import com.mrd.bitlib.model.ScriptOutputP2TR;
+import com.mrd.bitlib.model.ScriptOutputP2WPKH;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 import javax.annotation.Nonnull;
-import java.util.*;
 
-import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
+import kotlin.NotImplementedError;
 
 public class StandardTransactionBuilder {
    // hash size 32 + output index size 4 + script length 1 + max. script size for compressed keys 107 + sequence number 4
@@ -127,6 +151,9 @@ public class StandardTransactionBuilder {
          case P2WPKH:
             script = new ScriptOutputP2WPKH(sendTo.getTypeSpecificBytes());
             break;
+         case P2TR:
+            script = new ScriptOutputP2TR(sendTo.getTypeSpecificBytes());
+            break;
          default:
             throw new NotImplementedError();
       }
@@ -142,8 +169,13 @@ public class StandardTransactionBuilder {
             // keys for
             throw new RuntimeException("Private key not found");
          }
-         byte[] signature = signer.makeStandardBitcoinSignature(request.getToSign());
-         signatures.add(signature);
+         if (request.getSignAlgo() == SignAlgorithm.Standard) {
+            byte[] signature = signer.makeStandardBitcoinSignature(request.getToSign());
+            signatures.add(signature);
+         } else if (request.getSignAlgo() == SignAlgorithm.Schnorr) {
+            byte[] signature = signer.makeSchnorrBitcoinSignature(request.getToSign());
+            signatures.add(signature);
+         }
       }
       return signatures;
    }
@@ -395,7 +427,7 @@ public class StandardTransactionBuilder {
                     .setArrayOfOutputs(_outputs)
                     .setMinerFeePerKb(feeSatPerKb);
             if (needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)) {
-               estimatorBuilder.addOutput(BitcoinAddress.getNullAddress(_network, changeType).getType());
+               estimatorBuilder.addOutput(changeType);
             }
             feeSat = estimatorBuilder.createFeeEstimator().estimateFee();
          }
@@ -422,7 +454,7 @@ public class StandardTransactionBuilder {
          UnspentTransactionOutput oldest = null;
          for (UnspentTransactionOutput output : unspent) {
             if (!(output.script instanceof ScriptOutputP2PKH) && !(output.script instanceof ScriptOutputP2SH)
-                    && !(output.script instanceof ScriptOutputP2WPKH)) {
+                    && !(output.script instanceof ScriptOutputP2WPKH) && !(output.script instanceof ScriptOutputP2TR)) {
                // only look for certain scripts
                continue;
             }

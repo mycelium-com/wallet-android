@@ -40,7 +40,8 @@ import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.event.AmountListener
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.*
-import com.mycelium.wallet.activity.util.AnimationUtils
+import com.mycelium.wallet.activity.util.collapse
+import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
 import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
@@ -63,14 +64,16 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.FioModule
 import kotlinx.android.synthetic.main.fio_memo_input.*
-import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_activity.root
 import kotlinx.android.synthetic.main.send_coins_activity_eth.*
 import kotlinx.android.synthetic.main.send_coins_advanced_block.*
 import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
+import kotlinx.android.synthetic.main.send_coins_fee_description.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import kotlinx.android.synthetic.main.send_coins_fee_title.*
+import kotlinx.android.synthetic.main.send_coins_fee_title_eth.*
 import kotlinx.android.synthetic.main.send_coins_sender_fio.*
+import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -155,11 +158,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
             if(b) {
                 root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
             }
-        }
-        if (viewModel.isMinerFeeInfoAvailable()) {
-            tvFeeLabel.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
-            ivInfoIcon.setOnClickListener { viewModel.minerFeeInfoClickListener(this) }
-            ivInfoIcon.visibility = View.VISIBLE
         }
     }
 
@@ -257,7 +255,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
                                 }
                                 etGasLimit.setOnEditorActionListener { textView, actionId, keyEvent ->
-                                    if(actionId == EditorInfo.IME_ACTION_DONE) {
+                                    if (actionId == EditorInfo.IME_ACTION_DONE) {
                                         textView.clearFocus()
                                     }
                                     false
@@ -269,8 +267,54 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 }
-                                if (account is ERC20Account) {
-                                    getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
+                                gasPrice.doOnTextChanged { _, _, _, _ ->
+                                    getGasPrice().value = null
+                                    getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.TYPING
+                                }
+                                gasPrice.setOnEditorActionListener { textView, actionId, keyEvent ->
+                                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                        textView.clearFocus()
+                                    }
+                                    false
+                                }
+                                gasPrice.setOnFocusChangeListener { _, hasFocus ->
+                                    if (!hasFocus) {
+                                        val gasPrice = gasPrice.text.toString()
+                                        getGasPrice().value = if (gasPrice.isEmpty()) null else Convert.toWei(gasPrice, Convert.Unit.GWEI).toBigInteger()
+                                        if (getGasLimit().value == null) {
+                                            val limit = getDefaultGasLimit()
+                                            etGasLimit.setText(limit.toString())
+                                            getGasLimit().value = limit
+                                        }
+                                        getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
+                                    }
+                                }
+                                getGasPrice().observe(this@SendCoinsActivity, Observer { gp ->
+                                    if (gp == null) {
+                                        tvSatFeeValue.visibility = View.GONE
+                                        feeLvlList.visibility = View.VISIBLE
+                                        feeValueList.visibility = View.VISIBLE
+                                        tvFeeUpdatesTimer.visibility = View.VISIBLE
+                                    } else {
+                                        val gasLimit =
+                                            if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
+                                                getGasLimit().value ?: getDefaultGasLimit()
+                                            } else {
+                                                getDefaultGasLimit()
+                                            }
+
+                                        val totalFee = Value.valueOf(account.basedOnCoinType, gasLimit * gp)
+                                        tvSatFeeValue.text =
+                                            "${totalFee.toStringFriendlyWithUnit(getDenomination())} ${convert(totalFee)}"
+
+                                        tvSatFeeValue.visibility = View.VISIBLE
+                                        feeLvlList.visibility = View.GONE
+                                        feeValueList.visibility = View.GONE
+                                        tvFeeUpdatesTimer.visibility = View.GONE
+                                    }
+                                })
+                                getGasLimit().observe(this@SendCoinsActivity, Observer { gl ->
+                                    if (account is ERC20Account) {
                                         var gasLimit = gl
                                         if (gl == null || getGasLimitStatus().value == SendEthModel.GasLimitStatus.ERROR) {
                                             tvThisIsUpdatedFee.visibility = View.GONE
@@ -282,29 +326,40 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                             tvHighestPossibleFeeInfo.visibility = View.GONE
                                             llNotEnoughEth.visibility = View.GONE
                                         }
-
                                         val selectedFee = getSelectedFee().value!!
                                         getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit!! * selectedFee.value)
-                                    })
+                                    }
+                                    getGasPrice().value?.let { gp ->
+                                        val gasLimit =
+                                            if (getGasLimitStatus().value != SendEthModel.GasLimitStatus.ERROR) {
+                                                gl ?: getDefaultGasLimit()
+                                            } else {
+                                                getDefaultGasLimit()
+                                            }
+                                        val totalFee = Value.valueOf(account.basedOnCoinType, gasLimit * gp)
+                                        tvSatFeeValue.text =
+                                            "${totalFee.toStringFriendlyWithUnit(getDenomination())} ${convert(totalFee)}"
+                                    }
+                                })
+                                if (account is ERC20Account) {
                                     getSelectedFee().observe(this@SendCoinsActivity, Observer { selectedFee ->
                                         getEstimatedFee().value = Value.valueOf(selectedFee.type, BigInteger.valueOf(AVG_TOKEN_TRANSFER_GAS) * selectedFee.value)
 
                                         val gasLimit = getGasLimit().value ?: BigInteger.valueOf(ERC20Account.TOKEN_TRANSFER_GAS_LIMIT)
                                         getTotalFee().value = Value.valueOf(selectedFee.type, gasLimit * selectedFee.value)
                                     })
-
                                     getEstimatedFee().observe(this@SendCoinsActivity, Observer { estimatedFee ->
                                         tvHighestPossibleFeeInfo.text =
                                             Html.fromHtml(getString(R.string.erc20_highest_possible_fee_info, getParentAccount()!!.label,
                                                                     estimatedFee.toStringFriendlyWithUnit(getDenomination()), convert(estimatedFee)))
                                     })
-
                                     getTotalFee().observe(this@SendCoinsActivity, Observer { totalFee ->
-                                        val isNotEnoughEth = getParentAccount()!!.accountBalance.spendable.lessThan(totalFee)
-                                        if (isNotEnoughEth) {
+                                        val parentAccountBalance = getParentAccount()!!.accountBalance.spendable
+                                        if (parentAccountBalance.lessThan(totalFee)) {
+                                            val diff = totalFee - parentAccountBalance
                                             tvPleaseTopUp.text =
                                                 Html.fromHtml(getString(R.string.please_top_up_your_eth_account,
-                                                                        getParentAccount()!!.label, totalFee.toStringFriendlyWithUnit(getDenomination()), convert(totalFee)))
+                                                                        getParentAccount()!!.label, diff.toStringFriendlyWithUnit(getDenomination()), convert(diff)))
                                             tvThisIsUpdatedFee.visibility = View.GONE
                                             tvHighestPossibleFeeInfo.visibility = View.GONE
                                             llNotEnoughEth.visibility = View.VISIBLE
@@ -327,6 +382,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                                     if (!isExpanded) {
                                         etGasLimit.setText("")
                                         getGasLimit().value = null
+                                        gasPrice.setText("")
+                                        getGasPrice().value = null
+                                        spinner.setSelection(0)
                                         getTransactionDataStatus().value = SendCoinsModel.TransactionDataStatus.READY
                                     }
                                 })
@@ -451,8 +509,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     }
 
     fun onClickAddressBook() {
-        val intent = Intent(this, GetFromAddressBookActivity::class.java)
-        startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE)
+        startActivityForResult(Intent(this, GetFromAddressBookActivity::class.java)
+                .putExtra(ACCOUNT, viewModel.getAccount().id)
+                .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage()),
+                ADDRESS_BOOK_RESULT_CODE)
     }
 
     fun onClickManualEntry() {
@@ -664,36 +724,20 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
 
 @BindingAdapter("errorAnimatedText")
 fun setVisibilityAnimated(target: TextView, error: CharSequence) {
-    val newVisibility = if (error.isNotEmpty()) View.VISIBLE else View.GONE
-    if (target.visibility == newVisibility) {
-        target.text = error
-        return
-    }
     if (error.isNotEmpty()) {
         target.text = error
-        target.visibility = newVisibility
-        AnimationUtils.expand(target, null)
+        target.expand()
     } else {
-        AnimationUtils.collapse(target) {
-            target.visibility = newVisibility
-            target.text = error
-        }
+        target.collapse()
     }
 }
 
 @BindingAdapter(value = ["animatedVisibility", "activity"], requireAll = false)
 fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsActivity?) {
-    val newVisibility = if (visible) View.VISIBLE else View.GONE
-    if (target.visibility == newVisibility) {
-        return
-    }
     if (visible) {
-        target.visibility = newVisibility
-        AnimationUtils.expand(target) { activity?.root?.smoothScrollTo(0, activity.root.measuredHeight) }
+        target.expand { activity?.root?.smoothScrollTo(0, activity.root.measuredHeight) }
     } else {
-        AnimationUtils.collapse(target) {
-            target.visibility = newVisibility
-        }
+        target.collapse()
     }
 }
 

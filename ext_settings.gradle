@@ -2,10 +2,10 @@
 ext {
     guavaVersion = '23.0-android'
     gradleVersion = '4.1.1'
-    androidCompileSdkVersion = 30
-    androidSdkBuildVersion = '29.0.3'
+    androidCompileSdkVersion = 33
+    androidSdkBuildVersion = '30.0.3'
     androidMinSdkVersion = 19
-    androidTargetSdkVersion = 30
+    androidTargetSdkVersion = 33
     junitVersion = '4.12'
     kotlin_version = '1.3.72'
     coroutines_version = "1.3.0-M2"
@@ -15,7 +15,7 @@ ext {
     okhttpVersion = '2.7.5'
     ottoVersion = '1.3.4'
     recyclerViewVersion = '1.2.1'
-    workManagerVersion = '2.2.0'
+    workManagerVersion = '2.7.1'
     appCompatVersion = '1.1.0'
     xLegacyVersion = '1.0.0'
     materialVersion = '1.1.0-alpha10'

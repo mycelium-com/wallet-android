@@ -15,7 +15,7 @@ import com.mycelium.wapi.wallet.fio.coins.FIOMain
 import com.mycelium.wapi.wallet.fio.coins.FIOTest
 import java.util.*
 
-val COINS_SET = setOf<CryptoCurrency>(
+val COINS_SET = setOf(
         BitcoinMain, BitcoinTest,
         BchMain, BchTest,
         EthMain, EthTest,
@@ -26,9 +26,9 @@ val COINS_SET = setOf<CryptoCurrency>(
         BitcoinVaultMain, BitcoinVaultTest
 )
 
-val COINS = COINS_SET.map { it.id to it }.toMap()
+val COINS = COINS_SET.associateBy { it.id }
 
-val SYMBOL_COIN_MAP = COINS_SET.map { it.symbol.toUpperCase(Locale.US) to it }.toMap()
+val SYMBOL_COIN_MAP = COINS_SET.associateBy { it.symbol.toUpperCase(Locale.US) }
 
 fun String.toAssetInfo(): AssetInfo? =
         when {

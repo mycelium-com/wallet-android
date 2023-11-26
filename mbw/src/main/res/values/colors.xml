@@ -103,4 +103,7 @@
     <color name="giftbox_yellow">#EF9D44</color>
     <color name="giftbox_green">#2F9A41</color>
     <color name="giftbox_gray">#595959</color>
+    <color name="giftbox_state_text">#aaaaaa</color>
+    <color name="giftbox_state_title_ok">#5EBA89</color>
+    <color name="btn_bg_color">#202629</color>
 </resources>

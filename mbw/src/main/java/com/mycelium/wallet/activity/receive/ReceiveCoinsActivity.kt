@@ -76,9 +76,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         val binding = initDatabinding(account)
         initWithBindings(binding)
 
-        if (viewModel is ReceiveBtcViewModel &&
-                (account as? AddressContainer)?.availableAddressTypes?.size ?: 0 > 1) {
-            createAddressDropdown((account as AddressContainer).availableAddressTypes)
+        // TODO remove after full taproot implementation
+        var addressTypes = (account as? AddressContainer)?.availableAddressTypes
+        if (addressTypes != null) {
+            addressTypes = addressTypes - AddressType.P2TR
+        }
+        if (viewModel is ReceiveBtcViewModel && (addressTypes?.size ?: 0) > 1) {
+            createAddressDropdown(addressTypes!!)
         }
         fioNameSpinner.adapter = ArrayAdapter<String>(this,
                 R.layout.layout_receive_fio_names, R.id.text, viewModel.getFioNameList().value!!).apply {
@@ -208,7 +212,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     private fun activateNfc() {
         viewModel.checkNfcAvailable()
         val nfc = viewModel.getNfc()
-        if (nfc?.isNdefPushEnabled == true) {
+        if (nfc?.isEnabled == true) {
             nfc.setNdefPushMessageCallback(NfcAdapter.CreateNdefMessageCallback {
                 val uriRecord = NdefRecord.createUri(viewModel.getPaymentUri())
                 NdefMessage(arrayOf(uriRecord))

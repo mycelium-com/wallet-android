@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="vm"
+            type="com.mycelium.wallet.external.changelly2.viewmodel.ExchangeResultViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/MyceliumFIOMapping.ActionBar"
+                app:layout_constraintTop_toTopOf="parent"
+                app:navigationIcon="@drawable/ic_back_arrow"
+                app:title="@string/exchange_history" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/startGuidline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/endGuidline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
+            <TextView
+                android:id="@+id/sendLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/sent"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+            <TextView
+                android:id="@+id/sendAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@{vm.spendValue}"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/sendLabel"
+                tools:text="0.00001232 BTC" />
+
+<!--            <TextView-->
+<!--                android:id="@+id/sendAmountFiat"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:text="@{vm.spendValueFiat}"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="14sp"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@id/sendAmount"-->
+<!--                app:layout_constraintEnd_toEndOf="@id/endGuidline"-->
+<!--                app:layout_constraintStart_toEndOf="@id/sendAmount"-->
+<!--                tools:text="~ 55 USD" />-->
+
+            <TextView
+                android:id="@+id/getLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@{vm.isExchangeComplete ? @string/changelly_received : @string/changelly_receiving}"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/sendAmount" />
+
+            <TextView
+                android:id="@+id/getAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@{vm.getValue}"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/getLabel"
+                tools:text="0.00001232 BTC" />
+
+<!--            <TextView-->
+<!--                android:id="@+id/getAmountFiat"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:text="@{vm.getValueFiat}"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="14sp"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@id/getAmount"-->
+<!--                app:layout_constraintEnd_toEndOf="@id/endGuidline"-->
+<!--                app:layout_constraintStart_toEndOf="@id/getAmount"-->
+<!--                tools:text="~ 55 USD" />-->
+
+            <TextView
+                android:id="@+id/exchangeIdLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Exchange ID:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/getAmount" />
+
+            <TextView
+                android:id="@+id/exchangeId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{vm.txId}"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/exchangeIdLabel"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toEndOf="@id/exchangeIdLabel"
+                tools:text="0828tankjvz0esmc" />
+
+            <TextView
+                android:id="@+id/dateLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Date:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/exchangeIdLabel" />
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{vm.date}"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/dateLabel"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toEndOf="@id/dateLabel"
+                tools:text="September 23, 2020 at 6:23pm" />
+
+            <TextView
+                android:id="@+id/fromLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="From:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                android:visibility="@{vm.fromAddress.isEmpty() ? View.GONE : View.VISIBLE }"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/dateLabel" />
+
+            <TextView
+                android:id="@+id/fromAddress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{vm.fromAddress}"
+                android:textSize="14sp"
+                android:visibility="@{vm.fromAddress.isEmpty() ? View.GONE : View.VISIBLE }"
+                app:layout_constraintBaseline_toBaselineOf="@id/fromLabel"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toEndOf="@id/fromLabel"
+                tools:text="bc1q7...huhsa (Account 1)" />
+
+            <TextView
+                android:id="@+id/toLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="To:"
+                android:textColor="@color/fio_white_alpha_0_8"
+                android:textSize="14sp"
+                android:visibility="@{vm.toAddress.isEmpty() ? View.GONE : View.VISIBLE }"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/fromLabel" />
+
+            <TextView
+                android:id="@+id/toAddress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{vm.toAddress}"
+                android:textSize="14sp"
+                android:visibility="@{vm.toAddress.isEmpty() ? View.GONE : View.VISIBLE }"
+                app:layout_constraintBaseline_toBaselineOf="@id/toLabel"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toEndOf="@id/toLabel"
+                tools:text="bc1q7...huhsa (Account 1)" />
+
+            <TextView
+                android:id="@+id/trackLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@{vm.trackLinkText}"
+                android:textSize="14sp"
+                android:textColor="@color/exchange_link_text_color"
+                android:enabled="@{!vm.trackLink.isEmpty()}"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/toLabel"
+                tools:text="@string/link_to_track_transaction"/>
+
+            <ImageView
+                android:id="@+id/trackLinkWait"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_progress"
+                android:visibility="@{vm.trackInProgress ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@id/trackLink"
+                app:layout_constraintStart_toEndOf="@id/trackLink"
+                app:layout_constraintTop_toTopOf="@id/trackLink" />
+
+
+            <TextView
+                android:id="@+id/more"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="@{vm.moreText}"
+                android:textColor="@color/fio_prm_btn_line"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/trackLink"
+                tools:text="Show transaction details" />
+
+            <LinearLayout
+                android:id="@+id/txDetailsLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="@{vm.more ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/more">
+
+                <include
+                    android:id="@+id/txDetails"
+                    layout="@layout/details_common" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/buttonOk"
+                style="@style/MyceliumButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
+                android:text="@string/ok"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                app:layout_constraintStart_toStartOf="@id/startGuidline"
+                app:layout_constraintTop_toBottomOf="@id/txDetailsLayout"
+                app:layout_constraintVertical_bias="1.0" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

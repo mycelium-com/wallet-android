@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.DialogInterface
@@ -14,11 +13,12 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RawRes
+import androidx.appcompat.app.AppCompatActivity
 import com.google.common.base.Joiner
-import com.mycelium.wallet.activity.modern.DarkThemeChangeLog
 import com.mycelium.wallet.activity.modern.Toaster
 import com.google.common.io.ByteSource
 import com.mycelium.wallet.*
+import com.mycelium.wallet.activity.changelog.ChangeLog
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.response.VersionInfoExResponse
 import com.mycelium.wapi.wallet.SyncMode
@@ -29,7 +29,7 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class AboutActivity : Activity() {
+class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.about_activity)
@@ -42,9 +42,7 @@ class AboutActivity : Activity() {
         setLicenseForButton(bt_license_zxing, R.raw.license_zxing)
         setLicenseForButton(bt_license_pdfwriter, R.raw.license_pdfwriter)
         setLicenseForButton(bt_special_thanks, R.raw.special_thanks)
-        bt_show_changelog.setOnClickListener {
-            DarkThemeChangeLog(this).fullLogDialog.show()
-        }
+        bt_show_changelog.setOnClickListener { ChangeLog.show(supportFragmentManager) }
         bt_check_update.setOnClickListener { v: View? ->
             val progress = ProgressDialog.show(this, getString(R.string.update_check),
                     getString(R.string.please_wait), true)
@@ -55,21 +53,6 @@ class AboutActivity : Activity() {
                     mbwManager.reportIgnoredException(RuntimeException("WapiException: " + exception.errorCode))
                 } else {
                     showVersionInfo(versionManager, response)
-                }
-            }
-        }
-        bt_show_server_info.setOnClickListener { ConnectionLogsActivity.callMe(this) }
-        if (BuildConfig.BUILD_TYPE === "debug") {
-            bt_fio_server_error_logs.visibility = View.VISIBLE
-            bt_fio_server_error_logs.setOnClickListener {
-                val fioModule = mbwManager.getWalletManager(false).getModuleById(FioModule.ID) as FioModule?
-                val logs: List<String?> = fioModule!!.getFioServerLogsListAndClear()
-                if (logs.isEmpty()) {
-                    Toast.makeText(this, getString(R.string.no_logs), Toast.LENGTH_SHORT).show()
-                } else {
-                    val joined = TextUtils.join("\n", logs)
-                    Utils.setClipboardString(joined, this)
-                    Toast.makeText(this, getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -89,48 +72,6 @@ class AboutActivity : Activity() {
                 })
             }
         }
-
-        bt_boost_look_ahead.setOnClickListener {
-            AlertDialog.Builder(this)
-                    .setMessage(Html.fromHtml("""The most common cases of missing coins are easily
-                        |resolved. Please read carefully before contacting support:<br>
-                        |<br>
-                        |<h4>No server connection</h4>
-                        |When the wallet can't talk to the servers, it can't correctly display your
-                        |balance and might even display 0BTC if you tried to reload the account.
-                        |<b>Don't panic.</b> Check your internet connection or if our servers have
-                        |issues, our engineers are probably already hard at work fixing the issue.
-                        |In any case, as long as you don't see a transaction where your funds left
-                        |your wallet, your funds should still be in your wallet, protected by your
-                        |12 words backup that in the worst case works with most other Bitcoin
-                        |wallets. Do not try deleting and reinstalling the app unless you are 100%
-                        |sure you have all the backups.
-                        |<h4>Restored wallet with "12 words + passphrase" using the PIN as
-                        |  passphrase</h4>
-                        |Adding
-                        |the wrong passphrase doesn't result in an error but in restoring
-                        |of a different, empty wallet. <b>Try restoring your wallet with only "12
-                        |words".</b>
-                        |<h4>Coins are in "Account 2"</h4>
-                        |If you restored from a backup of a wallet that had more than just "Account
-                        |1", you have to manually recreate missing accounts to re-discover them. To
-                        |do so, just <b>go to the
-                        |"Accounts" tab and create a "new" account</b>.
-                        |<h4> Coins are beyond the standard "look-ahead" or "gap limit":</h4>
-                        |If
-                        |you used third party tools to receive coins into your wallet such as
-                        |BTC-Pay Server, the wallet checking only 20 future addresses beyond
-                        |your last unused address might not find those transactions. <b>Press
-                        |"Boost Gap Limit"</b> below to check if this is the case. This will check
-                        |for 200 addresses on all active accounts once.
-                    """.trimMargin()))
-                    .setPositiveButton("Boost Gap Limit") { _, _ ->
-                        mbwManager.getWalletManager(false).startSynchronization(SyncMode.BOOSTED)
-                    }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
-        }
-
         // show direct apk link for the - very unlikely - case that google blocks our playstore entry
         ivDirectApkQR.apply {
             qrCode = Constants.DIRECT_APK_URL

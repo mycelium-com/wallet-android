@@ -15,11 +15,14 @@
  */
 package com.mrd.bitlib.crypto;
 
-import com.mrd.bitlib.bitcoinj.Base58;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Optional;
+import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
+import com.mrd.bitlib.crypto.schnorr.SchnorrSign;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
@@ -30,8 +33,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * A Bitcoin private key that is kept in memory.
@@ -397,5 +398,12 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       System.arraycopy(checkSum, 0, toEncode, 1 + 32 + 1, 4);
       // Encode
       return Base58.encode(toEncode);
+   }
+
+   @Override
+   public byte[] makeSchnorrBitcoinSignature(Sha256Hash transactionSigningHash) {
+      return new SchnorrSign(this.getPrivateKeyBytes())
+              .sign(transactionSigningHash.getBytes())
+              .getSignatureBytes();
    }
 }

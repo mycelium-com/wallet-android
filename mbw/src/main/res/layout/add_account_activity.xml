@@ -189,35 +189,6 @@
             android:text="@string/activate_trading_custodial_account" />
 
         <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/page_margin_width"
-            android:layout_marginTop="33dp"
-            android:layout_marginEnd="@dimen/page_margin_width"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="start"
-            android:text="@string/colu_account_notes" />
-
-        <Button
-            style="@style/MyceliumButton"
-            android:id="@+id/btColuCreate"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/page_margin_width"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="@dimen/page_margin_width"
-            app:drawableStartCompat="@drawable/ic_add_24px"
-            android:drawablePadding="5dp"
-            android:fontFamily="sans-serif"
-            android:gravity="start|center_vertical"
-            android:paddingStart="11dp"
-            android:paddingEnd="14dp"
-            android:textColor="@color/button_text_color"
-            android:textSize="14sp"
-            android:text="@string/colu_add_cc_account" />
-
-        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/page_margin_width"

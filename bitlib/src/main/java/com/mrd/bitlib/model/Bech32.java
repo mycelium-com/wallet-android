@@ -46,17 +46,24 @@ public class Bech32 {
             1, 0, 3, 16, 11, 28, 12, 14, 6, 4, 2, -1, -1, -1, -1, -1
     };
 
+    private static final int BECH32_CONST = 1;
+    private static final int BECH32M_CONST = 0x2bc830a3;
+
     public static class Bech32Exception extends Exception {
         Bech32Exception(final String s) {
             super(s);
         }
     }
 
+    public enum Encoding { BECH32, BECH32M }
+
     public static class Bech32Data {
+        final Encoding encoding;
         final String hrp;
         final byte[] values;
 
-        private Bech32Data(final String hrp, final byte[] values) {
+        private Bech32Data(final Encoding encoding, final String hrp, final byte[] values) {
+            this.encoding = encoding;
             this.hrp = hrp;
             this.values = values;
         }
@@ -97,23 +104,29 @@ public class Bech32 {
     /**
      * Verify a checksum.
      */
-    private static boolean verifyChecksum(final String hrp, final byte[] values) {
+    private static Encoding verifyChecksum(final String hrp, final byte[] values) {
         byte[] hrpExpanded = expandHrp(hrp);
         byte[] combined = new byte[hrpExpanded.length + values.length];
         System.arraycopy(hrpExpanded, 0, combined, 0, hrpExpanded.length);
         System.arraycopy(values, 0, combined, hrpExpanded.length, values.length);
-        return polymod(combined) == 1;
+        int check =  polymod(combined);
+        if (check == BECH32_CONST)
+            return Encoding.BECH32;
+        else if (check == BECH32M_CONST)
+            return Encoding.BECH32M;
+        else
+            return null;
     }
 
     /**
      * Create a checksum.
      */
-    private static byte[] createChecksum(final String hrp, final byte[] values) {
+    private static byte[] createChecksum(final Encoding encoding, final String hrp, final byte[] values) {
         byte[] hrpExpanded = expandHrp(hrp);
         byte[] enc = new byte[hrpExpanded.length + values.length + 6];
         System.arraycopy(hrpExpanded, 0, enc, 0, hrpExpanded.length);
         System.arraycopy(values, 0, enc, hrpExpanded.length, values.length);
-        int mod = polymod(enc) ^ 1;
+        int mod = polymod(enc) ^ (encoding == Encoding.BECH32 ? BECH32_CONST : BECH32M_CONST);
         byte[] ret = new byte[6];
         for (int i = 0; i < 6; ++i) {
             ret[i] = (byte) ((mod >>> (5 * (5 - i))) & 31);
@@ -125,17 +138,17 @@ public class Bech32 {
      * Encode a Bech32 string.
      */
     public static String encode(final Bech32Data bech32) throws Bech32Exception {
-        return encode(bech32.hrp, bech32.values);
+        return encode(bech32.encoding, bech32.hrp, bech32.values);
     }
 
     /**
      * Encode a Bech32 string.
      */
-    public static String encode(String hrp, final byte[] values) throws Bech32Exception {
+    public static String encode(Encoding encoding, String hrp, final byte[] values) throws Bech32Exception {
         if (hrp.length() < 1) throw new Bech32Exception("Human-readable part is too short");
         if (hrp.length() > 83) throw new Bech32Exception("Human-readable part is too long");
         hrp = hrp.toLowerCase(Locale.ROOT);
-        byte[] checksum = createChecksum(hrp, values);
+        byte[] checksum = createChecksum(encoding, hrp, values);
         byte[] combined = new byte[values.length + checksum.length];
         System.arraycopy(values, 0, combined, 0, values.length);
         System.arraycopy(checksum, 0, combined, values.length, checksum.length);
@@ -153,6 +166,7 @@ public class Bech32 {
      */
     public static Bech32Data decode(final String str) throws Bech32Exception {
         boolean lower = false, upper = false;
+        if(str == null) throw new Bech32Exception("Null address");
         if (str.length() < 8) throw new Bech32Exception("Input too short");
         if (str.length() > 90) throw new Bech32Exception("Input too long");
         for (int i = 0; i < str.length(); ++i) {
@@ -172,7 +186,8 @@ public class Bech32 {
             values[i] = CHARSET_REV[c];
         }
         String hrp = str.substring(0, pos).toLowerCase(Locale.ROOT);
-        if (!verifyChecksum(hrp, values)) throw new Bech32Exception("Invalid checksum");
-        return new Bech32Data(hrp, Arrays.copyOfRange(values, 0, values.length - 6));
+        Encoding encoding = verifyChecksum(hrp, values);
+        if (encoding == null) throw new Bech32Exception("Invalid checksum");
+        return new Bech32Data(encoding, hrp, Arrays.copyOfRange(values, 0, values.length - 6));
     }
 }

@@ -16,6 +16,7 @@ public class HdKeyPath implements Serializable {
    public static final HdKeyPath BIP44 = ROOT.getHardenedChild(44);
    public static final HdKeyPath BIP49 = ROOT.getHardenedChild(49);
    public static final HdKeyPath BIP84 = ROOT.getHardenedChild(84);
+   public static final HdKeyPath BIP86 = ROOT.getHardenedChild(86);
    public static final HdKeyPath BIP32_ROOT = ROOT.getHardenedChild(0);
 
    private final HdKeyPath parent;

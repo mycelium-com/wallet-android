@@ -1,33 +1,74 @@
 name: CI
 on:
-  push:
-    branches:
-    - develop
-    - master
   pull_request:
-    branches:
-    - develop
-    - master
+    branches: ['**']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     if: >
       !contains(github.event.head_commit.message, '#skip-ci')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          #ssh-key: ${{ secrets.DEPLOYER_GITHUB_SSH_KEY }}
 
-      - name: Set up JDK environment
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu'
-          java-version: '8'
+    - uses: maxim-lobanov/setup-android-tools@v1
+      with:
+        packages: cmdline-tools;latest
 
-      - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug
+    - name: Install deps
+      run: sudo apt-get install -y unzip diffutils
 
-      - uses: actions/upload-artifact@v2
-        with:
-          path: |
-            mbw/build/outputs/apk/
+    - name: Set up JDK environment
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - run: ./gradlew clean test mbw::assembleProdnetDebug mbw::assembleBtctestnetDebug mbw::assembleBtctestnetRelease
+
+    - uses: actions/upload-artifact@v3
+      with:
+        path: mbw/build/outputs/apk/
+
+    - name: Check Target SDK
+      run: |
+        target_sdk=$(/usr/local/lib/android/sdk/cmdline-tools/latest/bin/apkanalyzer manifest target-sdk mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk)
+        echo "$target_sdk" | grep "^33$"
+
+    - run: mv mbw/build/outputs/apk /tmp/buildA
+
+    - name: Reproduce build
+      run: |
+        git reset --hard HEAD
+        git clean -dfx
+
+        cd fiosdk_kotlin
+        git reset --hard HEAD
+        git clean -dfx
+
+        cd ../wallet-android-modularization-tools
+        git reset --hard HEAD
+        git clean -dfx
+
+        cd ..
+        ./gradlew clean mbw::assembleBtctestnetRelease
+
+    - name: Unzip buildA
+      run: unzip -d buildA -qq /tmp/buildA/btctestnet/release/mbw-btctestnet-release.apk
+
+    - name: Unzip buildB
+      run: unzip -d buildB -qq mbw/build/outputs/apk/btctestnet/release/mbw-btctestnet-release.apk
+
+    - name: Compare builds
+      run: |
+        set -x;
+        diffResult=$( diff --brief --recursive buildA buildB ) && diffExactlyTheSame=true;
+        diffCount=$( echo "$diffResult" | grep -vcE "(META-INF|^$)" ) && diffSignificant=true;
+        if ((diffCount != 0)); then
+          exit 1;
+        fi

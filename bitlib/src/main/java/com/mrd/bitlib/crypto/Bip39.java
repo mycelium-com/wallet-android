@@ -102,6 +102,8 @@ public class Bip39 {
        * @return A master seed
        */
       public static Optional<MasterSeed> fromBytes(byte[] bytes, boolean compressed) {
+         if (bytes == null)
+            return Optional.absent();
          ByteReader reader = new ByteReader(bytes);
          try {
             // Get the type of word list used. So far only english is supported

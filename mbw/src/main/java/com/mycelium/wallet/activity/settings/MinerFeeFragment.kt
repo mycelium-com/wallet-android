@@ -18,7 +18,6 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.fio.FioAccount
 import com.mycelium.wapi.wallet.fio.getFioAccounts
 
 class MinerFeeFragment : PreferenceFragmentCompat() {
@@ -28,7 +27,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, arguments?.getString(ARG_PREFS_ROOT))
 
-        val mbwManager = MbwManager.getInstance(activity!!.application)
+        val mbwManager = MbwManager.getInstance(requireContext().applicationContext)
         displayPreferenceDialogHandler = DisplayPreferenceDialogHandler(preferenceScreen.context)
         setHasOptionsMenu(true)
         (activity as SettingsActivity).supportActionBar!!.apply {
@@ -49,16 +48,19 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
                     title = name
                     summary = getString(R.string.settings_summary_fio_fee, "", "")
                     layoutResource = R.layout.preference_layout_no_icon
-                    val account = mbwManager.getWalletManager(false).getFioAccounts().first() as FioAccount
+                    val account = mbwManager.getWalletManager(false).getFioAccounts().first()
                     SendFioModel.UpdateFeeTask(account) { feeInSUF ->
                         val coinType = account.coinType
-                        val feeValue = if (feeInSUF != null) {
-                            Value.valueOf(coinType, feeInSUF)
-                        } else {
-                            Value.valueOf(coinType, DEFAULT_FEE)
-                        }
-                        summary = getString(R.string.settings_summary_fio_fee, feeValue.toStringWithUnit(),
-                                "~${mbwManager.exchangeRateManager.get(feeValue, mbwManager.getFiatCurrency(coinType)).toStringWithUnit()}")
+                        val feeValue = Value.valueOf(coinType, feeInSUF ?: DEFAULT_FEE)
+                        val rate = mbwManager.exchangeRateManager
+                            .get(feeValue, mbwManager.getFiatCurrency(coinType))
+                            ?.let { "~${it.toStringWithUnit()}" }
+                            .orEmpty()
+                        summary = this@MinerFeeFragment.context?.getString(
+                            R.string.settings_summary_fio_fee,
+                            feeValue.toStringWithUnit(),
+                            rate
+                        )
                     }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
                 })
             } else {
@@ -86,7 +88,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            fragmentManager!!.popBackStack()
+            requireFragmentManager().popBackStack()
             return true
         }
         return super.onOptionsItemSelected(item)

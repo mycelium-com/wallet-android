@@ -44,9 +44,11 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 
@@ -69,7 +71,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ConnectionLogsActivity extends Activity {
+public class ConnectionLogsActivity extends AppCompatActivity {
 
     private final static long MAX_TO_SHOW = 100;
 
@@ -123,9 +125,9 @@ public class ConnectionLogsActivity extends Activity {
                 if (info.name.equals("androidx.core.content.FileProvider")) {
                     String authority = info.authority;
                     Uri uri = FileProvider.getUriForFile(getApplicationContext(), authority, logsExport);
-                    Intent intent = ShareCompat.IntentBuilder.from(this)
+                    Intent intent = new ShareCompat.IntentBuilder(this)
                             .setStream(uri)  // uri from FileProvider
-                            .setType("text/plain")
+                            .setType("*/*")
                             .setSubject(getResources().getString(R.string.connection_logs))
                             .setText(getResources().getString(R.string.connection_logs))
                             .getIntent()

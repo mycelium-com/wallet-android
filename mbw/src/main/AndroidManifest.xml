@@ -28,10 +28,12 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
-
     <uses-feature android:name="android.hardware.fingerprint"
         android:required="false"/>
 
+    <queries>
+        <package android:name="org.torproject.android" />
+    </queries>
 
     <application
         android:name=".WalletApplication"
@@ -54,7 +56,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/my_paths" />
         </provider> <!-- Service for Cloud Messaging -->
-        <service android:name=".lt.notification.FcmListenerService">
+        <service android:name=".lt.notification.FcmListenerService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -66,6 +69,7 @@
         <activity
             android:name=".activity.StartupActivity"
             android:label="@string/app_short_name"
+            android:exported="true"
             android:theme="@style/MyceliumLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -145,14 +149,30 @@
         </activity>
         <activity
             android:name=".activity.modern.ModernMain"
-            android:theme="@style/MyceliumActionBar" />
+            android:exported="true"
+            android:theme="@style/MyceliumActionBar">
+            <intent-filter android:label="Exchange">
+                <action android:name="action.CHANGELLY" />
+                <action android:name="action.changelly" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter android:label="Exchange">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="action.changelly"
+                    android:scheme="mycelium" />
+            </intent-filter>
+        </activity>
         <activity android:name=".activity.AboutActivity" />
         <activity android:name=".activity.modern.GetFromAddressBookActivity" />
         <activity
             android:name=".activity.AddAccountActivity"
             android:theme="@style/MyceliumFIO" />
         <activity android:name=".activity.AddAdvancedAccountActivity" />
-        <activity android:name=".activity.AddColuAccountActivity" />
         <activity android:name=".activity.ScanActivity" />
         <activity
             android:name=".activity.CustomCaptureActivity"
@@ -196,14 +216,17 @@
             android:name=".external.changelly.ChangellyActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".external.changelly.ChangellyOfferActivity" />
-        <activity android:name=".lt.activity.LtMainActivity" />
+        <activity
+            android:name=".lt.activity.LtMainActivity"
+            android:launchMode="singleInstance" />
         <activity android:name=".lt.activity.CreateTrader1Activity" />
         <activity android:name=".lt.activity.CreateTrader2Activity" />
         <activity android:name=".lt.activity.CreateTrader3Activity" />
         <activity android:name=".lt.activity.SolveCaptchaActivity" />
         <activity
             android:name=".lt.activity.TradeActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
+            android:windowSoftInputMode="stateHidden|adjustPan"
+            android:launchMode="singleInstance" />
         <activity android:name=".lt.activity.ChangeLocationActivity" />
         <activity
             android:name=".lt.activity.EnterLocationActivity"
@@ -250,7 +273,14 @@
             android:label="@string/title_activity_bit_idauthentication" />
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
-        <activity android:name=".external.BuySellSelectActivity" />
+        <activity
+            android:name=".external.BuySellSelectActivity"
+            android:exported="false">
+            <intent-filter android:label="Market">
+                <action android:name="action.BUY_SELL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name=".external.BuySellSelectCountryActivity"/>
         <activity android:name=".external.BuySellBankCardActivity"/>
         <activity android:name=".activity.MessageVerifyActivity" />
@@ -313,6 +343,7 @@
         <activity
             android:name="com.mycelium.bequant.sign.SignActivity"
             android:launchMode="singleInstance"
+            android:exported="true"
             android:theme="@style/BequantSign">
             <intent-filter
                 android:autoVerify="true"
@@ -344,6 +375,7 @@
         <activity
             android:name="com.mycelium.bequant.signup.TwoFactorActivity"
             android:launchMode="singleInstance"
+            android:exported="true"
             android:theme="@style/BequantSign">
             <intent-filter android:label="deeplink_to_totp_confirm">
                 <action android:name="android.intent.action.VIEW" />
@@ -357,7 +389,8 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity">
+        <activity android:name="com.mycelium.giftbox.GiftBoxRootActivity"
+            android:exported="true">
             <intent-filter android:label="GiftBox">
                 <action android:name="action.GIFTBOX" />
                 <category android:name="android.intent.category.DEFAULT" />

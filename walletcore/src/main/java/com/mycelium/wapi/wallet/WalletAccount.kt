@@ -179,7 +179,7 @@ interface WalletAccount<A : Address> : SyncPausable {
      * Determine the maximum spendable amount you can send in a transaction
      * Destination address can be null
      */
-    fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: A?): Value
+    fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: A?, txData: TransactionData?): Value
 
     /**
      * Returns the number of retrieved transactions during synchronization
@@ -191,7 +191,7 @@ interface WalletAccount<A : Address> : SyncPausable {
      * Returns the private key used by the account to sign transactions
      */
     @Throws(InvalidKeyCipher::class)
-    fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey
+    fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey?
     val dummyAddress: A
     fun getDummyAddress(subType: String): A
     val dependentAccounts: List<WalletAccount<*>>

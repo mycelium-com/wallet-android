@@ -90,6 +90,7 @@ import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.ExchangeSourceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -463,7 +464,7 @@ public class AccountsFragment extends Fragment {
                         }
                     } else if (accountToDelete instanceof ERC20Account) {
                         EthAccount ethAccount = getLinkedEthAccount(accountToDelete);
-                        ethAccount.removeEnabledToken(accountToDelete.getCoinType().getName());
+                        ethAccount.updateEnabledTokens();
                     } else {
                         //Check if this SingleAddress account is related with ColuAccount
                         WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
@@ -647,7 +648,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (_mbwManager.isAccountCanBeDeleted(account)) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
@@ -1217,6 +1218,11 @@ public class AccountsFragment extends Fragment {
 
     @Subscribe
     public void exchangeSourceChange(ExchangeSourceChanged event) {
+        accountListAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe
+    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
         accountListAdapter.notifyDataSetChanged();
     }
 

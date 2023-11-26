@@ -24,7 +24,7 @@ public class InfiniteLinearLayoutManager extends CenterLayoutManager {
     class InfiniteLayoutState extends LinearLayoutManager.LayoutState {
         @Override
         boolean hasMore(RecyclerView.State state) {
-            return mRecyclerView.getAdapter().getItemCount() > 1 || super.hasMore(state);
+            return getItemCount() > 1 || super.hasMore(state);
         }
 
         View next(RecyclerView.Recycler recycler) {
@@ -32,14 +32,18 @@ public class InfiniteLinearLayoutManager extends CenterLayoutManager {
                 return super.next(recycler);
             }
             int position = mCurrentPosition;
-            int itemCount = mRecyclerView.getAdapter().getItemCount();
+            int itemCount = getItemCount();
             if (itemCount > 0) {
+                position += itemCount;
                 position = position % itemCount;
-                position = position < 0 ? itemCount + position : position;
             }
-            final View view = recycler.getViewForPosition(position);
-            mCurrentPosition += mItemDirection;
-            return view;
+            try {
+                final View view = recycler.getViewForPosition(position);
+                mCurrentPosition += mItemDirection;
+                return view;
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 }

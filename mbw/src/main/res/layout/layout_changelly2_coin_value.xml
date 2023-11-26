@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wapi.wallet.coins.CryptoCurrency" />
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+        <variable
+            name="partLabel"
+            type="String" />
+
+        <variable
+            name="fiatValue"
+            type="String" />
+
+        <variable
+            name="coinType"
+            type="com.mycelium.wapi.wallet.coins.CryptoCurrency" />
+
+        <variable
+            name="accountLabel"
+            type="String" />
+
+        <variable
+            name="accountAddress"
+            type="String" />
+
+        <variable
+            name="balance"
+            type="String" />
+
+        <variable
+            name="balanceFiat"
+            type="String" />
+
+        <variable
+            name="chain"
+            type="String" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_coin_value">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/startGuidline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/endGuidline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@{partLabel}"
+            android:textColor="#61666B"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="You send" />
+
+        <TextView
+            android:id="@+id/coinFiatValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@{fiatValue}"
+            android:textColor="#61666B"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/label"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            app:layout_constraintStart_toEndOf="@id/label" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_changelly_chain"
+            android:paddingStart="@dimen/horizontal_page_margin"
+            android:paddingTop="4dp"
+            android:paddingEnd="@dimen/horizontal_page_margin"
+            android:paddingBottom="4dp"
+            android:text="@{@string/network_s(chain)}"
+            android:textSize="10sp"
+            android:visibility="@{chain.isEmpty() ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp"
+            tools:text="Ethereum Network" />
+
+        <TextView
+            android:id="@+id/baseline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toBottomOf="@id/label" />
+
+        <TextView
+            android:id="@+id/coinValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:minHeight="24sp"
+            android:hint="0"
+            app:layout_constraintEnd_toStartOf="@id/coinIcon"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBaseline_toBaselineOf="@id/baseline"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            tools:text="0.2342345" />
+
+        <ImageView
+            android:id="@+id/coinIcon"
+            android:layout_width="24dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintBottom_toBottomOf="@id/coinSymbol"
+            app:layout_constraintEnd_toStartOf="@id/coinSymbol"
+            app:layout_constraintTop_toTopOf="@id/coinSymbol" />
+
+        <TextView
+            android:id="@+id/coinSymbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="4dp"
+            android:text="@{coinType.symbol}"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            app:drawableEndCompat="@drawable/arrow_bottom"
+            app:layout_constraintBaseline_toBaselineOf="@id/baseline"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            tools:text="BTC" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="#28282A"
+            app:layout_constraintTop_toBottomOf="@id/baseline" />
+
+        <View
+            android:id="@+id/layoutAccount"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_coin_account"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider" />
+
+        <TextView
+            android:id="@+id/account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@{accountLabel}"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/startGuidline"
+            app:layout_constraintTop_toTopOf="@id/layoutAccount"
+            tools:text="Bitcoin 1" />
+
+        <TextView
+            android:id="@+id/accountBalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{balance}"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/account"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline"
+            tools:text="0.00234800 BTC" />
+
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="middle"
+            android:maxEms="9"
+            android:singleLine="true"
+            android:text="@{accountAddress}"
+            android:textColor="#61666B"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/account"
+            app:layout_constraintTop_toBottomOf="@id/account"
+            tools:text="0ckrfrm...jJfrnJ" />
+
+        <TextView
+            android:id="@+id/accountBalanceFiat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{balanceFiat}"
+            android:textColor="#61666B"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/address"
+            app:layout_constraintEnd_toEndOf="@id/endGuidline" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -188,7 +188,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     }
 
     override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
-        if (amount > calculateMaxSpendableAmount((fee as FeePerKbFee).feePerKb, address as FioAddress)) {
+        if (amount > calculateMaxSpendableAmount((fee as FeePerKbFee).feePerKb, address as FioAddress, null)) {
             throw InsufficientFundsException(Throwable("Invalid amount"))
         }
 
@@ -550,7 +550,7 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
     override fun removeAllQueuedTransactions() {
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: FioAddress?): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: FioAddress?, txData: TransactionData?): Value {
         val spendableWithFee = accountBalance.spendable - minerFeePerKilobyte
         return if (spendableWithFee.isNegative()) Value.zeroValue(coinType) else spendableWithFee
     }

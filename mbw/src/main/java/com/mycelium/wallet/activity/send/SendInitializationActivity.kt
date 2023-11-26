@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.view.Window
+import androidx.appcompat.app.AppCompatActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.activity.send.SendCoinsActivity.Companion.getIntent
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
@@ -20,8 +22,8 @@ import com.squareup.otto.Subscribe
 import java.lang.NullPointerException
 import java.util.*
 
-class SendInitializationActivity : Activity() {
-    private val mbwManager: MbwManager = MbwManager.getInstance(application)
+class SendInitializationActivity : AppCompatActivity() {
+    private val mbwManager: MbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     private lateinit var account: WalletAccount<*>
     private var uri: AssetUri? = null
     private var isColdStorage = false
@@ -32,6 +34,7 @@ class SendInitializationActivity : Activity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.send_initialization_activity)
+        supportActionBar?.hide()
         // Get intent parameters
         val accountId = intent.getSerializableExtra("account") as UUID
         uri = intent.getSerializableExtra("uri") as? AssetUri

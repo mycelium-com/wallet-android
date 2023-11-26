@@ -6,200 +6,250 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:background="#eceef1"
+    android:background="#292E32"
     android:clickable="true"
-    android:focusable="true"
-    android:columnCount="5"
-    android:paddingEnd="8dp"
-    android:paddingStart="8dp"
-    android:layoutDirection="ltr">
+    android:focusable="true">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/startGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="8dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/endGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="8dp" />
 
     <TextView
-        android:id="@+id/bottom_button"
+        android:id="@+id/btn_1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="4dp"
         android:text="@string/one"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_column="1"
-        app:layout_row="1" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@id/btn_2"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/btn_2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="4dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="4dp"
         android:text="@string/two"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="2"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="1" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_1"
+        app:layout_constraintEnd_toStartOf="@id/btn_3"
+        app:layout_constraintStart_toEndOf="@id/btn_1"
+        app:layout_constraintTop_toTopOf="@id/btn_1" />
 
     <TextView
         android:id="@+id/btn_3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="4dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="4dp"
         android:text="@string/three"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="3"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="1" />
-
-    <ImageView
-        android:id="@+id/btn_copy"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:paddingEnd="16dp"
-        android:paddingStart="16dp"
-        android:scaleType="center"
-        app:layout_column="4"
-        app:layout_gravity="fill"
-        app:layout_row="1"
-        app:srcCompat="@drawable/ic_content_paste_black" />
-
-    <TextView
-        android:id="@+id/btn_4"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="@string/four"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="1"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="2" />
-
-    <TextView
-        android:id="@+id/btn_5"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="@string/five"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="2"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="2" />
-
-    <TextView
-        android:id="@+id/btn_6"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="@string/six"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="3"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="2" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_2"
+        app:layout_constraintEnd_toStartOf="@id/btn_max"
+        app:layout_constraintStart_toEndOf="@id/btn_2"
+        app:layout_constraintTop_toTopOf="@id/btn_2" />
 
     <TextView
         android:id="@+id/btn_max"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="4dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
         android:text="@string/max"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="4"
-        app:layout_gravity="fill"
-        app:layout_row="2" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_3"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toEndOf="@id/btn_3"
+        app:layout_constraintTop_toTopOf="@id/btn_3" />
+
+    <TextView
+        android:id="@+id/btn_4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/four"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="@id/btn_1"
+        app:layout_constraintStart_toStartOf="@id/btn_1"
+        app:layout_constraintTop_toBottomOf="@id/btn_1" />
+
+    <TextView
+        android:id="@+id/btn_5"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/five"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_4"
+        app:layout_constraintEnd_toEndOf="@id/btn_2"
+        app:layout_constraintStart_toStartOf="@id/btn_2"
+        app:layout_constraintTop_toTopOf="@id/btn_4" />
+
+    <TextView
+        android:id="@+id/btn_6"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/six"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_5"
+        app:layout_constraintEnd_toEndOf="@id/btn_3"
+        app:layout_constraintStart_toStartOf="@id/btn_3"
+        app:layout_constraintTop_toTopOf="@id/btn_5" />
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/btn_copy"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="@id/btn_6"
+        app:layout_constraintEnd_toEndOf="@id/btn_max"
+        app:layout_constraintStart_toStartOf="@id/btn_max"
+        app:layout_constraintTop_toTopOf="@id/btn_6"
+        app:srcCompat="@drawable/ic_content_paste_black"
+        app:tint="@color/white" />
 
     <TextView
         android:id="@+id/btn_7"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="4dp"
         android:text="@string/seven"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="1"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="3" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="@id/btn_1"
+        app:layout_constraintStart_toStartOf="@id/btn_1"
+        app:layout_constraintTop_toBottomOf="@id/btn_4" />
 
     <TextView
         android:id="@+id/btn_8"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="4dp"
         android:text="@string/eight"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="2"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="3" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_7"
+        app:layout_constraintEnd_toEndOf="@id/btn_5"
+        app:layout_constraintStart_toStartOf="@id/btn_5"
+        app:layout_constraintTop_toTopOf="@id/btn_7" />
 
     <TextView
         android:id="@+id/btn_9"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="4dp"
         android:text="@string/nine"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="3"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="3" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_7"
+        app:layout_constraintEnd_toEndOf="@id/btn_6"
+        app:layout_constraintStart_toStartOf="@id/btn_6"
+        app:layout_constraintTop_toTopOf="@id/btn_7" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/btn_backspace"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="@id/btn_9"
+        app:layout_constraintEnd_toEndOf="@id/btn_max"
+        app:layout_constraintStart_toStartOf="@id/btn_max"
+        app:layout_constraintTop_toTopOf="@id/btn_9"
+        app:srcCompat="@drawable/ic_backspace"
+        app:tint="@color/white" />
+
+    <TextView
+        android:id="@+id/btn_0"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_keyboard_item"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/zero"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/btn_8"
+        app:layout_constraintStart_toStartOf="@id/btn_8"
+        app:layout_constraintTop_toBottomOf="@id/btn_8" />
 
     <TextView
         android:id="@+id/btn_dot"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="4dp"
         android:text="@string/dot"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="1"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="4" />
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_0"
+        app:layout_constraintEnd_toEndOf="@id/btn_9"
+        app:layout_constraintStart_toStartOf="@id/btn_9"
+        app:layout_constraintTop_toTopOf="@id/btn_0" />
 
 
-    <TextView
-        android:id="@+id/top_button"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="@string/zero"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_column="2"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        app:layout_row="4" />
-
-    <ImageView
-        android:id="@+id/btn_backspace"
-        android:background="@drawable/bg_keyboard_item"
-        android:gravity="center"
-        android:scaleType="center"
-        app:layout_column="3"
-        app:layout_gravity="fill"
-        app:layout_row="4"
-        app:srcCompat="@drawable/ic_backspace" />
-
-    <TextView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/btn_done"
-        android:background="@drawable/bg_keyboard_item"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_keyboard_item_blue"
         android:gravity="center"
         android:scaleType="center"
-        app:layout_column="4"
-        app:layout_gravity="fill"
-        app:layout_row="4"
-        android:textColor="#5aa7e6"
-        android:textSize="20sp"
-        android:text="@string/ok" />
+        app:layout_constraintBottom_toBottomOf="@id/btn_dot"
+        app:layout_constraintEnd_toEndOf="@id/btn_max"
+        app:layout_constraintStart_toStartOf="@id/btn_max"
+        app:layout_constraintTop_toTopOf="@id/btn_dot"
+        app:srcCompat="@drawable/ic_bequant_yellow_check_mark"
+        app:tint="@color/white" />
 
 </com.mycelium.wallet.activity.view.ValueKeyboard>

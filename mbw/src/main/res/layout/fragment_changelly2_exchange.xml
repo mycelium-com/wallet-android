@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.mycelium.wapi.wallet.coins.CryptoCurrency" />
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wallet.activity.util.ValueExtensionsKt" />
+
+        <import type="com.mycelium.view.Denomination" />
+
+        <import type="android.text.Html" />
+
+        <variable
+            name="label"
+            type="String" />
+
+        <variable
+            name="vm"
+            type="com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/startGuidline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/endGuidline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
+                <include
+                    android:id="@+id/sellLayout"
+                    layout="@layout/layout_changelly2_coin_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toTopOf="parent"
+                    bind:accountAddress="@{vm.fromAddress}"
+                    bind:accountLabel="@{vm.fromAccount.label}"
+                    bind:balance="@{ValueExtensionsKt.toStringFriendlyWithUnit(vm.fromAccount.accountBalance.spendable, Denomination.UNIT)}"
+                    bind:balanceFiat="@{vm.fromFiatBalance}"
+                    bind:chain="@{vm.fromChain}"
+                    bind:coinType="@{vm.fromCurrency}"
+                    bind:fiatValue="@{vm.fiatSellValue}"
+                    bind:partLabel="@{@string/bequant_you_send}"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    android:background="#141415"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
+
+                <!--                <LinearLayout-->
+                <!--                    android:id="@+id/exchangeRateLayout"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginStart="16dp"-->
+                <!--                    android:layout_marginTop="32dp"-->
+                <!--                    android:background="@drawable/bg_coin_value"-->
+                <!--                    android:orientation="horizontal"-->
+                <!--                    android:paddingStart="8dp"-->
+                <!--                    android:paddingTop="4dp"-->
+                <!--                    android:paddingEnd="8dp"-->
+                <!--                    android:paddingBottom="4dp"-->
+                <!--                    app:layout_constraintStart_toStartOf="@id/startGuidline"-->
+                <!--                    app:layout_constraintTop_toBottomOf="@id/sellLayout">-->
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="-16dp"
+                    android:layout_marginStart="-16dp"
+                    android:background="@drawable/bg_coin_value"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toEndOf="@id/progress"
+                    app:layout_constraintStart_toStartOf="@id/iconFix"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iconFix"
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_lock"
+                    android:layout_marginStart="32dp"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
+
+                <TextView
+                    android:id="@+id/exchangeRateFrom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginStart="8dp"
+                    android:drawablePadding="4dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="@{vm.exchangeRateFrom}"
+                    android:textSize="14sp"
+                    android:textColor="#888888"
+                    app:layout_constraintStart_toEndOf="@id/iconFix"
+                    app:layout_constraintTop_toBottomOf="@id/sellLayout"
+                    bind:text="1 BTC = " />
+
+                <TextView
+                    android:id="@+id/exchangeRateToValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textSize="14sp"
+                    android:textColor="#888888"
+                    app:layout_constrainedWidth="true"
+                    android:text="@{vm.exchangeRateToValue}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toStartOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateFrom"
+                    bind:text="69 420" />
+
+                <TextView
+                    android:id="@+id/exchangeRateToCurrency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:lines="1"
+                    android:textSize="14sp"
+                    android:textColor="#888888"
+                    android:text="@{vm.exchangeRateToCurrency}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toStartOf="@id/progress"
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateToValue"
+                    bind:text="USDT" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/progress"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="32dp"
+                    app:srcCompat="@drawable/ic_progress"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintEnd_toStartOf="@id/swapAccount"
+                    app:layout_constraintStart_toEndOf="@id/exchangeRateToCurrency"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateToCurrency" />
+                <!--                </LinearLayout>-->
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/swapAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="32dp"
+                    android:enabled="@{vm.swapEnabled}"
+                    android:alpha="@{vm.swapEnabled ? 1.0f : 0.7f}"
+                    app:srcCompat="@drawable/ic_exchange"
+                    app:layout_constraintBottom_toBottomOf="@id/exchangeRateFrom"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintTop_toTopOf="@id/exchangeRateFrom" />
+
+                <include
+                    android:id="@+id/buyLayout"
+                    layout="@layout/layout_changelly2_coin_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toBottomOf="@id/exchangeRateFrom"
+                    bind:accountAddress="@{vm.toAddress}"
+                    bind:accountLabel="@{vm.toAccount.label}"
+                    bind:balance="@{vm.toBalance}"
+                    bind:balanceFiat="@{vm.toFiatBalance}"
+                    bind:chain="@{vm.toChain}"
+                    bind:coinType="@{vm.toCurrency}"
+                    bind:fiatValue="@{vm.fiatBuyValue}"
+                    bind:partLabel="@{@string/bequant_you_get}" />
+
+                <FrameLayout
+                    android:id="@+id/minerFee"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_coin_value"
+                    android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toBottomOf="@id/buyLayout">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:drawableStart="@drawable/ic_info_icon"
+                        android:drawablePadding="4dp"
+                        android:drawableTint="#888888"
+                        android:padding="4dp"
+                        android:text="@{vm.minerFee}"
+                        android:textColor="#888888"
+                        android:textSize="14sp"
+                        android:visibility="@{vm.minerFee.isEmpty() ? View.INVISIBLE : View.VISIBLE}"
+                        bind:text="Miner fee: 0.00005611 ETH ≈54.20 USD" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/error"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_changelly_error"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:text="@{Html.fromHtml(vm.error)}"
+                    android:textSize="14sp"
+                    android:visibility="@{vm.error.isEmpty() ? View.GONE : View.VISIBLE }"
+                    app:layout_constraintBottom_toTopOf="@id/exchangeButton"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    app:layout_constraintTop_toBottomOf="@id/minerFee"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <Button
+                    android:id="@+id/exchangeButton"
+                    style="@style/MyceliumButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:enabled="@{vm.validateData}"
+                    android:text="Exchange"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toTopOf="@id/policyTerms"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline" />
+
+                <TextView
+                    android:id="@+id/policyTerms"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:text="@string/changelly2_policy_text"
+                    android:textColor="#5E5E5E"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/endGuidline"
+                    app:layout_constraintStart_toStartOf="@id/startGuidline"
+                    bind:text="@string/changelly2_policy_text" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <include
+            android:id="@+id/layoutValueKeyboard"
+            layout="@layout/layout_value_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone" />
+    </FrameLayout>
+</layout>

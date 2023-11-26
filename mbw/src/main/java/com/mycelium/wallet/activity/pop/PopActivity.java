@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.pop;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -47,6 +46,7 @@ import android.view.Window;
 import android.widget.TextView;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;

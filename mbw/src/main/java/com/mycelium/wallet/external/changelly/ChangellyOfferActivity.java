@@ -13,8 +13,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
+import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
@@ -33,7 +33,7 @@ import retrofit2.Response;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
-import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
 
 public class ChangellyOfferActivity extends AppCompatActivity {
     public static final int RESULT_FINISH = 11;
@@ -78,7 +78,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private void updateUI() {
         tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                , Constants.decimalFormat.format(amount)));
+                , ChangellyConstants.decimalFormat.format(amount)));
         tvSendToAddress.setText(offer.payinAddress);
         transactionId.setText(getString(R.string.exchange_operation_id_s, offer.id));
 
@@ -93,9 +93,9 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private String getExtraIdName(String coin) {
         switch (coin) {
-            case Constants.XRP:
+            case ChangellyConstants.XRP:
                 return getString(R.string.changelly_destination_tag);
-            case Constants.XEM:
+            case ChangellyConstants.XEM:
                 return getString(R.string.changelly_message_name);
             default:
                 return getString(R.string.changelly_memo_id_name);
@@ -156,7 +156,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         amount = getIntent().getDoubleExtra(ChangellyAPIService.AMOUNT, 0);
         currency = getIntent().getStringExtra(ChangellyAPIService.FROM);
         receivingAddress = getIntent().getStringExtra(ChangellyAPIService.DESTADDRESS);
-        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+        ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class)
                 .createTransaction(currency, BTC, amount, receivingAddress)
                 .enqueue(new GetOfferCallback(amount));
         progressDialog = new ProgressDialog(this);
@@ -173,7 +173,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = currency;
         order.receivingAddress = receivingAddress;
-        order.receivingAmount = decimalFormat.format(offer.amountTo);
+        order.receivingAmount = offer.amountTo.stripTrailingZeros().toPlainString();
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());
@@ -197,7 +197,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyTransaction> {
+    class GetOfferCallback implements Callback<ChangellyResponse<ChangellyTransactionOffer>> {
         private double amountFrom;
 
         public GetOfferCallback(double amountFrom) {
@@ -205,10 +205,10 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyTransaction> call,
-                               @NonNull Response<ChangellyTransaction> response) {
-            ChangellyTransaction result = response.body();
-            if(result != null && result.result != null) {
+        public void onResponse(@NonNull Call<ChangellyResponse<ChangellyTransactionOffer>> call,
+                               @NonNull Response<ChangellyResponse<ChangellyTransactionOffer>> response) {
+            ChangellyResponse<ChangellyTransactionOffer> result = response.body();
+            if(result != null && result.getResult() != null) {
                 progressDialog.dismiss();
                 // if the amount changed after the offer was requested but before the offer was
                 // received, we reset the amount to the requested amount instead of ignoring the
@@ -216,7 +216,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
                 // If the user requested a new offer meanwhile, the new amount will return with
                 // the new offer, too.
                 amount = amountFrom;
-                offer = result.result;
+                offer = result.getResult();
                 sendOrderToService(getOrder());
                 updateUI();
             } else {
@@ -225,7 +225,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyTransaction> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<ChangellyTransactionOffer>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }

@@ -38,6 +38,7 @@ class ReceiveCoinsModel(
     val receivingAddress: MutableLiveData<Address> = MutableLiveData()
     val receivingFioName = MutableLiveData<String>()
     val fioNameList = MutableLiveData<List<String>>()
+    val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
@@ -83,6 +84,10 @@ class ReceiveCoinsModel(
         } else {
             null
         }
+    }
+
+    fun setAlternativeAmountWarning(show: Boolean) {
+        alternativeAmountWarning.value = show
     }
 
     fun getPaymentUri(): String {
@@ -160,7 +165,7 @@ class ReceiveCoinsModel(
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
         val mBuilder = NotificationCompat.Builder(context, "coins received channel")
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_icon)
                 .setSound(soundUri, AudioManager.STREAM_NOTIFICATION) //This sets the sound to play
         notificationManager!!.notify(0, mBuilder.build())
         lastAddressBalance = sum

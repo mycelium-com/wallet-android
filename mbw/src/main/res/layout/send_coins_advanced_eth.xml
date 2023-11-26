@@ -152,6 +152,29 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/gasPriceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Gas price (Gwei):"
+            android:textColor="@color/fio_white_alpha_0_6"
+            android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/llGasLimitStatus" />
+
+        <com.mycelium.wallet.activity.send.view.CustomEditText
+            android:id="@+id/gasPrice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:minWidth="220dp"
+            android:textSize="14sp"
+            android:imeOptions="actionDone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/gasPriceLabel" />
+
+        <TextView
             android:id="@+id/tvDataLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -161,7 +184,7 @@
             android:textSize="14sp"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llGasLimitStatus" />
+            app:layout_constraintTop_toBottomOf="@id/gasPrice" />
 
         <ImageView
             android:id="@+id/ic_info_address_type"

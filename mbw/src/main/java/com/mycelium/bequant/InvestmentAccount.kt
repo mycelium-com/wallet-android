@@ -177,7 +177,7 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
     override fun removeAllQueuedTransactions() {
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: BtcAddress?): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value, destinationAddress: BtcAddress?, txData: TransactionData?): Value {
         TODO("Not yet implemented")
     }
 

@@ -57,9 +57,10 @@
     <string name="unable_to_build_tx">Unable to build transaction. %s</string>
     <string name="no_utxo">Transaction has no utxo to form a child transaction or utxo has been already spent</string>
     <string name="parent_needs_no_boosting">Parent needs no boosting</string>
-    <string name="amount_too_small_short">Amount too small</string>
+    <string name="amount_too_small_short">Amount must exceed %s (network limit)</string>
     <string name="miner_fee_label">Miner fees</string>
     <string name="miner_fee_title">Miner Fee</string>
+    <string name="history_row_miner_fee_label">Transaction fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
@@ -88,6 +89,7 @@
     <string name="approximate_fiat_value">%2$s %1$s</string>
     <string name="no_server_connection">No %s Server Connection</string>
     <string name="no_network_connection">No Network Connection</string>
+    <string name="interrupted_by_application">Interrupted by application</string>
     <string name="invalid_bitcoin_uri">Invalid Bitcoin URI</string>
     <string name="unrecognized_format">Unrecognized format</string>
     <string name="unrecognized_private_key_format">Unrecognized private key format</string>
@@ -215,7 +217,7 @@
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
-    <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_rejected_malformed">Transaction signing failed.\n Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request. \n %s</string>
     <string name="transaction_rejected_invalid_tx_params">Transaction was rejected by Network. Please verify that transaction parameters are correct and try again. Error: %1$s</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="checking_fio_address">Checking FIO Name…</string>
@@ -1103,7 +1105,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_in_order_to_complete">In order to complete exchange operation, you need to send the selected amount to the address below.</string>
     <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging and paste the address.\nStep 3. Copy and paste the exchanging amount below.</string>
     <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be sent to your receiving account.</string>
-    <string name="exchange_altcoins_to_btc">Shift any coins to BTC</string>
+    <string name="exchange_altcoins_to_btc">EXCHANGE</string>
     <string name="exchange_minimum_amount">Minimum exchangeable amount is %1$s %2$s.</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choose the currency and BTC receiving account</string>
     <string name="due_to_high_cryptocurrencies_volatility">Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here.</string>
@@ -1266,10 +1268,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2pkh_short">P2PKH</string>
     <string name="p2sh_short">P2SH</string>
     <string name="bech_short">Bech32</string>
+    <string name="bech32m_short">Bech32m</string>
     <string name="p2pkh">Legacy (P2PKH)</string>
     <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <string name="p2sh">SegWit compatible (P2SH)</string>
     <string name="bech">SegWit native (Bech32)</string>
+    <string name="bech32m">Taproot (Bech32m)</string>
     <string name="bech_description">All change will be returned to a native SegWit address. These transactions will be the cheapest possible, but transactions will be more identifiable on the blockchain because Bech32 addresses are not yet widely used.</string>
     <string name="p2sh_p2wpkh">Segwit compatible (P2SH)</string>
     <string name="p2sh_p2wpkh_description">All change will be returned to a legacy compatible SegWit address (P2SH). There are no additional privacy implications. This option has slightly higher fees than SegWit native.</string>
@@ -1662,7 +1666,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="trusted_providers">Trusted providers</string>
     <string name="buy_crypto_safely">Buy and sell %s safely and easily using your debit/credit card.</string>
     <string name="buy_sell_s_button">BUY / SELL %s</string>
-    <string name="boost_look_ahead_button_label">Missing Transactions?</string>
+    <string name="boost_look_ahead_button_label">Missing Transactions</string>
     <string name="btcv_hd_accounts_name">Bitcoin Vault HD</string>
     <string name="gift_card_amount">Gift card amount:</string>
     <string name="gift_cards_with_discount">Gift cards</string>
@@ -1689,8 +1693,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="delete_gift_card_msg">Are you sure you want to delete this gift card?</string>
     <string name="redeemed_gift_cards">REDEEMED GIFT CARDS</string>
     <string name="all_countries">All countries</string>
-    <string name="gift_card">Gift card</string>
-    <string name="gift_cards">Gift cards</string>
+    <string name="gift_cards">Gift Cards</string>
     <string name="share_gift_card_text">Hello there!\nYou recently purchased gift cards:\n%s\nAmount: %s %s</string>
     <string name="select_card_value_dialog">Select card value:</string>
     <string name="gift_card_d">Gift card:</string>
@@ -1703,6 +1706,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="purchase_failed">Purchase Failed</string>
     <string name="processing">Processing...</string>
     <string name="success_s">Success, %s</string>
+    <string name="sync_failed_reason_s">Synchronization failed. Reason: %s</string>
     <string name="sync_failed_s">Synchronization failed. %s</string>
     <string name="giftcard_order_title">Gift card order</string>
     <string name="select_country">Select country</string>
@@ -1755,6 +1759,36 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gas_limit_warning">You have set gas limit below 90 000 units. It may be not enough for Ethereum network to process your transaction, while Gas still be used.</string>
     <string name="gas_limit_error">Minimal gas limit for Ethereum network transactions is 21 000 units.</string>
     <string name="parent_eth_account">ETH %s:</string>
+    <string name="connection_issues"><b>Connection issues.</b> Please make sure you\'re online.</string>
+    <string name="course_outdated">course is outdated</string>
+    <string name="network_s">%s Network</string>
+    <string name="changelly2_policy_text">Service is available through third-party API provider. By clicking Exchange you accept the <font color="#4583de">Terms of Use</font>.</string>
+    <string name="changelly2_select_from">Select account:</string>
+    <string name="changelly2_select_to">Select account to receive funds:</string>
+    <string name="exchange_history">Exchange History</string>
+    <string name="tab_exchange_title">EXCHANGE</string>
+    <string name="no_operations_history">No operations history</string>
+
+    <string name="history_appear_after_operation">History will appear automatically after the first exchange operation.</string>
+    <string name="next_fee_update_in_s">Next update in %ds</string>
+    <string name="exchange_min_msg">The amount is lower than the exchange minimum of %s %s</string>
+    <string name="exchange_max_msg">The amount is more than the exchange maximum of %s %s</string>
+    <string name="settings_exchange_quick_exchange_title">Exchange Confirmation</string>
+    <string name="settings_exchange_quick_exchange_summary">Show confirmation dialog before exchange</string>
+    <string name="exchange_accept_dialog_title">Exchange</string>
+    <string name="exchange_accept_dialog_msg">You send: %s %s\nMiners fee: %s\n\nYou get: %s %s</string>
+    <string name="sent">Sent</string>
+    <string name="received">Received</string>
+    <string name="unredeemed">Unredeem card</string>
+    <string name="changelly_receiving">Receiving</string>
+    <string name="changelly_received">Received</string>
+    <string name="changelly_error_rate_expired">Exchange rate is outdated, please try again.</string>
+    <string name="contact_support_team">Contact Support</string>
+    <string name="share_logs">Share Logs</string>
+    <string name="support_team">Contact Support</string>
+    <string name="support_team_text">Please describe the issue and the steps to reproduce it. To get a complete picture of the problem, please attach the logs.</string>
+    <string name="link_to_track_transaction">Exchange status</string>
+    <string name="exchange_in_progress">Exchange in progress</string>
     <plurals name="d_countries">
         <item quantity="zero"><u>All countries</u></item>
         <item quantity="one"><u>%d country</u></item>
@@ -1764,6 +1798,55 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         <item quantity="one">%d card</item>
         <item quantity="other">%d cards</item>
     </plurals>
+    <string name="help_missing_tx_dialog_text" formatted="false"><![CDATA[The most common cases of missing coins are easily
+                        resolved. Please read carefully before contacting support:<br><br>
+                        <h4>No server connection</h4>
+                        When the wallet can\'t talk to the servers, it can\'t correctly display your
+                        balance and might even display 0BTC if you tried to reload the account.
+                        <b>Don\'t panic.</b> Check your internet connection or if our servers have
+                        issues, our engineers are probably already hard at work fixing the issue.
+                        In any case, as long as you don\'t see a transaction where your funds left
+                        your wallet, your funds should still be in your wallet, protected by your
+                        12 words backup that in the worst case works with most other Bitcoin
+                        wallets. Do not try deleting and reinstalling the app unless you are 100%
+                        sure you have all the backups.
+                        <h4>Restored wallet with "12 words + passphrase" using the PIN as passphrase</h4>
+                        Adding
+                        the wrong passphrase doesn\'t result in an error but in restoring
+                        of a different, empty wallet. <b>Try restoring your wallet with only "12
+                        words".</b>
+                        <h4>Coins are in "Account 2"</h4>
+                        If you restored from a backup of a wallet that had more than just "Account
+                        1", you have to manually recreate missing accounts to re-discover them. To
+                        do so, just <b>go to the
+                        "Accounts" tab and create a "new" account</b>.
+                        <h4> Coins are beyond the standard "look-ahead" or "gap limit":</h4>
+                        If you used third party tools to receive coins into your wallet such as
+                        BTC-Pay Server, the wallet checking only 20 future addresses beyond
+                        your last unused address might not find those transactions. <b>Press
+                        "Boost Gap Limit"</b> below to check if this is the case. This will check
+                        for 200 addresses on all active accounts once.?]]></string>
+    <string name="boost_gap_limit">Boost Gap Limit</string>
+    <string name="help_share_logs_text">We get your logs only if you share them with us. Logs do not contain personal information.</string>
+    <string name="missing_tx_text">Most common cases of missing coins and how it can be resolved.</string>
+    <string name="changelog_title">What\'s new in Mycelium</string>
+    <string name="changelog_button_show_less">Show less</string>
+    <string name="changelog_button_show_more">Learn more about latest updates</string>
+    <string name="changelog_button_close">OPEN MYCELIUM WALLET</string>
+    <string name="changelog_version_placeholder">Version: %s</string>
+
+    <string name="etc20_require_eth">All Ethereum network transactions require ETH to pay miner fee.</string>
+    <string name="giftcard_coin_not_acceptable">%s coin don\'t acceptable.\nPlease contact with support.</string>
+
+    <string name="update_acvailable">Update available</string>
+    <string name="current_version_s">Current version: %s</string>
+    <string name="update_to_new_features">Update Mycelium to get new features and improved functionality.</string>
+    <string name="new_version_s">New version: %s</string>
+
+    <string name="send_fee_hint"><b>ATTENTION.</b> Transactions with low priority miner fee may never be confirmed or confirmed in many hours or even days. Don\'t choose low priority if you don\'t understand how bitcoin network works.</string>
+    <string name="hours_or_more">%s or more</string>
+    <string name="russia">Russia</string>
+    <string name="giftbox_expired_text"><![CDATA[The order expired. Please contact the support - <font color="#4583de">support@mycelium.com</font>]]></string>
     <string name="fingerprint_detection_failed">Fingerprint detection failed</string>
     <string name="fingerprint_not_available">Fingerprint not available</string>
 </resources>

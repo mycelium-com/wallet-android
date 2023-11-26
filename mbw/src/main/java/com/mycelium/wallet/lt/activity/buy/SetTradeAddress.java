@@ -44,6 +44,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
@@ -58,7 +60,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
-public class SetTradeAddress extends Activity {
+public class SetTradeAddress extends AppCompatActivity {
    public static void callMe(Activity currentActivity, TradeSession tradeSession) {
       Intent intent = new Intent(currentActivity, SetTradeAddress.class);
       Preconditions.checkNotNull(tradeSession);

@@ -6,6 +6,20 @@
     android:orientation="vertical"
     tools:context=".activity.modern.ModernMain">
 
+    <TextView
+        android:id="@+id/connectionError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#30B7E4"
+        android:gravity="center"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:text="@string/connection_issues"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/pager_tabs"
         style="@style/MyceliumTabBarStyle"

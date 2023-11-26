@@ -45,6 +45,7 @@
                 android:id="@+id/rb_key_z"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
                 android:onClick="@{_ -> viewModel.onToggleClicked(3)}"
                 android:text="@{viewModel.privateDataSelected ? @string/export_toggle_zprv : @string/export_toggle_zpub}" />
 

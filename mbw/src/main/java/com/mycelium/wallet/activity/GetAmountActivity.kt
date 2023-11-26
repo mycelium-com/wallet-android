@@ -14,10 +14,12 @@ import android.view.Window
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.google.common.base.Preconditions
+import com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.*
 import com.mycelium.wallet.NumberEntry.NumberEntryListener
@@ -115,10 +117,13 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         // Calculate the maximum amount that can be spent where we send everything we got to another address
         _kbMinerFee = Preconditions.checkNotNull(intent.getSerializableExtra(KB_MINER_FEE) as Value)
         txData = intent.getSerializableExtra(TX_DATA) as TransactionData?
-        destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)
-                ?: viewModel.account!!.dummyAddress
+        destinationAddress = (intent.getSerializableExtra(DESTINATION_ADDRESS) as Address?)?.takeIf {
+            it.coinType == viewModel.account!!.coinType
+        } ?: viewModel.account!!.dummyAddress
         lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.maxSpendableAmount.postValue(viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress))
+            viewModel.maxSpendableAmount.postValue(
+                viewModel.account!!.calculateMaxSpendableAmount(_kbMinerFee!!, destinationAddress, txData)
+            )
         }
 
         // if no amount is set, create an null amount with the correct currency
@@ -166,7 +171,8 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
         if (isNullOrZero(viewModel.maxSpendableAmount.value)) {
             Toaster(this).toast(R.string.insufficient_funds, true)
         } else {
-            viewModel.amount.value = viewModel.maxSpendableAmount.value
+            viewModel.amount.value = viewModel.convert(viewModel.maxSpendableAmount.value!!, viewModel.currentCurrency.value!!)
+                    ?: viewModel.maxSpendableAmount.value!!
             // set the current shown currency to the amount's currency
             viewModel.currentCurrency.value = viewModel.amount.value!!.type
             updateUI()
@@ -384,7 +390,7 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
                 checkTransaction()
             }
         } else {
-            binding.btOk.isEnabled = true
+            binding.btOk.isEnabled = checkAmount()
         }
     }
 
@@ -457,6 +463,28 @@ class GetAmountActivity : AppCompatActivity(), NumberEntryListener {
             }
             // Enable/disable Ok button
             binding.btOk.isEnabled = result == AmountValidation.Ok && !viewModel.amount.value!!.isZero()
+        }
+    }
+
+    private fun checkAmount(): Boolean {
+        var amount = viewModel.amount.value
+        // if _amount is not in account's currency then convert to account's currency before checking amount
+        if (mainCurrencyType != viewModel.currentCurrency.value) {
+            amount = viewModel.convert(viewModel.amount.value!!, mainCurrencyType)
+        }
+        when(viewModel.account?.coinType){
+            Utils.getBtcCoinType() -> {
+                if (amount != null && BigInteger.ZERO < amount.value && amount.value < MINIMUM_OUTPUT_VALUE.toBigInteger()) {
+                    val minAmount = valueOf(viewModel.account?.coinType!!, MINIMUM_OUTPUT_VALUE).toStringWithUnit()
+                    binding.error.text = getString(R.string.amount_too_small_short, minAmount)
+                    binding.error.isVisible = true
+                    return false
+                } else {
+                    binding.error.isVisible = false
+                    return true
+                }
+            }
+            else -> return true
         }
     }
 

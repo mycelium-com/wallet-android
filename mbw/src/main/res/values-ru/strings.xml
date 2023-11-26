@@ -39,9 +39,10 @@
     <string name="unable_to_build_tx">Не удаётся построить транзакцию. %s</string>
     <string name="no_utxo">У транзакции отсутствует UTXO, которое можно было бы использовать, или оно уже было потрачено</string>
     <string name="parent_needs_no_boosting">Родительская транзакция не требует ускорения</string>
-    <string name="amount_too_small_short">Сумма слишком мала</string>
+    <string name="amount_too_small_short">Сумма должна превышать %s (лимит сети)</string>
     <string name="miner_fee_label">Вознаграждение</string>
     <string name="miner_fee_title">Вознаграждение майнеров</string>
+    <string name="history_row_miner_fee_label">Комиссия за транзакцию</string>
     <string name="synchronizing">Синхронизация</string>
     <string name="transaction_not_sent">Не удалось передать транзакцию</string>
     <string name="queue_transaction_message">Не удалось передать транзакцию. \nвы  бы хотели  поставить транзакцию в очередь, чтобы она была  отправлена автоматически, как только вы будете онлайн?</string>
@@ -61,6 +62,7 @@
     <string name="bitcoin_address_title">Биткойн адрес</string>
     <string name="no_server_connection">Нет соединения с %s сервером</string>
     <string name="no_network_connection">Отсутствует сетевое подключение</string>
+    <string name="interrupted_by_application">Прервано приложением</string>
     <string name="invalid_bitcoin_uri">Недопустимый  биткойн URI</string>
     <string name="unrecognized_format">Неизвестный формат</string>
     <string name="unrecognized_private_key_format">Нераспознаваемый формат приватного ключа</string>
@@ -425,7 +427,7 @@
     <string name="lt_cash_only_hint_cash_only">Торгуй с глазу на глаз, только наличные.</string>
     <!-- LT end -->
     <string name="cs_private_key_description">Вы используете приватный ключ со следующим  Bitcoin адресом:</string>
-    <string name="cs_address_description">Вы отсканировали биткой адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
+    <string name="cs_address_description">Вы отсканировали биткойн адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
     <string name="sync_total_retrieved_transactions">Идет синхронизация: %1$d транзакций загружено</string>
     <string name="archiving_account_title">Архивирование аккаунта</string>
     <string name="new_version_exists">Доступна новая версия</string>
@@ -569,7 +571,7 @@
     <string name="lt_confirm_delete_trader_message">Вы хотите удалить  вашу информацию? Вся торговая информация и рейтинги будут окончательно удалены и не могут быть восстановлены.</string>
     <string name="rescan_account_menu_item">Обновить аккаунт</string>
     <string name="add_advanced_account_warning">Предупреждение: \n, эти ключи не будут включены в Резервную Копию на основе  Master Seed. Вы должны убедиться, что у вас есть  для  них отдельная Резервная Копия, с  совершенно другим порядком создания.</string>
-    <string name="new_bitcoin_address_created">Был создан новый случайный приватный ключ со следующим биткоин-адресом:</string>
+    <string name="new_bitcoin_address_created">Был создан новый случайный приватный ключ со следующим биткойн-адресом:</string>
     <string name="shuffle">Еще раз</string>
     <string name="toast_warning_low_fee">может занять больше времени для  подтверждения</string>
     <string name="account_number">Аккаунт %d</string>
@@ -790,7 +792,7 @@
     <string name="share_x_address">Поделиться %s адресом</string>
     <string name="save">Сохранить</string>
     <string name="your_privacy_out_priority">Ваша конфиденциальность является нашим главным приоритетом</string>
-    <string name="colu_before_sending_make_sure">Перед отправкой ваших цифровых активов убедитесь, что отправляете их на адрес для работы с цифровыми активами, а не на случайный биткоин-адрес. Нажмите <font color="#4583de">сюда</font> чтобы ознакомиться с процедурой восстановления ваших цифровых активов.</string>
+    <string name="colu_before_sending_make_sure">Перед отправкой ваших цифровых активов убедитесь, что отправляете их на адрес для работы с цифровыми активами, а не на случайный биткойн-адрес. Нажмите <font color="#4583de">сюда</font> чтобы ознакомиться с процедурой восстановления ваших цифровых активов.</string>
     <string name="what_is_it">Что это?</string>
     <string name="error_start_google_calendar">Что-то не так с Google календарем</string>
     <string name="both_rmc_will_deleted" formatted="false">Оба аккаунта: %s and %s будут удалены.</string>
@@ -943,6 +945,8 @@
     <string name="payment_in_progress">Платеж в обработке</string>
     <string name="show_transaction_details"><![CDATA[Показать детали транзакции >]]></string>
     <string name="show_transaction_details_hide">Показать детали транзакции (скрыть)</string>
+    <string name="sync_failed_reason_s">Сбой синхронизации. Причина: %s</string>
+    <string name="sync_failed_s">Сбой синхронизации. %s</string>
     <string name="giftcard_order_title">Ваш заказ</string>
     <string name="max_available_cards_d">Максимум %d карт</string>
     <string name="card_value1">Номинал сертификата</string>
@@ -964,4 +968,10 @@
     <string name="from_s_to_s">От %s до %s</string>
     <string name="gift_cards_menu">Сертификаты</string>
     <string name="paid">Транзакция отправлена</string>
+    <string name="connection_issues"><b>Проблемы с соединением.</b> Убедитесь, что вы онлайн.</string>
+    <string name="changelly2_policy_text">Сервис предоставляется сторонним поставщиком API. Нажимая на кнопку Exchange, вы принимаете <font color="#4583de">Условия использования</font>.</string>
+    <string name="course_outdated">курс устарел</string>
+    <string name="unredeemed">Восстановить</string>
+    <string name="changelly_error_rate_expired">Обменный курс устарел, пожалуйста, повторите попытку.</string>
+    <string name="giftbox_expired_text"><![CDATA[Срок действия заказа истёк. Пожалуйста, свяжитесь с поддержкой - <font color="#4583de">support@mycelium.com</font>]]></string>
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -15,7 +16,11 @@ import androidx.navigation.fragment.navArgs
 import com.mycelium.giftbox.client.GitboxAPI
 import com.mycelium.giftbox.client.models.PriceResponse
 import com.mycelium.giftbox.client.models.getCardValue
-import com.mycelium.wallet.*
+import com.mycelium.giftbox.purchase.viewmodel.getCurrencyId
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.NumberEntry
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.Toaster
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
@@ -24,9 +29,9 @@ import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.isNullOrZero
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_giftbox_amount.*
-import kotlinx.android.synthetic.main.layout_fio_request_notification.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.channels.awaitClose
@@ -49,7 +54,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
         Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
     }
     private val zeroCryptoValue by lazy {
-        account?.basedOnCoinType?.value(0)
+        account?.coinType?.value(0)
     }
 
     private val account by lazy {
@@ -62,20 +67,27 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             field = value
             lifecycleScope.launch(IO) {
                 getPriceResponse(value!!).collect {
+                    val exchangeRate = BigDecimal(it?.exchangeRate ?: "-1")
+                    if (it?.status != PriceResponse.Status.sUCCESS || exchangeRate <= BigDecimal.ZERO) {
+                        withContext(Dispatchers.Main) {
+                            AlertDialog.Builder(requireActivity())
+                                    .setTitle(R.string.error)
+                                    .setMessage(getString(R.string.giftcard_coin_not_acceptable, value.type.name))
+                                    .setPositiveButton(R.string.button_ok) { _, _ ->
+                                        findNavController().popBackStack()
+                                    }
+                                    .show()
+                        }
+                        return@collect
+                    }
                     withContext(Dispatchers.Main) {
-                        val exchangeRate = BigDecimal(it!!.exchangeRate)
                         //update crypto amount
-                        val cryptoAmountFromFiat =
-                            value.valueAsLong.toBigDecimal()
-                                .setScale(account?.coinType?.unitExponent!!) / toUnits(
-                                Utils.getTypeByName(
-                                    args.product.currencyCode!!
-                                )!!, exchangeRate
-                            ).toBigDecimal()
+                        val cryptoAmountFromFiat = value.valueAsLong.toBigDecimal().setScale(account?.coinType?.unitExponent!!) /
+                                        exchangeRate.movePointRight(Utils.getTypeByName(args.product.currencyCode!!)!!.unitExponent)
                         val cryptoAmountValue =
                             valueOf(
-                                account?.basedOnCoinType!!,
-                                toUnits(account?.basedOnCoinType!!, cryptoAmountFromFiat)
+                                account?.coinType!!,
+                                toUnits(account?.coinType!!, cryptoAmountFromFiat)
                             )
                         tvCryptoAmount.isVisible = true
                         tvCryptoAmount.text = cryptoAmountValue.toStringFriendlyWithUnit()
@@ -119,7 +131,17 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 setEnteredAmount(args.product.maximumValue.toPlainString()!!)
                 numberEntry!!.setEntry(args.product.maximumValue, getMaxDecimal(_amount?.type!!))
             }
-            tvCardValue.text = args.product?.getCardValue()
+            tvCardValue.text = args.product.getCardValue()
+            if(account is ERC20Account) {
+                binding.parentAccountLayout.isVisible = true
+                binding.erc20Tips.isVisible = true
+                val parentAccount = (account as ERC20Account).ethAcc
+                binding.parentAccountTitle.text = "${parentAccount.label}:"
+                binding.parentAccountBalance.text = parentAccount.accountBalance.spendable.toStringFriendlyWithUnit()
+            } else {
+                binding.parentAccountLayout.isVisible = false
+                binding.erc20Tips.isVisible = false
+            }
         }
         lifecycleScope.launch(IO) {
             val maxSpendable = getMaxSpendable()
@@ -133,20 +155,17 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
     }
 
     private fun getMaxSpendable() =
-        account?.calculateMaxSpendableAmount(feeEstimation.normal, null)!!
+        account?.calculateMaxSpendableAmount(feeEstimation.normal, null, null)!!
 
     private val feeEstimation by lazy {
         mbwManager.getFeeProvider(account?.basedOnCoinType).estimation
     }
 
-    private fun getMaxDecimal(assetInfo: AssetInfo): Int {
-        return (assetInfo as? FiatType)?.unitExponent
-            ?: assetInfo.unitExponent - mbwManager.getDenomination(_amount?.type).scale
-    }
+    private fun getMaxDecimal(assetInfo: AssetInfo): Int =
+            (assetInfo as? FiatType)?.unitExponent
+                    ?: assetInfo.unitExponent - mbwManager.getDenomination(_amount?.type).scale
 
-    fun zeroValue(): Value {
-        return Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
-    }
+    fun zeroValue(): Value = Value.zeroValue(Utils.getTypeByName(args.product.currencyCode)!!)
 
     private fun toUnits(assetInfo: String, amount: BigDecimal): BigInteger =
         toUnits(Utils.getTypeByName(args.product.currencyCode)!!, amount)
@@ -206,7 +225,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
             code = args.product.code ?: "",
             quantity = 1,
             amount = _amount?.valueAsLong?.div(100)?.toInt()!!,
-            currencyId = zeroCryptoValue!!.currencySymbol.removePrefix("t"),
+            currencyId = zeroCryptoValue!!.getCurrencyId(),
             success = { priceResponse ->
                 val conversionError = priceResponse!!.status == PriceResponse.Status.eRROR
                 val maxSpendableFiat = convertToFiat(priceResponse, getMaxSpendable())
@@ -280,7 +299,7 @@ class AmountInputFragment : Fragment(), NumberEntry.NumberEntryListener {
                 code = args.product.code!!,
                 quantity = args.quantity,
                 amount = value.valueAsBigDecimal.toInt(),
-                currencyId = account?.basedOnCoinType?.symbol?.removePrefix("t") ?: "",
+                currencyId = account?.coinType?.symbol?.removePrefix("t") ?: "",
                 success = { priceResponse ->
                     if (priceResponse!!.status == PriceResponse.Status.eRROR) {
                         return@getPrice
