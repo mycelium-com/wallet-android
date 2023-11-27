@@ -33,6 +33,7 @@ import com.mycelium.wallet.activity.main.TransactionHistoryFragment
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
+import com.mycelium.wallet.activity.modern.event.RemoveTab
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.news.NewsActivity
@@ -206,17 +207,19 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private fun addAdsTabs(tabLayout: TabLayout) {
         getMainMenuContent()?.pages?.sortedBy { it.tabIndex }?.forEach { page ->
             if (page.isActive() && isContentEnabled(page.parentId)) {
-                val adsBundle = Bundle().apply {
-                    putSerializable("page", page)
-                }
                 val tabIndex = page.tabIndex
                 val newTab = tabLayout.newTab().setText(page.tabName)
+                val tabTag = TAB_ADS + tabIndex
+                val adsBundle = Bundle().apply {
+                    putSerializable("page", page)
+                    putString("tag", tabTag)
+                }
                 if (0 <= tabIndex && tabIndex < mTabsAdapter!!.count) {
                     mTabsAdapter!!.addTab(tabIndex, newTab,
-                            AdsFragment::class.java, adsBundle, TAB_ADS + tabIndex)
+                            AdsFragment::class.java, adsBundle, tabTag)
                 } else {
                     mTabsAdapter!!.addTab(newTab,
-                            AdsFragment::class.java, adsBundle, TAB_ADS + tabIndex)
+                            AdsFragment::class.java, adsBundle, tabTag)
                 }
             }
         }
@@ -569,6 +572,16 @@ class ModernMain : AppCompatActivity(), BackHandler {
     @Subscribe
     fun selectTab(selectTab: SelectTab) {
         selectTab(selectTab.tabTag)
+    }
+    @Subscribe
+    fun deleteTab(tab: RemoveTab) {
+        val selectTab = mTabsAdapter!!.indexOf(tab.tabTag)
+        if (selectTab != -1) {
+            binding.pagerTabs.getTabAt(selectTab)?.run {
+                binding.pagerTabs.removeTab(this)
+                binding.pager.currentItem = this.position
+            }
+        }
     }
 
     @Subscribe
