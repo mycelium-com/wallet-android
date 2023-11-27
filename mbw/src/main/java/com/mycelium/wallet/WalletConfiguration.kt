@@ -29,10 +29,10 @@ import java.util.logging.Logger
 
 
 interface MyceliumNodesApi {
-    @GET("/nodes-b-v2.json")
+    @GET("/nodes-b-v3160200.json")
     fun getNodes(): Call<MyceliumNodesResponse>
 
-    @GET("/nodes-b-v2-test.json")
+    @GET("/nodes-b-v3160200-test.json")
     fun getNodesTest(): Call<MyceliumNodesResponse>
 }
 
