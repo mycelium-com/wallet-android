@@ -41,11 +41,11 @@ class AdsFragment : Fragment() {
         binding?.close?.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setMessage(getString(R.string.hide_this_ad))
-                .setPositiveButton(getString(R.string.hide)) { _, _ ->
+                .setPositiveButton(getString(R.string.yes)) { _, _ ->
                     SettingsPreference.setEnabled(pageData?.parentId.orEmpty(), false)
                     MbwManager.getEventBus().post(RemoveTab(arguments?.getString("tag").orEmpty()))
                 }
-                .setNegativeButton(R.string.cancel) { _, _ -> }
+                .setNegativeButton(R.string.no) { _, _ -> }
                 .show()
         }
     }
