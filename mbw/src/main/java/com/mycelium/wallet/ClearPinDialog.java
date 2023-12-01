@@ -61,7 +61,7 @@ public class ClearPinDialog extends PinDialog {
                @Override
                public void onClick(View v) {
                   mbwManager.savePin(Pin.CLEAR_PIN);
-                  if (onPinValid != null) onPinValid.pinEntered(ClearPinDialog.this, Pin.CLEAR_PIN );
+                  if (getPinValidCallback() != null) getPinValidCallback().pinEntered(ClearPinDialog.this, Pin.CLEAR_PIN );
                }
             });
          }else if (resetPinRemainingBlocksCount.isPresent()){

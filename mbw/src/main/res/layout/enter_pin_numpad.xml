@@ -7,8 +7,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
         android:orientation="vertical"
-        android:layout_gravity="center_horizontal"
-        tools:showIn="@layout/enter_pin_keypad"
         android:layoutDirection="ltr">
 
     <LinearLayout
@@ -90,10 +88,23 @@
                 style="@style/MyceliumPinpadButton"
                 android:text="@string/zero"/>
 
-        <Button
+        <FrameLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="2dp">
+            <Button
                 android:id="@+id/pin_back"
                 style="@style/MyceliumPinpadButtonFn"
-                android:text="@string/pin_pad_backspace"/>
+                android:layout_margin="0dp"
+                android:text="@string/pin_pad_backspace" />
 
+            <ImageButton
+                android:id="@+id/pin_finger"
+                style="@style/MyceliumPinpadButtonFn"
+                android:layout_margin="0dp"
+                android:contentDescription="fingerprint"
+                android:src="@drawable/ic_fingerprint_selector"
+                android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

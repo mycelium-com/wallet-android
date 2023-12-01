@@ -31,58 +31,62 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
+package com.mycelium.wallet
 
-package com.mycelium.wallet;
+import android.content.Context
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
+import com.google.common.base.Strings
+import com.mycelium.wallet.databinding.EnterTrezorPinDialogBinding
 
-import android.content.Context;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.TextView;
-import com.mycelium.wallet.activity.util.Pin;
+class TrezorPinDialog(context: Context, hidden: Boolean) : PinDialog(context, hidden, true) {
+    private var pinDisp: TextView? = null
 
-import static com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS;
+    override fun loadLayout() {
+        setContentView(EnterTrezorPinDialogBinding.inflate(layoutInflater).apply {
+            numpadBinding = this.keyboard.numPad
+        }.root)
+    }
 
-public class NewPinDialog extends PinDialog {
-   private final CheckBox cbResettablePin;
+    override fun initPinPad() {
+        pinDisp = findViewById<View>(R.id.pin_display) as TextView?
+        findViewById<View>(R.id.pin_button0)!!.visibility = View.INVISIBLE
 
-   public NewPinDialog(final Context context, boolean hidden) {
-      super(context, hidden, true);
-      this.setTitle(R.string.pin_enter_new_pin);
+        // reorder the Buttons for the trezor PIN-entry (like a NUM-Pad)
+        buttons = numpadBinding?.let {
+            listOf(
+                it.pinButton7, it.pinButton8, it.pinButton9, it.pinButton4, it.pinButton5,
+                it.pinButton6, it.pinButton1, it.pinButton2, it.pinButton3
+            )
+        }.orEmpty()
+        numpadBinding?.pinBack?.setText("OK")
+        enteredPin = ""
+        var cnt = 0
+        for (b in buttons) {
+            val akCnt = cnt
+            b.setOnClickListener { addDigit((akCnt + 1).toString()) }
+            b.text = "\u2022" // unicode "bullet"
+            cnt++
+        }
+        numpadBinding?.pinBack?.setOnClickListener {
+            acceptPin()
+        }
+        numpadBinding?.pinClr?.setOnClickListener {
+            clearDigits()
+            updatePinDisplay()
+        }
+    }
 
-      MbwManager mbwManager = MbwManager.getInstance(context);
-      cbResettablePin = (CheckBox) findViewById(R.id.cb_resettable_pin);
+    override fun updatePinDisplay() {
+        pinDisp!!.text =
+            Strings.repeat("\u25CF  ", enteredPin.length) // Unicode Character 'BLACK CIRCLE'
+        checkPin()
+    }
 
-      cbResettablePin.setChecked(mbwManager.getPin().isSet() );
-
-      cbResettablePin.setOnCheckedChangeListener((compoundButton, b) -> updateResetInfo(context));
-
-      updateResetInfo(context);
-   }
-
-   private void updateResetInfo(Context context) {
-      TextView txtInfo = (TextView) findViewById(R.id.tv_resettable_pin_info);
-      if (cbResettablePin.isChecked()) {
-         txtInfo.setText(context.getString(
-               R.string.pin_resettable_pin_info,
-               Utils.formatBlockcountAsApproxDuration(MbwManager.getInstance(context),
-                       Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN, BTC_BLOCK_TIME_IN_SECONDS)
-         ));
-      } else {
-         txtInfo.setText(context.getString(R.string.pin_unresettable_pin_info));
-      }
-   }
-
-   @Override
-   protected void loadLayout() {
-      setContentView(R.layout.enter_new_pin_dialog);
-   }
-
-   @Override
-   protected Pin getPin() {
-      return new Pin(enteredPin, isResettable());
-   }
-
-   public boolean isResettable(){
-      return cbResettablePin.isChecked();
-   }
+    override fun checkPin() {
+        if (enteredPin.length >= 9) {
+            acceptPin()
+        }
+    }
 }

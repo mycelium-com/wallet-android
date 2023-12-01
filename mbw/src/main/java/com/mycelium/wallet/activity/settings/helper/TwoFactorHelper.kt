@@ -4,7 +4,7 @@ import com.mycelium.wallet.PinDialog
 import com.mycelium.wallet.activity.util.Pin
 
 
-class TwoFactorHelper(val pinDialog: PinDialog) {
+class TwoFactorHelper(private val pinDialog: PinDialog) {
     var isFingerprintSuccess = false
     var enteredPin: Pin = Pin("")
     var listener: PinDialog.OnPinEntered? = null

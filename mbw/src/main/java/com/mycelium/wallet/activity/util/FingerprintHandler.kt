@@ -21,9 +21,9 @@ class FingerprintHandler : BiometricPrompt.AuthenticationCallback() {
     fun authenticate(context: Context): Boolean {
         if (canAuthWithBiometric(context)) {
             biometricPrompt?.authenticate(BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(context.getString(R.string.unlock_label))
+                    .setTitle(context.getString(R.string.unlock_label_fingerprint))
                     .setConfirmationRequired(false)
-                    .setNegativeButtonText(context.getString(R.string.cancel))
+                    .setNegativeButtonText(context.getString(R.string.use_pin))
                     .build())
             return true
         }
