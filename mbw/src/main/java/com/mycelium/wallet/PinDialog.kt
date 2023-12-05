@@ -20,7 +20,23 @@ import com.mycelium.wallet.databinding.EnterPinNumpadBinding
 
 open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean) :
     AppCompatDialog(context) {
-    private val fingerprintHandler = FingerprintHandler()
+    private val fingerprintHandler = FingerprintHandler().apply {
+        successListener = {
+            if (isTwoFactorAuth) {
+//                  fingerprintHint.setEnabled(false);
+                numpadBinding?.pinFinger?.isVisible = false
+                twoFactorHelper.fingerprintSuccess()
+            } else {
+                dismiss()
+                if (fingerprintCallback != null) {
+                    fingerprintCallback!!.onSuccess()
+                }
+            }
+        }
+        failListener = { msg: String? ->
+            Toaster(context).toast(msg!!, false)
+        }
+    }
     private val twoFactorHelper = TwoFactorHelper(this)
     protected var numpadBinding: EnterPinNumpadBinding? = null
     protected var pinBinding: EnterPinDisplayBinding? = null
@@ -50,28 +66,13 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
 
     protected fun initFingerprint(context: Context) {
         if (isFingerprintEnabled) {
-            fingerprintHandler.successListener = {
-                if (isTwoFactorAuth) {
-//                  fingerprintHint.setEnabled(false);
-                    numpadBinding?.pinFinger?.isVisible = false
-                    twoFactorHelper.fingerprintSuccess()
-                } else {
-                    dismiss()
-                    if (fingerprintCallback != null) {
-                        fingerprintCallback!!.onSuccess()
-                    }
-                }
-            }
-            fingerprintHandler.failListener = { msg: String? ->
-                Toaster(context).toast(msg!!, false)
-            }
             val result = fingerprintHandler.authenticate(context)
             if (!result) {
                 Toaster(getContext()).toast(R.string.fingerprint_not_available, false)
                 numpadBinding?.pinFinger?.isVisible = false
             }
         }
-        updatePinDisplay()
+        numpadBinding?.pinFinger?.isVisible = enteredPin.isEmpty() && isFingerprintEnabled
     }
 
     override fun onStart() {
