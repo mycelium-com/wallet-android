@@ -31,113 +31,82 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
+package com.mycelium.wallet.activity.modern.adapter
 
-package com.mycelium.wallet.activity.modern.adapter;
+import android.app.Activity
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.event.PageSelectedEvent
 
-import java.util.ArrayList;
-import java.util.List;
+class TabsAdapter(val activity: AppCompatActivity,val pager: ViewPager, val mbwManager: MbwManager) :
+    FragmentPagerAdapter(activity.supportFragmentManager), ViewPager.OnPageChangeListener {
+    private val mTabs = mutableListOf<TabInfo>()
 
-import android.app.Activity;
-import android.os.Bundle;
+    private data class TabInfo(
+        val clss: Class<*>,
+        val args: Bundle?,
+        val title: String,
+        val tag: String
+    )
 
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
+    init {
+        pager.adapter = this
+        pager.addOnPageChangeListener(this)
+    }
 
-import com.google.android.material.tabs.TabLayout;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.event.PageSelectedEvent;
+    fun addTab(tab: TabLayout.Tab, clss: Class<*>, args: Bundle?, tabTag: String) {
+        val info = TabInfo(clss, args, tab.text.toString(), tabTag)
+        tab.tag = info
+        mTabs.add(info)
+        notifyDataSetChanged()
+    }
 
-public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener {
-   private final Activity mContext;
-   private final List<TabInfo> mTabs = new ArrayList<>();
-   private final MbwManager _mbwManager;
+    fun addTab(i: Int, tab: TabLayout.Tab, clss: Class<*>, args: Bundle, tabTag: String) {
+        val info = TabInfo(clss, args, tab.text.toString(), tabTag)
+        tab.tag = info
+        mTabs.add(i, info)
+        notifyDataSetChanged()
+    }
 
-   private static final class TabInfo {
-      private final Class<?> clss;
-      private final Bundle args;
-      private final CharSequence title;
-      private final String tag;
+    fun removeTab(tabTag: String) {
+        mTabs.removeAll { it.tag == tabTag }
+        notifyDataSetChanged()
+    }
 
-      TabInfo(Class<?> _class, Bundle _args, CharSequence title, String tag) {
-         clss = _class;
-         args = _args;
-         this.title = title;
-         this.tag = tag;
-      }
-   }
+    override fun getCount(): Int = mTabs.size
 
-   public TabsAdapter(AppCompatActivity activity, ViewPager pager, MbwManager mbwManager) {
-      super(activity.getSupportFragmentManager());
-      mContext = activity;
-      _mbwManager = mbwManager;
-      pager.setAdapter(this);
-      pager.addOnPageChangeListener(this);
-   }
+    override fun getItemId(position: Int): Long =
+        mTabs[position].tag.hashCode().toLong()
 
-   public void addTab(TabLayout.Tab tab, Class<?> clss, Bundle args, String tabTag) {
-      TabInfo info = new TabInfo(clss, args, tab.getText(), tabTag);
-      tab.setTag(info);
-      mTabs.add(info);
-      notifyDataSetChanged();
-   }
+    override fun getItem(position: Int): Fragment =
+        mTabs[position].let { Fragment.instantiate(activity, it.clss.name, it.args) }
 
-   public void addTab(int i, TabLayout.Tab tab, Class<?> clss, Bundle args, String tabTag) {
-      TabInfo info = new TabInfo(clss, args, tab.getText(), tabTag);
-      tab.setTag(info);
-      mTabs.add(i, info);
-      notifyDataSetChanged();
-   }
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+    override fun onPageSelected(position: Int) {
+        // This ensures that any cached encryption key is flushed when we swipe to
+        // another tab
+        mbwManager.clearCachedEncryptionParameters()
+        // redraw menu - not working yet
+        ActivityCompat.invalidateOptionsMenu(activity)
+        MbwManager.getEventBus().post(PageSelectedEvent(position, mTabs[position].tag))
+    }
 
-   @Override
-   public int getCount() {
-      return mTabs.size();
-   }
+    override fun onPageScrollStateChanged(state: Int) {}
+    override fun getPageTitle(position: Int): CharSequence? =
+        mTabs[position].title
 
-   @Override
-   public Fragment getItem(int position) {
-      TabInfo info = mTabs.get(position);
-      return Fragment.instantiate(mContext, info.clss.getName(), info.args);
-   }
+    fun getPageTag(position: Int): String =
+        mTabs[position].tag
 
-   @Override
-   public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-   }
+    fun indexOf(tabTag: String): Int =
+        mTabs.indexOfFirst { it.tag == tabTag }
 
-   @Override
-   public void onPageSelected(int position) {
-      // This ensures that any cached encryption key is flushed when we swipe to
-      // another tab
-      _mbwManager.clearCachedEncryptionParameters();
-      // redraw menu - not working yet
-      ActivityCompat.invalidateOptionsMenu(mContext);
-      MbwManager.getEventBus().post(new PageSelectedEvent(position, mTabs.get(position).tag));
-   }
-
-   @Override
-   public void onPageScrollStateChanged(int state) {
-   }
-
-   @Nullable
-   @Override
-   public CharSequence getPageTitle(int position) {
-      return mTabs.get(position).title;
-   }
-
-   public String getPageTag(int position) {
-      return mTabs.get(position).tag;
-   }
-
-   public int indexOf(String tabTag) {
-      for (int i = 0; i < mTabs.size(); i++) {
-         TabInfo mTab = mTabs.get(i);
-         if (tabTag.equals(mTab.tag)) {
-            return i;
-         }
-      }
-      return -1;
-   }
+    override fun getItemPosition(`object`: Any): Int =
+        POSITION_NONE
 }
