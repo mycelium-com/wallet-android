@@ -61,11 +61,9 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
                         fingerprintCallback!!.onSuccess()
                     }
                 }
-                null
             }
             fingerprintHandler.failListener = { msg: String? ->
                 Toaster(getContext()).toast(msg!!, false)
-                null
             }
             val result = fingerprintHandler.authenticate(context)
             if (!result) {
@@ -124,6 +122,10 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
             numpadBinding = this.keyboard.numPad
             pinBinding = this.keyboard.pinDisplay
         }.root)
+        twoFactorHelper.needFingerCallback = {
+            initFingerprint(context)
+            numpadBinding?.pinFinger?.isVisible = true
+        }
     }
 
     protected fun addDigit(c: String) {

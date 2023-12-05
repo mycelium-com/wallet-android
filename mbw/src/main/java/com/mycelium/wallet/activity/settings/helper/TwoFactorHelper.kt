@@ -8,6 +8,7 @@ class TwoFactorHelper(private val pinDialog: PinDialog) {
     var isFingerprintSuccess = false
     var enteredPin: Pin = Pin("")
     var listener: PinDialog.OnPinEntered? = null
+    var needFingerCallback: (() -> Unit)? = null
 
     fun pinEntered(pin: Pin) {
         enteredPin = pin
@@ -22,6 +23,9 @@ class TwoFactorHelper(private val pinDialog: PinDialog) {
     private fun checkAndCall() {
         if (isFingerprintSuccess && enteredPin.isSet) {
             listener?.pinEntered(pinDialog, enteredPin)
+        }
+        if(!isFingerprintSuccess && enteredPin.isSet) {
+            needFingerCallback?.invoke()
         }
     }
 }
