@@ -1,4 +1,4 @@
-package com.mycelium.wallet
+ package com.mycelium.wallet
 
 import android.content.Context
 import android.os.Handler
@@ -21,7 +21,7 @@ import com.mycelium.wallet.databinding.EnterPinNumpadBinding
 open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean) :
     AppCompatDialog(context) {
     private val fingerprintHandler = FingerprintHandler()
-    private val twoFactorHelper: TwoFactorHelper = TwoFactorHelper(this)
+    private val twoFactorHelper = TwoFactorHelper(this)
     protected var numpadBinding: EnterPinNumpadBinding? = null
     protected var pinBinding: EnterPinDisplayBinding? = null
 
@@ -63,7 +63,7 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
                 }
             }
             fingerprintHandler.failListener = { msg: String? ->
-                Toaster(getContext()).toast(msg!!, false)
+                Toaster(context).toast(msg!!, false)
             }
             val result = fingerprintHandler.authenticate(context)
             if (!result) {
@@ -71,15 +71,12 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
                 numpadBinding?.pinFinger?.isVisible = false
             }
         }
-        numpadBinding?.pinFinger?.setOnClickListener {
-            initFingerprint(context)
-        }
         updatePinDisplay()
     }
 
     override fun onStart() {
         super.onStart()
-        initFingerprint(context)
+
     }
 
     override fun onStop() {
@@ -125,6 +122,9 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
         twoFactorHelper.needFingerCallback = {
             initFingerprint(context)
             numpadBinding?.pinFinger?.isVisible = true
+        }
+        numpadBinding?.pinFinger?.setOnClickListener {
+            initFingerprint(context)
         }
     }
 
@@ -213,6 +213,8 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
         this.setTitle(R.string.pin_enter_pin)
 
         fingerprintHandler.onCreate(context as FragmentActivity)
+
+        initFingerprint(context)
     }
 
     companion object {
