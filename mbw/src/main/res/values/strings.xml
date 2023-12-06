@@ -1850,5 +1850,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fingerprint_detection_failed">Fingerprint detection failed</string>
     <string name="fingerprint_not_available">Fingerprint not available</string>
     <string name="unlock_label_fingerprint">Proceed using fingerprint</string>
-    <string name="use_pin">Use PIN-code</string>
+    <string name="use_pin">Use PIN code</string>
+    <string name="hide_this_ad">Stop showing this ad</string>
 </resources>
