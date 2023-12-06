@@ -1841,4 +1841,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="hours_or_more">%s or more</string>
     <string name="russia">Russia</string>
     <string name="giftbox_expired_text"><![CDATA[The order expired. Please contact the support - <font color="#4583de">support@mycelium.com</font>]]></string>
+    <string name="hide_this_ad">Stop showing this ad</string>
 </resources>
