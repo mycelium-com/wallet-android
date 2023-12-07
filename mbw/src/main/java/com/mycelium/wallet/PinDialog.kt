@@ -190,10 +190,14 @@ open class PinDialog(context: Context, val hidden: Boolean, cancelable: Boolean)
                 numpadBinding?.pinBack?.isEnabled = false
                 twoFactorHelper.pinEntered(Pin(enteredPin))
             } else {
-                if (pinValidCallback != null) pinValidCallback?.pinEntered(
-                    this@PinDialog,
-                    Pin(enteredPin)
-                )
+                // Optimized to not cause 4 bytes difference in DEX thus failing build reproducibility check
+                if (pinValidCallback != null) {
+                    val _pinDialog = this@PinDialog
+                    pinValidCallback?.pinEntered(
+                        _pinDialog,
+                        Pin(enteredPin)
+                    )
+                }
                 enableButtons(true)
                 clearDigits()
             }
