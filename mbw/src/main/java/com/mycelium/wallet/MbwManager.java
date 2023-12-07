@@ -114,6 +114,7 @@ import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.fio.AbiFioSerializationProviderWrapper;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
@@ -607,6 +608,23 @@ public class MbwManager {
         getEditor().putBoolean(Constants.RANDOMIZE_PIN, randomizePinPad).apply();
         this.randomizePinPad = randomizePinPad;
     }
+
+    public boolean isFingerprintEnabled() {
+        return getPreferences().getBoolean(Constants.FINGERPRINT, false);
+    }
+
+    public void setFingerprintEnabled(boolean enable) {
+        getEditor().putBoolean(Constants.FINGERPRINT, enable).apply();
+    }
+
+    public boolean isTwoFactorEnabled() {
+        return getPreferences().getBoolean(Constants.TWO_FACTOR, false);
+    }
+
+    public void setTwoFactorEnabled(boolean enable) {
+        getEditor().putBoolean(Constants.TWO_FACTOR, enable).apply();
+    }
+
 
     private LtApiClient initLt() {
         return new LtApiClient(_environment.getLtEndpoints());
@@ -1183,6 +1201,7 @@ public class MbwManager {
             @Override
             public void run() {
                 MbwManager.this.savePin(Pin.CLEAR_PIN);
+                MbwManager.this.setTwoFactorEnabled(false);
                 new Toaster(_applicationContext).toast(R.string.pin_cleared, false);
                 if (afterDialogClosed != null) {
                     afterDialogClosed.run();
@@ -1336,6 +1355,12 @@ public class MbwManager {
                             pinDialog.dismiss();
                         }
                     }
+                }
+            });
+            pinDialog.setFingerprintCallback(new PinDialog.FingerprintCallback() {
+                @Override
+                public void onSuccess() {
+                    fun.run();
                 }
             });
             if (!activity.isFinishing()) {

@@ -14,7 +14,9 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp">
 
-        <include layout="@layout/enter_pin_display"/>
+        <include
+            android:id="@+id/pinDisplay"
+            layout="@layout/enter_pin_display"/>
 
 
         <LinearLayout
@@ -26,7 +28,9 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                <include layout="@layout/enter_pin_numpad"/>
+                <include
+                    android:id="@+id/numPad"
+                    layout="@layout/enter_pin_numpad"/>
 
             </LinearLayout>
         </LinearLayout>

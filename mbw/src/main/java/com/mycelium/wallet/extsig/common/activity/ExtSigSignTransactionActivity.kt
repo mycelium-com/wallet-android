@@ -45,13 +45,11 @@ import android.view.View
 import android.widget.TextView
 import com.google.common.base.Joiner
 import com.mycelium.view.Denomination
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
-import com.mycelium.wallet.TrezorPinDialog
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.MasterseedPasswordDialog
 import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
+import com.mycelium.wallet.activity.util.Pin
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.*
@@ -213,10 +211,12 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
     @Subscribe
     open fun onPinMatrixRequest(event: ExternalSignatureDeviceManager.OnPinMatrixRequest) {
         val pinDialog = TrezorPinDialog(this, true)
-        pinDialog.setOnPinValid { dialog, pin ->
-            extSigManager.enterPin(pin.pin)
-            dialog.dismiss()
-        }
+        pinDialog.setOnPinValid(object : PinDialog.OnPinEntered {
+            override fun pinEntered(dialog: PinDialog, pin: Pin) {
+                extSigManager.enterPin(pin.pin)
+                dialog.dismiss()
+            }
+        })
         pinDialog.show()
 
         // update the UI, as the state might have changed

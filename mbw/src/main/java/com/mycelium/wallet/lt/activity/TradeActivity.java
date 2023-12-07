@@ -44,6 +44,9 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -164,6 +167,7 @@ public class TradeActivity extends AppCompatActivity {
    public void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       setContentView(R.layout.lt_trade_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();

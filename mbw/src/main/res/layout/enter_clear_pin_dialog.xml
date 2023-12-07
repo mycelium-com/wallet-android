@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="vertical" >
 
-    <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:paddingBottom="40dp"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="40dp">
 
-            android:orientation="vertical"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp">
+    <include
+        android:id="@+id/pinDisplay"
+        layout="@layout/enter_pin_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <include layout="@layout/enter_pin_display"/>
+    <include
+        android:id="@+id/numPad"
+        layout="@layout/enter_pin_numpad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pinDisplay" />
 
+    <Button
+        android:id="@+id/btn_forgot_pin"
+        style="@style/MyceliumPinpadButton"
+        android:layout_width="0dp"
+        android:text="@string/pin_forgotten_button"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@id/numPad"
+        app:layout_constraintEnd_toEndOf="@id/numPad"
+        app:layout_constraintTop_toBottomOf="@id/numPad" />
 
-        <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center_horizontal">
-            <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                <include layout="@layout/enter_pin_numpad"/>
-
-                <Button
-                        android:layout_width="fill_parent"
-                        android:id="@+id/btn_forgot_pin"
-                        android:textSize="20sp"
-                        style="@style/MyceliumPinpadButton"
-                        android:text="@string/pin_forgotten_button"/>
-
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

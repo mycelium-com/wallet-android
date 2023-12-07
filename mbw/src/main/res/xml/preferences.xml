@@ -52,16 +52,28 @@
                     android:summary="@string/randomize_pin_text"
                     android:title="@string/randomize_pin"
                     android:widgetLayout="@layout/preference_switch" />
+
+                <CheckBoxPreference
+                    android:dependency="setPin"
+                    android:icon="@drawable/ic_fingerprint"
+                    android:key="fingerprint"
+                    android:layout="@layout/preference_layout_no_icon"
+                    android:summary="@string/preference_fingerprint_summary"
+                    android:title="@string/preference_fingerprint_title"
+                    android:widgetLayout="@layout/preference_switch" />
+
+                <CheckBoxPreference
+                    android:dependency="fingerprint"
+                    android:icon="@drawable/ic_fingerprint"
+                    android:key="twoFactorAuth"
+                    android:layout="@layout/preference_layout_no_icon"
+                    android:summary="@string/preference_two_factor_summary"
+                    android:title="@string/preference_two_factor_title"
+                    android:widgetLayout="@layout/preference_switch" />
+
             </PreferenceCategory>
         </PreferenceScreen>
 
-
-        <!--<CheckBoxPreference-->
-        <!--android:icon="@drawable/ic_fingerprint"-->
-        <!--android:key="fingerprint"-->
-        <!--android:layout="@layout/preference_layout"-->
-        <!--android:title="Unlock with your fingerprint"-->
-        <!--android:widgetLayout="@layout/preference_switch" />-->
         <CheckBoxPreference
             android:icon="@drawable/ic_tor"
             android:key="useTor"

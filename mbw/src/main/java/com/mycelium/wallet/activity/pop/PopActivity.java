@@ -40,6 +40,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -94,6 +95,7 @@ public class PopActivity extends AppCompatActivity {
    protected void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       setContentView(R.layout.pop_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
 

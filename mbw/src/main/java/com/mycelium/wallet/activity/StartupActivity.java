@@ -51,6 +51,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -138,6 +139,7 @@ public class StartupActivity extends AppCompatActivity implements AccountCreator
    protected void onCreate(Bundle savedInstanceState) {
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
       isFirstRun = (PreferenceManager.getDefaultSharedPreferences(
               getApplicationContext()).getInt("ckChangeLog_last_version_code", -1) == -1);

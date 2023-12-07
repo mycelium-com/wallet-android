@@ -62,6 +62,7 @@ public class PinProtectedActivity extends AppCompatActivity {
    protected void onCreate(Bundle savedInstanceState) {
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       setContentView(R.layout.startup_activity);
 
       final MbwManager _mbwManager = MbwManager.getInstance(this);

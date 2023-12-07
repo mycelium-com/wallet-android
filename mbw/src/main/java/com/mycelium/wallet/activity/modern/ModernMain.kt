@@ -102,7 +102,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             it.setIcon(R.drawable.action_bar_logo)
         }
         window.setBackgroundDrawableResource(R.drawable.background_main)
-        binding.pager.offscreenPageLimit = 5
+
         mTabsAdapter = TabsAdapter(this, binding.pager, mbwManager)
         if (mediaFlowEnabled) {
             mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow)).setCustomView(R.layout.layout_exchange_tab)
@@ -131,6 +131,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         mTabsAdapter!!.addTab(binding.pagerTabs.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment::class.java,
                 addressBookConfig, TAB_ADDRESS_BOOK)
         addAdsTabs(binding.pagerTabs)
+        binding.pager.offscreenPageLimit = (mTabsAdapter?.count ?: 0) + 2
         selectTab(if (intent.getStringExtra(TAB_KEY) != null) intent.getStringExtra(TAB_KEY) else TAB_ACCOUNTS)
         _toaster = Toaster(this)
         checkTorState()

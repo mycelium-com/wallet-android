@@ -52,6 +52,7 @@
     </style>
 
     <style name="MyceliumLauncher" parent="MyceliumModern">
+        <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/background_launcher_centered</item>
     </style>
 

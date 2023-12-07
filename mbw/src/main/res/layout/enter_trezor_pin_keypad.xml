@@ -16,5 +16,7 @@
             android:textAlignment="center"
             android:textSize="18sp"/>
 
-    <include layout="@layout/enter_pin_numpad"/>
+    <include
+        android:id="@+id/numPad"
+        layout="@layout/enter_pin_numpad"/>
 </LinearLayout>
