@@ -33,6 +33,7 @@ import com.mycelium.wallet.activity.main.TransactionHistoryFragment
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter
 import com.mycelium.wallet.activity.modern.event.BackHandler
 import com.mycelium.wallet.activity.modern.event.BackListener
+import com.mycelium.wallet.activity.modern.event.RemoveTab
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.helper.MainActions
 import com.mycelium.wallet.activity.news.NewsActivity
@@ -94,7 +95,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         setContentView(ModernMainBinding.inflate(layoutInflater).apply {
             binding = this
         }.root)
-        binding.pagerTabs.setupWithViewPager(binding.pager)
+        binding.pagerTabs.setupWithViewPager(binding.pager, true)
         supportActionBar?.let {
             it.setDisplayShowTitleEnabled(false)
             it.setDisplayShowHomeEnabled(true)
@@ -105,23 +106,23 @@ class ModernMain : AppCompatActivity(), BackHandler {
         mTabsAdapter = TabsAdapter(this, binding.pager, mbwManager)
         if (mediaFlowEnabled) {
             mNewsTab = binding.pagerTabs.newTab().setText(getString(R.string.media_flow)).setCustomView(R.layout.layout_exchange_tab)
-            mTabsAdapter!!.addTab(mNewsTab, NewsFragment::class.java, null, TAB_NEWS)
+            mTabsAdapter!!.addTab(mNewsTab!!, NewsFragment::class.java, null, TAB_NEWS)
         }
-        if(SettingsPreference.isContentEnabled(ChangellyConstants.PARTNER_ID_CHANGELLY)) {
+        if(isContentEnabled(ChangellyConstants.PARTNER_ID_CHANGELLY)) {
             mExchangeTab = binding.pagerTabs.newTab().setText(R.string.tab_exchange_title)
-            mTabsAdapter!!.addTab(mExchangeTab, ExchangeFragment::class.java, null, TAB_EXCHANGE)
+            mTabsAdapter!!.addTab(mExchangeTab!!, ExchangeFragment::class.java, null, TAB_EXCHANGE)
         }
         mAccountsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_accounts))
-        mTabsAdapter!!.addTab(mAccountsTab, AccountsFragment::class.java, null, TAB_ACCOUNTS)
+        mTabsAdapter!!.addTab(mAccountsTab!!, AccountsFragment::class.java, null, TAB_ACCOUNTS)
         mBalanceTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_balance))
-        mTabsAdapter!!.addTab(mBalanceTab, BalanceMasterFragment::class.java, null, TAB_BALANCE)
+        mTabsAdapter!!.addTab(mBalanceTab!!, BalanceMasterFragment::class.java, null, TAB_BALANCE)
         mTransactionsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_transactions))
-        mTabsAdapter!!.addTab(mTransactionsTab, TransactionHistoryFragment::class.java, null, TAB_HISTORY)
+        mTabsAdapter!!.addTab(mTransactionsTab!!, TransactionHistoryFragment::class.java, null, TAB_HISTORY)
         mRecommendationsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_partners))
-        mTabsAdapter!!.addTab(mRecommendationsTab,
+        mTabsAdapter!!.addTab(mRecommendationsTab!!,
                 RecommendationsFragment::class.java, null, TAB_RECOMMENDATIONS)
         mFioRequestsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_fio_requests))
-        mTabsAdapter!!.addTab(mFioRequestsTab, FioRequestsHistoryFragment::class.java, null, TAB_FIO_REQUESTS)
+        mTabsAdapter!!.addTab(mFioRequestsTab!!, FioRequestsHistoryFragment::class.java, null, TAB_FIO_REQUESTS)
         val addressBookConfig = Bundle().apply {
             putBoolean(AddressBookFragment.OWN, false)
             putBoolean(AddressBookFragment.SELECT_ONLY, false)
@@ -154,7 +155,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         }
     }
 
-    fun selectTab(tabTag: String?) {
+    fun selectTab(tabTag: String) {
         val selectTab = mTabsAdapter!!.indexOf(tabTag)
         if(selectTab != -1) {
             binding.pagerTabs.getTabAt(selectTab)?.select()
@@ -207,17 +208,19 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private fun addAdsTabs(tabLayout: TabLayout) {
         getMainMenuContent()?.pages?.sortedBy { it.tabIndex }?.forEach { page ->
             if (page.isActive() && isContentEnabled(page.parentId)) {
-                val adsBundle = Bundle().apply {
-                    putSerializable("page", page)
-                }
                 val tabIndex = page.tabIndex
                 val newTab = tabLayout.newTab().setText(page.tabName)
+                val tabTag = TAB_ADS + tabIndex
+                val adsBundle = Bundle().apply {
+                    putSerializable("page", page)
+                    putString("tag", tabTag)
+                }
                 if (0 <= tabIndex && tabIndex < mTabsAdapter!!.count) {
                     mTabsAdapter!!.addTab(tabIndex, newTab,
-                            AdsFragment::class.java, adsBundle, TAB_ADS + tabIndex)
+                            AdsFragment::class.java, adsBundle, tabTag)
                 } else {
                     mTabsAdapter!!.addTab(newTab,
-                            AdsFragment::class.java, adsBundle, TAB_ADS + tabIndex)
+                            AdsFragment::class.java, adsBundle, tabTag)
                 }
             }
         }
@@ -570,6 +573,10 @@ class ModernMain : AppCompatActivity(), BackHandler {
     @Subscribe
     fun selectTab(selectTab: SelectTab) {
         selectTab(selectTab.tabTag)
+    }
+    @Subscribe
+    fun deleteTab(tab: RemoveTab) {
+        mTabsAdapter?.removeTab(tab.tabTag)
     }
 
     @Subscribe
