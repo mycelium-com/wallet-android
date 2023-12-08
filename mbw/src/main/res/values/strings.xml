@@ -1317,9 +1317,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="and">and</string>
     <string name="add_fingerprint_in_settings">You need to add a fingerprint before using fingerprint authentication</string>
     <string name="preference_two_factor_summary">Wallet requires both pin code and fingerprint</string>
-    <string name="preference_two_factor_title">Two-factor authentication</string>
+    <string name="preference_two_factor_title">Two-factor authentication (beta)</string>
     <string name="preference_fingerprint_summary">Accept fingerprint to unlock</string>
-    <string name="preference_fingerprint_title">Fingerprint</string>
+    <string name="preference_fingerprint_title">Fingerprint (beta)</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
