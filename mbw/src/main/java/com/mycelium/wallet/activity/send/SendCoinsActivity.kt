@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
-import android.text.TextUtils
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
@@ -28,6 +27,7 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -35,6 +35,8 @@ import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
+import com.mycelium.wallet.activity.send.adapter.BatchAdapter
+import com.mycelium.wallet.activity.send.adapter.BatchItem
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.event.AmountListener
@@ -43,6 +45,7 @@ import com.mycelium.wallet.activity.send.model.*
 import com.mycelium.wallet.activity.util.collapse
 import com.mycelium.wallet.activity.util.expand
 import com.mycelium.wallet.activity.util.toStringFriendlyWithUnit
+import com.mycelium.wallet.activity.view.VerticalSpaceItemDecoration
 import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
@@ -82,6 +85,30 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     private lateinit var viewModel: SendCoinsViewModel
     private lateinit var mbwManager: MbwManager
     private lateinit var senderFioNamesMenu: PopupMenu
+    private val batchAdapter = BatchAdapter().apply {
+        clipboardListener = {
+            viewModel.onClickClipboard(it)
+        }
+        contactListener = {
+            startActivityForResult(Intent(this@SendCoinsActivity, GetFromAddressBookActivity::class.java)
+                .putExtra(ACCOUNT, viewModel.getAccount().id)
+                .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage()),
+                (it.index + 1).shl(10) or ADDRESS_BOOK_RESULT_CODE)
+        }
+        qrScanListener = {
+            val config = HandleConfigFactory.returnKeyOrAddressOrUriOrKeynode()
+            ScanActivity.callMe(this@SendCoinsActivity,
+                (it.index + 1).shl(10) or SCAN_RESULT_CODE, config)
+        }
+        amountListener = {
+            val account = viewModel.getAccount()
+            GetAmountActivity.callMeToSend(this@SendCoinsActivity,
+                (it.index + 1).shl(10) or GET_AMOUNT_RESULT_CODE
+                , account.id,
+                it.crypto, viewModel.getSelectedFee().value,
+                viewModel.isColdStorage(), it.address, viewModel.getTransactionData().value)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,7 +116,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
         mbwManager = MbwManager.getInstance(application)
         val accountId = checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
         val rawPaymentRequest = intent.getByteArrayExtra(RAW_PAYMENT_REQUEST)
-        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was $accountId)"
+        val crashHint = intent.extras!!.keySet().joinToString() + " (account id was $accountId)"
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
                 ?: throw IllegalStateException(crashHint)
@@ -159,6 +186,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                 root.postDelayed({ root.smoothScrollBy(0, root.maxScrollAmount) }, 500)
             }
         }
+        viewModel.outputList.observe(this) {
+            batchAdapter.submitList(it)
+        }
     }
 
     private fun updateMemoVisibility() {
@@ -220,6 +250,11 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                         .also {
                             it.viewModel = viewModel as SendBtcViewModel
                             it.activity = this
+                            it.batch.adapter = batchAdapter
+                            it.batch.addItemDecoration(VerticalSpaceItemDecoration(resources.getDimensionPixelOffset(R.dimen.size_x4)))
+                            it.addBatchAddress.setOnClickListener {
+                                viewModel.addEmptyOutput()
+                            }
                         }
             }
             is EthAccount, is ERC20Account -> {
@@ -520,6 +555,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
                 .putExtra(ACCOUNT, viewModel.getAccount().id)
                 .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage())
         startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE)
+    }
+
+    fun onClickBatch() {
+        (viewModel as? SendBtcViewModel)?.run {
+            isBatch.value = true
+            addEmptyOutput()
+        }
     }
 
     fun onClickSenderFioNames() {

@@ -69,7 +69,7 @@ import java.util.logging.Logger
 import kotlin.IllegalStateException
 
 abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacking, protected val _network: NetworkParameters, wapi: Wapi) :
-    SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider, MultiOutputWalletAccount<BtcAddress> {
+    SynchronizeAbleWalletBtcAccount(), AddressContainer, PrivateKeyProvider {
     private val coluTransferInstructionsParser: ColuTransferInstructionsParser
 
     interface EventHandler {
@@ -94,11 +94,33 @@ abstract class AbstractBtcAccount protected constructor(backing: BtcAccountBacki
         return try {
             val btcFee = fee as FeePerKbFee
             val btcTransaction =
-                BtcTransaction(coinType, address as BtcAddress, amount, btcFee.feePerKb)
-            val receivers = ArrayList<BtcReceiver>()
-            receivers.add(BtcReceiver(btcTransaction.destination!!.address, btcTransaction.amount!!.valueAsLong))
+                BtcTransaction(coinType, listOf( address as BtcAddress to amount), btcFee.feePerKb)
             btcTransaction.unsignedTx =
-                createUnsignedTransaction(receivers, btcTransaction.feePerKb!!.valueAsLong)
+                createUnsignedTransaction(
+                    btcTransaction.destinations.map{ BtcReceiver(it.first?.address, it.second?.valueAsLong!!) },
+                    btcTransaction.feePerKb!!.valueAsLong)
+            btcTransaction
+        } catch (ex: BtcOutputTooSmallException) {
+            throw OutputTooSmallException(ex)
+        } catch (ex: InsufficientBtcException) {
+            throw InsufficientFundsException(ex)
+        } catch (ex: Exception) {
+            throw BuildTransactionException(ex)
+        }
+    }
+
+    override fun createTx(
+        outputs: List<Pair<Address, Value>>,
+        fee: Fee,
+        data: TransactionData?
+    ): Transaction {
+        return try {
+            val btcFee = fee as FeePerKbFee
+            val btcTransaction = BtcTransaction(coinType, outputs.map { it.first as BtcAddress to it.second }, btcFee.feePerKb)
+            btcTransaction.unsignedTx =
+                createUnsignedTransaction(
+                    btcTransaction.destinations.map{ BtcReceiver(it.first?.address, it.second?.valueAsLong!!) },
+                    btcTransaction.feePerKb!!.valueAsLong)
             btcTransaction
         } catch (ex: BtcOutputTooSmallException) {
             throw OutputTooSmallException(ex)

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/page_margin_width"
+    android:background="@drawable/bg_send_coin_batch">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/startGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/endGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/topGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="@dimen/horizontal_page_margin" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/bottomGuidline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="@dimen/horizontal_page_margin" />
+
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white_alpha_0_6"
+        app:layout_constraintBottom_toBottomOf="@id/clipboard"
+        app:layout_constraintEnd_toStartOf="@id/clipboard"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
+        app:layout_constraintTop_toTopOf="@id/clipboard"
+        tools:text="Address 1" />
+
+    <ImageView
+        android:id="@+id/clipboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:padding="4dp"
+        android:src="@drawable/ic_clipboard_outline"
+        app:layout_constraintEnd_toStartOf="@id/contacts"
+        app:layout_constraintTop_toTopOf="@id/contacts" />
+
+    <ImageView
+        android:id="@+id/contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:padding="4dp"
+        android:src="@drawable/ic_contacts"
+        app:layout_constraintEnd_toStartOf="@id/qrCode"
+        app:layout_constraintTop_toTopOf="@id/qrCode" />
+
+    <ImageView
+        android:id="@+id/qrCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:src="@drawable/ic_qrcode_scan"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintTop_toTopOf="@id/topGuidline" />
+
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Address"
+        android:minLines="2"
+        android:gravity="bottom"
+        android:textColor="@color/white"
+        android:textColorHint="#4D4D4D"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
+        app:layout_constraintTop_toBottomOf="@id/qrCode"
+        tools:text="@tools:sample/lorem" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="2dp"
+        android:background="#444444"
+        app:layout_constraintBottom_toBottomOf="@id/address"
+        app:layout_constraintEnd_toEndOf="@id/address"
+        app:layout_constraintStart_toStartOf="@id/address" />
+
+    <TextView
+        android:id="@+id/cryptoAmount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Amount"
+        android:textColor="@color/white"
+        android:textColorHint="#4D4D4D"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/bottomGuidline"
+        app:layout_constraintStart_toStartOf="@id/startGuidline"
+        app:layout_constraintTop_toBottomOf="@id/address"
+        app:layout_constraintEnd_toStartOf="@id/fiatAmount"
+        tools:text="@tools:sample/lorem" />
+
+    <TextView
+        android:id="@+id/fiatAmount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white_alpha_0_6"
+        android:textColorHint="#4D4D4D"
+        android:textSize="10sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/cryptoAmount"
+        app:layout_constraintEnd_toEndOf="@id/endGuidline"
+        tools:text="@tools:sample/lorem" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="2dp"
+        android:background="#444444"
+        app:layout_constraintBottom_toBottomOf="@id/cryptoAmount"
+        app:layout_constraintEnd_toEndOf="@id/fiatAmount"
+        app:layout_constraintStart_toStartOf="@id/cryptoAmount" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

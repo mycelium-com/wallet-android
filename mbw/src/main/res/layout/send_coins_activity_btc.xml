@@ -34,7 +34,43 @@
             <include
                 layout="@layout/send_coins_heading_btc"
                 bind:activity="@{activity}"
-                bind:viewModel="@{viewModel}" />
+                bind:viewModel="@{viewModel}"
+                android:visibility="@{viewModel.isBatch() ? View.GONE : View.VISIBLE}"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_all_receiving_addresses_and_amounts"
+                android:textSize="20sp"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin"
+                android:visibility="@{viewModel.isBatch() ? View.VISIBLE : View.GONE}"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/batch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                bind:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:visibility="@{viewModel.isBatch() ? View.VISIBLE : View.GONE}" />
+
+            <FrameLayout
+                android:id="@+id/addBatchAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_send_coin_batch"
+                android:layout_marginHorizontal="@dimen/horizontal_page_margin">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawableStart="@drawable/ic_plus"
+                    android:drawablePadding="@dimen/size_x2"
+                    android:text="Add address"
+                    android:visibility="@{viewModel.isBatch() ? View.VISIBLE : View.GONE}" />
+            </FrameLayout>
+
 
             <!--Warnings-->
             <include
@@ -52,13 +88,17 @@
                 <!--Transaction label (might be part of bip21)-->
                 <include
                     layout="@layout/send_coins_tx_label"
-                    bind:viewModel="@{viewModel}" />
+                    bind:viewModel="@{viewModel}"
+                    android:visibility="@{viewModel.isBatch() ? View.GONE : View.VISIBLE}"
+                    />
 
                 <!--Contains amount selection-->
                 <include
                     layout="@layout/send_coins_amount"
                     bind:listener="@{activity}"
-                    bind:viewModel="@{viewModel}" />
+                    bind:viewModel="@{viewModel}"
+                    android:visibility="@{viewModel.isBatch() ? View.GONE : View.VISIBLE}"
+                    />
 
                 <!-- Amount Error -->
                 <include
