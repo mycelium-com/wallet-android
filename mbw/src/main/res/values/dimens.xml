@@ -4,6 +4,7 @@
     <dimen name="size_x1">4dp</dimen>
     <dimen name="size_x2">8dp</dimen>
     <dimen name="size_x4">16dp</dimen>
+    <dimen name="size_x6">24dp</dimen>
     <dimen name="page_margin_width">16dp</dimen>
     <dimen name="ab_icon_size">16dp</dimen>
     <dimen name="bigtext">22sp</dimen>

@@ -27,7 +27,6 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
@@ -36,7 +35,6 @@ import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
 import com.mycelium.wallet.activity.send.adapter.BatchAdapter
-import com.mycelium.wallet.activity.send.adapter.BatchItem
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.event.AmountListener
@@ -86,27 +84,35 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener, AmountLi
     private lateinit var mbwManager: MbwManager
     private lateinit var senderFioNamesMenu: PopupMenu
     private val batchAdapter = BatchAdapter().apply {
-        clipboardListener = {
-            viewModel.onClickClipboard(it)
+        clipboardListener = { position, item ->
+            viewModel.onClickClipboard(item)
         }
-        contactListener = {
-            startActivityForResult(Intent(this@SendCoinsActivity, GetFromAddressBookActivity::class.java)
-                .putExtra(ACCOUNT, viewModel.getAccount().id)
-                .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage()),
-                (it.index + 1).shl(10) or ADDRESS_BOOK_RESULT_CODE)
+        contactListener = { position, item ->
+            startActivityForResult(
+                Intent(this@SendCoinsActivity, GetFromAddressBookActivity::class.java)
+                    .putExtra(ACCOUNT, viewModel.getAccount().id)
+                    .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage()),
+                (position + 1).shl(10) or ADDRESS_BOOK_RESULT_CODE
+            )
         }
-        qrScanListener = {
+        qrScanListener = { position, item ->
             val config = HandleConfigFactory.returnKeyOrAddressOrUriOrKeynode()
-            ScanActivity.callMe(this@SendCoinsActivity,
-                (it.index + 1).shl(10) or SCAN_RESULT_CODE, config)
+            ScanActivity.callMe(
+                this@SendCoinsActivity,
+                (position + 1).shl(10) or SCAN_RESULT_CODE, config
+            )
         }
-        amountListener = {
+        amountListener = { position, item ->
             val account = viewModel.getAccount()
-            GetAmountActivity.callMeToSend(this@SendCoinsActivity,
-                (it.index + 1).shl(10) or GET_AMOUNT_RESULT_CODE
-                , account.id,
-                it.crypto, viewModel.getSelectedFee().value,
-                viewModel.isColdStorage(), it.address, viewModel.getTransactionData().value)
+            GetAmountActivity.callMeToSend(
+                this@SendCoinsActivity,
+                (position + 1).shl(10) or GET_AMOUNT_RESULT_CODE, account.id,
+                item.crypto, viewModel.getSelectedFee().value,
+                viewModel.isColdStorage(), item.address, viewModel.getTransactionData().value
+            )
+        }
+        closeListener = { position, item ->
+            viewModel.removeOutput(item)
         }
     }
 

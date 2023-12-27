@@ -72,9 +72,6 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     private var receivingAcc: UUID? = null
     private var xpubSyncing: Boolean = false
 
-    val outputList = MutableLiveData(listOf<BatchItem>())
-    val isBatch = MutableLiveData(false)
-
     // As ottobus does not support inheritance listener should be incapsulated into an object
     private val eventListener = object : Any() {
         @Subscribe
@@ -191,6 +188,9 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     val payeeFioName get() = model.payeeFioName
 
     val fioMemo get() = model.fioMemo
+
+    val isBatch get() = model.isBatch
+    val outputList get() = model.outputList
 
     fun getRecipientRepresentation() = model.recipientRepresentation
 
@@ -336,7 +336,7 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
                 val batchIndex = requestCode.shr(10)
                 val value = enteredAmount ?: Value.zeroValue(model.account.coinType)
                 if (batchIndex != 0) {
-                    val item = outputList.value?.get(batchIndex - 1)!!
+                    val item = model.outputList.value?.get(batchIndex - 1)!!
                     updateItem(item.copy(crypto = value))
                 } else {
                     model.amount.value = enteredAmount ?: Value.zeroValue(model.account.coinType)
@@ -344,11 +344,11 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
             }
         } else if (0x0000ff and requestCode == SendCoinsActivity.SCAN_RESULT_CODE) {
             val batchIndex = requestCode.shr(10)
-            val item = outputList.value?.getOrNull(batchIndex - 1)
+            val item = model.outputList.value?.getOrNull(batchIndex - 1)
             handleScanResults(resultCode, data, activity, item)
         } else if (0x0000ff and requestCode == SendCoinsActivity.ADDRESS_BOOK_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             val batchIndex = requestCode.shr(10)
-            val item = outputList.value?.getOrNull(batchIndex - 1)
+            val item = model.outputList.value?.getOrNull(batchIndex - 1)
             handleAddressBookResults(data, item)
         } else if (requestCode == SendCoinsActivity.
                 MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
@@ -502,16 +502,24 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     }
 
     private fun updateItem(item:BatchItem) {
-        val newList = outputList.value.orEmpty().toMutableList()
-        newList[item.index] = item
-        outputList.value = newList
+        val newList = model.outputList.value.orEmpty().toMutableList()
+        newList[newList.indexOfFirst { it.id == item.id }] = item
+        model.outputList.value = newList
     }
+
+    var lastAdded = 0
     fun addEmptyOutput() {
-        val size = outputList.value.orEmpty().size
-        outputList.postValue(
-            outputList.value.orEmpty()
-                    + BatchItem(size, "Address ${size + 1}", null, null, null)
+        model.outputList.postValue(
+            model.outputList.value.orEmpty()
+                    + BatchItem(lastAdded, "Address ${lastAdded + 1}", null, null, null)
         )
+        lastAdded++
+    }
+
+    fun removeOutput(it: BatchItem) {
+        val newList = model.outputList.value.orEmpty().toMutableList()
+        newList.remove(it)
+        model.outputList.value = newList
     }
 
 }
