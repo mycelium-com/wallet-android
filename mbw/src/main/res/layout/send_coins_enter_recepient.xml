@@ -114,6 +114,7 @@
             android:minWidth="220dp"
             android:layout_gravity="center"
             android:text="@string/batch"
+            android:visibility="@{viewModel.batched ? View.VISIBLE : View.GONE}"
             android:textStyle="bold"
             android:textSize="20sp" />
 

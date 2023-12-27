@@ -31,6 +31,9 @@ import java.util.regex.Pattern
 
 
 open class SendBtcViewModel(application: Application) : SendCoinsViewModel(application) {
+
+    override val isBatched: Boolean
+        get() = true
     override val uriPattern =  Pattern.compile("[a-zA-Z0-9]+")!!
 
 

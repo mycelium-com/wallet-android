@@ -72,6 +72,8 @@ abstract class SendCoinsViewModel(application: Application) : AndroidViewModel(a
     private var receivingAcc: UUID? = null
     private var xpubSyncing: Boolean = false
 
+    open val isBatched = false
+
     // As ottobus does not support inheritance listener should be incapsulated into an object
     private val eventListener = object : Any() {
         @Subscribe
