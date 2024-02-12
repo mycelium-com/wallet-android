@@ -36,11 +36,11 @@ import com.mycelium.wallet.activity.modern.event.BackListener
 import com.mycelium.wallet.activity.modern.event.RemoveTab
 import com.mycelium.wallet.activity.modern.event.SelectTab
 import com.mycelium.wallet.activity.modern.helper.MainActions
+import com.mycelium.wallet.activity.modern.vip.VipFragment
 import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.send.InstantWalletActivity
 import com.mycelium.wallet.activity.settings.SettingsActivity
-import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.getMainMenuContent
 import com.mycelium.wallet.activity.settings.SettingsPreference.isContentEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
@@ -73,6 +73,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
     private var mNewsTab: TabLayout.Tab? = null
     private var mAccountsTab: TabLayout.Tab? = null
     private var mTransactionsTab: TabLayout.Tab? = null
+    private var mVipTab: TabLayout.Tab? = null
     private var mRecommendationsTab: TabLayout.Tab? = null
     private var mFioRequestsTab: TabLayout.Tab? = null
     private var refreshItem: MenuItem? = null
@@ -118,6 +119,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
         mTabsAdapter!!.addTab(mBalanceTab!!, BalanceMasterFragment::class.java, null, TAB_BALANCE)
         mTransactionsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_transactions))
         mTabsAdapter!!.addTab(mTransactionsTab!!, TransactionHistoryFragment::class.java, null, TAB_HISTORY)
+        mVipTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_vip))
+        mTabsAdapter!!.addTab(mVipTab!!, VipFragment::class.java, null, TAB_VIP)
         mRecommendationsTab = binding.pagerTabs.newTab().setText(getString(R.string.tab_partners))
         mTabsAdapter!!.addTab(mRecommendationsTab!!,
                 RecommendationsFragment::class.java, null, TAB_RECOMMENDATIONS)
@@ -598,6 +601,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
         const val TAB_BALANCE = "tab_balance"
         const val TAB_EXCHANGE = "tab_exchange"
         private const val TAB_HISTORY = "tab_history"
+        private const val TAB_VIP = "tab_vip"
         const val TAB_FIO_REQUESTS = "tab_fio_requests"
         private const val TAB_ADS = "tab_ads"
         private const val TAB_RECOMMENDATIONS = "tab_recommendations"
