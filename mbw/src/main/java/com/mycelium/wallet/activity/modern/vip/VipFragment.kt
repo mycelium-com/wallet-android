@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentVipBinding
 
 class VipFragment : Fragment() {
@@ -26,10 +27,16 @@ class VipFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
             vipCodeInput.doOnTextChanged { text, _, _, _ ->
-                applyButton.isVisible = !text.isNullOrEmpty()
+                vipApplyButton.isEnabled = !text.isNullOrEmpty()
             }
-            applyButton.setOnClickListener {
-                errorText.text = vipCodeInput.text.toString()
+            vipApplyButton.setOnClickListener {
+                if (vipCodeInput.text.toString().length % 2 == 0) {
+                    errorText.isVisible = true
+                    vipCodeInput.setBackgroundResource(R.drawable.bg_input_text_filled_error)
+                } else {
+                    errorText.isVisible = false
+                    vipCodeInput.setBackgroundResource(R.drawable.bg_input_text_filled)
+                }
             }
         }
     }
