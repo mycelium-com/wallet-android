@@ -22,8 +22,8 @@ jobs:
     - name: Set up JDK environment
       uses: actions/setup-java@v3
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        distribution: 'zulu'
+        java-version: '11'
 
     - uses: actions/checkout@v3
       with:
