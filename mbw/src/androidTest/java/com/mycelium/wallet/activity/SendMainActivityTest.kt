@@ -15,7 +15,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.GetAmountActivity.ACCOUNT
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import org.junit.After
@@ -39,7 +38,7 @@ class SendMainActivityTest {
     @Before
     fun setUp() {
         // manually launch SendMainActivity to pass Intent with accountId
-        sut = sendMainActivityRule.launchActivity(Intent().putExtra(ACCOUNT, accountId))
+        sut = sendMainActivityRule.launchActivity(Intent().putExtra("account", accountId))
         receiversAddressesList = sut!!.findViewById<SelectableRecyclerView>(R.id.receiversAddressList)
     }
 

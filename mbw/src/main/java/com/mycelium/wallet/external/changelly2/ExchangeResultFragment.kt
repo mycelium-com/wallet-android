@@ -85,8 +85,8 @@ class ExchangeResultFragment : DialogFragment() {
         Changelly2Repository.getTransaction(lifecycleScope, txId,
                 { response ->
                     response?.result?.first()?.let { result ->
-                        binding?.toolbar?.title = result.getReadableStatus("exchange")
-                        viewModel.setTransaction(result)
+                        binding?.toolbar?.title = result.first().getReadableStatus("exchange")
+                        viewModel.setTransaction(result.first())
                     } ?: let {
                         AlertDialog.Builder(requireContext())
                                 .setMessage(response?.error?.message)
