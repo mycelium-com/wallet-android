@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.google.common.base.Preconditions
+import com.mycelium.bequant.remote.model.User
+import com.mycelium.bequant.remote.repositories.Api
 import com.mycelium.giftbox.GiftBoxRootActivity
 import com.mycelium.giftbox.client.GiftboxConstants
 import com.mycelium.net.ServerEndpointType
@@ -62,6 +64,8 @@ import com.mycelium.wapi.wallet.fio.FioModule
 import com.mycelium.wapi.wallet.manager.State
 import com.squareup.otto.Subscribe
 import info.guardianproject.netcipher.proxy.OrbotHelper
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -88,6 +92,8 @@ class ModernMain : AppCompatActivity(), BackHandler {
     val backListeners = mutableListOf<BackListener>()
 
     lateinit var binding: ModernMainBinding
+
+    private val userRepository = Api.userRepository
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,6 +161,15 @@ class ModernMain : AppCompatActivity(), BackHandler {
 
         lifecycleScope.launchWhenResumed {
             ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
+        }
+        lifecycleScope.launchWhenStarted {
+            userRepository.identify()
+            userRepository.userFlow.collect { user ->
+                val icon =
+                    if (user.isVIP()) R.drawable.action_bar_logo_vip
+                    else R.drawable.action_bar_logo
+                supportActionBar?.setIcon(icon)
+            }
         }
     }
 

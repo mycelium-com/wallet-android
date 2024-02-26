@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="10dp"
+        android:drawable="@drawable/ic_launcher"
+        android:top="10dp"
+
+        />
+
+    <item
+        android:drawable="@drawable/ic_vip_text"
+        android:gravity="top|end"
+        android:right="-16dp"
+        android:top="-10dp" />
+
+</layer-list>
