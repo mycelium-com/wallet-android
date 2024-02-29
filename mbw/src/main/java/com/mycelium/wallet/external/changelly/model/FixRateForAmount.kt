@@ -15,5 +15,8 @@ data class FixRateForAmount(val id: String,
                             val maxTo:BigDecimal,
                             val min:BigDecimal,
                             val minFrom:BigDecimal,
-                            val minTo:BigDecimal)
+                            val minTo:BigDecimal) {
+
+    fun getExpectedValue() = result - networkFee
+}
 

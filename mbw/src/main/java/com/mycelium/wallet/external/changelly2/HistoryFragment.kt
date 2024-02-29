@@ -71,7 +71,7 @@ class HistoryFragment : DialogFragment() {
                         it?.result?.first()?.let {
                             adapter.submitList(it.map {
                                 TxItem(it.id,
-                                        it.amountExpectedFrom.toString(), it.amountExpectedTo.toString(),
+                                        it.amountExpectedFrom.toString(), it.getExpectedAmount().toString(),
                                         it.fixedCurrencyFrom(), it.fixedCurrencyTo(),
                                         DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
                                         it.getReadableStatus())

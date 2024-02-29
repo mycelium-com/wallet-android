@@ -39,8 +39,6 @@ import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
-import com.mycelium.wallet.external.changelly.model.FixRate
-import com.mycelium.wallet.external.changelly.model.FixRateForAmount
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
@@ -51,7 +49,6 @@ import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
@@ -184,7 +181,7 @@ class ExchangeFragment : Fragment(), BackListener {
                         val exchangeInfoResult = viewModel.exchangeInfo.value?.result
                         if (friendlyDigits == null || exchangeInfoResult == null) N_A
                         else amount.toBigDecimal().setScale(friendlyDigits, RoundingMode.HALF_UP)
-                                ?.div(exchangeInfoResult)
+                                ?.div(viewModel.exchangeInfo.value!!.getExpectedValue())
                                 ?.stripTrailingZeros()
                                 ?.toPlainString() ?: N_A
                     } catch (e: NumberFormatException) {
@@ -362,7 +359,7 @@ class ExchangeFragment : Fragment(), BackListener {
         viewModel.buyValue.value = if (amount?.isNotEmpty() == true
                 && viewModel.exchangeInfo.value?.result != null) {
             try {
-                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
+                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.getExpectedValue()!!)
                         .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
                         .stripTrailingZeros()
                         .toPlainString()

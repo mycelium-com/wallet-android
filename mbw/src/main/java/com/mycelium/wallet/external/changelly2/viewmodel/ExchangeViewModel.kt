@@ -152,7 +152,7 @@ class ExchangeViewModel(application: Application) : AndroidViewModel(application
     }
 
     val exchangeRateToValue = Transformations.map(exchangeInfo) {
-        it.result.toPlainString()
+        it.getExpectedValue().toPlainString()
     }
 
     val exchangeRateToCurrency = Transformations.map(exchangeInfo) {
