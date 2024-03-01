@@ -1,11 +1,12 @@
 package com.mycelium.bequant.remote.model
 
 data class User(
-    val status: Status,
+    val status: Status = Status.REGULAR,
 ) {
-    fun isVIP() = status == Status.VIP
     enum class Status {
         VIP,
-        REGULAR,
+        REGULAR;
+
+        fun isVIP() = this == VIP
     }
 }

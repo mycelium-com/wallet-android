@@ -9,6 +9,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class VipRetrofitFactory(private val keyPair: AsymmetricCipherKeyPair) {
+    private companion object {
+        const val baseUrl = ""
+    }
+
     private val httpClient = OkHttpClient.Builder()
         .apply {
             addInterceptor(DigitalSignatureInterceptor(keyPair))
@@ -17,7 +21,7 @@ class VipRetrofitFactory(private val keyPair: AsymmetricCipherKeyPair) {
         }.build()
 
     private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl("https://google.com/")
+        .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
         .client(httpClient)
         .build()

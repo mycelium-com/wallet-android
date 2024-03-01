@@ -9,9 +9,7 @@ import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.params.ECPublicKeyParameters
 import org.bouncycastle.crypto.signers.ECDSASigner
 
-class DigitalSignatureInterceptor(
-    private val keyPair: AsymmetricCipherKeyPair
-) : Interceptor {
+class DigitalSignatureInterceptor(private val keyPair: AsymmetricCipherKeyPair) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val requestBody = originalRequest.body() ?: return chain.proceed(originalRequest)
@@ -24,14 +22,8 @@ class DigitalSignatureInterceptor(
         }
 
         val signedRequest = originalRequest.newBuilder()
-            .addHeader(
-                "X-Client-Api-Key",
-                encodePublicKey()
-            )
-            .addHeader(
-                "X-Client-Api-Signature",
-                signMessage(requestBodyJson)
-            )
+            .addHeader(HEADER_API_KEY, encodePublicKey())
+            .addHeader(HEADER_SIGN_KEY, signMessage(requestBodyJson))
             .build()
         return chain.proceed(signedRequest)
     }
@@ -51,6 +43,15 @@ class DigitalSignatureInterceptor(
         val signer = ECDSASigner()
         signer.init(true, keyPair.private)
         val signatureComponents = signer.generateSignature(data)
-        return signatureComponents[0].toByteArray() + signatureComponents[1].toByteArray()
+        // skip first 0 byte if appears
+        val leftPart = signatureComponents[0].toByteArray().takeLast(32)
+        val rightPart = signatureComponents[1].toByteArray().takeLast(32)
+        val signature = leftPart + rightPart
+        return signature.toByteArray()
+    }
+
+    private companion object {
+        const val HEADER_API_KEY = "X-Client-Api-Key"
+        const val HEADER_SIGN_KEY = "X-Client-Api-Signature"
     }
 }
