@@ -15,5 +15,7 @@ interface VipAPI {
     suspend fun activate(@Body body: ActivateVipRequest): ActivateVipResponse
 
     @POST("check")
-    suspend fun check(@Body body: DefaultJsonRpcRequest = DefaultJsonRpcRequest()): CheckVipResponse
+    suspend fun check(
+        @Body body: DefaultJsonRpcRequest = DefaultJsonRpcRequest(),
+    ): CheckVipResponse
 }

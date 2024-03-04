@@ -10,15 +10,6 @@ import java.math.BigDecimal
 object Changelly2Repository {
     private val api = ChangellyAPIService.retrofit.create(ChangellyAPIService::class.java)
 
-    fun supportCurrencies(scope: CoroutineScope,
-                          success: (ChangellyResponse<List<String>>?) -> Unit,
-                          error: ((Int, String) -> Unit)? = null,
-                          finally: (() -> Unit)? = null) {
-        doRequest(scope, {
-            api.currencies()
-        }, success, error, finally)
-    }
-
     fun supportCurrenciesFull(scope: CoroutineScope,
                               success: (ChangellyResponse<List<ChangellyCurrency>>?) -> Unit,
                               error: ((Int, String) -> Unit)? = null,

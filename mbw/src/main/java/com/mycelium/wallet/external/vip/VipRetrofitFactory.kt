@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class VipRetrofitFactory(private val keyPair: AsymmetricCipherKeyPair) {
     private companion object {
-        const val baseUrl = ""
+        const val baseUrl = "https://bb60-2001-41d0-701-1100-00-21da.ngrok-free.app/api/v1/vip-codes/"
     }
 
     private val httpClient = OkHttpClient.Builder()
