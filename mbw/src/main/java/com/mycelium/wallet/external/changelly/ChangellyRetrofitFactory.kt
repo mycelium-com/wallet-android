@@ -1,4 +1,4 @@
-package com.mycelium.wallet.external.vip
+package com.mycelium.wallet.external.changelly
 
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.UserKeysManager
@@ -8,25 +8,26 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class VipRetrofitFactory {
-    private companion object {
-        const val BASE_URL = ""
-    }
+object ChangellyRetrofitFactory {
+    private const val BASE_URL = "https://api.changelly.com/v2/"
 
     private val userKeyPair = UserKeysManager.userSignKeys
 
-    private val httpClient = OkHttpClient.Builder()
-        .apply {
+    private fun getHttpClient() =
+        OkHttpClient.Builder().apply {
+            addInterceptor(ChangellyInterceptor())
             addInterceptor(DigitalSignatureInterceptor(userKeyPair))
             if (!BuildConfig.DEBUG) return@apply
             addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         }.build()
 
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl("$BASE_URL/api/v1/vip-codes/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .client(httpClient)
-        .build()
 
-    fun createApi(): VipAPI = retrofit.create(VipAPI::class.java)
+    val api: ChangellyAPIService =
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(getHttpClient())
+            .build()
+            .create(ChangellyAPIService::class.java)
 }
+

@@ -32,7 +32,9 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyConstants;
+import com.mycelium.wallet.external.changelly.ChangellyRetrofitFactory;
 import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
+import com.mycelium.wallet.external.changelly.model.ChangellyGetExchangeAmountResponse;
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer;
 import com.mycelium.wallet.external.changelly.model.Order;
@@ -79,7 +81,7 @@ public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
     public static final int UPDATE_TIME = 60;
     public static final String BLOCKTRAIL_TRANSACTION = "https://www.blocktrail.com/_network_/tx/_id_";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyRetrofitFactory.INSTANCE.getApi();
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -391,7 +393,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
     }
 
-    class GetAmountCallback implements Callback<ChangellyResponse<Double>> {
+    class GetAmountCallback implements Callback<ChangellyResponse<ChangellyGetExchangeAmountResponse>> {
         double fromAmount;
 
         GetAmountCallback(double fromAmount) {
@@ -399,11 +401,11 @@ public class ConfirmExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
-                               @NonNull Response<ChangellyResponse<Double>> response) {
-            ChangellyResponse<Double> result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>> call,
+                               @NonNull Response<ChangellyResponse<ChangellyGetExchangeAmountResponse>> response) {
+            ChangellyResponse<ChangellyGetExchangeAmountResponse> result = response.body();
             if(result != null) {
-                double amount = result.getResult();
+                double amount = result.getResult().getReceiveAmount();
                 progressBar.setVisibility(View.INVISIBLE);
                 toValue = decimalFormat.format(amount);
                 offerUpdateText.removeCallbacks(updateOffer);
@@ -414,7 +416,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>> call,
                               @NonNull Throwable t) {
             new Toaster(getActivity()).toast("Service unavailable", true);
         }

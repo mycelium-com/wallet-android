@@ -33,6 +33,8 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyConstants;
+import com.mycelium.wallet.external.changelly.ChangellyRetrofitFactory;
+import com.mycelium.wallet.external.changelly.model.ChangellyGetExchangeAmountResponse;
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -74,7 +76,7 @@ public class ExchangeFragment extends Fragment {
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String FROM_VALUE = "fromValue";
     private static final String TAG = "ChangellyActivity";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyRetrofitFactory.INSTANCE.getApi();
 
     @BindView(R.id.scrollView)
     ScrollView scrollView;
@@ -542,7 +544,7 @@ public class ExchangeFragment extends Fragment {
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyResponse<Double>> {
+    class GetOfferCallback implements Callback<ChangellyResponse<ChangellyGetExchangeAmountResponse>> {
         double fromAmount;
 
         GetOfferCallback(double fromAmount) {
@@ -550,11 +552,11 @@ public class ExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
-                               @NonNull Response<ChangellyResponse<Double>> response) {
-            ChangellyResponse<Double> result = response.body();
+        public void onResponse(@NonNull Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>> call,
+                               @NonNull Response<ChangellyResponse<ChangellyGetExchangeAmountResponse>> response) {
+            ChangellyResponse<ChangellyGetExchangeAmountResponse> result = response.body();
             if(result != null) {
-                double amount = result.getResult();
+                double amount = result.getResult().getReceiveAmount();
                 avoidTextChangeEvent = true;
                 try {
                     if (fromAmount == getFromExcludeFee().doubleValue()) {
@@ -575,7 +577,7 @@ public class ExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
+        public void onFailure(@NonNull Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }

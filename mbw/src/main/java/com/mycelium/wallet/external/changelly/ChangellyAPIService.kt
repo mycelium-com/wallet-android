@@ -1,12 +1,14 @@
 package com.mycelium.wallet.external.changelly
 
-import com.mycelium.wallet.external.changelly.model.*
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import com.mycelium.wallet.external.changelly.model.ChangellyCurrency
+import com.mycelium.wallet.external.changelly.model.ChangellyGetExchangeAmountResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyListResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyResponse
+import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
+import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
+import com.mycelium.wallet.external.changelly.model.FixRate
 import retrofit2.Call
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.POST
 import retrofit2.http.Query
 import java.math.BigDecimal
@@ -21,6 +23,10 @@ interface ChangellyAPIService {
     fun getCurrencies(): Call<ChangellyResponse<List<String>>>
 
     // {"jsonrpc":"2.0","id":"test","result":"0.03595702"}
+    @Deprecated(
+        "Use getFixRateForAmount for limits. A full-fledged replacement of these methods is also coming soon",
+        ReplaceWith("getFixRateForAmount")
+    )
     @POST("getMinAmount")
     fun getMinAmount(
         @Query("from") from: String,
@@ -29,10 +35,10 @@ interface ChangellyAPIService {
 
     @POST("getExchangeAmount")
     fun getExchangeAmount(
-        @Query("from") from: String?,
-        @Query("to") to: String?,
-        @Query("amount") amount: Double,
-    ): Call<ChangellyResponse<Double>>
+        @Query("from") from: String,
+        @Query("to") to: String,
+        @Query("amountFrom") amount: Double,
+    ): Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>>
 
     //{
     // "jsonrpc":"2.0",
@@ -41,49 +47,53 @@ interface ChangellyAPIService {
     // }
     @POST("createTransaction")
     fun createTransaction(
-        @Query("from") from: String?,
-        @Query("to") to: String?,
-        @Query("amount") amount: Double,
-        @Query("address") address: String?,
-    ): Call<ChangellyResponse<ChangellyTransactionOffer>>
-
-    @POST("getCurrencies")
-    suspend fun currencies(): Response<ChangellyResponse<List<String>>>
-
-    @POST("getCurrenciesFull")
-    suspend fun currenciesFull(): Response<ChangellyResponse<List<ChangellyCurrency>>>
-
-    @POST("getFixRateForAmount")
-    suspend fun exchangeAmountFix(
         @Query("from") from: String,
         @Query("to") to: String,
-        @Query("amountFrom") amount: BigDecimal
-    ): Response<ChangellyResponse<FixRateForAmount>>
+        @Query("amountFrom") amount: Double,
+        @Query("address") address: String,
+    ): Call<ChangellyResponse<ChangellyTransactionOffer>>
 
-    @POST("getFixRate")
-    suspend fun fixRate(
+    @POST("getCurrenciesFull")
+    suspend fun getCurrenciesFull(): Response<ChangellyResponse<List<ChangellyCurrency>>>
+
+    @POST("getFixRateForAmount")
+    suspend fun getFixRateForAmount(
         @Query("from") from: String,
-        @Query("to") to: String
-    ): Response<ChangellyResponse<FixRate>>
+        @Query("to") to: String,
+        @Query("amountFrom") amount: BigDecimal = BigDecimal.ONE,
+    ): Response<ChangellyListResponse<FixRate>>
+
+    @Deprecated(
+        "To get the fixed rate, you need to use getFixRateForAmount, but the transaction amount must be within limits",
+        ReplaceWith("getFixRateForAmount")
+    )
+    @POST("getFixRate")
+    suspend fun getFixRate(
+        @Query("from") from: String,
+        @Query("to") to: String,
+    ): Response<ChangellyListResponse<FixRate>>
+
 
     @POST("createFixTransaction")
     suspend fun createFixTransaction(
-        @Query("from") from: String?,
-        @Query("to") to: String?,
+        @Query("from") from: String,
+        @Query("to") to: String,
         @Query("amountFrom") amount: String,
-        @Query("address") address: String?,
-        @Query("rateId") rateId: String?,
-        @Query("refundAddress") refundAddress: String?
+        @Query("address") address: String,
+        @Query("rateId") rateId: String,
+        @Query("refundAddress") refundAddress: String,
     ): Response<ChangellyResponse<ChangellyTransactionOffer>>
 
     @POST("getTransactions")
     suspend fun getTransaction(
         @Query("id") id: String,
-        @Query("limit") limit: Int = 1
+        @Query("limit") limit: Int = 1,
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
 
     @POST("getTransactions")
-    suspend fun getTransactions(@Query("id") id: List<String>): Response<ChangellyResponse<List<ChangellyTransaction>>>
+    suspend fun getTransactions(
+        @Query("id") id: List<String>,
+    ): Response<ChangellyResponse<List<ChangellyTransaction>>>
 
 
     companion object {
@@ -93,21 +103,5 @@ interface ChangellyAPIService {
         const val TO = "TO"
         const val AMOUNT = "AMOUNT"
         const val DESTADDRESS = "DESTADDRESS"
-
-        val logging = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);
-        val changellyHeader = ChangellyInterceptor()
-
-        //public static final OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(changellyHeader).addInterceptor(logging).build();
-        val httpClient = OkHttpClient.Builder()
-            .addInterceptor(changellyHeader)
-            .addInterceptor(logging)
-            .build()
-
-        @JvmStatic
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.changelly.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(httpClient)
-            .build()
     }
 }

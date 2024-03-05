@@ -1,5 +1,11 @@
 package com.mycelium.wallet.external.changelly;
 
+import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getActiveBTCSingleAddressAccounts;
+import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
+import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
+import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,6 +25,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
+import com.mycelium.wallet.external.changelly.model.ChangellyGetExchangeAmountResponse;
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -35,16 +42,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getActiveBTCSingleAddressAccounts;
-import static com.mycelium.wallet.external.changelly.ChangellyConstants.decimalFormat;
-import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
-import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
-
 public class ChangellyActivity extends AppCompatActivity {
     public static final int REQUEST_OFFER = 100;
     private static String TAG = "ChangellyActivity";
-    private ChangellyAPIService changellyAPIService = ChangellyAPIService.getRetrofit().create(ChangellyAPIService.class);
+    private ChangellyAPIService changellyAPIService = ChangellyRetrofitFactory.INSTANCE.getApi();
 
     public enum ChangellyUITypes {
         Loading,
@@ -384,7 +385,7 @@ public class ChangellyActivity extends AppCompatActivity {
         public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
                                @NonNull Response<ChangellyResponse<Double>> response) {
             ChangellyResponse<Double> result = response.body();
-            if(result == null || result.getResult() == -1) {
+            if (result == null || result.getResult() == -1) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
                 toast("Service unavailable");
                 return;
@@ -408,7 +409,7 @@ public class ChangellyActivity extends AppCompatActivity {
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyResponse<Double>> {
+    class GetOfferCallback implements Callback<ChangellyResponse<ChangellyGetExchangeAmountResponse>> {
         final String from;
         final String to;
         final double fromAmount;
@@ -420,11 +421,13 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyResponse<Double>> call,
-                               @NonNull Response<ChangellyResponse<Double>> response) {
-            ChangellyResponse<Double> result = response.body();
-            if(result != null) {
-                double amount = result.getResult();
+        public void onResponse(
+                @NonNull Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>> call,
+                @NonNull Response<ChangellyResponse<ChangellyGetExchangeAmountResponse>> response
+        ) {
+            ChangellyResponse<ChangellyGetExchangeAmountResponse> result = response.body();
+            if (result != null) {
+                double amount = result.getResult().getReceiveAmount();
                 Log.d("MyceliumChangelly", "You will receive the following " + to + " amount: " + result.getResult());
                 CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                 // check if the user still needs this reply or navigated to different amounts/currencies
@@ -450,8 +453,10 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyResponse<Double>> call,
-                              @NonNull Throwable t) {
+        public void onFailure(
+                @NonNull Call<ChangellyResponse<ChangellyGetExchangeAmountResponse>> call,
+                @NonNull Throwable t
+        ) {
             toast("Service unavailable " + t);
         }
     }
