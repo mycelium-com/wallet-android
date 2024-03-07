@@ -161,11 +161,7 @@ class ModernMain : AppCompatActivity(), BackHandler {
             ChangeLog.showIfNewVersion(this@ModernMain, supportFragmentManager)
         }
         lifecycleScope.launchWhenStarted {
-            try {
-                userRepository.identify()
-            } catch (e: Exception) {
-                Log.e("ModerMainActivity", e.message.toString(), e)
-            }
+            userRepository.identify()
             userRepository.userFlow.collect { user ->
                 val icon =
                     if (user.status.isVIP()) R.drawable.action_bar_logo_vip

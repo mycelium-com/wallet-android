@@ -977,4 +977,11 @@
     <string name="unlock_label_fingerprint">Продолжить используя отпечаток</string>
     <string name="use_pin">Использовать ПИН-код</string>
     <string name="hide_this_ad">Отключить рекламу</string>
+    <string name="vip_code_hint">Введите VIP код</string>
+    <string name="apply_vip_code">Применить</string>
+    <string name="vip_code_invalid">Код недействителен</string>
+    <string name="vip_code_active">VIP код активен</string>
+    <string name="vip_title">Получите VIP-опыт</string>
+    <string name="vip_title_welcome">Добро пожаловать в VIP клуб</string>
+    <string name="vip_description">Введите VIP-код и получите привилегии</string>
 </resources>

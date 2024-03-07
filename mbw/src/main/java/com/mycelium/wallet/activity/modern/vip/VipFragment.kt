@@ -73,9 +73,10 @@ class VipFragment : Fragment() {
         if (!success) return
         binding.apply {
             successText.isVisible = true
-            successIcon.isVisible = true
             vipApplyButton.isVisible = false
             vipDescription.isVisible = false
+            icon.isVisible = false
+            vipTitle.setText(R.string.vip_title_welcome)
             vipCodeInput.apply {
                 hint = null
                 text = null

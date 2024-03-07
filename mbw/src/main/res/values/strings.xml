@@ -1858,5 +1858,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="vip_code_invalid">Code is not valid</string>
     <string name="vip_code_active">VIP code is active</string>
     <string name="vip_title">Get the VIP experience</string>
-    <string name="vip_description">Enter the VIP code and get reduced commissions for exchanges on the Exchange tab.</string>
+    <string name="vip_title_welcome">Welcome to the VIP club</string>
+    <string name="vip_description">Enter the VIP code and get privileges</string>
 </resources>
