@@ -9,9 +9,14 @@ class ChangellyTransaction(val id: String,
                            val moneySent: String,
                            val amountExpectedFrom: BigDecimal? = null,
                            val amountExpectedTo: BigDecimal? = null,
+                           val networkFee: BigDecimal? = null,
                            val currencyFrom: String,
                            val moneyReceived: String,
                            val currencyTo: String,
                            val trackUrl: String,
                            val payoutAddress:String,
-                           val createdAt: Long) : Serializable
+                           val createdAt: Long
+) : Serializable {
+
+    fun getExpectedAmount(): BigDecimal? = amountExpectedTo?.minus(networkFee ?: BigDecimal.ZERO)
+}

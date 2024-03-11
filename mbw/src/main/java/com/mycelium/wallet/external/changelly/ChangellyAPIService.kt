@@ -3,6 +3,7 @@ package com.mycelium.wallet.external.changelly
 import com.mycelium.wallet.external.changelly.model.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.jetbrains.annotations.TestOnly
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -16,19 +17,8 @@ import java.math.BigDecimal
  */
 interface ChangellyAPIService {
 
-    // end data classes
-    @POST("getCurrencies")
-    fun getCurrencies(): Call<ChangellyResponse<List<String>>>
-
-    @POST("getCurrenciesFull")
-    fun getCurrenciesFull(): List<ChangellyCurrency?>
-
-    // {"jsonrpc":"2.0","id":"test","result":"0.03595702"}
-    @POST("getMinAmount")
-    fun getMinAmount(@Query("from") from: String?, @Query("to") to: String?): Call<ChangellyResponse<Double>>
-
     @POST("getExchangeAmount")
-    fun getExchangeAmount(@Query("from") from: String?, @Query("to") to: String?, @Query("amount") amount: Double): Call<ChangellyResponse<Double>>
+    fun getExchangeAmount(@Query("from") from: String?, @Query("to") to: String?, @Query("amountFrom") amount: Double): Call<ChangellyResponse<Double>>
 
     //{
     // "jsonrpc":"2.0",
@@ -57,10 +47,6 @@ interface ChangellyAPIService {
                                   @Query("to") to: String,
                                   @Query("amountFrom") amount: BigDecimal): Response<ChangellyResponse<FixRateForAmount>>
 
-    @POST("getFixRate")
-    suspend fun fixRate(@Query("from") from: String,
-                        @Query("to") to: String): Response<ChangellyResponse<FixRate>>
-
     @POST("createFixTransaction")
     suspend fun createFixTransaction(@Query("from") from: String?,
                                      @Query("to") to: String?,
@@ -75,6 +61,12 @@ interface ChangellyAPIService {
 
     @POST("getTransactions")
     suspend fun getTransactions(@Query("id") id: List<String>): Response<ChangellyResponse<List<ChangellyTransaction>>>
+
+
+    @TestOnly
+    @POST("getFixRate")
+    suspend fun getFixRate(@Query("from") from: String,
+                                  @Query("to") to: String): Response<ChangellyResponse<FixRateForAmount>>
 
 
     companion object {

@@ -39,7 +39,6 @@ import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
-import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink
@@ -50,7 +49,6 @@ import com.mycelium.wapi.wallet.Util
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
@@ -84,7 +82,7 @@ class ExchangeFragment : Fragment(), BackListener {
         }
         viewModel.toAccount.value = viewModel.getToAccountForInit()
         Changelly2Repository.supportCurrenciesFull(lifecycleScope, {
-            it?.result
+            it?.result?.first()
                     ?.filter { it.fixRateEnabled && it.enabled }
                     ?.map { it.ticker }
                     ?.toSet()?.let {
@@ -183,7 +181,7 @@ class ExchangeFragment : Fragment(), BackListener {
                         val exchangeInfoResult = viewModel.exchangeInfo.value?.result
                         if (friendlyDigits == null || exchangeInfoResult == null) N_A
                         else amount.toBigDecimal().setScale(friendlyDigits, RoundingMode.HALF_UP)
-                                ?.div(exchangeInfoResult)
+                                ?.div(viewModel.exchangeInfo.value!!.getExpectedValue())
                                 ?.stripTrailingZeros()
                                 ?.toPlainString() ?: N_A
                     } catch (e: NumberFormatException) {
@@ -269,19 +267,19 @@ class ExchangeFragment : Fragment(), BackListener {
                     viewModel.toAddress.value!!,
                     viewModel.fromAddress.value!!,
                     { result ->
-                        if (result?.result != null) {
+                        if (result?.result?.isNotEmpty() == true) {
                             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
                                 val unsignedTx = prepareTx(
                                         if (BuildConfig.FLAVOR == "btctestnet")
                                             viewModel.fromAddress.value!!
                                         else
-                                            result.result!!.payinAddress!!,
-                                        result.result!!.amountExpectedFrom.toPlainString())
+                                            result.result!!.first().payinAddress!!,
+                                        result.result!!.first().amountExpectedFrom.toPlainString())
                                 if(unsignedTx != null) {
                                     launch(Dispatchers.Main) {
                                         loader(false)
                                         acceptDialog(unsignedTx, result) {
-                                            sendTx(result.result!!.id!!, unsignedTx)
+                                            sendTx(result.result!!.first().id!!, unsignedTx)
                                         }
                                     }
                                 }
@@ -361,7 +359,7 @@ class ExchangeFragment : Fragment(), BackListener {
         viewModel.buyValue.value = if (amount?.isNotEmpty() == true
                 && viewModel.exchangeInfo.value?.result != null) {
             try {
-                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.result!!)
+                (amount.toBigDecimal() * viewModel.exchangeInfo.value?.getExpectedValue()!!)
                         .setScale(viewModel.toCurrency.value?.friendlyDigits!!, RoundingMode.HALF_UP)
                         .stripTrailingZeros()
                         .toPlainString()
@@ -382,11 +380,11 @@ class ExchangeFragment : Fragment(), BackListener {
             AlertDialog.Builder(requireContext())
                     .setTitle(getString(R.string.exchange_accept_dialog_title))
                     .setMessage(getString(R.string.exchange_accept_dialog_msg,
-                            result.result?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
-                            result.result?.currencyFrom?.toUpperCase(),
+                            result.result?.first()?.amountExpectedFrom?.stripTrailingZeros()?.toPlainString(),
+                            result.result?.first()?.currencyFrom?.toUpperCase(),
                             unsignedTx?.totalFee()?.toStringWithUnit(),
-                            result.result?.amountTo?.stripTrailingZeros()?.toPlainString(),
-                            result.result?.currencyTo?.toUpperCase()))
+                            result.result?.first()?.amountTo?.stripTrailingZeros()?.toPlainString(),
+                            result.result?.first()?.currencyTo?.toUpperCase()))
                     .setPositiveButton(R.string.button_ok) { _, _ ->
                         viewModel.mbwManager.runPinProtectedFunction(activity) {
                             action()
@@ -438,7 +436,7 @@ class ExchangeFragment : Fragment(), BackListener {
                     Util.trimTestnetSymbolDecoration(viewModel.toCurrency.value?.symbol!!),
                     { result ->
                         if (result?.result != null) {
-                            viewModel.exchangeInfo.value = result.result
+                            viewModel.exchangeInfo.value = result.result?.first()
                             viewModel.errorRemote.value = ""
                         } else {
                             viewModel.errorRemote.value = result?.error?.message ?: ""
@@ -484,10 +482,7 @@ class ExchangeFragment : Fragment(), BackListener {
                                 fromAmount,
                                 { result ->
                                     result?.result?.let {
-                                        val info = viewModel.exchangeInfo.value
-                                        viewModel.exchangeInfo.postValue(
-                                                FixRate(it.id, it.result, it.from, it.to,
-                                                        info!!.maxFrom, info.maxTo, info.minFrom, info.minTo))
+                                        viewModel.exchangeInfo.postValue(it.first())
                                         viewModel.errorRemote.value = ""
                                     } ?: run {
                                         viewModel.errorRemote.value = result?.error?.message ?: ""
