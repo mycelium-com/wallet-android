@@ -5,6 +5,7 @@ import com.mycelium.wapi.SyncStatus
 import com.mycelium.wapi.SyncStatusInfo
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -139,4 +140,12 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     }
 
     override fun canSign(): Boolean = false
+
+    override fun createTx(
+        outputs: List<Pair<Address, Value>>,
+        fee: Fee,
+        data: TransactionData?
+    ): Transaction {
+        TODO("Not yet implemented")
+    }
 }

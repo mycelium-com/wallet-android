@@ -1852,4 +1852,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="unlock_label_fingerprint">Proceed using fingerprint</string>
     <string name="use_pin">Use PIN code</string>
     <string name="hide_this_ad">Stop showing this ad</string>
+    <string name="batch">Batch</string>
+    <string name="add_all_receiving_addresses_and_amounts">Add all receiving addresses and amounts</string>
 </resources>

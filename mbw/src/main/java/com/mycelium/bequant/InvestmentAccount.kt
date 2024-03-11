@@ -44,6 +44,14 @@ class InvestmentAccount : WalletAccount<BtcAddress> {
         TODO("Not yet implemented")
     }
 
+    override fun createTx(
+        outputs: List<Pair<Address, Value>>,
+        fee: Fee,
+        data: TransactionData?
+    ): Transaction {
+        TODO("Not yet implemented")
+    }
+
     override fun canSign(): Boolean {
         TODO("Not yet implemented")
     }

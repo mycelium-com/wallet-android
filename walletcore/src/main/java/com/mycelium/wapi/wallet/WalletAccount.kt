@@ -14,6 +14,9 @@ interface WalletAccount<A : Address> : SyncPausable {
     @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
     fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction
 
+    @Throws(BuildTransactionException::class, InsufficientFundsException::class, OutputTooSmallException::class)
+    fun createTx(outputs: List<Pair<Address, Value>>, fee: Fee, data: TransactionData?): Transaction
+
     @Throws(InvalidKeyCipher::class)
     fun signTx(request: Transaction, keyCipher: KeyCipher)
 
