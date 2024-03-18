@@ -39,6 +39,7 @@ import com.mycelium.wallet.databinding.FragmentChangelly2ExchangeBinding
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
+import com.mycelium.wallet.external.changelly.model.FixRate
 import com.mycelium.wallet.external.changelly2.remote.Changelly2Repository
 import com.mycelium.wallet.external.changelly2.viewmodel.ExchangeViewModel
 import com.mycelium.wallet.external.partner.openLink

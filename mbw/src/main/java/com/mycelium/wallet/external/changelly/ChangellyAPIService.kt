@@ -100,10 +100,10 @@ interface ChangellyAPIService {
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
 
 
-    @TestOnly
-    @POST("getFixRate")
-    suspend fun getFixRate(@Query("from") from: String,
-                                  @Query("to") to: String): Response<ChangellyResponse<FixRateForAmount>>
+//    @TestOnly
+//    @POST("getFixRate")
+//    suspend fun getFixRateTest(@Query("from") from: String,
+//                                  @Query("to") to: String): Response<ChangellyResponse<FixRateForAmount>>
 
 
     companion object {

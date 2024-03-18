@@ -69,13 +69,13 @@ class HistoryFragment : DialogFragment() {
             Changelly2Repository.getTransactions(lifecycleScope, txIds,
                     {
                         it?.result?.first()?.let {
-                            adapter.submitList(it.map {
+                            adapter.submitList(listOf(
                                 TxItem(it.id,
                                         it.amountExpectedFrom.toString(), it.getExpectedAmount().toString(),
                                         it.fixedCurrencyFrom(), it.fixedCurrencyTo(),
                                         DateFormat.getDateInstance(DateFormat.LONG).format(Date(it.createdAt * 1000L)),
-                                        it.getReadableStatus())
-                            })
+                                        it.getReadableStatus()))
+                            )
                         }
                     },
                     { _, _ ->
