@@ -7,6 +7,10 @@ import com.mycelium.wallet.external.changelly.model.ChangellyResponse
 import com.mycelium.wallet.external.changelly.model.ChangellyTransaction
 import com.mycelium.wallet.external.changelly.model.ChangellyTransactionOffer
 import com.mycelium.wallet.external.changelly.model.FixRate
+import com.mycelium.wallet.external.changelly.model.*
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.jetbrains.annotations.TestOnly
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.POST
@@ -94,6 +98,12 @@ interface ChangellyAPIService {
     suspend fun getTransactions(
         @Query("id") id: List<String>,
     ): Response<ChangellyResponse<List<ChangellyTransaction>>>
+
+
+    @TestOnly
+    @POST("getFixRate")
+    suspend fun getFixRate(@Query("from") from: String,
+                                  @Query("to") to: String): Response<ChangellyResponse<FixRateForAmount>>
 
 
     companion object {

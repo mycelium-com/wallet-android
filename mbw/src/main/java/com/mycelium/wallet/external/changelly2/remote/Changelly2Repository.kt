@@ -110,5 +110,5 @@ private fun importSymbol(currency: String) =
     else currency
 
 private fun exportSymbol(currency: String) =
-    if (currency.equals("USDT", true)) "USDT20"
-    else currency
+    if (currency.equals("USDT", true)) "USDT20".toLowerCase()
+    else currency.toLowerCase()

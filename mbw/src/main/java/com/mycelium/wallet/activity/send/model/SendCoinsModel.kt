@@ -14,6 +14,7 @@ import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SignTransactionActivity
+import com.mycelium.wallet.activity.send.adapter.BatchItem
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
 import com.mycelium.wallet.activity.util.get
 import com.mycelium.wallet.activity.util.toStringWithUnit
@@ -66,6 +67,9 @@ abstract class SendCoinsModel(
     val alternativeAmountWarning: MutableLiveData<Boolean> = MutableLiveData()
     val fioMemo: MutableLiveData<String?> = MutableLiveData()
     val payerFioName: MutableLiveData<String?> = MutableLiveData()
+
+    val outputList = MutableLiveData(listOf<BatchItem>())
+    val isBatch = MutableLiveData(false)
 
     val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
         override fun setValue(value: TransactionData?) {
@@ -215,7 +219,9 @@ abstract class SendCoinsModel(
 
         showStaleWarning.value = feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME
         MbwManager.getEventBus().register(eventListener)
-
+        outputList.observeForever {
+            txRebuildPublisher.onNext(Unit)
+        }
         /**
          * This observes different events, which causes tx being rebuilt.
          * All events are merged, and only last event/result is used.
@@ -483,6 +489,19 @@ abstract class SendCoinsModel(
 
         try {
             return when {
+                isBatch.value == true && transactionDataStatus.value != TransactionDataStatus.TYPING -> {
+                    transaction = account.createTx(outputList.value?.map {
+                        val amount = it.crypto ?: Value.zeroValue(account.coinType)
+                        val value = mbwManager.exchangeRateManager.get(
+                            mbwManager.getWalletManager(false),
+                            amount,
+                            account.coinType
+                        ) ?: amount
+                        (it.address ?: account.dummyAddress) to value
+                    }.orEmpty(), FeePerKbFee(selectedFee.value!!), transactionData.value)
+                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction!!))
+                    TransactionStatus.OK
+                }
                 paymentRequestHandler.value?.hasValidPaymentRequest() == true -> {
                     handlePaymentRequest(toSend)
                 }

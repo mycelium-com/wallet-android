@@ -270,6 +270,14 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return coluTx
     }
 
+    override fun createTx(
+        outputs: List<Pair<Address, Value>>,
+        fee: Fee,
+        data: TransactionData?
+    ): Transaction {
+        TODO("Not yet implemented")
+    }
+
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         if (request is ColuTransaction) {
             val signedTransaction = signTransaction(request.baseTransaction, this, keyCipher)

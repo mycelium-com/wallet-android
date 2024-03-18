@@ -195,6 +195,14 @@ class FioAccount(private val fioBlockchainService: FioBlockchainService,
         return FioTransaction(coinType, address.toString(), amount, fee.feePerKb)
     }
 
+    override fun createTx(
+        outputs: List<Pair<Address, Value>>,
+        fee: Fee,
+        data: TransactionData?
+    ): Transaction {
+        TODO("Not yet implemented")
+    }
+
     override fun signTx(request: Transaction, keyCipher: KeyCipher) {
     }
 
