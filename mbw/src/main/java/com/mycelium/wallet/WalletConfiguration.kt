@@ -611,7 +611,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             TokenData("Request", "REQ", 18, "0x8f8221afbb33998d8584a2b05749ba73c37a938a"),
             TokenData("UMA", "UMA", 18, "0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828"),
             TokenData("Viberate", "vib", 18, "0x2C974B2d0BA1716E644c1FC59982a89DDD2fF724"),
+            TokenData("PancakeSwap Token", "CAKE", 18, "0x152649eA73beAb28c5b49B26eb48f7EAD6d4c898"),
             TokenData("district0x", "dnt", 18, "0x0abdace70d3790235af448c88547603b945604ea")
+
         )
     }
 }
